@@ -1,14 +1,19 @@
 {
-  "name": "temp",
+  "name": "hex-world",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "scripts": {
-    "dev": "astro dev",
+    "astro": "astro",
     "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "astro dev",
+    "gen-json-schema": "node ./scripts/generate-json-schema.js",
+    "preview": "astro preview"
   },
   "dependencies": {
-    "astro": "^5.1.1"
+    "astro": "^5.1.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "zod-to-json-schema": "^3.24.1"
   }
 }

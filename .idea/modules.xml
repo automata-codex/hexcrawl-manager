@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/hex-world.iml" filepath="$PROJECT_DIR$/.idea/hex-world.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../spellbooks/.idea/spellbooks.iml" filepath="$PROJECT_DIR$/../spellbooks/.idea/spellbooks.iml" />
+    </modules>
+  </component>
+</project>
