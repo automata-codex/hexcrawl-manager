@@ -1,13 +1,20 @@
 ---
 import region2Hexes from '../../data/region-2-hexes.yml';
 import region6Hexes from '../../data/region-6-hexes.yml';
+import region7Hexes from '../../data/region-7-hexes.yml';
 import region8Hexes from '../../data/region-8-hexes.yml';
 import region9Hexes from '../../data/region-9-hexes.yml';
 import HiddenSites from '../components/HiddenSites.astro';
 import Layout from '../layouts/Layout.astro';
 import type { HexData, HexDatabase } from '../types';
 
-const hexes: HexDatabase = region2Hexes.concat(region6Hexes, region8Hexes, region9Hexes)
+const hexes: HexDatabase = region2Hexes
+  .concat(
+    region6Hexes,
+    region7Hexes,
+    region8Hexes,
+    region9Hexes
+  )
   .sort((a: HexData, b: HexData) => a.id.localeCompare(b.id))
   .filter((hex: HexData) => !hex.hideInCatalog);
 const title = 'Baruun Khil Hex Catalog';
