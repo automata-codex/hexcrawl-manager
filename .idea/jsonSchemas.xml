@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JsonSchemaMappingsProjectConfiguration">
+    <state>
+      <map>
+        <entry key="hex-database">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="hex-database" />
+              <option name="relativePathToSchema" value="schemas/hex-database.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="data/region-2-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-6-hexes.yml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+      </map>
+    </state>
+  </component>
+</project>
