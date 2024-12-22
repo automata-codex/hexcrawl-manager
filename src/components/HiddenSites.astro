@@ -3,10 +3,10 @@ interface Props {
   hiddenSites: string[];
 }
 
-const { hiddenSites } = Astro.props;
+const { hiddenSites = [] } = Astro.props;
 
 if (hiddenSites.length === 0) {
-  throw new Error('HiddenSites component requires at least one hidden site.');
+  return null;
 }
 
 ---

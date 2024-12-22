@@ -20,6 +20,12 @@
                   <Item>
                     <option name="path" value="data/region-8-hexes.yml" />
                   </Item>
+                  <Item>
+                    <option name="path" value="data/region-9-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-7-hexes.yml" />
+                  </Item>
                 </list>
               </option>
             </SchemaInfo>
