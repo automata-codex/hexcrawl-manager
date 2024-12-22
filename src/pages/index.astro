@@ -7,7 +7,8 @@ import Layout from '../layouts/Layout.astro';
 import type { HexData, HexDatabase } from '../types';
 
 const hexes: HexDatabase = region2Hexes.concat(region6Hexes, region8Hexes)
-  .sort((a: HexData, b: HexData) => a.id.localeCompare(b.id));
+  .sort((a: HexData, b: HexData) => a.id.localeCompare(b.id))
+  .filter((hex: HexData) => !hex.hideInCatalog);
 const title = 'Baruun Khil Hex Catalog';
 
 ---
