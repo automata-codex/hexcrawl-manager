@@ -6,6 +6,7 @@ export const HexDataSchema = z.object({
  coordinates: z.tuple([z.string(), z.number()]),
  landmark: z.string(),
  hiddenSites: z.array(z.string()),
+ regionId: z.string(),
 }).describe('Data for a hex in a hex map.');
 
 export const HexDatabaseSchema = z.array(

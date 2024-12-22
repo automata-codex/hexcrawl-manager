@@ -1,11 +1,13 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import region2Hexes from '../../data/region-2-hexes.yml';
+import region6Hexes from '../../data/region-6-hexes.yml';
+import type { HexData, HexDatabase } from '../types';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const hexes: HexDatabase = region2Hexes.concat(region6Hexes)
+  .sort((a: HexData, b: HexData) => a.id.localeCompare(b.id));
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Hello World">
+  <pre>{JSON.stringify(hexes, null, 2)}</pre>
 </Layout>
