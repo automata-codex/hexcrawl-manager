@@ -1,0 +1,29 @@
+---
+interface Props {
+  hiddenSites: string[];
+}
+
+const { hiddenSites } = Astro.props;
+
+if (hiddenSites.length === 0) {
+  throw new Error('HiddenSites component requires at least one hidden site.');
+}
+
+---
+<style>
+  ul {
+      margin-top: 0;
+  }
+</style>
+
+
+{hiddenSites.length === 1 ? (
+  <p><span class="inline-heading">Hidden Site:</span>{' '}{hiddenSites[0]}</p>
+) : (
+  <p>
+    <span class="inline-heading">Hidden Sites:</span>
+  </p>
+  <ul>
+    {hiddenSites.map((site: string) => <li>{site}</li>)}
+  </ul>
+)}
