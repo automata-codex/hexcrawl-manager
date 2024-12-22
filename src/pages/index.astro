@@ -9,5 +9,25 @@ const hexes: HexDatabase = region2Hexes.concat(region6Hexes)
 ---
 
 <Layout title="Hello World">
-  <pre>{JSON.stringify(hexes, null, 2)}</pre>
+  <main>
+    {
+      hexes.map((hex: HexData) => {
+        const hiddenSitesText = hex.hiddenSites.length === 1 ? 'Hidden Site' : 'Hidden Sites';
+        return (
+          <section>
+            <h2>{hex.id.toUpperCase()}: {hex.name}</h2>
+            <p><span>Landmark:</span> {hex.landmark}</p>
+            <p><span>{hiddenSitesText}:</span></p>
+            <ul>
+            {
+              hex.hiddenSites.map((site: string) => {
+                return <li>{site}</li>;
+              })
+            }
+            </ul>
+          </section>
+        );
+      })
+    }
+  </main>
 </Layout>
