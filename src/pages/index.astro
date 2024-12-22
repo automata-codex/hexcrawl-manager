@@ -6,9 +6,73 @@ import type { HexData, HexDatabase } from '../types';
 
 const hexes: HexDatabase = region2Hexes.concat(region6Hexes)
   .sort((a: HexData, b: HexData) => a.id.localeCompare(b.id));
----
+const title = 'Baruun Khil Hex Catalog';
 
-<Layout title="Hello World">
+---
+<style is:global>
+    h1, h2, h3, h4, h5, h6 {
+        font-family: "Souvenir", serif;
+    }
+
+    ul {
+        padding-inline-start: 24px;
+    }
+
+    @media print {
+        @page {
+            size: letter portrait;
+            margin: 0.5in;
+        }
+
+        body {
+            font-size: 12pt;
+            hyphens: auto;
+            line-height: 1.15;
+        }
+
+        h1 {
+            font-size: 36pt;
+            margin-bottom: 12pt;
+        }
+
+        h2 {
+            font-size: 24pt;
+            margin-bottom: 6pt;
+            page-break-after: avoid;
+        }
+
+        p {
+            margin-bottom: 12pt;
+            margin-top: 6pt;
+        }
+    }
+</style>
+
+<style>
+    h1 {
+        margin-top: 0;
+        text-align: center;
+    }
+
+    h2 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    @media print {
+        main {
+            columns: 2;
+            column-fill: auto;
+        }
+    }
+
+    .inline-heading {
+        font-weight: bold;
+    }
+</style>
+
+<Layout title={title}>
+  <h1>{title}</h1>
   <main>
     {
       hexes.map((hex: HexData) => {
@@ -16,8 +80,8 @@ const hexes: HexDatabase = region2Hexes.concat(region6Hexes)
         return (
           <section>
             <h2>{hex.id.toUpperCase()}: {hex.name}</h2>
-            <p><span>Landmark:</span> {hex.landmark}</p>
-            <p><span>{hiddenSitesText}:</span></p>
+            <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
+            <p><span class="inline-heading">{hiddenSitesText}:</span></p>
             <ul>
             {
               hex.hiddenSites.map((site: string) => {
