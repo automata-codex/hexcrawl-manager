@@ -34,4 +34,5 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
   </p>
   <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
   <HiddenSites hiddenSites={hex.hiddenSites} />
+  { hex.secretSite && <p><span class="inline-heading">Secret Site:</span>{' '}{hex.secretSite}</p> }
 </section>
