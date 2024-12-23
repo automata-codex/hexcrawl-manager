@@ -4,6 +4,10 @@ import region6Hexes from '../../data/region-6-hexes.yml';
 import region7Hexes from '../../data/region-7-hexes.yml';
 import region8Hexes from '../../data/region-8-hexes.yml';
 import region9Hexes from '../../data/region-9-hexes.yml';
+import region17Hexes from '../../data/region-17-hexes.yml';
+import region19Hexes from '../../data/region-19-hexes.yml';
+import region22Hexes from '../../data/region-22-hexes.yml';
+import region25Hexes from '../../data/region-25-hexes.yml';
 import Layout from '../layouts/Layout.astro';
 import type { HexData, HexDatabase } from '../types';
 import Hex from '../components/Hex.astro';
@@ -13,7 +17,11 @@ const hexes: HexDatabase = region2Hexes
     region6Hexes,
     region7Hexes,
     region8Hexes,
-    region9Hexes
+    region9Hexes,
+    region17Hexes,
+    region19Hexes,
+    region22Hexes,
+    region25Hexes,
   )
   .sort((a: HexData, b: HexData) => a.id.localeCompare(b.id))
   .filter((hex: HexData) => !hex.hideInCatalog);

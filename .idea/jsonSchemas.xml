@@ -26,6 +26,21 @@
                   <Item>
                     <option name="path" value="data/region-7-hexes.yml" />
                   </Item>
+                  <Item>
+                    <option name="path" value="data/region-template.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-17-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-25-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-22-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-19-hexes.yml" />
+                  </Item>
                 </list>
               </option>
             </SchemaInfo>
