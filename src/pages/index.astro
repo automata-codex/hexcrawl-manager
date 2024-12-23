@@ -14,10 +14,12 @@ import region20Hexes from '../../data/region-20-hexes.yml';
 import region22Hexes from '../../data/region-22-hexes.yml';
 import region24Hexes from '../../data/region-24-hexes.yml';
 import region25Hexes from '../../data/region-25-hexes.yml';
+import region26Hexes from '../../data/region-26-hexes.yml';
 import region27Hexes from '../../data/region-27-hexes.yml';
+import region28Hexes from '../../data/region-28-hexes.yml';
+import Hex from '../components/Hex.astro';
 import Layout from '../layouts/Layout.astro';
 import type { HexData, HexDatabase } from '../types';
-import Hex from '../components/Hex.astro';
 
 const hexes: HexDatabase = region2Hexes
   .concat(
@@ -35,7 +37,9 @@ const hexes: HexDatabase = region2Hexes
     region22Hexes,
     region24Hexes,
     region25Hexes,
+    region26Hexes,
     region27Hexes,
+    region28Hexes,
   )
   .sort((a: HexData, b: HexData) => a.id.localeCompare(b.id))
   .filter((hex: HexData) => !hex.hideInCatalog);

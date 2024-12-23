@@ -41,6 +41,33 @@
                   <Item>
                     <option name="path" value="data/region-19-hexes.yml" />
                   </Item>
+                  <Item>
+                    <option name="path" value="data/region-26-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-28-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-12-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-15-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-16-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-18-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-20-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-24-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-27-hexes.yml" />
+                  </Item>
                 </list>
               </option>
             </SchemaInfo>
