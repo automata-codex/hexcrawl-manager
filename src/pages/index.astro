@@ -4,12 +4,17 @@ import region6Hexes from '../../data/region-6-hexes.yml';
 import region7Hexes from '../../data/region-7-hexes.yml';
 import region8Hexes from '../../data/region-8-hexes.yml';
 import region9Hexes from '../../data/region-9-hexes.yml';
+import region12Hexes from '../../data/region-12-hexes.yml';
 import region15Hexes from '../../data/region-15-hexes.yml';
+import region16Hexes from '../../data/region-16-hexes.yml';
 import region17Hexes from '../../data/region-17-hexes.yml';
+import region18Hexes from '../../data/region-18-hexes.yml';
 import region19Hexes from '../../data/region-19-hexes.yml';
+import region20Hexes from '../../data/region-20-hexes.yml';
 import region22Hexes from '../../data/region-22-hexes.yml';
 import region24Hexes from '../../data/region-24-hexes.yml';
 import region25Hexes from '../../data/region-25-hexes.yml';
+import region27Hexes from '../../data/region-27-hexes.yml';
 import Layout from '../layouts/Layout.astro';
 import type { HexData, HexDatabase } from '../types';
 import Hex from '../components/Hex.astro';
@@ -20,12 +25,17 @@ const hexes: HexDatabase = region2Hexes
     region7Hexes,
     region8Hexes,
     region9Hexes,
+    region12Hexes,
     region15Hexes,
+    region16Hexes,
     region17Hexes,
+    region18Hexes,
     region19Hexes,
+    region20Hexes,
     region22Hexes,
     region24Hexes,
     region25Hexes,
+    region27Hexes,
   )
   .sort((a: HexData, b: HexData) => a.id.localeCompare(b.id))
   .filter((hex: HexData) => !hex.hideInCatalog);
