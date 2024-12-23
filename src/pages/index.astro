@@ -1,4 +1,7 @@
 ---
+import { library, icon } from "@fortawesome/fontawesome-svg-core";
+import { faSquare, faSquareCheck } from "@fortawesome/pro-light-svg-icons";
+
 import region2Hexes from '../../data/region-2-hexes.yml';
 import region6Hexes from '../../data/region-6-hexes.yml';
 import region7Hexes from '../../data/region-7-hexes.yml';
@@ -18,6 +21,10 @@ const hexes: HexDatabase = region2Hexes
   .sort((a: HexData, b: HexData) => a.id.localeCompare(b.id))
   .filter((hex: HexData) => !hex.hideInCatalog);
 const title = 'Baruun Khil Hex Catalog';
+
+library.add(faSquare, faSquareCheck);
+const squareIcon = icon(faSquare);
+const squareCheckIcon = icon(faSquareCheck);
 
 ---
 <style is:global>
@@ -47,6 +54,15 @@ const title = 'Baruun Khil Hex Catalog';
         font-weight: bold;
     }
 
+    /* Declare a custom CSS class to make the icon look right */
+    .svg-inline--fa {
+        overflow: visible;
+        box-sizing: content-box;
+        display: inline-block;
+        height: 1em;
+        vertical-align: -0.125em;
+    }
+
     @media print {
         @page {
             size: letter portrait;
@@ -67,6 +83,10 @@ const title = 'Baruun Khil Hex Catalog';
         h2 {
             font-size: 15pt;
             margin-bottom: 6pt;
+            page-break-after: avoid;
+        }
+
+        .keep-with-next {
             page-break-after: avoid;
         }
     }
@@ -94,6 +114,11 @@ const title = 'Baruun Khil Hex Catalog';
         return (
           <section>
             <h2>{hex.id.toUpperCase()}: {hex.name}</h2>
+            <p class="keep-with-next">
+              Visited:{' '}<Fragment set:html={squareCheckIcon.html} />
+              {' '}
+              Explored:{' '}<Fragment set:html={squareIcon.html} />
+            </p>
             <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
             <HiddenSites hiddenSites={hex.hiddenSites} />
           </section>
