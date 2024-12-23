@@ -24,9 +24,13 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
   <p class="keep-with-next">
     Visited:{' '}
     <Fragment set:html={visitedIcon.html} />
-    {' '}
-    Explored:{' '}
-    <Fragment set:html={exploredIcon.html} />
+    {hex.hiddenSites && hex.hiddenSites.length > 0 ? (
+      <Fragment>
+        {' '}
+        Explored:{' '}
+        <Fragment set:html={exploredIcon.html} />
+      </Fragment>
+    ) : null}
   </p>
   <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
   <HiddenSites hiddenSites={hex.hiddenSites} />
