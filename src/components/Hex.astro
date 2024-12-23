@@ -1,0 +1,37 @@
+---
+import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
+
+import HiddenSites from './HiddenSites.astro';
+import type { HexData } from '../types';
+
+interface Props {
+  hex: HexData;
+}
+
+const { hex } = Astro.props;
+
+library.add(faSquare, faSquareCheck);
+const squareIcon = icon(faSquare);
+const squareCheckIcon = icon(faSquareCheck);
+
+const visitedIcon = hex.isVisited ? squareCheckIcon : squareIcon;
+const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
+
+---
+<section>
+  <h2>{hex.id.toUpperCase()}: {hex.name}</h2>
+  <p class="keep-with-next">
+    Visited:{' '}
+    <Fragment set:html={visitedIcon.html} />
+    {hex.hiddenSites && hex.hiddenSites.length > 0 ? (
+      <Fragment>
+        {' '}
+        Explored:{' '}
+        <Fragment set:html={exploredIcon.html} />
+      </Fragment>
+    ) : null}
+  </p>
+  <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
+  <HiddenSites hiddenSites={hex.hiddenSites} />
+</section>

@@ -4,9 +4,9 @@ import region6Hexes from '../../data/region-6-hexes.yml';
 import region7Hexes from '../../data/region-7-hexes.yml';
 import region8Hexes from '../../data/region-8-hexes.yml';
 import region9Hexes from '../../data/region-9-hexes.yml';
-import HiddenSites from '../components/HiddenSites.astro';
 import Layout from '../layouts/Layout.astro';
 import type { HexData, HexDatabase } from '../types';
+import Hex from '../components/Hex.astro';
 
 const hexes: HexDatabase = region2Hexes
   .concat(
@@ -18,7 +18,6 @@ const hexes: HexDatabase = region2Hexes
   .sort((a: HexData, b: HexData) => a.id.localeCompare(b.id))
   .filter((hex: HexData) => !hex.hideInCatalog);
 const title = 'Baruun Khil Hex Catalog';
-
 ---
 <style is:global>
     h1, h2, h3, h4, h5, h6 {
@@ -47,6 +46,15 @@ const title = 'Baruun Khil Hex Catalog';
         font-weight: bold;
     }
 
+    /* Declare a custom CSS class to make the icon look right */
+    .svg-inline--fa {
+        overflow: visible;
+        box-sizing: content-box;
+        display: inline-block;
+        height: 1em;
+        vertical-align: -0.125em;
+    }
+
     @media print {
         @page {
             size: letter portrait;
@@ -67,6 +75,10 @@ const title = 'Baruun Khil Hex Catalog';
         h2 {
             font-size: 15pt;
             margin-bottom: 6pt;
+            page-break-after: avoid;
+        }
+
+        .keep-with-next {
             page-break-after: avoid;
         }
     }
@@ -90,15 +102,8 @@ const title = 'Baruun Khil Hex Catalog';
   <h1>{title}</h1>
   <main>
     {
-      hexes.map((hex: HexData) => {
-        return (
-          <section>
-            <h2>{hex.id.toUpperCase()}: {hex.name}</h2>
-            <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
-            <HiddenSites hiddenSites={hex.hiddenSites} />
-          </section>
-        );
-      })
+      hexes.map((hex: HexData) =>
+        <Hex hex={hex} />)
     }
   </main>
 </Layout>
