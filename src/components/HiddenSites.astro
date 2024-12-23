@@ -16,12 +16,11 @@ if (hiddenSites.length === 0) {
   }
 </style>
 
-
 {hiddenSites.length === 1 ? (
   <p><span class="inline-heading">Hidden Site:</span>{' '}{hiddenSites[0]}</p>
 ) : (
   <p>
-    <span class="inline-heading">Hidden Sites:</span>
+    <span class="inline-heading keep-with-next">Hidden Sites:</span>
   </p>
   <ul>
     {hiddenSites.map((site: string) => <li>{site}</li>)}
