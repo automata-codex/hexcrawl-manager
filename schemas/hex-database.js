@@ -8,6 +8,8 @@ export const HexDataSchema = z.object({
  hiddenSites: z.array(z.string()).optional(),
  regionId: z.string(),
  hideInCatalog: z.boolean().optional(),
+ isVisited: z.boolean().optional(),
+ isExplored: z.boolean().optional(),
 }).describe('Data for a hex in a hex map.');
 
 export const HexDatabaseSchema = z.array(
