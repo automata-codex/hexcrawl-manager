@@ -1,61 +1,14 @@
 ---
-import region1Hexes from '../../data/region-1-hexes.yml';
-import region2Hexes from '../../data/region-2-hexes.yml';
-import region4Hexes from '../../data/region-4-hexes.yml';
-import region6Hexes from '../../data/region-6-hexes.yml';
-import region7Hexes from '../../data/region-7-hexes.yml';
-import region8Hexes from '../../data/region-8-hexes.yml';
-import region9Hexes from '../../data/region-9-hexes.yml';
-import region10Hexes from '../../data/region-10-hexes.yml';
-import region11Hexes from '../../data/region-11-hexes.yml';
-import region12Hexes from '../../data/region-12-hexes.yml';
-import region13Hexes from '../../data/region-13-hexes.yml';
-import region14Hexes from '../../data/region-14-hexes.yml';
-import region15Hexes from '../../data/region-15-hexes.yml';
-import region16Hexes from '../../data/region-16-hexes.yml';
-import region17Hexes from '../../data/region-17-hexes.yml';
-import region18Hexes from '../../data/region-18-hexes.yml';
-import region19Hexes from '../../data/region-19-hexes.yml';
-import region20Hexes from '../../data/region-20-hexes.yml';
-import region22Hexes from '../../data/region-22-hexes.yml';
-import region23Hexes from '../../data/region-23-hexes.yml';
-import region24Hexes from '../../data/region-24-hexes.yml';
-import region25Hexes from '../../data/region-25-hexes.yml';
-import region26Hexes from '../../data/region-26-hexes.yml';
-import region27Hexes from '../../data/region-27-hexes.yml';
-import region28Hexes from '../../data/region-28-hexes.yml';
+import { getCollection } from 'astro:content';
+
 import Hex from '../components/Hex.astro';
 import Layout from '../layouts/Layout.astro';
-import type { HexData, HexDatabase } from '../types';
 
-const hexes: HexDatabase = region1Hexes
-  .concat(
-    region2Hexes,
-    region4Hexes,
-    region6Hexes,
-    region7Hexes,
-    region8Hexes,
-    region9Hexes,
-    region10Hexes,
-    region11Hexes,
-    region12Hexes,
-    region13Hexes,
-    region14Hexes,
-    region15Hexes,
-    region16Hexes,
-    region17Hexes,
-    region18Hexes,
-    region19Hexes,
-    region20Hexes,
-    region22Hexes,
-    region23Hexes,
-    region24Hexes,
-    region25Hexes,
-    region26Hexes,
-    region27Hexes,
-    region28Hexes,
-  )
-  .sort((a: HexData, b: HexData) => {
+const title = 'Baruun Khil Hex Catalog';
+
+const hexData = await getCollection('hexes');
+const hexes = hexData
+  .sort((a, b) => {
     const aCol = a.id.substring(0, 1);
     const aRow = parseInt(a.id.substring(1), 10);
     const bCol = b.id.substring(0, 1);
@@ -66,8 +19,7 @@ const hexes: HexDatabase = region1Hexes
       return aCol.localeCompare(bCol);
     }
   })
-  .filter((hex: HexData) => !hex.hideInCatalog);
-const title = 'Baruun Khil Hex Catalog';
+  .filter((hex) => !hex.data.hideInCatalog);
 ---
 <style is:global>
     html {
@@ -158,8 +110,8 @@ const title = 'Baruun Khil Hex Catalog';
   <h1>{title}</h1>
   <main>
     {
-      hexes.map((hex: HexData) =>
-        <Hex hex={hex} />)
+      hexes.map((value) =>
+        <Hex hex={value.data} />)
     }
   </main>
 </Layout>
