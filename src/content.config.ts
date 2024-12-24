@@ -1,9 +1,10 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, reference, z } from 'astro:content';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 import { HexDataSchema } from '../schemas/hex-database';
-import type { HexData } from './types.ts';
+import type { HexData, RegionData } from './types.ts';
+import { RegionDataSchema } from '../schemas/region';
 
 const DATA_DIR = 'data';
 
@@ -29,7 +30,16 @@ const hexes = defineCollection({
   loader: getDirectoryYamlLoader<HexData>(DIRS.HEXES),
   schema: {
     ...HexDataSchema,
-  }
+    regionId: reference('regions'),
+  },
 });
 
-export const collections = { hexes };
+const regions = defineCollection({
+  loader: getDirectoryYamlLoader<RegionData>(DIRS.REGIONS),
+  schema: {
+    ...RegionDataSchema,
+    // hexIds: z.array(reference('hexes')),
+  },
+});
+
+export const collections = { hexes, regions };

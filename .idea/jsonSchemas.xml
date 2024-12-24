@@ -12,76 +12,92 @@
               <option name="patterns">
                 <list>
                   <Item>
-                    <option name="path" value="data/region-2-hexes.yml" />
+                    <option name="path" value="data/hexes/region-1-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-6-hexes.yml" />
+                    <option name="path" value="data/hexes/region-12-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-8-hexes.yml" />
+                    <option name="path" value="data/hexes/region-13-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-9-hexes.yml" />
+                    <option name="path" value="data/hexes/region-14-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-7-hexes.yml" />
+                    <option name="path" value="data/hexes/region-15-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-template.yml" />
+                    <option name="path" value="data/hexes/region-16-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-17-hexes.yml" />
+                    <option name="path" value="data/hexes/region-17-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-25-hexes.yml" />
+                    <option name="path" value="data/hexes/region-18-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-22-hexes.yml" />
+                    <option name="path" value="data/hexes/region-19-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-19-hexes.yml" />
+                    <option name="path" value="data/hexes/region-2-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-26-hexes.yml" />
+                    <option name="path" value="data/hexes/region-20-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-28-hexes.yml" />
+                    <option name="path" value="data/hexes/region-22-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-12-hexes.yml" />
+                    <option name="path" value="data/hexes/region-23-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-15-hexes.yml" />
+                    <option name="path" value="data/hexes/region-24-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-16-hexes.yml" />
+                    <option name="path" value="data/hexes/region-25-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-18-hexes.yml" />
+                    <option name="path" value="data/hexes/region-26-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-20-hexes.yml" />
+                    <option name="path" value="data/hexes/region-27-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-24-hexes.yml" />
+                    <option name="path" value="data/hexes/region-28-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-27-hexes.yml" />
+                    <option name="path" value="data/hexes/region-4-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-23-hexes.yml" />
+                    <option name="path" value="data/hexes/region-6-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-1-hexes.yml" />
+                    <option name="path" value="data/hexes/region-7-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-4-hexes.yml" />
+                    <option name="path" value="data/hexes/region-8-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-14-hexes.yml" />
+                    <option name="path" value="data/hexes/region-9-hexes.yml" />
                   </Item>
                   <Item>
-                    <option name="path" value="data/region-13-hexes.yml" />
+                    <option name="path" value="data/hexes/region-template.yml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="region">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="region" />
+              <option name="relativePathToSchema" value="schemas/region.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="data/regions/region-8.yml" />
                   </Item>
                 </list>
               </option>
