@@ -68,6 +68,21 @@
                   <Item>
                     <option name="path" value="data/region-27-hexes.yml" />
                   </Item>
+                  <Item>
+                    <option name="path" value="data/region-23-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-1-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-4-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-14-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-13-hexes.yml" />
+                  </Item>
                 </list>
               </option>
             </SchemaInfo>

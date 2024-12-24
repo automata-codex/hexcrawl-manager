@@ -11,6 +11,7 @@ export const HexDataSchema = z.object({
   hideInCatalog: z.boolean().optional(),
   isVisited: z.boolean().optional(),
   isExplored: z.boolean().optional(),
+  hasDungeon: z.boolean().optional(),
 }).describe('Data for a hex in a hex map.');
 
 export const HexDatabaseSchema = z.array(
