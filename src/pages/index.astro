@@ -1,9 +1,8 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 
 import Hex from '../components/Hex.astro';
 import Layout from '../layouts/Layout.astro';
-import { getHexesByRegion } from '../utils/region-hex-mapper';
 
 const hexData = await getCollection('hexes');
 const hexes = hexData
@@ -19,13 +18,6 @@ const hexes = hexData
     }
   })
   .filter((hex) => !hex.data.hideInCatalog);
-
-const region8Data = await getEntry('regions', 'region-8');
-if (!region8Data) {
-  throw new Error('Region 8 not found');
-}
-const hexesByRegion = await getHexesByRegion();
-
 const title = 'Baruun Khil Hex Catalog';
 ---
 <style is:global>
@@ -115,11 +107,10 @@ const title = 'Baruun Khil Hex Catalog';
 
 <Layout title={title}>
   <h1>{title}</h1>
-  <pre>{JSON.stringify(hexesByRegion[region8Data.id], null, 2)}</pre>
   <main>
     {
-      hexes.map((value) =>
-        <Hex hex={value.data} />)
+      hexes.map((entry) =>
+        <Hex hex={entry.data} />)
     }
   </main>
 </Layout>
