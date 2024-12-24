@@ -51,11 +51,27 @@ const hexes: HexDatabase = region1Hexes
     region27Hexes,
     region28Hexes,
   )
-  .sort((a: HexData, b: HexData) => a.id.localeCompare(b.id))
+  .sort((a: HexData, b: HexData) => {
+    const aCol = a.id.substring(0, 1);
+    const aRow = parseInt(a.id.substring(1), 10);
+    const bCol = b.id.substring(0, 1);
+    const bRow = parseInt(b.id.substring(1), 10);
+    if (aCol === bCol) {
+      return aRow - bRow;
+    } else {
+      return aCol.localeCompare(bCol);
+    }
+  })
   .filter((hex: HexData) => !hex.hideInCatalog);
 const title = 'Baruun Khil Hex Catalog';
 ---
 <style is:global>
+    html {
+        text-wrap: pretty;
+        orphans: 2;
+        widows: 2;
+    }
+
     h1, h2, h3, h4, h5, h6 {
         font-family: "Souvenir", serif;
         margin-top: 1rem;
