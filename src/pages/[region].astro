@@ -1,0 +1,20 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import { getRegionTitle } from '../utils/id-parsers';
+
+export async function getStaticPaths() {
+  const regions = await getCollection('regions');
+  return regions.map(region => ({
+    params: { region: region.id },
+    props: { region },
+  }));
+}
+
+const { region } = Astro.props;
+const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
+---
+<Layout title={title}>
+  <h1>{title}</h1>
+  <p>{region.data.description}</p>
+</Layout>

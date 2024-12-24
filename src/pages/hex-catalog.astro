@@ -3,14 +3,15 @@ import { getCollection } from 'astro:content';
 
 import Hex from '../components/Hex.astro';
 import Layout from '../layouts/Layout.astro';
+import { getHexColumn, getHexRow } from '../utils/id-parsers';
 
 const hexData = await getCollection('hexes');
 const hexes = hexData
   .sort((a, b) => {
-    const aCol = a.id.substring(0, 1);
-    const aRow = parseInt(a.id.substring(1), 10);
-    const bCol = b.id.substring(0, 1);
-    const bRow = parseInt(b.id.substring(1), 10);
+    const aCol = getHexColumn(a.id);
+    const aRow = getHexRow(a.id);
+    const bCol = getHexColumn(b.id);
+    const bRow = getHexRow(b.id);
     if (aCol === bCol) {
       return aRow - bRow;
     } else {
