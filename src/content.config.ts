@@ -1,4 +1,11 @@
-import { defineCollection, reference, z } from 'astro:content';
+import {
+  defineCollection,
+  getCollection,
+  getEntries,
+  getEntry,
+  reference,
+  z,
+} from 'astro:content';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
@@ -10,7 +17,7 @@ const DATA_DIR = 'data';
 
 const DIRS = {
   HEXES: `${DATA_DIR}/hexes`,
-  REGIONS: `${DATA_DIR}/regions`,
+  REGIONS: `${DATA_DIR}/regions`
 } as const;
 
 function getDirectoryYamlLoader<T>(directory: string): () => T[] {
@@ -23,23 +30,35 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
       return yaml.parse(fileContents);
     });
     return data.flat();
-  }
+  };
 }
 
 const hexes = defineCollection({
   loader: getDirectoryYamlLoader<HexData>(DIRS.HEXES),
   schema: {
     ...HexDataSchema,
-    regionId: reference('regions'),
-  },
+    regionId: reference('regions')
+  }
 });
 
 const regions = defineCollection({
-  loader: getDirectoryYamlLoader<RegionData>(DIRS.REGIONS),
+  loader: async () => {
+    const loader = getDirectoryYamlLoader<RegionData>(DIRS.REGIONS);
+    const data = loader();
+    const hexData = await getCollection('hexes');
+    const hexDb: HexData[] = hexData.map(value => value.data);
+    return data.map(region => {
+      return {
+        ...region,
+        // hexIds: hexDb.filter(hex => hex.regionId === region.id).map(hex => hex.id)
+        hexIds: ['v17']
+      };
+    });
+  },
   schema: {
     ...RegionDataSchema,
-    // hexIds: z.array(reference('hexes')),
-  },
+    hexIds: z.array(reference('hexes'))
+  }
 });
 
 export const collections = { hexes, regions };
