@@ -77,6 +77,12 @@
                   <Item>
                     <option name="path" value="data/region-4-hexes.yml" />
                   </Item>
+                  <Item>
+                    <option name="path" value="data/region-14-hexes.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/region-13-hexes.yml" />
+                  </Item>
                 </list>
               </option>
             </SchemaInfo>
