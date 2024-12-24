@@ -1,17 +1,20 @@
-// 1. Import utilities from `astro:content`
 import { defineCollection, z } from 'astro:content';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
-import type { HexDatabase } from './types.ts';
+import { HexDataSchema } from '../schemas/hex-database';
+import type { HexData } from './types.ts';
 
-// 2. Import loader(s)
-// import { glob, file } from 'astro/loaders';
+const DATA_DIR = 'data';
 
-// 3. Define your collection(s)
-const hexes = defineCollection({
-  loader: (): HexDatabase => {
-    const DIRECTORY = path.join(process.cwd(), 'data');
+const DIRS = {
+  HEXES: `${DATA_DIR}/hexes`,
+  REGIONS: `${DATA_DIR}/regions`,
+} as const;
+
+function getDirectoryYamlLoader<T>(directory: string): () => T[] {
+  return () => {
+    const DIRECTORY = path.join(process.cwd(), directory);
     const files = fs.readdirSync(DIRECTORY);
     const data = files.map(file => {
       const filePath = path.join(DIRECTORY, file);
@@ -19,8 +22,14 @@ const hexes = defineCollection({
       return yaml.parse(fileContents);
     });
     return data.flat();
-  },
+  }
+}
+
+const hexes = defineCollection({
+  loader: getDirectoryYamlLoader<HexData>(DIRS.HEXES),
+  schema: {
+    ...HexDataSchema,
+  }
 });
 
-// 4. Export a single `collections` object to register your collection(s)
 export const collections = { hexes };

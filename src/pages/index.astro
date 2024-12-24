@@ -4,8 +4,6 @@ import { getCollection } from 'astro:content';
 import Hex from '../components/Hex.astro';
 import Layout from '../layouts/Layout.astro';
 
-const title = 'Baruun Khil Hex Catalog';
-
 const hexData = await getCollection('hexes');
 const hexes = hexData
   .sort((a, b) => {
@@ -20,6 +18,7 @@ const hexes = hexData
     }
   })
   .filter((hex) => !hex.data.hideInCatalog);
+const title = 'Baruun Khil Hex Catalog';
 ---
 <style is:global>
     html {
