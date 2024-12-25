@@ -7,6 +7,7 @@ export const RegionDataSchema = z.object({
   description: z.string(),
   haven: z.string(),
   icon: z.string(),
+  encounterChance: z.number().int().min(1).max(20),
   encounters: RandomEncounterTableSchema,
 }).describe('Data for a region on a hex map');
 
