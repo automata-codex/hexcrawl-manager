@@ -1,10 +1,13 @@
 import { z } from 'zod';
+import { RandomEncounterTableSchema } from './random-encounter-table.js';
 
 export const RegionDataSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
-  hexIds: z.array(z.string()).optional(),
+  haven: z.string(),
+  icon: z.string(),
+  encounters: RandomEncounterTableSchema,
 }).describe('Data for a region on a hex map');
 
 export const RegionDatabaseSchema = z.array(
