@@ -13,11 +13,12 @@ const title = 'Beyond the Skyreach Mountains';
 ---
 <Layout title={title}>
   <h1>{title}</h1>
-  <p><a href="/hex-catalog">Hex Catalog</a></p>
+  <h2>Hex Catalog</h2>
+  <ul><li><a href="/hex-catalog">Hex Catalog</a></li></ul>
   <h2>Regions</h2>
-  {regionLinks.map(link => (
-    <Fragment>
-      <a href={link.href}>{link.name}</a>
-    </Fragment>
-  ))}
+  <ul>
+    {regionLinks.map(link => (
+      <li><a href={link.href}>{link.name}</a></li>
+    ))}
+  </ul>
 </Layout>
