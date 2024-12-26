@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import RandomEncounterTable from '../components/RandomEncounterTable.astro';
+import Layout from '../layouts/Layout.astro';
+import { getRegionTitle } from '../utils/id-parsers';
+
+export async function getStaticPaths() {
+  const regions = await getCollection('regions');
+  return regions.map(region => ({
+    params: { region: region.id },
+    props: { region },
+  }));
+}
+
+const { region } = Astro.props;
+const description = region.data.description.startsWith('<') ?
+  region.data.description :
+  '<p>' + region.data.description + '</p>';
+const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
+---
+<style is:global>
+    .hanging-indent {
+        margin-left: 1rem;
+        text-indent: -1rem;
+        margin-bottom: 0;
+        margin-top: 0;
+    }
+</style>
+<Layout title={title}>
+  <h1>{title}</h1>
+  <p class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.data.haven}</p>
+  <p class="hanging-indent"><span class="inline-heading">Icon:</span>{' '}{region.data.icon}</p>
+  <Fragment set:html={description} />
+  <h2>Random Encounters</h2>
+  <p class="hanging-indent">
+    <span class="inline-heading">Chance of encounter:</span>
+    {' '}
+    {region.data.encounterChance * 5}%
+    (&le;{region.data.encounterChance})
+  </p>
+  <RandomEncounterTable data={region.data.encounters} />
+</Layout>

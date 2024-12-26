@@ -1,0 +1,57 @@
+---
+import type { RandomEncounterTableData } from '../types';
+
+interface Props {
+  data: RandomEncounterTableData;
+}
+
+const data = Astro.props.data
+  .filter((encounter) => !encounter.isHidden)
+  .sort((a, b) => a.range[0] - b.range[0])
+  .map((encounter) => ({
+    ...encounter,
+    description: encounter.description.text ?? '',
+  }));
+
+---
+<style>
+  table {
+    border-spacing: 0;
+    margin-top: 1rem;
+  }
+  td, th {
+    border-bottom: 1px solid black;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+  th {
+      border-top: 1px solid black;
+  }
+
+  .col-1 {
+    min-width: 3rem;
+    text-align: center;
+    padding-right: 1rem;
+  }
+  .col-2 {
+    text-align: left;
+  }
+</style>
+<table>
+  <thead>
+    <tr>
+      <th class="col-1">d20</th>
+      <th class="col-2">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {data.map((encounter) => (
+      <tr>
+        <td class="col-1">
+          <Fragment set:html={encounter.range.join('&ndash;')} />
+        </td>
+        <td class="col-2">{encounter.description}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>

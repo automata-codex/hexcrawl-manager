@@ -1,165 +1,24 @@
 ---
-import region1Hexes from '../../data/region-1-hexes.yml';
-import region2Hexes from '../../data/region-2-hexes.yml';
-import region4Hexes from '../../data/region-4-hexes.yml';
-import region6Hexes from '../../data/region-6-hexes.yml';
-import region7Hexes from '../../data/region-7-hexes.yml';
-import region8Hexes from '../../data/region-8-hexes.yml';
-import region9Hexes from '../../data/region-9-hexes.yml';
-import region10Hexes from '../../data/region-10-hexes.yml';
-import region11Hexes from '../../data/region-11-hexes.yml';
-import region12Hexes from '../../data/region-12-hexes.yml';
-import region13Hexes from '../../data/region-13-hexes.yml';
-import region14Hexes from '../../data/region-14-hexes.yml';
-import region15Hexes from '../../data/region-15-hexes.yml';
-import region16Hexes from '../../data/region-16-hexes.yml';
-import region17Hexes from '../../data/region-17-hexes.yml';
-import region18Hexes from '../../data/region-18-hexes.yml';
-import region19Hexes from '../../data/region-19-hexes.yml';
-import region20Hexes from '../../data/region-20-hexes.yml';
-import region22Hexes from '../../data/region-22-hexes.yml';
-import region23Hexes from '../../data/region-23-hexes.yml';
-import region24Hexes from '../../data/region-24-hexes.yml';
-import region25Hexes from '../../data/region-25-hexes.yml';
-import region26Hexes from '../../data/region-26-hexes.yml';
-import region27Hexes from '../../data/region-27-hexes.yml';
-import region28Hexes from '../../data/region-28-hexes.yml';
-import Hex from '../components/Hex.astro';
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-import type { HexData, HexDatabase } from '../types';
+import { getRegionTitle } from '../utils/id-parsers';
 
-const hexes: HexDatabase = region1Hexes
-  .concat(
-    region2Hexes,
-    region4Hexes,
-    region6Hexes,
-    region7Hexes,
-    region8Hexes,
-    region9Hexes,
-    region10Hexes,
-    region11Hexes,
-    region12Hexes,
-    region13Hexes,
-    region14Hexes,
-    region15Hexes,
-    region16Hexes,
-    region17Hexes,
-    region18Hexes,
-    region19Hexes,
-    region20Hexes,
-    region22Hexes,
-    region23Hexes,
-    region24Hexes,
-    region25Hexes,
-    region26Hexes,
-    region27Hexes,
-    region28Hexes,
-  )
-  .sort((a: HexData, b: HexData) => {
-    const aCol = a.id.substring(0, 1);
-    const aRow = parseInt(a.id.substring(1), 10);
-    const bCol = b.id.substring(0, 1);
-    const bRow = parseInt(b.id.substring(1), 10);
-    if (aCol === bCol) {
-      return aRow - bRow;
-    } else {
-      return aCol.localeCompare(bCol);
-    }
-  })
-  .filter((hex: HexData) => !hex.hideInCatalog);
-const title = 'Baruun Khil Hex Catalog';
+const regions = await getCollection('regions');
+const regionLinks = regions.map(region => ({
+  href: `/${region.id}`,
+  name: `${getRegionTitle(region.id)}: ${region.data.name}`
+}));
+
+const title = 'Beyond the Skyreach Mountains';
 ---
-<style is:global>
-    html {
-        text-wrap: pretty;
-        orphans: 2;
-        widows: 2;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-        font-family: "Souvenir", serif;
-        margin-top: 1rem;
-        margin-bottom: 0.125rem;
-    }
-
-    p {
-        margin-left: 1rem;
-        text-indent: -1rem;
-        margin-bottom: 0;
-        margin-top: 0;
-    }
-
-    ul {
-        padding-inline-start: 2rem;
-
-        li {
-            padding-left: 0;
-            text-indent: 0;
-        }
-    }
-
-    .inline-heading {
-        font-weight: bold;
-    }
-
-    /* Declare a custom CSS class to make the icon look right */
-    .svg-inline--fa {
-        overflow: visible;
-        box-sizing: content-box;
-        display: inline-block;
-        height: 1em;
-        vertical-align: -0.125em;
-    }
-
-    @media print {
-        @page {
-            size: letter portrait;
-            margin: 0.5in;
-        }
-
-        body {
-            font-size: 12pt;
-            hyphens: auto;
-            line-height: 1.15;
-        }
-
-        h1 {
-            font-size: 36pt;
-            margin-bottom: 12pt;
-        }
-
-        h2 {
-            font-size: 15pt;
-            margin-bottom: 6pt;
-            page-break-after: avoid;
-        }
-
-        .keep-with-next {
-            page-break-after: avoid;
-        }
-    }
-</style>
-
-<style>
-    h1 {
-        margin-top: 0;
-        text-align: center;
-    }
-
-    @media print {
-        main {
-            columns: 2;
-            column-fill: auto;
-        }
-    }
-</style>
-
 <Layout title={title}>
   <h1>{title}</h1>
-  <main>
-    {
-      hexes.map((hex: HexData) =>
-        <Hex hex={hex} />)
-    }
-  </main>
+  <h2>Hex Catalog</h2>
+  <ul><li><a href="/hex-catalog">Hex Catalog</a></li></ul>
+  <h2>Regions</h2>
+  <ul>
+    {regionLinks.map(link => (
+      <li><a href={link.href}>{link.name}</a></li>
+    ))}
+  </ul>
 </Layout>
