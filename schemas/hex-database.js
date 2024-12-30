@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { RandomEncounterTableSchema } from './random-encounter-table.js';
 
 export const HexDataSchema = z.object({
   id: z.string(),
@@ -12,6 +13,8 @@ export const HexDataSchema = z.object({
   isVisited: z.boolean().optional(),
   isExplored: z.boolean().optional(),
   hasDungeon: z.boolean().optional(),
+  encounterChance: z.number().int().min(1).max(20).optional(),
+  encounters: RandomEncounterTableSchema.optional(),
 }).describe('Data for a hex in a hex map.');
 
 export const HexDatabaseSchema = z.array(

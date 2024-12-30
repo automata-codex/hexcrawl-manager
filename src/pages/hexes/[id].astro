@@ -1,0 +1,72 @@
+---
+import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
+import { getCollection } from 'astro:content';
+
+import Layout from '../../layouts/Layout.astro';
+import type { HexData, RandomEncounterTableData } from '../../types';
+import HiddenSites from '../../components/HiddenSites.astro';
+import RandomEncounterTable from '../../components/RandomEncounterTable.astro';
+
+export async function getStaticPaths() {
+  const hexes = await getCollection('hexes');
+  return hexes.map(hex => ({
+    params: { id: hex.id },
+    props: { hex: hex }
+  }));
+}
+
+const hex: HexData = Astro.props.hex.data;
+const title = `Hex ${hex.id.toUpperCase()}`;
+
+let encounters: RandomEncounterTableData = [];
+if (hex.encounters) {
+  const regions = await getCollection('regions');
+  const region = regions.find(region => region.id === hex.regionId);
+  if (!region) {
+    throw new Error('Region not found: ' + hex.regionId);
+  }
+  const parentEncounters = region.data.encounters;
+
+  // Merge two arrays of encounters, with the hex's encounters taking precedence
+  encounters = parentEncounters.map(parentEncounter => {
+    const hexEncounter = hex.encounters?.find(hexEncounter => hexEncounter.id === parentEncounter.id);
+    return hexEncounter || parentEncounter;
+  });
+}
+
+library.add(faSquare, faSquareCheck);
+const squareIcon = icon(faSquare);
+const squareCheckIcon = icon(faSquareCheck);
+
+const visitedIcon = hex.isVisited ? squareCheckIcon : squareIcon;
+const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
+
+---
+<style>
+    p {
+        margin-left: 1rem;
+        text-indent: -1rem;
+        margin-bottom: 0;
+        margin-top: 0;
+    }
+</style>
+
+<Layout title={title}>
+  <h1>{title}</h1>
+  <p class="keep-with-next">
+    Visited:{' '}
+    <Fragment set:html={visitedIcon.html} />
+    {hex.hiddenSites && hex.hiddenSites.length > 0 ? (
+      <Fragment>
+        {' '}
+        Explored:{' '}
+        <Fragment set:html={exploredIcon.html} />
+      </Fragment>
+    ) : null}
+  </p>
+  <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
+  <HiddenSites hiddenSites={hex.hiddenSites} />
+  { hex.secretSite && <p><span class="inline-heading">Secret Site:</span>{' '}{hex.secretSite}</p> }
+  <RandomEncounterTable data={encounters} />
+</Layout>

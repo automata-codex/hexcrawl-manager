@@ -6,6 +6,10 @@ interface Props {
   data: RandomEncounterTableData;
 }
 
+if (Astro.props.data.length === 0) {
+  return null;
+}
+
 const encounters = await getCollection('encounters');
 
 const data = Astro.props.data
