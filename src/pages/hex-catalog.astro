@@ -23,7 +23,7 @@ const title = 'Baruun Khil Hex Catalog';
 ---
 <style>
     h2 {
-        color: var(--bulma-title-color);
+        color: var(--bulma-text-strong);
         font-size: 1.5rem;
     }
 
@@ -34,14 +34,17 @@ const title = 'Baruun Khil Hex Catalog';
         }
     }
 </style>
-
 <Layout title={title}>
-  <h1>{title}</h1>
-  <main>
-    {
-      hexes.map((entry) =>
-        <h2>{entry.id.toUpperCase()}: {entry.data.name}</h2>
-        <Hex hex={entry.data} />)
-    }
-  </main>
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h1 class="title is-2">{title}</h1>
+      <main>
+        {
+          hexes.map((entry) =>
+            <h2>{entry.id.toUpperCase()}: {entry.data.name}</h2>
+            <Hex hex={entry.data} />)
+        }
+      </main>
+    </div>
+  </section>
 </Layout>
