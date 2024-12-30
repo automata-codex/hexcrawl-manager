@@ -18,6 +18,15 @@ const description = region.data.description.startsWith('<') ?
   '<p>' + region.data.description + '</p>';
 const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
 ---
+<style>
+    .description-container {
+        margin-top: 1rem;
+
+        p:not(:first-child) {
+            text-indent: 1rem;
+        }
+    }
+</style>
 <style is:global>
     .hanging-indent {
         margin-left: 1rem;
@@ -27,16 +36,22 @@ const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
     }
 </style>
 <Layout title={title}>
-  <h1>{title}</h1>
-  <p class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.data.haven}</p>
-  <p class="hanging-indent"><span class="inline-heading">Icon:</span>{' '}{region.data.icon}</p>
-  <Fragment set:html={description} />
-  <h2>Random Encounters</h2>
-  <p class="hanging-indent">
-    <span class="inline-heading">Chance of encounter:</span>
-    {' '}
-    {region.data.encounterChance * 5}%
-    (&le;{region.data.encounterChance})
-  </p>
-  <RandomEncounterTable data={region.data.encounters} />
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h1 class="title is-2">{title}</h1>
+      <p class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.data.haven}</p>
+      <p class="hanging-indent"><span class="inline-heading">Icon:</span>{' '}{region.data.icon}</p>
+      <div class="description-container">
+        <Fragment set:html={description} />
+      </div>
+      <h2 class="title is-4" style="margin-bottom: 0.25rem">Random Encounters</h2>
+      <p class="hanging-indent">
+        <span class="inline-heading">Chance of encounter:</span>
+        {' '}
+        {region.data.encounterChance * 5}%
+        (&le;{region.data.encounterChance})
+      </p>
+      <RandomEncounterTable data={region.data.encounters} />
+    </div>
+  </section>
 </Layout>
