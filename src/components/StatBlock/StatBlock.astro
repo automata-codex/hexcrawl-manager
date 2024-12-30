@@ -1,5 +1,7 @@
 ---
 import type { StatBlockData } from '../../types';
+import Subheading from './Subheading.astro';
+import Attributes from './Attributes.astro';
 
 interface Props {
   data: StatBlockData
@@ -7,24 +9,25 @@ interface Props {
 
 const { data } = Astro.props;
 ---
-<div>
+<section>
   <h2>{data.name}</h2>
-  <p><span class="inline-heading">Type:</span>{' '}{data.type}</p>
-  <p><span class="inline-heading">Size:</span>{' '}{data.size}</p>
-  <p><span class="inline-heading">Alignment:</span>{' '}{data.alignment}</p>
-  <p><span class="inline-heading">AC:</span>{' '}{data.armor_class}</p>
-  <p><span class="inline-heading">HP:</span>{' '}{data.hit_points}</p>
-  <p><span class="inline-heading">Speed:</span>{' '}{data.speed}</p>
-  <p><span class="inline-heading">STR:</span>{' '}{data.strength}</p>
-  <p><span class="inline-heading">DEX:</span>{' '}{data.dexterity}</p>
-  <p><span class="inline-heading">CON:</span>{' '}{data.constitution}</p>
-  <p><span class="inline-heading">INT:</span>{' '}{data.intelligence}</p>
-  <p><span class="inline-heading">WIS:</span>{' '}{data.wisdom}</p>
-  <p><span class="inline-heading">CHA:</span>{' '}{data.charisma}</p>
-  <p><span class="inline-heading">Senses:</span>{' '}{data.senses}</p>
-  <p><span class="inline-heading">Languages:</span>{' '}{data.languages}</p>
-  <p><span class="inline-heading">Challenge:</span>{' '}{data.challenge_rating}</p>
-  <p><span class="inline-heading">Traits:</span>{' '}{data.special_abilities}</p>
-  <p><span class="inline-heading">Actions:</span>{' '}{data.actions}</p>
-  <p><span class="inline-heading">Reactions:</span>{' '}{data.reactions}</p>
-</div>
+  <div>
+    <Subheading data={data} />
+    <div>
+      <span>Armor Class:</span>
+      {' '}
+      {data.armor_class}
+    </div>
+    <div>
+      <span>Hit Points:</span>
+      {' '}
+      {data.hit_points} ({data.hit_dice})
+    </div>
+    <div>
+      <span>Speed:</span>
+      {' '}
+      {data.speed['walk']} ft.
+    </div>
+  </div>
+  <Attributes data={data} />
+</section>
