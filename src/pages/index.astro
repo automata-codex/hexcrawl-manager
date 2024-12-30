@@ -1,13 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-import { getRegionTitle } from '../utils/id-parsers';
-
-const regions = await getCollection('regions');
-const regionLinks = regions.map(region => ({
-  href: `/${region.id}`,
-  name: `${getRegionTitle(region.id)}: ${region.data.name}`
-}));
 
 const title = 'Beyond the Skyreach Mountains';
 ---

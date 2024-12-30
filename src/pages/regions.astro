@@ -5,7 +5,7 @@ import { getRegionTitle } from '../utils/id-parsers';
 
 const regions = await getCollection('regions');
 const regionLinks = regions.map(region => ({
-  href: `/${region.id}`,
+  href: `/regions/${region.id}`,
   name: `${getRegionTitle(region.id)}: ${region.data.name}`
 }));
 
