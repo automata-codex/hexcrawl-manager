@@ -5,7 +5,8 @@ import yaml from 'yaml';
 import { HexDataSchema } from '../schemas/hex-database';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionDataSchema } from '../schemas/region';
-import type { HexData, RandomEncounterData, RegionData } from './types.ts';
+import { StatBlockSchema } from '../schemas/stat-block';
+import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './types.ts';
 
 const DATA_DIR = 'data';
 
@@ -13,6 +14,7 @@ const DIRS = {
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   HEXES: `${DATA_DIR}/hexes`,
   REGIONS: `${DATA_DIR}/regions`,
+  STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
 } as const;
 
 function getDirectoryYamlLoader<T>(directory: string): () => T[] {
@@ -50,4 +52,11 @@ const regions = defineCollection({
   },
 });
 
-export const collections = { encounters, hexes, regions };
+const statBlocks = defineCollection({
+  loader: getDirectoryYamlLoader<StatBlockData>(DIRS.STAT_BLOCKS),
+  schema: {
+    ...StatBlockSchema,
+  },
+});
+
+export const collections = { encounters, hexes, regions, statBlocks };

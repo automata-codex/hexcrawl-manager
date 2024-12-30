@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+
+import Layout from '../../layouts/Layout.astro';
+import StatBlock from '../../components/StatBlock.astro';
+import type { RandomEncounterData } from '../../types';
+
+export async function getStaticPaths() {
+  const encounters = await getCollection('encounters');
+  return encounters.map(encounter => ({
+    params: { id: encounter.id },
+    props: { encounter: encounter }
+  }));
+}
+
+const encounter: RandomEncounterData = Astro.props.encounter.data;
+const statBlocks = await getCollection('statBlocks');
+const title = `Encounter "${encounter.name}"`;
+---
+<Layout title={title}>
+  <h1>{title}</h1>
+  <p>{encounter.description}</p>
+  {encounter.statBlocks.map((statBlockId: string) => {
+    const statBlock = statBlocks.find(statBlock => statBlock.id === statBlockId);
+    if (!statBlock) {
+      throw new Error(`Stat block not found: ${statBlockId}`);
+    }
+    return <StatBlock data={statBlock.data} />;
+    }
+  )}
+</Layout>
