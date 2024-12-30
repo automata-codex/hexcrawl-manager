@@ -1,5 +1,3 @@
-@import "bulma/css/bulma.css";
-
 /* --- CUSTOM STYLES --- */
 
 html {
@@ -30,6 +28,15 @@ ul {
 
 .inline-heading {
     font-weight: bold;
+}
+
+/* --- BULMA OVERRIDES --- */
+ul {
+    list-style-type: disc;
+}
+
+.box {
+    border: 1px solid var(--bulma-box-color);
 }
 
 /* --- FONT AWESOME --- */
