@@ -1,3 +1,7 @@
+@import "bulma/css/bulma.css";
+
+/* --- CUSTOM STYLES --- */
+
 html {
     text-wrap: pretty;
     orphans: 2;
@@ -28,6 +32,8 @@ ul {
     font-weight: bold;
 }
 
+/* --- FONT AWESOME --- */
+
 /* Declare a custom CSS class to make the icon look right */
 .svg-inline--fa {
     overflow: visible;
@@ -37,7 +43,52 @@ ul {
     vertical-align: -0.125em;
 }
 
+/* --- PRINT STYLES --- */
+
 @media print {
+    /* BULMA TWEAKS */
+
+    /* Hide non-printable elements */
+    .navbar, .hero, .footer, .no-print {
+        display: none !important;
+    }
+
+    /* Adjust the layout for print */
+    .container {
+        width: 100%;
+        padding: 0;
+    }
+
+    .columns {
+        display: block;
+    }
+
+    .column {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    /* Typography adjustments for print */
+    body {
+        font-size: 12pt;
+        line-height: 1.5;
+        color: #000;
+        background: #fff !important;
+    }
+
+    h1, h2, h3, h4 {
+        color: #000;
+    }
+
+    /* Remove Bulma's box shadows and background colors for print */
+    .box {
+        box-shadow: none;
+        background: none;
+        border: 1px solid #000;
+    }
+
+    /* STYLES */
+
     @page {
         size: letter portrait;
         margin: 0.5in;
@@ -63,4 +114,5 @@ ul {
     .keep-with-next {
         page-break-after: avoid;
     }
+
 }
