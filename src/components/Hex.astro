@@ -28,7 +28,6 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
 </style>
 
 <section>
-  <h2>{hex.id.toUpperCase()}: {hex.name}</h2>
   <p class="keep-with-next">
     Visited:{' '}
     <Fragment set:html={visitedIcon.html} />

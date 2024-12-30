@@ -22,6 +22,11 @@ const hexes = hexData
 const title = 'Baruun Khil Hex Catalog';
 ---
 <style>
+    h2 {
+        color: var(--bulma-title-color);
+        font-size: 1.5rem;
+    }
+
     @media print {
         main {
             columns: 2;
@@ -35,6 +40,7 @@ const title = 'Baruun Khil Hex Catalog';
   <main>
     {
       hexes.map((entry) =>
+        <h2>{entry.id.toUpperCase()}: {entry.data.name}</h2>
         <Hex hex={entry.data} />)
     }
   </main>
