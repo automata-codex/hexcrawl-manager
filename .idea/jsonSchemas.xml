@@ -99,6 +99,9 @@
                   <Item>
                     <option name="path" value="data/regions/region-8.yml" />
                   </Item>
+                  <Item>
+                    <option name="path" value="data/regions/region-9.yml" />
+                  </Item>
                 </list>
               </option>
             </SchemaInfo>

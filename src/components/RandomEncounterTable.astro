@@ -1,17 +1,35 @@
 ---
+import { getCollection } from 'astro:content';
 import type { RandomEncounterTableData } from '../types';
 
 interface Props {
   data: RandomEncounterTableData;
 }
 
+const encounters = await getCollection('encounters');
+
 const data = Astro.props.data
   .filter((encounter) => !encounter.isHidden)
   .sort((a, b) => a.range[0] - b.range[0])
-  .map((encounter) => ({
-    ...encounter,
-    description: encounter.description.text ?? '',
-  }));
+  .map((encounter) => {
+    let description = '';
+    if (encounter.description.hasOwnProperty('text')) {
+      description = encounter.description.text;
+    } else if (encounter.description.hasOwnProperty('encounter')) {
+      const encounterData = encounters.find((e) => e.id === encounter.description.encounter);
+      if (encounterData) {
+        description = `<a href="/encounters/${encounterData.id}">${encounterData.data.name}</a>`;
+      } else {
+        throw new Error('Encounter not found: ' + encounter.description.encounter);
+      }
+    } else {
+      throw new Error ('Illegal encounter object:' + JSON.stringify(encounter));
+    }
+    return {
+      ...encounter,
+      description,
+    };
+  });
 
 ---
 <style>
@@ -50,7 +68,9 @@ const data = Astro.props.data
         <td class="col-1">
           <Fragment set:html={encounter.range.join('&ndash;')} />
         </td>
-        <td class="col-2">{encounter.description}</td>
+        <td class="col-2">
+          <Fragment set:html={encounter.description} />
+        </td>
       </tr>
     ))}
   </tbody>

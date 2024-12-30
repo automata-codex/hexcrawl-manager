@@ -9,6 +9,7 @@ import { RegionDataSchema } from '../schemas/region';
 const DATA_DIR = 'data';
 
 const DIRS = {
+  ENCOUNTERS: `${DATA_DIR}/encounters`,
   HEXES: `${DATA_DIR}/hexes`,
   REGIONS: `${DATA_DIR}/regions`,
 } as const;
@@ -26,6 +27,10 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
   };
 }
 
+const encounters = defineCollection({
+  loader: getDirectoryYamlLoader(DIRS.ENCOUNTERS),
+});
+
 const hexes = defineCollection({
   loader: getDirectoryYamlLoader<HexData>(DIRS.HEXES),
   schema: {
@@ -41,4 +46,4 @@ const regions = defineCollection({
   },
 });
 
-export const collections = { hexes, regions };
+export const collections = { encounters, hexes, regions };
