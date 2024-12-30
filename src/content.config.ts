@@ -3,8 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 import { HexDataSchema } from '../schemas/hex-database';
-import type { HexData, RegionData } from './types.ts';
+import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionDataSchema } from '../schemas/region';
+import type { HexData, RandomEncounterData, RegionData } from './types.ts';
 
 const DATA_DIR = 'data';
 
@@ -28,7 +29,10 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
 }
 
 const encounters = defineCollection({
-  loader: getDirectoryYamlLoader(DIRS.ENCOUNTERS),
+  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.ENCOUNTERS),
+  schema: {
+    ...RandomEncounterSchema,
+  },
 });
 
 const hexes = defineCollection({
