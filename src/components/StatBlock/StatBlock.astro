@@ -1,0 +1,52 @@
+---
+import type { StatBlockData } from '../../types';
+
+import Subheading from './Subheading.astro';
+import Attributes from './Attributes.astro';
+import ChallengeAndProficiency from './ChallengeAndProficiency.astro';
+import Traits from './Traits.astro';
+import Actions from './Actions.astro';
+
+interface Props {
+  data: StatBlockData;
+}
+
+const { data } = Astro.props;
+---
+<section>
+  <h2>{data.name}</h2>
+  <Subheading data={data} />
+  <div>
+    <div>
+      <span>Armor Class:</span>
+      {' '}
+      {data.armor_class}
+    </div>
+    <div>
+      <span>Hit Points:</span>
+      {' '}
+      {data.hit_points} ({data.hit_dice})
+    </div>
+    <div>
+      <span>Speed:</span>
+      {' '}
+      {data.speed['walk']} ft.
+    </div>
+  </div>
+  <Attributes data={data} />
+  <div>
+    <div>
+      <span>Senses:</span>
+      {' '}
+      {data.senses} ft.
+    </div>
+    <div>
+      <span>Languages:</span>
+      {' '}
+      {data.languages} ft.
+    </div>
+    <ChallengeAndProficiency data={data} />
+  </div>
+  <Traits specialAbilities={data.special_abilities} />
+  <Actions actions={data.actions} />
+</section>

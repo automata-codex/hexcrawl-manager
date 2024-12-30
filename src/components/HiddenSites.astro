@@ -8,12 +8,18 @@ const { hiddenSites = [] } = Astro.props;
 if (hiddenSites.length === 0) {
   return null;
 }
-
 ---
 <style>
-  ul {
-      margin-top: 0;
-  }
+    p {
+        margin-left: 1rem;
+        text-indent: -1rem;
+        margin-bottom: 0;
+        margin-top: 0;
+    }
+
+    ul {
+        margin-top: 0;
+    }
 </style>
 
 {hiddenSites.length === 1 ? (

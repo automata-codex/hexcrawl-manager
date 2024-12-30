@@ -88,6 +88,22 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="random-encounter">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="random-encounter" />
+              <option name="relativePathToSchema" value="schemas/random-encounter.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="data/encounters/2d8-kobolds.yml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="region">
           <value>
             <SchemaInfo>
@@ -98,6 +114,25 @@
                 <list>
                   <Item>
                     <option name="path" value="data/regions/region-8.yml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/regions/region-9.yml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="stat-block">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="stat-block" />
+              <option name="relativePathToSchema" value="schemas/stat-block.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="data/stat-blocks/kobold.yml" />
                   </Item>
                 </list>
               </option>
