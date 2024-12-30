@@ -1,0 +1,14 @@
+---
+import type { StatBlockData } from '../../types';
+import Action from './Action.astro';
+
+interface Props {
+  actions: StatBlockData['actions'];
+}
+
+const { actions } = Astro.props;
+---
+<h3>Actions</h3>
+{actions.map((action) => (
+  <Action action={action} />
+))}
