@@ -1,5 +1,57 @@
 import { z } from 'zod';
 
+const damageTypeSchema = z.enum([
+  'acid',
+  'bludgeoning',
+  'cold',
+  'fire',
+  'force',
+  'lightning',
+  'necrotic',
+  'piercing',
+  'poison',
+  'psychic',
+  'radiant',
+  'slashing',
+  'thunder',
+]);
+
+const descriptiveActionSchema = z.object({
+  name: z.string(),
+  action_type: z.literal('descriptive'),
+  desc: z.string(),
+});
+
+const meleeWeaponAttackSchema = z.object({
+  name: z.string(),
+  action_type: z.literal('melee weapon attack'),
+  desc: z.string().optional(),
+  attack_bonus: z.number(),
+  damage_type: damageTypeSchema,
+  damage_dice: z.string(),
+  damage_bonus: z.number(),
+  default_damage: z.number(),
+  reach: z.string(),
+});
+
+const rangedWeaponAttackSchema = z.object({
+  name: z.string(),
+  action_type: z.literal('ranged weapon attack'),
+  desc: z.string().optional(),
+  attack_bonus: z.number(),
+  damage_type: damageTypeSchema,
+  damage_dice: z.string(),
+  damage_bonus: z.number(),
+  default_damage: z.number(),
+  range: z.string(),
+});
+
+const actionSchema = z.union([
+  descriptiveActionSchema,
+  meleeWeaponAttackSchema,
+  rangedWeaponAttackSchema,
+]);
+
 export const StatBlockSchema = z.object({
   id: z.string(),
   desc: z.string().optional(),
@@ -31,6 +83,7 @@ export const StatBlockSchema = z.object({
   subtype: z.string().optional(),
   group: z.string().nullable().optional(),
   alignment: z.enum([
+    'any',
     'lawful good',
     'neutral good',
     'chaotic good',
@@ -63,7 +116,7 @@ export const StatBlockSchema = z.object({
   wisdom_save: z.number().nullable().optional(),
   charisma_save: z.number().nullable().optional(),
   perception: z.number().nullable().optional(),
-  skills: z.record(z.string(), z.string()).optional(),
+  skills: z.record(z.string(), z.number().int().positive()).optional(),
   proficiency_bonus: z.string(),
   damage_vulnerabilities: z.string().optional(),
   damage_resistances: z.string().optional(),
@@ -73,35 +126,7 @@ export const StatBlockSchema = z.object({
   languages: z.string(),
   challenge_rating: z.string(),
   cr: z.number(),
-  actions: z.array(z.object({
-    name: z.string(),
-    type: z.enum([
-      'melee weapon attack',
-      'ranged weapon attack',
-    ]),
-    desc: z.string().optional(),
-    attack_bonus: z.number(),
-    damage_type: z.enum([
-      'acid',
-      'bludgeoning',
-      'cold',
-      'fire',
-      'force',
-      'lightning',
-      'necrotic',
-      'piercing',
-      'poison',
-      'psychic',
-      'radiant',
-      'slashing',
-      'thunder',
-    ]),
-    damage_dice: z.string(),
-    damage_bonus: z.number(),
-    default_damage: z.number(),
-    range: z.string().optional(),
-    reach: z.string().optional(),
-  })),
+  actions: z.array(actionSchema),
   bonus_actions: z.array(z.string()).nullable().optional(),
   reactions: z.array(z.string()).nullable().optional(),
   legendary_desc: z.string().optional(),
