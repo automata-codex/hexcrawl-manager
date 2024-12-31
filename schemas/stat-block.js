@@ -106,6 +106,7 @@ export const StatBlockSchema = z.object({
   alignment: z.enum([
     'any',
     'unaligned',
+    'any non-lawful alignment',
     'lawful good',
     'neutral good',
     'chaotic good',
@@ -151,7 +152,10 @@ export const StatBlockSchema = z.object({
   cr: z.number(),
   actions: z.array(ActionSchema),
   bonus_actions: z.array(z.string()).nullable().optional(),
-  reactions: z.array(z.string()).nullable().optional(),
+  reactions: z.array(z.object({
+    name: z.string(),
+    desc: z.string(),
+  })).nullable().optional(),
   legendary_desc: z.string().optional(),
   legendary_actions: z.array(z.string()).nullable().optional(),
   special_abilities: z.array(z.object({

@@ -18,8 +18,7 @@ const skills = Object.entries(data);
   {skills.map(([skill, value]: [string, number]) => (
     <span>
       {startCase(toLower(skill))}
-      +{value}
-      {skill !== skills[skills.length - 1][0] ? ', ' : ''}
+      +{value}{skill !== skills[skills.length - 1][0] ? ', ' : ''}
     </span>
   ))}
 </div>
