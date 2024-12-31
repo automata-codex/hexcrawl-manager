@@ -1,7 +1,9 @@
 import { defineCollection, reference, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
+import { DungeonDataSchema } from '../schemas/dungeon';
 import { HexDataSchema } from '../schemas/hex-database';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionDataSchema } from '../schemas/region';
@@ -11,6 +13,7 @@ import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './
 const DATA_DIR = 'data';
 
 const DIRS = {
+  DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   HEXES: `${DATA_DIR}/hexes`,
   REGIONS: `${DATA_DIR}/regions`,
@@ -29,6 +32,14 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
     return data.flat();
   };
 }
+
+const dungeons = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: DIRS.DUNGEONS }),
+  schema: {
+    ...DungeonDataSchema,
+    hexId: reference('hexes'),
+  },
+});
 
 const encounters = defineCollection({
   loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.ENCOUNTERS),
@@ -59,4 +70,4 @@ const statBlocks = defineCollection({
   },
 });
 
-export const collections = { encounters, hexes, regions, statBlocks };
+export const collections = { dungeons, encounters, hexes, regions, statBlocks };
