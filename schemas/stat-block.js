@@ -161,7 +161,7 @@ export const StatBlockSchema = z.object({
   special_abilities: z.array(z.object({
     name: z.string(),
     desc: z.string(),
-  })),
+  })).nullable(),
   spell_list: z.array(z.string()),
   page_no: z.number(),
   environments: z.array(z.enum([

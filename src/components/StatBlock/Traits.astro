@@ -6,7 +6,7 @@ interface Props {
 }
 
 const { specialAbilities } = Astro.props;
-if (specialAbilities.length === 0) {
+if (!specialAbilities || specialAbilities.length === 0) {
   return null;
 }
 ---

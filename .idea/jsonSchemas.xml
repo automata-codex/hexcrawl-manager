@@ -12,76 +12,9 @@
               <option name="patterns">
                 <list>
                   <Item>
-                    <option name="path" value="data/hexes/region-1-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-12-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-13-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-14-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-15-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-16-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-17-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-18-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-19-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-2-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-20-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-22-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-23-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-24-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-25-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-26-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-27-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-28-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-4-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-6-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-7-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-8-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-9-hexes.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/hexes/region-template.yml" />
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/hexes" />
+                    <option name="mappingKind" value="Directory" />
                   </Item>
                 </list>
               </option>
@@ -115,10 +48,9 @@
               <option name="patterns">
                 <list>
                   <Item>
-                    <option name="path" value="data/regions/region-8.yml" />
-                  </Item>
-                  <Item>
-                    <option name="path" value="data/regions/region-9.yml" />
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/regions" />
+                    <option name="mappingKind" value="Directory" />
                   </Item>
                 </list>
               </option>
