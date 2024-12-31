@@ -1,6 +1,7 @@
 ---
 import { library, icon } from '@fortawesome/fontawesome-svg-core';
 import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
+import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
 import { getCollection } from 'astro:content';
 import HiddenSites from './HiddenSites.astro';
 import type { HexData } from '../../types';
@@ -22,8 +23,9 @@ const dungeons = allDungeons
   .filter(dungeon => dungeon.data.hexId === hex.id)
   .sort((a, b) => a.data.name.localeCompare(b.data.name));
 
-// Handle visited and explored checkboxes
-library.add(faSquare, faSquareCheck);
+// Get some icons
+library.add(faDungeon, faSquare, faSquareCheck);
+const dungeonIcon = icon(faDungeon);
 const squareIcon = icon(faSquare);
 const squareCheckIcon = icon(faSquareCheck);
 
@@ -69,7 +71,9 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
     </div>
     <div>
       {dungeons.map(dungeon => (
-        <a href={`/dungeons/${dungeon.id}`}>{dungeon.data.name}</a>
+        <a href={`/dungeons/${dungeon.id}`} title={dungeon.data.name}>
+          <Fragment set:html={dungeonIcon.html} />
+        </a>
       ))}
     </div>
   </div>
