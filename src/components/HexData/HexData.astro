@@ -12,6 +12,10 @@ interface Props {
 
 const { hex, hideSelfLink = false } = Astro.props;
 
+function formatRegionName(regionId: string): string {
+  return regionId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
 library.add(faSquare, faSquareCheck);
 const squareIcon = icon(faSquare);
 const squareCheckIcon = icon(faSquareCheck);
@@ -53,6 +57,9 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
         <a href={`/hexes/${hex.id}`}>View Hex</a>
       </div>
     )}
+    <div>
+      <a href={`/regions/${hex.regionId}`}>{formatRegionName(hex.regionId)}</a>
+    </div>
   </div>
   <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
   <HiddenSites hiddenSites={hex.hiddenSites} />
