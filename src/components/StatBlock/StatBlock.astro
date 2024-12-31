@@ -1,11 +1,12 @@
 ---
 import type { StatBlockData } from '../../types';
 
-import Subheading from './Subheading.astro';
+import Actions from './Actions.astro';
 import Attributes from './Attributes.astro';
 import ChallengeAndProficiency from './ChallengeAndProficiency.astro';
+import Skills from './Skills.astro';
+import Subheading from './Subheading.astro';
 import Traits from './Traits.astro';
-import Actions from './Actions.astro';
 
 interface Props {
   data: StatBlockData;
@@ -50,6 +51,7 @@ const { data } = Astro.props;
   </div>
   <Attributes data={data} />
   <div>
+    <Skills data={data.skills} />
     <div>
       <span class="inline-heading">Senses:</span>
       {' '}

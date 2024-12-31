@@ -10,7 +10,7 @@ const { data } = Astro.props;
 const size = startCase(toLower(data.size));
 const type = startCase(toLower(data.type));
 const subtype = data.subtype ? ` (${startCase(toLower(data.subtype))}),` : ',';
-const alignment = startCase(toLower(data.alignment));
+const alignment = data.alignment === 'any' ? 'Any Alignment' : startCase(toLower(data.alignment));
 ---
 <style>
     p {

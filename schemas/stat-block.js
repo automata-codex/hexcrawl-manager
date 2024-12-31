@@ -46,6 +46,27 @@ const rangedWeaponAttackSchema = z.object({
   range: z.string(),
 });
 
+export const skillsSchema = z.object({
+  acrobatics: z.number().int().positive().optional(),
+  animal_handling: z.number().int().positive().optional(),
+  arcana: z.number().int().positive().optional(),
+  athletics: z.number().int().positive().optional(),
+  deception: z.number().int().positive().optional(),
+  history: z.number().int().positive().optional(),
+  insight: z.number().int().positive().optional(),
+  intimidation: z.number().int().positive().optional(),
+  investigation: z.number().int().positive().optional(),
+  medicine: z.number().int().positive().optional(),
+  nature: z.number().int().positive().optional(),
+  perception: z.number().int().positive().optional(),
+  performance: z.number().int().positive().optional(),
+  persuasion: z.number().int().positive().optional(),
+  religion: z.number().int().positive().optional(),
+  sleight_of_hand: z.number().int().positive().optional(),
+  stealth: z.number().int().positive().optional(),
+  survival: z.number().int().positive().optional(),
+});
+
 const actionSchema = z.union([
   descriptiveActionSchema,
   meleeWeaponAttackSchema,
@@ -116,7 +137,7 @@ export const StatBlockSchema = z.object({
   wisdom_save: z.number().nullable().optional(),
   charisma_save: z.number().nullable().optional(),
   perception: z.number().nullable().optional(),
-  skills: z.record(z.string(), z.number().int().positive()).optional(),
+  skills: skillsSchema.optional(),
   proficiency_bonus: z.string(),
   damage_vulnerabilities: z.string().optional(),
   damage_resistances: z.string().optional(),

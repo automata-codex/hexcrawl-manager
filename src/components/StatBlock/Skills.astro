@@ -1,0 +1,22 @@
+---
+import type { StatBlockSkills } from '../../types';
+import { startCase, toLower } from 'lodash-es';
+
+interface Props {
+  data?: StatBlockSkills;
+}
+
+const { data = {} } = Astro.props;
+const skills = Object.entries(data);
+---
+<div>
+  <span class="inline-heading">Skills:</span>
+  {' '}
+  {skills.map(([skill, value]: [string, number]) => (
+    <span>
+      {startCase(toLower(skill))}
+      +{value}
+      {skill !== skills[skills.length - 1][0] ? ', ' : ''}
+    </span>
+  ))}
+</div>
