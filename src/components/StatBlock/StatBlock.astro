@@ -13,8 +13,13 @@ interface Props {
 
 const { data } = Astro.props;
 ---
+<style>
+    section {
+        columns: 2;
+    }
+</style>
 <section>
-  <h2>{data.name}</h2>
+  <h2 class="title is-4" style="margin-bottom: 0.25rem">{data.name}</h2>
   <Subheading data={data} />
   <div>
     <div>
@@ -38,7 +43,7 @@ const { data } = Astro.props;
     <div>
       <span>Senses:</span>
       {' '}
-      {data.senses} ft.
+      {data.senses}
     </div>
     <div>
       <span>Languages:</span>

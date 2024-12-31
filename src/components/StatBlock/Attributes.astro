@@ -2,7 +2,7 @@
 import type { StatBlockData } from '../../types';
 
 interface Props {
-  data: StatBlockData
+  data: StatBlockData;
 }
 
 function getModifier(score: number): string {
@@ -13,10 +13,11 @@ function getModifier(score: number): string {
 const { data } = Astro.props;
 ---
 <style>
-  th, td {
-    padding: 0 0.5rem;
-    text-align: center;
-  }
+    th, td {
+        color: var(--bulma-body-color);
+        padding: 0 0.5rem;
+        text-align: center !important; /* This is literally what the `has-text-centered` class does */
+    }
 </style>
 <table>
   <thead>
