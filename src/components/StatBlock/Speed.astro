@@ -1,0 +1,28 @@
+---
+import type { StatBlockData } from '../../types';
+
+interface Props {
+  speed: StatBlockData['speed'];
+}
+
+const { speed } = Astro.props;
+const data = Object.entries(speed)
+  .sort((a, b) => {
+    if (a[0] === 'walk') {
+      return -1;
+    }
+    if (b[0] === 'walk') {
+      return 1;
+    }
+    return a[0].localeCompare(b[0]);
+  });
+const walkingSpeed = data.shift();
+if (!walkingSpeed) {
+  throw new Error('Walking speed not found');
+}
+const otherSpeeds = data.map(([key, value]) => `, ${key} ${value} ft.`).join();
+---
+<div>
+  <span class="inline-heading">Speed:</span>
+  {' '}
+  {walkingSpeed[1]} ft.{otherSpeeds}</div>

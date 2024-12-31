@@ -15,7 +15,7 @@ export async function getStaticPaths() {
 
 const encounter: RandomEncounterData = Astro.props.encounter.data;
 const statBlocks = await getCollection('statBlocks');
-const title = `Encounter "${encounter.name}"`;
+const title = `Encounter: ${encounter.name}`;
 ---
 <Layout title={title}>
   <section class="section">

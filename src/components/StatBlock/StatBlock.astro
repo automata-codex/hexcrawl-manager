@@ -5,6 +5,7 @@ import Actions from './Actions.astro';
 import Attributes from './Attributes.astro';
 import ChallengeAndProficiency from './ChallengeAndProficiency.astro';
 import Skills from './Skills.astro';
+import Speed from './Speed.astro';
 import Subheading from './Subheading.astro';
 import Traits from './Traits.astro';
 
@@ -43,11 +44,7 @@ const { data } = Astro.props;
       {' '}
       {data.hit_points} ({data.hit_dice})
     </div>
-    <div>
-      <span class="inline-heading">Speed:</span>
-      {' '}
-      {data.speed['walk']} ft.
-    </div>
+    <Speed speed={data.speed} />
   </div>
   <Attributes data={data} />
   <div>
