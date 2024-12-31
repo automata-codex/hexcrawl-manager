@@ -7,9 +7,10 @@ import type { HexData } from '../../types';
 
 interface Props {
   hex: HexData;
+  hideSelfLink?: boolean;
 }
 
-const { hex } = Astro.props;
+const { hex, hideSelfLink = false } = Astro.props;
 
 library.add(faSquare, faSquareCheck);
 const squareIcon = icon(faSquare);
@@ -25,20 +26,34 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
         margin-bottom: 0;
         margin-top: 0;
     }
+
+    .data-bar {
+        display: flex;
+        font-weight: bold;
+
+        div {
+            margin-right: 1rem;
+        }
+    }
 </style>
 
 <section>
-  <p class="keep-with-next">
-    Visited:{' '}
-    <Fragment set:html={visitedIcon.html} />
+  <div class="data-bar">
+    <div>
+      Visited:{' '}<Fragment set:html={visitedIcon.html} />
+    </div>
     {hex.hiddenSites && hex.hiddenSites.length > 0 ? (
-      <Fragment>
-        {' '}
+      <div>
         Explored:{' '}
         <Fragment set:html={exploredIcon.html} />
-      </Fragment>
+      </div>
     ) : null}
-  </p>
+    {!hideSelfLink && (
+      <div>
+        <a href={`/hexes/${hex.id}`}>View Hex</a>
+      </div>
+    )}
+  </div>
   <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
   <HiddenSites hiddenSites={hex.hiddenSites} />
   { hex.secretSite && <p><span class="inline-heading">Secret Site:</span>{' '}{hex.secretSite}</p> }
