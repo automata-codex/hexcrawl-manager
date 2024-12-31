@@ -24,6 +24,10 @@ const { data } = Astro.props;
         margin-top: 1rem;
     }
 
+    .stat-group {
+        page-break-inside: avoid;
+    }
+
     @media (min-width: 769px) {
         section {
             columns: 2;
@@ -47,7 +51,7 @@ const { data } = Astro.props;
     <Speed speed={data.speed} />
   </div>
   <Attributes data={data} />
-  <div>
+  <div class="stat-group">
     <Skills data={data.skills} />
     <div>
       <span class="inline-heading">Senses:</span>
