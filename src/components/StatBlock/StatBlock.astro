@@ -14,8 +14,18 @@ interface Props {
 const { data } = Astro.props;
 ---
 <style>
+    h2 {
+        margin-top: 0;
+    }
+
     section {
-        columns: 2;
+        margin-top: 1rem;
+    }
+
+    @media (min-width: 769px) {
+        section {
+            columns: 2;
+        }
     }
 </style>
 <section>
@@ -23,17 +33,17 @@ const { data } = Astro.props;
   <Subheading data={data} />
   <div>
     <div>
-      <span>Armor Class:</span>
+      <span class="inline-heading">Armor Class:</span>
       {' '}
       {data.armor_class}
     </div>
     <div>
-      <span>Hit Points:</span>
+      <span class="inline-heading">Hit Points:</span>
       {' '}
       {data.hit_points} ({data.hit_dice})
     </div>
     <div>
-      <span>Speed:</span>
+      <span class="inline-heading">Speed:</span>
       {' '}
       {data.speed['walk']} ft.
     </div>
@@ -41,14 +51,14 @@ const { data } = Astro.props;
   <Attributes data={data} />
   <div>
     <div>
-      <span>Senses:</span>
+      <span class="inline-heading">Senses:</span>
       {' '}
       {data.senses}
     </div>
     <div>
-      <span>Languages:</span>
+      <span class="inline-heading">Languages:</span>
       {' '}
-      {data.languages} ft.
+      {data.languages}
     </div>
     <ChallengeAndProficiency data={data} />
   </div>

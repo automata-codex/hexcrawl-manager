@@ -12,4 +12,9 @@ const type = startCase(toLower(data.type));
 const subtype = data.subtype ? ` (${startCase(toLower(data.subtype))}),` : ',';
 const alignment = startCase(toLower(data.alignment));
 ---
+<style>
+    p {
+        font-style: italic;
+    }
+</style>
 <p>{size} {type}{subtype} {alignment}</p>

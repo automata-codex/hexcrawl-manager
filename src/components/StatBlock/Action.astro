@@ -38,7 +38,6 @@ const distance = type === 'ranged weapon attack' ? `range ${action.range}` : `re
   {' '}
   {distance}, one target.
   {' '}
-  <span class="attack-type">Hit:</span>
-  {' '}
-  {default_damage} ({damage_dice}+{damage_bonus}) {toLower(damage_type)} damage.
+  <span class="attack-type">Hit:</span>&nbsp;{default_damage}
+  ({damage_dice}+{damage_bonus}) {toLower(damage_type)} damage.
 </div>
