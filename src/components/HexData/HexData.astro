@@ -1,22 +1,41 @@
 ---
 import { library, icon } from '@fortawesome/fontawesome-svg-core';
 import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
-
+import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
+import { getCollection } from 'astro:content';
 import HiddenSites from './HiddenSites.astro';
 import type { HexData } from '../../types';
+import { getHexNeighbors } from '../../utils/get-hex-neighbors';
 
 interface Props {
   hex: HexData;
+  hideNeighbors?: boolean;
+  hideSelfLink?: boolean;
 }
 
-const { hex } = Astro.props;
+const { hex, hideNeighbors = false, hideSelfLink = false } = Astro.props;
 
-library.add(faSquare, faSquareCheck);
+function formatRegionName(regionId: string): string {
+  return regionId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+// Find all dungeons that are in this hex
+const allDungeons = await getCollection('dungeons');
+const dungeons = allDungeons
+  .filter(dungeon => dungeon.data.hexId === hex.id)
+  .sort((a, b) => a.data.name.localeCompare(b.data.name));
+
+// Get some icons
+library.add(faDungeon, faSquare, faSquareCheck);
+const dungeonIcon = icon(faDungeon);
 const squareIcon = icon(faSquare);
 const squareCheckIcon = icon(faSquareCheck);
 
 const visitedIcon = hex.isVisited ? squareCheckIcon : squareIcon;
 const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
+
+// Neighbors
+const neighbors = hex.hideInCatalog ? [] : getHexNeighbors(hex.id);
 ---
 <style>
     p {
@@ -25,20 +44,52 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
         margin-bottom: 0;
         margin-top: 0;
     }
+
+    .data-bar {
+        display: flex;
+        font-weight: bold;
+
+        div {
+            margin-right: 1rem;
+        }
+    }
 </style>
 
 <section>
-  <p class="keep-with-next">
-    Visited:{' '}
-    <Fragment set:html={visitedIcon.html} />
+  <div class="data-bar">
+    <div>
+      Visited:{' '}<Fragment set:html={visitedIcon.html} />
+    </div>
     {hex.hiddenSites && hex.hiddenSites.length > 0 ? (
-      <Fragment>
-        {' '}
+      <div>
         Explored:{' '}
         <Fragment set:html={exploredIcon.html} />
-      </Fragment>
+      </div>
     ) : null}
-  </p>
+    {!hideSelfLink && (
+      <div>
+        <a href={`/hexes/${hex.id}`}>View Hex</a>
+      </div>
+    )}
+    <div>
+      <a href={`/regions/${hex.regionId}`}>{formatRegionName(hex.regionId)}</a>
+    </div>
+    <div>
+      {dungeons.map(dungeon => (
+        <a href={`/dungeons/${dungeon.id}`} title={dungeon.data.name}>
+          <Fragment set:html={dungeonIcon.html} />
+        </a>
+      ))}
+    </div>
+  </div>
+  {!hideNeighbors && <div class="data-bar">
+    <div>Neighbors:</div>
+    {neighbors.map(neighbor => (
+      <div>
+        <a href={`/hexes/${neighbor.toLowerCase()}`}>{neighbor}</a>
+      </div>
+    ))}
+  </div>}
   <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
   <HiddenSites hiddenSites={hex.hiddenSites} />
   { hex.secretSite && <p><span class="inline-heading">Secret Site:</span>{' '}{hex.secretSite}</p> }

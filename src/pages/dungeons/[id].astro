@@ -1,0 +1,37 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import type { DungeonData } from '../../types';
+
+export async function getStaticPaths() {
+  const dungeons = await getCollection('dungeons');
+  return dungeons.map(dungeon => ({
+    params: { id: dungeon.id },
+    props: { dungeon },
+  }));
+}
+
+const { dungeon } = Astro.props;
+const title = `Dungeon: ${dungeon.data.name}`;
+const { Content } = await render(dungeon);
+const hexData = await getEntry('hexes', dungeon.data.hexId);
+if (!hexData) {
+  throw new Error('Hex not found: ' + dungeon.data.hexId);
+}
+---
+<Layout title={title}>
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h1 class="title is-2">{title}</h1>
+      <div>
+        <div>
+          Hex:
+          <a href={`/hexes/${hexData.id}`}>
+            {hexData.data.id.toUpperCase()} "{hexData.data.name}"
+          </a>
+        </div>
+        <Content />
+      </div>
+    </div>
+  </section>
+</Layout>
