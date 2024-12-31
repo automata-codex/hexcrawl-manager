@@ -5,13 +5,15 @@ import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
 import { getCollection } from 'astro:content';
 import HiddenSites from './HiddenSites.astro';
 import type { HexData } from '../../types';
+import { getHexNeighbors } from '../../utils/get-hex-neighbors';
 
 interface Props {
   hex: HexData;
+  hideNeighbors?: boolean;
   hideSelfLink?: boolean;
 }
 
-const { hex, hideSelfLink = false } = Astro.props;
+const { hex, hideNeighbors = false, hideSelfLink = false } = Astro.props;
 
 function formatRegionName(regionId: string): string {
   return regionId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
@@ -31,6 +33,9 @@ const squareCheckIcon = icon(faSquareCheck);
 
 const visitedIcon = hex.isVisited ? squareCheckIcon : squareIcon;
 const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
+
+// Neighbors
+const neighbors = hex.hideInCatalog ? [] : getHexNeighbors(hex.id);
 ---
 <style>
     p {
@@ -77,6 +82,14 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
       ))}
     </div>
   </div>
+  {!hideNeighbors && <div class="data-bar">
+    <div>Neighbors:</div>
+    {neighbors.map(neighbor => (
+      <div>
+        <a href={`/hexes/${neighbor.toLowerCase()}`}>{neighbor}</a>
+      </div>
+    ))}
+  </div>}
   <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
   <HiddenSites hiddenSites={hex.hiddenSites} />
   { hex.secretSite && <p><span class="inline-heading">Secret Site:</span>{' '}{hex.secretSite}</p> }
