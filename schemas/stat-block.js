@@ -27,9 +27,9 @@ export const MeleeWeaponAttackSchema = z.object({
   action_type: z.literal('melee weapon attack'),
   desc: z.string().optional(),
   attack_bonus: z.number(),
-  damage_type: DamageTypeSchema,
-  damage_dice: z.string(),
   damage_bonus: z.number(),
+  damage_dice: z.string(),
+  damage_type: DamageTypeSchema,
   default_damage: z.number(),
   reach: z.string(),
 });
@@ -39,9 +39,9 @@ export const RangedWeaponAttackSchema = z.object({
   action_type: z.literal('ranged weapon attack'),
   desc: z.string().optional(),
   attack_bonus: z.number(),
-  damage_type: DamageTypeSchema,
-  damage_dice: z.string(),
   damage_bonus: z.number(),
+  damage_dice: z.string(),
+  damage_type: DamageTypeSchema,
   default_damage: z.number(),
   range: z.string(),
 });
@@ -105,6 +105,7 @@ export const StatBlockSchema = z.object({
   group: z.string().nullable().optional(),
   alignment: z.enum([
     'any',
+    'unaligned',
     'lawful good',
     'neutral good',
     'chaotic good',
@@ -120,6 +121,7 @@ export const StatBlockSchema = z.object({
   hit_points: z.number(),
   hit_dice: z.string(),
   speed: z.object({
+    climb: z.number().optional(),
     fly: z.number().optional(),
     swim: z.number().optional(),
     walk: z.number().optional(),
@@ -138,7 +140,7 @@ export const StatBlockSchema = z.object({
   charisma_save: z.number().nullable().optional(),
   perception: z.number().nullable().optional(),
   skills: SkillsSchema.optional(),
-  proficiency_bonus: z.string(),
+  proficiency_bonus: z.number().int().positive(),
   damage_vulnerabilities: z.string().optional(),
   damage_resistances: z.string().optional(),
   damage_immunities: z.string().optional(),
