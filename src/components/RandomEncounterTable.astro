@@ -11,16 +11,18 @@ if (Astro.props.data.length === 0) {
 }
 
 const encounters = await getCollection('encounters');
+type Encounter = typeof encounters[0];
 
 const data = Astro.props.data
   .filter((encounter) => !encounter.isHidden)
   .sort((a, b) => a.range[0] - b.range[0])
   .map((encounter) => {
     let description = '';
-    if (encounter.description.hasOwnProperty('text')) {
+    if ('text' in encounter.description) {
       description = encounter.description.text;
-    } else if (encounter.description.hasOwnProperty('encounter')) {
-      const encounterData = encounters.find((e) => e.id === encounter.description.encounter);
+    } else if ('encounter' in encounter.description) {
+      const encounterId = encounter.description.encounter;
+      const encounterData = encounters.find((e: Encounter) => e.id === encounterId);
       if (encounterData) {
         description = `<a href="/encounters/${encounterData.id}">${encounterData.data.name}</a>`;
       } else {
