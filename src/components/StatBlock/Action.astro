@@ -1,5 +1,5 @@
 ---
-import { startCase, toLower, toUpper } from 'lodash-es';
+import { startCase, toLower } from 'lodash-es';
 
 import type { StatBlockData } from '../../types';
 
@@ -20,25 +20,24 @@ const {
 const distance = type === 'ranged weapon attack' ? `range ${action.range}` : `reach ${action.reach}`;
 ---
 <style>
-  .label {
+  .action-name {
     font-style: italic;
     font-weight: bold;
   }
 
-  .type {
+  .attack-type {
     font-style: italic;
   }
 </style>
 <div>
-  <span class="label">{name}.</span>
+  <span class="action-name">{name}.</span>
   {' '}
-  <span class="type">{startCase(toLower(type))}:</span>
+  <span class="attack-type">{startCase(toLower(type))}:</span>
   {' '}
   <span>+{attack_bonus} to hit,</span>
   {' '}
   {distance}, one target.
   {' '}
-  <span class="type">Hit:</span>
-  {' '}
-  {default_damage} ({damage_dice}+{damage_bonus}) {toLower(damage_type)} damage.
+  <span class="attack-type">Hit:</span>&nbsp;{default_damage}
+  ({damage_dice}+{damage_bonus}) {toLower(damage_type)} damage.
 </div>

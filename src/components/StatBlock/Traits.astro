@@ -7,11 +7,23 @@ interface Props {
 
 const { specialAbilities } = Astro.props;
 ---
+<style>
+    h3 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        page-break-after: avoid;
+    }
+
+    .trait-name {
+        font-style: italic;
+        font-weight: bold;
+    }
+</style>
 <h3>Traits</h3>
 {specialAbilities.map((trait) => (
-  <div>
-    <span class="label">{trait.name}.</span>
-    {' '}
-    <span class="value">{trait.desc}</span>
-  </div>
-))}
+<div>
+  <span class="trait-name">{trait.name}.</span>
+  {' '}
+  <span class="trait-description">{trait.desc}</span>
+</div>
+  ))}

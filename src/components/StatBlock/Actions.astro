@@ -8,6 +8,12 @@ interface Props {
 
 const { actions } = Astro.props;
 ---
+<style>
+    h3 {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+</style>
 <h3>Actions</h3>
 {actions.map((action) => (
   <Action action={action} />

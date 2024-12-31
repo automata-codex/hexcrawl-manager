@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 
-import Hex from '../../components/Hex.astro';
+import Hex from '../../components/HexData/HexData.astro';
 import RandomEncounterTable from '../../components/RandomEncounterTable.astro';
 import Layout from '../../layouts/Layout.astro';
 import type { HexData, RandomEncounterTableData } from '../../types';
@@ -10,12 +10,12 @@ export async function getStaticPaths() {
   const hexes = await getCollection('hexes');
   return hexes.map(hex => ({
     params: { id: hex.id },
-    props: { hex: hex }
+    props: { hex: hex },
   }));
 }
 
 const hex: HexData = Astro.props.hex.data;
-const title = `Hex ${hex.id.toUpperCase()}`;
+const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
 
 let encounters: RandomEncounterTableData = [];
 if (hex.encounters) {
@@ -34,7 +34,12 @@ if (hex.encounters) {
 }
 ---
 <Layout title={title}>
-  <h1>{title}</h1>
-  <Hex hex={hex} />
-  <RandomEncounterTable data={encounters} />
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h1 class="title is-2">{title}</h1>
+      <Hex hex={hex} />
+      <h2 class="title is-4" style="margin-bottom: 0.25rem">Random Encounters</h2>
+      <RandomEncounterTable data={encounters} />
+    </div>
+  </section>
 </Layout>
