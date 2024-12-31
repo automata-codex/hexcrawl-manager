@@ -1,7 +1,7 @@
 ---
 import { library, icon } from '@fortawesome/fontawesome-svg-core';
 import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
-
+import { getCollection } from 'astro:content';
 import HiddenSites from './HiddenSites.astro';
 import type { HexData } from '../../types';
 
@@ -16,6 +16,13 @@ function formatRegionName(regionId: string): string {
   return regionId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
+// Find all dungeons that are in this hex
+const allDungeons = await getCollection('dungeons');
+const dungeons = allDungeons
+  .filter(dungeon => dungeon.data.hexId === hex.id)
+  .sort((a, b) => a.data.name.localeCompare(b.data.name));
+
+// Handle visited and explored checkboxes
 library.add(faSquare, faSquareCheck);
 const squareIcon = icon(faSquare);
 const squareCheckIcon = icon(faSquareCheck);
@@ -59,6 +66,11 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
     )}
     <div>
       <a href={`/regions/${hex.regionId}`}>{formatRegionName(hex.regionId)}</a>
+    </div>
+    <div>
+      {dungeons.map(dungeon => (
+        <a href={`/dungeons/${dungeon.id}`}>{dungeon.data.name}</a>
+      ))}
     </div>
   </div>
   <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
