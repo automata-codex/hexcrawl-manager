@@ -1,10 +1,10 @@
 ---
 import { startCase, toLower } from 'lodash-es';
 
-import type { StatBlockData } from '../../types';
+import type { RangedWeaponAttackData } from '../../types';
 
 interface Props {
-  action: StatBlockData['actions'][0];
+  action: RangedWeaponAttackData;
 }
 
 const { action } = Astro.props;
@@ -15,9 +15,7 @@ const {
   damage_type,
   default_damage,
   name,
-  type,
 } = action;
-const distance = type === 'ranged weapon attack' ? `range ${action.range}` : `reach ${action.reach}`;
 ---
 <style>
   .action-name {
@@ -32,11 +30,11 @@ const distance = type === 'ranged weapon attack' ? `range ${action.range}` : `re
 <div>
   <span class="action-name">{name}.</span>
   {' '}
-  <span class="attack-type">{startCase(toLower(type))}:</span>
+  <span class="attack-type">Ranged Weapon Attack:</span>
   {' '}
   <span>+{attack_bonus} to hit,</span>
   {' '}
-  {distance}, one target.
+  range {action.range}, one target.
   {' '}
   <span class="attack-type">Hit:</span>&nbsp;{default_damage}
   ({damage_dice}+{damage_bonus}) {toLower(damage_type)} damage.

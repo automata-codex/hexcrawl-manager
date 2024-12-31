@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const damageTypeSchema = z.enum([
+const DamageTypeSchema = z.enum([
   'acid',
   'bludgeoning',
   'cold',
@@ -16,37 +16,37 @@ const damageTypeSchema = z.enum([
   'thunder',
 ]);
 
-const descriptiveActionSchema = z.object({
+export const DescriptiveActionSchema = z.object({
   name: z.string(),
   action_type: z.literal('descriptive'),
   desc: z.string(),
 });
 
-const meleeWeaponAttackSchema = z.object({
+export const MeleeWeaponAttackSchema = z.object({
   name: z.string(),
   action_type: z.literal('melee weapon attack'),
   desc: z.string().optional(),
   attack_bonus: z.number(),
-  damage_type: damageTypeSchema,
+  damage_type: DamageTypeSchema,
   damage_dice: z.string(),
   damage_bonus: z.number(),
   default_damage: z.number(),
   reach: z.string(),
 });
 
-const rangedWeaponAttackSchema = z.object({
+export const RangedWeaponAttackSchema = z.object({
   name: z.string(),
   action_type: z.literal('ranged weapon attack'),
   desc: z.string().optional(),
   attack_bonus: z.number(),
-  damage_type: damageTypeSchema,
+  damage_type: DamageTypeSchema,
   damage_dice: z.string(),
   damage_bonus: z.number(),
   default_damage: z.number(),
   range: z.string(),
 });
 
-export const skillsSchema = z.object({
+export const SkillsSchema = z.object({
   acrobatics: z.number().int().positive().optional(),
   animal_handling: z.number().int().positive().optional(),
   arcana: z.number().int().positive().optional(),
@@ -67,10 +67,10 @@ export const skillsSchema = z.object({
   survival: z.number().int().positive().optional(),
 });
 
-const actionSchema = z.union([
-  descriptiveActionSchema,
-  meleeWeaponAttackSchema,
-  rangedWeaponAttackSchema,
+const ActionSchema = z.union([
+  DescriptiveActionSchema,
+  MeleeWeaponAttackSchema,
+  RangedWeaponAttackSchema,
 ]);
 
 export const StatBlockSchema = z.object({
@@ -137,7 +137,7 @@ export const StatBlockSchema = z.object({
   wisdom_save: z.number().nullable().optional(),
   charisma_save: z.number().nullable().optional(),
   perception: z.number().nullable().optional(),
-  skills: skillsSchema.optional(),
+  skills: SkillsSchema.optional(),
   proficiency_bonus: z.string(),
   damage_vulnerabilities: z.string().optional(),
   damage_resistances: z.string().optional(),
@@ -147,7 +147,7 @@ export const StatBlockSchema = z.object({
   languages: z.string(),
   challenge_rating: z.string(),
   cr: z.number(),
-  actions: z.array(actionSchema),
+  actions: z.array(ActionSchema),
   bonus_actions: z.array(z.string()).nullable().optional(),
   reactions: z.array(z.string()).nullable().optional(),
   legendary_desc: z.string().optional(),

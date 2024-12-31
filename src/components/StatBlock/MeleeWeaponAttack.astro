@@ -1,0 +1,41 @@
+---
+import { startCase, toLower } from 'lodash-es';
+
+import type { MeleeWeaponAttackData } from '../../types';
+
+interface Props {
+  action: MeleeWeaponAttackData;
+}
+
+const { action } = Astro.props;
+const {
+  attack_bonus,
+  damage_bonus,
+  damage_dice,
+  damage_type,
+  default_damage,
+  name,
+} = action;
+---
+<style>
+  .action-name {
+    font-style: italic;
+    font-weight: bold;
+  }
+
+  .attack-type {
+    font-style: italic;
+  }
+</style>
+<div>
+  <span class="action-name">{name}.</span>
+  {' '}
+  <span class="attack-type">Melee Weapon Attack:</span>
+  {' '}
+  <span>+{attack_bonus} to hit,</span>
+  {' '}
+  reach {action.reach}, one target.
+  {' '}
+  <span class="attack-type">Hit:</span>&nbsp;{default_damage}
+  ({damage_dice}+{damage_bonus}) {toLower(damage_type)} damage.
+</div>
