@@ -21,6 +21,24 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="npc">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="npc" />
+              <option name="relativePathToSchema" value="schemas/npc.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/npcs" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="random-encounter">
           <value>
             <SchemaInfo>
