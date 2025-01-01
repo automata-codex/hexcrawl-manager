@@ -15,21 +15,29 @@ export async function getStaticPaths() {
 
 const encounter: RandomEncounterData = Astro.props.encounter.data;
 const statBlocks = await getCollection('statBlocks');
-const title = `Encounter "${encounter.name}"`;
+const title = `Encounter: ${encounter.name}`;
 ---
+<style is:global>
+  .stat-block-container section:not(:last-child) {
+      border-bottom: 1px solid var(--bulma-body-color);
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+  }
+</style>
 <Layout title={title}>
   <section class="section">
     <div class="container is-max-desktop">
       <h1 class="title is-2">{title}</h1>
       <p>{encounter.description}</p>
-      {encounter.statBlocks.map((statBlockId: string) => {
+      <div class="stat-block-container">
+        {encounter.statBlocks.map((statBlockId: string) => {
           const statBlock = statBlocks.find(statBlock => statBlock.id === statBlockId);
           if (!statBlock) {
             throw new Error(`Stat block not found: ${statBlockId}`);
           }
           return <StatBlock data={statBlock.data} />;
-        }
-      )}
+        })}
+      </div>
     </div>
   </section>
 </Layout>

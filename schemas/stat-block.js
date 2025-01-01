@@ -1,5 +1,78 @@
 import { z } from 'zod';
 
+const DamageTypeSchema = z.enum([
+  'acid',
+  'bludgeoning',
+  'cold',
+  'fire',
+  'force',
+  'lightning',
+  'necrotic',
+  'piercing',
+  'poison',
+  'psychic',
+  'radiant',
+  'slashing',
+  'thunder',
+]);
+
+export const DescriptiveActionSchema = z.object({
+  name: z.string(),
+  action_type: z.literal('descriptive'),
+  desc: z.string(),
+});
+
+export const MeleeWeaponAttackSchema = z.object({
+  name: z.string(),
+  action_type: z.literal('melee weapon attack'),
+  desc: z.string().optional(),
+  attack_bonus: z.number(),
+  damage_bonus: z.number(),
+  damage_dice: z.string(),
+  damage_type: DamageTypeSchema,
+  default_damage: z.number(),
+  reach: z.string(),
+});
+
+export const RangedWeaponAttackSchema = z.object({
+  name: z.string(),
+  action_type: z.literal('ranged weapon attack'),
+  desc: z.string().optional(),
+  attack_bonus: z.number(),
+  damage_bonus: z.number(),
+  damage_dice: z.string(),
+  damage_type: DamageTypeSchema,
+  default_damage: z.number(),
+  range: z.string(),
+});
+
+export const SkillsSchema = z.object({
+  acrobatics: z.number().int().positive().optional(),
+  animal_handling: z.number().int().positive().optional(),
+  arcana: z.number().int().positive().optional(),
+  athletics: z.number().int().positive().optional(),
+  deception: z.number().int().positive().optional(),
+  history: z.number().int().positive().optional(),
+  insight: z.number().int().positive().optional(),
+  intimidation: z.number().int().positive().optional(),
+  investigation: z.number().int().positive().optional(),
+  medicine: z.number().int().positive().optional(),
+  nature: z.number().int().positive().optional(),
+  perception: z.number().int().positive().optional(),
+  performance: z.number().int().positive().optional(),
+  persuasion: z.number().int().positive().optional(),
+  religion: z.number().int().positive().optional(),
+  sleight_of_hand: z.number().int().positive().optional(),
+  stealth: z.number().int().positive().optional(),
+  survival: z.number().int().positive().optional(),
+});
+
+const ActionSchema = z.union([
+  DescriptiveActionSchema,
+  MeleeWeaponAttackSchema,
+  RangedWeaponAttackSchema,
+]);
+
 export const StatBlockSchema = z.object({
   id: z.string(),
   desc: z.string().optional(),
@@ -31,6 +104,9 @@ export const StatBlockSchema = z.object({
   subtype: z.string().optional(),
   group: z.string().nullable().optional(),
   alignment: z.enum([
+    'any',
+    'unaligned',
+    'any non-lawful alignment',
     'lawful good',
     'neutral good',
     'chaotic good',
@@ -46,6 +122,7 @@ export const StatBlockSchema = z.object({
   hit_points: z.number(),
   hit_dice: z.string(),
   speed: z.object({
+    climb: z.number().optional(),
     fly: z.number().optional(),
     swim: z.number().optional(),
     walk: z.number().optional(),
@@ -63,8 +140,8 @@ export const StatBlockSchema = z.object({
   wisdom_save: z.number().nullable().optional(),
   charisma_save: z.number().nullable().optional(),
   perception: z.number().nullable().optional(),
-  skills: z.record(z.string(), z.string()).optional(),
-  proficiency_bonus: z.string(),
+  skills: SkillsSchema.optional(),
+  proficiency_bonus: z.number().int().positive(),
   damage_vulnerabilities: z.string().optional(),
   damage_resistances: z.string().optional(),
   damage_immunities: z.string().optional(),
@@ -73,43 +150,18 @@ export const StatBlockSchema = z.object({
   languages: z.string(),
   challenge_rating: z.string(),
   cr: z.number(),
-  actions: z.array(z.object({
-    name: z.string(),
-    type: z.enum([
-      'melee weapon attack',
-      'ranged weapon attack',
-    ]),
-    desc: z.string().optional(),
-    attack_bonus: z.number(),
-    damage_type: z.enum([
-      'acid',
-      'bludgeoning',
-      'cold',
-      'fire',
-      'force',
-      'lightning',
-      'necrotic',
-      'piercing',
-      'poison',
-      'psychic',
-      'radiant',
-      'slashing',
-      'thunder',
-    ]),
-    damage_dice: z.string(),
-    damage_bonus: z.number(),
-    default_damage: z.number(),
-    range: z.string().optional(),
-    reach: z.string().optional(),
-  })),
+  actions: z.array(ActionSchema),
   bonus_actions: z.array(z.string()).nullable().optional(),
-  reactions: z.array(z.string()).nullable().optional(),
+  reactions: z.array(z.object({
+    name: z.string(),
+    desc: z.string(),
+  })).nullable().optional(),
   legendary_desc: z.string().optional(),
   legendary_actions: z.array(z.string()).nullable().optional(),
   special_abilities: z.array(z.object({
     name: z.string(),
     desc: z.string(),
-  })),
+  })).nullable(),
   spell_list: z.array(z.string()),
   page_no: z.number(),
   environments: z.array(z.enum([
