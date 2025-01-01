@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 
 import Layout from '../../layouts/Layout.astro';
 import StatBlock from '../../components/StatBlock/StatBlock.astro';
+import { processMarkdown } from '../../utils/markdown';
 import type { RandomEncounterData } from '../../types';
 
 export async function getStaticPaths() {
@@ -18,17 +19,25 @@ const statBlocks = await getCollection('statBlocks');
 const title = `Encounter: ${encounter.name}`;
 ---
 <style is:global>
-  .stat-block-container section:not(:last-child) {
-      border-bottom: 1px solid var(--bulma-body-color);
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-  }
+    .description {
+        p:not(:first-child) {
+            text-indent: 2rem;
+        }
+    }
+
+    .stat-block-container section:not(:last-child) {
+        border-bottom: 1px solid var(--bulma-body-color);
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+    }
 </style>
 <Layout title={title}>
   <section class="section">
     <div class="container is-max-desktop">
       <h1 class="title is-2">{title}</h1>
-      <p>{encounter.description}</p>
+      <div class="description">
+        <Fragment set:html={ processMarkdown(encounter.description) } />
+      </div>
       <div class="stat-block-container">
         {encounter.statBlocks.map((statBlockId: string) => {
           const statBlock = statBlocks.find(statBlock => statBlock.id === statBlockId);
