@@ -17,6 +17,14 @@ function formatOccupation(occupation: string, charClass?: string, adventuringCom
 }
 ---
 <style>
+    img {
+        float: right;
+        max-height: 175px;
+        margin-left: 1rem;
+    }
+    section {
+        margin-bottom: 2rem;
+    }
 </style>
 <Layout title="NPCs">
   <section class="section">
@@ -26,6 +34,7 @@ function formatOccupation(occupation: string, charClass?: string, adventuringCom
         {
           npcData.map((npc) =>
             <section>
+              {npc.data.image && <img src={npc.data.image} alt={npc.data.name} />}
               <h2 class="title is-4" style="margin-bottom: 0.25rem">{npc.data.name}</h2>
               <p>Occupation: {formatOccupation(npc.data.occupation, npc.data.class, npc.data.adventuringCompany)}</p>
               <p>Species: {npc.data.species}</p>

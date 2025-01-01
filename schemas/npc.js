@@ -11,4 +11,5 @@ export const NpcDataSchema = z.object({
   culture: z.string(),
   pronouns: z.string(),
   description: z.string(),
+  image: z.string().optional(),
 });
