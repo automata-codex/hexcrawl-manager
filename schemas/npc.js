@@ -6,7 +6,7 @@ export const NpcDataSchema = z.object({
   title: z.string().optional(),
   occupation: z.string(),
   class: z.string().optional(),
-  adventuring_company: z.string().optional(),
+  adventuringCompany: z.string().optional(),
   species: z.string(),
   culture: z.string(),
   pronouns: z.string(),

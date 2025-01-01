@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const npcData = await getCollection('npcs');
+
+function formatOccupation(occupation: string, charClass?: string, adventuringCompany?: string) {
+  if (occupation === 'Adventurer') {
+    if (adventuringCompany) {
+      return `Adventurer (${charClass}), ${adventuringCompany}`;
+    } else {
+      return `Adventurer (${charClass})`;
+    }
+  } else {
+    return occupation;
+  }
+}
+---
+<style>
+</style>
+<Layout title="NPCs">
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h1 class="title is-2">NPCs</h1>
+      <main>
+        {
+          npcData.map((npc) =>
+            <section>
+              <h2 class="title is-4" style="margin-bottom: 0.25rem">{npc.data.name}</h2>
+              <p>Occupation: {formatOccupation(npc.data.occupation, npc.data.class, npc.data.adventuringCompany)}</p>
+              <p>Species: {npc.data.species}</p>
+              <p>Culture: {npc.data.culture}</p>
+              <p>Pronouns: {npc.data.pronouns}</p>
+              <p>{npc.data.description}</p>
+            </section>
+          )
+        }
+      </main>
+    </div>
+  </section>
+</Layout>

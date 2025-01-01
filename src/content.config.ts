@@ -5,6 +5,7 @@ import path from 'path';
 import yaml from 'yaml';
 import { DungeonDataSchema } from '../schemas/dungeon';
 import { HexDataSchema } from '../schemas/hex-database';
+import { NpcDataSchema } from '../schemas/npc';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionDataSchema } from '../schemas/region';
 import { StatBlockSchema } from '../schemas/stat-block';
@@ -16,6 +17,7 @@ const DIRS = {
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   HEXES: `${DATA_DIR}/hexes`,
+  NPCS: `${DATA_DIR}/npcs`,
   REGIONS: `${DATA_DIR}/regions`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
 } as const;
@@ -56,6 +58,13 @@ const hexes = defineCollection({
   },
 });
 
+const npcs = defineCollection({
+  loader: getDirectoryYamlLoader<RegionData>(DIRS.NPCS),
+  schema: {
+    ...NpcDataSchema,
+  },
+});
+
 const regions = defineCollection({
   loader: getDirectoryYamlLoader<RegionData>(DIRS.REGIONS),
   schema: {
@@ -70,4 +79,4 @@ const statBlocks = defineCollection({
   },
 });
 
-export const collections = { dungeons, encounters, hexes, regions, statBlocks };
+export const collections = { dungeons, encounters, hexes, npcs, regions, statBlocks };
