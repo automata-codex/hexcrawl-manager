@@ -45,10 +45,10 @@ function formatOccupation(occupation: string, charClass?: string, adventuringCom
             <section>
               {npc.data.image && <img src={npc.data.image} alt={npc.data.name} />}
               <h2 class="title is-4" style="margin-bottom: 0.25rem">{npc.data.name}</h2>
-              <p>Occupation: {formatOccupation(npc.data.occupation, npc.data.class, npc.data.adventuringCompany)}</p>
-              <p>Species: {npc.data.species}</p>
-              <p>Culture: {npc.data.culture}</p>
-              <p>Pronouns: {npc.data.pronouns}</p>
+              <p><span class="inline-heading">Occupation:</span>{' '}{formatOccupation(npc.data.occupation, npc.data.class, npc.data.adventuringCompany)}</p>
+              <p><span class="inline-heading">Species:</span>{' '}{npc.data.species}</p>
+              <p><span class="inline-heading">Culture:</span>{' '}{npc.data.culture}</p>
+              <p><span class="inline-heading">Pronouns:</span>{' '}{npc.data.pronouns}</p>
               <div class="description">
                 <Fragment set:html={ processMarkdown(npc.data.description) } />
               </div>
