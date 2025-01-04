@@ -39,8 +39,8 @@ const neighbors = hex.hideInCatalog ? [] : getHexNeighbors(hex.id);
 ---
 <style>
     p {
-        margin-left: 1rem;
-        text-indent: -1rem;
+        margin-left: var(--skyreach-standard-indent);
+        text-indent: calc(-1 * var(--skyreach-standard-indent));
         margin-bottom: 0;
         margin-top: 0;
     }

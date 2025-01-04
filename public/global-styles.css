@@ -1,3 +1,7 @@
+:root {
+    --skyreach-standard-indent: 1rem;
+}
+
 /* --- CUSTOM STYLES --- */
 
 html {

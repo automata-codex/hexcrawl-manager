@@ -28,13 +28,13 @@ const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
         margin-top: 1rem;
 
         p:not(:first-child) {
-            text-indent: 1rem;
+            text-indent: var(--skyreach-standard-indent);
         }
     }
 
     .hanging-indent {
-        margin-left: 1rem;
-        text-indent: -1rem;
+        margin-left: var(--skyreach-standard-indent);
+        text-indent: calc(-1 * var(--skyreach-standard-indent));
     }
 
     .hex-list {
