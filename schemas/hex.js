@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { RandomEncounterTableSchema } from './random-encounter-table.js';
 
-export const HexDataSchema = z.object({
+export const HexSchema = z.object({
   id: z.string(),
   name: z.string(),
   coordinates: z.tuple([z.string(), z.number()]).optional(), // We can derive coordinates from the id, but this is still in the schema for backwards compatibility.
@@ -17,7 +17,3 @@ export const HexDataSchema = z.object({
   encounters: RandomEncounterTableSchema.optional(),
   notes: z.array(z.string()).optional(),
 }).describe('Data for a hex in a hex map.');
-
-export const HexDatabaseSchema = z.array(
-  HexDataSchema
-).describe('Data for hexes in a hex map.');

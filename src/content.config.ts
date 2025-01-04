@@ -4,10 +4,10 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 import { DungeonDataSchema } from '../schemas/dungeon';
-import { HexDataSchema } from '../schemas/hex-database';
+import { HexSchema } from '../schemas/hex';
 import { NpcDataSchema } from '../schemas/npc';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
-import { RegionDataSchema } from '../schemas/region';
+import { RegionSchema } from '../schemas/region';
 import { StatBlockSchema } from '../schemas/stat-block';
 import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './types.ts';
 
@@ -53,7 +53,7 @@ const encounters = defineCollection({
 const hexes = defineCollection({
   loader: getDirectoryYamlLoader<HexData>(DIRS.HEXES),
   schema: {
-    ...HexDataSchema,
+    ...HexSchema,
     regionId: reference('regions'),
   },
 });
@@ -68,7 +68,7 @@ const npcs = defineCollection({
 const regions = defineCollection({
   loader: getDirectoryYamlLoader<RegionData>(DIRS.REGIONS),
   schema: {
-    ...RegionDataSchema,
+    ...RegionSchema,
   },
 });
 

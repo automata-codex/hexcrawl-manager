@@ -1,15 +1,15 @@
 import { writeFileSync } from 'fs';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { HexDatabaseSchema } from '../schemas/hex-database.js';
+import { HexListSchema } from '../schemas/hex-list.js';
 import { NpcDataSchema } from '../schemas/npc.js';
 import { RandomEncounterSchema } from '../schemas/random-encounter.js';
-import { RegionDatabaseSchema } from '../schemas/region.js';
+import { RegionSchema } from '../schemas/region.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
 
-const hexDatabaseFile = new URL('../schemas/hex-database.json', import.meta.url);
+const hexListFile = new URL('../schemas/hex-list.json', import.meta.url);
 writeFileSync(
-  hexDatabaseFile,
-  JSON.stringify(zodToJsonSchema(HexDatabaseSchema), null, 2)
+  hexListFile,
+  JSON.stringify(zodToJsonSchema(HexListSchema), null, 2)
 );
 
 const npcFile = new URL('../schemas/npc.json', import.meta.url);
@@ -27,7 +27,7 @@ writeFileSync(
 const regionDatabaseFile = new URL('../schemas/region.json', import.meta.url);
 writeFileSync(
   regionDatabaseFile,
-  JSON.stringify(zodToJsonSchema(RegionDatabaseSchema), null, 2)
+  JSON.stringify(zodToJsonSchema(RegionSchema), null, 2)
 );
 
 const statBlockFile = new URL('../schemas/stat-block.json', import.meta.url);
