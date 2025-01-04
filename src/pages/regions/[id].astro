@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import RandomEncounterTable from '../../components/RandomEncounterTable.astro';
 import Layout from '../../layouts/Layout.astro';
 import { getRegionTitle } from '../../utils/id-parsers';
+import { processMarkdown } from '../../utils/markdown';
 
 export async function getStaticPaths() {
   const regions = await getCollection('regions');
@@ -13,9 +14,7 @@ export async function getStaticPaths() {
 }
 
 const { region } = Astro.props;
-const description = region.data.description.startsWith('<') ? // TODO Render this using markdown
-  region.data.description :
-  '<p>' + region.data.description + '</p>';
+const description = processMarkdown(region.data.description);
 const hexData = await getCollection('hexes');
 const hexes = hexData
   .filter(hex => hex.data.regionId === region.id)
