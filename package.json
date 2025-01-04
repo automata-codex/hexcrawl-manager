@@ -20,6 +20,7 @@
     "@fortawesome/pro-thin-svg-icons": "^6.7.2",
     "astro": "^5.1.1",
     "lodash-es": "^4.17.21",
+    "rehype-add-classes": "^1.0.0",
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
     "remark-parse": "^11.0.0",
@@ -27,7 +28,6 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@rollup/plugin-yaml": "^4.1.2",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.10.2",
     "zod-to-json-schema": "^3.24.1"
