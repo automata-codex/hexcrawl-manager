@@ -1,5 +1,5 @@
 ---
-import { startCase, toLower } from 'lodash-es';
+import { toLower } from 'lodash-es';
 
 import type { MeleeWeaponAttackData } from '../../types';
 
@@ -12,6 +12,7 @@ const {
   additional_damage_dice,
   additional_damage_type,
   additional_default_damage,
+  additional_text,
   attack_bonus,
   damage_bonus,
   damage_dice,
@@ -19,6 +20,13 @@ const {
   default_damage,
   name,
 } = action;
+
+let additionalText = '.';
+if (additional_default_damage && additional_damage_dice && additional_damage_type) {
+  additionalText = ` plus ${additional_default_damage} (${additional_damage_dice}) ${toLower(additional_damage_type)} damage.`;
+} else if (additional_text) {
+  additionalText = additional_text;
+}
 ---
 <style>
   .action-name {
@@ -41,11 +49,5 @@ const {
   {' '}
   <span class="attack-type">Hit:</span>&nbsp;{default_damage}
   ({damage_bonus ? <>{damage_dice}+{damage_bonus}</> : <>{damage_dice}</>})
-  {toLower(damage_type)} damage
-  {additional_damage_dice && additional_damage_type ? (
-    <>
-      {' '}plus {additional_default_damage} ({additional_damage_dice}) {toLower(additional_damage_type)} damage.
-    </>
-  ) : '.'}
-
+  {toLower(damage_type)} damage{additionalText}
 </div>
