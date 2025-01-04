@@ -1,9 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
 
-import Hex from '../components/HexData/HexData.astro';
-import Layout from '../layouts/Layout.astro';
-import { getHexColumn, getHexRow } from '../utils/id-parsers';
+import Hex from '../../components/HexData/HexData.astro';
+import Layout from '../../layouts/Layout.astro';
+import { getHexColumn, getHexRow } from '../../utils/id-parsers';
 
 const hexData = await getCollection('hexes');
 const hexes = hexData

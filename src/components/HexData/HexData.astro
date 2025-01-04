@@ -38,13 +38,6 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
 const neighbors = hex.hideInCatalog ? [] : getHexNeighbors(hex.id);
 ---
 <style>
-    p {
-        margin-left: 1rem;
-        text-indent: -1rem;
-        margin-bottom: 0;
-        margin-top: 0;
-    }
-
     .data-bar {
         display: flex;
         font-weight: bold;
@@ -90,7 +83,7 @@ const neighbors = hex.hideInCatalog ? [] : getHexNeighbors(hex.id);
       </div>
     ))}
   </div>}
-  <p><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</p>
+  <div class="hanging-indent"><span class="inline-heading">Landmark:</span>{' '}{hex.landmark}</div>
   <HiddenSites hiddenSites={hex.hiddenSites} />
-  { hex.secretSite && <p><span class="inline-heading">Secret Site:</span>{' '}{hex.secretSite}</p> }
+  { hex.secretSite && <div class="hanging-indent"><span class="inline-heading">Secret Site:</span>{' '}{hex.secretSite}</div> }
 </section>

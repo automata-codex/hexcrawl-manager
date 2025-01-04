@@ -18,10 +18,10 @@ const encounter: RandomEncounterData = Astro.props.encounter.data;
 const statBlocks = await getCollection('statBlocks');
 const title = `Encounter: ${encounter.name}`;
 ---
-<style is:global>
+<style>
     .description {
         p:not(:first-child) {
-            text-indent: 2rem;
+            text-indent: var(--skyreach-standard-indent);
         }
     }
 

@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import RandomEncounterTable from '../../components/RandomEncounterTable.astro';
 import Layout from '../../layouts/Layout.astro';
 import { getRegionTitle } from '../../utils/id-parsers';
+import { processMarkdown } from '../../utils/markdown';
 
 export async function getStaticPaths() {
   const regions = await getCollection('regions');
@@ -13,9 +14,12 @@ export async function getStaticPaths() {
 }
 
 const { region } = Astro.props;
-const description = region.data.description.startsWith('<') ?
-  region.data.description :
-  '<p>' + region.data.description + '</p>';
+const description = processMarkdown(region.data.description);
+const hexData = await getCollection('hexes');
+const hexes = hexData
+  .filter(hex => hex.data.regionId === region.id)
+  .map(hex => hex.data.id.toUpperCase())
+  .sort((a, b) => a.localeCompare(b));
 const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
 ---
 <style>
@@ -23,24 +27,33 @@ const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
         margin-top: 1rem;
 
         p:not(:first-child) {
-            text-indent: 1rem;
+            text-indent: var(--skyreach-standard-indent);
         }
     }
-</style>
-<style is:global>
-    .hanging-indent {
-        margin-left: 1rem;
-        text-indent: -1rem;
-        margin-bottom: 0;
-        margin-top: 0;
+
+    .hex-list {
+        display: flex;
+        font-weight: bold;
+
+        div {
+            margin-right: 1rem;
+        }
     }
 </style>
 <Layout title={title}>
   <section class="section">
     <div class="container is-max-desktop">
       <h1 class="title is-2">{title}</h1>
-      <p class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.data.haven}</p>
-      <p class="hanging-indent"><span class="inline-heading">Icon:</span>{' '}{region.data.icon}</p>
+      <div class="hex-list">
+        <div><span class="inline-heading">Hexes:</span></div>
+        {hexes.map(hex => (
+          <div>
+            <a href={`/hexes/${hex.toLowerCase()}`}>{hex}</a>
+          </div>
+        ))}
+      </div>
+      <div class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.data.haven}</div>
+      <div class="hanging-indent"><span class="inline-heading">Icon:</span>{' '}{region.data.icon}</div>
       <div class="description-container">
         <Fragment set:html={description} />
       </div>
