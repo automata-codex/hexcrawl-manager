@@ -30,7 +30,7 @@ export const MeleeWeaponAttackSchema = z.object({
   additional_damage_type: DamageTypeSchema.optional(),
   additional_default_damage: z.number().int().positive().optional(),
   attack_bonus: z.number(),
-  damage_bonus: z.number(),
+  damage_bonus: z.number().nullable(),
   damage_dice: z.string(),
   damage_type: DamageTypeSchema,
   default_damage: z.number(),

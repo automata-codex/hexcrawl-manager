@@ -40,7 +40,8 @@ const {
   reach {action.reach}, one target.
   {' '}
   <span class="attack-type">Hit:</span>&nbsp;{default_damage}
-  ({damage_dice}+{damage_bonus}) {toLower(damage_type)} damage
+  ({damage_bonus ? <>{damage_dice}+{damage_bonus}</> : <>{damage_dice}</>})
+  {toLower(damage_type)} damage
   {additional_damage_dice && additional_damage_type ? (
     <>
       {' '}plus {additional_default_damage} ({additional_damage_dice}) {toLower(additional_damage_type)} damage.
