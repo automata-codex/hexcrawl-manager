@@ -4,6 +4,7 @@ import type { StatBlockData } from '../../types';
 import Actions from './Actions.astro';
 import Attributes from './Attributes.astro';
 import ChallengeAndProficiency from './ChallengeAndProficiency.astro';
+import Immunities from './Immunities.astro';
 import Skills from './Skills.astro';
 import Speed from './Speed.astro';
 import Subheading from './Subheading.astro';
@@ -51,6 +52,7 @@ const { data } = Astro.props;
     <Speed speed={data.speed} />
   </div>
   <Attributes data={data} />
+  <Immunities data={data} />
   <div class="stat-group">
     <Skills data={data.skills} />
     <div>
