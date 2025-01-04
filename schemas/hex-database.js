@@ -15,6 +15,7 @@ export const HexDataSchema = z.object({
   hasDungeon: z.boolean().optional(),
   encounterChance: z.number().int().min(1).max(20).optional(),
   encounters: RandomEncounterTableSchema.optional(),
+  notes: z.array(z.string()).optional(),
 }).describe('Data for a hex in a hex map.');
 
 export const HexDatabaseSchema = z.array(
