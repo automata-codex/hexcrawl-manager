@@ -128,6 +128,7 @@ export const StatBlockSchema = z.object({
   speed: z.object({
     climb: z.number().optional(),
     fly: z.number().optional(),
+    hover: z.boolean().optional(),
     swim: z.number().optional(),
     walk: z.number().optional(),
   }),
