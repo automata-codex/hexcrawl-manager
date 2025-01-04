@@ -10,24 +10,17 @@ if (hiddenSites.length === 0) {
 }
 ---
 <style>
-    p {
-        margin-left: var(--skyreach-standard-indent);
-        text-indent: calc(-1 * var(--skyreach-standard-indent));
-        margin-bottom: 0;
-        margin-top: 0;
-    }
-
     ul {
         margin-top: 0;
     }
 </style>
 
 {hiddenSites.length === 1 ? (
-  <p><span class="inline-heading">Hidden Site:</span>{' '}{hiddenSites[0]}</p>
+  <div><span class="inline-heading">Hidden Site:</span>{' '}{hiddenSites[0]}</div>
 ) : (
-  <p>
+  <div>
     <span class="inline-heading keep-with-next">Hidden Sites:</span>
-  </p>
+  </div>
   <ul>
     {hiddenSites.map((site: string) => <li>{site}</li>)}
   </ul>

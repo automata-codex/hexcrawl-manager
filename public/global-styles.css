@@ -34,7 +34,14 @@ ul {
     font-weight: bold;
 }
 
+.hanging-indent {
+    margin-left: var(--skyreach-standard-indent);
+    text-indent: calc(-1 * var(--skyreach-standard-indent));
+}
+
+
 /* --- BULMA OVERRIDES --- */
+
 ul {
     list-style-type: disc;
 }
