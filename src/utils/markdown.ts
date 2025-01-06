@@ -11,6 +11,7 @@ export async function processMarkdown(markdown: string) {
       h2: 'title is-3',
       h3: 'title is-4',
       h4: 'title is-5',
+      strong: 'inline-heading',
     })
     .use(rehypeStringify) // Converts HAST to HTML
     .process(markdown);

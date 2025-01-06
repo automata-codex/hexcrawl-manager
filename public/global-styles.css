@@ -31,6 +31,7 @@ ul {
 }
 
 .inline-heading {
+    color: inherit;
     font-weight: bold;
 }
 
