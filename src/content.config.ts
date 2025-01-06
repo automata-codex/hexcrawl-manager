@@ -16,6 +16,7 @@ const DATA_DIR = 'data';
 const DIRS = {
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
+  GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
   NPCS: `${DATA_DIR}/npcs`,
   REGIONS: `${DATA_DIR}/regions`,
@@ -50,6 +51,13 @@ const encounters = defineCollection({
   },
 });
 
+const gmNotes = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: DIRS.GM_NOTES }),
+  schema: z.object({
+    title: z.string(),
+  }),
+});
+
 const hexes = defineCollection({
   loader: getDirectoryYamlLoader<HexData>(DIRS.HEXES),
   schema: {
@@ -79,4 +87,12 @@ const statBlocks = defineCollection({
   },
 });
 
-export const collections = { dungeons, encounters, hexes, npcs, regions, statBlocks };
+export const collections = {
+  dungeons,
+  encounters,
+  gmNotes,
+  hexes,
+  npcs,
+  regions,
+  statBlocks,
+};
