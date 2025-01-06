@@ -1,10 +1,17 @@
 import { writeFileSync } from 'fs';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import { FloatingClueListSchema } from '../schemas/floating-clue-list.js';
 import { HexListSchema } from '../schemas/hex-list.js';
 import { NpcDataSchema } from '../schemas/npc.js';
 import { RandomEncounterSchema } from '../schemas/random-encounter.js';
 import { RegionSchema } from '../schemas/region.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
+
+const floatingClueListFile = new URL('../schemas/floating-clue-list.json', import.meta.url);
+writeFileSync(
+  floatingClueListFile,
+  JSON.stringify(zodToJsonSchema(FloatingClueListSchema), null, 2)
+);
 
 const hexListFile = new URL('../schemas/hex-list.json', import.meta.url);
 writeFileSync(
