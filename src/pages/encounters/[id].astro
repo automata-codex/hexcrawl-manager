@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 
 import Layout from '../../layouts/Layout.astro';
 import StatBlock from '../../components/StatBlock/StatBlock.astro';
-import { processMarkdown } from '../../utils/markdown';
+import { renderMarkdown } from '../../utils/markdown';
 import type { RandomEncounterData } from '../../types';
 
 export async function getStaticPaths() {
@@ -36,7 +36,7 @@ const title = `Encounter: ${encounter.name}`;
     <div class="container is-max-desktop">
       <h1 class="title is-2">{title}</h1>
       <div class="description">
-        <Fragment set:html={ processMarkdown(encounter.description) } />
+        <Fragment set:html={ renderMarkdown(encounter.description) } />
       </div>
       <div class="stat-block-container">
         {encounter.statBlocks.map((statBlockId: string) => {

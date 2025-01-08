@@ -1,4 +1,5 @@
 ---
+import { formatText } from '../../utils/text';
 interface Props {
   hiddenSites?: string[];
 }
@@ -16,12 +17,12 @@ if (hiddenSites.length === 0) {
 </style>
 
 {hiddenSites.length === 1 ? (
-  <div class="hanging-indent"><span class="inline-heading">Hidden Site:</span>{' '}{hiddenSites[0]}</div>
+  <div class="hanging-indent"><span class="inline-heading">Hidden Site:</span>{' '}{formatText(hiddenSites[0])}</div>
 ) : (
   <div>
     <span class="inline-heading keep-with-next">Hidden Sites:</span>
   </div>
   <ul>
-    {hiddenSites.map((site: string) => <li>{site}</li>)}
+    {hiddenSites.map((site: string) => <li>{formatText(site)}</li>)}
   </ul>
 )}

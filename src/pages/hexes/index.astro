@@ -35,7 +35,7 @@ const title = 'Baruun Khil Hex Catalog';
         {
           hexes.map((entry) =>
             <h2>{entry.id.toUpperCase()}: {entry.data.name}</h2>
-            <Hex hex={entry.data} hideNeighbors={true} />)
+            <Hex hex={entry.data} showDetailView={false} />)
         }
       </main>
     </div>
