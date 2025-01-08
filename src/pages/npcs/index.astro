@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
-import { processMarkdown } from '../../utils/markdown';
+import { renderMarkdown } from '../../utils/markdown';
 
 const npcData = await getCollection('npcs');
 
@@ -50,7 +50,7 @@ function formatOccupation(occupation: string, charClass?: string, adventuringCom
               <p><span class="inline-heading">Culture:</span>{' '}{npc.data.culture}</p>
               <p><span class="inline-heading">Pronouns:</span>{' '}{npc.data.pronouns}</p>
               <div class="description">
-                <Fragment set:html={ processMarkdown(npc.data.description) } />
+                <Fragment set:html={ renderMarkdown(npc.data.description) } />
               </div>
             </section>
           )
