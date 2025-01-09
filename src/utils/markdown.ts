@@ -1,4 +1,5 @@
 import rehypeAddClasses from 'rehype-add-classes';
+import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import { remark } from 'remark';
 import remarkRehype from 'remark-rehype';
@@ -6,7 +7,8 @@ import remarkSmartypants from 'remark-smartypants';
 
 export async function renderMarkdown(markdown: string) {
   const result = await remark()
-    .use(remarkRehype) // Converts MDAST to HAST
+    .use(remarkRehype, { allowDangerousHtml: true }) // Converts MDAST to HAST
+    .use(rehypeRaw) // Allows raw HTML in markdown
     .use(remarkSmartypants) // Adds typographic enhancements
     .use(rehypeAddClasses, {
       h1: 'title is-2',
@@ -15,7 +17,7 @@ export async function renderMarkdown(markdown: string) {
       h4: 'title is-5',
       strong: 'inline-heading',
     })
-    .use(rehypeStringify) // Converts HAST to HTML
+    .use(rehypeStringify, { allowDangerousHtml: true }) // Converts HAST to HTML
     .process(markdown);
   return result.toString();
 }
