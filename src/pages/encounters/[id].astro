@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import StatBlock from '../../components/StatBlock/StatBlock.astro';
 import { renderMarkdown } from '../../utils/markdown';
+import { formatText } from '../../utils/text';
 import type { RandomEncounterData } from '../../types';
 
 export async function getStaticPaths() {
@@ -16,7 +17,7 @@ export async function getStaticPaths() {
 
 const encounter: RandomEncounterData = Astro.props.encounter.data;
 const statBlocks = await getCollection('statBlocks');
-const title = `Encounter: ${encounter.name}`;
+const title = `Encounter: ${await formatText(encounter.name)}`;
 ---
 <style is:global>
     strong.inline-heading {

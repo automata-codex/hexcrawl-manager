@@ -9,6 +9,7 @@ import Skills from './Skills.astro';
 import Speed from './Speed.astro';
 import Subheading from './Subheading.astro';
 import Traits from './Traits.astro';
+import { formatText } from '../../utils/text';
 
 interface Props {
   data: StatBlockData;
@@ -36,7 +37,7 @@ const { data } = Astro.props;
     }
 </style>
 <section>
-  <h2 class="title is-4" style="margin-bottom: 0.25rem">{data.name}</h2>
+  <h2 class="title is-4" style="margin-bottom: 0.25rem">{formatText(data.name)}</h2>
   <Subheading data={data} />
   <div>
     <div>
