@@ -18,6 +18,11 @@ const encounter: RandomEncounterData = Astro.props.encounter.data;
 const statBlocks = await getCollection('statBlocks');
 const title = `Encounter: ${encounter.name}`;
 ---
+<style is:global>
+    strong.inline-heading {
+        color: var(--bulma-strong-color)
+    }
+</style>
 <style>
     .description {
         p:not(:first-child) {
