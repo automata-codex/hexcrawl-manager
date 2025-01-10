@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const encounterData = await getCollection('encounters');
+const encounters = encounterData.sort((a, b) => a.data.name.localeCompare(b.data.name));
+const title = 'Encounters';
+
+async function getUnusedEncounters() {
+  const regionData = await getCollection('regions');
+  const usedEncounters: string[] = [];
+  regionData.forEach((region) => {
+    region.data.encounters.forEach((encounter) => {
+      if ('encounter' in encounter.description) {
+        usedEncounters.push(encounter.description.encounter);
+      }
+    });
+  });
+  const allEncounters = encounterData.map((encounter) => encounter.id);
+  return allEncounters.filter((encounter) => !usedEncounters.includes(encounter));
+}
+const unusedEncounters = await getUnusedEncounters();
+
+function formatEncounterName(encounterId: string, encounterName: string) {
+  if (unusedEncounters.includes(encounterId)) {
+    return `<span class="unused-encounter">${encounterName}</span>`;
+  }
+  return encounterName;
+}---
+<style is:global>
+    .unused-encounter {
+        color: var(--bulma-text);
+        font-style: italic;
+        font-weight: bold;
+    }
+</style>
+<style>
+    p {
+        margin-bottom: 1rem;;
+    }
+
+    ul {
+        columns: 3;
+        margin-top: 0;
+    }
+</style>
+<Layout title={title}>
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h1 class="title is-2">{title}</h1>
+      <p>Encounter names <span class="unused-encounter">in this style</span> are unused.</p>
+      <ul>
+        {encounters.map((encounter) => (
+          <li>
+            <a href=`/encounters/${encounter.id}`>
+              <Fragment set:html={formatEncounterName(encounter.id, encounter.data.name)} />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Layout>
