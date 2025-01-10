@@ -50,6 +50,13 @@ export const RangedWeaponAttackSchema = z.object({
   range: z.string(),
 });
 
+export const SpecialActionSchema = z.object({
+  name: z.string(),
+  action_type: z.literal('special'),
+  desc: z.string(),
+  recharge: z.string().optional(),
+});
+
 export const SkillsSchema = z.object({
   acrobatics: z.number().int().positive().optional(),
   animal_handling: z.number().int().positive().optional(),
@@ -75,6 +82,7 @@ const ActionSchema = z.union([
   DescriptiveActionSchema,
   MeleeWeaponAttackSchema,
   RangedWeaponAttackSchema,
+  SpecialActionSchema,
 ]);
 
 export const StatBlockSchema = z.object({
@@ -168,7 +176,7 @@ export const StatBlockSchema = z.object({
     desc: z.string(),
   })).nullable(),
   spell_list: z.array(z.string()),
-  page_no: z.number(),
+  page_no: z.number().nullable(),
   environments: z.array(z.enum([
     'arctic',
     'coastal',
@@ -183,9 +191,9 @@ export const StatBlockSchema = z.object({
     'urban',
   ])),
   img_main: z.string().nullable().optional(),
-  document__slug: z.string(),
-  document__title: z.string(),
-  document__license_url: z.string(),
-  document__url: z.string(),
-  v2_converted_path: z.string(),
+  document__slug: z.string().optional(),
+  document__title: z.string().optional(),
+  document__license_url: z.string().optional(),
+  document__url: z.string().optional(),
+  v2_converted_path: z.string().optional(),
 });
