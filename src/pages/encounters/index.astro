@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const encounterData = await getCollection('encounters');
+const encounters = encounterData.sort((a, b) => a.data.name.localeCompare(b.data.name));
+const title = 'Encounters';
+---
+<style>
+    ul {
+        columns: 3;
+        margin-top: 0;
+    }
+</style>
+<Layout title={title}>
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h1 class="title is-2">{title}</h1>
+      <ul>
+        {encounters.map((encounter) => (
+          <li>
+            <a href=`/gm-notes/${encounter.id}`>{encounter.data.name}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Layout>
