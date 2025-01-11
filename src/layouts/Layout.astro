@@ -1,11 +1,16 @@
 ---
 import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/astro/components'
+import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { faMountainSun } from '@fortawesome/pro-light-svg-icons';
 
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
+library.add(faMountainSun);
+const skyreachIcon = icon(faMountainSun);
+
 ---
 <!doctype html>
 <html lang="en">
@@ -22,16 +27,26 @@ const { title } = Astro.props;
 		<link rel="stylesheet" href="/global-styles.css" />
 	</head>
 	<body>
-	<header>
-		<nav>
-			<SignedOut>
-				<SignInButton mode="modal" />
-			</SignedOut>
-			<SignedIn>
-				<UserButton />
-			</SignedIn>
-		</nav>
-	</header>
+		<div class="container is-max-desktop">
+			<nav class="navbar" role="navigation">
+				<div class="navbar-brand">
+					<a class="navbar-item" href="/">
+						<Fragment set:html={skyreachIcon.html} />
+						Beyond the Skyreach Mountains
+					</a>
+				</div>
+				<div class="navbar-end">
+					<div class="navbar-item" style="padding-right: 0">
+						<SignedOut>
+							<SignInButton mode="modal" />
+						</SignedOut>
+						<SignedIn>
+							<UserButton />
+						</SignedIn>
+					</div>
+				</div>
+			</nav>
+		</div>
 		<slot />
 	</body>
 </html>
