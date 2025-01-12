@@ -1,20 +1,32 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 
 import Hex from '../../components/HexData/HexData.astro';
 import RandomEncounterTable from '../../components/RandomEncounterTable.astro';
 import Layout from '../../layouts/Layout.astro';
 import type { HexData, RandomEncounterTableData } from '../../types';
 
-export async function getStaticPaths() {
-  const hexes = await getCollection('hexes');
-  return hexes.map(hex => ({
-    params: { id: hex.id },
-    props: { hex: hex },
-  }));
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
 }
 
-const hex: HexData = Astro.props.hex.data;
+// Query for the entry directly using the request slug
+const hexData = await getEntry("hexes", id);
+
+// Redirect if the entry does not exist
+if (hexData === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+const hex: HexData = hexData.data;
 const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
 
 // Build the random encounter table

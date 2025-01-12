@@ -1,19 +1,30 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import RandomEncounterTable from '../../components/RandomEncounterTable.astro';
 import Layout from '../../layouts/Layout.astro';
 import { getRegionTitle } from '../../utils/id-parsers';
 import { renderMarkdown } from '../../utils/markdown';
 
-export async function getStaticPaths() {
-  const regions = await getCollection('regions');
-  return regions.map(region => ({
-    params: { id: region.id },
-    props: { region },
-  }));
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
 }
 
-const { region } = Astro.props;
+// Query for the entry directly using the request slug
+const region = await getEntry("regions", id);
+
+// Redirect if the entry does not exist
+if (region === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
 const description = renderMarkdown(region.data.description);
 const hexData = await getCollection('hexes');
 const hexes = hexData

@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 
 import Layout from '../../layouts/Layout.astro';
 import StatBlock from '../../components/StatBlock/StatBlock.astro';
@@ -7,15 +7,27 @@ import { renderMarkdown } from '../../utils/markdown';
 import { formatText } from '../../utils/text';
 import type { RandomEncounterData } from '../../types';
 
-export async function getStaticPaths() {
-  const encounters = await getCollection('encounters');
-  return encounters.map(encounter => ({
-    params: { id: encounter.id },
-    props: { encounter: encounter }
-  }));
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
 }
 
-const encounter: RandomEncounterData = Astro.props.encounter.data;
+// Query for the entry directly using the request slug
+const encounterData = await getEntry("encounters", id);
+
+// Redirect if the entry does not exist
+if (encounterData === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+const encounter: RandomEncounterData = encounterData.data;
 const statBlocks = await getCollection('statBlocks');
 const title = `Encounter: ${await formatText(encounter.name)}`;
 ---

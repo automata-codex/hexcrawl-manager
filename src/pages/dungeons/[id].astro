@@ -1,17 +1,27 @@
 ---
-import { getCollection, getEntry, render } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
-import type { DungeonData } from '../../types';
 
-export async function getStaticPaths() {
-  const dungeons = await getCollection('dungeons');
-  return dungeons.map(dungeon => ({
-    params: { id: dungeon.id },
-    props: { dungeon },
-  }));
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
 }
 
-const { dungeon } = Astro.props;
+// Query for the entry directly using the request slug
+const dungeon = await getEntry("dungeons", id);
+
+// Redirect if the entry does not exist
+if (dungeon === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
 const title = `Dungeon: ${dungeon.data.name}`;
 const { Content } = await render(dungeon);
 const hexData = await getEntry('hexes', dungeon.data.hexId);
