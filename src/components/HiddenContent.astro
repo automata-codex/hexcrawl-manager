@@ -1,4 +1,4 @@
 ---
-const something = Astro.locals.auth();
+const { clearance } = Astro.locals.auth().sessionClaims ?? { clearance: null };
 ---
-<pre>{JSON.stringify(something.sessionClaims?.clearance ?? {}, null, 2)}</pre>
+<pre>{JSON.stringify(clearance ?? {}, null, 2)}</pre>
