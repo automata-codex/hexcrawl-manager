@@ -1,0 +1,4 @@
+---
+const something = Astro.locals.auth();
+---
+<pre>{JSON.stringify(something.sessionClaims?.clearance ?? {}, null, 2)}</pre>
