@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import HiddenContent from '../components/HiddenContent.astro';
+import { SECURITY_ROLE } from '../utils/constants';
 
 const title = 'Beyond the Skyreach Mountains';
 ---
@@ -52,6 +53,6 @@ const title = 'Beyond the Skyreach Mountains';
         </div>
       </div>
     </div>
-    <HiddenContent />
+    <HiddenContent role={SECURITY_ROLE.GM} />
   </section>
 </Layout>
