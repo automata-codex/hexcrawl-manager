@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import RestrictedContent from '../components/RestrictedContent.astro';
-import { SECURITY_ROLE } from '../utils/constants';
+import { SCOPES } from '../utils/constants';
 
 const title = 'Beyond the Skyreach Mountains';
 ---
@@ -53,7 +53,7 @@ const title = 'Beyond the Skyreach Mountains';
         </div>
       </div>
     </div>
-    <RestrictedContent role={SECURITY_ROLE.GM}>
+    <RestrictedContent scope={SCOPES.GM}>
       <p>This is the hidden content for GMs.</p>
     </RestrictedContent>
   </section>

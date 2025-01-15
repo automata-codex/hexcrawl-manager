@@ -1,13 +1,13 @@
 ---
-import { SECURITY_ROLE } from '../utils/constants';
-import { isAccessAllowed } from '../utils/auth';
-import type { SecurityRole } from '../utils/constants';
+import { canAccess } from '../utils/auth';
+import { SCOPES } from '../utils/constants';
+import type { Scope } from '../types.ts';
 
 interface Props {
-  role?: SecurityRole;
+  scope?: Scope;
 }
 
-const { role = SECURITY_ROLE.HIDDEN } = Astro.props;
-const { clearance } = (Astro.locals.auth().sessionClaims ?? { clearance: null }) as { clearance: string | null };
+const { scope = SCOPES.HIDDEN } = Astro.props;
+const { role = null } = (Astro.locals.auth().sessionClaims ?? { role: null }) as { role: string | null };
 ---
-{isAccessAllowed(role, clearance) && <slot />}
+{canAccess(role, scope) && <slot />}

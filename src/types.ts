@@ -4,6 +4,7 @@ import { HexSchema } from '../schemas/hex.js';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RandomEncounterTableSchema } from '../schemas/random-encounter-table';
 import { RegionSchema } from '../schemas/region';
+import { ScopeSchema } from '../schemas/scopes';
 import {
   DescriptiveActionSchema,
   MeleeWeaponAttackSchema,
@@ -20,5 +21,6 @@ export type RandomEncounterData = z.infer<typeof RandomEncounterSchema>;
 export type RandomEncounterTableData = z.infer<typeof RandomEncounterTableSchema>;
 export type RangedWeaponAttackData = z.infer<typeof RangedWeaponAttackSchema>;
 export type RegionData = z.infer<typeof RegionSchema>;
+export type Scope = z.infer<typeof ScopeSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;

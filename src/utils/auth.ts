@@ -1,28 +1,23 @@
-import { SECURITY_ROLE } from './constants.ts';
-import type { SecurityRole } from './constants.ts';
+import { SCOPES, SECURITY_ROLE } from './constants.ts';
+import type { Scope } from '../types.ts';
 
-/**
- * Asks the question, "Is someone with <clearance> allowed to access content restricted to <role>?"
- * @param role
- * @param clearance
- * @returns {boolean}
- */
-export function isAccessAllowed(role: SecurityRole, clearance: string | null): boolean {
-  // "GM" can access everything
-  if (clearance === SECURITY_ROLE.GM) {
-    return true;
+const DEFAULT_SCOPE = SCOPES.PUBLIC;
+
+const ROLE_HIERARCHY = {
+  [SECURITY_ROLE.PUBLIC]: [SCOPES.PUBLIC],
+  [SECURITY_ROLE.HIDDEN]: [SCOPES.PUBLIC, SCOPES.HIDDEN],
+  [SECURITY_ROLE.GM]: [SCOPES.PUBLIC, SCOPES.HIDDEN, SCOPES.GM],
+} as const;
+
+export function canAccess(role: string|null, scope: Scope): boolean {
+  return getScopesForRole(role).includes(scope);
+}
+
+function getScopesForRole(role: string|null): Readonly<Scope[]> {
+  // If role is a key of ROLE_HIERARCHY, return the value of that key
+  if (role && role in ROLE_HIERARCHY) {
+    return ROLE_HIERARCHY[role as keyof typeof ROLE_HIERARCHY];
   }
-
-  // You have to have "HIDDEN" clearance to view hidden content (remember "GM" can view everything)
-  if (role === SECURITY_ROLE.HIDDEN && clearance === SECURITY_ROLE.HIDDEN) {
-    return true;
-  }
-
-  // Everyone can access public content
-  // noinspection RedundantIfStatementJS
-  if (role === SECURITY_ROLE.PUBLIC) {
-    return true;
-  }
-
-  return false;
+  // Otherwise, return [DEFAULT_SCOPE]
+  return [DEFAULT_SCOPE];
 }
