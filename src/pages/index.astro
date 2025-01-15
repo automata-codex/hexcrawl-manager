@@ -6,40 +6,98 @@ import { SCOPES } from '../utils/constants';
 const title = 'Beyond the Skyreach Mountains';
 ---
 <style>
-    h2.title.is-3 {
+    .box {
+        text-align: center;
+    }
+
+    .box > h2.title.is-3 {
         margin-top: 0;
         margin-bottom: 0.25rem;
         text-align: center;
     }
 
-    .box {
+    h2.title.is-3 {
         text-align: center;
+    }
+
+    .welcome-text {
+        margin: 0 auto 2rem;
+        max-width: 48rem; // 768px
+    }
+
+    .welcome-text > p {
+        margin-bottom: 1rem;
+        text-align: justify;
     }
 </style>
 <Layout title={title}>
   <section class="section">
     <div class="container is-max-desktop">
       <h1 class="title is-2">{title}</h1>
-      <div class="columns">
+      <section class="welcome-text">
+        <p>
+          The Crown Prince has done the impossible: a road now traverses the
+          once-impassable mountains at the western edge of the kingdom, opening
+          a gateway to a mysterious and unexplored land. Known only as the
+          "western frontier," this vast and enigmatic wilderness is filled with
+          towering trees, hidden glades, and shadowed depths. Rumors of ancient
+          treasures and bizarre creatures spread quickly across the Known World,
+          drawing the bold and the brave to answer the prince's call for
+          adventurers.
+        </p>
+        <p>
+          But be warned&mdash;the western frontier is no mere backwater. By day,
+          it may seem like a land of promise, ripe for exploration and riches.
+          By night, however, strange dangers stir beneath the boughs. While
+          some who brave the darkness return with tales of terror, others are
+          not so lucky. On occasion, adventurers disappear without a trace, or
+          worse&mdash;they come back changed, haunted by something unseen, their
+          minds never quite the same. Will you rise to the challenge and uncover
+          the secrets of the forest? Or will the frontier claim you as one more
+          lost soul? The call has gone out. The road is open. Will you step into
+          the unknown?
+        </p>
+      </section>
+      <h2 class="title is-3">Ready to get started?</h2>
+      <section class="columns">
         <div class="column is-one-third">
           <div class="box">
-            <h2 class="title is-3">Hex Catalog</h2>
+            <h2 class="title is-3">Heritage</h2>
             <p>
-              You can browse the <a href="/hexes">Hex Catalog</a>.
-            </p>
-          </div>
-          <div class="box">
-            <h2 class="title is-3">GM&rsquo;s Notes</h2>
-            <p>
-              If you're the GM, you can view <a href="gm-notes">your notes</a>.
+              Check out Ancestries and Cultures to choose your character&rsquo;s heritage.
             </p>
           </div>
         </div>
         <div class="column is-one-third">
           <div class="box">
-            <h2 class="title is-3">Regions</h2>
+            <h2 class="title is-3">Class</h2>
             <p>
-              You can also view <a href="/regions">the list of regions</a>. Each region includes links to its individual hexes.
+              Check out Playable Classes and Subclasses to select your character&rsquo;s class.
+            </p>
+          </div>
+        </div>
+        <div class="column is-one-third">
+          <div class="box">
+            <h2 class="title is-3">Goals</h2>
+            <p>
+              You can set Goals for your character either before selecting their heritage and class or after.
+            </p>
+          </div>
+        </div>
+      </section>
+      <h2 class="title is-3">Player&rsquo;s Reference</h2>
+      <section class="columns">
+        <div class="column is-one-third">
+          <div class="box">
+            <h2 class="title is-3">Maps</h2>
+            <p>
+              Wizards of the Coast does not officially endorse the following tactics, which are guaranteed to maximize your enjoyment as a Dungeon Master.
+            </p>
+          </div>
+          <div class="box">
+            <h2 class="title is-3">Supplements</h2>
+            <p>
+              Third, if you’re not sure what to do next, feign illness, end the session early, and plot your next move.
             </p>
           </div>
         </div>
@@ -47,14 +105,54 @@ const title = 'Beyond the Skyreach Mountains';
           <div class="box">
             <h2 class="title is-3">NPCs</h2>
             <p>
-              There are <a href="/npcs">NPCs</a> for your viewing pleasure.
+              First, always keep a straight face and say OK no matter how ludicrous or doomed the players’ plan of action is.
+            </p>
+          </div>
+          <div class="box">
+            <h2 class="title is-3">Setting</h2>
+            <p>
+              Learn about the Known World, whence you hail, and Baruun Khil, the western frontier where you&rsquo;re headed.
             </p>
           </div>
         </div>
-      </div>
+        <div class="column is-one-third">
+          <div class="box">
+            <h2 class="title is-3">House Rules</h2>
+            <p>
+              Second, no matter what happens, pretend that you intended all along for everything to unfold the way it did.
+            </p>
+          </div>
+        </div>
+      </section>
+      <RestrictedContent>
+        <h2 class="title is-3">GM&rsquo;s Reference</h2>
+        <section class="columns">
+          <div class="column is-one-third">
+            <div class="box">
+              <h2 class="title is-3">Regions</h2>
+              <p>
+                View <a href="/regions">the list of regions</a>. Each region includes links to its individual hexes.
+              </p>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="box">
+              <h2 class="title is-3">Floating Clues</h2>
+              <p>
+                When all else fails, roll a bunch of dice behind your screen, study them for a moment with a look of deep concern mixed with regret...
+              </p>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="box">
+              <h2 class="title is-3">Rumors</h2>
+              <p>
+                ...let loose a heavy sigh, and announce that Tiamat swoops from the sky and attacks.
+              </p>
+            </div>
+          </div>
+        </section>
+      </RestrictedContent>
     </div>
-    <RestrictedContent scope={SCOPES.GM}>
-      <p>This is the hidden content for GMs.</p>
-    </RestrictedContent>
   </section>
 </Layout>
