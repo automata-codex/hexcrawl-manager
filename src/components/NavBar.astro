@@ -1,0 +1,29 @@
+---
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/astro/components';
+import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { faMountainSun } from '@fortawesome/pro-light-svg-icons';
+
+library.add(faMountainSun);
+const skyreachIcon = icon(faMountainSun);
+
+---
+<div class="container is-max-desktop">
+  <nav class="navbar" role="navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/">
+        <Fragment set:html={skyreachIcon.html} />
+        Beyond the Skyreach Mountains
+      </a>
+    </div>
+    <div class="navbar-end">
+      <div class="navbar-item" style="padding-right: 0">
+        <SignedOut>
+          <SignInButton mode="modal" />
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </div>
+    </div>
+  </nav>
+</div>
