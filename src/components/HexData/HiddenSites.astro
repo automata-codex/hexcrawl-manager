@@ -1,12 +1,16 @@
 ---
 import { formatText } from '../../utils/text';
+import type { HexData } from '../../types';
+
 interface Props {
-  hiddenSites?: string[];
+  hex: HexData;
 }
 
-const { hiddenSites = [] } = Astro.props;
+const { hex } = Astro.props;
 
-if (hiddenSites.length === 0) {
+const { hiddenSites = [] } = hex;
+
+if (!hex.isExplored || hiddenSites.length === 0) {
   return null;
 }
 ---
