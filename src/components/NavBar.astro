@@ -5,8 +5,28 @@ import { faMountainSun } from '@fortawesome/pro-light-svg-icons';
 
 library.add(faMountainSun);
 const skyreachIcon = icon(faMountainSun);
-
 ---
+<style>
+    .clerk-icon {
+        padding-right: 0;
+    }
+
+    @media screen and (min-width: 768px) {
+        .clerk-icon {
+            padding-right: 0.75rem;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-end {
+            justify-content: flex-end;
+            margin-inline-start: auto;
+        }
+    }
+</style>
 <div class="container is-max-desktop">
   <nav class="navbar" role="navigation">
     <div class="navbar-brand">
@@ -16,7 +36,7 @@ const skyreachIcon = icon(faMountainSun);
       </a>
     </div>
     <div class="navbar-end">
-      <div class="navbar-item" style="padding-right: 0">
+      <div class="navbar-item clerk-icon">
         <SignedOut>
           <SignInButton mode="modal" />
         </SignedOut>
