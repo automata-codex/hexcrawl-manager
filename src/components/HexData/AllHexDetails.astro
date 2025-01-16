@@ -1,0 +1,46 @@
+---
+import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
+import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
+import { getCollection } from 'astro:content';
+import Visited from './Visited.astro';
+import type { HexData } from '../../types';
+
+interface Props {
+  hex: HexData;
+}
+
+const { hex } = Astro.props;
+
+// Find all dungeons that are in this hex
+const allDungeons = await getCollection('dungeons');
+const dungeons = allDungeons
+  .filter(dungeon => dungeon.data.hexId === hex.id)
+  .sort((a, b) => a.data.name.localeCompare(b.data.name));
+
+// Get some icons
+library.add(faDungeon, faSquare, faSquareCheck);
+const dungeonIcon = icon(faDungeon);
+const squareIcon = icon(faSquare);
+const squareCheckIcon = icon(faSquareCheck);
+
+const visitedIcon = hex.isVisited ? squareCheckIcon : squareIcon;
+const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
+
+---
+<style>
+    .data-bar {
+        display: flex;
+        font-weight: bold;
+
+        div {
+            margin-right: 1rem;
+        }
+    }
+</style>
+
+<section>
+  <div class="data-bar">
+    <Visited hex={hex} />
+  </div>
+</section>
