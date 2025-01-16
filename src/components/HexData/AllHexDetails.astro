@@ -1,8 +1,10 @@
 ---
-import { library, icon } from '@fortawesome/fontawesome-svg-core';
-import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
-import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
-import { getCollection } from 'astro:content';
+import { getRegionTitle } from '../../utils/id-parsers';
+import { formatText } from '../../utils/text';
+import Dungeons from './Dungeons.astro';
+import Explored from './Explored.astro';
+import HiddenSites from './HiddenSites.astro';
+import Neighbors from './Neighbors.astro';
 import Visited from './Visited.astro';
 import type { HexData } from '../../types';
 
@@ -11,22 +13,6 @@ interface Props {
 }
 
 const { hex } = Astro.props;
-
-// Find all dungeons that are in this hex
-const allDungeons = await getCollection('dungeons');
-const dungeons = allDungeons
-  .filter(dungeon => dungeon.data.hexId === hex.id)
-  .sort((a, b) => a.data.name.localeCompare(b.data.name));
-
-// Get some icons
-library.add(faDungeon, faSquare, faSquareCheck);
-const dungeonIcon = icon(faDungeon);
-const squareIcon = icon(faSquare);
-const squareCheckIcon = icon(faSquareCheck);
-
-const visitedIcon = hex.isVisited ? squareCheckIcon : squareIcon;
-const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
-
 ---
 <style>
     .data-bar {
@@ -42,5 +28,31 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
 <section>
   <div class="data-bar">
     <Visited hex={hex} />
+    <Explored hex={hex} />
+    <div>
+      <a href={`/hexes/${hex.id}`}>View Hex</a>
+    </div>
+    <div>
+      <a href={`/regions/${hex.regionId}`}>{getRegionTitle(hex.regionId)}</a>
+    </div>
+    <Dungeons hex={hex} />
   </div>
+  <div class="data-bar">
+    <Neighbors hex={hex} />
+  </div>
+  <div class="hanging-indent">
+    <span class="inline-heading">Landmark:</span>{' '}
+    {formatText(hex.landmark)}
+  </div>
+  <HiddenSites hiddenSites={hex.hiddenSites} />
+  { hex.secretSite && <div class="hanging-indent"><span class="inline-heading">Secret Site:</span>{' '}{formatText(hex.secretSite)}</div> }
+  { hex.notes && <p class="hanging-indent">
+      <span class="inline-heading">GM&rsquo;s Notes:</span>
+    </p>
+    <ul>
+      {hex.notes.map(note => (
+        <li>{formatText(note)}</li>
+      ))}
+    </ul>
+  }
 </section>

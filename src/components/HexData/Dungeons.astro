@@ -1,0 +1,29 @@
+---
+import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
+import { getCollection } from 'astro:content';
+import type { HexData } from '../../types';
+
+interface Props {
+  hex: HexData;
+}
+
+const { hex } = Astro.props;
+
+// Find all dungeons that are in this hex
+const allDungeons = await getCollection('dungeons');
+const dungeons = allDungeons
+  .filter(dungeon => dungeon.data.hexId === hex.id)
+  .sort((a, b) => a.data.name.localeCompare(b.data.name));
+
+// Get some icons
+library.add(faDungeon);
+const dungeonIcon = icon(faDungeon);
+---
+<div>
+  {dungeons.map(dungeon => (
+    <a href={`/dungeons/${dungeon.id}`} title={dungeon.data.name}>
+      <Fragment set:html={dungeonIcon.html} />
+    </a>
+  ))}
+</div>
