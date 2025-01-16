@@ -10,9 +10,10 @@ import type { HexData } from '../../types';
 
 interface Props {
   hex: HexData;
+  showSelfLink?: boolean;
 }
 
-const { hex } = Astro.props;
+const { hex, showSelfLink = true } = Astro.props;
 ---
 <style>
     .data-bar {
@@ -29,9 +30,9 @@ const { hex } = Astro.props;
   <div class="data-bar">
     <Visited hex={hex} />
     <Explored hex={hex} />
-    <div>
+    {showSelfLink && <div>
       <a href={`/hexes/${hex.id}`}>View Hex</a>
-    </div>
+    </div>}
     <div>
       <a href={`/regions/${hex.regionId}`}>{getRegionTitle(hex.regionId)}</a>
     </div>
@@ -44,7 +45,7 @@ const { hex } = Astro.props;
     <span class="inline-heading">Landmark:</span>{' '}
     {formatText(hex.landmark)}
   </div>
-  <HiddenSites hiddenSites={hex.hiddenSites} />
+  <HiddenSites hex={hex} />
   { hex.secretSite && <div class="hanging-indent"><span class="inline-heading">Secret Site:</span>{' '}{formatText(hex.secretSite)}</div> }
   { hex.notes && <p class="hanging-indent">
       <span class="inline-heading">GM&rsquo;s Notes:</span>
