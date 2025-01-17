@@ -1,7 +1,7 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 import RandomEncounterTable from '../../components/RandomEncounterTable.astro';
-import Layout from '../../layouts/Layout.astro';
+import ComponentLayout from '../../layouts/ComponentLayout.astro';
 import { getRegionTitle } from '../../utils/id-parsers';
 import { renderMarkdown } from '../../utils/markdown';
 
@@ -51,31 +51,26 @@ const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
         }
     }
 </style>
-<Layout title={title}>
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h1 class="title is-2">{title}</h1>
-      <div class="hex-list">
-        <div><span class="inline-heading">Hexes:</span></div>
-        {hexes.map(hex => (
-          <div>
-            <a href={`/hexes/${hex.toLowerCase()}`}>{hex}</a>
-          </div>
-        ))}
+<ComponentLayout title={title}>
+  <div class="hex-list">
+    <div><span class="inline-heading">Hexes:</span></div>
+    {hexes.map(hex => (
+      <div>
+        <a href={`/hexes/${hex.toLowerCase()}`}>{hex}</a>
       </div>
-      <div class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.data.haven}</div>
-      <div class="hanging-indent"><span class="inline-heading">Icon:</span>{' '}{region.data.icon}</div>
-      <div class="description-container">
-        <Fragment set:html={description} />
-      </div>
-      <h2 class="title is-4" style="margin-bottom: 0.25rem">Random Encounters</h2>
-      <p class="hanging-indent">
-        <span class="inline-heading">Chance of encounter:</span>
-        {' '}
-        {region.data.encounterChance * 5}%
-        (&le;{region.data.encounterChance})
-      </p>
-      <RandomEncounterTable data={region.data.encounters} />
-    </div>
-  </section>
-</Layout>
+    ))}
+  </div>
+  <div class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.data.haven}</div>
+  <div class="hanging-indent"><span class="inline-heading">Icon:</span>{' '}{region.data.icon}</div>
+  <div class="description-container">
+    <Fragment set:html={description} />
+  </div>
+  <h2 class="title is-4" style="margin-bottom: 0.25rem">Random Encounters</h2>
+  <p class="hanging-indent">
+    <span class="inline-heading">Chance of encounter:</span>
+    {' '}
+    {region.data.encounterChance * 5}%
+    (&le;{region.data.encounterChance})
+  </p>
+  <RandomEncounterTable data={region.data.encounters} />
+</ComponentLayout>

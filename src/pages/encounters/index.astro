@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import Layout from '../../layouts/Layout.astro';
+import Layout from '../../layouts/BaseLayout.astro';
 
 const encounterData = await getCollection('encounters');
 const encounters = encounterData.sort((a, b) => a.data.name.localeCompare(b.data.name));

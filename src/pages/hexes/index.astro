@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 
 import GmHexDetails from '../../components/HexData/GmHexDetails.astro';
-import Layout from '../../layouts/Layout.astro';
+import Layout from '../../layouts/BaseLayout.astro';
 import { getHexColumn, getHexRow } from '../../utils/id-parsers';
 
 const hexData = await getCollection('hexes');
