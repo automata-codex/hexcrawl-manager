@@ -6,6 +6,7 @@ import remarkRehype from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
 
 export async function renderMarkdown(markdown: string) {
+  // Changes to this pipeline should also be made to `astro.config.mjs`
   const result = await remark()
     .use(remarkRehype, { allowDangerousHtml: true }) // Converts MDAST to HAST
     .use(rehypeRaw) // Allows raw HTML in markdown
