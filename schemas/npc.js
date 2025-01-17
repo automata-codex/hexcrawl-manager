@@ -12,4 +12,5 @@ export const NpcDataSchema = z.object({
   pronouns: z.string(),
   description: z.string(),
   image: z.string().optional(),
+  notes: z.array(z.string()).optional(),
 });

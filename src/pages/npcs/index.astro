@@ -1,7 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
+import RestrictedContent from '../../components/RestrictedContent.astro';
 import Layout from '../../layouts/Layout.astro';
 import { renderMarkdown } from '../../utils/markdown';
+import { formatText } from '../../utils/text';
 
 const npcData = await getCollection('npcs');
 
@@ -52,6 +54,12 @@ function formatOccupation(occupation: string, charClass?: string, adventuringCom
               <div class="description">
                 <Fragment set:html={ renderMarkdown(npc.data.description) } />
               </div>
+              <RestrictedContent>
+                <p><span class="inline-heading">Notes:</span></p>
+                <ul>
+                  {npc.data.notes && npc.data.notes.map((note) => <li>{formatText(note)}</li>)}
+                </ul>
+              </RestrictedContent>
             </section>
           )
         }
