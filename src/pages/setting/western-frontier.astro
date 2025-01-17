@@ -6,7 +6,7 @@ import ComponentLayout from '../../layouts/ComponentLayout.astro';
 import { renderMarkdown } from '../../utils/markdown';
 import RestrictedContent from '../../components/RestrictedContent.astro';
 
-const article = await getEntry('miscPages', 'western-frontier');
+const article = await getEntry('articles', 'western-frontier');
 if (!article) {
   throw new Error('Article not found');
 }

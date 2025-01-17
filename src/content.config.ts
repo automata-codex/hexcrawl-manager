@@ -15,12 +15,12 @@ import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './
 const DATA_DIR = 'data';
 
 const DIRS = {
+  ARTICLES: `${DATA_DIR}/articles`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   FLOATING_CLUES: `${DATA_DIR}/floating-clues`,
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
-  MISC_PAGES: `${DATA_DIR}/miscellaneous-pages`,
   NPCS: `${DATA_DIR}/npcs`,
   REGIONS: `${DATA_DIR}/regions`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
@@ -38,6 +38,13 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
     return data.flat();
   };
 }
+
+const articles = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: DIRS.ARTICLES }),
+  schema: z.object({
+    title: z.string(),
+  }),
+});
 
 const dungeons = defineCollection({
   loader: glob({ pattern: "**/*.md", base: DIRS.DUNGEONS }),
@@ -76,13 +83,6 @@ const hexes = defineCollection({
   },
 });
 
-const miscPages = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: DIRS.MISC_PAGES }),
-  schema: z.object({
-    title: z.string(),
-  }),
-});
-
 const npcs = defineCollection({
   loader: getDirectoryYamlLoader<RegionData>(DIRS.NPCS),
   schema: {
@@ -105,12 +105,12 @@ const statBlocks = defineCollection({
 });
 
 export const collections = {
+  articles,
   dungeons,
   encounters,
   floatingClues,
   gmNotes,
   hexes,
-  miscPages,
   npcs,
   regions,
   statBlocks,
