@@ -2,7 +2,7 @@
 import { icon, library } from '@fortawesome/fontawesome-svg-core';
 import { faEyeEvil } from '@fortawesome/pro-light-svg-icons';
 import { getEntry } from 'astro:content';
-import ComponentLayout from '../../layouts/ComponentLayout.astro';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import { renderMarkdown } from '../../utils/markdown';
 import RestrictedContent from '../../components/RestrictedContent.astro';
 
@@ -14,30 +14,7 @@ const { title } = article.data;
 
 library.add(faEyeEvil);
 const evilEye = icon(faEyeEvil);
-
 ---
-<style is:global>
-    p {
-        text-indent: var(--skyreach-standard-indent);
-    }
-
-    p:first-child,
-    h2 + p,
-    h3 + p,
-    h4 + p,
-    h5 + p,
-    h6 + p {
-        text-indent: 0;
-    }
-
-    h2.title.is-3,
-    h3.title.is-4,
-    h4.title.is-5,
-    h5.title.is-6,
-    h6.title.is-7 {
-        margin-bottom: var(--skyreach-heading-margin-bottom);
-    }
-</style>
 <style>
     .callout {
         border: 1px solid var(--bulma-text);
@@ -45,13 +22,13 @@ const evilEye = icon(faEyeEvil);
         padding: 1rem;
     }
 </style>
-<ComponentLayout title={title}>
+<ArticleLayout title={title}>
   <RestrictedContent>
-    <div class="callout">
+    <div class="box callout">
       <Fragment set:html={evilEye.html} />
       See the <a href="western-frontier-gms-notes">GM&rsquo;s section</a> for this article.</div>
   </RestrictedContent>
   <article>
     <Fragment set:html={renderMarkdown(article.body ?? '')} />
   </article>
-</ComponentLayout>
+</ArticleLayout>
