@@ -6,6 +6,7 @@ import { HexListSchema } from '../schemas/hex-list.js';
 import { NpcDataSchema } from '../schemas/npc.js';
 import { RandomEncounterSchema } from '../schemas/random-encounter.js';
 import { RegionSchema } from '../schemas/region.js';
+import { RumorListSchema } from '../schemas/rumor.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
 import { SupplementListSchema } from '../schemas/supplement-list.js';
 
@@ -43,6 +44,12 @@ const regionDatabaseFile = new URL('../schemas/region.json', import.meta.url);
 writeFileSync(
   regionDatabaseFile,
   JSON.stringify(zodToJsonSchema(RegionSchema), null, 2)
+);
+
+const rumorFile = new URL('../schemas/rumor.json', import.meta.url);
+writeFileSync(
+  rumorFile,
+  JSON.stringify(zodToJsonSchema(RumorListSchema), null, 2)
 );
 
 const statBlockFile = new URL('../schemas/stat-block.json', import.meta.url);
