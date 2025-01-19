@@ -22,6 +22,10 @@ h1 {
     text-align: center;
 }
 
+ol {
+    padding-inline-start: 2rem;
+}
+
 ul {
     padding-inline-start: 2rem;
 
