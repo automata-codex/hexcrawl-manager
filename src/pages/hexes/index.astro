@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 
 import GmHexDetails from '../../components/HexData/GmHexDetails.astro';
-import ComponentLayout from '../../layouts/ComponentLayout.astro';
+import SecretLayout from '../../layouts/SecretLayout.astro';
 import { getHexColumn, getHexRow } from '../../utils/id-parsers';
 import { hexSort } from '../../utils/sort';
 
@@ -19,7 +19,7 @@ const title = 'Baruun Khil Hex Catalog';
         font-size: 1.5rem;
     }
 </style>
-<ComponentLayout title={title}>
+<SecretLayout title={title}>
   <main>
     {
       hexes.map((hex) =>
@@ -27,4 +27,4 @@ const title = 'Baruun Khil Hex Catalog';
         <GmHexDetails hex={hex} showSelfLink={true} />)
     }
   </main>
-</ComponentLayout>
+</SecretLayout>

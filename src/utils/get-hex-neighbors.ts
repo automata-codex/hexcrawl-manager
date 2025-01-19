@@ -38,8 +38,8 @@ export function getHexNeighbors(hex: string): string[] {
     const newColumnIndex = columnIndex + offset.col;
     const newRow = row + offset.row;
 
-    // Ensure the new column index is valid (within 0-25 for A-Z)
-    if (newColumnIndex < 0 || newColumnIndex > 25) {
+    // Ensure the new column index is valid (within 0-22 for A-W)
+    if (newColumnIndex < 0 || newColumnIndex > 22) {
       return null;
     }
 

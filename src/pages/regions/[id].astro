@@ -1,7 +1,7 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 import RandomEncounterTable from '../../components/RandomEncounterTable.astro';
-import ComponentLayout from '../../layouts/ComponentLayout.astro';
+import SecretLayout from '../../layouts/SecretLayout.astro';
 import { getRegionTitle } from '../../utils/id-parsers';
 import { renderMarkdown } from '../../utils/markdown';
 
@@ -51,7 +51,7 @@ const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
         }
     }
 </style>
-<ComponentLayout title={title}>
+<SecretLayout title={title}>
   <div class="hex-list">
     <div><span class="inline-heading">Hexes:</span></div>
     {hexes.map(hex => (
@@ -73,4 +73,4 @@ const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
     (&le;{region.data.encounterChance})
   </p>
   <RandomEncounterTable data={region.data.encounters} />
-</ComponentLayout>
+</SecretLayout>
