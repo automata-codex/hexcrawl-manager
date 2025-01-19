@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content';
 
 import GmHexDetails from '../../components/HexData/GmHexDetails.astro';
 import SecretLayout from '../../layouts/SecretLayout.astro';
-import { getHexColumn, getHexRow } from '../../utils/id-parsers';
 import { hexSort } from '../../utils/sort';
 
 const hexData = await getCollection('hexes');
