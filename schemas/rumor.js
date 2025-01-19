@@ -6,6 +6,7 @@ export const RumorSchema = z.object({
   description: z.string(),
   status: z.enum(['true', 'false', 'misleading']),
   notes: z.array(z.string()).optional(),
+  completed: z.boolean().optional(),
 });
 
 export const RumorListSchema = z.array(RumorSchema);
