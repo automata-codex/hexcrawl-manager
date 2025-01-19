@@ -1,0 +1,40 @@
+---
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { renderMarkdown } from '../../utils/markdown';
+import { formatText } from '../../utils/text';
+
+const supplements = [
+  {
+    name: 'Ancestry and Culture',
+    url: 'https://www.drivethrurpg.com/en/product/314622/ancestry-culture-an-alternative-to-race-in-5e',
+  },
+  {
+    name: 'Game Master\'s Handbook of Proactive Roleplaying',
+    url: 'https://www.drivethrurpg.com/en/product/463026/the-game-master-s-handbook-of-proactive-roleplaying',
+  },
+  {
+    name: 'Advanced Spell Point System',
+    url: 'https://www.drivethrurpg.com/en/product/272967/advanced-magic-spell-points-system-5e',
+  }
+]
+
+const text=`Below is a list of supplements that we are using as the basis for 
+some of the [house rules][1]. Links below go to original sources, if you'd like 
+to purchase these supplements for yourself. PDFs are available from the Google 
+Drive link pinned in the Discord channel.
+
+[1]: /rules/house-rules
+`;
+
+const title = 'Third-party Supplements'
+---
+<ArticleLayout title={title}>
+  <Fragment set:html={renderMarkdown(text)} />
+  <ul style="margin-top: 1rem;">
+    {supplements.map(supplement => (
+      <li>
+        <a href={supplement.url}>{formatText(supplement.name)}</a>
+      </li>
+    ))}
+  </ul>
+</ArticleLayout>
