@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import Layout from '../../layouts/Layout.astro';
+import ComponentLayout from '../../layouts/ComponentLayout.astro';
 import { getRegionTitle } from '../../utils/id-parsers';
 
 const regions = await getCollection('regions');
@@ -16,17 +16,12 @@ const title = 'Baruun Khil Regions';
         columns: 2;
     }
 </style>
-<Layout title={title}>
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h1 class="title is-2">{title}</h1>
-      <div class="list-columns">
-        <ul>
-          {regionLinks.map(link => (
-            <li><a href={link.href}>{link.name}</a></li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  </section>
-</Layout>
+<ComponentLayout title={title}>
+  <div class="list-columns">
+    <ul>
+      {regionLinks.map(link => (
+        <li><a href={link.href}>{link.name}</a></li>
+      ))}
+    </ul>
+  </div>
+</ComponentLayout>

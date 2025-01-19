@@ -1,0 +1,17 @@
+---
+import { getHexNeighbors } from '../../utils/get-hex-neighbors';
+import type { HexData } from '../../types';
+
+interface Props {
+  hex: HexData;
+}
+
+const { hex } = Astro.props;
+const neighbors = getHexNeighbors(hex.id);
+---
+<div>Neighbors:</div>
+{neighbors.map(neighbor => (
+  <div>
+    <a href={`/hexes/${neighbor.toLowerCase()}`}>{neighbor}</a>
+  </div>
+))}

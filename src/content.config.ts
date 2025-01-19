@@ -3,6 +3,7 @@ import { glob } from 'astro/loaders';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
+import { ClassSchema } from '../schemas/class';
 import { DungeonDataSchema } from '../schemas/dungeon';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { HexSchema } from '../schemas/hex';
@@ -15,6 +16,8 @@ import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './
 const DATA_DIR = 'data';
 
 const DIRS = {
+  ARTICLES: `${DATA_DIR}/articles`,
+  CLASSES: `${DATA_DIR}/classes`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   FLOATING_CLUES: `${DATA_DIR}/floating-clues`,
@@ -37,6 +40,20 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
     return data.flat();
   };
 }
+
+const articles = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: DIRS.ARTICLES }),
+  schema: z.object({
+    title: z.string(),
+  }),
+});
+
+const classes = defineCollection({
+  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.CLASSES),
+  schema: {
+    ...ClassSchema,
+  },
+});
 
 const dungeons = defineCollection({
   loader: glob({ pattern: "**/*.md", base: DIRS.DUNGEONS }),
@@ -97,6 +114,8 @@ const statBlocks = defineCollection({
 });
 
 export const collections = {
+  articles,
+  classes,
   dungeons,
   encounters,
   floatingClues,

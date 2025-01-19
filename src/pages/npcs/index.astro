@@ -1,9 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
-import Layout from '../../layouts/Layout.astro';
+import RestrictedContent from '../../components/RestrictedContent.astro';
+import ComponentLayout from '../../layouts/ComponentLayout.astro';
 import { renderMarkdown } from '../../utils/markdown';
-
-const npcData = await getCollection('npcs');
+import { formatText } from '../../utils/text';
 
 function formatOccupation(occupation: string, charClass?: string, adventuringCompany?: string) {
   if (occupation === 'Adventurer') {
@@ -16,6 +16,9 @@ function formatOccupation(occupation: string, charClass?: string, adventuringCom
     return occupation;
   }
 }
+
+const npcData = await getCollection('npcs');
+const title = 'NPCs';
 ---
 <style>
     img {
@@ -35,27 +38,30 @@ function formatOccupation(occupation: string, charClass?: string, adventuringCom
         }
     }
 </style>
-<Layout title="NPCs">
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h1 class="title is-2">NPCs</h1>
-      <main>
-        {
-          npcData.map((npc) =>
-            <section>
-              {npc.data.image && <img src={npc.data.image} alt={npc.data.name} />}
-              <h2 class="title is-4" style="margin-bottom: 0.25rem">{npc.data.name}</h2>
-              <p><span class="inline-heading">Occupation:</span>{' '}{formatOccupation(npc.data.occupation, npc.data.class, npc.data.adventuringCompany)}</p>
-              <p><span class="inline-heading">Species:</span>{' '}{npc.data.species}</p>
-              <p><span class="inline-heading">Culture:</span>{' '}{npc.data.culture}</p>
-              <p><span class="inline-heading">Pronouns:</span>{' '}{npc.data.pronouns}</p>
-              <div class="description">
-                <Fragment set:html={ renderMarkdown(npc.data.description) } />
-              </div>
-            </section>
-          )
-        }
-      </main>
-    </div>
-  </section>
-</Layout>
+<ComponentLayout title={title}>
+  <main>
+    {
+      npcData.map((npc) =>
+        <section>
+          {npc.data.image && <img src={npc.data.image} alt={npc.data.name} />}
+          <h2 class="title is-4" style="margin-bottom: 0.25rem">{npc.data.name}</h2>
+          <p><span class="inline-heading">Occupation:</span>{' '}{formatOccupation(npc.data.occupation, npc.data.class, npc.data.adventuringCompany)}</p>
+          <p><span class="inline-heading">Species:</span>{' '}{npc.data.species}</p>
+          <p><span class="inline-heading">Culture:</span>{' '}{npc.data.culture}</p>
+          <p><span class="inline-heading">Pronouns:</span>{' '}{npc.data.pronouns}</p>
+          <div class="description">
+            <Fragment set:html={renderMarkdown(npc.data.description)} />
+          </div>
+          <RestrictedContent>
+            {npc.data.notes && (
+              <p><span class="inline-heading">Notes:</span></p>
+              <ul>
+                {npc.data.notes.map((note) => <li>{formatText(note)}</li>)}
+              </ul>
+            )}
+          </RestrictedContent>
+        </section>
+      )
+    }
+  </main>
+</ComponentLayout>
