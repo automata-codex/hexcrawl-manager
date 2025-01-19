@@ -19,8 +19,8 @@ if (canAccess(role, [SCOPES.GM]) && hiddenSites.length === 0) {
   return null;
 }
 
-// If you're public or player, and the hex is not explored, return null
-if (canAccess(role, [SCOPES.PLAYER, SCOPES.PUBLIC]) && !hex.isExplored) {
+// If you're public or player, and either the hex is not explored or it has no hidden sites, return null
+if (canAccess(role, [SCOPES.PLAYER, SCOPES.PUBLIC]) && (!hex.isExplored || hiddenSites.length === 0)) {
   return null;
 }
 ---
