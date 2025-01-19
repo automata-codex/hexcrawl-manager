@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import RestrictedContent from '../../components/RestrictedContent.astro';
+import SecretContent from '../../components/Content/SecretContent.astro';
 import ComponentLayout from '../../layouts/ComponentLayout.astro';
 import { renderMarkdown } from '../../utils/markdown';
 import { formatText } from '../../utils/text';
@@ -52,14 +52,14 @@ const title = 'NPCs';
           <div class="description">
             <Fragment set:html={renderMarkdown(npc.data.description)} />
           </div>
-          <RestrictedContent>
+          <SecretContent>
             {npc.data.notes && (
               <p><span class="inline-heading">Notes:</span></p>
               <ul>
                 {npc.data.notes.map((note) => <li>{formatText(note)}</li>)}
               </ul>
             )}
-          </RestrictedContent>
+          </SecretContent>
         </section>
       )
     }
