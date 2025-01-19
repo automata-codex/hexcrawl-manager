@@ -11,6 +11,7 @@ import { NpcDataSchema } from '../schemas/npc';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionSchema } from '../schemas/region';
 import { StatBlockSchema } from '../schemas/stat-block';
+import { SupplementSchema } from '../schemas/supplement-list';
 import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './types.ts';
 
 const DATA_DIR = 'data';
@@ -26,6 +27,7 @@ const DIRS = {
   NPCS: `${DATA_DIR}/npcs`,
   REGIONS: `${DATA_DIR}/regions`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
+  SUPPLEMENTS: `${DATA_DIR}/supplements`,
 } as const;
 
 function getDirectoryYamlLoader<T>(directory: string): () => T[] {
@@ -113,6 +115,13 @@ const statBlocks = defineCollection({
   },
 });
 
+const supplements = defineCollection({
+  loader: getDirectoryYamlLoader<StatBlockData>(DIRS.SUPPLEMENTS),
+  schema: {
+    ...SupplementSchema,
+  },
+});
+
 export const collections = {
   articles,
   classes,
@@ -124,4 +133,5 @@ export const collections = {
   npcs,
   regions,
   statBlocks,
+  supplements,
 };
