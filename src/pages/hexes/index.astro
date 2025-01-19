@@ -2,23 +2,15 @@
 import { getCollection } from 'astro:content';
 
 import GmHexDetails from '../../components/HexData/GmHexDetails.astro';
-import Layout from '../../layouts/BaseLayout.astro';
+import ComponentLayout from '../../layouts/ComponentLayout.astro';
 import { getHexColumn, getHexRow } from '../../utils/id-parsers';
+import { hexSort } from '../../utils/sort';
 
 const hexData = await getCollection('hexes');
 const hexes = hexData
-  .sort((a, b) => {
-    const aCol = getHexColumn(a.id);
-    const aRow = getHexRow(a.id);
-    const bCol = getHexColumn(b.id);
-    const bRow = getHexRow(b.id);
-    if (aCol === bCol) {
-      return aRow - bRow;
-    } else {
-      return aCol.localeCompare(bCol);
-    }
-  })
-  .filter((hex) => !hex.data.hideInCatalog);
+  .map((hex) => hex.data)
+  .sort(hexSort)
+  .filter((hex) => !hex.hideInCatalog);
 const title = 'Baruun Khil Hex Catalog';
 ---
 <style>
@@ -27,17 +19,12 @@ const title = 'Baruun Khil Hex Catalog';
         font-size: 1.5rem;
     }
 </style>
-<Layout title={title}>
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h1 class="title is-2">{title}</h1>
-      <main>
-        {
-          hexes.map((entry) =>
-            <h2>{entry.id.toUpperCase()}: {entry.data.name}</h2>
-            <GmHexDetails hex={entry.data} showSelfLink={true} />)
-        }
-      </main>
-    </div>
-  </section>
-</Layout>
+<ComponentLayout title={title}>
+  <main>
+    {
+      hexes.map((hex) =>
+        <h2>{hex.id.toUpperCase()}: {hex.name}</h2>
+        <GmHexDetails hex={hex} showSelfLink={true} />)
+    }
+  </main>
+</ComponentLayout>
