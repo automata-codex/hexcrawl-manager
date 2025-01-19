@@ -1,0 +1,17 @@
+---
+import { getEntry } from 'astro:content';
+
+interface Props {
+  rumorId: string;
+}
+
+const { rumorId } = Astro.props;
+
+const rumorEntry = await getEntry('rumors', rumorId);
+if (!rumorEntry) {
+  Astro.response.status = 404;
+  Astro.response.statusText = 'Not found';
+  return null;
+}
+---
+<a href={`/gm-notes/rumors/${rumorId}`}>{rumorEntry.data.title}</a>

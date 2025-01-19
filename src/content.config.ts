@@ -10,6 +10,7 @@ import { HexSchema } from '../schemas/hex';
 import { NpcDataSchema } from '../schemas/npc';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionSchema } from '../schemas/region';
+import { RumorSchema } from '../schemas/rumor';
 import { StatBlockSchema } from '../schemas/stat-block';
 import { SupplementSchema } from '../schemas/supplement-list';
 import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './types.ts';
@@ -26,6 +27,7 @@ const DIRS = {
   HEXES: `${DATA_DIR}/hexes`,
   NPCS: `${DATA_DIR}/npcs`,
   REGIONS: `${DATA_DIR}/regions`,
+  RUMORS: `${DATA_DIR}/rumors`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
   SUPPLEMENTS: `${DATA_DIR}/supplements`,
 } as const;
@@ -108,6 +110,13 @@ const regions = defineCollection({
   },
 });
 
+const rumors = defineCollection({
+  loader: getDirectoryYamlLoader<RegionData>(DIRS.RUMORS),
+  schema: {
+    ...RumorSchema,
+  },
+});
+
 const statBlocks = defineCollection({
   loader: getDirectoryYamlLoader<StatBlockData>(DIRS.STAT_BLOCKS),
   schema: {
@@ -132,6 +141,7 @@ export const collections = {
   hexes,
   npcs,
   regions,
+  rumors,
   statBlocks,
   supplements,
 };

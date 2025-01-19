@@ -35,6 +35,12 @@ ul {
     }
 }
 
+.callout { /* intended to be used with the "box" CSS class */
+    border: 1px solid var(--bulma-text);
+    margin: 1rem 0;
+    padding: 1rem;
+}
+
 .inline-heading {
     color: inherit;
     font-weight: bold;
