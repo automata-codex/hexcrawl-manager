@@ -1,4 +1,6 @@
 ---
+import { canAccess, getCurrentUserRole } from '../../utils/auth';
+import { SCOPES } from '../../utils/constants';
 import { formatText } from '../../utils/text';
 import type { HexData } from '../../types';
 
@@ -10,7 +12,15 @@ const { hex } = Astro.props;
 
 const { hiddenSites = [] } = hex;
 
-if (!hex.isExplored || hiddenSites.length === 0) {
+const role = getCurrentUserRole(Astro.locals);
+
+// If you're a GM, and there are no hidden sites, return null
+if (canAccess(role, [SCOPES.GM]) && hiddenSites.length === 0) {
+  return null;
+}
+
+// If you're public or player, and either the hex is not explored or it has no hidden sites, return null
+if (canAccess(role, [SCOPES.PLAYER, SCOPES.PUBLIC]) && (!hex.isExplored || hiddenSites.length === 0)) {
   return null;
 }
 ---

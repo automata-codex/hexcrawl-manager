@@ -7,6 +7,7 @@ import { NpcDataSchema } from '../schemas/npc.js';
 import { RandomEncounterSchema } from '../schemas/random-encounter.js';
 import { RegionSchema } from '../schemas/region.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
+import { SupplementListSchema } from '../schemas/supplement-list.js';
 
 const classFile = new URL('../schemas/class.json', import.meta.url);
 writeFileSync(
@@ -48,4 +49,10 @@ const statBlockFile = new URL('../schemas/stat-block.json', import.meta.url);
 writeFileSync(
   statBlockFile,
   JSON.stringify(zodToJsonSchema(StatBlockSchema), null, 2)
+);
+
+const supplementFile = new URL('../schemas/supplement-list.json', import.meta.url);
+writeFileSync(
+  supplementFile,
+  JSON.stringify(zodToJsonSchema(SupplementListSchema), null, 2)
 );

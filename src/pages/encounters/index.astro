@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import Layout from '../../layouts/BaseLayout.astro';
+import SecretLayout from '../../layouts/SecretLayout.astro';
 
 const encounterData = await getCollection('encounters');
 const encounters = encounterData.sort((a, b) => a.data.name.localeCompare(b.data.name));
@@ -26,7 +26,8 @@ function formatEncounterName(encounterId: string, encounterName: string) {
     return `<span class="unused-encounter">${encounterName}</span>`;
   }
   return encounterName;
-}---
+}
+---
 <style is:global>
     .unused-encounter {
         color: var(--bulma-text);
@@ -44,20 +45,15 @@ function formatEncounterName(encounterId: string, encounterName: string) {
         margin-top: 0;
     }
 </style>
-<Layout title={title}>
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h1 class="title is-2">{title}</h1>
-      <p>Encounter names <span class="unused-encounter">in this style</span> are unused.</p>
-      <ul>
-        {encounters.map((encounter) => (
-          <li>
-            <a href=`/encounters/${encounter.id}`>
-              <Fragment set:html={formatEncounterName(encounter.id, encounter.data.name)} />
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </section>
-</Layout>
+<SecretLayout title={title}>
+  <p>Encounter names <span class="unused-encounter">in this style</span> are unused.</p>
+  <ul>
+    {encounters.map((encounter) => (
+      <li>
+        <a href=`/encounters/${encounter.id}`>
+          <Fragment set:html={formatEncounterName(encounter.id, encounter.data.name)} />
+        </a>
+      </li>
+    ))}
+  </ul>
+</SecretLayout>

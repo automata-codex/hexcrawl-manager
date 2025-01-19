@@ -1,7 +1,7 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 
-import Layout from '../../layouts/BaseLayout.astro';
+import SecretLayout from '../../layouts/SecretLayout.astro';
 import StatBlock from '../../components/StatBlock/StatBlock.astro';
 import { renderMarkdown } from '../../utils/markdown';
 import { formatText } from '../../utils/text';
@@ -17,7 +17,7 @@ if (!id) {
 }
 
 // Query for the entry directly using the request slug
-const encounterData = await getEntry("encounters", id);
+const encounterData = await getEntry('encounters', id);
 
 // Redirect if the entry does not exist
 if (encounterData === undefined) {
@@ -49,22 +49,17 @@ const title = `Encounter: ${await formatText(encounter.name)}`;
         padding-bottom: 1rem;
     }
 </style>
-<Layout title={title}>
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h1 class="title is-2">{title}</h1>
-      <div class="description">
-        <Fragment set:html={ renderMarkdown(encounter.description) } />
-      </div>
-      <div class="stat-block-container">
-        {encounter.statBlocks.map((statBlockId: string) => {
-          const statBlock = statBlocks.find(statBlock => statBlock.id === statBlockId);
-          if (!statBlock) {
-            throw new Error(`Stat block not found: ${statBlockId}`);
-          }
-          return <StatBlock data={statBlock.data} />;
-        })}
-      </div>
-    </div>
-  </section>
-</Layout>
+<SecretLayout title={title}>
+  <div class="description">
+    <Fragment set:html={renderMarkdown(encounter.description)} />
+  </div>
+  <div class="stat-block-container">
+    {encounter.statBlocks.map((statBlockId: string) => {
+      const statBlock = statBlocks.find(statBlock => statBlock.id === statBlockId);
+      if (!statBlock) {
+        throw new Error(`Stat block not found: ${statBlockId}`);
+      }
+      return <StatBlock data={statBlock.data} />;
+    })}
+  </div>
+</SecretLayout>

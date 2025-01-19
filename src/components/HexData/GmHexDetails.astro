@@ -4,6 +4,7 @@ import { formatText } from '../../utils/text';
 import Dungeons from './Dungeons.astro';
 import Explored from './Explored.astro';
 import HiddenSites from './HiddenSites.astro';
+import Landmark from './Landmark.astro';
 import Neighbors from './Neighbors.astro';
 import Visited from './Visited.astro';
 import type { HexData } from '../../types';
@@ -41,10 +42,7 @@ const { hex, showSelfLink = true } = Astro.props;
   <div class="data-bar">
     <Neighbors hex={hex} />
   </div>
-  <div class="hanging-indent">
-    <span class="inline-heading">Landmark:</span>{' '}
-    {formatText(hex.landmark)}
-  </div>
+  <Landmark hex={hex} />
   <HiddenSites hex={hex} />
   { hex.secretSite && <div class="hanging-indent"><span class="inline-heading">Secret Site:</span>{' '}{formatText(hex.secretSite)}</div> }
   { hex.notes && <p class="hanging-indent">
