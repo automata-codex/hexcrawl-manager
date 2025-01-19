@@ -2,46 +2,27 @@
 
 ## Access control system overview
 
-This project implements a hierarchical access control system to manage permissions for resources. The system uses **roles** and **scopes** to define and enforce access rules:
+This project implements an access control system to manage permissions for resources. The system uses **roles** and **scopes** to define and enforce access rules:
 
-### Key concepts
+### Key Concepts
 
-- **Roles:** Users are assigned roles that determine their access level. Roles are hierarchical, meaning higher-level roles inherit the permissions of lower-level roles. For example:
-  - **public:** Base role with access to public resources.
-  - **hidden:** Inherits all public permissions and adds access to hidden resources.
-  - **gm:** Inherits all hidden and public permissions and adds advanced permissions for Game Moderators.
-- **Scopes:** Resources are tagged with scopes that specify the required permissions for access. Scopes are descriptive and combine the role with the action (e.g., `public:view`, `gm:write`).
+**Scopes** are attached to content and determine what can be done with that content. **Roles** are assigned to users. Permission checks verify that the current user's role has access to the scope of the content they are trying to access.
 
-### Role hierarchy
+### How It Works
 
-The roles and their corresponding scopes are as follows:
+This check can be performed programmatically, or a convenience wrapper can be used to simplify the check process. Content without a check is accessible by all users.
 
-| Role     | Inherited Scopes                        |
-|----------|-----------------------------------------|
-| `public` | `public:view`                           |
-| `hidden` | `public:view`, `hidden:view`            |
-| `gm`     | `public:view`, `hidden:view`, `gm:view` |
+- `PublicContent` is limited to unregistered users, users without a role, and users with the `public` role.
+- `PlayerContent` is limited to users with the `player` role.
+- `SecretContent` is limited to users with the `gm` role.
+- `OpenContent` is accessible by public users and users with the `player` role.
+- `HiddenContent` is accessible by users with the `player` role or the `gm` role.
 
-### How it works
+The `role` has to be set manually on the user's "public metadata" in the Clerk dashboard. The `role` is a string that can be `public`, `player`, or `gm`.
 
-1. Role Assignment: Each user is assigned a single role (e.g., `public`, `hidden`, or `gm`).
-2. Scope Resolution: A user's role dynamically resolves to all scopes available to that role and any lower roles in the hierarchy.
-3. Access Validation: When a user attempts to access a resource:
-    - The system compares the resource's required scope(s) with the user's resolved scopes.
-    - Access is granted if there’s a match; otherwise, it’s denied.
+### Best Practices
 
-### Examples
-
-- A document tagged with `hidden:view`:
-  - Accessible by users with the `hidden` or `gm` role.
-  - Not accessible by users with the `public` role.
-- A document tagged with `gm:write`:
-  - Accessible only by users with the `gm` role.
-
-### Using the access control system
-
-- Assign users a role like `public`, `hidden`, or `gm` in the user's public metadata in the Clerk dashboard.
-- Tag content with a scope such as `hidden:view` or `gm:view`. Content without an explicit scope is considered `public:view`.
+- Pages that contain only GM content should return a `404` status code if access by unauthorized users. The `SecretLayout` layout component provides this functionality out of the box.
 
 ### References
 
@@ -53,8 +34,6 @@ The roles and their corresponding scopes are as follows:
 
 - [Usage of FontAwesome with Astro][1]
 - You can search the [Open 5e API][2] with queries like `https://api.open5e.com/monsters/?search=kobold&document__slug=wotc-srd`
-- I'm just using a simple claim added to the session token to verify permissions for now. This requires me to set the claim manually on every user. Clerk apparently has some very nice "organization" features (including [the `Protect` component][3]), but I can't find a nice tutorial or explanation of those features. Worth looking into if I start having to manage more than about a dozen users, or if permissions get more complicated.
 
 [1]: https://blog.verybadfrags.com/posts/2024-02-24-astro-font-awesome/
 [2]: https://open5e.com/api-docs
-[3]: https://clerk.com/docs/components/protect

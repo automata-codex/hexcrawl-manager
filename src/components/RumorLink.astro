@@ -9,9 +9,7 @@ const { rumorId } = Astro.props;
 
 const rumorEntry = await getEntry('rumors', rumorId);
 if (!rumorEntry) {
-  Astro.response.status = 404;
-  Astro.response.statusText = 'Not found';
-  return null;
+  throw new Error(`Rumor with ID ${rumorId} not found`);
 }
 ---
 <a href={`/gm-notes/rumors/${rumorId}`}>{rumorEntry.data.title}</a>
