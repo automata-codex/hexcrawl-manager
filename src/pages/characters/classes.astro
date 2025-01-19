@@ -1,12 +1,39 @@
 ---
 import ComponentLayout from '../../layouts/ComponentLayout.astro';
+import { getCollection } from 'astro:content';
+
+const classesCollection = await getCollection('classes');
+const classes = classesCollection
+  .map((playerClass) => playerClass.data)
+  .map((playerClass) => ({
+    name: playerClass.name,
+    subclasses: playerClass.subclasses.sort((a, b) => a.name.localeCompare(b.name)),
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+const column1 = classes.slice(0, Math.ceil(classes.length / 2));
+const column2 = classes.slice(Math.ceil(classes.length / 2));
+
+function formatSource(source: string) {
+  switch (source) {
+    case 'phb':
+      return '<abbr title="Player\'s Handbook">PHB</abbr>';
+    case 'toh':
+      return '<abbr title="Tome of Heroes">ToH</abbr>';
+    case 'tcoe':
+      return '<abbr title="Tasha\'s Cauldron of Everything">TCoE</abbr>';
+    case 'xgte':
+      return '<abbr title="Xanathar\'s Guide to Everything">XGtE</abbr>';
+  }
+}
+
 const title = 'Playable Classes & Subclasses';
 ---
-<style>
-    col.center-column {
-        text-align: center;
+<style is:global>
+    abbr {
+        cursor: default;
     }
-
+</style>
+<style>
     table {
         margin: 0 auto;
     }
@@ -22,974 +49,75 @@ const title = 'Playable Classes & Subclasses';
     tr:first-child {
         border-top: 1px solid var(--bulma-border);
     }
+
+    .center-column {
+        text-align: center;
+    }
+
+    .class {
+        font-weight: bold;
+        font-style: italic;
+    }
+
+    .name-column {
+        min-width: 230px;
+    }
 </style>
 <ComponentLayout title={title}>
-  <table>
-    <colgroup>
-      <col>
-      <col class="center-column">
-      <col class="center-column">
-    </colgroup>
-    <thead>
-    <tr>
-      <th>Class & Subclass</th>
-      <th>Source</th>
-      <th>Page</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr class="class">
-      <td>Barbarian</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of the Ancestral Guardian</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of the Beast</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of the Berserker</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of the Storm Herald</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of the Totem Warrior</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of the Zealot</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of Wild Magic</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of Booming Magnificence</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of Hellfire</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of Mistwood</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of the Dragon</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of the Herald</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of the Inner Eye</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Path of Thorns</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-    <tbody>
-    <tr class="class">
-      <td>Bard</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Creation</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Eloquence</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Glamour</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Lore</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Swords</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Valor</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Whispers</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Echoes</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Investigation</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Shadows</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Sincerity</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of Tactics</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>College of the Cat</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-    <tbody>
-    <tr class="class">
-      <td>Cleric</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Arcana Domain</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Black Powder Domain</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Death Domain</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Forge Domain</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Grave Domain</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Hunt Domain</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Knowledge Domain</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Life Domain</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Light Domain</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Mercy Domain</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Nature Domain</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Order Domain</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Peace Domain</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Portal Domain</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Serpent Domain</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Shadow Domain</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Tempest Domain</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Trickery Domain</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Twilight Domain</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Vermin Domain</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>War Domain</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Wind Domain</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-    <tbody>
-    <tr class="class">
-      <td>Druid</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of Ash</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of Bees</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of Crystals</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of Dreams</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of Sand</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of Stars</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of the Green</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of the Land</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of the Moon</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of the Shapeless</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of the Shepherd</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of Wildfire</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Circle of Wind</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-    <tbody>
-    <tr class="class">
-      <td>Fighter</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Arcane Archer</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Battle Master</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Buccaneer</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Cavalier</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Champion</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Chaplain</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Eldritch Knight</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Legionary</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Psi Warrior</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Pugilist</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Radiant Pikeman</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Rune Knight</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Samurai</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Timeblade</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Tunnel Watcher</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-    <tbody>
-    <tr class="class">
-      <td>Monk</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of Concordant Motion</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of Mercy</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of Shadow</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of the Astral Self</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of the Dragon</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of the Drunken Master</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of the Four Elements</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of the Humble Elephant</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of the Kensei</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of the Open Hand</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of the Still Waters</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of the Tipsy Monkey</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of the Unerring Arrow</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Way of the Wildcat</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-    <tbody>
-    <tr class="class">
-      <td>Paladin</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of Conquest</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of Devotion</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of Glory</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of Justice</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of Redemption</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of Safeguarding</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of the Ancients</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of the Elements</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of the Guardian</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of the Hearth</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of the Watchers</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Oath of Vengeance</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-    <tbody>
-    <tr class="class">
-      <td>Ranger</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Beast Master</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Beast Trainer</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Fey Wanderer</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Gloom Stalker</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Grove Warden</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Gunslinger</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Haunted Warden</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Horizon Walker</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Hunter</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Monster Slayer</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Snake Speaker</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Swarmkeeper</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-    <tbody>
-    <tr class="class">
-      <td>Rogue</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Arcane Trickster</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Assassin</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Cat Burglar</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Dawn Blade</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Inquisitive</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Mastermind</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Phantom</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Scout</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Sapper</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Smuggler</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Soulknife</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Soulspy</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Swashbuckler</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Thief</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Underfoot</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-    <tbody>
-    <tr class="class">
-      <td>Sorcerer</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Aberrant Mind</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Black Powder Sorcery</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Clockwork Soul</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Cold-blooded</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Divine Soul</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Draconic Bloodline</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Hungering</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Resonant Body</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Rifthopper</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Shadow Magic</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Spore Sorcery</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Storm Sorcery</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Wild Magic</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-    <tbody>
-    <tr class="class">
-      <td>Warlock</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Ancient Dragon</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Animal Lord</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Archfey</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Celestial</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Fathomless</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Fiend</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Genie</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Great Old One</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Hexblade</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Hunter in Darkness</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Old Wood</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Primordial</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>The Wyrdweaver</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-    <tbody>
-    <tr class="class">
-      <td>Wizard</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Bladesinging</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Cantrip Adept</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Courser Mage</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Familiar Master</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Gravebinding</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Order of Scribes</td>
-      <td><abbr title="Tasha's Cauldron of Everything">TCoE</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>School of Abjuration</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>School of Black Powder</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>School of Conjuration</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>School of Divination</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>School of Enchantment</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>School of Evocation</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>School of Illusion</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>School of Liminality</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>School of Necromancy</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>School of Transmutation</td>
-      <td><abbr title="Player's Handbook">PHB</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>Spellsmith</td>
-      <td><abbr title="Tome of Heroes">TOH</abbr></td>
-      <td></td>
-    </tr>
-    <tr class="subclass">
-      <td>War Magic</td>
-      <td><abbr title="Xanathar's Guide to Everything">XGtE</abbr></td>
-      <td></td>
-    </tr>
-    </tbody>
-  </table>
+  <div class="columns">
+  <div class="column is-half">
+    <table>
+      <thead>
+      <tr>
+        <th class="name-column">Class & Subclass</th>
+        <th class="center-column">Source</th>
+        <th class="center-column">Page</th>
+      </tr>
+      {column1.map((playerClass) => (
+        <tbody>
+        <tr class="class">
+          <td class="name-column">{playerClass.name}</td>
+        </tr>
+        {playerClass.subclasses.map((subclass) => (
+          <tr class="subclass">
+            <td class="name-column">{subclass.name}</td>
+            <td class="center-column">
+              <Fragment set:html={formatSource(subclass.source)} />
+            </td>
+            <td class="center-column">{subclass.page}</td>
+          </tr>
+        ))}
+        </tbody>
+      ))}
+      </thead>
+    </table>
+  </div>
+  <div class="column is-half">
+    <table>
+      <thead>
+      <tr>
+        <th class="name-column">Class & Subclass</th>
+        <th class="center-column">Source</th>
+        <th class="center-column">Page</th>
+      </tr>
+      {column2.map((playerClass) => (
+        <tbody>
+        <tr class="class">
+          <td>{playerClass.name}</td>
+        </tr>
+        {playerClass.subclasses.map((subclass) => (
+          <tr class="subclass">
+            <td class="name-column">{subclass.name}</td>
+            <td class="center-column">
+              <Fragment set:html={formatSource(subclass.source)} />
+            </td>
+            <td class="center-column">{subclass.page}</td>
+          </tr>
+        ))}
+        </tbody>
+      ))}
+      </thead>
+    </table>
+  </div>
+  </div>
 </ComponentLayout>
