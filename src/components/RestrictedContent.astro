@@ -1,5 +1,5 @@
 ---
-import { canAccess } from '../utils/auth';
+import { canAccess, getCurrentUserRole } from '../utils/auth';
 import { SCOPES } from '../utils/constants';
 import type { Scope } from '../types.ts';
 
@@ -8,6 +8,6 @@ interface Props {
 }
 
 const { scope = SCOPES.HIDDEN } = Astro.props;
-const { role = null } = (Astro.locals.auth().sessionClaims ?? { role: null }) as { role: string | null };
+const role = getCurrentUserRole(Astro.locals);
 ---
 {canAccess(role, scope) && <slot />}

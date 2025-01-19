@@ -1,7 +1,7 @@
 // The values here have to match what's in the session tokens
 export const SECURITY_ROLE = {
-  GM: 'gm',
-  HIDDEN: 'hidden',
+  FRIEND: 'gm',
+  PLAYER: 'hidden',
   PUBLIC: 'public',
 } as const;
 
