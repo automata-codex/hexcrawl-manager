@@ -4,7 +4,9 @@ import { getCollection, getEntry } from 'astro:content';
 import GmHexDetails from '../../components/HexData/GmHexDetails.astro';
 import PlayerHexDetails from '../../components/HexData/PlayerHexDetails.astro';
 import RandomEncounterTable from '../../components/RandomEncounterTable.astro';
-import Layout from '../../layouts/BaseLayout.astro';
+import OpenContent from '../../components/Content/OpenContent.astro';
+import SecretContent from '../../components/Content/SecretContent.astro';
+import ComponentLayout from '../../layouts/ComponentLayout.astro';
 import type { HexData, RandomEncounterTableData } from '../../types';
 
 // Get the ID from the incoming server request
@@ -17,7 +19,7 @@ if (!id) {
 }
 
 // Query for the entry directly using the request slug
-const hexData = await getEntry("hexes", id);
+const hexData = await getEntry('hexes', id);
 
 // Redirect if the entry does not exist
 if (hexData === undefined) {
@@ -45,19 +47,19 @@ encounters = parentEncounters.map(parentEncounter => {
   return hexEncounter || parentEncounter;
 });
 ---
-<Layout title={title}>
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h1 class="title is-2">{title}</h1>
-      <PlayerHexDetails hex={hex} />
-      <h2 class="title is-4" style="margin-bottom: 0.25rem">Random Encounters</h2>
-      <p>
-        <span class="inline-heading">Chance of encounter:</span>
-        {' '}
-        {region.data.encounterChance * 5}%
-        (&le;{region.data.encounterChance})
-      </p>
-      <RandomEncounterTable data={encounters} />
-    </div>
-  </section>
-</Layout>
+<ComponentLayout title={title}>
+  <OpenContent>
+    <PlayerHexDetails hex={hex} />
+  </OpenContent>
+  <SecretContent>
+    <GmHexDetails hex={hex} showSelfLink={false} />
+    <h2 class="title is-4" style="margin-bottom: 0.25rem">Random Encounters</h2>
+    <p>
+      <span class="inline-heading">Chance of encounter:</span>
+      {' '}
+      {region.data.encounterChance * 5}%
+      (&le;{region.data.encounterChance})
+    </p>
+    <RandomEncounterTable data={encounters} />
+  </SecretContent>
+</ComponentLayout>
