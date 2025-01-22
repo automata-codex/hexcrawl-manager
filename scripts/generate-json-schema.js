@@ -1,6 +1,7 @@
 import { writeFileSync } from 'fs';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { ClassSchema } from '../schemas/class.js';
+import { FactionListSchema } from '../schemas/faction.js';
 import { FloatingClueListSchema } from '../schemas/floating-clue-list.js';
 import { HexListSchema } from '../schemas/hex-list.js';
 import { NpcDataSchema } from '../schemas/npc.js';
@@ -14,6 +15,12 @@ const classFile = new URL('../schemas/class.json', import.meta.url);
 writeFileSync(
   classFile,
   JSON.stringify(zodToJsonSchema(ClassSchema), null, 2)
+);
+
+const factionFile = new URL('../schemas/faction.json', import.meta.url);
+writeFileSync(
+  factionFile,
+  JSON.stringify(zodToJsonSchema(FactionListSchema), null, 2)
 );
 
 const floatingClueListFile = new URL('../schemas/floating-clue-list.json', import.meta.url);
