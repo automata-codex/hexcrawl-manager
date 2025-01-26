@@ -13,4 +13,9 @@ export const CharacterSchema = z.object({
   level: z.number().int().max(20).min(1),
   image: z.string().optional(),
   notes: z.array(z.string()).optional(),
+  advancementPoints: z.object({
+    combat: z.number().int().nonnegative(),
+    exploration: z.number().int().nonnegative(),
+    social: z.number().int().nonnegative(),
+  })
 });
