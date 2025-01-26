@@ -13,21 +13,13 @@ import RegionsCard from '../components/IndexCards/RegionsCard.astro';
 import RumorsCard from '../components/IndexCards/RumorsCard.astro';
 import SettingCard from '../components/IndexCards/SettingCard.astro';
 import SupplementsCard from '../components/IndexCards/SupplementsCard.astro';
+import MediumScreen from '../components/ScreenSize/MediumScreen.astro';
+import SmallScreen from '../components/ScreenSize/SmallScreen.astro';
 import ComponentLayout from '../layouts/ComponentLayout.astro';
 
 const title = 'Beyond the Skyreach Mountains';
 ---
 <style>
-    .box {
-        text-align: center;
-    }
-
-    .box > h2.title.is-3 {
-        margin-top: 0;
-        margin-bottom: 0.25rem;
-        text-align: center;
-    }
-
     h2.title.is-3 {
         text-align: center;
     }
@@ -67,46 +59,80 @@ const title = 'Beyond the Skyreach Mountains';
       the unknown?
     </p>
   </section>
-  <h2 class="title is-3">Ready to get started?</h2>
-  <section class="columns">
-    <div class="column is-one-third">
-      <HeritageCard />
-    </div>
-    <div class="column is-one-third">
-      <ClassCard />
-    </div>
-    <div class="column is-one-third">
-      <GoalsCard />
-    </div>
-  </section>
-  <h2 class="title is-3">Player&rsquo;s Reference</h2>
-  <section class="columns">
-    <div class="column is-one-third">
-      <SettingCard />
-      <MapsCard />
-    </div>
-    <div class="column is-one-third">
-      <HouseRules />
-      <SupplementsCard />
-    </div>
-    <div class="column is-one-third">
-      <NpcsCard />
-    </div>
-  </section>
-  <SecretContent>
-    <h2 class="title is-3">GM&rsquo;s Reference</h2>
+  <SmallScreen>
+    <h2 class="title is-3">Ready to get started?</h2>
     <section class="columns">
       <div class="column is-one-third">
-        <RegionsCard />
-        <EncountersCard />
-      </div>
-      <div class="column is-one-third">
-        <FloatingCluesCard />
-        <GmMapsCard />
-      </div>
-      <div class="column is-one-third">
-        <RumorsCard />
+        <HeritageCard />
+        <ClassCard />
+        <GoalsCard />
       </div>
     </section>
-  </SecretContent>
+    <h2 class="title is-3">Player&rsquo;s Reference</h2>
+    <section class="columns">
+      <div class="column is-one-third">
+        <SettingCard />
+        <HouseRules />
+        <NpcsCard />
+        <MapsCard />
+        <SupplementsCard />
+      </div>
+    </section>
+    <SecretContent>
+      <h2 class="title is-3">GM&rsquo;s Reference</h2>
+      <section class="columns">
+        <div class="column is-one-third">
+          <RegionsCard />
+          <FloatingCluesCard />
+          <RumorsCard />
+          <EncountersCard />
+          <GmMapsCard />
+        </div>
+      </section>
+    </SecretContent>
+  </SmallScreen>
+  <MediumScreen>
+    <h2 class="title is-3">Ready to get started?</h2>
+    <section class="columns">
+      <div class="column is-one-third">
+        <HeritageCard />
+      </div>
+      <div class="column is-one-third">
+        <ClassCard />
+      </div>
+      <div class="column is-one-third">
+        <GoalsCard />
+      </div>
+    </section>
+    <h2 class="title is-3">Player&rsquo;s Reference</h2>
+    <section class="columns">
+      <div class="column is-one-third">
+        <SettingCard />
+        <MapsCard />
+      </div>
+      <div class="column is-one-third">
+        <HouseRules />
+        <SupplementsCard />
+      </div>
+      <div class="column is-one-third">
+        <NpcsCard />
+      </div>
+    </section>
+    <SecretContent>
+      <h2 class="title is-3">GM&rsquo;s Reference</h2>
+      <section class="columns">
+        <div class="column is-one-third">
+          <RegionsCard />
+          <EncountersCard />
+        </div>
+        <div class="column is-one-third">
+          <FloatingCluesCard />
+          <GmMapsCard />
+        </div>
+        <div class="column is-one-third">
+          <RumorsCard />
+        </div>
+      </section>
+    </SecretContent>
+  </MediumScreen>
 </ComponentLayout>
