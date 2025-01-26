@@ -3,6 +3,24 @@
   <component name="JsonSchemaMappingsProjectConfiguration">
     <state>
       <map>
+        <entry key="character">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="character" />
+              <option name="relativePathToSchema" value="schemas/character.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/characters" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="class">
           <value>
             <SchemaInfo>
@@ -68,6 +86,24 @@
                   <Item>
                     <option name="directory" value="true" />
                     <option name="path" value="data/npcs" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="player">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="player" />
+              <option name="relativePathToSchema" value="schemas/player.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/players" />
                     <option name="mappingKind" value="Directory" />
                   </Item>
                 </list>
