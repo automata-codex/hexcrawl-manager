@@ -7,7 +7,7 @@ import { ClassSchema } from '../schemas/class';
 import { DungeonDataSchema } from '../schemas/dungeon';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { HexSchema } from '../schemas/hex';
-import { NpcDataSchema } from '../schemas/npc';
+import { NpcSchema } from '../schemas/npc';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionSchema } from '../schemas/region';
 import { RumorSchema } from '../schemas/rumor';
@@ -99,7 +99,7 @@ const hexes = defineCollection({
 const npcs = defineCollection({
   loader: getDirectoryYamlLoader<RegionData>(DIRS.NPCS),
   schema: {
-    ...NpcDataSchema,
+    ...NpcSchema,
   },
 });
 

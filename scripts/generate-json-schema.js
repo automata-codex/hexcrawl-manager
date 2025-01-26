@@ -1,14 +1,22 @@
 import { writeFileSync } from 'fs';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import { CharacterSchema } from '../schemas/character.js';
 import { ClassSchema } from '../schemas/class.js';
 import { FloatingClueListSchema } from '../schemas/floating-clue-list.js';
 import { HexListSchema } from '../schemas/hex-list.js';
-import { NpcDataSchema } from '../schemas/npc.js';
+import { NpcSchema } from '../schemas/npc.js';
+import { PlayerSchema } from '../schemas/player.js';
 import { RandomEncounterSchema } from '../schemas/random-encounter.js';
 import { RegionSchema } from '../schemas/region.js';
 import { RumorListSchema } from '../schemas/rumor.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
 import { SupplementListSchema } from '../schemas/supplement-list.js';
+
+const characterFile = new URL('../schemas/character.json', import.meta.url);
+writeFileSync(
+  characterFile,
+  JSON.stringify(zodToJsonSchema(CharacterSchema), null, 2)
+);
 
 const classFile = new URL('../schemas/class.json', import.meta.url);
 writeFileSync(
@@ -31,7 +39,13 @@ writeFileSync(
 const npcFile = new URL('../schemas/npc.json', import.meta.url);
 writeFileSync(
   npcFile,
-  JSON.stringify(zodToJsonSchema(NpcDataSchema), null, 2)
+  JSON.stringify(zodToJsonSchema(NpcSchema), null, 2)
+);
+
+const playerFile = new URL('../schemas/player.json', import.meta.url);
+writeFileSync(
+  playerFile,
+  JSON.stringify(zodToJsonSchema(PlayerSchema), null, 2)
 );
 
 const randomEncounterFile = new URL('../schemas/random-encounter.json', import.meta.url);
