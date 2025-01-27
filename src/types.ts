@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CharacterSchema } from '../schemas/character';
 import { DungeonDataSchema } from '../schemas/dungeon';
 import { HexSchema } from '../schemas/hex.js';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
@@ -13,6 +14,7 @@ import {
   StatBlockSchema,
 } from '../schemas/stat-block.js';
 
+export type CharacterData = z.infer<typeof CharacterSchema>;
 export type DescriptiveActionData = z.infer<typeof DescriptiveActionSchema>;
 export type DungeonData = z.infer<typeof DungeonDataSchema>;
 export type HexData = z.infer<typeof HexSchema>;

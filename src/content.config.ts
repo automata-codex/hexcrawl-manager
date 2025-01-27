@@ -14,11 +14,13 @@ import { RumorSchema } from '../schemas/rumor';
 import { StatBlockSchema } from '../schemas/stat-block';
 import { SupplementSchema } from '../schemas/supplement-list';
 import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './types.ts';
+import { CharacterSchema } from '../schemas/character';
 
 const DATA_DIR = 'data';
 
 const DIRS = {
   ARTICLES: `${DATA_DIR}/articles`,
+  CHARACTERS: `${DATA_DIR}/characters`,
   CLASSES: `${DATA_DIR}/classes`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
@@ -50,6 +52,11 @@ const articles = defineCollection({
   schema: z.object({
     title: z.string(),
   }),
+});
+
+const characters = defineCollection({
+  loader: glob({ pattern: "**/*.yml", base: DIRS.CHARACTERS }),
+  schema: CharacterSchema,
 });
 
 const classes = defineCollection({
@@ -133,6 +140,7 @@ const supplements = defineCollection({
 
 export const collections = {
   articles,
+  characters,
   classes,
   dungeons,
   encounters,
