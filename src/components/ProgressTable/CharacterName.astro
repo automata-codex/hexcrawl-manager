@@ -7,8 +7,30 @@ interface Props {
 
 const { character } = Astro.props;
 ---
+<style>
+    .name-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .character-name {
+        font-family: "Souvenir", serif;
+        font-weight: bold;
+        color: var(--bulma-text-strong);
+        font-size: 2rem;
+        padding-left: 0.125rem;
+        padding-top: 0.75rem;
+    }
+
+    .added-info {
+        display: flex;
+        flex-direction: column;
+    }
+</style>
 <div class="name-container">
-  <div>{character.name}</div>
-  <div>Player: {character.playerId}</div>
-  <div>Level: {character.level}</div>
+  <div class="character-name">{character.name}</div>
+  <div class="added-info">
+    <div>Player: {character.playerId}</div>
+    <div>Level: {character.level}</div>
+  </div>
 </div>
