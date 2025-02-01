@@ -1,20 +1,26 @@
 ---
-import ComponentLayout from '../layouts/ComponentLayout.astro';
 import SecretContent from '../components/Content/SecretContent.astro';
+import ClassCard from '../components/IndexCards/ClassCard.astro';
+import EncountersCard from '../components/IndexCards/EncountersCard.astro';
+import FloatingCluesCard from '../components/IndexCards/FloatingCluesCard.astro';
+import GmMapsCard from '../components/IndexCards/GmMapsCard.astro';
+import GoalsCard from '../components/IndexCards/GoalsCard.astro';
+import HeritageCard from '../components/IndexCards/HeritageCard.astro';
+import HouseRules from '../components/IndexCards/HouseRules.astro';
+import LevelUpCard from '../components/IndexCards/LevelUpCard.astro';
+import MapsCard from '../components/IndexCards/MapsCard.astro';
+import NpcsCard from '../components/IndexCards/NpcsCard.astro';
+import RegionsCard from '../components/IndexCards/RegionsCard.astro';
+import RumorsCard from '../components/IndexCards/RumorsCard.astro';
+import SettingCard from '../components/IndexCards/SettingCard.astro';
+import SupplementsCard from '../components/IndexCards/SupplementsCard.astro';
+import MediumScreen from '../components/ScreenSize/MediumScreen.astro';
+import SmallScreen from '../components/ScreenSize/SmallScreen.astro';
+import ComponentLayout from '../layouts/ComponentLayout.astro';
 
 const title = 'Beyond the Skyreach Mountains';
 ---
 <style>
-    .box {
-        text-align: center;
-    }
-
-    .box > h2.title.is-3 {
-        margin-top: 0;
-        margin-bottom: 0.25rem;
-        text-align: center;
-    }
-
     h2.title.is-3 {
         text-align: center;
     }
@@ -54,111 +60,82 @@ const title = 'Beyond the Skyreach Mountains';
       the unknown?
     </p>
   </section>
-  <h2 class="title is-3">Ready to get started?</h2>
-  <section class="columns">
-    <div class="column is-one-third">
-      <div class="box">
-        <h2 class="title is-3">Heritage</h2>
-        <p>
-          Check out <a href="/characters/ancestries-and-cultures">Ancestries and Cultures</a> to choose your character&rsquo;s heritage.
-        </p>
-      </div>
-    </div>
-    <div class="column is-one-third">
-      <div class="box">
-        <h2 class="title is-3">Class</h2>
-        <p>
-          Check out <a href="characters/classes">Playable Classes and Subclasses</a> to select your character&rsquo;s class.
-        </p>
-      </div>
-    </div>
-    <div class="column is-one-third">
-      <div class="box">
-        <h2 class="title is-3">Goals</h2>
-        <p>
-          You can set <a href="characters/character-goals">Goals</a> for your character either before selecting their heritage and class or after.
-        </p>
-      </div>
-    </div>
-  </section>
-  <h2 class="title is-3">Player&rsquo;s Reference</h2>
-  <section class="columns">
-    <div class="column is-one-third">
-      <div class="box">
-        <h2 class="title is-3">Setting</h2>
-        <p>
-          Learn about the <a href="/setting/known-world">Known World</a>, whence you hail, and <a href="/setting/western-frontier">Baruun Khil, the western frontier</a> where you&rsquo;re headed.
-        </p>
-      </div>
-      <div class="box">
-        <h2 class="title is-3">Maps</h2>
-        <p>
-          See how much of <a href="/setting/baruun-khil-map">Baruun Khil</a> has been explored by the heroes.
-        </p>
-      </div>
-    </div>
-    <div class="column is-one-third">
-      <div class="box">
-        <h2 class="title is-3">House Rules</h2>
-        <p>
-          Explore the <a href="/rules/house-rules">house rules</a> designed to enhance storytelling, balance gameplay, and bring our world to life.
-        </p>
-      </div>
-      <div class="box">
-        <h2 class="title is-3">Supplements</h2>
-        <p>
-          Discover the <a href="/rules/supplements">third-party supplements</a> we use to expand options and enrich our campaign world.
-        </p>
-      </div>
-    </div>
-    <div class="column is-one-third">
-      <div class="box">
-        <h2 class="title is-3">NPCs</h2>
-        <p>
-          Meet the <a href="/npcs">NPCs</a> who bring our world to life, each with their own stories, goals, and secrets.
-        </p>
-      </div>
-    </div>
-  </section>
-  <SecretContent>
-    <h2 class="title is-3">GM&rsquo;s Reference</h2>
+  <SmallScreen>
+    <h2 class="title is-3">Ready to get started?</h2>
     <section class="columns">
       <div class="column is-one-third">
-        <div class="box">
-          <h2 class="title is-3">Regions</h2>
-          <p>
-            Browse the inventory of the <a href="/regions">map regions</a>. Each region includes links to its individual <a href="/hexes">hexes</a>.
-          </p>
-        </div>
-        <div class="box">
-          <h2 class="title is-3">Encounters</h2>
-          <p>
-            Here is an enumeration of <a href="/encounters">encounters</a> that may befall the heroes.
-          </p>
-        </div>
-      </div>
-      <div class="column is-one-third">
-        <div class="box">
-          <h2 class="title is-3">Floating Clues</h2>
-          <p>
-            See a list of <a href="gm-notes/floating-clues/">clues</a> that you can insert anywhere.
-          </p>
-        </div>
-        <div class="box">
-          <h2 class="title is-3">Maps</h2>
-          <p>
-            Peruse a variety of fascinating <a href="gm-notes/maps/">maps</a> for your eyes only.
-          </p>
-        </div>
-      </div>
-      <div class="column is-one-third">
-        <div class="box">
-          <h2 class="title is-3">Rumors</h2>
-          <p>
-            View an assortment of <a href="gm-notes/rumors/">rumors</a> that the heroes might overhear at Fort Dagaric or another haven of civilization.
-          </p>
-        </div>
+        <HeritageCard />
+        <ClassCard />
+        <GoalsCard />
+        <LevelUpCard />
       </div>
     </section>
-  </SecretContent>
+    <h2 class="title is-3">Player&rsquo;s Reference</h2>
+    <section class="columns">
+      <div class="column is-one-third">
+        <SettingCard />
+        <HouseRules />
+        <NpcsCard />
+        <MapsCard />
+        <SupplementsCard />
+      </div>
+    </section>
+    <SecretContent>
+      <h2 class="title is-3">GM&rsquo;s Reference</h2>
+      <section class="columns">
+        <div class="column is-one-third">
+          <RegionsCard />
+          <FloatingCluesCard />
+          <RumorsCard />
+          <EncountersCard />
+          <GmMapsCard />
+        </div>
+      </section>
+    </SecretContent>
+  </SmallScreen>
+  <MediumScreen>
+    <h2 class="title is-3">Ready to get started?</h2>
+    <section class="columns">
+      <div class="column is-one-third">
+        <HeritageCard />
+        <LevelUpCard />
+      </div>
+      <div class="column is-one-third">
+        <ClassCard />
+      </div>
+      <div class="column is-one-third">
+        <GoalsCard />
+      </div>
+    </section>
+    <h2 class="title is-3">Player&rsquo;s Reference</h2>
+    <section class="columns">
+      <div class="column is-one-third">
+        <SettingCard />
+        <MapsCard />
+      </div>
+      <div class="column is-one-third">
+        <HouseRules />
+        <SupplementsCard />
+      </div>
+      <div class="column is-one-third">
+        <NpcsCard />
+      </div>
+    </section>
+    <SecretContent>
+      <h2 class="title is-3">GM&rsquo;s Reference</h2>
+      <section class="columns">
+        <div class="column is-one-third">
+          <RegionsCard />
+          <EncountersCard />
+        </div>
+        <div class="column is-one-third">
+          <FloatingCluesCard />
+          <GmMapsCard />
+        </div>
+        <div class="column is-one-third">
+          <RumorsCard />
+        </div>
+      </section>
+    </SecretContent>
+  </MediumScreen>
 </ComponentLayout>
