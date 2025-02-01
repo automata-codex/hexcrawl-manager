@@ -1,8 +1,7 @@
 ---
 import type { CharacterData } from '../../types';
-import ProgressTotals from './ProgressTotals.astro';
-import LevelProgress from './LevelProgress.astro';
 import CharacterName from './CharacterName.astro';
+import ProgressMeters from './ProgressMeters.astro';
 
 interface Props {
   character: CharacterData;
@@ -47,12 +46,6 @@ const { character } = Astro.props;
     <CharacterName character={character} />
   </td>
   <td>
-    <ProgressTotals character={character} />
-  </td>
-  <td>
-    <LevelProgress character={character} level={character.level+1} />
-  </td>
-  <td>
-    <LevelProgress character={character} level={character.level+2} />
+    <ProgressMeters />
   </td>
 </tr>
