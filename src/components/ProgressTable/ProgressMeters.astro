@@ -1,5 +1,12 @@
 ---
 import ProgressIcons from './ProgressIcons.astro';
+import type { CharacterData } from '../../types';
+
+interface Props {
+  character: CharacterData;
+}
+
+const { character } = Astro.props;
 ---
 <style is:global>
     .row {
@@ -19,19 +26,19 @@ import ProgressIcons from './ProgressIcons.astro';
 </style>
 <div class="row">
   <div class="pillar-name">Combat:</div>
-  <div>1</div>
-  <ProgressIcons />
-  <ProgressIcons />
+  <div>{character.advancementPoints.combat}</div>
+  <ProgressIcons character={character} level={character.level + 1} pillar="combat" />
+  <ProgressIcons character={character} level={character.level + 2} pillar="combat" />
 </div>
 <div class="row">
   <div class="pillar-name">Exploration:</div>
-  <div>1</div>
-  <ProgressIcons />
-  <ProgressIcons />
+  <div>{character.advancementPoints.exploration}</div>
+  <ProgressIcons character={character} level={character.level + 1} pillar="exploration" />
+  <ProgressIcons character={character} level={character.level + 2} pillar="exploration" />
 </div>
 <div class="row">
   <div class="pillar-name">Social:</div>
-  <div>1</div>
-  <ProgressIcons />
-  <ProgressIcons />
+  <div>{character.advancementPoints.social}</div>
+  <ProgressIcons character={character} level={character.level + 1} pillar="social" />
+  <ProgressIcons character={character} level={character.level + 2} pillar="social" />
 </div>

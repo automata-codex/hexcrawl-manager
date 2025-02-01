@@ -1,7 +1,7 @@
 ---
-import type { CharacterData } from '../../types';
 import CharacterName from './CharacterName.astro';
 import ProgressMeters from './ProgressMeters.astro';
+import type { CharacterData } from '../../types';
 
 interface Props {
   character: CharacterData;
@@ -46,6 +46,6 @@ const { character } = Astro.props;
     <CharacterName character={character} />
   </td>
   <td>
-    <ProgressMeters />
+    <ProgressMeters character={character} />
   </td>
 </tr>

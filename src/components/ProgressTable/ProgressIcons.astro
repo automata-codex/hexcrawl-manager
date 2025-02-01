@@ -1,9 +1,29 @@
 ---
 import { library, icon } from '@fortawesome/fontawesome-svg-core';
 import { faDiceD20 } from '@fortawesome/pro-light-svg-icons';
+import { getPointsPerLevel } from '../../utils/advancement.ts';
+import type { CharacterData, Pillar } from '../../types';
 
+interface Props {
+  character: CharacterData;
+  level: number;
+  pillar: Pillar;
+}
+
+const { character, level, pillar} = Astro.props;
+
+// Handle the icon
 library.add(faDiceD20);
 const progressIcon = icon(faDiceD20, { classes: ['fa-lg'] });
+
+// Subtract points for levels already completed
+let points = character.advancementPoints[pillar];
+for (let i = 1; i < level-1; i++) {
+  points -= Math.min(points, getPointsPerLevel(i));
+}
+
+// Create an array for iterating over the points
+const pointsList = Array.from({ length: getPointsPerLevel(level) });
 ---
 <style is:global>
     .fa-lg {
@@ -18,9 +38,8 @@ const progressIcon = icon(faDiceD20, { classes: ['fa-lg'] });
         color: #666;
     }
 </style>
-<div class:list={'ap-earned'}>
-  <Fragment set:html={progressIcon.html} />
-</div>
-<div class:list={'ap-needed'}>
-  <Fragment set:html={progressIcon.html} />
-</div>
+{pointsList.map((_, index) => (
+  <div class:list={index <= points-1 ? 'ap-earned' : 'ap-needed'}>
+    <Fragment set:html={progressIcon.html} />
+  </div>
+))}
