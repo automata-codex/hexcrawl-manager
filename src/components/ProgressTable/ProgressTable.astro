@@ -1,8 +1,6 @@
 ---
 import type { CharacterData } from '../../types';
-import CharacterName from './CharacterName.astro';
-import LevelProgress from './LevelProgress.astro';
-import ProgressTotals from './ProgressTotals.astro';
+import Row from './Row.astro';
 
 interface Props {
   characters: CharacterData[];
@@ -25,24 +23,17 @@ const { characters } = Astro.props;
     tr:first-child {
         border-top: 1px solid var(--bulma-border);
     }
+
+    // Define a grid that is five columns by three row
+    .progress-table {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr 1fr;
+    }
 </style>
 <table>
   <tbody>
-  {characters.map((character) => (
-    <tr>
-      <td>
-        <CharacterName character={character} />
-      </td>
-      <td>
-        <ProgressTotals character={character} />
-      </td>
-      <td>
-        <LevelProgress character={character} level={character.level+1} />
-      </td>
-      <td>
-        <LevelProgress character={character} level={character.level+2} />
-      </td>
-    </tr>
-  ))}
+  {characters.map((character) => <Row character={character} />)}
   </tbody>
 </table>
+

@@ -1,0 +1,39 @@
+---
+import type { CharacterData } from '../../types';
+import ProgressTotals from './ProgressTotals.astro';
+import LevelProgress from './LevelProgress.astro';
+import CharacterName from './CharacterName.astro';
+
+interface Props {
+  character: CharacterData;
+}
+
+const { character } = Astro.props;
+---
+<tr>
+  <td>
+    <CharacterName character={character} />
+  </td>
+  <td>
+    <ProgressTotals character={character} />
+  </td>
+  <td>
+    <LevelProgress character={character} level={character.level+1} />
+  </td>
+  <td>
+    <LevelProgress character={character} level={character.level+2} />
+  </td>
+</tr>
+
+<!--
+<div>
+  {characters.map((character) => (
+    <div>
+      <CharacterName character={character} />
+    </div>
+    <div>
+      <ProgressTotals character={character} />
+    </div>
+  ))}
+</div>
+-->
