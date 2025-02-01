@@ -13,27 +13,9 @@ const { characters } = Astro.props;
         border-spacing: 0;
         margin-top: 1rem;
     }
-
-    tr {
-        border-bottom: 1px solid var(--bulma-border);
-        padding-top: 0.25rem;
-        padding-bottom: 0.25rem;
-    }
-
-    tr:first-child {
-        border-top: 1px solid var(--bulma-border);
-    }
-
-    // Define a grid that is five columns by three row
-    .progress-table {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        grid-template-rows: 1fr 1fr 1fr;
-    }
 </style>
 <table>
   <tbody>
-  {characters.map((character) => <Row character={character} />)}
+    {characters.map((character) => <Row character={character} />)}
   </tbody>
 </table>
-

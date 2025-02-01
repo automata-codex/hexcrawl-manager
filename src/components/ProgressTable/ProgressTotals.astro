@@ -7,8 +7,8 @@ interface Props {
 
 const { character } = Astro.props;
 ---
-<div class="totals-container">
-  <div><abbr title="Combat">C</abbr>: {character.advancementPoints.combat}</div>
-  <div><abbr title="Exploration and Discovery">XD</abbr>: {character.advancementPoints.exploration}</div>
-  <div><abbr title="Social Interaction">SI</abbr>: {character.advancementPoints.social}</div>
+<div class="subgrid two-cols">
+  <div>Combat:</div><div>{character.advancementPoints.combat}</div>
+  <div><abbr title="Exploration and Discovery">Exploration</abbr>:</div><div>{character.advancementPoints.exploration}</div>
+  <div><abbr title="Social Interaction">Social</abbr>:</div><div>{character.advancementPoints.social}</div>
 </div>
