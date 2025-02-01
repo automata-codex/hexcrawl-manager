@@ -1,5 +1,6 @@
 ---
 import ProgressIcons from './ProgressIcons.astro';
+import { getPointsPerLevel } from '../../utils/advancement';
 import type { CharacterData } from '../../types';
 
 interface Props {
@@ -7,8 +8,34 @@ interface Props {
 }
 
 const { character } = Astro.props;
+
+const labelLevelPlus1 = {
+  'level-label': true,
+  'two-cols': getPointsPerLevel(character.level + 1) === 2,
+  'four-cols': getPointsPerLevel(character.level + 1) === 4,
+  'six-cols': getPointsPerLevel(character.level + 1) === 6,
+}
+const labelLevelPlus2 = {
+  'level-label': true,
+  'two-cols': getPointsPerLevel(character.level + 2) === 2,
+  'four-cols': getPointsPerLevel(character.level + 2) === 4,
+  'six-cols': getPointsPerLevel(character.level + 2) === 6,
+}
 ---
 <style is:global>
+    .level-label {
+        color: var(--skyreach-table-inactive);
+        font-size: small;
+        font-weight: bold;
+        text-align: center;
+        text-transform: uppercase;
+        margin-bottom: 0.125rem;
+    }
+
+    .pillar-points {
+        min-width: 1rem;
+    }
+
     .row {
         display: flex;
         align-items: center;
@@ -21,24 +48,42 @@ const { character } = Astro.props;
     .row > div.pillar-name {
         min-width: 100px;
         text-align: right;
-        margin-right: 3px;
+        margin-right: 0.125rem;
+    }
+
+    .two-cols {
+        width: 4.5rem;
+    }
+
+    .four-cols {
+        width: 9.5rem;
+    }
+
+    .six-cols {
+        width: 14.5rem;
     }
 </style>
 <div class="row">
+  <div class="pillar-name" />
+  <div class="pillar-points"/>
+  <div class:list={labelLevelPlus1}>Level {character.level + 1}</div>
+  <div class:list={labelLevelPlus2}>Level {character.level + 2}</div>
+</div>
+<div class="row">
   <div class="pillar-name">Combat:</div>
-  <div>{character.advancementPoints.combat}</div>
+  <div class="pillar-points">{character.advancementPoints.combat}</div>
   <ProgressIcons character={character} level={character.level + 1} pillar="combat" />
   <ProgressIcons character={character} level={character.level + 2} pillar="combat" />
 </div>
 <div class="row">
   <div class="pillar-name">Exploration:</div>
-  <div>{character.advancementPoints.exploration}</div>
+  <div class="pillar-points">{character.advancementPoints.exploration}</div>
   <ProgressIcons character={character} level={character.level + 1} pillar="exploration" />
   <ProgressIcons character={character} level={character.level + 2} pillar="exploration" />
 </div>
 <div class="row">
   <div class="pillar-name">Social:</div>
-  <div>{character.advancementPoints.social}</div>
+  <div class="pillar-points">{character.advancementPoints.social}</div>
   <ProgressIcons character={character} level={character.level + 1} pillar="social" />
   <ProgressIcons character={character} level={character.level + 2} pillar="social" />
 </div>
