@@ -1,0 +1,36 @@
+---
+import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { faDiceD20 } from '@fortawesome/pro-light-svg-icons';
+
+interface Props {
+  pointsEarned: number;
+  pointsTotal: number;
+}
+
+library.add(faDiceD20);
+const progressIcon = icon(faDiceD20, { classes: ['fa-lg'] });
+
+const { pointsEarned, pointsTotal } = Astro.props;
+
+// Create an array that is "pointsTotal" long
+const pointsArray = Array.from({ length: pointsTotal });
+---
+<style is:global>
+  .fa-lg {
+      height: 2rem;
+  }
+</style>
+<style>
+  .ap-earned {
+    color: hotpink;
+  }
+
+  .ap-needed {
+    color: #666;
+  }
+</style>
+{pointsArray.map((_, index) => (
+  <div class:list={index <= pointsEarned-1 ? 'ap-earned' : 'ap-needed'}>
+    <Fragment set:html={progressIcon.html} />
+  </div>
+))}

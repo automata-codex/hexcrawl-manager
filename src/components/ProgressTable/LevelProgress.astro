@@ -1,5 +1,6 @@
 ---
-import type { CharacterData, Pillar } from '../../types';
+import PillarProgress from './PillarProgress.astro';
+import type { CharacterData } from '../../types';
 
 interface Props {
   character: CharacterData;
@@ -30,9 +31,18 @@ for (let i = 1; i < level-1; i++) {
   points.exploration -= Math.min(points.exploration, getPointsPerLevel(i));
   points.social -= Math.min(points.social, getPointsPerLevel(i));
 }
+
+const containerClasses = [
+  'subgrid',
+  {
+    'two-cols': getPointsPerLevel(level) === 2,
+    'four-cols': getPointsPerLevel(level) === 4,
+    'six-cols': getPointsPerLevel(level) === 6,
+  },
+];
 ---
-<div class="subgrid">
-  <div>{points.combat}/{getPointsPerLevel(level)}</div>
-  <div>{points.exploration}/{getPointsPerLevel(level)}</div>
-  <div>{points.social}/{getPointsPerLevel(level)}</div>
+<div class:list={containerClasses}>
+  <PillarProgress pointsEarned={points.combat} pointsTotal={getPointsPerLevel(level)} />
+  <PillarProgress pointsEarned={points.exploration} pointsTotal={getPointsPerLevel(level)} />
+  <PillarProgress pointsEarned={points.social} pointsTotal={getPointsPerLevel(level)} />
 </div>
