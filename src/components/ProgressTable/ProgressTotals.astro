@@ -1,0 +1,14 @@
+---
+import type { CharacterData } from '../../types';
+
+interface Props {
+  character: CharacterData;
+}
+
+const { character } = Astro.props;
+---
+<div class="totals-container">
+  <div><abbr title="Combat">C</abbr>: {character.advancementPoints.combat}</div>
+  <div><abbr title="Exploration and Discovery">XD</abbr>: {character.advancementPoints.exploration}</div>
+  <div><abbr title="Social Interaction">SI</abbr>: {character.advancementPoints.social}</div>
+</div>

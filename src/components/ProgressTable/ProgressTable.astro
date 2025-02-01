@@ -1,6 +1,7 @@
 ---
 import type { CharacterData } from '../../types';
-import ProgressRow from './ProgressRow.astro';
+import CharacterName from './CharacterName.astro';
+import ProgressTotals from './ProgressTotals.astro';
 
 interface Props {
   characters: CharacterData[];
@@ -34,22 +35,33 @@ function renderProgress(character: CharacterData, pillar: Pillar) {
 }
 
 ---
+<style>
+    table {
+        border-spacing: 0;
+        margin-top: 1rem;
+    }
+
+    tr {
+        border-bottom: 1px solid var(--bulma-border);
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+
+    tr:first-child {
+        border-top: 1px solid var(--bulma-border);
+    }
+</style>
 <table>
-  <thead>
-  <tr>
-    <th>Character</th>
-    <th>Level 1</th>
-    <th>Level 2</th>
-    <th>Level 3</th>
-    <th>Level 4</th>
-  </tr>
-  </thead>
   <tbody>
-  <Fragment set:html={renderCharacters()} />
-  </tbody>
-  <tbody>
-  {characters.map((character) => {
-    return <ProgressRow character={character} />
-  })}
+  {characters.map((character) => (
+    <tr>
+      <td>
+        <CharacterName character={character} />
+      </td>
+      <td>
+        <ProgressTotals character={character} />
+      </td>
+    </tr>
+  ))}
   </tbody>
 </table>

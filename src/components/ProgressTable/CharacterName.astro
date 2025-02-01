@@ -1,0 +1,14 @@
+---
+import type { CharacterData } from '../../types';
+
+interface Props {
+  character: CharacterData;
+}
+
+const { character } = Astro.props;
+---
+<div class="name-container">
+  <div>{character.name}</div>
+  <div>Player: {character.playerId}</div>
+  <div>Level: {character.level}</div>
+</div>
