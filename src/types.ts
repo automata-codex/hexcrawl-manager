@@ -26,3 +26,5 @@ export type RegionData = z.infer<typeof RegionSchema>;
 export type Scope = z.infer<typeof ScopeSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
+
+export type Pillar = keyof CharacterData['advancementPoints'];

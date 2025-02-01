@@ -1,39 +1,14 @@
 ---
 import type { CharacterData } from '../../types';
 import CharacterName from './CharacterName.astro';
+import LevelProgress from './LevelProgress.astro';
 import ProgressTotals from './ProgressTotals.astro';
 
 interface Props {
   characters: CharacterData[];
 }
 
-type Pillar = keyof CharacterData['advancementPoints'];
-
 const { characters } = Astro.props;
-
-function renderCharacters() {
-  let output = '';
-  for (let character of characters) {
-    const fragment = renderProgress(character, 'combat');
-    output += `<tr><td>${character.name}</td>${fragment}</tr>`;
-  }
-  return output;
-}
-
-function renderProgress(character: CharacterData, pillar: Pillar) {
-  let points = character.advancementPoints[pillar];
-  let output = '';
-
-  // Repeat for each level in Tier 1
-  for (let i = 0; i < 4; i++) {
-    // Number of points remaining, to a maximum of 2
-    let count = Math.min(points, 2);
-    points -= count;
-    output += `<td>${count}</td>`;
-  }
-  return output;
-}
-
 ---
 <style>
     table {
@@ -60,6 +35,12 @@ function renderProgress(character: CharacterData, pillar: Pillar) {
       </td>
       <td>
         <ProgressTotals character={character} />
+      </td>
+      <td>
+        <LevelProgress character={character} level={character.level+1} />
+      </td>
+      <td>
+        <LevelProgress character={character} level={character.level+2} />
       </td>
     </tr>
   ))}
