@@ -1,0 +1,13 @@
+---
+import { getCollection } from 'astro:content';
+import ProgressTable from '../../components/ProgressTable/ProgressTable.astro';
+import ComponentLayout from '../../layouts/ComponentLayout.astro';
+
+const characterData = await getCollection('characters');
+const characters = characterData
+  .map((character) => character.data)
+  .sort((a, b) => a.displayName.localeCompare(b.displayName));
+---
+<ComponentLayout title="Progress Tracker">
+  <ProgressTable characters={characters} />
+</ComponentLayout>

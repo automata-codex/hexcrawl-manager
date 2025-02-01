@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content';
 
 import PlayerHexDetails from '../../components/HexData/PlayerHexDetails.astro';
 import ComponentLayout from '../../layouts/ComponentLayout.astro';
-import { getHexColumn, getHexRow } from '../../utils/id-parsers';
 import { hexSort } from '../../utils/sort';
 
 const hexData = await getCollection('hexes');
@@ -28,6 +27,7 @@ const title="Baruun Khil Map";
     }
 </style>
 <ComponentLayout title={title}>
+<!--
   <img
     alt="Map of Baruun Khil, the western frontier"
     class="baruun-khil-map"
@@ -35,6 +35,7 @@ const title="Baruun Khil Map";
     style="height: 500px;"
     title="Map of Baruun Khil, the western frontier"
   />
+-->
   <div class="box callout">
     <strong>Related:</strong>{' '}
     <a href="/setting/western-frontier">Welcome to the Western Frontier</a>
