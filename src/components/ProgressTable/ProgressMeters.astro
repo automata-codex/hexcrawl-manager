@@ -1,25 +1,7 @@
 ---
-import { library, icon } from '@fortawesome/fontawesome-svg-core';
-import { faDiceD20 } from '@fortawesome/pro-light-svg-icons';
-
-library.add(faDiceD20);
-const progressIcon = icon(faDiceD20, { classes: ['fa-lg'] });
-
+import ProgressIcons from './ProgressIcons.astro';
 ---
 <style is:global>
-    .fa-lg {
-        height: 2rem;
-    }
-</style>
-<style>
-    .ap-earned {
-        color: hotpink;
-    }
-
-    .ap-needed {
-        color: #666;
-    }
-
     .row {
         display: flex;
         align-items: center;
@@ -38,48 +20,18 @@ const progressIcon = icon(faDiceD20, { classes: ['fa-lg'] });
 <div class="row">
   <div class="pillar-name">Combat:</div>
   <div>1</div>
-  <div class:list={'ap-earned'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
-  <div class:list={'ap-needed'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
-  <div class:list={'ap-needed'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
-  <div class:list={'ap-needed'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
+  <ProgressIcons />
+  <ProgressIcons />
 </div>
 <div class="row">
   <div class="pillar-name">Exploration:</div>
   <div>1</div>
-  <div class:list={'ap-earned'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
-  <div class:list={'ap-needed'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
-  <div class:list={'ap-needed'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
-  <div class:list={'ap-needed'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
+  <ProgressIcons />
+  <ProgressIcons />
 </div>
 <div class="row">
   <div class="pillar-name">Social:</div>
   <div>1</div>
-  <div class:list={'ap-earned'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
-  <div class:list={'ap-needed'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
-  <div class:list={'ap-needed'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
-  <div class:list={'ap-needed'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
+  <ProgressIcons />
+  <ProgressIcons />
 </div>
