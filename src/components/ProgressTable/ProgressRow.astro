@@ -1,0 +1,21 @@
+---
+import type { CharacterData } from '../../types';
+
+interface Props {
+  character: CharacterData;
+}
+
+const { character } = Astro.props;
+const levels = [1, 2, 3, 4];
+
+// TODO Build a data array for each level, with the next of points needed to complete the level and the number for that level that the character has
+// TODO Look at `renderProgress` in `ProgressTable.astro` for inspiration
+
+---
+<tr>
+  <td>{character.name}</td>
+  {levels.map(() => {
+    const points = character.advancementPoints.combat;
+    return <td>{points}</td>;
+  })}
+</tr>

@@ -1,49 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
+import ProgressTable from '../../components/ProgressTable/ProgressTable.astro';
 import ComponentLayout from '../../layouts/ComponentLayout.astro';
-import type { CharacterData } from '../../types';
-
-type Pillar = keyof CharacterData['advancementPoints'];
 
 const characterData = await getCollection('characters');
 const characters = characterData
   .map((character) => character.data)
   .sort((a, b) => a.name.localeCompare(b.name));
-
-function renderCharacters() {
-  let output = '';
-  for (let character of characters) {
-    const fragment = renderProgress(character, 'combat');
-    output += `<tr><td>${character.name}</td>${fragment}</tr>`;
-  }
-  return output;
-}
-
-function renderProgress(character: CharacterData, pillar: Pillar) {
-  let points = character.advancementPoints[pillar];
-  let output = '';
-  for (let i = 0; i < 4; i++) {
-    // Number of points remaining, to a maximum of 2
-    let count = Math.min(points, 2);
-    points -= count;
-    output += `<td>${count}</td>`;
-  }
-  return output;
-}
 ---
-<ComponentLayout title="Prgress Tracker">
-  <table>
-    <thead>
-      <tr>
-        <th>Character</th>
-        <th>Level 1</th>
-        <th>Level 2</th>
-        <th>Level 3</th>
-        <th>Level 4</th>
-      </tr>
-    </thead>
-    <tbody>
-      <Fragment set:html={renderCharacters()} />
-    </tbody>
-  </table>
+<ComponentLayout title="Progress Tracker">
+  <ProgressTable characters={characters} />
 </ComponentLayout>
