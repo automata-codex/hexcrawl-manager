@@ -3,18 +3,19 @@ import { glob } from 'astro/loaders';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
+import { CharacterSchema } from '../schemas/character';
 import { ClassSchema } from '../schemas/class';
 import { DungeonDataSchema } from '../schemas/dungeon';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { HexSchema } from '../schemas/hex';
 import { NpcSchema } from '../schemas/npc';
+import { PlayerSchema } from '../schemas/player';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionSchema } from '../schemas/region';
 import { RumorSchema } from '../schemas/rumor';
 import { StatBlockSchema } from '../schemas/stat-block';
 import { SupplementSchema } from '../schemas/supplement-list';
 import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './types.ts';
-import { CharacterSchema } from '../schemas/character';
 
 const DATA_DIR = 'data';
 
@@ -28,6 +29,7 @@ const DIRS = {
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
   NPCS: `${DATA_DIR}/npcs`,
+  PLAYERS: `${DATA_DIR}/players`,
   REGIONS: `${DATA_DIR}/regions`,
   RUMORS: `${DATA_DIR}/rumors`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
@@ -110,6 +112,13 @@ const npcs = defineCollection({
   },
 });
 
+const players = defineCollection({
+  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.PLAYERS),
+  schema: {
+    ...PlayerSchema,
+  },
+});
+
 const regions = defineCollection({
   loader: getDirectoryYamlLoader<RegionData>(DIRS.REGIONS),
   schema: {
@@ -148,6 +157,7 @@ export const collections = {
   gmNotes,
   hexes,
   npcs,
+  players,
   regions,
   rumors,
   statBlocks,

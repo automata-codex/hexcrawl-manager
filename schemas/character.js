@@ -3,7 +3,8 @@ import { ClassEnum } from './class-enum.js';
 
 export const CharacterSchema = z.object({
   id: z.string(),
-  name: z.string(),
+  fullName: z.string(),
+  displayName: z.string(),
   pronouns: z.string(),
   playerId: z.string(),
   species: z.string(),
