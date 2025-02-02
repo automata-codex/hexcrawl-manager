@@ -1,7 +1,7 @@
 {
-  "name": "hex-world",
+  "name": "skyreach",
   "type": "module",
-  "version": "0.1.0",
+  "version": "2.1.0",
   "scripts": {
     "astro": "astro",
     "build": "astro check && astro build",

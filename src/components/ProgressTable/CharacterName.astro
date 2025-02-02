@@ -1,0 +1,42 @@
+---
+import { getEntry } from 'astro:content';
+import type { CharacterData } from '../../types';
+
+interface Props {
+  character: CharacterData;
+}
+
+const { character } = Astro.props;
+
+const playerData = await getEntry('players', character.playerId);
+if (!playerData) {
+  throw new Error(`Player not found: ${character.playerId}`);
+}
+---
+<style>
+    .name-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .character-name {
+        font-family: "Souvenir", serif;
+        font-weight: bold;
+        color: var(--bulma-text-strong);
+        font-size: 2rem;
+        padding-left: 0.125rem;
+    }
+
+    .added-info {
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+<div class="name-container">
+  <div class="character-name">{character.displayName}</div>
+  <div class="added-info">
+    <div>Pronouns: {character.pronouns}</div>
+    <div>Player: {playerData.data.displayName} ({playerData.data.pronouns})</div>
+    <div>Level: {character.level}</div>
+  </div>
+</div>

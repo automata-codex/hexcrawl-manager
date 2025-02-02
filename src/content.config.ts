@@ -3,11 +3,13 @@ import { glob } from 'astro/loaders';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
+import { CharacterSchema } from '../schemas/character';
 import { ClassSchema } from '../schemas/class';
 import { DungeonDataSchema } from '../schemas/dungeon';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { HexSchema } from '../schemas/hex';
-import { NpcDataSchema } from '../schemas/npc';
+import { NpcSchema } from '../schemas/npc';
+import { PlayerSchema } from '../schemas/player';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionSchema } from '../schemas/region';
 import { RumorSchema } from '../schemas/rumor';
@@ -19,6 +21,7 @@ const DATA_DIR = 'data';
 
 const DIRS = {
   ARTICLES: `${DATA_DIR}/articles`,
+  CHARACTERS: `${DATA_DIR}/characters`,
   CLASSES: `${DATA_DIR}/classes`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
@@ -26,6 +29,7 @@ const DIRS = {
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
   NPCS: `${DATA_DIR}/npcs`,
+  PLAYERS: `${DATA_DIR}/players`,
   REGIONS: `${DATA_DIR}/regions`,
   RUMORS: `${DATA_DIR}/rumors`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
@@ -50,6 +54,11 @@ const articles = defineCollection({
   schema: z.object({
     title: z.string(),
   }),
+});
+
+const characters = defineCollection({
+  loader: glob({ pattern: "**/*.yml", base: DIRS.CHARACTERS }),
+  schema: CharacterSchema,
 });
 
 const classes = defineCollection({
@@ -99,7 +108,14 @@ const hexes = defineCollection({
 const npcs = defineCollection({
   loader: getDirectoryYamlLoader<RegionData>(DIRS.NPCS),
   schema: {
-    ...NpcDataSchema,
+    ...NpcSchema,
+  },
+});
+
+const players = defineCollection({
+  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.PLAYERS),
+  schema: {
+    ...PlayerSchema,
   },
 });
 
@@ -133,6 +149,7 @@ const supplements = defineCollection({
 
 export const collections = {
   articles,
+  characters,
   classes,
   dungeons,
   encounters,
@@ -140,6 +157,7 @@ export const collections = {
   gmNotes,
   hexes,
   npcs,
+  players,
   regions,
   rumors,
   statBlocks,

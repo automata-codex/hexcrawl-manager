@@ -1,0 +1,22 @@
+import { z } from 'zod';
+import { ClassEnum } from './class-enum.js';
+
+export const CharacterSchema = z.object({
+  id: z.string(),
+  fullName: z.string(),
+  displayName: z.string(),
+  pronouns: z.string(),
+  playerId: z.string(),
+  species: z.string(),
+  culture: z.string(),
+  class: ClassEnum,
+  subclass: z.string().optional(),
+  level: z.number().int().max(20).min(1),
+  image: z.string().optional(),
+  notes: z.array(z.string()).optional(),
+  advancementPoints: z.object({
+    combat: z.number().int().nonnegative(),
+    exploration: z.number().int().nonnegative(),
+    social: z.number().int().nonnegative(),
+  })
+});

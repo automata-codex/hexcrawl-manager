@@ -1,11 +1,12 @@
 import { z } from 'zod';
+import { ClassEnum } from './class-enum.js';
 
-export const NpcDataSchema = z.object({
+export const NpcSchema = z.object({
   id: z.string(),
   name: z.string(),
   title: z.string().optional(),
   occupation: z.string(),
-  class: z.string().optional(),
+  class: ClassEnum.optional(),
   adventuringCompany: z.string().optional(),
   species: z.string(),
   culture: z.string(),
