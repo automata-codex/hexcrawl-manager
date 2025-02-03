@@ -6,6 +6,7 @@ import yaml from 'yaml';
 import { CharacterSchema } from '../schemas/character';
 import { ClassSchema } from '../schemas/class';
 import { DungeonDataSchema } from '../schemas/dungeon';
+import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { HexSchema } from '../schemas/hex';
 import { NpcSchema } from '../schemas/npc';
@@ -25,6 +26,7 @@ const DIRS = {
   CLASSES: `${DATA_DIR}/classes`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
+  FACTIONS: `${DATA_DIR}/factions`,
   FLOATING_CLUES: `${DATA_DIR}/floating-clues`,
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
@@ -80,6 +82,13 @@ const encounters = defineCollection({
   loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.ENCOUNTERS),
   schema: {
     ...RandomEncounterSchema,
+  },
+});
+
+const factions = defineCollection({
+  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.FACTIONS),
+  schema: {
+    ...FactionSchema,
   },
 });
 
@@ -153,6 +162,7 @@ export const collections = {
   classes,
   dungeons,
   encounters,
+  factions,
   floatingClues,
   gmNotes,
   hexes,

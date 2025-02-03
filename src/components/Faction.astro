@@ -1,0 +1,52 @@
+---
+import type { FactionData } from '../types';
+import { renderMarkdown } from '../utils/markdown';
+import { formatText } from '../utils/text';
+
+interface Props {
+  faction: FactionData;
+}
+
+const { faction } = Astro.props;
+---
+<style is:global>
+    p {
+        text-indent: var(--skyreach-standard-indent);
+    }
+
+    p:first-child {
+        text-indent: 0;
+    }
+</style>
+<style>
+    h2.title.is-3,
+    h3.title.is-5 {
+        margin-bottom: var(--skyreach-heading-margin-bottom);
+    }
+
+    .ideology {
+        font-style: italic;
+        margin: 0 10% 1rem;
+    }
+</style>
+<section>
+  <h2 class="title is-3">{formatText(faction.name)}</h2>
+  <div class="ideology">
+    <Fragment set:html={renderMarkdown(faction.ideology)} />
+  </div>
+  <div>
+    <Fragment set:html={renderMarkdown(faction.description)} />
+  </div>
+  <h3 class="title is-5">Power Level</h3>
+  <div>
+    <Fragment set:html={renderMarkdown(faction.powerLevel)} />
+  </div>
+  <h3 class="title is-5">Areas of Operation</h3>
+  <div>
+    <ul>
+      {faction.areaOfOperation.map((area) => (
+        <li>{formatText(area)}</li>
+      ))}
+    </ul>
+  </div>
+</section>
