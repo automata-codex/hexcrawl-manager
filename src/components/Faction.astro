@@ -30,7 +30,7 @@ const { faction } = Astro.props;
     }
 </style>
 <section>
-  <h2 class="title is-3">{faction.name}</h2>
+  <h2 class="title is-3">{formatText(faction.name)}</h2>
   <div class="ideology">
     <Fragment set:html={renderMarkdown(faction.ideology)} />
   </div>
