@@ -14,6 +14,7 @@ import { PlayerSchema } from '../schemas/player';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionSchema } from '../schemas/region';
 import { RumorSchema } from '../schemas/rumor';
+import { SessionSchema } from '../schemas/session';
 import { StatBlockSchema } from '../schemas/stat-block';
 import { SupplementSchema } from '../schemas/supplement-list';
 import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './types.ts';
@@ -34,6 +35,7 @@ const DIRS = {
   PLAYERS: `${DATA_DIR}/players`,
   REGIONS: `${DATA_DIR}/regions`,
   RUMORS: `${DATA_DIR}/rumors`,
+  SESSIONS: `${DATA_DIR}/sessions`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
   SUPPLEMENTS: `${DATA_DIR}/supplements`,
 } as const;
@@ -142,6 +144,13 @@ const rumors = defineCollection({
   },
 });
 
+const sessions = defineCollection({
+  loader: glob({ pattern: "**/*.yml", base: DIRS.SESSIONS }),
+  schema: {
+    ...SessionSchema,
+  },
+});
+
 const statBlocks = defineCollection({
   loader: getDirectoryYamlLoader<StatBlockData>(DIRS.STAT_BLOCKS),
   schema: {
@@ -170,6 +179,7 @@ export const collections = {
   players,
   regions,
   rumors,
+  sessions,
   statBlocks,
   supplements,
 };
