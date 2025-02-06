@@ -10,7 +10,7 @@ import { PlayerListSchema } from '../schemas/player.js';
 import { RandomEncounterSchema } from '../schemas/random-encounter.js';
 import { RegionSchema } from '../schemas/region.js';
 import { RumorListSchema } from '../schemas/rumor.js';
-import { SessionReportSchema } from '../schemas/session-report.js';
+import { SessionSchema } from '../schemas/session.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
 import { SupplementListSchema } from '../schemas/supplement-list.js';
 
@@ -74,10 +74,10 @@ writeFileSync(
   JSON.stringify(zodToJsonSchema(RumorListSchema), null, 2)
 );
 
-const sessionFile = new URL('../schemas/session-report.json', import.meta.url);
+const sessionFile = new URL('../schemas/session.json', import.meta.url);
 writeFileSync(
   sessionFile,
-  JSON.stringify(zodToJsonSchema(SessionReportSchema), null, 2)
+  JSON.stringify(zodToJsonSchema(SessionSchema), null, 2)
 );
 
 const statBlockFile = new URL('../schemas/stat-block.json', import.meta.url);

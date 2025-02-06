@@ -183,12 +183,12 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="session-report">
+        <entry key="session">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="session-report" />
-              <option name="relativePathToSchema" value="schemas/session-report.json" />
+              <option name="name" value="session" />
+              <option name="relativePathToSchema" value="schemas/session.json" />
               <option name="patterns">
                 <list>
                   <Item>
