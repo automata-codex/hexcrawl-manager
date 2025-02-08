@@ -61,6 +61,14 @@ ul {
 
 /* --- BULMA OVERRIDES --- */
 
+.title.is-3,
+.title.is-4,
+.title.is-5,
+.title.is-6,
+.title.is-7 {
+    margin-bottom: var(--skyreach-heading-margin-bottom);
+}
+
 ul {
     list-style-type: disc;
 }
