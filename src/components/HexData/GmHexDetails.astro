@@ -50,7 +50,7 @@ const { hex, showSelfLink = true } = Astro.props;
       <p class="warning">⚠️ Updates ⚠️</p>
       <ul>
         {hex.updates.map(update => (
-          <li>{formatText(update)}</li>
+          <li><Fragment set:html={formatText(update)} /></li>
         ))}
       </ul>
     </div>
