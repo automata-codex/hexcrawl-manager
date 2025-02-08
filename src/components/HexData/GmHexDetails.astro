@@ -25,15 +25,43 @@ const { hex, showSelfLink = true } = Astro.props;
             margin-right: 1rem;
         }
     }
+
+    .updates {
+        padding: 1rem;
+    }
+
+    .updates ul {
+        padding-left: 1rem;
+    }
+
+    .warning {
+        background-color: var(--bulma-danger);
+        color: var(--bulma-white);
+        font-weight: bold;
+        padding: 1rem;
+        text-align: center;
+        margin: 0 0 1rem;
+    }
 </style>
 
 <section>
+  {hex.updates && (
+    <div class="box updates">
+      <p class="warning">⚠️ Updates ⚠️</p>
+      <ul>
+        {hex.updates.map(update => (
+          <li>{formatText(update)}</li>
+        ))}
+      </ul>
+    </div>
+  )}
   <div class="data-bar">
     <Visited hex={hex} />
     <Explored hex={hex} />
-    {showSelfLink && <div>
-      <a href={`/hexes/${hex.id}`}>View Hex</a>
-    </div>}
+    {showSelfLink &&
+      <div>
+        <a href={`/hexes/${hex.id}`}>View Hex</a>
+      </div>}
     <div>
       <a href={`/regions/${hex.regionId}`}>{getRegionTitle(hex.regionId)}</a>
     </div>
@@ -44,8 +72,9 @@ const { hex, showSelfLink = true } = Astro.props;
   </div>
   <Landmark hex={hex} />
   <HiddenSites hex={hex} />
-  { hex.secretSite && <div class="hanging-indent"><span class="inline-heading">Secret Site:</span>{' '}{formatText(hex.secretSite)}</div> }
-  { hex.notes && <p class="hanging-indent">
+  {hex.secretSite &&
+    <div class="hanging-indent"><span class="inline-heading">Secret Site:</span>{' '}{formatText(hex.secretSite)}</div>}
+  {hex.notes && <p class="hanging-indent">
       <span class="inline-heading">GM&rsquo;s Notes:</span>
     </p>
     <ul>
