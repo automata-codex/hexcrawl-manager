@@ -16,4 +16,5 @@ export const HexSchema = z.object({
   encounterChance: z.number().int().min(1).max(20).optional(),
   encounters: RandomEncounterTableSchema.optional(),
   notes: z.array(z.string()).optional(), // Private GM eyes-only notes
+  updates: z.array(z.string()).optional(), // Private GM-only changes to the hex since the last visit
 }).describe('Data for a hex in a hex map.');
