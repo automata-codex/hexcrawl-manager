@@ -1,0 +1,21 @@
+---
+import type { SessionData } from '../types';
+import { formatText } from '../utils/text';
+
+interface Props {
+  session: SessionData;
+}
+
+const { session } = Astro.props;
+
+function getSessionNameFromId(sessionId: string): string {
+  return sessionId
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+---
+<section>
+  <h2 class="title is-3">{getSessionNameFromId(session.id)}</h2>
+  <div>Session Date: {session.sessionDate}</div>
+  <div>In-game Dates: <Fragment set:html={formatText(session.gameDates)} /></div>
+</section>
