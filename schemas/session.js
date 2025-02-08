@@ -5,11 +5,12 @@ const ApSchema = z.object({
   maxTier: z.number().int().min(1).max(4),
 })
 
-export const SessionReportSchema = z.object({
+export const SessionSchema = z.object({
   id: z.string(),
   sessionDate: z.string().date(),
   gameDates: z.string(),
-  charactersIds: z.array(z.string()),
+  characterIds: z.array(z.string()),
+  agenda: z.array(z.string()).optional(),
   advancementPoints: z.object({
     combat: ApSchema,
     exploration: ApSchema,

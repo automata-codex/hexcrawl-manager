@@ -1,0 +1,51 @@
+---
+import { icon, library } from '@fortawesome/fontawesome-svg-core';
+import { faCircleInfo } from '@fortawesome/pro-solid-svg-icons';
+import type { FloatingClueData } from '../types';
+import { formatText } from '../utils/text';
+import { renderMarkdown } from '../utils/markdown';
+
+interface Props {
+  clue: FloatingClueData;
+  showDetail?: boolean;
+  showName?: boolean;
+}
+
+const { clue, showDetail = false, showName = true } = Astro.props as Props;
+library.add(faCircleInfo);
+const infoIcon = icon(faCircleInfo);
+---
+<style is:global>
+  h3.title.is-4 {
+      font-size: 1.25rem;
+  }
+</style>
+<style>
+    h2.title.is-3 {
+        color: var(--bulma-text-strong);
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .icon {
+        margin-left: 0.5rem;
+    }
+</style>
+<h2 class="title is-3">
+  {showName && clue.name}
+  {!showDetail && clue.detailText && (
+    <span class="icon">
+      <a href=`/gm-notes/floating-clues/${clue.id}`>
+        <Fragment set:html={infoIcon.html} />
+      </a>
+    </span>
+  )}
+</h2>
+<p>
+  {formatText(clue.summary)}
+</p>
+{showDetail && clue.detailText && (
+  <div>
+    <Fragment set:html={renderMarkdown(clue.detailText ?? '')} />
+  </div>
+)}
