@@ -4,15 +4,25 @@ import type { CharacterData, PlayerData } from '../types';
 
 interface Props {
   character: CharacterData;
+  isSubcomponent?: boolean;
 }
 
-const { character } = Astro.props;
+const { character, isSubcomponent = false } = Astro.props;
 
+// Get player data
 const playerData = await getEntry('players', character.playerId);
 if (!playerData) {
   throw new Error(`Player not found: ${character.playerId}`);
 }
 const player: PlayerData = playerData.data;
+
+// Format subheadings
+const subheading = (text: string) => {
+  if (isSubcomponent) {
+    return `<h3 class="title is-4">${text}</h3>`;
+  }
+  return `<h2 class="title is-3">${text}</h2>`;
+};
 ---
 <style>
     .data-container {
@@ -43,19 +53,19 @@ const player: PlayerData = playerData.data;
 </div>
 {character.backstory &&
   <div>
-    <h2 class="title is-3">Backstory</h2>
+    <Fragment set:html={subheading('Backstory')} />
     <p>{character.backstory}</p>
   </div>
 }
 {character.goals &&
   <div>
-    <h2 class="title is-3">Goals</h2>
+    <Fragment set:html={subheading('Goals')} />
     <p>{character.goals}</p>
   </div>
 }
 {character.notes &&
   <div>
-    <h2 class="title is-3">Notes</h2>
+    <Fragment set:html={subheading('Notes')} />
     <p>{character.notes}</p>
   </div>
 }
