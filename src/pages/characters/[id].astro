@@ -1,6 +1,6 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
-import type { PlayerData } from '../../types';
+import { getEntry } from 'astro:content';
+import CharacterDetails from '../../components/CharacterDetails.astro';
 import SecretLayout from '../../layouts/SecretLayout.astro';
 
 // Get the ID from the incoming server request
@@ -23,18 +23,7 @@ if (characterData === undefined) {
   });
 }
 
-// Get details for the player
-const players = await getCollection('players');
-function getPlayerById(playerId: string): PlayerData {
-  const output = players.find((player) => player.id === playerId);
-  if (!output) {
-    throw new Error(`Player not found: ${playerId}`);
-  }
-  return output.data;
-}
-
 const character = characterData.data;
-const player = getPlayerById(character.playerId);
 ---
 <style>
     .data-container {
@@ -46,40 +35,5 @@ const player = getPlayerById(character.playerId);
     }
 </style>
 <SecretLayout title={character.fullName}>
-  <div class="data-container">
-    <div>
-      <ul>
-        <li>Name: {character.displayName}</li>
-        <li>Pronouns: {character.pronouns}</li>
-        <li>Species: {character.species}</li>
-        <li>Culture: {character.culture}</li>
-      </ul>
-    </div>
-    <div>
-      <ul>
-        <li>Player: {player.displayName} ({player.pronouns})</li>
-        <li>Class: {character.class}</li>
-        {character.subclass && <li>Subclass: {character.subclass}</li>}
-        <li>Level: {character.level}</li>
-      </ul>
-    </div>
-  </div>
-  {character.backstory &&
-    <div>
-      <h2 class="title is-3">Backstory</h2>
-      <p>{character.backstory}</p>
-    </div>
-  }
-  {character.goals &&
-    <div>
-      <h2 class="title is-3">Goals</h2>
-      <p>{character.goals}</p>
-    </div>
-  }
-  {character.notes &&
-    <div>
-      <h2 class="title is-3">Notes</h2>
-      <p>{character.notes}</p>
-    </div>
-  }
+  <CharacterDetails character={character} />
 </SecretLayout>
