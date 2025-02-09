@@ -1,5 +1,6 @@
 ---
 import { getEntry } from 'astro:content';
+import { renderMarkdown } from '../utils/markdown';
 import type { CharacterData, PlayerData } from '../types';
 
 interface Props {
@@ -54,18 +55,24 @@ const subheading = (text: string) => {
 {character.backstory &&
   <div>
     <Fragment set:html={subheading('Backstory')} />
-    <p>{character.backstory}</p>
+    <p>
+      <Fragment set:html={renderMarkdown(character.backstory)} />
+    </p>
   </div>
 }
 {character.goals &&
   <div>
     <Fragment set:html={subheading('Goals')} />
-    <p>{character.goals}</p>
+    <p>
+      <Fragment set:html={renderMarkdown(character.goals)} />
+    </p>
   </div>
 }
 {character.notes &&
   <div>
     <Fragment set:html={subheading('Notes')} />
-    <p>{character.notes}</p>
+    <p>
+      <Fragment set:html={renderMarkdown(character.notes)} />
+    </p>
   </div>
 }
