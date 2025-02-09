@@ -6,6 +6,7 @@ import yaml from 'yaml';
 import { CharacterSchema } from '../schemas/character';
 import { ClassSchema } from '../schemas/class';
 import { DungeonDataSchema } from '../schemas/dungeon';
+import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { HexSchema } from '../schemas/hex';
 import { NpcSchema } from '../schemas/npc';
@@ -13,6 +14,7 @@ import { PlayerSchema } from '../schemas/player';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionSchema } from '../schemas/region';
 import { RumorSchema } from '../schemas/rumor';
+import { SessionSchema } from '../schemas/session';
 import { StatBlockSchema } from '../schemas/stat-block';
 import { SupplementSchema } from '../schemas/supplement-list';
 import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './types.ts';
@@ -25,6 +27,8 @@ const DIRS = {
   CLASSES: `${DATA_DIR}/classes`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
+  FACTIONS: `${DATA_DIR}/factions`,
+  FIXED_CLUES: `${DATA_DIR}/fixed-clues`,
   FLOATING_CLUES: `${DATA_DIR}/floating-clues`,
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
@@ -32,6 +36,7 @@ const DIRS = {
   PLAYERS: `${DATA_DIR}/players`,
   REGIONS: `${DATA_DIR}/regions`,
   RUMORS: `${DATA_DIR}/rumors`,
+  SESSIONS: `${DATA_DIR}/sessions`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
   SUPPLEMENTS: `${DATA_DIR}/supplements`,
 } as const;
@@ -81,6 +86,20 @@ const encounters = defineCollection({
   schema: {
     ...RandomEncounterSchema,
   },
+});
+
+const factions = defineCollection({
+  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.FACTIONS),
+  schema: {
+    ...FactionSchema,
+  },
+});
+
+const fixedClues = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: DIRS.FIXED_CLUES }),
+  schema: z.object({
+    title: z.string(),
+  }),
 });
 
 const floatingClues = defineCollection({
@@ -133,6 +152,13 @@ const rumors = defineCollection({
   },
 });
 
+const sessions = defineCollection({
+  loader: glob({ pattern: "**/*.yml", base: DIRS.SESSIONS }),
+  schema: {
+    ...SessionSchema,
+  },
+});
+
 const statBlocks = defineCollection({
   loader: getDirectoryYamlLoader<StatBlockData>(DIRS.STAT_BLOCKS),
   schema: {
@@ -153,13 +179,16 @@ export const collections = {
   classes,
   dungeons,
   encounters,
+  factions,
   floatingClues,
+  fixedClues,
   gmNotes,
   hexes,
   npcs,
   players,
   regions,
   rumors,
+  sessions,
   statBlocks,
   supplements,
 };

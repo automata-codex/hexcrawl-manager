@@ -1,15 +1,7 @@
 ---
 import { getEntry } from 'astro:content';
-import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import SecretArticleLayout from '../../layouts/SecretArticleLayout.astro';
 import { renderMarkdown } from '../../utils/markdown';
-import { canAccess, getCurrentUserRole } from '../../utils/auth';
-import { SCOPES } from '../../utils/constants';
-
-const role = getCurrentUserRole(Astro.locals);
-if (canAccess(role, [SCOPES.PLAYER, SCOPES.PUBLIC])) {
-  Astro.response.status = 404;
-  Astro.response.statusText = 'Not found';
-}
 
 const article = await getEntry('articles', 'western-frontier-gms-notes');
 if (!article) {
@@ -17,8 +9,8 @@ if (!article) {
 }
 const { title } = article.data;
 ---
-<ArticleLayout title={title}>
+<SecretArticleLayout title={title}>
   <article>
     <Fragment set:html={renderMarkdown(article.body ?? '')} />
   </article>
-</ArticleLayout>
+</SecretArticleLayout>

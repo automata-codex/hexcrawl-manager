@@ -39,6 +39,24 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="faction">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="faction" />
+              <option name="relativePathToSchema" value="schemas/faction.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/factions" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="floating-clue-list">
           <value>
             <SchemaInfo>
@@ -165,12 +183,12 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="session-report">
+        <entry key="session">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="session-report" />
-              <option name="relativePathToSchema" value="schemas/session-report.json" />
+              <option name="name" value="session" />
+              <option name="relativePathToSchema" value="schemas/session.json" />
               <option name="patterns">
                 <list>
                   <Item>
