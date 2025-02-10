@@ -25,6 +25,20 @@ const subheading = (text: string) => {
   return `<h2 class="title is-3">${text}</h2>`;
 };
 ---
+<style is:global>
+    p {
+        text-indent: var(--skyreach-standard-indent);
+    }
+
+    p:first-child,
+    h2 + p,
+    h3 + p,
+    h4 + p,
+    h5 + p,
+    h6 + p {
+        text-indent: 0;
+    }
+</style>
 <style>
     .data-container {
         display: flex;
@@ -55,24 +69,18 @@ const subheading = (text: string) => {
 {character.backstory &&
   <div>
     <Fragment set:html={subheading('Backstory')} />
-    <p>
-      <Fragment set:html={renderMarkdown(character.backstory)} />
-    </p>
+    <Fragment set:html={renderMarkdown(character.backstory)} />
   </div>
 }
 {character.goals &&
   <div>
     <Fragment set:html={subheading('Goals')} />
-    <p>
-      <Fragment set:html={renderMarkdown(character.goals)} />
-    </p>
+    <Fragment set:html={renderMarkdown(character.goals)} />
   </div>
 }
 {character.notes &&
   <div>
     <Fragment set:html={subheading('Notes')} />
-    <p>
-      <Fragment set:html={renderMarkdown(character.notes)} />
-    </p>
+    <Fragment set:html={renderMarkdown(character.notes)} />
   </div>
 }
