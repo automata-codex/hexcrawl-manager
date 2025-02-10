@@ -3,6 +3,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import { remark } from 'remark';
 import remarkBehead from 'remark-behead';
+import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
 
@@ -14,9 +15,10 @@ interface AdditionalPlugin {
 
 function createBasePipeline(additionalPlugins: AdditionalPlugin[] = []) {
   const defaultPlugins = [
-    { plugin: remarkRehype, options: { allowDangerousHtml: true } }, // 0
-    { plugin: rehypeRaw }, // 1
-    { plugin: remarkSmartypants }, // 2
+    { plugin: remarkGfm }, // 0
+    { plugin: remarkRehype, options: { allowDangerousHtml: true } }, // 1
+    { plugin: rehypeRaw }, // 2
+    { plugin: remarkSmartypants }, // 3
     { plugin: rehypeAddClasses, options: {
       h1: 'title is-2',
       h2: 'title is-3',
@@ -25,8 +27,8 @@ function createBasePipeline(additionalPlugins: AdditionalPlugin[] = []) {
       h5: 'title is-6',
       h6: 'title is-7',
       strong: 'inline-heading',
-    }}, // 3
-    { plugin: rehypeStringify, options: { allowDangerousHtml: true } } // 4
+    }}, // 4
+    { plugin: rehypeStringify, options: { allowDangerousHtml: true } } // 5
   ];
 
   additionalPlugins.forEach(({ plugin, options, position }) => {
