@@ -1,0 +1,21 @@
+---
+import { getCollection } from 'astro:content';
+import SecretLayout from '../../layouts/SecretLayout.astro';
+import { getRegionTitle } from '../../utils/id-parsers';
+import RegionDetails from '../../components/RegionDetails.astro';
+
+const regionData = await getCollection('regions');
+const regions = regionData
+  .map(region => region.data)
+  .sort((a, b) => a.id.localeCompare(b.id));
+
+const title = 'Baruun Khil Regions';
+---
+<SecretLayout title={title}>
+  {regions.map(region => (
+    <div>
+      <h2 class="title is-3">{getRegionTitle(region.id)}: {region.name}</h2>
+      <RegionDetails region={region} isSubcomponent={true} />
+    </div>
+  ))}
+</SecretLayout>
