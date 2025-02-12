@@ -1,0 +1,45 @@
+---
+import { icon, library } from '@fortawesome/fontawesome-svg-core';
+import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
+import { startCase, toLower } from 'lodash-es';
+import { formatText } from '../utils/text';
+
+interface Props {
+  rumor: RumorData;
+  isSubcomponent?: boolean;
+}
+
+const { rumor, isSubcomponent = false } = Astro.props;
+
+library.add(faSquare, faSquareCheck);
+const squareIcon = icon(faSquare);
+const squareCheckIcon = icon(faSquareCheck);
+const knownIcon = rumor.isKnown ? squareCheckIcon : squareIcon;
+const availableIcon = (rumor.isAvailable ?? true) ? squareCheckIcon : squareIcon;
+---
+<div>
+  <p>
+    This rumor is known by the heroes:{' '}<Fragment set:html={knownIcon.html} />
+  </p>
+  <p>
+    This rumor is available to be known by the heroes:{' '}<Fragment set:html={availableIcon.html} />
+  </p>
+  <p class="hanging-indent"><span class="inline-heading">Description:</span>
+    {' '}
+    <Fragment set:html={formatText(rumor.description)} />
+  </p>
+  <p class="hanging-indent"><span class="inline-heading">Status:</span>
+    {' '}
+    <Fragment set:html={startCase(toLower(rumor.status))} />
+  </p>
+  {rumor.notes && (
+    <p class="hanging-indent"><span class="inline-heading">Notes:</span></p>
+    <ul>
+      {rumor.notes.map((note) => (
+        <li>
+          <Fragment set:html={formatText(note)} />
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
