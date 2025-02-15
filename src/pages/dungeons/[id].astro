@@ -1,6 +1,7 @@
 ---
-import { getEntry, render } from 'astro:content';
-import SecretLayout from '../../layouts/SecretLayout.astro';
+import { getEntry } from 'astro:content';
+import SecretArticleLayout from '../../layouts/SecretArticleLayout.astro';
+import DungeonDetails from '../../components/DungeonDetails.astro';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -23,20 +24,7 @@ if (dungeon === undefined) {
 }
 
 const title = `Dungeon: ${dungeon.data.name}`;
-const { Content } = await render(dungeon);
-const hexData = await getEntry('hexes', dungeon.data.hexId);
-if (!hexData) {
-  throw new Error('Hex not found: ' + dungeon.data.hexId);
-}
 ---
-<SecretLayout title={title}>
-  <div>
-    <div>
-      Hex:
-      <a href={`/hexes/${hexData.id}`}>
-        {hexData.data.id.toUpperCase()} "{hexData.data.name}"
-      </a>
-    </div>
-    <Content />
-  </div>
-</SecretLayout>
+<SecretArticleLayout title={title}>
+  <DungeonDetails dungeon={dungeon} />
+</SecretArticleLayout>
