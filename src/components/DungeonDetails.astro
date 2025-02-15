@@ -7,7 +7,7 @@ interface Props {
   isSubcomponent?: boolean;
 }
 
-const { dungeon } = Astro.props;
+const { dungeon, isSubcomponent = false } = Astro.props;
 const hexData = await getEntry('hexes', dungeon.data.hexId);
 if (!hexData) {
   throw new Error('Hex not found: ' + dungeon.data.hexId);
@@ -15,12 +15,29 @@ if (!hexData) {
 
 const { Content } = await render(dungeon);
 ---
-<div>
+<style>
+    .dungeon-data-bar {
+        display: flex;
+    }
+
+    .dungeon-data-bar > div {
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+</style>
+<div class="dungeon-data-bar">
   <div>
     Hex:
     <a href={`/hexes/${hexData.id}`}>
       {hexData.data.id.toUpperCase()} "{hexData.data.name}"
     </a>
   </div>
-  <Content />
+  {isSubcomponent && (
+    <div>
+      <a href={`/dungeons/${dungeon.id}`}>
+        View Dungeon
+      </a>
+    </div>
+  )}
 </div>
+<Content />
