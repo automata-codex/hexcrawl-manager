@@ -1,8 +1,8 @@
 ---
 import type { SessionData } from '../types';
-import { formatText } from '../utils/text';
 import { getCollection } from 'astro:content';
 import { renderBulletMarkdown } from '../utils/markdown';
+import SecretContent from './Content/SecretContent.astro';
 
 interface Props {
   session: SessionData;
@@ -43,16 +43,18 @@ const { session } = Astro.props;
 <section>
   <h2 class="title is-3">{getSessionNameFromId(session.id)}</h2>
   <div>Session Date: {session.sessionDate}</div>
-  <div>In-game Dates: <Fragment set:html={formatText(session.gameDates)} /></div>
+  <div>In-game Dates: <Fragment set:html={renderBulletMarkdown(session.gameDates)} /></div>
   {session.agenda && (
-    <div>
-      <p>Agenda:</p>
-      <ul>
-        {session.agenda.map((item) => (
-          <li><Fragment set:html={renderBulletMarkdown(item)} /></li>
-        ))}
-      </ul>
-    </div>
+    <SecretContent>
+      <div>
+        <p>Agenda:</p>
+        <ul>
+          {session.agenda.map((item) => (
+            <li><Fragment set:html={renderBulletMarkdown(item)} /></li>
+          ))}
+        </ul>
+      </div>
+    </SecretContent>
   )}
   <div>
     <p>Characters:</p>
