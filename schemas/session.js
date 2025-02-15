@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const ApSchema = z.object({
-  number: z.number().int().nonnegative(),
+  number: z.union([z.number().int().nonnegative(), z.literal('-')]),
   maxTier: z.number().int().min(1).max(4),
 })
 
