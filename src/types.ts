@@ -17,6 +17,7 @@ import {
   SkillsSchema,
   StatBlockSchema,
 } from '../schemas/stat-block.js';
+import type { CollectionEntry } from 'astro:content';
 
 export type CharacterData = z.infer<typeof CharacterSchema>;
 export type DescriptiveActionData = z.infer<typeof DescriptiveActionSchema>;
@@ -34,5 +35,7 @@ export type Scope = z.infer<typeof ScopeSchema>;
 export type SessionData = z.infer<typeof SessionSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
+
+export type DungeonEntry = CollectionEntry<'dungeons'>;
 
 export type Pillar = keyof CharacterData['advancementPoints'];

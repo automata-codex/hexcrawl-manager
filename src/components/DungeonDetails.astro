@@ -1,0 +1,26 @@
+---
+import { getEntry, render } from 'astro:content';
+import type { DungeonEntry } from '../types';
+
+interface Props {
+  dungeon: DungeonEntry;
+  isSubcomponent?: boolean;
+}
+
+const { dungeon } = Astro.props;
+const hexData = await getEntry('hexes', dungeon.data.hexId);
+if (!hexData) {
+  throw new Error('Hex not found: ' + dungeon.data.hexId);
+}
+
+const { Content } = await render(dungeon);
+---
+<div>
+  <div>
+    Hex:
+    <a href={`/hexes/${hexData.id}`}>
+      {hexData.data.id.toUpperCase()} "{hexData.data.name}"
+    </a>
+  </div>
+  <Content />
+</div>
