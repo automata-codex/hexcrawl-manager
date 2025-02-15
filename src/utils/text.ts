@@ -3,6 +3,9 @@ import retextSmartypants from 'retext-smartypants';
 import retextParse from 'retext-english';
 import retextStringify from 'retext-stringify';
 
+/**
+ * @deprecated Use `renderBulletMarkdown` from `src/utils/markdown.ts` instead.
+ */
 export async function formatText(text: string) {
   const file = await unified()
     .use(retextParse) // Parse the text
