@@ -43,6 +43,12 @@ function createBasePipeline(additionalPlugins: AdditionalPlugin[] = []) {
   return pipeline;
 }
 
+export async function renderBulletMarkdown(markdown: string) {
+  const pipeline = createBasePipeline();
+  const result = await pipeline.process(markdown);
+  return stripParagraphTags(result.toString());
+}
+
 export async function renderMarkdown(markdown: string) {
   const pipeline = createBasePipeline();
   const result = await pipeline.process(markdown);
@@ -62,4 +68,8 @@ export async function renderSubArticleMarkdown(markdown: string) {
     position: 0,
   };
   return renderMarkdownWithAdditionalPlugin(markdown, [ behead ]);
+}
+
+function stripParagraphTags(html: string): string {
+  return html.replace(/^<p>(.*)<\/p>$/, '$1');
 }

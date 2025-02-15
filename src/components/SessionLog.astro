@@ -2,6 +2,7 @@
 import type { SessionData } from '../types';
 import { formatText } from '../utils/text';
 import { getCollection } from 'astro:content';
+import { renderBulletMarkdown } from '../utils/markdown';
 
 interface Props {
   session: SessionData;
@@ -48,7 +49,7 @@ const { session } = Astro.props;
       <p>Agenda:</p>
       <ul>
         {session.agenda.map((item) => (
-          <li><Fragment set:html={formatText(item)} /></li>
+          <li><Fragment set:html={renderBulletMarkdown(item)} /></li>
         ))}
       </ul>
     </div>
