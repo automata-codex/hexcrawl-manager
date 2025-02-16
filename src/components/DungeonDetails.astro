@@ -34,7 +34,7 @@ const { Content } = await render(dungeon);
   <div>
     Hex:
     <a href={`/hexes/${hexData.id}`}>
-      {hexData.data.id.toUpperCase()} "{hexData.data.name}"
+      {renderBulletMarkdown(`${hexData.data.id.toUpperCase()} "${hexData.data.name}"`)}
     </a>
   </div>
   {isSubcomponent && (
