@@ -1,5 +1,6 @@
 ---
 import { getEntry, render } from 'astro:content';
+import { renderBulletMarkdown } from '../utils/markdown';
 import type { DungeonEntry } from '../types';
 
 interface Props {
@@ -24,6 +25,10 @@ const { Content } = await render(dungeon);
         font-weight: bold;
         margin-right: 1rem;
     }
+
+    .dungeon-source {
+        font-weight: bold;
+    }
 </style>
 <div class="dungeon-data-bar">
   <div>
@@ -40,4 +45,9 @@ const { Content } = await render(dungeon);
     </div>
   )}
 </div>
+{dungeon.data.source && (
+  <div class="dungeon-source">
+    Source: <Fragment set:html={renderBulletMarkdown(dungeon.data.source)} />
+  </div>
+)}
 <Content />
