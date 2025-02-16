@@ -24,7 +24,10 @@ if (dungeon === undefined) {
 }
 
 const title = `Dungeon: ${dungeon.data.name}`;
+
+const image = dungeon.data.image;
 ---
 <SecretArticleLayout title={title}>
+  {image && <img src={`/images/maps/dungeons/${image}`} alt={title} />}
   <DungeonDetails dungeon={dungeon} />
 </SecretArticleLayout>

@@ -12,4 +12,5 @@ export const DungeonDataSchema = z.object({
     'goblins',
     'natural',
   ])),
+  image: z.string().optional(),
 }).describe('Data for a dungeon on a hex map');
