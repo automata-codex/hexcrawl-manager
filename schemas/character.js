@@ -13,10 +13,12 @@ export const CharacterSchema = z.object({
   subclass: z.string().optional(),
   level: z.number().int().max(20).min(1),
   image: z.string().optional(),
-  notes: z.array(z.string()).optional(),
   advancementPoints: z.object({
     combat: z.number().int().nonnegative(),
     exploration: z.number().int().nonnegative(),
     social: z.number().int().nonnegative(),
-  })
+  }),
+  backstory: z.string().optional(), // GM-only backstory in Markdown
+  goals: z.string().optional(), // GM-only goals in Markdown
+  notes: z.string().optional(), // GM-only notes in Markdown
 });

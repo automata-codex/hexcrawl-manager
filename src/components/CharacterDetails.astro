@@ -1,0 +1,86 @@
+---
+import { getEntry } from 'astro:content';
+import { renderMarkdown } from '../utils/markdown';
+import type { CharacterData, PlayerData } from '../types';
+
+interface Props {
+  character: CharacterData;
+  isSubcomponent?: boolean;
+}
+
+const { character, isSubcomponent = false } = Astro.props;
+
+// Get player data
+const playerData = await getEntry('players', character.playerId);
+if (!playerData) {
+  throw new Error(`Player not found: ${character.playerId}`);
+}
+const player: PlayerData = playerData.data;
+
+// Format subheadings
+const subheading = (text: string) => {
+  if (isSubcomponent) {
+    return `<h3 class="title is-4">${text}</h3>`;
+  }
+  return `<h2 class="title is-3">${text}</h2>`;
+};
+---
+<style is:global>
+    p {
+        text-indent: var(--skyreach-standard-indent);
+    }
+
+    p:first-child,
+    h2 + p,
+    h3 + p,
+    h4 + p,
+    h5 + p,
+    h6 + p {
+        text-indent: 0;
+    }
+</style>
+<style>
+    .data-container {
+        display: flex;
+    }
+
+    .data-container > div {
+        width: 50%;
+    }
+</style>
+<div class="data-container">
+  <div>
+    <ul>
+      <li>Name: {character.displayName}</li>
+      <li>Pronouns: {character.pronouns}</li>
+      <li>Species: {character.species}</li>
+      <li>Culture: {character.culture}</li>
+    </ul>
+  </div>
+  <div>
+    <ul>
+      <li>Player: {player.displayName} ({player.pronouns})</li>
+      <li>Class: {character.class}</li>
+      {character.subclass && <li>Subclass: {character.subclass}</li>}
+      <li>Level: {character.level}</li>
+    </ul>
+  </div>
+</div>
+{character.backstory &&
+  <div>
+    <Fragment set:html={subheading('Backstory')} />
+    <Fragment set:html={renderMarkdown(character.backstory)} />
+  </div>
+}
+{character.goals &&
+  <div>
+    <Fragment set:html={subheading('Goals')} />
+    <Fragment set:html={renderMarkdown(character.goals)} />
+  </div>
+}
+{character.notes &&
+  <div>
+    <Fragment set:html={subheading('Notes')} />
+    <Fragment set:html={renderMarkdown(character.notes)} />
+  </div>
+}

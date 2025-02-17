@@ -1,7 +1,9 @@
 ---
 import SecretContent from '../components/Content/SecretContent.astro';
+import CharactersCard from '../components/IndexCards/CharactersCard.astro';
 import ClassCard from '../components/IndexCards/ClassCard.astro';
 import CluesCard from '../components/IndexCards/CluesCard.astro';
+import DungeonsCard from '../components/IndexCards/DungeonsCard.astro';
 import EncountersCard from '../components/IndexCards/EncountersCard.astro';
 import FactionsCard from '../components/IndexCards/FactionsCard.astro';
 import GmMapsCard from '../components/IndexCards/GmMapsCard.astro';
@@ -16,6 +18,7 @@ import RumorsCard from '../components/IndexCards/RumorsCard.astro';
 import SessionCard from '../components/IndexCards/SessionCard.astro';
 import SettingCard from '../components/IndexCards/SettingCard.astro';
 import SupplementsCard from '../components/IndexCards/SupplementsCard.astro';
+import TimelineCard from '../components/IndexCards/TimelineCard.astro';
 import MediumScreen from '../components/ScreenSize/MediumScreen.astro';
 import SmallScreen from '../components/ScreenSize/SmallScreen.astro';
 import ComponentLayout from '../layouts/ComponentLayout.astro';
@@ -94,6 +97,9 @@ const title = 'Beyond the Skyreach Mountains';
           <EncountersCard />
           <GmMapsCard />
           <FactionsCard />
+          <DungeonsCard />
+          <CharactersCard />
+          <TimelineCard />
         </div>
       </section>
     </SecretContent>
@@ -133,14 +139,17 @@ const title = 'Beyond the Skyreach Mountains';
         <div class="column is-one-third">
           <RegionsCard />
           <EncountersCard />
+          <DungeonsCard />
         </div>
         <div class="column is-one-third">
           <CluesCard />
           <GmMapsCard />
+          <CharactersCard />
         </div>
         <div class="column is-one-third">
           <RumorsCard />
           <FactionsCard />
+          <TimelineCard />
         </div>
       </section>
     </SecretContent>

@@ -12,4 +12,14 @@ if (!rumorEntry) {
   throw new Error(`Rumor with ID ${rumorId} not found`);
 }
 ---
-<a href={`/gm-notes/rumors/${rumorId}`}>{rumorEntry.data.title}</a>
+<style>
+  .unavailable {
+    text-decoration: line-through;
+  }
+</style>
+<a
+  class:list={{unavailable: !(rumorEntry.data.isAvailable ?? true)}}
+  href={`/gm-notes/rumors/${rumorId}`}
+>
+  {rumorEntry.data.title}
+</a>
