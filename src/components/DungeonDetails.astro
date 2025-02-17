@@ -18,6 +18,10 @@ const body = isSubcomponent ? dungeon.data.summary ?? dungeon.body : dungeon.bod
 const content = isSubcomponent ? await renderSubArticleMarkdown(body ?? '') : await renderMarkdown(body ?? '');
 ---
 <style>
+    .description-header {
+        display: none;
+    }
+
     .dungeon-data-bar {
         display: flex;
     }
@@ -36,7 +40,7 @@ const content = isSubcomponent ? await renderSubArticleMarkdown(body ?? '') : aw
     }
 
     .spacer {
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
     }
 </style>
 <div class="dungeon-data-bar">
@@ -78,4 +82,5 @@ const content = isSubcomponent ? await renderSubArticleMarkdown(body ?? '') : aw
     </div>
   )}
 <div class="spacer"></div>
+<h2 class="description-header">Description</h2>
 <Fragment set:html={content} />
