@@ -2,7 +2,8 @@
 import { icon, library } from '@fortawesome/fontawesome-svg-core';
 import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
 import { startCase, toLower } from 'lodash-es';
-import { formatText } from '../utils/text';
+import { renderBulletMarkdown } from '../utils/markdown';
+import type { RumorData } from '../types';
 
 interface Props {
   rumor: RumorData;
@@ -26,7 +27,7 @@ const availableIcon = (rumor.isAvailable ?? true) ? squareCheckIcon : squareIcon
   </p>
   <p class="hanging-indent"><span class="inline-heading">Description:</span>
     {' '}
-    <Fragment set:html={formatText(rumor.description)} />
+    <Fragment set:html={renderBulletMarkdown(rumor.description)} />
   </p>
   <p class="hanging-indent"><span class="inline-heading">Status:</span>
     {' '}
@@ -37,7 +38,7 @@ const availableIcon = (rumor.isAvailable ?? true) ? squareCheckIcon : squareIcon
     <ul>
       {rumor.notes.map((note) => (
         <li>
-          <Fragment set:html={formatText(note)} />
+          <Fragment set:html={renderBulletMarkdown(note)} />
         </li>
       ))}
     </ul>

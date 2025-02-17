@@ -8,6 +8,7 @@ import { PlayerSchema } from '../schemas/player';
 import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RandomEncounterTableSchema } from '../schemas/random-encounter-table';
 import { RegionSchema } from '../schemas/region';
+import { RumorSchema } from '../schemas/rumor';
 import { ScopeSchema } from '../schemas/scopes';
 import { SessionSchema } from '../schemas/session';
 import {
@@ -32,6 +33,7 @@ export type RandomEncounterData = z.infer<typeof RandomEncounterSchema>;
 export type RandomEncounterTableData = z.infer<typeof RandomEncounterTableSchema>;
 export type RangedWeaponAttackData = z.infer<typeof RangedWeaponAttackSchema>;
 export type RegionData = z.infer<typeof RegionSchema>;
+export type RumorData = z.infer<typeof RumorSchema>;
 export type Scope = z.infer<typeof ScopeSchema>;
 export type SessionData = z.infer<typeof SessionSchema>;
 export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
