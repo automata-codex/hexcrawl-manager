@@ -6,6 +6,7 @@ export const DungeonDataSchema = z.object({
   hexId: z.string(),
   name: z.string(),
   builders: z.array(z.enum([
+    'alseid',
     'cultists',
     'dragons',
     'dwarves',

@@ -100,7 +100,7 @@ const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.st
 <div class="spacer"></div>
 <h2 class="description-header">Description</h2>
 <Fragment set:html={content} />
-{!isSubcomponent && statBlocks && (
+{!isSubcomponent && (statBlocks.length > 0) && (
   <div>
     <h2 class="title is-3">Stat Blocks</h2>
     {statBlocks.map((statBlock) => (
