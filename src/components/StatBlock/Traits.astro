@@ -1,4 +1,5 @@
 ---
+import { renderBulletMarkdown } from '../../utils/markdown';
 import type { StatBlockData } from '../../types';
 
 interface Props {
@@ -27,6 +28,8 @@ if (!specialAbilities || specialAbilities.length === 0) {
 <div>
   <span class="trait-name">{trait.name}.</span>
   {' '}
-  <span class="trait-description">{trait.desc}</span>
+  <span class="trait-description">
+    <Fragment set:html={renderBulletMarkdown(trait.desc)} />
+  </span>
 </div>
   ))}

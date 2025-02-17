@@ -1,7 +1,8 @@
 ---
-import { getEntry } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import { renderBulletMarkdown, renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
 import type { DungeonEntry } from '../types';
+import StatBlock from './StatBlock/StatBlock.astro';
 
 interface Props {
   dungeon: DungeonEntry;
@@ -16,6 +17,21 @@ if (!hexData) {
 
 const body = isSubcomponent ? dungeon.data.summary ?? dungeon.body : dungeon.body;
 const content = isSubcomponent ? await renderSubArticleMarkdown(body ?? '') : await renderMarkdown(body ?? '');
+
+const statBlockData = await getCollection('statBlocks');
+
+async function getStatBlocks(statBlockIds: string[]) {
+  const output = statBlockIds.map(async (id) => {
+    const statBlock = statBlockData.find((statBlock) => statBlock.id === id);
+    if (!statBlock) {
+      throw new Error('Stat block not found: ' + id);
+    }
+    return statBlock.data;
+  });
+  return Promise.all(output);
+}
+
+const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.statBlocks) : [];
 ---
 <style>
     .description-header {
@@ -84,3 +100,11 @@ const content = isSubcomponent ? await renderSubArticleMarkdown(body ?? '') : aw
 <div class="spacer"></div>
 <h2 class="description-header">Description</h2>
 <Fragment set:html={content} />
+{!isSubcomponent && statBlocks && (
+  <div>
+    <h2 class="title is-3">Stat Blocks</h2>
+    {statBlocks.map((statBlock) => (
+      <StatBlock data={statBlock} />
+    ))}
+  </div>
+)}
