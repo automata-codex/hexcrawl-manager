@@ -26,7 +26,7 @@ if (!specialAbilities || specialAbilities.length === 0) {
 <h3>Traits</h3>
 {specialAbilities.map((trait) => (
 <div>
-  <span class="trait-name">{trait.name}.</span>
+  <span class="trait-name">{trait.recharge ? `${trait.name} (Recharge ${trait.recharge})` : trait.name}.</span>
   {' '}
   <span class="trait-description">
     <Fragment set:html={renderBulletMarkdown(trait.desc)} />
