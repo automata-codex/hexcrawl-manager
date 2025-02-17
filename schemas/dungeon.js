@@ -13,7 +13,6 @@ export const DungeonDataSchema = z.object({
     'goblins',
     'natural',
   ])),
-  image: z.string().optional(),
   images: z.array(z.object({
     filename: z.string(),
     description: z.string(),

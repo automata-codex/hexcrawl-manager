@@ -1,6 +1,6 @@
 ---
-import { getEntry, render } from 'astro:content';
-import { renderBulletMarkdown } from '../utils/markdown';
+import { getEntry } from 'astro:content';
+import { renderBulletMarkdown, renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
 import type { DungeonEntry } from '../types';
 
 interface Props {
@@ -14,7 +14,7 @@ if (!hexData) {
   throw new Error('Hex not found: ' + dungeon.data.hexId);
 }
 
-const { Content } = await render(dungeon);
+const content = isSubcomponent ? await renderSubArticleMarkdown(dungeon.body ?? '') : await renderMarkdown(dungeon.body ?? '');
 ---
 <style>
     .dungeon-data-bar {
@@ -77,4 +77,4 @@ const { Content } = await render(dungeon);
     </div>
   )}
 <div class="spacer"></div>
-<Content />
+<Fragment set:html={content} />
