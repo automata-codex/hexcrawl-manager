@@ -27,8 +27,6 @@ if (dungeon === undefined) {
 const title = `Dungeon: ${dungeon.data.name}`;
 
 function getImageFileName(dungeon: DungeonEntry): string|null {
-  console.log(dungeon.data);
-
   // If dungeon.data.image exists, return that value
   if (dungeon.data.image) {
     return dungeon.data.image;

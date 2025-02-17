@@ -29,6 +29,14 @@ const { Content } = await render(dungeon);
     .dungeon-source {
         font-weight: bold;
     }
+
+    .maps {
+        font-weight: bold;
+    }
+
+    .spacer {
+        margin-bottom: 1rem;
+    }
 </style>
 <div class="dungeon-data-bar">
   <div>
@@ -50,4 +58,23 @@ const { Content } = await render(dungeon);
     Source: <Fragment set:html={renderBulletMarkdown(dungeon.data.source)} />
   </div>
 )}
+{dungeon.data.images && (
+    <div>
+      <p class="maps">Maps:</p>
+      <ul>
+        {dungeon.data.images.map((image) => (
+          <li>
+            <a
+              href={`/images/maps/dungeons/${image.filename}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {image.description}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+<div class="spacer"></div>
 <Content />
