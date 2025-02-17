@@ -14,7 +14,8 @@ if (!hexData) {
   throw new Error('Hex not found: ' + dungeon.data.hexId);
 }
 
-const content = isSubcomponent ? await renderSubArticleMarkdown(dungeon.body ?? '') : await renderMarkdown(dungeon.body ?? '');
+const body = isSubcomponent ? dungeon.data.summary ?? dungeon.body : dungeon.body;
+const content = isSubcomponent ? await renderSubArticleMarkdown(body ?? '') : await renderMarkdown(body ?? '');
 ---
 <style>
     .dungeon-data-bar {

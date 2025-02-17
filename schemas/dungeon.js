@@ -19,5 +19,6 @@ export const DungeonDataSchema = z.object({
     display: z.boolean().optional(),
   })).optional(),
   source: z.string().optional(),
+  summary: z.string().optional(),
   statBlocks: z.array(z.string()).optional(),
 }).describe('Data for a dungeon on a hex map');
