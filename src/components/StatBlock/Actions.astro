@@ -37,6 +37,7 @@ const { actions } = Astro.props;
         <SpecialAction action={action} />
       );
     default:
-      throw new Error(`Unknown action type: \`${action.action_type}\` (See \`Actions.astro\`.)`);
+      // throw new Error(`Unknown action type: \`${action.action_type}\` (See \`Actions.astro\`.)`);
+      throw new Error(`Unknown action type! (See \`Actions.astro\`.)`);
   }
 })}
