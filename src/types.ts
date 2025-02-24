@@ -16,7 +16,8 @@ import {
   MeleeWeaponAttackSchema,
   RangedWeaponAttackSchema,
   SkillsSchema,
-  StatBlockSchema,
+  SpecialActionSchema,
+  StatBlockSchema
 } from '../schemas/stat-block.js';
 import type { CollectionEntry } from 'astro:content';
 
@@ -35,6 +36,7 @@ export type RegionData = z.infer<typeof RegionSchema>;
 export type RumorData = z.infer<typeof RumorSchema>;
 export type Scope = z.infer<typeof ScopeSchema>;
 export type SessionData = z.infer<typeof SessionSchema>;
+export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
 

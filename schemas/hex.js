@@ -12,7 +12,6 @@ export const HexSchema = z.object({
   hideInCatalog: z.boolean().optional(),
   isVisited: z.boolean().optional(),
   isExplored: z.boolean().optional(),
-  hasDungeon: z.boolean().optional(),
   encounterChance: z.number().int().min(1).max(20).optional(),
   encounters: RandomEncounterTableSchema.optional(),
   notes: z.array(z.string()).optional(), // Private GM eyes-only notes

@@ -12,7 +12,7 @@ const title = 'Dungeons';
 <SecretArticleLayout title={title}>
   {dungeons.map(dungeon => (
     <div>
-      <h2 class="title is-3">{dungeon.data.name}</h2>
+      <h2 class="title is-3">{dungeon.data.hexId.toUpperCase()}: {dungeon.data.name}</h2>
       <DungeonDetails dungeon={dungeon} isSubcomponent={true} />
     </div>
   ))}

@@ -3,6 +3,7 @@ import type { StatBlockData } from '../../types';
 import DescriptiveAction from './DescriptiveAction.astro';
 import MeleeWeaponAttack from './MeleeWeaponAttack.astro';
 import RangedWeaponAttack from './RangedWeaponAttack.astro';
+import SpecialAction from './SpecialAction.astro';
 
 interface Props {
   actions: StatBlockData['actions'];
@@ -31,8 +32,12 @@ const { actions } = Astro.props;
       return (
         <RangedWeaponAttack action={action} />
       );
+    case 'special':
+      return (
+        <SpecialAction action={action} />
+      );
     default:
-      // throw new Error(`Unknown action type: ${action.action_type}`)
+      // throw new Error(`Unknown action type: \`${action.action_type}\` (See \`Actions.astro\`.)`);
       throw new Error(`Unknown action type! (See \`Actions.astro\`.)`);
   }
 })}
