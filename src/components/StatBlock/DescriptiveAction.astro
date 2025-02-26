@@ -1,4 +1,5 @@
 ---
+import { renderBulletMarkdown } from '../../utils/markdown';
 import type { DescriptiveActionData } from '../../types';
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
 }
 
 const { action } = Astro.props;
+const nameText = action.recharge ? `${action.name} (Recharge ${action.recharge})` : action.name;
 ---
 <style>
     .action-name {
@@ -18,7 +20,7 @@ const { action } = Astro.props;
     }
 </style>
 <div>
-  <span class="action-name">{action.name}.</span>
+  <span class="action-name">{nameText}.</span>
   {' '}
-  {action.desc}
+  <Fragment set:html={renderBulletMarkdown(action.desc)} />
 </div>

@@ -20,12 +20,14 @@ export const DescriptiveActionSchema = z.object({
   name: z.string(),
   action_type: z.literal('descriptive'),
   desc: z.string(),
+  recharge: z.string().optional(),
 });
 
 export const MeleeWeaponAttackSchema = z.object({
   name: z.string(),
   action_type: z.literal('melee weapon attack'),
   desc: z.string().optional(),
+  use_desc: z.boolean().optional(), // If true, display the description before the attack details
   additional_damage_dice: z.string().optional(),
   additional_damage_type: DamageTypeSchema.optional(),
   additional_default_damage: z.number().int().positive().optional(),
@@ -36,18 +38,21 @@ export const MeleeWeaponAttackSchema = z.object({
   damage_type: DamageTypeSchema,
   default_damage: z.number(),
   reach: z.string(),
+  recharge: z.string().optional(),
 });
 
 export const RangedWeaponAttackSchema = z.object({
   name: z.string(),
   action_type: z.literal('ranged weapon attack'),
   desc: z.string().optional(),
+  use_desc: z.boolean().optional(), // If true, display the description before the attack details
   attack_bonus: z.number(),
   damage_bonus: z.number(),
   damage_dice: z.string(),
   damage_type: DamageTypeSchema,
   default_damage: z.number(),
   range: z.string(),
+  recharge: z.string().optional(),
 });
 
 export const SpecialActionSchema = z.object({
@@ -174,6 +179,7 @@ export const StatBlockSchema = z.object({
   special_abilities: z.array(z.object({
     name: z.string(),
     desc: z.string(),
+    recharge: z.string().optional(),
   })).nullable(),
   spell_list: z.array(z.string()),
   page_no: z.number().nullable(),
