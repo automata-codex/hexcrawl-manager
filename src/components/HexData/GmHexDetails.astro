@@ -1,6 +1,6 @@
 ---
 import { getRegionTitle } from '../../utils/id-parsers';
-import { formatText } from '../../utils/text';
+import { renderBulletMarkdown } from '../../utils/markdown';
 import Dungeons from './Dungeons.astro';
 import Explored from './Explored.astro';
 import HiddenSites from './HiddenSites.astro';
@@ -50,7 +50,7 @@ const { hex, showSelfLink = true } = Astro.props;
       <p class="warning">⚠️ Updates ⚠️</p>
       <ul>
         {hex.updates.map(update => (
-          <li><Fragment set:html={formatText(update)} /></li>
+          <li><Fragment set:html={renderBulletMarkdown(update)} /></li>
         ))}
       </ul>
     </div>
@@ -73,13 +73,17 @@ const { hex, showSelfLink = true } = Astro.props;
   <Landmark hex={hex} />
   <HiddenSites hex={hex} />
   {hex.secretSite &&
-    <div class="hanging-indent"><span class="inline-heading">Secret Site:</span>{' '}{formatText(hex.secretSite)}</div>}
+    <div class="hanging-indent">
+      <span class="inline-heading">Secret Site:</span>{' '}
+      <Fragment set:html={renderBulletMarkdown(hex.secretSite)} />
+    </div>
+  }
   {hex.notes && <p class="hanging-indent">
       <span class="inline-heading">GM&rsquo;s Notes:</span>
     </p>
     <ul>
       {hex.notes.map(note => (
-        <li>{formatText(note)}</li>
+        <li><Fragment set:html={renderBulletMarkdown(note)} /></li>
       ))}
     </ul>
   }
