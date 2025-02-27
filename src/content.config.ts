@@ -17,6 +17,7 @@ import { RumorSchema } from '../schemas/rumor';
 import { SessionSchema } from '../schemas/session';
 import { StatBlockSchema } from '../schemas/stat-block';
 import { SupplementSchema } from '../schemas/supplement-list';
+import { TreasureSchema } from '../schemas/treasure';
 import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './types.ts';
 
 const DATA_DIR = 'data';
@@ -39,6 +40,7 @@ const DIRS = {
   SESSIONS: `${DATA_DIR}/sessions`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
   SUPPLEMENTS: `${DATA_DIR}/supplements`,
+  TREASURE: `${DATA_DIR}/treasure`,
 } as const;
 
 function getDirectoryYamlLoader<T>(directory: string): () => T[] {
@@ -173,6 +175,13 @@ const supplements = defineCollection({
   },
 });
 
+const treasure = defineCollection({
+  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.TREASURE),
+  schema: {
+    ...TreasureSchema,
+  },
+});
+
 export const collections = {
   articles,
   characters,
@@ -191,4 +200,5 @@ export const collections = {
   sessions,
   statBlocks,
   supplements,
+  treasure,
 };
