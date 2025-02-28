@@ -18,7 +18,7 @@ function createBasePipeline(additionalPlugins: AdditionalPlugin[] = []) {
     { plugin: remarkGfm }, // 0
     { plugin: remarkRehype, options: { allowDangerousHtml: true } }, // 1
     { plugin: rehypeRaw }, // 2
-    { plugin: remarkSmartypants }, // 3
+    { plugin: remarkSmartypants, options: { dashes: 'oldschool' } }, // 3
     { plugin: rehypeAddClasses, options: {
       h1: 'title is-2',
       h2: 'title is-3',
