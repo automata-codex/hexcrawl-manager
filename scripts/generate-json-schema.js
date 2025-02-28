@@ -13,6 +13,7 @@ import { RumorListSchema } from '../schemas/rumor.js';
 import { SessionSchema } from '../schemas/session.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
 import { SupplementListSchema } from '../schemas/supplement-list.js';
+import { TreasureListSchema } from '../schemas/treasure.js';
 
 const characterFile = new URL('../schemas/character.json', import.meta.url);
 writeFileSync(
@@ -90,4 +91,10 @@ const supplementFile = new URL('../schemas/supplement-list.json', import.meta.ur
 writeFileSync(
   supplementFile,
   JSON.stringify(zodToJsonSchema(SupplementListSchema), null, 2)
+);
+
+const treasureFile = new URL('../schemas/treasure.json', import.meta.url);
+writeFileSync(
+  treasureFile,
+  JSON.stringify(zodToJsonSchema(TreasureListSchema), null, 2)
 );

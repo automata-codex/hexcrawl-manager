@@ -19,6 +19,7 @@ import {
   SpecialActionSchema,
   StatBlockSchema
 } from '../schemas/stat-block.js';
+import type { TreasureSchema } from '../schemas/treasure';
 import type { CollectionEntry } from 'astro:content';
 
 export type CharacterData = z.infer<typeof CharacterSchema>;
@@ -39,6 +40,7 @@ export type SessionData = z.infer<typeof SessionSchema>;
 export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
+export type TreasureData = z.infer<typeof TreasureSchema>;
 
 export type DungeonEntry = CollectionEntry<'dungeons'>;
 
