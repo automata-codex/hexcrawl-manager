@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { BountySchema } from '../schemas/bounty';
 import { CharacterSchema } from '../schemas/character';
 import { DungeonDataSchema } from '../schemas/dungeon';
 import { FactionSchema } from '../schemas/faction';
@@ -22,6 +23,7 @@ import {
 import type { TreasureSchema } from '../schemas/treasure';
 import type { CollectionEntry } from 'astro:content';
 
+export type BountyData = z.infer<typeof BountySchema>;
 export type CharacterData = z.infer<typeof CharacterSchema>;
 export type DescriptiveActionData = z.infer<typeof DescriptiveActionSchema>;
 export type DungeonData = z.infer<typeof DungeonDataSchema>;
