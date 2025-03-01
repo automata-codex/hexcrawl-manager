@@ -1,6 +1,6 @@
 ---
 import { getEntry } from 'astro:content';
-import { renderMarkdown } from '../utils/markdown';
+import { renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
 import type { CharacterData, PlayerData } from '../types';
 
 interface Props {
@@ -24,6 +24,13 @@ const subheading = (text: string) => {
   }
   return `<h2 class="title is-3">${text}</h2>`;
 };
+
+// Format text
+const backstoryTitle = character.backstoryTitle ? `Backstory: ${character.backstoryTitle}` : 'Backstory';
+
+function getBackstoryText(markdown: string): Promise<string> {
+  return isSubcomponent ? renderSubArticleMarkdown(markdown) : renderMarkdown(markdown);
+}
 ---
 <style is:global>
     p {
@@ -68,8 +75,8 @@ const subheading = (text: string) => {
 </div>
 {character.backstory &&
   <div>
-    <Fragment set:html={subheading('Backstory')} />
-    <Fragment set:html={renderMarkdown(character.backstory)} />
+    <Fragment set:html={subheading(backstoryTitle)} />
+    <Fragment set:html={getBackstoryText(character.backstory)} />
   </div>
 }
 {character.goals &&
