@@ -1,5 +1,7 @@
 ---
 import SecretContent from '../components/Content/SecretContent.astro';
+import BaruunKhilCard from '../components/IndexCards/BaruunKhilCard.astro';
+import BountyBoardCard from '../components/IndexCards/BountyBoardCard.astro';
 import CharactersCard from '../components/IndexCards/CharactersCard.astro';
 import ClassCard from '../components/IndexCards/ClassCard.astro';
 import CluesCard from '../components/IndexCards/CluesCard.astro';
@@ -10,15 +12,16 @@ import GmMapsCard from '../components/IndexCards/GmMapsCard.astro';
 import GoalsCard from '../components/IndexCards/GoalsCard.astro';
 import HeritageCard from '../components/IndexCards/HeritageCard.astro';
 import HouseRules from '../components/IndexCards/HouseRules.astro';
+import KnownWorldCard from '../components/IndexCards/KnownWorldCard.astro';
 import LevelUpCard from '../components/IndexCards/LevelUpCard.astro';
-import MapsCard from '../components/IndexCards/MapsCard.astro';
+import MinigamesCard from '../components/IndexCards/MinigamesCard.astro';
 import NpcsCard from '../components/IndexCards/NpcsCard.astro';
 import RegionsCard from '../components/IndexCards/RegionsCard.astro';
 import RumorsCard from '../components/IndexCards/RumorsCard.astro';
 import SessionCard from '../components/IndexCards/SessionCard.astro';
-import SettingCard from '../components/IndexCards/SettingCard.astro';
 import SupplementsCard from '../components/IndexCards/SupplementsCard.astro';
 import TimelineCard from '../components/IndexCards/TimelineCard.astro';
+import TreasureCard from '../components/IndexCards/TreasureCard.astro';
 import MediumScreen from '../components/ScreenSize/MediumScreen.astro';
 import SmallScreen from '../components/ScreenSize/SmallScreen.astro';
 import ComponentLayout from '../layouts/ComponentLayout.astro';
@@ -79,12 +82,13 @@ const title = 'Beyond the Skyreach Mountains';
     <h2 class="title is-3">Player&rsquo;s Reference</h2>
     <section class="columns">
       <div class="column is-one-third">
-        <SettingCard />
+        <KnownWorldCard />
+        <BaruunKhilCard />
         <HouseRules />
         <NpcsCard />
-        <MapsCard />
         <SupplementsCard />
         <SessionCard />
+        <BountyBoardCard />
       </div>
     </section>
     <SecretContent>
@@ -100,6 +104,8 @@ const title = 'Beyond the Skyreach Mountains';
           <DungeonsCard />
           <CharactersCard />
           <TimelineCard />
+          <TreasureCard />
+          <MinigamesCard />
         </div>
       </section>
     </SecretContent>
@@ -121,8 +127,8 @@ const title = 'Beyond the Skyreach Mountains';
     <h2 class="title is-3">Player&rsquo;s Reference</h2>
     <section class="columns">
       <div class="column is-one-third">
-        <SettingCard />
-        <MapsCard />
+        <KnownWorldCard />
+        <BaruunKhilCard />
       </div>
       <div class="column is-one-third">
         <HouseRules />
@@ -131,6 +137,7 @@ const title = 'Beyond the Skyreach Mountains';
       <div class="column is-one-third">
         <NpcsCard />
         <SessionCard />
+        <BountyBoardCard />
       </div>
     </section>
     <SecretContent>
@@ -145,11 +152,13 @@ const title = 'Beyond the Skyreach Mountains';
           <CluesCard />
           <GmMapsCard />
           <CharactersCard />
+          <TreasureCard />
         </div>
         <div class="column is-one-third">
           <RumorsCard />
           <FactionsCard />
           <TimelineCard />
+          <MinigamesCard />
         </div>
       </section>
     </SecretContent>
