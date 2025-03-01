@@ -3,6 +3,7 @@ import { glob } from 'astro/loaders';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
+import { BountySchema } from '../schemas/bounty';
 import { CharacterSchema } from '../schemas/character';
 import { ClassSchema } from '../schemas/class';
 import { DungeonDataSchema } from '../schemas/dungeon';
@@ -24,6 +25,7 @@ const DATA_DIR = 'data';
 
 const DIRS = {
   ARTICLES: `${DATA_DIR}/articles`,
+  BOUNTIES: `${DATA_DIR}/bounties`,
   CHARACTERS: `${DATA_DIR}/characters`,
   CLASSES: `${DATA_DIR}/classes`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
@@ -61,6 +63,13 @@ const articles = defineCollection({
   schema: z.object({
     title: z.string(),
   }),
+});
+
+const bounties = defineCollection({
+  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.BOUNTIES),
+  schema: {
+    ...BountySchema,
+  },
 });
 
 const characters = defineCollection({
@@ -184,6 +193,7 @@ const treasure = defineCollection({
 
 export const collections = {
   articles,
+  bounties,
   characters,
   classes,
   dungeons,
