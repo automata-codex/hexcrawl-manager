@@ -1,5 +1,6 @@
 import { writeFileSync } from 'fs';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import { BountyListSchema } from '../schemas/bounty.js';
 import { CharacterSchema } from '../schemas/character.js';
 import { ClassSchema } from '../schemas/class.js';
 import { FactionListSchema } from '../schemas/faction.js';
@@ -14,6 +15,12 @@ import { SessionSchema } from '../schemas/session.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
 import { SupplementListSchema } from '../schemas/supplement-list.js';
 import { TreasureListSchema } from '../schemas/treasure.js';
+
+const bountyFile = new URL('../schemas/bounty.json', import.meta.url);
+writeFileSync(
+  bountyFile,
+  JSON.stringify(zodToJsonSchema(BountyListSchema), null, 2)
+);
 
 const characterFile = new URL('../schemas/character.json', import.meta.url);
 writeFileSync(
