@@ -18,6 +18,7 @@ export const CharacterSchema = z.object({
     exploration: z.number().int().nonnegative(),
     social: z.number().int().nonnegative(),
   }),
+  backstoryTitle: z.string().optional(), // Optional title for GM-only backstory
   backstory: z.string().optional(), // GM-only backstory in Markdown
   goals: z.string().optional(), // GM-only goals in Markdown
   notes: z.string().optional(), // GM-only notes in Markdown
