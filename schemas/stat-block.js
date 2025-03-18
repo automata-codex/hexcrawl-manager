@@ -46,6 +46,10 @@ export const RangedWeaponAttackSchema = z.object({
   action_type: z.literal('ranged weapon attack'),
   desc: z.string().optional(),
   use_desc: z.boolean().optional(), // If true, display the description before the attack details
+  additional_damage_dice: z.string().optional(),
+  additional_damage_type: DamageTypeSchema.optional(),
+  additional_default_damage: z.number().int().positive().optional(),
+  additional_text: z.string().optional(),
   attack_bonus: z.number(),
   damage_bonus: z.number(),
   damage_dice: z.string(),
