@@ -1,13 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { slide } from 'svelte/transition';
+  import { sidebarSections } from '../data/sidebar-sections';
 
-  let sections = $state({
-    playersGuide: false,
-    gmTools: false,
-    reference: false,
-    regions: false,
-  })
+  let sections: Record<string, boolean> = $state({});
   let open = $state(false);
 
   function toggleSection(section: keyof typeof sections) {
@@ -147,63 +143,39 @@
 <div class="sidebar-wrapper" class:open={open}>
   <aside class="sidebar">
     <nav>
-      <!-- Accordion Section: Player’s Guide -->
-      <div class="accordion-section">
-        <button onclick={() => toggleSection('playersGuide')} class="accordion-header">
-          <span>Player’s Guide</span>
-          <span class:rotated={sections.playersGuide}>▸</span>
-        </button>
-        {#if sections.playersGuide}
-          <ul class="accordion-body" transition:slide>
-            <li><a href="/heritage">Heritage</a></li>
-            <li><a href="/class">Class</a></li>
-            <li><a href="/goals">Goals</a></li>
-            <li><a href="/level-up">Level Up</a></li>
-          </ul>
-        {/if}
-      </div>
-      <!-- Accordion Section: GM Tools -->
-      <div class="accordion-section">
-        <button onclick={() => toggleSection('gmTools')} class="accordion-header">
-          <span>GM Tools</span>
-          <span class:rotated={sections.gmTools}>▸</span>
-        </button>
-        {#if sections.gmTools}
-          <ul class="accordion-body" transition:slide>
-            <li><a href="/session-notes">Session Notes</a></li>
-            <li><a href="/bounty-board">Bounty Board</a></li>
-            <li><a href="/characters">Characters</a></li>
-          </ul>
-        {/if}
-      </div>
+      {#each sidebarSections as section}
+        <div class="accordion-section">
+          <button class="accordion-header" onclick={() => toggleSection(section.id)}>
+            <span>{section.label}</span>
+            <span class:rotated={sections[section.id]}>▸</span>
+          </button>
 
-      <!-- Accordion Section: GM Reference -->
-      <div class="accordion-section">
-        <button onclick={() => toggleSection('reference')} class="accordion-header">
-          <span>GM Reference</span>
-          <span class:rotated={sections.reference}>▸</span>
-        </button>
-        {#if sections.reference}
-          <ul class="accordion-body" transition:slide>
-            <li>
-              <button class="accordion-link" onclick={() => toggleSection('regions')}>
-                <span>Regions</span>
-                <span class:rotated={sections.regions}>▸</span>
-              </button>
-              {#if sections.regions}
-                <ul class="accordion-sub" transition:slide>
-                  <li><a href="/regions/01">Region 01</a></li>
-                  <li><a href="/regions/02">Region 02</a></li>
-                  <li><a href="/regions/03">Region 03</a></li>
-                </ul>
-              {/if}
-            </li>
-            <li><a href="/rumors">Rumors</a></li>
-            <li><a href="/clues">Clues</a></li>
-            <li><a href="/timeline">Timeline</a></li>
-          </ul>
-        {/if}
-      </div>
+          {#if sections[section.id]}
+            <ul class="accordion-body" transition:slide>
+              {#each section.items as item}
+                {#if item.expandable}
+                  <li>
+                    <button class="accordion-link" onclick={() => toggleSection(item.id)}>
+                      <span>{item.label}</span>
+                      <span class:rotated={sections[item.id]}>▸</span>
+                    </button>
+                    {#if sections[item.id]}
+                      <ul class="accordion-sub" transition:slide>
+                        {#each item.items as subitem}
+                          <li><a href={subitem.href}>{subitem.label}</a></li>
+                        {/each}
+                      </ul>
+                    {/if}
+                  </li>
+                {:else}
+                  <li><a href={item.href}>{item.label}</a></li>
+                {/if}
+              {/each}
+            </ul>
+          {/if}
+        </div>
+      {/each}
+
     </nav>
   </aside>
 </div>
