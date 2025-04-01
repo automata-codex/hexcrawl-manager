@@ -1,8 +1,19 @@
 <script lang="ts">
-  let open = false;
-</script>
+  import { onMount } from 'svelte';
 
-<button on:click={() => open = !open}>☰ Toggle Menu</button>
+  let open = $state(false);
+
+  function toggleSidebar() {
+    open = !open;
+  }
+
+  onMount(() => {
+    window.addEventListener('toggle-sidebar', toggleSidebar);
+    return () => {
+      window.removeEventListener('toggle-sidebar', toggleSidebar);
+    };
+  });
+</script>
 
 {#if open}
   <aside>
