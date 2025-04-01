@@ -1,13 +1,15 @@
 ---
 import { getCollection } from 'astro:content';
 import SecretLayout from '../../layouts/SecretLayout.astro';
-import { getRegionTitle } from '../../utils/id-parsers';
+import { getRegionTitle, regionIdCompare } from '../../utils/id-parsers';
 
 const regions = await getCollection('regions');
-const regionLinks = regions.map(region => ({
-  href: `/regions/${region.id}`,
-  name: `${getRegionTitle(region.id)}: ${region.data.name}`
-}));
+const regionLinks = regions
+  .sort((a, b) => regionIdCompare(a.id, b.id))
+  .map(region => ({
+    href: `/regions/${region.id}`,
+    name: `${getRegionTitle(region.id)}: ${region.data.name}`
+  }));
 
 const title = 'Baruun Khil Regions';
 ---
