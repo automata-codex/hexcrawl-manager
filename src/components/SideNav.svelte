@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { fly, fade } from 'svelte/transition';
+  import { slide } from 'svelte/transition';
 
   let sections = $state({
     playersGuide: false,
@@ -37,8 +37,7 @@
 </script>
 
 <style>
-    .accordion-header,
-    .sub-header {
+    .accordion-header {
         background: none;
         border: none;
         padding: 0.5rem 1rem;
@@ -52,9 +51,15 @@
         cursor: pointer;
     }
 
-    .accordion-header:hover,
-    .sub-header:hover {
+    .accordion-header:hover {
         background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .accordion-body {
+        overflow: hidden;
+        padding-left: 1.5rem;
+        margin: 0;
+        list-style: none;
     }
 
     .accordion-body,
@@ -62,6 +67,23 @@
         list-style: none;
         margin: 0;
         padding-left: 1.5rem;
+    }
+
+    .accordion-link {
+        background: none;
+        border: none;
+        font: inherit;
+        padding: 0;
+        color: #ccc;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .accordion-link:hover {
+        color: white;
     }
 
     .accordion-sub {
@@ -132,7 +154,7 @@
           <span class:rotated={sections.playersGuide}>▸</span>
         </button>
         {#if sections.playersGuide}
-          <ul class="accordion-body" transition:fade>
+          <ul class="accordion-body" transition:slide>
             <li><a href="/heritage">Heritage</a></li>
             <li><a href="/class">Class</a></li>
             <li><a href="/goals">Goals</a></li>
@@ -147,7 +169,7 @@
           <span class:rotated={sections.gmTools}>▸</span>
         </button>
         {#if sections.gmTools}
-          <ul class="accordion-body" transition:fade>
+          <ul class="accordion-body" transition:slide>
             <li><a href="/session-notes">Session Notes</a></li>
             <li><a href="/bounty-board">Bounty Board</a></li>
             <li><a href="/characters">Characters</a></li>
@@ -162,14 +184,14 @@
           <span class:rotated={sections.reference}>▸</span>
         </button>
         {#if sections.reference}
-          <ul class="accordion-body" transition:fade>
+          <ul class="accordion-body" transition:slide>
             <li>
-              <button class="sub-header" onclick={() => toggleSection('regions')}>
+              <button class="accordion-link" onclick={() => toggleSection('regions')}>
                 <span>Regions</span>
                 <span class:rotated={sections.regions}>▸</span>
               </button>
               {#if sections.regions}
-                <ul class="accordion-sub" transition:fly="{{ x: -20, duration: 200 }}">
+                <ul class="accordion-sub" transition:slide>
                   <li><a href="/regions/01">Region 01</a></li>
                   <li><a href="/regions/02">Region 02</a></li>
                   <li><a href="/regions/03">Region 03</a></li>
