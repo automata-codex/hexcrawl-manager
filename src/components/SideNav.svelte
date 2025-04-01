@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { fly, fade } from 'svelte/transition';
 
   let sections = $state({
     playersGuide: false,
     gmTools: false,
     reference: false,
+    regions: false,
   })
   let open = $state(false);
 
@@ -35,40 +37,56 @@
 </script>
 
 <style>
-    .accordion-header {
+    .accordion-header,
+    .sub-header {
         background: none;
         border: none;
-        font-size: 1rem;
-        font-weight: bold;
         padding: 0.5rem 1rem;
+        font-size: 1rem;
+        color: white;
         width: 100%;
         text-align: left;
-        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         cursor: pointer;
-        transition: background 0.2s;
     }
 
-    .accordion-header:hover {
-        background: rgba(255, 255, 255, 0.1);
+    .accordion-header:hover,
+    .sub-header:hover {
+        background-color: rgba(255, 255, 255, 0.05);
     }
 
-    .accordion-body {
+    .accordion-body,
+    .accordion-sub {
         list-style: none;
-        padding: 0.5rem 1.5rem;
         margin: 0;
+        padding-left: 1.5rem;
     }
 
-    .accordion-body li {
+    .accordion-sub {
+        padding-left: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .accordion-body li,
+    .accordion-sub li {
         margin: 0.25rem 0;
     }
 
-    .accordion-body a {
-        color: #ccc;
+    a {
         text-decoration: none;
+        color: #ccc;
     }
 
-    .accordion-body a:hover {
+    a:hover {
         color: white;
+    }
+
+    .rotated {
+        display: inline-block;
+        transform: rotate(90deg);
+        transition: transform 0.2s ease;
     }
 
     .sidebar-wrapper {
@@ -110,10 +128,11 @@
       <!-- Accordion Section: Player’s Guide -->
       <div class="accordion-section">
         <button onclick={() => toggleSection('playersGuide')} class="accordion-header">
-          Player’s Guide
+          <span>Player’s Guide</span>
+          <span class:rotated={sections.playersGuide}>▸</span>
         </button>
         {#if sections.playersGuide}
-          <ul class="accordion-body">
+          <ul class="accordion-body" transition:fade>
             <li><a href="/heritage">Heritage</a></li>
             <li><a href="/class">Class</a></li>
             <li><a href="/goals">Goals</a></li>
@@ -124,10 +143,11 @@
       <!-- Accordion Section: GM Tools -->
       <div class="accordion-section">
         <button onclick={() => toggleSection('gmTools')} class="accordion-header">
-          GM Tools
+          <span>GM Tools</span>
+          <span class:rotated={sections.gmTools}>▸</span>
         </button>
         {#if sections.gmTools}
-          <ul class="accordion-body">
+          <ul class="accordion-body" transition:fade>
             <li><a href="/session-notes">Session Notes</a></li>
             <li><a href="/bounty-board">Bounty Board</a></li>
             <li><a href="/characters">Characters</a></li>
@@ -138,11 +158,24 @@
       <!-- Accordion Section: GM Reference -->
       <div class="accordion-section">
         <button onclick={() => toggleSection('reference')} class="accordion-header">
-          GM Reference
+          <span>GM Reference</span>
+          <span class:rotated={sections.reference}>▸</span>
         </button>
         {#if sections.reference}
-          <ul class="accordion-body">
-            <li><a href="/regions">Regions</a></li>
+          <ul class="accordion-body" transition:fade>
+            <li>
+              <button class="sub-header" onclick={() => toggleSection('regions')}>
+                <span>Regions</span>
+                <span class:rotated={sections.regions}>▸</span>
+              </button>
+              {#if sections.regions}
+                <ul class="accordion-sub" transition:fly="{{ x: -20, duration: 200 }}">
+                  <li><a href="/regions/01">Region 01</a></li>
+                  <li><a href="/regions/02">Region 02</a></li>
+                  <li><a href="/regions/03">Region 03</a></li>
+                </ul>
+              {/if}
+            </li>
             <li><a href="/rumors">Rumors</a></li>
             <li><a href="/clues">Clues</a></li>
             <li><a href="/timeline">Timeline</a></li>
