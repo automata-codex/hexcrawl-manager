@@ -36,7 +36,7 @@
     .accordion-header {
         background: none;
         border: none;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 0.75rem;
         font-size: 1rem;
         color: white;
         width: 100%;
@@ -51,6 +51,12 @@
         background-color: rgba(255, 255, 255, 0.05);
     }
 
+    .accordion-header span:last-child,
+    .accordion-link span:last-child {
+        margin-left: auto;
+        transition: transform 0.2s;
+    }
+
     .accordion-body {
         overflow: hidden;
         padding-left: 1.5rem;
@@ -62,29 +68,34 @@
     .accordion-sub {
         list-style: none;
         margin: 0;
-        padding-left: 1.5rem;
+        padding-left: 0;
     }
 
+    .accordion-body a,
+    .accordion-sub a,
     .accordion-link {
+        align-items: center;
         background: none;
         border: none;
-        font: inherit;
-        padding: 0;
         color: #ccc;
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        text-align: left;
         cursor: pointer;
+        display: flex;
+        font: inherit;
+        justify-content: space-between;
+        padding: 0.5rem 0.75rem 0.5rem 2rem;
+        text-decoration: none;
+        width: 100%;
     }
 
+    .accordion-body a:hover,
+    .accordion-sub a:hover,
     .accordion-link:hover {
+        background-color: rgba(255, 255, 255, 0.05);
         color: white;
     }
 
-    .accordion-sub {
-        padding-left: 2rem;
-        font-size: 0.95rem;
+    .accordion-sub a {
+        padding-left: 3.5rem;
     }
 
     .accordion-body li,
