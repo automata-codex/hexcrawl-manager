@@ -1,14 +1,19 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { slide } from 'svelte/transition';
-  import { sidebarSections } from '../data/sidebar-sections';
+  import type { SidebarSection } from '../types.ts';
 
-  let sections: Record<string, boolean> = $state({});
+  interface Props {
+    sections: SidebarSection[];
+  }
+  let { sections }: Props = $props();
+
+  let sectionState: Record<string, boolean> = $state({});
   let open = $state(false);
 
-  function toggleSection(section: keyof typeof sections) {
-    sections[section] = !sections[section];
-    localStorage.setItem('sidebarSections', JSON.stringify(sections));
+  function toggleSection(section: keyof typeof sectionState) {
+    sectionState[section] = !sectionState[section];
+    localStorage.setItem('sidebarSections', JSON.stringify(sectionState));
   }
 
   function toggleSidebar() {
@@ -19,7 +24,7 @@
     const stored = localStorage.getItem('sidebarSections');
     if (stored) {
       try {
-        sections = JSON.parse(stored);
+        sectionState = JSON.parse(stored);
       } catch {
         // If it's broken, just use default
       }
@@ -154,23 +159,23 @@
 <div class="sidebar-wrapper" class:open={open}>
   <aside class="sidebar">
     <nav>
-      {#each sidebarSections as section}
+      {#each sections as section}
         <div class="accordion-section">
           <button class="accordion-header" onclick={() => toggleSection(section.id)}>
             <span>{section.label}</span>
-            <span class:rotated={sections[section.id]}>▸</span>
+            <span class:rotated={sectionState[section.id]}>▸</span>
           </button>
 
-          {#if sections[section.id]}
+          {#if sectionState[section.id]}
             <ul class="accordion-body" transition:slide>
               {#each section.items as item}
                 {#if item.expandable}
                   <li>
                     <button class="accordion-link" onclick={() => toggleSection(item.id)}>
                       <span>{item.label}</span>
-                      <span class:rotated={sections[item.id]}>▸</span>
+                      <span class:rotated={sectionState[item.id]}>▸</span>
                     </button>
-                    {#if sections[item.id]}
+                    {#if sectionState[item.id]}
                       <ul class="accordion-sub" transition:slide>
                         {#each item.items as subitem}
                           <li><a href={subitem.href}>{subitem.label}</a></li>

@@ -1,12 +1,18 @@
 ---
 import SideNav from '../components/SideNav.svelte';
 import TopBar from '../components/TopBar.astro';
+import { getCurrentUserRole } from '../utils/auth';
+import { SECURITY_ROLE } from '../utils/constants';
+import { getSidebarSections } from '../utils/sidebar-sections';
 
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
+
+const role = getCurrentUserRole(Astro.locals);
+const sections = getSidebarSections(role);
 ---
 <!doctype html>
 <html lang="en">
@@ -25,7 +31,7 @@ const { title } = Astro.props;
 	</head>
 	<body>
 	  <TopBar />
-		<SideNav client:load />
+		<SideNav sections={sections} client:load />
 		<slot />
 	</body>
 </html>
