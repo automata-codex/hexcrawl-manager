@@ -1,27 +1,9 @@
 ---
-import SecretContent from '../components/Content/SecretContent.astro';
-import BaruunKhilCard from '../components/IndexCards/BaruunKhilCard.astro';
-import BountyBoardCard from '../components/IndexCards/BountyBoardCard.astro';
-import CharactersCard from '../components/IndexCards/CharactersCard.astro';
 import ClassCard from '../components/IndexCards/ClassCard.astro';
-import CluesCard from '../components/IndexCards/CluesCard.astro';
-import DungeonsCard from '../components/IndexCards/DungeonsCard.astro';
-import EncountersCard from '../components/IndexCards/EncountersCard.astro';
-import FactionsCard from '../components/IndexCards/FactionsCard.astro';
-import GmMapsCard from '../components/IndexCards/GmMapsCard.astro';
+import ExploreCard from '../components/IndexCards/ExploreCard.astro';
 import GoalsCard from '../components/IndexCards/GoalsCard.astro';
 import HeritageCard from '../components/IndexCards/HeritageCard.astro';
-import HouseRules from '../components/IndexCards/HouseRules.astro';
-import KnownWorldCard from '../components/IndexCards/KnownWorldCard.astro';
 import LevelUpCard from '../components/IndexCards/LevelUpCard.astro';
-import MinigamesCard from '../components/IndexCards/MinigamesCard.astro';
-import NpcsCard from '../components/IndexCards/NpcsCard.astro';
-import RegionsCard from '../components/IndexCards/RegionsCard.astro';
-import RumorsCard from '../components/IndexCards/RumorsCard.astro';
-import SessionCard from '../components/IndexCards/SessionCard.astro';
-import SupplementsCard from '../components/IndexCards/SupplementsCard.astro';
-import TimelineCard from '../components/IndexCards/TimelineCard.astro';
-import TreasureCard from '../components/IndexCards/TreasureCard.astro';
 import MediumScreen from '../components/ScreenSize/MediumScreen.astro';
 import SmallScreen from '../components/ScreenSize/SmallScreen.astro';
 import ComponentLayout from '../layouts/ComponentLayout.astro';
@@ -77,38 +59,9 @@ const title = 'Beyond the Skyreach Mountains';
         <ClassCard />
         <GoalsCard />
         <LevelUpCard />
+        <ExploreCard />
       </div>
     </section>
-    <h2 class="title is-3">Player&rsquo;s Reference</h2>
-    <section class="columns">
-      <div class="column is-one-third">
-        <KnownWorldCard />
-        <BaruunKhilCard />
-        <HouseRules />
-        <NpcsCard />
-        <SupplementsCard />
-        <SessionCard />
-        <BountyBoardCard />
-      </div>
-    </section>
-    <SecretContent>
-      <h2 class="title is-3">GM&rsquo;s Reference</h2>
-      <section class="columns">
-        <div class="column is-one-third">
-          <RegionsCard />
-          <CluesCard />
-          <RumorsCard />
-          <EncountersCard />
-          <GmMapsCard />
-          <FactionsCard />
-          <DungeonsCard />
-          <CharactersCard />
-          <TimelineCard />
-          <TreasureCard />
-          <MinigamesCard />
-        </div>
-      </section>
-    </SecretContent>
   </SmallScreen>
   <MediumScreen>
     <h2 class="title is-3">Ready to get started?</h2>
@@ -119,48 +72,11 @@ const title = 'Beyond the Skyreach Mountains';
       </div>
       <div class="column is-one-third">
         <ClassCard />
+        <ExploreCard />
       </div>
       <div class="column is-one-third">
         <GoalsCard />
       </div>
     </section>
-    <h2 class="title is-3">Player&rsquo;s Reference</h2>
-    <section class="columns">
-      <div class="column is-one-third">
-        <KnownWorldCard />
-        <BaruunKhilCard />
-      </div>
-      <div class="column is-one-third">
-        <HouseRules />
-        <SupplementsCard />
-      </div>
-      <div class="column is-one-third">
-        <NpcsCard />
-        <SessionCard />
-        <BountyBoardCard />
-      </div>
-    </section>
-    <SecretContent>
-      <h2 class="title is-3">GM&rsquo;s Reference</h2>
-      <section class="columns">
-        <div class="column is-one-third">
-          <RegionsCard />
-          <EncountersCard />
-          <DungeonsCard />
-        </div>
-        <div class="column is-one-third">
-          <CluesCard />
-          <GmMapsCard />
-          <CharactersCard />
-          <TreasureCard />
-        </div>
-        <div class="column is-one-third">
-          <RumorsCard />
-          <FactionsCard />
-          <TimelineCard />
-          <MinigamesCard />
-        </div>
-      </section>
-    </SecretContent>
   </MediumScreen>
 </ComponentLayout>

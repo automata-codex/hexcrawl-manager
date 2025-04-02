@@ -2,7 +2,6 @@
 import SideNav from '../components/SideNav.svelte';
 import TopBar from '../components/TopBar.astro';
 import { getCurrentUserRole } from '../utils/auth';
-import { SECURITY_ROLE } from '../utils/constants';
 import { getSidebarSections } from '../utils/sidebar-sections';
 
 interface Props {
@@ -28,8 +27,16 @@ const sections = getSidebarSections(role);
 		<link rel="stylesheet" href="/fonts.css" />
 		<link rel="stylesheet" href="/global-styles.css" />
 		<slot name="stylesheet" />
+		<style>
+			.secret-greeting {
+				display: none;
+			}
+		</style>
 	</head>
 	<body>
+	  <div class="secret-greeting hacker-hello">
+			Greetings, traveller! 👋 The Index Oracle sees all. They know that you come seeking knowledge.
+		</div>
 	  <TopBar />
 		<SideNav sections={sections} client:load />
 		<slot />

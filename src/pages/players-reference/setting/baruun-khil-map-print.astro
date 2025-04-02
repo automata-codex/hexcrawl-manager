@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+
+import PlayerHexDetails from '../../../components/HexData/PlayerHexDetails.astro';
+import ComponentLayout from '../../../layouts/ComponentLayout.astro';
+import { hexSort } from '../../../utils/sort';
+
+const hexData = await getCollection('hexes');
+const hexes = hexData
+  .map((hex) => hex.data)
+  .filter((hex) => !hex.hideInCatalog)
+  .filter((hex) => hex.isVisited)
+  .sort(hexSort);
+
+const title="Baruun Khil Hex Catalog";
+---
+<style>
+    h2 {
+        color: var(--bulma-text-strong);
+        font-size: 1.5rem;
+    }
+
+    .baruun-khil-map {
+        display: block;
+        height: 500px;
+        margin: 0 auto 2rem;
+    }
+
+    .printer-friendly-link {
+        text-align: right;
+    }
+</style>
+<ComponentLayout title={title}>
+  <main>
+    {
+      hexes.map((hex) =>
+        <h2>{hex.id.toUpperCase()}: {hex.name}</h2>
+        <PlayerHexDetails hex={hex} />
+      )
+    }
+  </main>
+</ComponentLayout>

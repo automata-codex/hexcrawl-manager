@@ -1,5 +1,5 @@
 ---
-import { icon, library } from '@fortawesome/fontawesome-svg-core';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faCircleInfo } from '@fortawesome/pro-solid-svg-icons';
 import type { FloatingClueData } from '../types';
 import { formatText } from '../utils/text';
@@ -12,7 +12,6 @@ interface Props {
 }
 
 const { clue, showDetail = false, showName = true } = Astro.props as Props;
-library.add(faCircleInfo);
 const infoIcon = icon(faCircleInfo);
 ---
 <style is:global>

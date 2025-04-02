@@ -1,0 +1,33 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import RandomEncounterTable from '../../../components/RandomEncounterTable.astro';
+import RegionDetails from '../../../components/RegionDetails.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { getRegionTitle } from '../../../utils/id-parsers';
+import { renderMarkdown } from '../../../utils/markdown';
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+// Query for the entry directly using the request slug
+const region = await getEntry("regions", id);
+
+// Redirect if the entry does not exist
+if (region === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
+---
+<SecretLayout title={title}>
+  <RegionDetails region={region.data} />
+</SecretLayout>

@@ -1,5 +1,5 @@
 ---
-import { icon, library } from '@fortawesome/fontawesome-svg-core';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
 import type { HexData } from '../../types';
 
@@ -9,7 +9,6 @@ interface Props {
 
 const { hex } = Astro.props;
 
-library.add(faSquare, faSquareCheck);
 const squareIcon = icon(faSquare);
 const squareCheckIcon = icon(faSquareCheck);
 const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;

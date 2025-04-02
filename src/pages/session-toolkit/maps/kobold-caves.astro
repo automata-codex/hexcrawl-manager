@@ -1,0 +1,17 @@
+---
+import { getEntry } from 'astro:content';
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import { renderMarkdown } from '../../../utils/markdown';
+
+const article = await getEntry('articles', 'kobold-caves');
+if (!article) {
+  throw new Error('Article not found');
+}
+const { title } = article.data;
+---
+<ArticleLayout title={title}>
+  <article>
+    <img src="/images/maps/kobold-caves.png" alt="Kobold Caves" />
+    <Fragment set:html={renderMarkdown(article.body ?? '')} />
+  </article>
+</ArticleLayout>

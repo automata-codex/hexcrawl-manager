@@ -1,0 +1,56 @@
+---
+import { getCollection } from 'astro:content';
+
+import PlayerHexDetails from '../../../components/HexData/PlayerHexDetails.astro';
+import ComponentLayout from '../../../layouts/ComponentLayout.astro';
+import { hexSort } from '../../../utils/sort';
+
+const hexData = await getCollection('hexes');
+const hexes = hexData
+  .map((hex) => hex.data)
+  .filter((hex) => !hex.hideInCatalog)
+  .filter((hex) => hex.isVisited)
+  .sort(hexSort);
+
+const title="Baruun Khil Map";
+---
+<style>
+    h2 {
+        color: var(--bulma-text-strong);
+        font-size: 1.5rem;
+    }
+
+    .baruun-khil-map {
+        display: block;
+        height: 500px;
+        margin: 0 auto 2rem;
+    }
+
+    .printer-friendly-link {
+        text-align: right;
+    }
+</style>
+<ComponentLayout title={title}>
+  <img
+    alt="Map of Baruun Khil, the western frontier"
+    class="baruun-khil-map"
+    src="/images/maps/baruun-khil.png"
+    style="height: 500px;"
+    title="Map of Baruun Khil, the western frontier"
+  />
+  <div class="box callout">
+    <strong>Related:</strong>{' '}
+    <a href="/players-reference/setting/western-frontier">Welcome to the Western Frontier</a>
+  </div>
+  <div class="printer-friendly-link">
+    <p>View in a <a href="/players-reference/setting/baruun-khil-map-print">printer-friendly format</a>.</p>
+  </div>
+  <main>
+    {
+      hexes.map((hex) =>
+        <h2>{hex.id.toUpperCase()}: {hex.name}</h2>
+        <PlayerHexDetails hex={hex} />
+      )
+    }
+  </main>
+</ComponentLayout>

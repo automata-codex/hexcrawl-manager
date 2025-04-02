@@ -1,5 +1,5 @@
 ---
-import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faTreasureChest } from '@fortawesome/pro-solid-svg-icons';
 import { renderMarkdown } from '../../utils/markdown';
 import type { TreasureData } from '../../types';
@@ -10,7 +10,6 @@ interface Props {
 
 const { treasure } = Astro.props;
 
-library.add(faTreasureChest);
 const treasureIcon = icon(faTreasureChest);
 ---
 <style>
@@ -23,7 +22,7 @@ const treasureIcon = icon(faTreasureChest);
 <div class="heading-container">
   <h2 class="title is-3">{treasure.name}</h2>
   <div>
-    <a href=`/gm-notes/treasure/${treasure.id}` title="View details">
+    <a href=`/session-toolkit/treasure/${treasure.id}` title="View details">
       <Fragment set:html={treasureIcon.html} />
     </a>
   </div>

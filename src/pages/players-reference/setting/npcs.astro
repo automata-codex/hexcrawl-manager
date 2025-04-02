@@ -1,0 +1,67 @@
+---
+import { getCollection } from 'astro:content';
+import SecretContent from '../../../components/Content/SecretContent.astro';
+import ComponentLayout from '../../../layouts/ComponentLayout.astro';
+import { renderMarkdown } from '../../../utils/markdown';
+import { formatText } from '../../../utils/text';
+
+function formatOccupation(occupation: string, charClass?: string, adventuringCompany?: string) {
+  if (occupation === 'Adventurer') {
+    if (adventuringCompany) {
+      return `Adventurer (${charClass}), ${adventuringCompany}`;
+    } else {
+      return `Adventurer (${charClass})`;
+    }
+  } else {
+    return occupation;
+  }
+}
+
+const npcData = await getCollection('npcs');
+const title = 'NPCs';
+---
+<style>
+    img {
+        float: right;
+        max-height: 175px;
+        margin-left: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    section {
+        margin-bottom: 2rem;
+    }
+
+    .description {
+        p {
+            text-indent: var(--skyreach-standard-indent);
+        }
+    }
+</style>
+<ComponentLayout title={title}>
+  <main>
+    {
+      npcData.map((npc) =>
+        <section>
+          {npc.data.image && <img src={npc.data.image} alt={npc.data.name} />}
+          <h2 class="title is-4" style="margin-bottom: 0.25rem">{npc.data.name}</h2>
+          <p><span class="inline-heading">Occupation:</span>{' '}{formatOccupation(npc.data.occupation, npc.data.class, npc.data.adventuringCompany)}</p>
+          <p><span class="inline-heading">Species:</span>{' '}{npc.data.species}</p>
+          <p><span class="inline-heading">Culture:</span>{' '}{npc.data.culture}</p>
+          <p><span class="inline-heading">Pronouns:</span>{' '}{npc.data.pronouns}</p>
+          <div class="description">
+            <Fragment set:html={renderMarkdown(npc.data.description)} />
+          </div>
+          <SecretContent>
+            {npc.data.notes && (
+              <p><span class="inline-heading">Notes:</span></p>
+              <ul>
+                {npc.data.notes.map((note) => <li>{formatText(note)}</li>)}
+              </ul>
+            )}
+          </SecretContent>
+        </section>
+      )
+    }
+  </main>
+</ComponentLayout>

@@ -1,5 +1,5 @@
 ---
-import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
 import { getCollection } from 'astro:content';
 import type { HexData } from '../../types';
@@ -17,7 +17,6 @@ const dungeons = allDungeons
   .sort((a, b) => a.data.name.localeCompare(b.data.name));
 
 // Get some icons
-library.add(faDungeon);
 const dungeonIcon = icon(faDungeon);
 ---
 <div>

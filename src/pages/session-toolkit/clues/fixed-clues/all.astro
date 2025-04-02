@@ -1,0 +1,24 @@
+---
+import { getCollection } from 'astro:content';
+import SecretArticleLayout from '../../../../layouts/SecretArticleLayout.astro';
+import { renderSubArticleMarkdown } from '../../../../utils/markdown';
+
+const articlesData = await getCollection('fixedClues');
+const articles = articlesData
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+---
+<style>
+  .article-title {
+    color: var(--bulma-text-strong);
+    font-size: 2rem;
+    font-weight: bold;
+  }
+</style>
+<SecretArticleLayout title="Fixed Clues">
+  {articles.map((article) => (
+    <article>
+      <h2 class="article-title">{article.data.title}</h2>
+      <Fragment set:html={renderSubArticleMarkdown(article.body ?? '')} />
+    </article>
+  ))}
+</SecretArticleLayout>

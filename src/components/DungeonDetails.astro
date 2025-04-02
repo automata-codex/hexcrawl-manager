@@ -62,13 +62,13 @@ const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.st
 <div class="dungeon-data-bar">
   <div>
     Hex:
-    <a href={`/hexes/${hexData.id}`}>
+    <a href={`/session-toolkit/hexes/${hexData.id}`}>
       {renderBulletMarkdown(`${hexData.data.id.toUpperCase()} "${hexData.data.name}"`)}
     </a>
   </div>
   {isSubcomponent && (
     <div>
-      <a href={`/dungeons/${dungeon.id}`}>
+      <a href={`/gm-reference/dungeons/${dungeon.id}`}>
         View Dungeon
       </a>
     </div>

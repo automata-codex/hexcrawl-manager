@@ -12,6 +12,6 @@ const neighbors = getHexNeighbors(hex.id);
 <div>Neighbors:</div>
 {neighbors.map(neighbor => (
   <div>
-    <a href={`/hexes/${neighbor.toLowerCase()}`}>{neighbor}</a>
+    <a href={`/session-toolkit/hexes/${neighbor.toLowerCase()}`}>{neighbor}</a>
   </div>
 ))}

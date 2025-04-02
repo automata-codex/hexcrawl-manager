@@ -1,0 +1,65 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import StatBlock from '../../../components/StatBlock/StatBlock.astro';
+import { renderMarkdown } from '../../../utils/markdown';
+import { formatText } from '../../../utils/text';
+import type { RandomEncounterData } from '../../../types';
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+// Query for the entry directly using the request slug
+const encounterData = await getEntry('encounters', id);
+
+// Redirect if the entry does not exist
+if (encounterData === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+const encounter: RandomEncounterData = encounterData.data;
+const statBlocks = await getCollection('statBlocks');
+const title = `Encounter: ${await formatText(encounter.name)}`;
+---
+<style is:global>
+    strong.inline-heading {
+        color: var(--bulma-strong-color)
+    }
+</style>
+<style>
+    .description {
+        p:not(:first-child) {
+            text-indent: var(--skyreach-standard-indent);
+        }
+    }
+
+    .stat-block-container section:not(:last-child) {
+        border-bottom: 1px solid var(--bulma-body-color);
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+    }
+</style>
+<SecretLayout title={title}>
+  <div class="description">
+    <Fragment set:html={renderMarkdown(encounter.description)} />
+  </div>
+  <div class="stat-block-container">
+    {encounter.statBlocks.map((statBlockId: string) => {
+      const statBlock = statBlocks.find(statBlock => statBlock.id === statBlockId);
+      if (!statBlock) {
+        throw new Error(`Stat block not found: ${statBlockId}`);
+      }
+      return <StatBlock data={statBlock.data} />;
+    })}
+  </div>
+</SecretLayout>

@@ -1,0 +1,32 @@
+---
+import { getCollection } from 'astro:content';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { getRegionTitle, regionIdCompare } from '../../../utils/id-parsers';
+
+const regions = await getCollection('regions');
+const regionLinks = regions
+  .sort((a, b) => regionIdCompare(a.id, b.id))
+  .map(region => ({
+    href: `/session-toolkit/regions/${region.id}`,
+    name: `${getRegionTitle(region.id)}: ${region.data.name}`
+  }));
+
+const title = 'Baruun Khil Regions';
+---
+<style>
+    .list-columns {
+        columns: 2;
+    }
+</style>
+<SecretLayout title={title}>
+  <div class="list-columns">
+    <ul>
+      {regionLinks.map(link => (
+        <li><a href={link.href}>{link.name}</a></li>
+      ))}
+    </ul>
+  </div>
+  <div>
+    <p style="margin-top: 1rem;">View a list of <a href="/session-toolkit/regions/all">all regions</a>.</p>
+  </div>
+</SecretLayout>

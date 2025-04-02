@@ -1,0 +1,19 @@
+---
+import { getCollection } from 'astro:content';
+import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+import DungeonDetails from '../../../components/DungeonDetails.astro';
+
+const dungeonData = await getCollection('dungeons');
+const dungeons = dungeonData
+  .sort((a, b) => a.id.localeCompare(b.id));
+
+const title = 'Dungeons';
+---
+<SecretArticleLayout title={title}>
+  {dungeons.map(dungeon => (
+    <div>
+      <h2 class="title is-3">{dungeon.data.hexId.toUpperCase()}: {dungeon.data.name}</h2>
+      <DungeonDetails dungeon={dungeon} isSubcomponent={true} />
+    </div>
+  ))}
+</SecretArticleLayout>

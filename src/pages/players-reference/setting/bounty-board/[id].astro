@@ -1,0 +1,32 @@
+---
+import { getEntry } from 'astro:content';
+import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
+import BountyDetails from '../../../../components/Bounties/BountyDetails.astro';
+import { renderBulletMarkdown } from '../../../../utils/markdown';
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+// Query for the entry directly using the request slug
+const bountyData = await getEntry('bounties', id);
+
+// Redirect if the entry does not exist
+if (bountyData === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+const bounty = bountyData.data;
+const title = await renderBulletMarkdown(bounty.title);
+---
+<ComponentLayout title={title}>
+  <BountyDetails bounty={bounty} />
+</ComponentLayout>

@@ -1,5 +1,5 @@
 ---
-import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faDeer } from '@fortawesome/pro-solid-svg-icons';
 import { renderBulletMarkdown, renderMarkdown } from '../../utils/markdown';
 import SecretContent from '../Content/SecretContent.astro';
@@ -11,7 +11,6 @@ interface Props {
 
 const { bounty } = Astro.props;
 
-library.add(faDeer);
 const animalIcon = icon(faDeer);
 ---
 <style>
@@ -31,7 +30,7 @@ const animalIcon = icon(faDeer);
   </h2>
   <div>
     <SecretContent>
-      <a href=`/player-notes/bounty-board/${bounty.id}`>
+      <a href=`/players-reference/setting/bounty-board/${bounty.id}`>
         <Fragment set:html={animalIcon.html} />
       </a>
     </SecretContent>

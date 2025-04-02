@@ -1,0 +1,16 @@
+---
+import { getCollection } from 'astro:content';
+import SecretLayout from '../../../../layouts/SecretLayout.astro';
+import FloatingClue from '../../../../components/FloatingClue.astro';
+
+const cluesData = await getCollection('floatingClues');
+const clues = cluesData.sort((a, b) => a.data.name.localeCompare(b.data.name));
+const title = 'Floating Clues';
+---
+<SecretLayout title={title}>
+  <ul>
+    {clues.map((clue) => (
+      <FloatingClue clue={clue.data} showDetail={true} />
+    ))}
+  </ul>
+</SecretLayout>

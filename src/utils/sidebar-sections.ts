@@ -5,44 +5,108 @@ import type { SidebarSection } from '../types.ts';
 export function getSidebarSections(role: string|null): SidebarSection[] {
   const shared: SidebarSection[] = [
     {
-      id: 'playersGuide',
+      id: 'players-guide',
       label: 'Player’s Guide',
       items: [
-        { id: 'heritage', label: 'Heritage', href: '/heritage' },
-        { id: 'class', label: 'Class', href: '/class' },
-        { id: 'goals', label: 'Goals', href: '/goals' },
-        { id: 'level-up', label: 'Level Up', href: '/level-up' }
+        { id: 'heritage', label: 'Heritage', href: '/players-guide/ancestries-and-cultures' },
+        { id: 'class', label: 'Class', href: '/players-guide/classes' },
+        { id: 'goals', label: 'Goals', href: '/players-guide/character-goals' },
+        { id: 'advancement', label: 'Advancement', href: '/players-guide/advancement' },
       ],
-    }
+    },
+    {
+      id: 'players-reference',
+      label: 'Player’s Reference',
+      items: [
+        { id: 'progress', label: 'Progress Tracker', href: '/players-reference/progress' },
+        {
+          id: 'player-setting',
+          label: 'Setting',
+          expandable: true,
+          items: [
+            { label: 'The Known World', href: '/players-reference/setting/known-world' },
+            { label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
+            { label: 'Baruun Khil, the Western Frontier', href: '/players-reference/setting/western-frontier' },
+            { label: 'Explored Hexes', href: '/players-reference/setting/baruun-khil-map' },
+            { label: 'NPCs', href: '/players-reference/setting/npcs' },
+            { label: 'Bounty Board', href: '/players-reference/setting/bounty-board' },
+          ],
+        },
+        {
+          id: 'player-maps',
+          label: 'Maps',
+          expandable: true,
+          items: [
+            { label: 'The Known World', href: '/players-reference/setting/known-world' },
+            { label: 'Baruun Khil, the Western Frontier', href: '/players-reference/setting/baruun-khil-map' },
+          ],
+        },
+        {
+          id: 'player-rules',
+          label: 'Rules',
+          expandable: true,
+          items: [
+            { label: 'House Rules', href: '/players-reference/rules/house-rules' },
+            { label: 'Character Advancement', href: '/players-guide/advancement' },
+            { label: 'Havens', href: '/players-reference/rules/havens' },
+            { label: 'Third-party Supplements', href: '/players-reference/rules/supplements' },
+          ],
+        },
+        { id: 'session-notes', label: 'Session Notes', href: '/players-reference/sessions' },
+      ],
+    },
   ];
 
   const gmOnly: SidebarSection[] = [
     {
-      id: 'reference',
-      label: 'GM Reference',
+      id: 'session-toolkit',
+      label: 'Session Toolkit',
       items: [
+        { id: 'map-regions', label: 'Map Regions', href: '/session-toolkit/regions' },
+        { id: 'hex-catalog', label: 'Hex Catalog', href: '/session-toolkit/hexes' },
+        { id: 'scaling-encounters', label: 'Scaling Encounters', href: '/session-toolkit/scaling-encounters' },
         {
-          label: 'Regions',
+          id: 'clues',
+          label: 'Clues',
           expandable: true,
-          id: 'regions',
           items: [
-            { label: 'Region 01', href: '/regions/01' },
-            { label: 'Region 02', href: '/regions/02' },
-            { label: 'Region 03', href: '/regions/03' }
-          ]
+            { label: 'Fixed Clues', href: '/session-toolkit/clues/fixed-clues' },
+            { label: 'Floating Clues', href: '/session-toolkit/clues/floating-clues' },
+          ],
         },
-        { id: 'rumors', label: 'Rumors', href: '/rumors' },
-        { id: 'clues', label: 'Clues', href: '/clues' },
-        { id: 'timeline', label: 'Timeline', href: '/timeline' }
+        {
+          id: 'gm-maps',
+          label: 'Maps',
+          expandable: true,
+          items: [
+            { label: 'Baruun Khil (Locations)', href: '/images/maps/gm-map-with-locations.png' },
+            { label: 'Baruun Khil (Terrain)', href: '/images/maps/gm-map-with-terrain.png' },
+            { label: 'Kobold Caves', href: '/session-toolkit/maps/kobold-caves' },
+          ],
+        },
+        { id: 'rumors', label: 'Rumors', href: '/session-toolkit/rumors' },
+        { id: 'treasure', label: 'Treasure', href: '/session-toolkit/treasure' },
+        { id: 'timeline', label: 'Timeline', href: '/session-toolkit/timeline' },
+        {
+          id: 'minigames',
+          label: 'Minigames',
+          expandable: true,
+          items: [
+            { label: 'Griffon Hunt', href: '/session-toolkit/minigames/griffon-hunt' },
+          ],
+        },
       ],
     },
     {
-      id: 'gmTools',
-      label: 'GM Tools',
+      id: 'gm-reference',
+      label: 'GM Reference',
       items: [
-        { id: 'session-notes', label: 'Session Notes', href: '/session-notes' },
-        { id: 'bounty-board', label: 'Bounty Board', href: '/bounty-board' },
-        { id: 'characters', label: 'Characters', href: '/characters' }
+        { id: 'characters', label: 'Characters', href: '/gm-reference/characters' },
+        { id: 'dungeons', label: 'Dungeons', href: '/gm-reference/dungeons' },
+        { id: 'encounters', label: 'Encounters', href: '/gm-reference/encounters' },
+        { id: 'factions', label: 'Factions', href: '/gm-reference/factions' },
+        { id: 'gm-notes-western-frontier', label: 'GM\'s Notes on Baruun Khil', href: '/gm-reference/western-frontier-gms-notes' },
+        { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
       ],
     }
   ];

@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { faChevronRight, faXmark } from '@fortawesome/pro-light-svg-icons'
+  import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+
   import { onMount } from 'svelte';
   import { slide } from 'svelte/transition';
   import type { SidebarSection } from '../types.ts';
@@ -88,7 +91,7 @@
         display: flex;
         font: inherit;
         justify-content: space-between;
-        padding: 0.5rem 0.75rem 0.5rem 2rem;
+        padding: 0 0.75rem 0 2rem;
         text-decoration: none;
         width: 100%;
     }
@@ -181,7 +184,7 @@
 <div class="sidebar-wrapper" class:open={open}>
   <aside class="sidebar">
     <button class="sidebar-close" onclick={toggleSidebar} aria-label="Close menu">
-      ✕
+      <FontAwesomeIcon icon={faXmark} />
     </button>
     <nav>
       <div class="sidebar-content">
@@ -189,7 +192,9 @@
           <div class="accordion-section">
             <button class="accordion-header" onclick={() => toggleSection(section.id)}>
               <span>{section.label}</span>
-              <span class:rotated={sectionState[section.id]}>▸</span>
+              <span class:rotated={sectionState[section.id]}>
+                <FontAwesomeIcon icon={faChevronRight} />
+              </span>
             </button>
 
             {#if sectionState[section.id]}
@@ -199,7 +204,9 @@
                     <li>
                       <button class="accordion-link" onclick={() => toggleSection(item.id)}>
                         <span>{item.label}</span>
-                        <span class:rotated={sectionState[item.id]}>▸</span>
+                        <span class:rotated={sectionState[item.id]}>
+                          <FontAwesomeIcon icon={faChevronRight} />
+                        </span>
                       </button>
                       {#if sectionState[item.id]}
                         <ul class="accordion-sub" transition:slide>

@@ -1,10 +1,9 @@
 ---
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/astro/components';
-import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faMountainSun } from '@fortawesome/pro-light-svg-icons';
 import { faBars } from '@fortawesome/pro-regular-svg-icons';
 
-library.add(faBars, faMountainSun);
 const menuIcon = icon(faBars);
 const skyreachIcon = icon(faMountainSun);
 ---
