@@ -8,10 +8,10 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       id: 'players-guide',
       label: 'Player’s Guide',
       items: [
-        { id: 'heritage', label: 'Heritage', href: '/characters/ancestries-and-cultures' },
-        { id: 'class', label: 'Class', href: '/characters/classes' },
-        { id: 'goals', label: 'Goals', href: '/characters/character-goals' },
-        { id: 'advancement', label: 'Advancement', href: '/characters/advancement' },
+        { id: 'heritage', label: 'Heritage', href: '/players-guide/ancestries-and-cultures' },
+        { id: 'class', label: 'Class', href: '/players-guide/classes' },
+        { id: 'goals', label: 'Goals', href: '/players-guide/character-goals' },
+        { id: 'advancement', label: 'Advancement', href: '/players-guide/advancement' },
       ],
     },
     {
