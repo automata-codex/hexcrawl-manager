@@ -1,5 +1,5 @@
 ---
-import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faTreasureChest } from '@fortawesome/pro-solid-svg-icons';
 import { renderMarkdown } from '../../utils/markdown';
 import type { TreasureData } from '../../types';
@@ -10,7 +10,6 @@ interface Props {
 
 const { treasure } = Astro.props;
 
-library.add(faTreasureChest);
 const treasureIcon = icon(faTreasureChest);
 ---
 <style>

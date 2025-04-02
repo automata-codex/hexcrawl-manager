@@ -1,5 +1,5 @@
 ---
-import { icon, library } from '@fortawesome/fontawesome-svg-core';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faEyeEvil } from '@fortawesome/pro-light-svg-icons';
 import { getEntry } from 'astro:content';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
@@ -12,7 +12,6 @@ if (!article) {
 }
 const { title } = article.data;
 
-library.add(faEyeEvil);
 const evilEye = icon(faEyeEvil);
 ---
 <ArticleLayout title={title}>

@@ -1,5 +1,5 @@
 ---
-import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faDiceD20 } from '@fortawesome/pro-light-svg-icons';
 import { getPointsPerLevel } from '../../utils/advancement.ts';
 import type { CharacterData, Pillar } from '../../types';
@@ -13,7 +13,6 @@ interface Props {
 const { character, level, pillar} = Astro.props;
 
 // Handle the icon
-library.add(faDiceD20);
 const progressIcon = icon(faDiceD20, { classes: ['fa-lg'] });
 
 // Subtract points for levels already completed
