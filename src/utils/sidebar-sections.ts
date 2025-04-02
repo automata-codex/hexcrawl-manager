@@ -79,8 +79,9 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           label: 'Maps',
           expandable: true,
           items: [
-            { label: 'Map with Locations', href: '/images/maps/gm-map-with-locations.png' },
-            { label: 'Map with Terrain', href: '/images/maps/gm-map-with-terrain.png' },
+            { label: 'Baruun Khil (Locations)', href: '/images/maps/gm-map-with-locations.png' },
+            { label: 'Baruun Khil (Terrain)', href: '/images/maps/gm-map-with-terrain.png' },
+            { label: 'Kobold Caves', href: '/gm-notes/kobold-caves' },
           ],
         },
         { id: 'rumors', label: 'Rumors', href: '/gm-notes/rumors' },
@@ -97,12 +98,14 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       ],
     },
     {
-      id: 'gmTools',
-      label: 'GM Tools',
+      id: 'gm-reference',
+      label: 'GM Reference',
       items: [
-        { id: 'session-notes', label: 'Session Notes', href: '/session-notes' },
-        { id: 'bounty-board', label: 'Bounty Board', href: '/bounty-board' },
-        { id: 'characters', label: 'Characters', href: '/characters' }
+        { id: 'characters', label: 'Characters', href: '/characters' },
+        { id: 'dungeons', label: 'Dungeons', href: '/dungeons' },
+        { id: 'encounters', label: 'Encounters', href: '/encounters' },
+        { id: 'factions', label: 'Factions', href: '/gm-notes/factions' },
+        { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: '/setting/vaulridge-nobility' },
       ],
     }
   ];
