@@ -47,3 +47,15 @@ export type TreasureData = z.infer<typeof TreasureSchema>;
 export type DungeonEntry = CollectionEntry<'dungeons'>;
 
 export type Pillar = keyof CharacterData['advancementPoints'];
+
+export interface SidebarSection {
+  id: string;
+  label: string;
+  items: {
+    id: string;
+    label: string;
+    href?: string;
+    expandable?: boolean;
+    items?: { label: string; href: string }[];
+  }[];
+}

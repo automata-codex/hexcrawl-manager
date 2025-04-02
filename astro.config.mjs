@@ -4,10 +4,12 @@ import { defineConfig } from 'astro/config';
 import rehypeAddClasses from 'rehype-add-classes';
 import remarkSmartypants from 'remark-smartypants';
 
+import svelte from '@astrojs/svelte';
+
 // https://astro.build/config
 export default defineConfig({
   adapter: vercel(),
-  integrations: [clerk()],
+  integrations: [clerk(), svelte()],
   markdown: {
     rehypePlugins: [
       // Changes to these plugins should also be made to the pipeline in `src/utils/markdown.ts`
