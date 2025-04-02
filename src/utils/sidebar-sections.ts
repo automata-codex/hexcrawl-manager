@@ -18,18 +18,18 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       id: 'players-reference',
       label: 'Player’s Reference',
       items: [
-        { id: 'progress', label: 'Progress Tracker', href: '/characters/progress' },
+        { id: 'progress', label: 'Progress Tracker', href: '/players-reference/progress' },
         {
           id: 'player-setting',
           label: 'Setting',
           expandable: true,
           items: [
-            { label: 'The Known World', href: '/setting/known-world' },
-            { label: 'Nobility of Vaulridge', href: '/setting/vaulridge-nobility' },
-            { label: 'Baruun Khil, the Western Frontier', href: '/setting/western-frontier' },
-            { label: 'Explored Hexes', href: '/setting/baruun-khil-map' },
-            { label: 'NPCs', href: '/npcs' },
-            { label: 'Bounty Board', href: '/player-notes/bounty-board' },
+            { label: 'The Known World', href: '/players-reference/setting/known-world' },
+            { label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
+            { label: 'Baruun Khil, the Western Frontier', href: '/players-reference/setting/western-frontier' },
+            { label: 'Explored Hexes', href: '/players-reference/setting/baruun-khil-map' },
+            { label: 'NPCs', href: '/players-reference/setting/npcs' },
+            { label: 'Bounty Board', href: '/players-reference/setting/bounty-board' },
           ],
         },
         {

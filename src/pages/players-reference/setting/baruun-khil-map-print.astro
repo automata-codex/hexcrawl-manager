@@ -1,9 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
 
-import PlayerHexDetails from '../../components/HexData/PlayerHexDetails.astro';
-import ComponentLayout from '../../layouts/ComponentLayout.astro';
-import { hexSort } from '../../utils/sort';
+import PlayerHexDetails from '../../../components/HexData/PlayerHexDetails.astro';
+import ComponentLayout from '../../../layouts/ComponentLayout.astro';
+import { hexSort } from '../../../utils/sort';
 
 const hexData = await getCollection('hexes');
 const hexes = hexData
@@ -12,7 +12,7 @@ const hexes = hexData
   .filter((hex) => hex.isVisited)
   .sort(hexSort);
 
-const title="Baruun Khil Map";
+const title="Baruun Khil Hex Catalog";
 ---
 <style>
     h2 {
@@ -31,20 +31,6 @@ const title="Baruun Khil Map";
     }
 </style>
 <ComponentLayout title={title}>
-  <img
-    alt="Map of Baruun Khil, the western frontier"
-    class="baruun-khil-map"
-    src="/images/maps/baruun-khil.png"
-    style="height: 500px;"
-    title="Map of Baruun Khil, the western frontier"
-  />
-  <div class="box callout">
-    <strong>Related:</strong>{' '}
-    <a href="/setting/western-frontier">Welcome to the Western Frontier</a>
-  </div>
-  <div class="printer-friendly-link">
-    <p>View in a <a href="/setting/baruun-khil-map-print">printer-friendly format</a>.</p>
-  </div>
   <main>
     {
       hexes.map((hex) =>

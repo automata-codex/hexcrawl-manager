@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
-import ComponentLayout from '../../../layouts/ComponentLayout.astro';
-import BountySummary from '../../../components/Bounties/BountySummary.astro';
+import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
+import BountySummary from '../../../../components/Bounties/BountySummary.astro';
 
 const bountyData = await getCollection('bounties');
 const bounties = bountyData

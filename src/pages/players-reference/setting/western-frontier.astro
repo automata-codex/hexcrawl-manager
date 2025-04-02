@@ -2,9 +2,9 @@
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faEyeEvil } from '@fortawesome/pro-light-svg-icons';
 import { getEntry } from 'astro:content';
-import ArticleLayout from '../../layouts/ArticleLayout.astro';
-import { renderMarkdown } from '../../utils/markdown';
-import SecretContent from '../../components/Content/SecretContent.astro';
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import { renderMarkdown } from '../../../utils/markdown';
+import SecretContent from '../../../components/Content/SecretContent.astro';
 
 const article = await getEntry('articles', 'western-frontier');
 if (!article) {
