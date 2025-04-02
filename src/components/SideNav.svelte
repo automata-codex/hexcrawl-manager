@@ -88,7 +88,7 @@
         display: flex;
         font: inherit;
         justify-content: space-between;
-        padding: 0.5rem 0.75rem 0.5rem 2rem;
+        padding: 0 0.75rem 0 2rem;
         text-decoration: none;
         width: 100%;
     }
