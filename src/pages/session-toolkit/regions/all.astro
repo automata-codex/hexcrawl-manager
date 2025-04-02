@@ -1,8 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
-import SecretLayout from '../../layouts/SecretLayout.astro';
-import { getRegionNumber, getRegionTitle, regionIdCompare } from '../../utils/id-parsers';
-import RegionDetails from '../../components/RegionDetails.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { getRegionTitle, regionIdCompare } from '../../../utils/id-parsers';
+import RegionDetails from '../../../components/RegionDetails.astro';
 
 const regionData = await getCollection('regions');
 const regions = regionData

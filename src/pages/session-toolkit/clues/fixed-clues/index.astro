@@ -1,0 +1,25 @@
+---
+import { getCollection } from 'astro:content';
+import SecretLayout from '../../../../layouts/SecretLayout.astro';
+
+const articlesData = await getCollection('fixedClues');
+const articles = articlesData
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+---
+<style>
+  .all-articles {
+      margin-top: 2rem;
+  }
+</style>
+<SecretLayout title="Fixed Clues">
+  <ul>
+    {articles.map((article) => (
+      <li>
+        <a href={`/session-toolkit/clues/fixed-clues/${article.id}`}>
+          {article.data.title}
+        </a>
+      </li>
+    ))}
+  </ul>
+  <p class="all-articles">View <a href="/session-toolkit/clues/fixed-clues/all">all articles</a> in one page.</p>
+</SecretLayout>

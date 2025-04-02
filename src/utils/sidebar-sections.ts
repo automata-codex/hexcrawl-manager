@@ -62,16 +62,16 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       id: 'session-toolkit',
       label: 'Session Toolkit',
       items: [
-        { id: 'map-regions', label: 'Map Regions', href: '/regions' },
-        { id: 'hex-catalog', label: 'Hex Catalog', href: '/hexes' },
-        { id: 'scaling-encounters', label: 'Scaling Encounters', href: '/gm-notes/scaling-encounters' },
+        { id: 'map-regions', label: 'Map Regions', href: '/session-toolkit/regions' },
+        { id: 'hex-catalog', label: 'Hex Catalog', href: '/session-toolkit/hexes' },
+        { id: 'scaling-encounters', label: 'Scaling Encounters', href: '/session-toolkit/scaling-encounters' },
         {
           id: 'clues',
           label: 'Clues',
           expandable: true,
           items: [
-            { label: 'Fixed Clues', href: '/gm-notes/fixed-clues' },
-            { label: 'Floating Clues', href: '/gm-notes/floating-clues' },
+            { label: 'Fixed Clues', href: '/session-toolkit/clues/fixed-clues' },
+            { label: 'Floating Clues', href: '/session-toolkit/clues/floating-clues' },
           ],
         },
         {

@@ -60,10 +60,10 @@ const { hex, showSelfLink = true } = Astro.props;
     <Explored hex={hex} />
     {showSelfLink &&
       <div>
-        <a href={`/hexes/${hex.id}`}>View Hex</a>
+        <a href={`/session-toolkit/hexes/${hex.id}`}>View Hex</a>
       </div>}
     <div>
-      <a href={`/regions/${hex.regionId}`}>{getRegionTitle(hex.regionId)}</a>
+      <a href={`/session-toolkit/regions/${hex.regionId}`}>{getRegionTitle(hex.regionId)}</a>
     </div>
     <Dungeons hex={hex} />
   </div>

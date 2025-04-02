@@ -1,10 +1,10 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
-import RandomEncounterTable from '../../components/RandomEncounterTable.astro';
-import RegionDetails from '../../components/RegionDetails.astro';
-import SecretLayout from '../../layouts/SecretLayout.astro';
-import { getRegionTitle } from '../../utils/id-parsers';
-import { renderMarkdown } from '../../utils/markdown';
+import RandomEncounterTable from '../../../components/RandomEncounterTable.astro';
+import RegionDetails from '../../../components/RegionDetails.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { getRegionTitle } from '../../../utils/id-parsers';
+import { renderMarkdown } from '../../../utils/markdown';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;

@@ -1,0 +1,31 @@
+---
+import { getEntry } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { renderMarkdown } from '../../utils/markdown';
+
+const article = await getEntry('articles', 'scaling-encounters');
+if (!article) {
+  throw new Error('Article not found');
+}
+const { title } = article.data;
+---
+<style is:global>
+    table {
+        border-spacing: 0;
+        margin-top: 1rem;
+    }
+    td, th {
+        border-bottom: 1px solid var(--bulma-border);
+        padding-right: 1rem;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+    th {
+        border-top: 1px solid var(--bulma-border);
+    }
+</style>
+<ArticleLayout title={title}>
+  <article>
+    <Fragment set:html={renderMarkdown(article.body ?? '')} />
+  </article>
+</ArticleLayout>
