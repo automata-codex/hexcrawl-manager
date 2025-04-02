@@ -1,7 +1,7 @@
 ---
 import { getEntry } from 'astro:content';
-import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
-import { renderMarkdown } from '../../../utils/markdown';
+import SecretArticleLayout from '../../layouts/SecretArticleLayout.astro';
+import { renderMarkdown } from '../../utils/markdown';
 
 const article = await getEntry('articles', 'western-frontier-gms-notes');
 if (!article) {

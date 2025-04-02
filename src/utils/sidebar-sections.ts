@@ -105,6 +105,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
         { id: 'dungeons', label: 'Dungeons', href: '/gm-reference/dungeons' },
         { id: 'encounters', label: 'Encounters', href: '/gm-reference/encounters' },
         { id: 'factions', label: 'Factions', href: '/gm-reference/factions' },
+        { id: 'gm-notes-western-frontier', label: 'GM\'s Notes on Baruun Khil', href: '/gm-reference/western-frontier-gms-notes' },
         { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
       ],
     }
