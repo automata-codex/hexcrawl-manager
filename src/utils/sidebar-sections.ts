@@ -1,21 +1,22 @@
 import { canAccess } from './auth.ts';
 import { SCOPES } from './constants.ts';
+import type { SidebarSection } from '../types.ts';
 
-export function getSidebarSections(role: string|null) {
-  const shared = [
+export function getSidebarSections(role: string|null): SidebarSection[] {
+  const shared: SidebarSection[] = [
     {
       id: 'playersGuide',
       label: 'Player’s Guide',
       items: [
-        { label: 'Heritage', href: '/heritage' },
-        { label: 'Class', href: '/class' },
-        { label: 'Goals', href: '/goals' },
-        { label: 'Level Up', href: '/level-up' }
+        { id: 'heritage', label: 'Heritage', href: '/heritage' },
+        { id: 'class', label: 'Class', href: '/class' },
+        { id: 'goals', label: 'Goals', href: '/goals' },
+        { id: 'level-up', label: 'Level Up', href: '/level-up' }
       ],
     }
   ];
 
-  const gmOnly = [
+  const gmOnly: SidebarSection[] = [
     {
       id: 'reference',
       label: 'GM Reference',
@@ -30,18 +31,18 @@ export function getSidebarSections(role: string|null) {
             { label: 'Region 03', href: '/regions/03' }
           ]
         },
-        { label: 'Rumors', href: '/rumors' },
-        { label: 'Clues', href: '/clues' },
-        { label: 'Timeline', href: '/timeline' }
+        { id: 'rumors', label: 'Rumors', href: '/rumors' },
+        { id: 'clues', label: 'Clues', href: '/clues' },
+        { id: 'timeline', label: 'Timeline', href: '/timeline' }
       ],
     },
     {
       id: 'gmTools',
       label: 'GM Tools',
       items: [
-        { label: 'Session Notes', href: '/session-notes' },
-        { label: 'Bounty Board', href: '/bounty-board' },
-        { label: 'Characters', href: '/characters' }
+        { id: 'session-notes', label: 'Session Notes', href: '/session-notes' },
+        { id: 'bounty-board', label: 'Bounty Board', href: '/bounty-board' },
+        { id: 'characters', label: 'Characters', href: '/characters' }
       ],
     }
   ];

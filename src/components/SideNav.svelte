@@ -6,6 +6,7 @@
   interface Props {
     sections: SidebarSection[];
   }
+
   let { sections }: Props = $props();
 
   let sectionState: Record<string, boolean> = $state({});
@@ -154,44 +155,71 @@
     .sidebar-wrapper.open .sidebar {
         transform: translateX(0);
     }
+
+    .sidebar-close {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.75rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #ccc;
+        cursor: pointer;
+        padding: 0.25rem;
+        z-index: 1001;
+    }
+
+    .sidebar-close:hover {
+        color: white;
+    }
+
+    .sidebar-content {
+        padding-top: 1.5rem;
+    }
 </style>
 
 <div class="sidebar-wrapper" class:open={open}>
   <aside class="sidebar">
+    <button class="sidebar-close" onclick={toggleSidebar} aria-label="Close menu">
+      ✕
+    </button>
     <nav>
-      {#each sections as section}
-        <div class="accordion-section">
-          <button class="accordion-header" onclick={() => toggleSection(section.id)}>
-            <span>{section.label}</span>
-            <span class:rotated={sectionState[section.id]}>▸</span>
-          </button>
+      <div class="sidebar-content">
+        {#each sections as section}
+          <div class="accordion-section">
+            <button class="accordion-header" onclick={() => toggleSection(section.id)}>
+              <span>{section.label}</span>
+              <span class:rotated={sectionState[section.id]}>▸</span>
+            </button>
 
-          {#if sectionState[section.id]}
-            <ul class="accordion-body" transition:slide>
-              {#each section.items as item}
-                {#if item.expandable}
-                  <li>
-                    <button class="accordion-link" onclick={() => toggleSection(item.id)}>
-                      <span>{item.label}</span>
-                      <span class:rotated={sectionState[item.id]}>▸</span>
-                    </button>
-                    {#if sectionState[item.id]}
-                      <ul class="accordion-sub" transition:slide>
-                        {#each item.items as subitem}
-                          <li><a href={subitem.href}>{subitem.label}</a></li>
-                        {/each}
-                      </ul>
-                    {/if}
-                  </li>
-                {:else}
-                  <li><a href={item.href}>{item.label}</a></li>
-                {/if}
-              {/each}
-            </ul>
-          {/if}
-        </div>
-      {/each}
-
+            {#if sectionState[section.id]}
+              <ul class="accordion-body" transition:slide>
+                {#each section.items as item}
+                  {#if item.expandable}
+                    <li>
+                      <button class="accordion-link" onclick={() => toggleSection(item.id)}>
+                        <span>{item.label}</span>
+                        <span class:rotated={sectionState[item.id]}>▸</span>
+                      </button>
+                      {#if sectionState[item.id]}
+                        <ul class="accordion-sub" transition:slide>
+                          {#if item.items}
+                            {#each item.items as subitem}
+                              <li><a href={subitem.href}>{subitem.label}</a></li>
+                            {/each}
+                          {/if}
+                        </ul>
+                      {/if}
+                    </li>
+                  {:else}
+                    <li><a href={item.href}>{item.label}</a></li>
+                  {/if}
+                {/each}
+              </ul>
+            {/if}
+          </div>
+        {/each}
+      </div>
     </nav>
   </aside>
 </div>
