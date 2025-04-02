@@ -37,8 +37,8 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           label: 'Maps',
           expandable: true,
           items: [
-            { label: 'The Known World', href: '/setting/known-world' },
-            { label: 'Baruun Khil, the Western Frontier', href: '/setting/baruun-khil-map' },
+            { label: 'The Known World', href: '/players-reference/setting/known-world' },
+            { label: 'Baruun Khil, the Western Frontier', href: '/players-reference/setting/baruun-khil-map' },
           ],
         },
         {
@@ -46,13 +46,13 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           label: 'Rules',
           expandable: true,
           items: [
-            { label: 'House Rules', href: '/rules/house-rules' },
-            { label: 'Character Advancement', href: '/characters/advancement' },
-            { label: 'Havens', href: '/rules/havens' },
-            { label: 'Third-party Supplements', href: '/rules/supplements' },
+            { label: 'House Rules', href: '/players-reference/rules/house-rules' },
+            { label: 'Character Advancement', href: '/players-guide/advancement' },
+            { label: 'Havens', href: '/players-reference/rules/havens' },
+            { label: 'Third-party Supplements', href: '/players-reference/rules/supplements' },
           ],
         },
-        { id: 'session-notes', label: 'Session Notes', href: '/player-notes/sessions' },
+        { id: 'session-notes', label: 'Session Notes', href: '/players-reference/sessions' },
       ],
     },
   ];

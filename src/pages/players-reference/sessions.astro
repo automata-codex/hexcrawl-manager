@@ -1,8 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
-import SecretContent from '../../../components/Content/SecretContent.astro';
-import SessionDetails from '../../../components/SessionDetails/SessionDetails.astro';
-import ComponentLayout from '../../../layouts/ComponentLayout.astro';
+import SecretContent from '../../components/Content/SecretContent.astro';
+import SessionDetails from '../../components/SessionDetails/SessionDetails.astro';
+import ComponentLayout from '../../layouts/ComponentLayout.astro';
 
 const sessionData = await getCollection('sessions');
 const sessions = sessionData

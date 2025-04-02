@@ -1,8 +1,8 @@
 ---
 import { getEntry } from 'astro:content';
-import { renderMarkdown } from '../../utils/markdown';
-import SecretContent from '../../components/Content/SecretContent.astro';
-import ComponentLayout from '../../layouts/ComponentLayout.astro';
+import { renderMarkdown } from '../../../utils/markdown';
+import SecretContent from '../../../components/Content/SecretContent.astro';
+import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 
 const existingHavenRulesArticle = await getEntry('articles', 'existing-haven-rules');
 if (!existingHavenRulesArticle) {

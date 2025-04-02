@@ -1,9 +1,9 @@
 ---
-import ArticleLayout from '../../layouts/ArticleLayout.astro';
-import { renderMarkdown } from '../../utils/markdown';
-import { formatText } from '../../utils/text';
-import PublicContent from '../../components/Content/PublicContent.astro';
-import HiddenContent from '../../components/Content/HiddenContent.astro';
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import { renderMarkdown } from '../../../utils/markdown';
+import { formatText } from '../../../utils/text';
+import PublicContent from '../../../components/Content/PublicContent.astro';
+import HiddenContent from '../../../components/Content/HiddenContent.astro';
 import { getCollection } from 'astro:content';
 
 const supplementsCollection = await getCollection('supplements');

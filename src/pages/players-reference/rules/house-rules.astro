@@ -1,7 +1,7 @@
 ---
 import { getEntry } from 'astro:content';
-import ArticleLayout from '../../layouts/ArticleLayout.astro';
-import { renderMarkdown } from '../../utils/markdown';
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import { renderMarkdown } from '../../../utils/markdown';
 
 const article = await getEntry('articles', 'house-rules');
 if (!article) {
