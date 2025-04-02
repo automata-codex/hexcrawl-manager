@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import SecretLayout from '../../layouts/SecretLayout.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
 
 const encounterData = await getCollection('encounters');
 const encounters = encounterData.sort((a, b) => a.data.name.localeCompare(b.data.name));
@@ -50,7 +50,7 @@ function formatEncounterName(encounterId: string, encounterName: string) {
   <ul>
     {encounters.map((encounter) => (
       <li>
-        <a href=`/encounters/${encounter.id}`>
+        <a href=`/gm-reference/encounters/${encounter.id}`>
           <Fragment set:html={formatEncounterName(encounter.id, encounter.data.name)} />
         </a>
       </li>

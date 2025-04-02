@@ -81,18 +81,18 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           items: [
             { label: 'Baruun Khil (Locations)', href: '/images/maps/gm-map-with-locations.png' },
             { label: 'Baruun Khil (Terrain)', href: '/images/maps/gm-map-with-terrain.png' },
-            { label: 'Kobold Caves', href: '/gm-notes/kobold-caves' },
+            { label: 'Kobold Caves', href: '/session-toolkit/maps/kobold-caves' },
           ],
         },
-        { id: 'rumors', label: 'Rumors', href: '/gm-notes/rumors' },
-        { id: 'treasure', label: 'Treasure', href: '/gm-notes/treasure' },
-        { id: 'timeline', label: 'Timeline', href: '/gm-notes/timeline' },
+        { id: 'rumors', label: 'Rumors', href: '/session-toolkit/rumors' },
+        { id: 'treasure', label: 'Treasure', href: '/session-toolkit/treasure' },
+        { id: 'timeline', label: 'Timeline', href: '/session-toolkit/timeline' },
         {
           id: 'minigames',
           label: 'Minigames',
           expandable: true,
           items: [
-            { label: 'Griffon Hunt', href: '/minigames/griffon-hunt' },
+            { label: 'Griffon Hunt', href: '/session-toolkit/minigames/griffon-hunt' },
           ],
         },
       ],
@@ -101,11 +101,11 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       id: 'gm-reference',
       label: 'GM Reference',
       items: [
-        { id: 'characters', label: 'Characters', href: '/characters' },
-        { id: 'dungeons', label: 'Dungeons', href: '/dungeons' },
-        { id: 'encounters', label: 'Encounters', href: '/encounters' },
-        { id: 'factions', label: 'Factions', href: '/gm-notes/factions' },
-        { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: '/setting/vaulridge-nobility' },
+        { id: 'characters', label: 'Characters', href: '/gm-reference/characters' },
+        { id: 'dungeons', label: 'Dungeons', href: '/gm-reference/dungeons' },
+        { id: 'encounters', label: 'Encounters', href: '/gm-reference/encounters' },
+        { id: 'factions', label: 'Factions', href: '/gm-reference/factions' },
+        { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
       ],
     }
   ];

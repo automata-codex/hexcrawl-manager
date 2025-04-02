@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
-import SecretLayout from '../../layouts/SecretLayout.astro';
-import CharacterDetails from '../../components/CharacterDetails.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import CharacterDetails from '../../../components/CharacterDetails.astro';
 
 const charactersData = await getCollection('characters');
 const characters = charactersData

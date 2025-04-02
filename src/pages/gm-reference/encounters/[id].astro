@@ -1,11 +1,11 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 
-import SecretLayout from '../../layouts/SecretLayout.astro';
-import StatBlock from '../../components/StatBlock/StatBlock.astro';
-import { renderMarkdown } from '../../utils/markdown';
-import { formatText } from '../../utils/text';
-import type { RandomEncounterData } from '../../types';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import StatBlock from '../../../components/StatBlock/StatBlock.astro';
+import { renderMarkdown } from '../../../utils/markdown';
+import { formatText } from '../../../utils/text';
+import type { RandomEncounterData } from '../../../types';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;

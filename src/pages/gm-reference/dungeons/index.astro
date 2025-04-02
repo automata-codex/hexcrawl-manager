@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
-import SecretArticleLayout from '../../layouts/SecretArticleLayout.astro';
-import DungeonDetails from '../../components/DungeonDetails.astro';
+import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+import DungeonDetails from '../../../components/DungeonDetails.astro';
 
 const dungeonData = await getCollection('dungeons');
 const dungeons = dungeonData
