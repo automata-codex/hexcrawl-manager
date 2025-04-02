@@ -5,15 +5,56 @@ import type { SidebarSection } from '../types.ts';
 export function getSidebarSections(role: string|null): SidebarSection[] {
   const shared: SidebarSection[] = [
     {
-      id: 'playersGuide',
+      id: 'players-guide',
       label: 'Player’s Guide',
       items: [
-        { id: 'heritage', label: 'Heritage', href: '/heritage' },
-        { id: 'class', label: 'Class', href: '/class' },
-        { id: 'goals', label: 'Goals', href: '/goals' },
-        { id: 'level-up', label: 'Level Up', href: '/level-up' }
+        { id: 'heritage', label: 'Heritage', href: '/characters/ancestries-and-cultures' },
+        { id: 'class', label: 'Class', href: '/characters/classes' },
+        { id: 'goals', label: 'Goals', href: '/characters/character-goals' },
+        { id: 'advancement', label: 'Advancement', href: '/characters/advancement' },
       ],
-    }
+    },
+    {
+      id: 'players-reference',
+      label: 'Player’s Reference',
+      items: [
+        { id: 'progress', label: 'Progress Tracker', href: '/characters/progress' },
+        {
+          id: 'player-setting',
+          label: 'Setting',
+          expandable: true,
+          items: [
+            { label: 'The Known World', href: '/setting/known-world' },
+            { label: 'Nobility of Vaulridge', href: '/setting/vaulridge-nobility' },
+            { label: 'Baruun Khil, the Western Frontier', href: '/setting/western-frontier' },
+            { label: 'Explored Hexes', href: '/setting/baruun-khil-map' },
+            { label: 'NPCs', href: '/npcs' },
+            { label: 'Bounty Board', href: '/player-notes/bounty-board' },
+          ],
+        },
+        {
+          id: 'player-maps',
+          label: 'Maps',
+          expandable: true,
+          items: [
+            { label: 'The Known World', href: '/setting/known-world' },
+            { label: 'Baruun Khil, the Western Frontier', href: '/setting/baruun-khil-map' },
+          ],
+        },
+        {
+          id: 'player-rules',
+          label: 'Rules',
+          expandable: true,
+          items: [
+            { label: 'House Rules', href: '/rules/house-rules' },
+            { label: 'Character Advancement', href: '/characters/advancement' },
+            { label: 'Havens', href: '/rules/havens' },
+            { label: 'Third-party Supplements', href: '/rules/supplements' },
+          ],
+        },
+        { id: 'session-notes', label: 'Session Notes', href: '/player-notes/sessions' },
+      ],
+    },
   ];
 
   const gmOnly: SidebarSection[] = [
