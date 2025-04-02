@@ -59,22 +59,41 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
 
   const gmOnly: SidebarSection[] = [
     {
-      id: 'reference',
-      label: 'GM Reference',
+      id: 'session-toolkit',
+      label: 'Session Toolkit',
       items: [
+        { id: 'map-regions', label: 'Map Regions', href: '/regions' },
+        { id: 'hex-catalog', label: 'Hex Catalog', href: '/hexes' },
+        { id: 'scaling-encounters', label: 'Scaling Encounters', href: '/gm-notes/scaling-encounters' },
         {
-          label: 'Regions',
+          id: 'clues',
+          label: 'Clues',
           expandable: true,
-          id: 'regions',
           items: [
-            { label: 'Region 01', href: '/regions/01' },
-            { label: 'Region 02', href: '/regions/02' },
-            { label: 'Region 03', href: '/regions/03' }
-          ]
+            { label: 'Fixed Clues', href: '/gm-notes/fixed-clues' },
+            { label: 'Floating Clues', href: '/gm-notes/floating-clues' },
+          ],
         },
-        { id: 'rumors', label: 'Rumors', href: '/rumors' },
-        { id: 'clues', label: 'Clues', href: '/clues' },
-        { id: 'timeline', label: 'Timeline', href: '/timeline' }
+        {
+          id: 'gm-maps',
+          label: 'Maps',
+          expandable: true,
+          items: [
+            { label: 'Map with Locations', href: '/images/maps/gm-map-with-locations.png' },
+            { label: 'Map with Terrain', href: '/images/maps/gm-map-with-terrain.png' },
+          ],
+        },
+        { id: 'rumors', label: 'Rumors', href: '/gm-notes/rumors' },
+        { id: 'treasure', label: 'Treasure', href: '/gm-notes/treasure' },
+        { id: 'timeline', label: 'Timeline', href: '/gm-notes/timeline' },
+        {
+          id: 'minigames',
+          label: 'Minigames',
+          expandable: true,
+          items: [
+            { label: 'Griffon Hunt', href: '/minigames/griffon-hunt' },
+          ],
+        },
       ],
     },
     {
