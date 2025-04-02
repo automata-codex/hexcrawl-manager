@@ -2,6 +2,7 @@ p {
     text-indent: var(--skyreach-standard-indent);
 }
 
+p.first-child,
 p:first-child,
 h2 + p,
 h3 + p,
