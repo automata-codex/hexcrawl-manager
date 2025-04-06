@@ -62,6 +62,7 @@ const articles = defineCollection({
   loader: glob({ pattern: "**/*.md", base: DIRS.ARTICLES }),
   schema: z.object({
     title: z.string(),
+    secure: z.boolean().optional(),
   }),
 });
 
