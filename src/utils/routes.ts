@@ -89,7 +89,23 @@ export const ROUTES = {
   },
 } as const;
 
-export function getHexUrl(hexId: string): string {
+interface RouteData {
+  slug: string;
+  path: string;
+}
+
+export const ARTICLE_ROUTES: RouteData[] = [
+  {
+    slug: 'ancestries-and-cultures',
+    path: ROUTES.playersGuide.ancestriesAndCultures,
+  },
+];
+
+export function getDungeonPath(dungeonId: string): string {
+  return interpolateRoute(ROUTES.gmReference.dungeons.id, { id: dungeonId });
+}
+
+export function getHexPath(hexId: string): string {
   return interpolateRoute(ROUTES.sessionToolkit.hexes.id, { id: hexId });
 }
 

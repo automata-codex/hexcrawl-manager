@@ -3,6 +3,7 @@ import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
 import { getCollection } from 'astro:content';
 import type { HexData } from '../../types';
+import { getDungeonPath } from '../../utils/routes';
 
 interface Props {
   hex: HexData;
@@ -21,7 +22,7 @@ const dungeonIcon = icon(faDungeon);
 ---
 <div>
   {dungeons.map(dungeon => (
-    <a href={`/dungeons/${dungeon.id}`} title={dungeon.data.name}>
+    <a href={getDungeonPath(dungeon.id)} title={dungeon.data.name}>
       <Fragment set:html={dungeonIcon.html} />
     </a>
   ))}

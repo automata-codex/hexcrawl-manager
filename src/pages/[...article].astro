@@ -1,0 +1,35 @@
+---
+import { ARTICLE_ROUTES } from '../utils/routes';
+import { getEntry } from 'astro:content';
+import ArticleLayout from '../layouts/ArticleLayout.astro';
+import SecretArticleLayout from '../layouts/SecretArticleLayout.astro';
+import { renderMarkdown } from '../utils/markdown';
+
+const currentPath = Astro.url.pathname;
+const route = ARTICLE_ROUTES.find((r) => r.path === currentPath);
+if (!route) throw new Error(`No phrasebook route for ${currentPath}`);
+
+const article = await getEntry('articles', route.slug);
+if (article === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+const isSecure = article.data.secure ?? false;
+const title = article.data.title;
+---
+{isSecure ? (
+  <SecretArticleLayout title={title}>
+    <article>
+      <Fragment set:html={renderMarkdown(article.body ?? '')} />
+    </article>
+  </SecretArticleLayout>
+) : (
+  <ArticleLayout title={title}>
+    <article>
+      <Fragment set:html={renderMarkdown(article.body ?? '')} />
+    </article>
+  </ArticleLayout>
+)}
