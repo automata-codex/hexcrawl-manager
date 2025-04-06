@@ -107,6 +107,30 @@ export const ARTICLE_ROUTES: RouteData[] = [
     slug: 'character-goals',
     path: ROUTES.playersGuide.characterGoals,
   },
+  {
+    slug: 'griffon-hunt',
+    path: ROUTES.sessionToolkit.minigames.griffonHunt,
+  },
+  {
+    slug: 'house-rules',
+    path: ROUTES.playersReference.rules.houseRules,
+  },
+  {
+    slug: 'kobold-caves',
+    path: ROUTES.sessionToolkit.maps.koboldCaves,
+  },
+  {
+    slug: 'scaling-encounters',
+    path: ROUTES.sessionToolkit.scalingEncounters,
+  },
+  {
+    slug: 'western-frontier',
+    path: ROUTES.playersReference.setting.westernFrontier,
+  },
+  {
+    slug: 'western-frontier-gms-notes',
+    path: ROUTES.gmReference.westernFrontierGmsNotes,
+  },
 ];
 
 export function getDungeonPath(dungeonId: string): string {
