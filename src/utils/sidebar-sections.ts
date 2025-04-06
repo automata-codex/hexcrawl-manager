@@ -102,9 +102,19 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       label: 'GM Reference',
       items: [
         { id: 'characters', label: 'Characters', href: '/gm-reference/characters' },
+        { id: 'cosmology', label: 'Cosmology', href: '/gm-reference/cosmology' },
         { id: 'dungeons', label: 'Dungeons', href: '/gm-reference/dungeons' },
         { id: 'encounters', label: 'Encounters', href: '/gm-reference/encounters' },
         { id: 'factions', label: 'Factions', href: '/gm-reference/factions' },
+        {
+          id: 'first-civilization',
+          label: 'First Civilization',
+          expandable: true,
+          items: [
+            { label: 'The Velari', href: '/gm-reference/first-civilization/the-velari' },
+            { label: 'The Catastrophe and Aftermath', href: '/gm-reference/first-civilization/catastrophe-and-aftermath' },
+          ],
+        },
         { id: 'gm-notes-western-frontier', label: 'GM\'s Notes on Baruun Khil', href: '/gm-reference/western-frontier-gms-notes' },
         { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
       ],

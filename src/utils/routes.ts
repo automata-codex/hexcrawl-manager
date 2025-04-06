@@ -5,6 +5,7 @@ export const ROUTES = {
       all: '/gm-reference/characters/all',
       index: '/gm-reference/characters/index',
     },
+    cosmology: '/gm-reference/cosmology',
     dungeons: {
       id: '/gm-reference/dungeons/[id]',
       index: '/gm-reference/dungeons/index',
@@ -15,6 +16,10 @@ export const ROUTES = {
     },
     factions: {
       index: '/gm-reference/factions/index',
+    },
+    firstCivilization: {
+      catastropheAndAftermath: '/gm-reference/first-civilization/catastrophe-and-aftermath',
+      velari: '/gm-reference/first-civilization/the-velari',
     },
     westernFrontierGmsNotes: '/gm-reference/western-frontier-gms-notes',
   },
@@ -100,12 +105,20 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.playersGuide.ancestriesAndCultures,
   },
   {
+    slug: 'catastrophe-and-aftermath',
+    path: ROUTES.gmReference.firstCivilization.catastropheAndAftermath,
+  },
+  {
     slug: 'character-advancement',
     path: ROUTES.playersGuide.advancement,
   },
   {
     slug: 'character-goals',
     path: ROUTES.playersGuide.characterGoals,
+  },
+  {
+    slug: 'cosmology',
+    path: ROUTES.gmReference.cosmology,
   },
   {
     slug: 'griffon-hunt',
@@ -122,6 +135,14 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'scaling-encounters',
     path: ROUTES.sessionToolkit.scalingEncounters,
+  },
+  {
+    slug: 'timeline',
+    path: ROUTES.sessionToolkit.timeline,
+  },
+  {
+    slug: 'velari',
+    path: ROUTES.gmReference.firstCivilization.velari,
   },
   {
     slug: 'western-frontier',
