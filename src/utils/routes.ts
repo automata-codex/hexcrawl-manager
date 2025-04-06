@@ -99,6 +99,14 @@ export const ARTICLE_ROUTES: RouteData[] = [
     slug: 'ancestries-and-cultures',
     path: ROUTES.playersGuide.ancestriesAndCultures,
   },
+  {
+    slug: 'character-advancement',
+    path: ROUTES.playersGuide.advancement,
+  },
+  {
+    slug: 'character-goals',
+    path: ROUTES.playersGuide.characterGoals,
+  },
 ];
 
 export function getDungeonPath(dungeonId: string): string {

@@ -7,7 +7,12 @@ import { renderMarkdown } from '../utils/markdown';
 
 const currentPath = Astro.url.pathname;
 const route = ARTICLE_ROUTES.find((r) => r.path === currentPath);
-if (!route) throw new Error(`No phrasebook route for ${currentPath}`);
+if (!route) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
 
 const article = await getEntry('articles', route.slug);
 if (article === undefined) {
