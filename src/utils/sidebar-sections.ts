@@ -1,6 +1,7 @@
 import { canAccess } from './auth.ts';
 import { SCOPES } from './constants.ts';
 import type { SidebarSection } from '../types.ts';
+import { ROUTES } from './routes.ts';
 
 export function getSidebarSections(role: string|null): SidebarSection[] {
   const shared: SidebarSection[] = [
@@ -85,6 +86,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           ],
         },
         { id: 'rumors', label: 'Rumors', href: '/session-toolkit/rumors' },
+        { id: 'scar-sites', label: 'Scar Sites', href: ROUTES.sessionToolkit.scarSites },
         { id: 'treasure', label: 'Treasure', href: '/session-toolkit/treasure' },
         { id: 'timeline', label: 'Timeline', href: '/session-toolkit/timeline' },
         {
@@ -113,6 +115,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           items: [
             { label: 'The Velari', href: '/gm-reference/first-civilization/the-velari' },
             { label: 'The Catastrophe and Aftermath', href: '/gm-reference/first-civilization/catastrophe-and-aftermath' },
+            { label: 'Scar Sites', href: ROUTES.sessionToolkit.scarSites },
           ],
         },
         { id: 'gm-notes-western-frontier', label: 'GM\'s Notes on Baruun Khil', href: '/gm-reference/western-frontier-gms-notes' },
