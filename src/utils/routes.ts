@@ -85,6 +85,7 @@ export const ROUTES = {
       index: '/session-toolkit/rumors/index',
     },
     scalingEncounters: '/session-toolkit/scaling-encounters',
+    scarSites: '/session-toolkit/scar-sites',
     timeline: '/session-toolkit/timeline',
     treasure: {
       id: '/session-toolkit/treasure/[id]',
@@ -135,6 +136,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'scaling-encounters',
     path: ROUTES.sessionToolkit.scalingEncounters,
+  },
+  {
+    slug: 'scar-sites',
+    path: ROUTES.sessionToolkit.scarSites,
   },
   {
     slug: 'timeline',
