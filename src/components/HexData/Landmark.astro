@@ -1,8 +1,8 @@
 ---
 import type { HexData } from '../../types';
-import { formatText } from '../../utils/text';
 import { canAccess, getCurrentUserRole } from '../../utils/auth';
 import { SCOPES } from '../../utils/constants';
+import { renderBulletMarkdown } from '../../utils/markdown';
 
 interface Props {
   hex: HexData;
@@ -17,5 +17,5 @@ if (canAccess(role, [SCOPES.PLAYER, SCOPES.PUBLIC]) && !hex.isVisited) {
 ---
 <div class="hanging-indent">
   <span class="inline-heading">Landmark:</span>{' '}
-  {formatText(hex.landmark)}
+  {renderBulletMarkdown(hex.landmark)}
 </div>
