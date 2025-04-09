@@ -23,6 +23,7 @@ export const ROUTES = {
       skyspire: '/gm-reference/first-civilization/the-skyspire',
       velari: '/gm-reference/first-civilization/the-velari',
     },
+    statBlocks: '/gm-reference/stat-blocks',
     westernFrontierGmsNotes: '/gm-reference/western-frontier-gms-notes',
   },
   index: '/index',

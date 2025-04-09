@@ -1,0 +1,62 @@
+---
+import { getCollection } from 'astro:content';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+const statBlocks = await getCollection('statBlocks');
+
+// Group into `family` and `ungrouped`
+const grouped = statBlocks.reduce((acc, block) => {
+    const { family } = block.data;
+    if (family) {
+      if (!acc.families[family]) {
+        acc.families[family] = [];
+      }
+      acc.families[family].push(block);
+    } else {
+      acc.ungrouped.push(block);
+    }
+    return acc;
+  },
+  {
+    families: {} as Record<string, typeof statBlocks[number][]>,
+    ungrouped: [] as typeof statBlocks
+  }
+);
+---
+<style>
+    .statblock-index {
+        padding-left: 1rem;
+    }
+
+    .statblock-index > li {
+        margin-bottom: 1rem;
+    }
+
+    .statblock-index ul {
+        margin-top: 0.25rem;
+        margin-left: 1rem;
+        list-style-type: circle;
+    }
+</style>
+<SecretLayout title="Stat Blocks">
+  <ul class="statblock-index">
+    {Object.entries(grouped.families).sort().map(([ family, entries ]) => (
+      <li>
+        <strong>{family}</strong>
+        <ul>
+          {entries
+            .sort((a, b) => a.data.name.localeCompare(b.data.name))
+            .map((entry) => (
+              <li><a href={`/statblocks/${entry.id}`}>{entry.data.name}</a></li>
+            ))}
+        </ul>
+      </li>
+    ))}
+
+    {grouped.ungrouped
+      .sort((a, b) => a.data.name.localeCompare(b.data.name))
+      .map((entry) => (
+        <li><a href={`/statblocks/${entry.id}`}>{entry.data.name}</a></li>
+      ))}
+  </ul>
+</SecretLayout>
