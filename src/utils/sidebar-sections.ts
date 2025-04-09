@@ -113,9 +113,11 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           label: 'First Civilization',
           expandable: true,
           items: [
-            { label: 'The Velari', href: '/gm-reference/first-civilization/the-velari' },
-            { label: 'The Catastrophe and Aftermath', href: '/gm-reference/first-civilization/catastrophe-and-aftermath' },
+            { label: 'The Velari', href: ROUTES.gmReference.firstCivilization.velari },
+            { label: 'The Catastrophe and Aftermath', href: ROUTES.gmReference.firstCivilization.catastropheAndAftermath },
             { label: 'Scar Sites', href: ROUTES.sessionToolkit.scarSites },
+            { label: 'The Skyspire', href: ROUTES.gmReference.firstCivilization.skyspire },
+            { label: 'Airships', href: ROUTES.gmReference.firstCivilization.airships },
           ],
         },
         { id: 'gm-notes-western-frontier', label: 'GM\'s Notes on Baruun Khil', href: '/gm-reference/western-frontier-gms-notes' },

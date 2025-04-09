@@ -18,7 +18,9 @@ export const ROUTES = {
       index: '/gm-reference/factions/index',
     },
     firstCivilization: {
+      airships: '/gm-reference/first-civilization/airships',
       catastropheAndAftermath: '/gm-reference/first-civilization/catastrophe-and-aftermath',
+      skyspire: '/gm-reference/first-civilization/the-skyspire',
       velari: '/gm-reference/first-civilization/the-velari',
     },
     westernFrontierGmsNotes: '/gm-reference/western-frontier-gms-notes',
@@ -102,6 +104,10 @@ interface RouteData {
 
 export const ARTICLE_ROUTES: RouteData[] = [
   {
+    slug: 'airships',
+    path: ROUTES.gmReference.firstCivilization.airships,
+  },
+  {
     slug: 'ancestries-and-cultures',
     path: ROUTES.playersGuide.ancestriesAndCultures,
   },
@@ -140,6 +146,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'scar-sites',
     path: ROUTES.sessionToolkit.scarSites,
+  },
+  {
+    slug: 'skyspire',
+    path: ROUTES.gmReference.firstCivilization.skyspire,
   },
   {
     slug: 'timeline',
