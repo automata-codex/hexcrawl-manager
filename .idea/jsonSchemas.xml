@@ -98,7 +98,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="hex-database" />
-              <option name="relativePathToSchema" value="schemas/hex-database.json" />
+              <option name="relativePathToSchema" value="schemas/hex-list.json" />
               <option name="patterns">
                 <list>
                   <Item>
