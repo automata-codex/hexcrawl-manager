@@ -4,6 +4,10 @@ import SecretLayout from '../../../layouts/SecretLayout.astro';
 
 const statBlocks = await getCollection('statBlocks');
 
+type DisplayEntry =
+  | { type: 'group'; label: string; entries: typeof statBlocks }
+  | { type: 'single'; label: string; entry: typeof statBlocks[number] };
+
 // Group into `family` and `ungrouped`
 const grouped = statBlocks.reduce((acc, block) => {
     const { family, family_name } = block.data;
@@ -27,6 +31,21 @@ const grouped = statBlocks.reduce((acc, block) => {
     ungrouped: [] as typeof statBlocks
   }
 );
+
+// Put all entries into a flat list, sorted by label
+const displayEntries: DisplayEntry[] = [
+  ...Object.entries(grouped.families).map(([slug, entries]) => ({
+    type: 'group',
+    label: grouped.familyNames[slug],
+    entries,
+  } as const)),
+  ...grouped.ungrouped.map((entry) => ({
+    type: 'single',
+    label: entry.data.name,
+    entry,
+  } as const)),
+].sort((a, b) => a.label.localeCompare(b.label));
+
 ---
 <style>
     .statblock-index {
@@ -45,23 +64,21 @@ const grouped = statBlocks.reduce((acc, block) => {
 </style>
 <SecretLayout title="Stat Blocks">
   <ul class="statblock-index">
-    {Object.entries(grouped.families).sort().map(([ family, entries ]) => (
-      <li>
-        <strong>{grouped.familyNames[family]}</strong>
-        <ul>
-          {entries
-            .sort((a, b) => a.data.name.localeCompare(b.data.name))
-            .map((entry) => (
-              <li><a href={`/statblocks/${entry.id}`}>{entry.data.name}</a></li>
-            ))}
-        </ul>
-      </li>
-    ))}
-
-    {grouped.ungrouped
-      .sort((a, b) => a.data.name.localeCompare(b.data.name))
-      .map((entry) => (
-        <li><a href={`/statblocks/${entry.id}`}>{entry.data.name}</a></li>
-      ))}
+    {displayEntries.map((item) =>
+      item.type === 'group' ? (
+        <li>
+          <strong>{item.label}</strong>
+          <ul>
+            {item.entries
+              .sort((a, b) => a.data.name.localeCompare(b.data.name))
+              .map((entry) => (
+                <li><a href={`/statblocks/${entry.id}`}>{entry.data.name}</a></li>
+              ))}
+          </ul>
+        </li>
+      ) : (
+        <li><a href={`/statblocks/${item.entry.id}`}>{item.label}</a></li>
+      )
+    )}
   </ul>
 </SecretLayout>
