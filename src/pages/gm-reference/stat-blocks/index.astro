@@ -6,10 +6,14 @@ const statBlocks = await getCollection('statBlocks');
 
 // Group into `family` and `ungrouped`
 const grouped = statBlocks.reduce((acc, block) => {
-    const { family } = block.data;
+    const { family, family_name } = block.data;
     if (family) {
       if (!acc.families[family]) {
         acc.families[family] = [];
+        acc.familyNames[family] =
+          family_name ??
+          statBlocks.find(e => e.data.family === family && e.data.family_name)?.data.family_name ??
+          family.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
       }
       acc.families[family].push(block);
     } else {
@@ -19,6 +23,7 @@ const grouped = statBlocks.reduce((acc, block) => {
   },
   {
     families: {} as Record<string, typeof statBlocks[number][]>,
+    familyNames: {} as Record<string, string>,
     ungrouped: [] as typeof statBlocks
   }
 );
@@ -42,7 +47,7 @@ const grouped = statBlocks.reduce((acc, block) => {
   <ul class="statblock-index">
     {Object.entries(grouped.families).sort().map(([ family, entries ]) => (
       <li>
-        <strong>{family}</strong>
+        <strong>{grouped.familyNames[family]}</strong>
         <ul>
           {entries
             .sort((a, b) => a.data.name.localeCompare(b.data.name))

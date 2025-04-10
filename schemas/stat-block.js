@@ -125,6 +125,7 @@ export const StatBlockSchema = z.object({
   subtype: z.string().optional(),
   group: z.string().nullable().optional(),
   family: z.string().nullable().optional(),
+  family_name: z.string().nullable().optional(),
   alignment: z.enum([
     'any',
     'unaligned',
