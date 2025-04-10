@@ -122,7 +122,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
         },
         { id: 'gm-notes-western-frontier', label: 'GM\'s Notes on Baruun Khil', href: '/gm-reference/western-frontier-gms-notes' },
         { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
-        { id: 'stat-blocks', label: 'Stat Blocks', href: ROUTES.gmReference.statBlocks },
+        { id: 'stat-blocks', label: 'Stat Blocks', href: ROUTES.gmReference.statBlocks.index },
       ],
     }
   ];

@@ -1,0 +1,36 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import type { StatBlockData } from '../../../types';
+import { renderBulletMarkdown } from '../../../utils/markdown';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import StatBlock from '../../../components/StatBlock/StatBlock.astro';
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+// Query for the entry directly using the request slug
+// const statBlockData = await getEntry('statBlocks', id);
+const statBlockData = await getCollection('statBlocks').then((blocks) =>
+  blocks.find((block) => block.id === id)
+);
+
+// Redirect if the entry does not exist
+if (statBlockData === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+const statBlock: StatBlockData = statBlockData.data;
+const title = `Stat Block: ${await renderBulletMarkdown(statBlock.name)}`;
+---
+<SecretLayout title={title}>
+  <StatBlock data={statBlock} />
+</SecretLayout>

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { getStatBlockPath } from '../../../utils/routes';
 
 const statBlocks = await getCollection('statBlocks');
 
@@ -62,12 +63,12 @@ const displayEntries: DisplayEntry[] = [
             {item.entries
               .sort((a, b) => a.data.name.localeCompare(b.data.name))
               .map((entry) => (
-                <li><a href={`/stat-blocks/${entry.id}`}>{entry.data.name}</a></li>
+                <li><a href={getStatBlockPath(entry.id)}>{entry.data.name}</a></li>
               ))}
           </ul>
         </li>
       ) : (
-        <li><a href={`/stat-blocks/${item.entry.id}`}>{item.label}</a></li>
+        <li><a href={getStatBlockPath(item.entry.id)}>{item.label}</a></li>
       )
     )}
   </ul>

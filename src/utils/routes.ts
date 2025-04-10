@@ -23,7 +23,10 @@ export const ROUTES = {
       skyspire: '/gm-reference/first-civilization/the-skyspire',
       velari: '/gm-reference/first-civilization/the-velari',
     },
-    statBlocks: '/gm-reference/stat-blocks',
+    statBlocks: {
+      id: '/gm-reference/stat-blocks/[id]',
+      index: '/gm-reference/stat-blocks',
+    },
     westernFrontierGmsNotes: '/gm-reference/western-frontier-gms-notes',
   },
   index: '/index',
@@ -176,6 +179,10 @@ export function getDungeonPath(dungeonId: string): string {
 
 export function getHexPath(hexId: string): string {
   return interpolateRoute(ROUTES.sessionToolkit.hexes.id, { id: hexId });
+}
+
+export function getStatBlockPath(statBlockId: string): string {
+  return interpolateRoute(ROUTES.gmReference.statBlocks.id, { id: statBlockId });
 }
 
 export function interpolateRoute(route: string, params: Record<string, string>): string {
