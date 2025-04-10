@@ -177,6 +177,10 @@ export function getDungeonPath(dungeonId: string): string {
   return interpolateRoute(ROUTES.gmReference.dungeons.id, { id: dungeonId });
 }
 
+export function getEncounterPath(encounterId: string): string {
+  return interpolateRoute(ROUTES.gmReference.encounters.id, { id: encounterId });
+}
+
 export function getHexPath(hexId: string): string {
   return interpolateRoute(ROUTES.sessionToolkit.hexes.id, { id: hexId });
 }

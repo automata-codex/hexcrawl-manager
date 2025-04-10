@@ -1,9 +1,11 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
+
+import StatBlock from '../../../components/StatBlock/StatBlock.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
 import type { StatBlockData } from '../../../types';
 import { renderBulletMarkdown } from '../../../utils/markdown';
-import SecretLayout from '../../../layouts/SecretLayout.astro';
-import StatBlock from '../../../components/StatBlock/StatBlock.astro';
+import { getEncounterPath } from '../../../utils/routes';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -15,10 +17,7 @@ if (!id) {
 }
 
 // Query for the entry directly using the request slug
-// const statBlockData = await getEntry('statBlocks', id);
-const statBlockData = await getCollection('statBlocks').then((blocks) =>
-  blocks.find((block) => block.id === id)
-);
+const statBlockData = await getEntry('statBlocks', id);
 
 // Redirect if the entry does not exist
 if (statBlockData === undefined) {
@@ -28,9 +27,27 @@ if (statBlockData === undefined) {
   });
 }
 
+const allEncounters = await getCollection('encounters');
+const encounters = allEncounters
+  .filter((encounter) =>
+    encounter.data.statBlocks.includes(statBlockData.id)
+  )
+  .map(encounter => ({
+    id: encounter.id,
+    name: encounter.data.name
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+const encounterList = encounters.map(e => `<a href=${getEncounterPath(e.id)}>${e.name}</a>`).join(', ');
+
 const statBlock: StatBlockData = statBlockData.data;
 const title = `Stat Block: ${await renderBulletMarkdown(statBlock.name)}`;
 ---
 <SecretLayout title={title}>
+  {encounters.length > 0 &&
+    <p>
+      Encounters with this stat block:
+      <Fragment set:html={encounterList} />
+    </p>
+  }
   <StatBlock data={statBlock} />
 </SecretLayout>
