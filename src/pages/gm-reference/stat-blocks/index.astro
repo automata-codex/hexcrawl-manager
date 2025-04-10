@@ -45,39 +45,29 @@ const displayEntries: DisplayEntry[] = [
     entry,
   } as const)),
 ].sort((a, b) => a.label.localeCompare(b.label));
-
 ---
 <style>
-    .statblock-index {
-        padding-left: 1rem;
-    }
-
-    .statblock-index > li {
-        margin-bottom: 1rem;
-    }
-
-    .statblock-index ul {
-        margin-top: 0.25rem;
-        margin-left: 1rem;
-        list-style-type: circle;
+    .stat-block-index {
+        columns: 3;
+        margin-top: 0;
     }
 </style>
 <SecretLayout title="Stat Blocks">
-  <ul class="statblock-index">
+  <ul class="stat-block-index">
     {displayEntries.map((item) =>
       item.type === 'group' ? (
         <li>
-          <strong>{item.label}</strong>
+          {item.label}
           <ul>
             {item.entries
               .sort((a, b) => a.data.name.localeCompare(b.data.name))
               .map((entry) => (
-                <li><a href={`/statblocks/${entry.id}`}>{entry.data.name}</a></li>
+                <li><a href={`/stat-blocks/${entry.id}`}>{entry.data.name}</a></li>
               ))}
           </ul>
         </li>
       ) : (
-        <li><a href={`/statblocks/${item.entry.id}`}>{item.label}</a></li>
+        <li><a href={`/stat-blocks/${item.entry.id}`}>{item.label}</a></li>
       )
     )}
   </ul>
