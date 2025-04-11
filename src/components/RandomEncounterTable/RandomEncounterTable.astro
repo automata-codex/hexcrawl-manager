@@ -1,10 +1,17 @@
 ---
 import { defaultEncounterTable } from '../../../data/encounters/default-encounter-table';
+import type { EncounterTableData } from '../../types';
 import { buildWeightedRanges } from '../../utils/encounters';
 
 import CategoryContainer from './CategoryContainer.astro';
 
-const mainRolls = buildWeightedRanges(defaultEncounterTable.mainTable, (e) => e.weight ?? 1);
+interface Props {
+  data?: EncounterTableData;
+}
+
+const { data = defaultEncounterTable } = Astro.props;
+
+const mainRolls = buildWeightedRanges(data.mainTable, (e) => e.weight ?? 1);
 ---
 <style is:global>
     table {
@@ -53,9 +60,9 @@ const mainRolls = buildWeightedRanges(defaultEncounterTable.mainTable, (e) => e.
   ))}
   </tbody>
 </table>
-{Object.entries(defaultEncounterTable.categoryTables).map(
+{Object.entries(data.categoryTables).map(
   ([category, table]) => {
-    const categoryData = defaultEncounterTable.mainTable.find(c => c.category === category);
+    const categoryData = data.mainTable.find(c => c.category === category);
     if (!categoryData) {
       return null;
     }
