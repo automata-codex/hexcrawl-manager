@@ -1,8 +1,9 @@
 import { z } from 'zod';
 
-export const RandomEncounterSchema = z.object({
+export const EncounterEntrySchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
-  statBlocks: z.array(z.string())
+  statBlocks: z.array(z.string()),
+  weight: z.number().default(1),
 }).describe('Detail about a random encounter');

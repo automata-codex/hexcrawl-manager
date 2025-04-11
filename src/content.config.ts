@@ -7,19 +7,33 @@ import { BountySchema } from '../schemas/bounty';
 import { CharacterSchema } from '../schemas/character';
 import { ClassSchema } from '../schemas/class';
 import { DungeonDataSchema } from '../schemas/dungeon';
+import { EncounterEntrySchema } from '../schemas/encounter-entry';
 import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { HexSchema } from '../schemas/hex';
 import { NpcSchema } from '../schemas/npc';
 import { PlayerSchema } from '../schemas/player';
-import { RandomEncounterSchema } from '../schemas/random-encounter';
 import { RegionSchema } from '../schemas/region';
 import { RumorSchema } from '../schemas/rumor';
 import { SessionSchema } from '../schemas/session';
 import { StatBlockSchema } from '../schemas/stat-block';
 import { SupplementSchema } from '../schemas/supplement-list';
 import { TreasureSchema } from '../schemas/treasure';
-import type { HexData, RandomEncounterData, RegionData, StatBlockData } from './types.ts';
+import type {
+  BountyData,
+  ClassData,
+  EncounterEntryData,
+  FactionData,
+  FloatingClueData,
+  HexData,
+  NpcData,
+  PlayerData,
+  RegionData,
+  RumorData,
+  StatBlockData,
+  SupplementData,
+  TreasureData,
+} from './types.ts';
 
 const DATA_DIR = 'data';
 
@@ -59,7 +73,7 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
 }
 
 const articles = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: DIRS.ARTICLES }),
+  loader: glob({ pattern: '**/*.md', base: DIRS.ARTICLES }),
   schema: z.object({
     title: z.string(),
     secure: z.boolean().optional(),
@@ -67,26 +81,26 @@ const articles = defineCollection({
 });
 
 const bounties = defineCollection({
-  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.BOUNTIES),
+  loader: getDirectoryYamlLoader<BountyData>(DIRS.BOUNTIES),
   schema: {
     ...BountySchema,
   },
 });
 
 const characters = defineCollection({
-  loader: glob({ pattern: "**/*.yml", base: DIRS.CHARACTERS }),
+  loader: glob({ pattern: '**/*.yml', base: DIRS.CHARACTERS }),
   schema: CharacterSchema,
 });
 
 const classes = defineCollection({
-  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.CLASSES),
+  loader: getDirectoryYamlLoader<ClassData>(DIRS.CLASSES),
   schema: {
     ...ClassSchema,
   },
 });
 
 const dungeons = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: DIRS.DUNGEONS }),
+  loader: glob({ pattern: '**/*.md', base: DIRS.DUNGEONS }),
   schema: {
     ...DungeonDataSchema,
     hexId: reference('hexes'),
@@ -94,35 +108,35 @@ const dungeons = defineCollection({
 });
 
 const encounters = defineCollection({
-  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.ENCOUNTERS),
+  loader: getDirectoryYamlLoader<EncounterEntryData>(DIRS.ENCOUNTERS),
   schema: {
-    ...RandomEncounterSchema,
+    ...EncounterEntrySchema,
   },
 });
 
 const factions = defineCollection({
-  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.FACTIONS),
+  loader: getDirectoryYamlLoader<FactionData>(DIRS.FACTIONS),
   schema: {
     ...FactionSchema,
   },
 });
 
 const fixedClues = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: DIRS.FIXED_CLUES }),
+  loader: glob({ pattern: '**/*.md', base: DIRS.FIXED_CLUES }),
   schema: z.object({
     title: z.string(),
   }),
 });
 
 const floatingClues = defineCollection({
-  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.FLOATING_CLUES),
+  loader: getDirectoryYamlLoader<FloatingClueData>(DIRS.FLOATING_CLUES),
   schema: {
     ...FloatingClueSchema,
   },
 });
 
 const gmNotes = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: DIRS.GM_NOTES }),
+  loader: glob({ pattern: '**/*.md', base: DIRS.GM_NOTES }),
   schema: z.object({
     title: z.string(),
   }),
@@ -137,14 +151,14 @@ const hexes = defineCollection({
 });
 
 const npcs = defineCollection({
-  loader: getDirectoryYamlLoader<RegionData>(DIRS.NPCS),
+  loader: getDirectoryYamlLoader<NpcData>(DIRS.NPCS),
   schema: {
     ...NpcSchema,
   },
 });
 
 const players = defineCollection({
-  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.PLAYERS),
+  loader: getDirectoryYamlLoader<PlayerData>(DIRS.PLAYERS),
   schema: {
     ...PlayerSchema,
   },
@@ -158,14 +172,14 @@ const regions = defineCollection({
 });
 
 const rumors = defineCollection({
-  loader: getDirectoryYamlLoader<RegionData>(DIRS.RUMORS),
+  loader: getDirectoryYamlLoader<RumorData>(DIRS.RUMORS),
   schema: {
     ...RumorSchema,
   },
 });
 
 const sessions = defineCollection({
-  loader: glob({ pattern: "**/*.yml", base: DIRS.SESSIONS }),
+  loader: glob({ pattern: '**/*.yml', base: DIRS.SESSIONS }),
   schema: {
     ...SessionSchema,
   },
@@ -179,14 +193,14 @@ const statBlocks = defineCollection({
 });
 
 const supplements = defineCollection({
-  loader: getDirectoryYamlLoader<StatBlockData>(DIRS.SUPPLEMENTS),
+  loader: getDirectoryYamlLoader<SupplementData>(DIRS.SUPPLEMENTS),
   schema: {
     ...SupplementSchema,
   },
 });
 
 const treasure = defineCollection({
-  loader: getDirectoryYamlLoader<RandomEncounterData>(DIRS.TREASURE),
+  loader: getDirectoryYamlLoader<TreasureData>(DIRS.TREASURE),
   schema: {
     ...TreasureSchema,
   },
