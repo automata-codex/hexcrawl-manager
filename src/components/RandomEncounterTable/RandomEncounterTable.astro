@@ -6,26 +6,56 @@ import CategoryTable from './CategoryTable.astro';
 
 const mainRolls = buildWeightedRanges(defaultEncounterTable.mainTable, (e) => e.weight ?? 1);
 ---
+<style is:global>
+    table {
+        border-spacing: 0;
+        margin-top: 1rem;
+    }
+    td, th {
+        border-bottom: 1px solid var(--bulma-border);
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+    th {
+        border-top: 1px solid var(--bulma-border);
+    }
+
+    .col-1 {
+        padding-right: 1rem;
+        padding-left: 1rem;
+        text-align: center !important;
+    }
+    .col-2 {
+        padding-right: 1rem;
+        text-align: left !important;
+    }
+    .col-3 {
+        padding-right: 1rem;
+        text-align: center !important;
+    }
+</style>
+
 <table class="encounter-table">
   <thead>
   <tr>
-    <th>Roll</th>
-    <th>Category</th>
-    <th>Chance</th>
+    <th class="col-1">Roll</th>
+    <th class="col-2">Category</th>
+    <th class="col-3">Probability</th>
   </tr>
   </thead>
   <tbody>
   {mainRolls.map(({ range, entry }) => (
     <tr>
-      <td>{range}</td>
-      <td>{entry.category}</td>
-      <td>{((entry.weight ?? 1) / 20 * 100).toFixed(1)}%</td>
+      <td class="col-1">{range}</td>
+      <td class="col-2">{entry.category}</td>
+      <td class="col-3">{((entry.weight ?? 1) / 20 * 100).toFixed(1)}%</td>
     </tr>
   ))}
   </tbody>
 </table>
 {Object.entries(defaultEncounterTable.categoryTables).map(
-  ([category, table]) => (
-    <CategoryTable label={category} table={table} />
-  )
+  ([category, table]) => {
+    const weight = defaultEncounterTable.mainTable.find(c => c.category === category)?.weight ?? 1;
+    return <CategoryTable label={category} table={table} weight={weight} />
+  }
 )}

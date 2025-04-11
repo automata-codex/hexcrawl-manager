@@ -3,14 +3,15 @@ import { getCollection } from 'astro:content';
 import { buildWeightedRanges, validateWeightTotal } from '../../utils/encounters';
 
 interface Props {
-  tier: string;
   entries: {
     encounterId: string;
     weight?: number;
   }[];
+  tier: string;
+  weight: number;
 }
 
-const { tier, entries } = Astro.props;
+const { tier, entries, weight } = Astro.props;
 
 const encounters = await getCollection('encounters');
 const warning = validateWeightTotal(entries, (e) => e.weight ?? 1);
@@ -21,9 +22,9 @@ const subRolls = buildWeightedRanges(entries, (e) => e.weight ?? 1);
 <table class="encounter-table">
   <thead>
   <tr>
-    <th>Roll</th>
-    <th>Encounter</th>
-    <th>Description</th>
+    <th class="col-1">Roll</th>
+    <th class="col-2">Encounter</th>
+    <th class="col-3">Probability</th>
   </tr>
   </thead>
   <tbody>
@@ -31,9 +32,11 @@ const subRolls = buildWeightedRanges(entries, (e) => e.weight ?? 1);
     const encounter = encounters.find((e) => e.id === entry.encounterId);
     return (
       <tr>
-        <td>{range}</td>
-        <td>{encounter?.data.name ?? entry.encounterId}</td>
-        <td>{((entry.weight ?? 1) / 20 * 100).toFixed(1)}%</td>
+        <td class="col-1">{range}</td>
+        <td class="col-2">{encounter?.data.name ?? entry.encounterId}</td>
+        <td class="col-3">
+          {(((entry.weight ?? 1) / 20) * (weight / 20) * 100).toFixed(1)}%
+        </td>
       </tr>
     );
   })}
