@@ -5,7 +5,7 @@ import { CharacterSchema } from '../schemas/character.js';
 import { ClassSchema } from '../schemas/class.js';
 import { FactionListSchema } from '../schemas/faction.js';
 import { FloatingClueListSchema } from '../schemas/floating-clue-list.js';
-import { EncounterEntrySchema } from '../schemas/encounter-entry.js';
+import { EncounterSchema } from '../schemas/encounter.js';
 import { EncounterTableSchema } from '../schemas/encounter-table.js';
 import { HexListSchema } from '../schemas/hex-list.js';
 import { NpcSchema } from '../schemas/npc.js';
@@ -35,10 +35,10 @@ writeFileSync(
   JSON.stringify(zodToJsonSchema(ClassSchema), null, 2)
 );
 
-const encounterEntryFile = new URL('../schemas/encounter-entry.json', import.meta.url);
+const encounterEntryFile = new URL('../schemas/encounter.json', import.meta.url);
 writeFileSync(
   encounterEntryFile,
-  JSON.stringify(zodToJsonSchema(EncounterEntrySchema), null, 2)
+  JSON.stringify(zodToJsonSchema(EncounterSchema), null, 2)
 );
 
 const encounterTableFile = new URL('../schemas/encounter-table.json', import.meta.url);

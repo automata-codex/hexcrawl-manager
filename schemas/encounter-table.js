@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { EncounterEntrySchema } from './encounter-entry.js';
+
+export const EncounterEntrySchema = z.object({
+  encounterId: z.string(),
+  weight: z.number().default(1),
+});
 
 export const TieredSubtableSchema = z.record(z.string(), z.array(EncounterEntrySchema)); // keys: tier numbers as strings
 

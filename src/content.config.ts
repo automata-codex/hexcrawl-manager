@@ -7,7 +7,7 @@ import { BountySchema } from '../schemas/bounty';
 import { CharacterSchema } from '../schemas/character';
 import { ClassSchema } from '../schemas/class';
 import { DungeonDataSchema } from '../schemas/dungeon';
-import { EncounterEntrySchema } from '../schemas/encounter-entry';
+import { EncounterSchema } from '../schemas/encounter';
 import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { HexSchema } from '../schemas/hex';
@@ -22,7 +22,7 @@ import { TreasureSchema } from '../schemas/treasure';
 import type {
   BountyData,
   ClassData,
-  EncounterEntryData,
+  EncounterData,
   FactionData,
   FloatingClueData,
   HexData,
@@ -64,6 +64,9 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
     const DIRECTORY = path.join(process.cwd(), directory);
     const files = fs.readdirSync(DIRECTORY);
     const data = files.map(file => {
+      if (path.extname(file) !== '.yml' && path.extname(file) !== '.yaml') {
+        return [];
+      }
       const filePath = path.join(DIRECTORY, file);
       const fileContents = fs.readFileSync(filePath, 'utf8');
       return yaml.parse(fileContents);
@@ -108,9 +111,9 @@ const dungeons = defineCollection({
 });
 
 const encounters = defineCollection({
-  loader: getDirectoryYamlLoader<EncounterEntryData>(DIRS.ENCOUNTERS),
+  loader: getDirectoryYamlLoader<EncounterData>(DIRS.ENCOUNTERS),
   schema: {
-    ...EncounterEntrySchema,
+    ...EncounterSchema,
   },
 });
 

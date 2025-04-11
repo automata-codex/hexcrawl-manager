@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import { buildWeightedRanges, validateWeightTotal } from '../../utils/encounters';
+
+interface Props {
+  tier: string;
+  entries: {
+    encounterId: string;
+    weight?: number;
+  }[];
+}
+
+const { tier, entries } = Astro.props;
+
+const encounters = await getCollection('encounters');
+const warning = validateWeightTotal(entries, (e) => e.weight ?? 1);
+const subRolls = buildWeightedRanges(entries, (e) => e.weight ?? 1);
+---
+<h4>Tier {tier}</h4>
+{warning && <p style="color: red;">{warning}</p>}
+<table class="encounter-table">
+  <thead>
+  <tr>
+    <th>Roll</th>
+    <th>Encounter</th>
+    <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+  {subRolls.map(({ range, entry }) => {
+    const encounter = encounters.find((e) => e.id === entry.encounterId);
+    return (
+      <tr>
+        <td>{range}</td>
+        <td>{encounter?.data.name ?? entry.encounterId}</td>
+        <td>{((entry.weight ?? 1) / 20 * 100).toFixed(1)}%</td>
+      </tr>
+    );
+  })}
+  </tbody>
+</table>

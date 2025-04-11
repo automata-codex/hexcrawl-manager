@@ -1,0 +1,31 @@
+---
+import { defaultEncounterTable } from '../../../data/encounters/default';
+import { buildWeightedRanges } from '../../utils/encounters';
+
+import CategoryTable from './CategoryTable.astro';
+
+const mainRolls = buildWeightedRanges(defaultEncounterTable.mainTable, (e) => e.weight ?? 1);
+---
+<table class="encounter-table">
+  <thead>
+  <tr>
+    <th>Roll</th>
+    <th>Category</th>
+    <th>Chance</th>
+  </tr>
+  </thead>
+  <tbody>
+  {mainRolls.map(({ range, entry }) => (
+    <tr>
+      <td>{range}</td>
+      <td>{entry.category}</td>
+      <td>{((entry.weight ?? 1) / 20 * 100).toFixed(1)}%</td>
+    </tr>
+  ))}
+  </tbody>
+</table>
+{Object.entries(defaultEncounterTable.categoryTables).map(
+  ([category, table]) => (
+    <CategoryTable label={category} table={table} />
+  )
+)}

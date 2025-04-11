@@ -6,7 +6,8 @@ import { ClassSchema } from '../schemas/class';
 import { DungeonDataSchema } from '../schemas/dungeon';
 import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
-import { EncounterEntrySchema } from '../schemas/encounter-entry';
+import { EncounterSchema } from '../schemas/encounter';
+import { CategoryTable, EncounterTableSchema, TieredSubtableSchema } from '../schemas/encounter-table';
 import { HexSchema } from '../schemas/hex.js';
 import { NpcSchema } from '../schemas/npc';
 import { PlayerSchema } from '../schemas/player';
@@ -27,11 +28,13 @@ import { SupplementSchema } from '../schemas/supplement-list';
 import { TreasureSchema } from '../schemas/treasure';
 
 export type BountyData = z.infer<typeof BountySchema>;
+export type CategoryTableData = z.infer<typeof CategoryTable>;
 export type CharacterData = z.infer<typeof CharacterSchema>;
 export type ClassData = z.infer<typeof ClassSchema>;
 export type DescriptiveActionData = z.infer<typeof DescriptiveActionSchema>;
 export type DungeonData = z.infer<typeof DungeonDataSchema>;
-export type EncounterEntryData = z.infer<typeof EncounterEntrySchema>;
+export type EncounterData = z.infer<typeof EncounterSchema>;
+export type EncounterTableData = z.infer<typeof EncounterTableSchema>;
 export type FactionData = z.infer<typeof FactionSchema>;
 export type FloatingClueData = z.infer<typeof FloatingClueSchema>;
 export type HexData = z.infer<typeof HexSchema>;
@@ -48,6 +51,7 @@ export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;
 export type SupplementData = z.infer<typeof SupplementSchema>;
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
+export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>
 export type TreasureData = z.infer<typeof TreasureSchema>;
 
 export type DungeonEntry = CollectionEntry<'dungeons'>;
