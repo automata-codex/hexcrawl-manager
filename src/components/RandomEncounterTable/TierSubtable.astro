@@ -17,7 +17,7 @@ const encounters = await getCollection('encounters');
 const warning = validateWeightTotal(entries, (e) => e.weight ?? 1);
 const subRolls = buildWeightedRanges(entries, (e) => e.weight ?? 1);
 ---
-<h4>Tier {tier}</h4>
+<h4 class="title is-5">Tier {tier}</h4>
 {warning && <p style="color: red;">{warning}</p>}
 <table class="encounter-table">
   <thead>

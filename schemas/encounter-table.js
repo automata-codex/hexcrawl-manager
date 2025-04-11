@@ -9,6 +9,7 @@ export const TieredSubtableSchema = z.record(z.string(), z.array(EncounterEntryS
 
 export const CategoryWeight = z.object({
   category: z.string(),
+  label: z.string(),
   weight: z.number().default(1),
 });
 

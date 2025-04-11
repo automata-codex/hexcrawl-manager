@@ -1,8 +1,8 @@
 ---
-import { defaultEncounterTable } from '../../../data/encounters/default';
+import { defaultEncounterTable } from '../../../data/encounters/default-encounter-table';
 import { buildWeightedRanges } from '../../utils/encounters';
 
-import CategoryTable from './CategoryTable.astro';
+import CategoryContainer from './CategoryContainer.astro';
 
 const mainRolls = buildWeightedRanges(defaultEncounterTable.mainTable, (e) => e.weight ?? 1);
 ---
@@ -47,7 +47,7 @@ const mainRolls = buildWeightedRanges(defaultEncounterTable.mainTable, (e) => e.
   {mainRolls.map(({ range, entry }) => (
     <tr>
       <td class="col-1">{range}</td>
-      <td class="col-2">{entry.category}</td>
+      <td class="col-2">{entry.label}</td>
       <td class="col-3">{((entry.weight ?? 1) / 20 * 100).toFixed(1)}%</td>
     </tr>
   ))}
@@ -55,7 +55,14 @@ const mainRolls = buildWeightedRanges(defaultEncounterTable.mainTable, (e) => e.
 </table>
 {Object.entries(defaultEncounterTable.categoryTables).map(
   ([category, table]) => {
-    const weight = defaultEncounterTable.mainTable.find(c => c.category === category)?.weight ?? 1;
-    return <CategoryTable label={category} table={table} weight={weight} />
+    const categoryData = defaultEncounterTable.mainTable.find(c => c.category === category);
+    if (!categoryData) {
+      return null;
+    }
+    return <CategoryContainer
+      label={categoryData.label}
+      table={table}
+      weight={categoryData.weight ?? 1}
+    />
   }
 )}
