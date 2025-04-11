@@ -79,12 +79,12 @@
         <strong>{item.label}</strong>
         <ul>
           {#each getSortedEntries(item.entries ?? []) as entry}
-            <li><a href={getStatBlockPath(entry.slug)}>{entry.data.name}</a></li>
+            <li><a href={getStatBlockPath(entry.id)}>{entry.data.name}</a></li>
           {/each}
         </ul>
       </li>
     {:else}
-      <li><a href={getStatBlockPath(item.entry.slug)}>{item.label}</a></li>
+      <li><a href={getStatBlockPath(item.entry.id)}>{item.label}</a></li>
     {/if}
   {/each}
 </ul>

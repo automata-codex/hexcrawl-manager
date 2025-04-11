@@ -5,7 +5,7 @@ import StatBlock from '../../../components/StatBlock/StatBlock.astro';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import type { StatBlockData } from '../../../types';
 import { renderBulletMarkdown } from '../../../utils/markdown';
-import { getEncounterPath } from '../../../utils/routes';
+import { getDungeonPath, getEncounterPath } from '../../../utils/routes';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -27,6 +27,18 @@ if (statBlockData === undefined) {
   });
 }
 
+const allDungeons = await getCollection('dungeons');
+const dungeons = allDungeons
+  .filter((dungeon) =>
+    dungeon.data.statBlocks?.includes(statBlockData.id)
+  )
+  .map(dungeon => ({
+    id: dungeon.id,
+    name: dungeon.data.name
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+const dungeonList = dungeons.map(e => `<a href=${getDungeonPath(e.id)}>${e.name}</a>`).join(', ');
+
 const allEncounters = await getCollection('encounters');
 const encounters = allEncounters
   .filter((encounter) =>
@@ -43,6 +55,12 @@ const statBlock: StatBlockData = statBlockData.data;
 const title = `Stat Block: ${await renderBulletMarkdown(statBlock.name)}`;
 ---
 <SecretLayout title={title}>
+  {dungeons.length > 0 &&
+    <p>
+      Dungeons with this stat block:
+      <Fragment set:html={dungeonList} />
+    </p>
+  }
   {encounters.length > 0 &&
     <p>
       Encounters with this stat block:
