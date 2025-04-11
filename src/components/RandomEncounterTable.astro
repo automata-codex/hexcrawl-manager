@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import type { RandomEncounterTableData } from '../types';
+import { getEncounterPath } from '../utils/routes';
 
 interface Props {
   data: RandomEncounterTableData;
@@ -24,7 +25,7 @@ const data = Astro.props.data
       const encounterId = encounter.description.encounter;
       const encounterData = encounters.find((e: Encounter) => e.id === encounterId);
       if (encounterData) {
-        description = `<a href="/encounters/${encounterData.id}">${encounterData.data.name}</a>`;
+        description = `<a href="${getEncounterPath(encounterData.id)}">${encounterData.data.name}</a>`;
       } else {
         throw new Error('Encounter not found: ' + encounter.description.encounter);
       }
