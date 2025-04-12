@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import { buildWeightedRanges, validateWeightTotal } from '../../utils/encounters';
+import { getEncounterPath } from '../../utils/routes';
 
 interface Props {
   entries: {
@@ -33,7 +34,11 @@ const subRolls = buildWeightedRanges(entries, (e) => e.weight ?? 1);
     return (
       <tr>
         <td class="col-1">{range}</td>
-        <td class="col-2">{encounter?.data.name ?? entry.encounterId}</td>
+        <td class="col-2">
+          <a href={getEncounterPath(entry.encounterId)}>
+            {encounter?.data.name ?? entry.encounterId}
+          </a>
+        </td>
         <td class="col-3">
           {(((entry.weight ?? 1) / 20) * (weight / 20) * 100).toFixed(1)}%
         </td>

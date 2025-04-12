@@ -111,7 +111,7 @@ const dungeons = defineCollection({
 });
 
 const encounters = defineCollection({
-  loader: getDirectoryYamlLoader<EncounterData>(DIRS.ENCOUNTERS),
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.ENCOUNTERS }),
   schema: {
     ...EncounterSchema,
   },
@@ -168,7 +168,7 @@ const players = defineCollection({
 });
 
 const regions = defineCollection({
-  loader: getDirectoryYamlLoader<RegionData>(DIRS.REGIONS),
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.REGIONS }),
   schema: {
     ...RegionSchema,
   },
