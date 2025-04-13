@@ -7,7 +7,12 @@ import { DungeonDataSchema } from '../schemas/dungeon';
 import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { EncounterSchema } from '../schemas/encounter';
-import { CategoryTable, EncounterTableSchema, TieredSubtableSchema } from '../schemas/encounter-table';
+import {
+  CategoryTable,
+  EncounterOverrideSchema,
+  EncounterTableSchema,
+  TieredSubtableSchema,
+} from '../schemas/encounter-table';
 import { HexSchema } from '../schemas/hex.js';
 import { NpcSchema } from '../schemas/npc';
 import { PlayerSchema } from '../schemas/player';
@@ -34,6 +39,7 @@ export type ClassData = z.infer<typeof ClassSchema>;
 export type DescriptiveActionData = z.infer<typeof DescriptiveActionSchema>;
 export type DungeonData = z.infer<typeof DungeonDataSchema>;
 export type EncounterData = z.infer<typeof EncounterSchema>;
+export type EncounterOverrideData = z.infer<typeof EncounterOverrideSchema>;
 export type EncounterTableData = z.infer<typeof EncounterTableSchema>;
 export type FactionData = z.infer<typeof FactionSchema>;
 export type FloatingClueData = z.infer<typeof FloatingClueSchema>;

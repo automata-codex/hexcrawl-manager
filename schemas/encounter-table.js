@@ -20,3 +20,13 @@ export const EncounterTableSchema = z.object({
   mainTable: WeightedCategoryTable,
   categoryTables: CategoryTable,
 });
+
+export const EncounterOverrideSchema = z.object({
+  categoryTables: z.record(
+    z.string(), // category name
+    z.record(
+      z.string(), // tier
+      z.array(EncounterEntrySchema)
+    ).optional()
+  ).optional()
+});
