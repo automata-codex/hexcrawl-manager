@@ -12,17 +12,11 @@ const hexes = hexData
   .filter((hex) => !hex.hideInCatalog);
 const title = 'Baruun Khil Hex Catalog';
 ---
-<style>
-    h2 {
-        color: var(--bulma-text-strong);
-        font-size: 1.5rem;
-    }
-</style>
 <SecretLayout title={title}>
   <main>
     {
       hexes.map((hex) =>
-        <h2>{hex.id.toUpperCase()}: {hex.name}</h2>
+        <h2 class="title is-3">{hex.id.toUpperCase()}: {hex.name}</h2>
         <GmHexDetails hex={hex} showSelfLink={true} />)
     }
   </main>

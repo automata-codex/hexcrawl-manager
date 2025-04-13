@@ -1,8 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
-import RandomEncounterTable from './RandomEncounterTable/RandomEncounterTable.astro';
-import { renderMarkdown } from '../utils/markdown';
+
 import type { RegionData } from '../types';
+import { renderMarkdown } from '../utils/markdown';
+import { getHexPath, getRegionPath } from '../utils/routes';
+
+import SecretContent from './Content/SecretContent.astro';
+import RandomEncounterTable from './RandomEncounterTable/RandomEncounterTable.astro';
 
 interface Props {
   region: RegionData;
@@ -40,25 +44,29 @@ const hexes = hexData
         }
     }
 </style>
-<div>
-  <div class="hex-list">
-    <div><span class="inline-heading">Hexes:</span></div>
-    {hexes.map(hex => (
-      <div>
-        <a href={`/session-toolkit/hexes/${hex.toLowerCase()}`}>{hex}</a>
-      </div>
-    ))}
+<SecretContent>
+  <div>
+    <div class="hex-list">
+      <div><span class="inline-heading">Hexes:</span></div>
+      {hexes.map(hex => (
+        <div>
+          <a href={getHexPath(hex.toLowerCase())}>{hex}</a>
+        </div>
+      ))}
+      <div>|</div>
+      <div><a href=`${getRegionPath(region.id)}/hexes`>View all</a></div>
+    </div>
+    <div class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.haven}</div>
+    <div class="description-container">
+      <Fragment set:html={renderMarkdown(region.description)} />
+    </div>
+    <Fragment set:html={getRecHeading()} />
+    <p class="hanging-indent">
+      <span class="inline-heading">Chance of encounter:</span>
+      {' '}
+      {region.encounterChance * 5}%
+      (&le;{region.encounterChance})
+    </p>
+    <RandomEncounterTable data={region.encounters} />
   </div>
-  <div class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.haven}</div>
-  <div class="description-container">
-    <Fragment set:html={renderMarkdown(region.description)} />
-  </div>
-  <Fragment set:html={getRecHeading()} />
-  <p class="hanging-indent">
-    <span class="inline-heading">Chance of encounter:</span>
-    {' '}
-    {region.encounterChance * 5}%
-    (&le;{region.encounterChance})
-  </p>
-  <RandomEncounterTable data={region.encounters} />
-</div>
+</SecretContent>

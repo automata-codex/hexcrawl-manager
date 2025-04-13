@@ -4,6 +4,7 @@ import { RandomEncounterTableSchema } from './random-encounter-table.js';
 
 export const HexSchema = z.object({
   id: z.string(),
+  slug: z.string(),
   name: z.string(),
   coordinates: z.tuple([z.string(), z.number()]).optional(), // We can derive coordinates from the id, but this is still in the schema for backwards compatibility.
   landmark: z.string(),
