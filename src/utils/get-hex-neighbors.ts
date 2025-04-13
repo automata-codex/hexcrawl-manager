@@ -45,8 +45,8 @@ export function getHexNeighbors(hex: string): string[] {
 
     const newColumn = String.fromCharCode(newColumnIndex + "A".charCodeAt(0));
 
-    // Ensure the new row is valid (within 8-27)
-    if (newRow < 8 || newRow > 27) {
+    // Ensure the new row is valid (within 1-27)
+    if (newRow < 1 || newRow > 27) {
       return null;
     }
 
