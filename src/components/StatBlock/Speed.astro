@@ -23,11 +23,11 @@ if (!walkingSpeed) {
   throw new Error('Walking speed not found');
 }
 const otherSpeeds = data.map(([key, value]) => {
-  if (hover) {
+  if (hover && key === 'fly') {
     return `, ${key} ${value} ft. (hover)`;
   }
   return `, ${key} ${value} ft.`;
-}).join();
+}).join('');
 ---
 <div>
   <span class="inline-heading">Speed:</span>

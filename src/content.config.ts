@@ -27,7 +27,6 @@ import type {
   NpcData,
   PlayerData,
   RumorData,
-  StatBlockData,
   SupplementData,
   TreasureData,
 } from './types.ts';
@@ -186,7 +185,7 @@ const sessions = defineCollection({
 });
 
 const statBlocks = defineCollection({
-  loader: getDirectoryYamlLoader<StatBlockData>(DIRS.STAT_BLOCKS),
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.STAT_BLOCKS }),
   schema: {
     ...StatBlockSchema,
   },
