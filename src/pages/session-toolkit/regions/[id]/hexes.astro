@@ -1,6 +1,8 @@
 ---
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
 import { getRegionTitle } from '../../../../utils/id-parsers';
+import { getHexEntriesForRegion } from '../../../../utils/region-hex-mapper';
+import GmHexDetails from '../../../../components/HexData/GmHexDetails.astro';
 
 const { id: regionId } = Astro.params;
 if (!regionId) {
@@ -9,7 +11,15 @@ if (!regionId) {
     statusText: 'Not found'
   });
 }
+
+const allHexes = await getHexEntriesForRegion(regionId)
+const hexData = allHexes
+  .filter(hex => !!hex)
+  .sort((a, b) => a.id.localeCompare(b.id));
 ---
 <SecretLayout title={`${getRegionTitle(regionId)} Hexes`}>
-  {regionId}
+  {hexData.map((hex) => (
+    <h2 class="title is-3">{hex.id.toUpperCase()}: {hex.data.name}</h2>
+    <GmHexDetails hex={hex.data} />
+  ))}
 </SecretLayout>
