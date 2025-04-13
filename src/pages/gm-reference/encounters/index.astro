@@ -1,28 +1,38 @@
 ---
 import { getCollection } from 'astro:content';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
+import type { EncounterTableData } from '../../../types';
 
 const encounterData = await getCollection('encounters');
 const encounters = encounterData.sort((a, b) => a.data.name.localeCompare(b.data.name));
 const title = 'Encounters';
 
-async function getUnusedEncounters() {
-  const regionData = await getCollection('regions');
-  const usedEncounters: string[] = [];
-  regionData.forEach((region) => {
-    region.data.encounters.forEach((encounter) => {
-      if ('encounter' in encounter.description) {
-        usedEncounters.push(encounter.description.encounter);
+/**
+ * Build a unique list of all encounter IDs across region tables
+ */
+export function getAllEncounterIdsFromRegions(regionTables: EncounterTableData[]): string[] {
+  const seen = new Set<string>();
+
+  for (const table of regionTables) {
+    for (const category of Object.values(table.categoryTables)) {
+      for (const entries of Object.values(category)) {
+        for (const entry of entries) {
+          seen.add(entry.encounterId);
+        }
       }
-    });
-  });
-  const allEncounters = encounterData.map((encounter) => encounter.id);
-  return allEncounters.filter((encounter) => !usedEncounters.includes(encounter));
+    }
+  }
+
+  return Array.from(seen);
 }
-const unusedEncounters = await getUnusedEncounters();
+const regions = await getCollection('regions');
+const regionTables = regions
+  .map((region) => region.data.encounters)
+  .filter((region) => !!region);
+const usedEncounters = getAllEncounterIdsFromRegions(regionTables);
 
 function formatEncounterName(encounterId: string, encounterName: string) {
-  if (unusedEncounters.includes(encounterId)) {
+  if (!usedEncounters.includes(encounterId)) {
     return `<span class="unused-encounter">${encounterName}</span>`;
   }
   return encounterName;
