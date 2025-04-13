@@ -185,6 +185,10 @@ export function getHexPath(hexId: string): string {
   return interpolateRoute(ROUTES.sessionToolkit.hexes.id, { id: hexId });
 }
 
+export function getRegionPath(regionId: string): string {
+  return interpolateRoute(ROUTES.sessionToolkit.regions.id, { id: regionId });
+}
+
 export function getStatBlockPath(statBlockId: string): string {
   return interpolateRoute(ROUTES.gmReference.statBlocks.id, { id: statBlockId });
 }

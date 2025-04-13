@@ -1,0 +1,15 @@
+---
+import SecretLayout from '../../../../layouts/SecretLayout.astro';
+import { getRegionTitle } from '../../../../utils/id-parsers';
+
+const { id: regionId } = Astro.params;
+if (!regionId) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+---
+<SecretLayout title={`${getRegionTitle(regionId)} Hexes`}>
+  {regionId}
+</SecretLayout>
