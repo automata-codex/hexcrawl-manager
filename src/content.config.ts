@@ -22,13 +22,10 @@ import { TreasureSchema } from '../schemas/treasure';
 import type {
   BountyData,
   ClassData,
-  EncounterData,
   FactionData,
   FloatingClueData,
-  HexData,
   NpcData,
   PlayerData,
-  RegionData,
   RumorData,
   StatBlockData,
   SupplementData,
@@ -146,7 +143,7 @@ const gmNotes = defineCollection({
 });
 
 const hexes = defineCollection({
-  loader: getDirectoryYamlLoader<HexData>(DIRS.HEXES),
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.HEXES }),
   schema: {
     ...HexSchema,
     regionId: reference('regions'),

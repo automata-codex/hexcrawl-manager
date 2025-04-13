@@ -41,6 +41,8 @@
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.10.2",
+    "fs-extra": "^11.3.0",
+    "yaml": "^2.7.1",
     "zod-to-json-schema": "^3.24.1"
   }
 }

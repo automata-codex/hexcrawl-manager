@@ -7,7 +7,7 @@ import { FactionListSchema } from '../schemas/faction.js';
 import { FloatingClueListSchema } from '../schemas/floating-clue-list.js';
 import { EncounterSchema } from '../schemas/encounter.js';
 import { EncounterTableSchema } from '../schemas/encounter-table.js';
-import { HexListSchema } from '../schemas/hex-list.js';
+import { HexSchema } from '../schemas/hex.js';
 import { NpcSchema } from '../schemas/npc.js';
 import { PlayerListSchema } from '../schemas/player.js';
 import { RegionSchema } from '../schemas/region.js';
@@ -59,10 +59,10 @@ writeFileSync(
   JSON.stringify(zodToJsonSchema(FloatingClueListSchema), null, 2)
 );
 
-const hexListFile = new URL('../schemas/hex-list.json', import.meta.url);
+const hexFile = new URL('../schemas/hex.json', import.meta.url);
 writeFileSync(
-  hexListFile,
-  JSON.stringify(zodToJsonSchema(HexListSchema), null, 2)
+  hexFile,
+  JSON.stringify(zodToJsonSchema(HexSchema), null, 2)
 );
 
 const npcFile = new URL('../schemas/npc.json', import.meta.url);
