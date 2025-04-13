@@ -145,6 +145,7 @@ export const StatBlockSchema = z.object({
   hit_points: z.number(),
   hit_dice: z.string(),
   speed: z.object({
+    burrow: z.number().optional(),
     climb: z.number().optional(),
     fly: z.number().optional(),
     hover: z.boolean().optional(),
