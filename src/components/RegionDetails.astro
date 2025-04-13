@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import RandomEncounterTable from './RandomEncounterTable.astro';
+import RandomEncounterTable from './RandomEncounterTable/RandomEncounterTable.astro';
 import { renderMarkdown } from '../utils/markdown';
 import type { RegionData } from '../types';
 
@@ -13,7 +13,7 @@ const { region, isSubcomponent = false } = Astro.props;
 
 function getRecHeading() {
   const element = isSubcomponent ? 'h3' : 'h2';
-  return `<${element} class="title is-4" style="margin-bottom: 0.25rem">Random Encounters</${element}>`;
+  return `<${element} class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</${element}>`;
 }
 
 const hexData = await getCollection('hexes');
@@ -50,7 +50,6 @@ const hexes = hexData
     ))}
   </div>
   <div class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.haven}</div>
-  <div class="hanging-indent"><span class="inline-heading">Icon:</span>{' '}{region.icon}</div>
   <div class="description-container">
     <Fragment set:html={renderMarkdown(region.description)} />
   </div>

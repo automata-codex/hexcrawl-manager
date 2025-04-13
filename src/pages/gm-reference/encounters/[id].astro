@@ -4,7 +4,7 @@ import { getCollection, getEntry } from 'astro:content';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import StatBlock from '../../../components/StatBlock/StatBlock.astro';
 import { renderBulletMarkdown, renderMarkdown } from '../../../utils/markdown';
-import type { RandomEncounterData } from '../../../types';
+import type { EncounterData } from '../../../types';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -26,7 +26,7 @@ if (encounterData === undefined) {
   });
 }
 
-const encounter: RandomEncounterData = encounterData.data;
+const encounter: EncounterData = encounterData.data;
 const statBlocks = await getCollection('statBlocks');
 const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
 ---

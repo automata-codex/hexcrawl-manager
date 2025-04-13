@@ -3,11 +3,16 @@ import { getCollection, getEntry } from 'astro:content';
 
 import GmHexDetails from '../../../components/HexData/GmHexDetails.astro';
 import PlayerHexDetails from '../../../components/HexData/PlayerHexDetails.astro';
-import RandomEncounterTable from '../../../components/RandomEncounterTable.astro';
+import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
 import OpenContent from '../../../components/Content/OpenContent.astro';
 import SecretContent from '../../../components/Content/SecretContent.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
-import type { HexData, RandomEncounterTableData } from '../../../types';
+import type {
+  CategoryTableData,
+  EncounterOverrideData,
+  EncounterTableData,
+  HexData,
+} from '../../../types';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -33,19 +38,37 @@ const hex: HexData = hexData.data;
 const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
 
 // Build the random encounter table
-let encounters: RandomEncounterTableData = [];
+let encounters: EncounterTableData | undefined = undefined;
+let encounterChance = 8;
 const regions = await getCollection('regions');
 const region = regions.find(region => region.id === hex.regionId);
-if (!region) {
-  throw new Error('Region not found: ' + hex.regionId);
+if (region) {
+  encounters = region.data.encounters;
+  encounterChance = region.data.encounterChance;
 }
-const parentEncounters = region.data.encounters;
 
-// Merge two arrays of encounters, with the hex's encounters taking precedence
-encounters = parentEncounters.map(parentEncounter => {
-  const hexEncounter = hex.encounters?.find(hexEncounter => hexEncounter.id === parentEncounter.id);
-  return hexEncounter || parentEncounter;
-});
+function mergeHexOverrides(
+  base: CategoryTableData,
+  hexOverride?: EncounterOverrideData
+): CategoryTableData {
+  if (!hexOverride?.categoryTables) return base;
+
+  const result: CategoryTableData = structuredClone(base);
+
+  for (const [category, tierOverrides] of Object.entries(hexOverride.categoryTables)) {
+    result[category] = result[category] || {};
+
+    for (const [tier, overrideEntries] of Object.entries(tierOverrides ?? {})) {
+      result[category][tier] = overrideEntries;
+    }
+  }
+
+  return result;
+}
+
+if (encounters && hex.encounterOverrides) {
+  encounters.categoryTables = mergeHexOverrides(encounters.categoryTables, hex.encounterOverrides);
+}
 ---
 <ComponentLayout title={title}>
   <OpenContent>
@@ -53,12 +76,12 @@ encounters = parentEncounters.map(parentEncounter => {
   </OpenContent>
   <SecretContent>
     <GmHexDetails hex={hex} showSelfLink={false} />
-    <h2 class="title is-4" style="margin-bottom: 0.25rem">Random Encounters</h2>
+    <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
     <p>
       <span class="inline-heading">Chance of encounter:</span>
       {' '}
-      {region.data.encounterChance * 5}%
-      (&le;{region.data.encounterChance})
+      {encounterChance * 5}%
+      (&le;{encounterChance})
     </p>
     <RandomEncounterTable data={encounters} />
   </SecretContent>
