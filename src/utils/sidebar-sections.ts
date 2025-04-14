@@ -114,6 +114,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           expandable: true,
           items: [
             { label: 'The Velari', href: ROUTES.gmReference.firstCivilization.velari },
+            { label: 'Demographics', href: ROUTES.gmReference.firstCivilization.demographics },
             { label: 'The Catastrophe and Aftermath', href: ROUTES.gmReference.firstCivilization.catastropheAndAftermath },
             { label: 'Scar Sites', href: ROUTES.sessionToolkit.scarSites },
             { label: 'The Skyspire', href: ROUTES.gmReference.firstCivilization.skyspire },
