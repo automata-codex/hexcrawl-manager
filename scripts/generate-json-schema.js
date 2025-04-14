@@ -3,10 +3,10 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 import { BountyListSchema } from '../schemas/bounty.js';
 import { CharacterSchema } from '../schemas/character.js';
 import { ClassSchema } from '../schemas/class.js';
-import { FactionListSchema } from '../schemas/faction.js';
-import { FloatingClueListSchema } from '../schemas/floating-clue-list.js';
 import { EncounterSchema } from '../schemas/encounter.js';
 import { EncounterTableSchema } from '../schemas/encounter-table.js';
+import { FactionListSchema } from '../schemas/faction.js';
+import { FloatingClueSchema } from '../schemas/floating-clue.js';
 import { HexSchema } from '../schemas/hex.js';
 import { NpcSchema } from '../schemas/npc.js';
 import { PlayerListSchema } from '../schemas/player.js';
@@ -53,10 +53,10 @@ writeFileSync(
   JSON.stringify(zodToJsonSchema(FactionListSchema), null, 2)
 );
 
-const floatingClueListFile = new URL('../schemas/floating-clue-list.json', import.meta.url);
+const floatingClueFile = new URL('../schemas/floating-clue.json', import.meta.url);
 writeFileSync(
-  floatingClueListFile,
-  JSON.stringify(zodToJsonSchema(FloatingClueListSchema), null, 2)
+  floatingClueFile,
+  JSON.stringify(zodToJsonSchema(FloatingClueSchema), null, 2)
 );
 
 const hexFile = new URL('../schemas/hex.json', import.meta.url);

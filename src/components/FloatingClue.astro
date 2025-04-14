@@ -2,8 +2,8 @@
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faCircleInfo } from '@fortawesome/pro-solid-svg-icons';
 import type { FloatingClueData } from '../types';
-import { formatText } from '../utils/text';
-import { renderMarkdown } from '../utils/markdown';
+import { renderBulletMarkdown, renderMarkdown } from '../utils/markdown';
+import { getFloatingCluePath } from '../utils/routes';
 
 interface Props {
   clue: FloatingClueData;
@@ -34,14 +34,14 @@ const infoIcon = icon(faCircleInfo);
   {showName && clue.name}
   {!showDetail && clue.detailText && (
     <span class="icon">
-      <a href=`/gm-notes/floating-clues/${clue.id}`>
+      <a href=`${getFloatingCluePath(clue.id)}`>
         <Fragment set:html={infoIcon.html} />
       </a>
     </span>
   )}
 </h2>
-<p>
-  {formatText(clue.summary)}
+<p style="margin-bottom: 1rem;">
+  {renderBulletMarkdown(clue.summary)}
 </p>
 {showDetail && clue.detailText && (
   <div>

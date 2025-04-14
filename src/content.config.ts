@@ -23,7 +23,6 @@ import type {
   BountyData,
   ClassData,
   FactionData,
-  FloatingClueData,
   NpcData,
   PlayerData,
   RumorData,
@@ -128,17 +127,10 @@ const fixedClues = defineCollection({
 });
 
 const floatingClues = defineCollection({
-  loader: getDirectoryYamlLoader<FloatingClueData>(DIRS.FLOATING_CLUES),
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.FLOATING_CLUES }),
   schema: {
     ...FloatingClueSchema,
   },
-});
-
-const gmNotes = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: DIRS.GM_NOTES }),
-  schema: z.object({
-    title: z.string(),
-  }),
 });
 
 const hexes = defineCollection({
@@ -215,7 +207,6 @@ export const collections = {
   factions,
   floatingClues,
   fixedClues,
-  gmNotes,
   hexes,
   npcs,
   players,

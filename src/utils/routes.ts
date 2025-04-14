@@ -181,6 +181,10 @@ export function getEncounterPath(encounterId: string): string {
   return interpolateRoute(ROUTES.gmReference.encounters.id, { id: encounterId });
 }
 
+export function getFloatingCluePath(floatingClueId: string): string {
+  return interpolateRoute(ROUTES.sessionToolkit.clues.floatingClues.id, { id: floatingClueId });
+}
+
 export function getHexPath(hexId: string): string {
   return interpolateRoute(ROUTES.sessionToolkit.hexes.id, { id: hexId });
 }
