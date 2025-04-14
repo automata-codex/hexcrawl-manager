@@ -96,6 +96,7 @@ const ActionSchema = z.union([
 
 export const StatBlockSchema = z.object({
   id: z.string(),
+  slug: z.string().optional(),
   desc: z.string().optional(),
   name: z.string(),
   size: z.enum([
