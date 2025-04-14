@@ -93,12 +93,12 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="floating-clue-list">
+        <entry key="floating-clue">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="floating-clue-list" />
-              <option name="relativePathToSchema" value="schemas/floating-clue-list.json" />
+              <option name="name" value="floating-clue" />
+              <option name="relativePathToSchema" value="schemas/floating-clue.json" />
               <option name="patterns">
                 <list>
                   <Item>

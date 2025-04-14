@@ -17,19 +17,16 @@ const data = Object.entries(speed)
       return 1;
     }
     return a[0].localeCompare(b[0]);
+  }).map(([key, value]) => {
+    if (key === 'walk') {
+      return `${value} ft.`;
+    } else if (key === 'fly' && hover) {
+      return `${key} ${value} ft. (hover)`;
+    }
+    return `${key} ${value} ft.`;
   });
-const walkingSpeed = data.shift();
-if (!walkingSpeed) {
-  throw new Error('Walking speed not found');
-}
-const otherSpeeds = data.map(([key, value]) => {
-  if (hover) {
-    return `, ${key} ${value} ft. (hover)`;
-  }
-  return `, ${key} ${value} ft.`;
-}).join();
 ---
 <div>
   <span class="inline-heading">Speed:</span>
   {' '}
-  {walkingSpeed[1]} ft.{otherSpeeds}</div>
+  {data.join(', ')}</div>

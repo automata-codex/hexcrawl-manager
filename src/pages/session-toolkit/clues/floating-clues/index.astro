@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import FloatingClue from '../../../../components/FloatingClue.astro';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
+import { ROUTES } from '../../../../utils/routes';
 
 const cluesData = await getCollection('floatingClues');
 const clues = cluesData.sort((a, b) => a.data.name.localeCompare(b.data.name));
@@ -14,5 +15,5 @@ const title = 'Floating Clues';
 </style>
 <SecretLayout title={title}>
   {clues.map((clue) => <FloatingClue clue={clue.data} />)}
-  <p class="all-articles">View <a href="all">all clues</a> in one page.</p>
+  <p class="all-articles">View <a href={ROUTES.sessionToolkit.clues.floatingClues.all}>all clues</a> in one page.</p>
 </SecretLayout>
