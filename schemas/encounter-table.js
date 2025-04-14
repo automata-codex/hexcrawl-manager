@@ -22,6 +22,7 @@ export const EncounterTableSchema = z.object({
 });
 
 export const EncounterOverrideSchema = z.object({
+  mainTable: WeightedCategoryTable.optional(),
   categoryTables: z.record(
     z.string(), // category name
     z.record(

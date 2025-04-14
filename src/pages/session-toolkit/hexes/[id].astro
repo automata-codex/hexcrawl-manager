@@ -46,28 +46,37 @@ if (region) {
   encounters = region.data.encounters;
   encounterChance = region.data.encounterChance;
 }
+encounterChance = hex.encounterChance ?? encounterChance;
 
-function mergeHexOverrides(
-  base: CategoryTableData,
-  hexOverride?: EncounterOverrideData
-): CategoryTableData {
-  if (!hexOverride?.categoryTables) return base;
+export function mergeHexOverrides(
+  base: EncounterTableData,
+  overrides?: EncounterOverrideData
+): EncounterTableData {
+  if (!overrides) return base;
 
-  const result: CategoryTableData = structuredClone(base);
+  // Use the override mainTable if provided, otherwise keep base
+  const mainTable = overrides.mainTable ?? base.mainTable;
 
-  for (const [category, tierOverrides] of Object.entries(hexOverride.categoryTables)) {
-    result[category] = result[category] || {};
+  const categoryTables: CategoryTableData = structuredClone(base.categoryTables);
 
-    for (const [tier, overrideEntries] of Object.entries(tierOverrides ?? {})) {
-      result[category][tier] = overrideEntries;
+  if (overrides.categoryTables) {
+    for (const [category, tierOverrides] of Object.entries(overrides.categoryTables)) {
+      categoryTables[category] = categoryTables[category] || {};
+
+      for (const [tier, overrideEntries] of Object.entries(tierOverrides ?? {})) {
+        categoryTables[category][tier] = overrideEntries;
+      }
     }
   }
 
-  return result;
+  return {
+    mainTable,
+    categoryTables,
+  };
 }
 
 if (encounters && hex.encounterOverrides) {
-  encounters.categoryTables = mergeHexOverrides(encounters.categoryTables, hex.encounterOverrides);
+  encounters = mergeHexOverrides(encounters, hex.encounterOverrides);
 }
 ---
 <ComponentLayout title={title}>
