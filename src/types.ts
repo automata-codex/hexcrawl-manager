@@ -61,6 +61,7 @@ export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>
 export type TreasureData = z.infer<typeof TreasureSchema>;
 
 export type DungeonEntry = CollectionEntry<'dungeons'>;
+export type HexEntry = CollectionEntry<'hexes'>;
 
 export type Pillar = keyof CharacterData['advancementPoints'];
 
