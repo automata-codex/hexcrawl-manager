@@ -111,11 +111,11 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="hexes">
+        <entry key="hex">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="hexes" />
+              <option name="name" value="hex" />
               <option name="relativePathToSchema" value="schemas/hex.json" />
               <option name="patterns">
                 <list>
