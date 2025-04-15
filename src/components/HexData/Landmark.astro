@@ -17,5 +17,5 @@ if (canAccess(role, [SCOPES.PLAYER, SCOPES.PUBLIC]) && !hex.isVisited) {
 ---
 <div class="hanging-indent">
   <span class="inline-heading">Landmark:</span>{' '}
-  {renderBulletMarkdown(hex.landmark)}
+  <Fragment set:html={renderBulletMarkdown(hex.landmark)} />
 </div>

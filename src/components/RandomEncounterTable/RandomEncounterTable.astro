@@ -60,7 +60,9 @@ const mainRolls = buildWeightedRanges(data.mainTable, (e) => e.weight ?? 1);
   ))}
   </tbody>
 </table>
-{Object.entries(data.categoryTables).map(
+{Object.entries(structuredClone(data.categoryTables))
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(
   ([category, table]) => {
     const categoryData = data.mainTable.find(c => c.category === category);
     if (!categoryData) {

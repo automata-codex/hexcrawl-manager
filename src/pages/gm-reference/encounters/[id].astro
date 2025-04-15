@@ -34,6 +34,23 @@ const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
     strong.inline-heading {
         color: var(--bulma-strong-color)
     }
+
+    .description table {
+        border-spacing: 0;
+        margin-top: 1rem;
+    }
+
+    .description td, .description th {
+        border-bottom: 1px solid var(--bulma-border);
+        padding-right: 1rem;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+
+    .description th {
+        border-top: 1px solid var(--bulma-border);
+    }
+
 </style>
 <style>
     .description {

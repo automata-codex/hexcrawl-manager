@@ -7,6 +7,7 @@ export const DungeonDataSchema = z.object({
   name: z.string(),
   builders: z.array(z.enum([
     'alseid',
+    'bearfolk',
     'cultists',
     'dragons',
     'dwarves',
