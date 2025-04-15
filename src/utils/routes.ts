@@ -24,6 +24,7 @@ export const ROUTES = {
       skyspire: '/gm-reference/first-civilization/the-skyspire',
       velari: '/gm-reference/first-civilization/the-velari',
     },
+    regionBudgetGuidelines: '/gm-reference/region-budget-guidelines',
     statBlocks: {
       id: '/gm-reference/stat-blocks/[id]',
       index: '/gm-reference/stat-blocks',
@@ -147,6 +148,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'kobold-caves',
     path: ROUTES.sessionToolkit.maps.koboldCaves,
+  },
+  {
+    slug: 'region-budget-guidelines',
+    path: ROUTES.gmReference.regionBudgetGuidelines,
   },
   {
     slug: 'scaling-encounters',
