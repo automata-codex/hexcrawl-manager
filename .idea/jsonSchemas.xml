@@ -273,6 +273,22 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="unused-hidden-site">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="unused-hidden-site" />
+              <option name="relativePathToSchema" value="schemas/unused-hidden-site.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="data/unused-hidden-sites.yml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
       </map>
     </state>
   </component>

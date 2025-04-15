@@ -16,6 +16,7 @@ import { SessionSchema } from '../schemas/session.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
 import { SupplementListSchema } from '../schemas/supplement-list.js';
 import { TreasureListSchema } from '../schemas/treasure.js';
+import { UnusedHiddenSiteListSchema } from '../schemas/unused-hidden-site.js';
 
 const bountyFile = new URL('../schemas/bounty.json', import.meta.url);
 writeFileSync(
@@ -111,4 +112,10 @@ const treasureFile = new URL('../schemas/treasure.json', import.meta.url);
 writeFileSync(
   treasureFile,
   JSON.stringify(zodToJsonSchema(TreasureListSchema), null, 2)
+);
+
+const unusedHiddenSiteFile = new URL('../schemas/unused-hidden-site.json', import.meta.url);
+writeFileSync(
+  unusedHiddenSiteFile,
+  JSON.stringify(zodToJsonSchema(UnusedHiddenSiteListSchema), null, 2)
 );
