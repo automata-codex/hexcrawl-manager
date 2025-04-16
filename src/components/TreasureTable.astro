@@ -1,10 +1,10 @@
 ---
 import { startCase, toLower } from 'lodash-es';
-import type { HiddenSiteTreasureData } from '../../types';
-import { renderBulletMarkdown } from '../../utils/markdown';
+import type { TreasureData } from '../types';
+import { renderBulletMarkdown } from '../utils/markdown';
 
 interface Props {
-  treasure: HiddenSiteTreasureData[];
+  treasure: TreasureData[];
 }
 
 const { treasure } = Astro.props;
