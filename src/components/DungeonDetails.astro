@@ -1,6 +1,6 @@
 ---
 import { getCollection, getEntry, render } from 'astro:content';
-import { renderBulletMarkdown, renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
+import { renderBulletMarkdown } from '../utils/markdown';
 import type { DungeonEntry } from '../types';
 import StatBlock from './StatBlock/StatBlock.astro';
 
@@ -15,7 +15,6 @@ if (!hexData) {
   throw new Error('Hex not found: ' + dungeon.data.hexId);
 }
 
-const body = isSubcomponent ? dungeon.data.summary ?? dungeon.body : dungeon.body;
 const { Content } = await render(dungeon);
 
 const statBlockData = await getCollection('statBlocks');
@@ -99,7 +98,9 @@ const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.st
   )}
 <div class="spacer"></div>
 <h2 class="description-header">Description</h2>
-<Content />
+<div class="dungeon-content">
+  <Content />
+</div>
 {!isSubcomponent && (statBlocks.length > 0) && (
   <div>
     <h2 class="title is-3">Stat Blocks</h2>
@@ -107,4 +108,19 @@ const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.st
       <StatBlock data={statBlock} />
     ))}
   </div>
+)}
+{isSubcomponent && (
+  <script>
+    const container = document.querySelector('.dungeon-content');
+    const offset = 1; // shift down by 1 level
+
+    if (container) {
+      container.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+        const tagLevel = parseInt(el.tagName[1]);
+        const visualLevel = Math.min(tagLevel + offset, 6);
+        el.setAttribute('role', 'heading');
+        el.setAttribute('aria-level', visualLevel.toString());
+      });
+    }
+  </script>
 )}
