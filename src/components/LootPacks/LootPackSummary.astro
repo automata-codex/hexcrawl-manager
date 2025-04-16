@@ -1,11 +1,12 @@
 ---
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faTreasureChest } from '@fortawesome/pro-solid-svg-icons';
+import type { LootPackData } from '../../types';
 import { renderMarkdown } from '../../utils/markdown';
-import type { TreasureData } from '../../types';
+import { getLootPackPath } from '../../utils/routes';
 
 interface Props {
-  treasure: TreasureData;
+  treasure: LootPackData;
 }
 
 const { treasure } = Astro.props;
@@ -22,7 +23,7 @@ const treasureIcon = icon(faTreasureChest);
 <div class="heading-container">
   <h2 class="title is-3">{treasure.name}</h2>
   <div>
-    <a href=`/session-toolkit/treasure/${treasure.id}` title="View details">
+    <a href={getLootPackPath(treasure.id)} title="View details">
       <Fragment set:html={treasureIcon.html} />
     </a>
   </div>

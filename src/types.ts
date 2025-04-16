@@ -13,7 +13,8 @@ import {
   EncounterTableSchema,
   TieredSubtableSchema,
 } from '../schemas/encounter-table';
-import { HexSchema, HiddenSitesSchema, HiddenSiteTreasureSchema } from '../schemas/hex.js';
+import { HexSchema, HiddenSitesSchema } from '../schemas/hex.js';
+import { LootPackSchema } from '../schemas/loot-pack';
 import { NpcSchema } from '../schemas/npc';
 import { PlayerSchema } from '../schemas/player';
 import { RandomEncounterTableSchema } from '../schemas/random-encounter-table';
@@ -45,7 +46,7 @@ export type FactionData = z.infer<typeof FactionSchema>;
 export type FloatingClueData = z.infer<typeof FloatingClueSchema>;
 export type HexData = z.infer<typeof HexSchema>;
 export type HiddenSitesData = z.infer<typeof HiddenSitesSchema>;
-export type HiddenSiteTreasureData = z.infer<typeof HiddenSiteTreasureSchema>;
+export type LootPackData = z.infer<typeof LootPackSchema>;
 export type MeleeWeaponAttackData = z.infer<typeof MeleeWeaponAttackSchema>;
 export type NpcData = z.infer<typeof NpcSchema>;
 export type PlayerData = z.infer<typeof PlayerSchema>;

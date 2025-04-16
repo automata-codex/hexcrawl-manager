@@ -1,6 +1,6 @@
 ---
-import type { DungeonEntry, HexEntry, RegionData } from '../../types';
-import { allRarities, initialRarityCounts } from '../../utils/magic-items';
+import type { DungeonEntry, HexEntry, RegionData, TreasureData } from '../../types';
+import { allRarities, initialRarityCounts, type Rarity } from '../../utils/magic-items';
 
 interface Props {
   dungeons: DungeonEntry[],
@@ -23,7 +23,14 @@ const dungeonItems = dungeons
     const hex = hexData.find(hex => hex.data.id === dungeon.data.hexId);
     return hex && hex.data.regionId === region.id;
   })
-  .flatMap(dungeon => Array.isArray(dungeon.data.magicItems) ? dungeon.data.magicItems : [])
+  .flatMap(dungeon => {
+    const treasureItems = Array.isArray(dungeon.data.treasure)
+      ? dungeon.data.treasure.filter(item => item.type === 'magic-item')
+      : Array.isArray(dungeon.data.magicItems)
+        ? dungeon.data.magicItems
+        : [];
+    return treasureItems as { rarity: Rarity; }[];
+  })
   .filter(item => typeof item === 'object' && item.rarity)
   .reduce((acc, item) => {
     acc[item.rarity] = (acc[item.rarity] || 0) + 1;
@@ -34,7 +41,13 @@ const dungeonTreasure = dungeons
     const hex = hexData.find(hex => hex.data.id === dungeon.data.hexId);
     return hex && hex.data.regionId === region.id;
   })
-  .reduce((total, dungeon) => total + (dungeon.data.treasureValue || 0), 0);
+  .reduce((total, dungeon) => {
+    const treasureItems = dungeon.data.treasure;
+    const calculatedValue = Array.isArray(treasureItems)
+      ? treasureItems.reduce((sum, item) => sum + (item.value || 0), 0)
+      : (dungeon.data.treasureValue || 0);
+    return total + calculatedValue;
+  }, 0);
 
 // I don't like casting to `any[]`, but it's the only way I've found to make the types work in here
 const hiddenSiteItems = hexData
@@ -53,8 +66,16 @@ const hiddenSiteItems = hexData
 const hiddenSiteTreasure = hexData
   .filter(hex => hex.data.regionId === region.id)
   .flatMap(hex => hex.data.hiddenSites as any[] || [])
-  .reduce((total, site) => total + ((typeof site !== 'string' && site.treasureValue) || 0), 0);
-
+  .reduce((total, site) => {
+    if (typeof site !== 'string' && Array.isArray(site.treasure)) {
+      const siteTotal = site.treasure.reduce(
+        (sum: number, item: TreasureData) => sum + (item.value || 0),
+        0
+      );
+      return total + siteTotal;
+    }
+    return total;
+  }, 0);
 
 const totalItemCounts = allRarities.reduce((acc, rarity) => {
   acc[rarity] = (hiddenSiteItems[rarity] || 0) + (dungeonItems[rarity] || 0);

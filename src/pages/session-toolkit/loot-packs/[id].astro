@@ -1,6 +1,6 @@
 ---
 import { getEntry } from 'astro:content';
-import TreasureDetail from '../../../components/Treasure/TreasureDetail.astro';
+import LootPackDetail from '../../../components/LootPacks/LootPackDetail.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 
 // Get the ID from the incoming server request
@@ -13,7 +13,7 @@ if (!id) {
 }
 
 // Query for the entry directly using the request slug
-const treasureData = await getEntry('treasure', id);
+const treasureData = await getEntry('loot-packs', id);
 
 // Redirect if the entry does not exist
 if (treasureData === undefined) {
@@ -25,6 +25,6 @@ if (treasureData === undefined) {
 
 const treasure = treasureData.data;
 ---
-<ComponentLayout title=`Treasure: ${treasure.name}`>
-  <TreasureDetail treasure={treasure} />
+<ComponentLayout title=`Loot Pack: ${treasure.name}`>
+  <LootPackDetail treasure={treasure} />
 </ComponentLayout>
