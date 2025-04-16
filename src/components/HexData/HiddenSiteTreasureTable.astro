@@ -1,0 +1,51 @@
+---
+import { startCase, toLower } from 'lodash-es';
+import type { HiddenSiteTreasureData } from '../../types';
+
+interface Props {
+  treasure: HiddenSiteTreasureData[];
+}
+
+const { treasure } = Astro.props;
+
+function formatValue(value?: number): string {
+  return value != null ? `${value} gp` : '—';
+}
+
+function formatRarity(rarity?: string): string {
+  return rarity ? startCase(toLower(rarity)) : '—';
+}
+
+function formatType(type?: string): string {
+  return type ? startCase(toLower(type)) : '—';
+}
+---
+<style>
+  th, td {
+      padding-right: 1rem;
+  }
+</style>
+{treasure.length > 0 && (
+  <table class="treasure-table">
+    <thead>
+    <tr>
+      <th>Item</th>
+      <th>Value</th>
+      <th>Type</th>
+      <th>Rarity</th>
+      <th>Notes</th>
+    </tr>
+    </thead>
+    <tbody>
+    {treasure.map((item) => (
+      <tr>
+        <td>{item.name}</td>
+        <td>{formatValue(item.value)}</td>
+        <td>{formatType(item.type)}</td>
+        <td>{formatRarity(item.rarity)}</td>
+        <td>{item.notes ?? '—'}</td>
+      </tr>
+    ))}
+    </tbody>
+  </table>
+)}

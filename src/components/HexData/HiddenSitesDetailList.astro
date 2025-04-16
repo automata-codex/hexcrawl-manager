@@ -1,0 +1,22 @@
+---
+import type { HiddenSitesData } from '../../types';
+import { renderBulletMarkdown } from '../../utils/markdown';
+import HiddenSiteTreasureTable from './HiddenSiteTreasureTable.astro';
+
+interface Props {
+  sites: HiddenSitesData[]
+}
+
+const { sites } = Astro.props;
+---
+{sites.map((site, index) => (
+<div style="margin-bottom: 1.5rem">
+  <div class="hanging-indent">
+    <span class="inline-heading">Hidden Site{sites.length > 1 ? ` #${index + 1}` : ''}:</span>{' '}
+    <Fragment set:html={renderBulletMarkdown(site.description)} />
+  </div>
+  {site.treasure.length > 0 && (
+    <HiddenSiteTreasureTable treasure={site.treasure} />
+  )}
+</div>
+  ))}
