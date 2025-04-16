@@ -36,9 +36,10 @@ const dungeonTreasure = dungeons
   })
   .reduce((total, dungeon) => total + (dungeon.data.treasureValue || 0), 0);
 
+// I don't like casting to `any[]`, but it's the only way I've found to make the types work in here
 const hiddenSiteItems = hexData
   .filter(hex => hex.data.regionId === region.id)
-  .flatMap(hex => hex.data.hiddenSites || [])
+  .flatMap(hex => hex.data.hiddenSites as any[] || [])
   .flatMap(site => typeof site !== 'string' && Array.isArray(site.magicItems) ? site.magicItems : [])
   .filter(item => typeof item === 'object' && item.rarity)
   .reduce((acc, item) => {
@@ -47,7 +48,7 @@ const hiddenSiteItems = hexData
   }, { ...initialRarityCounts });
 const hiddenSiteTreasure = hexData
   .filter(hex => hex.data.regionId === region.id)
-  .flatMap(hex => hex.data.hiddenSites || [])
+  .flatMap(hex => hex.data.hiddenSites as any[] || [])
   .reduce((total, site) => total + ((typeof site !== 'string' && site.treasureValue) || 0), 0);
 
 
@@ -63,7 +64,7 @@ const totalTreasureValue = hiddenSiteTreasure + dungeonTreasure;
 </p>
 <p class="hanging-indent">
   <span class="inline-heading">Total treasure value:</span>{' '}
-  {totalTreasureValue} gp
+  {totalTreasureValue.toLocaleString()} gp
 </p>
 <p class="hanging-indent">
   <span class="inline-heading">Magic items:</span>{' '}

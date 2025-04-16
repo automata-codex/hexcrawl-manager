@@ -4,19 +4,32 @@ import { renderBulletMarkdown } from '../../utils/markdown';
 import HiddenSiteTreasureTable from './HiddenSiteTreasureTable.astro';
 
 interface Props {
-  sites: HiddenSitesData[]
+  sites: HiddenSitesData[];
 }
 
 const { sites } = Astro.props;
 ---
-{sites.map((site, index) => (
-<div style="margin-bottom: 1.5rem">
-  <div class="hanging-indent">
-    <span class="inline-heading">Hidden Site{sites.length > 1 ? ` #${index + 1}` : ''}:</span>{' '}
-    <Fragment set:html={renderBulletMarkdown(site.description)} />
+{sites.length === 1 ? sites.map((site) => (
+  <div>
+    <div class="hanging-indent">
+      <span class="inline-heading">Hidden Site:</span>{' '}
+      <Fragment set:html={renderBulletMarkdown(site.description)} />
+    </div>
+    {site.treasure.length > 0 && (
+      <HiddenSiteTreasureTable treasure={site.treasure} />
+    )}
   </div>
-  {site.treasure.length > 0 && (
-    <HiddenSiteTreasureTable treasure={site.treasure} />
-  )}
-</div>
-  ))}
+)) : (
+  <div>
+    <span class="inline-heading">Hidden Sites:</span>
+  </div>
+  <ul>
+    {sites.map((site) => (
+        <li><Fragment set:html={renderBulletMarkdown(site.description)} />
+        {site.treasure.length > 0 && (
+          <HiddenSiteTreasureTable treasure={site.treasure} />
+        )}
+        </li>
+    ))}
+  </ul>
+)}
