@@ -9,11 +9,35 @@ const dungeons = dungeonData
 
 const title = 'Dungeons';
 ---
+<style is:global>
+    .dungeon-collection h2.title.is-3 {
+        font-size: 1.5rem;       /* mimic is-4 */
+        line-height: 1.25;
+    }
+
+    .dungeon-collection h3.title.is-4 {
+        font-size: 1.25rem;      /* mimic is-5 */
+        line-height: 1.25;
+    }
+
+    .dungeon-collection h4.title.is-5 {
+        font-size: 1.125rem;     /* mimic is-6 */
+        line-height: 1.25;
+    }
+
+    .dungeon-collection h5.title.is-6 {
+        font-size: 1rem;         /* mimic body or a softer heading */
+        line-height: 1.25;
+        font-weight: 600;
+    }
+</style>
 <SecretArticleLayout title={title}>
-  {dungeons.map(dungeon => (
-    <div>
-      <h2 class="title is-3">{dungeon.data.hexId.toUpperCase()}: {dungeon.data.name}</h2>
-      <DungeonDetails dungeon={dungeon} isSubcomponent={true} />
-    </div>
-  ))}
+  <div class="dungeon-collection">
+    {dungeons.map(dungeon => (
+      <div>
+        <h2 class="title is-3">{dungeon.data.hexId.toUpperCase()}: {dungeon.data.name}</h2>
+        <DungeonDetails dungeon={dungeon} isSubcomponent={true} />
+      </div>
+    ))}
+  </div>
 </SecretArticleLayout>

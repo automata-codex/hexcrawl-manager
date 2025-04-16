@@ -1,5 +1,5 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import { renderBulletMarkdown, renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
 import type { DungeonEntry } from '../types';
 import StatBlock from './StatBlock/StatBlock.astro';
@@ -16,7 +16,7 @@ if (!hexData) {
 }
 
 const body = isSubcomponent ? dungeon.data.summary ?? dungeon.body : dungeon.body;
-const content = isSubcomponent ? await renderSubArticleMarkdown(body ?? '') : await renderMarkdown(body ?? '');
+const { Content } = await render(dungeon);
 
 const statBlockData = await getCollection('statBlocks');
 
@@ -99,7 +99,7 @@ const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.st
   )}
 <div class="spacer"></div>
 <h2 class="description-header">Description</h2>
-<Fragment set:html={content} />
+<Content />
 {!isSubcomponent && (statBlocks.length > 0) && (
   <div>
     <h2 class="title is-3">Stat Blocks</h2>

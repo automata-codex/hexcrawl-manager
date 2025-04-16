@@ -99,7 +99,7 @@ const classes = defineCollection({
 });
 
 const dungeons = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: DIRS.DUNGEONS }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.DUNGEONS }),
   schema: {
     ...DungeonDataSchema,
     hexId: reference('hexes'),
