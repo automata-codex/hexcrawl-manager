@@ -1,6 +1,7 @@
 ---
 import { startCase, toLower } from 'lodash-es';
 import type { HiddenSiteTreasureData } from '../../types';
+import { renderBulletMarkdown } from '../../utils/markdown';
 
 interface Props {
   treasure: HiddenSiteTreasureData[];
@@ -18,6 +19,10 @@ function formatRarity(rarity?: string): string {
 
 function formatType(type?: string): string {
   return type ? startCase(toLower(type)) : '—';
+}
+
+async function formatNotes(notes?: string): Promise<string> {
+  return notes ? await renderBulletMarkdown(notes) : '—';
 }
 ---
 <style>
@@ -43,7 +48,7 @@ function formatType(type?: string): string {
         <td>{formatValue(item.value)}</td>
         <td>{formatType(item.type)}</td>
         <td>{formatRarity(item.rarity)}</td>
-        <td>{item.notes ?? '—'}</td>
+        <td><Fragment set:html={formatNotes(item.notes)} /></td>
       </tr>
     ))}
     </tbody>
