@@ -76,6 +76,11 @@ export const ROUTES = {
       id: '/session-toolkit/hexes/[id]',
       index: '/session-toolkit/hexes/index',
     },
+    lootPacks: {
+      id: '/session-toolkit/loot-packs/[id]',
+      all: '/session-toolkit/loot-packs/all',
+      index: '/session-toolkit/loot-packs',
+    },
     maps: {
       koboldCaves: '/session-toolkit/maps/kobold-caves',
     },
@@ -95,11 +100,6 @@ export const ROUTES = {
     scalingEncounters: '/session-toolkit/scaling-encounters',
     scarSites: '/session-toolkit/scar-sites',
     timeline: '/session-toolkit/timeline',
-    treasure: {
-      id: '/session-toolkit/treasure/[id]',
-      all: '/session-toolkit/treasure/all',
-      index: '/session-toolkit/treasure/index',
-    },
   },
 } as const;
 
@@ -197,6 +197,10 @@ export function getFloatingCluePath(floatingClueId: string): string {
 
 export function getHexPath(hexId: string): string {
   return interpolateRoute(ROUTES.sessionToolkit.hexes.id, { id: hexId });
+}
+
+export function getLootPackPath(lootPackId: string): string {
+  return interpolateRoute(ROUTES.sessionToolkit.lootPacks.id, { id: lootPackId });
 }
 
 export function getRegionPath(regionId: string): string {

@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import LootPackSummary from '../../../components/LootPacks/LootPackSummary.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
+import { ROUTES } from '../../../utils/routes';
 
 const treasureData = await getCollection('loot-packs');
 const treasures = treasureData
@@ -12,5 +13,5 @@ const treasures = treasureData
   {treasures.map((treasure) => (
     <LootPackSummary treasure={treasure} />
   ))}
-  <p style="margin-top: 2rem">See <a href="/session-toolkit/loot-packs/all">all treasure</a> on one page.</p>
+  <p style="margin-top: 2rem">See <a href={ROUTES.sessionToolkit.lootPacks.all}>all treasure</a> on one page.</p>
 </ComponentLayout>

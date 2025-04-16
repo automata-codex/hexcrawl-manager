@@ -75,6 +75,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
             { label: 'Floating Clues', href: '/session-toolkit/clues/floating-clues' },
           ],
         },
+        { id: 'loot-packs', label: 'Loot Packs', href: ROUTES.sessionToolkit.lootPacks.index },
         {
           id: 'gm-maps',
           label: 'Maps',
@@ -87,7 +88,6 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
         },
         { id: 'rumors', label: 'Rumors', href: '/session-toolkit/rumors' },
         { id: 'scar-sites', label: 'Scar Sites', href: ROUTES.sessionToolkit.scarSites },
-        { id: 'treasure', label: 'Treasure', href: '/session-toolkit/treasure' },
         { id: 'timeline', label: 'Timeline', href: '/session-toolkit/timeline' },
         {
           id: 'minigames',
