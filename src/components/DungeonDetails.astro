@@ -99,7 +99,7 @@ const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.st
 <div class="spacer"></div>
 <h2 class="description-header">Description</h2>
 <div class="dungeon-content">
-  <Content />
+  {isSubcomponent ? dungeon.data.summary : <Content />}
 </div>
 {!isSubcomponent && (statBlocks.length > 0) && (
   <div>
