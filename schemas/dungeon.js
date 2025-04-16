@@ -23,4 +23,9 @@ export const DungeonDataSchema = z.object({
   source: z.string().optional(),
   summary: z.string().optional(),
   statBlocks: z.array(z.string()).optional(),
+  treasureValue: z.number().optional(), // new
+  magicItems: z.array(z.object({
+    name: z.string(),
+    rarity: z.enum(['common', 'uncommon', 'rare', 'very rare', 'legendary', 'artifact']),
+  })).optional(), // new
 }).describe('Data for a dungeon on a hex map');

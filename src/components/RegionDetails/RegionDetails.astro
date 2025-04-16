@@ -1,12 +1,14 @@
 ---
 import { getCollection } from 'astro:content';
 
-import type { RegionData } from '../types';
-import { renderMarkdown } from '../utils/markdown';
-import { getHexPath, getRegionPath } from '../utils/routes';
+import type { RegionData } from '../../types';
+import { renderMarkdown } from '../../utils/markdown';
+import { getHexPath, getRegionPath } from '../../utils/routes';
+import SecretContent from '../Content/SecretContent.astro';
+import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
 
-import SecretContent from './Content/SecretContent.astro';
-import RandomEncounterTable from './RandomEncounterTable/RandomEncounterTable.astro';
+import ContentDensity from './ContentDensity.astro';
+import TreasureRating from './TreasureRating.astro';
 
 interface Props {
   region: RegionData;
@@ -19,6 +21,8 @@ function getRecHeading() {
   const element = isSubcomponent ? 'h3' : 'h2';
   return `<${element} class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</${element}>`;
 }
+
+const dungeons = await getCollection('dungeons');
 
 const hexData = await getCollection('hexes');
 const hexes = hexData
@@ -57,6 +61,13 @@ const hexes = hexData
       <div><a href=`${getRegionPath(region.id)}/hexes`>View all</a></div>
     </div>
     <div class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.haven}</div>
+    <ContentDensity
+      dungeons={dungeons}
+      hexData={hexData}
+      hexCount={hexes.length}
+      region={region}
+    />
+    <TreasureRating dungeons={dungeons} hexData={hexData} region={region} />
     <div class="description-container">
       <Fragment set:html={renderMarkdown(region.description)} />
     </div>

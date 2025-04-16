@@ -1,8 +1,9 @@
 ---
 import { canAccess, getCurrentUserRole } from '../../utils/auth';
 import { SCOPES } from '../../utils/constants';
-import { renderBulletMarkdown } from '../../utils/markdown';
 import type { HexData } from '../../types';
+import HiddenSitesStringList from './HiddenSitesStringList.astro';
+import HiddenSitesDetailList from './HiddenSitesDetailList.astro';
 
 interface Props {
   hex: HexData;
@@ -23,23 +24,17 @@ if (canAccess(role, [SCOPES.GM]) && hiddenSites.length === 0) {
 if (canAccess(role, [SCOPES.PLAYER, SCOPES.PUBLIC]) && (!hex.isExplored || hiddenSites.length === 0)) {
   return null;
 }
----
-<style>
-    ul {
-        margin-top: 0;
-    }
-</style>
 
-{hiddenSites.length === 1 ? (
-  <div class="hanging-indent">
-    <span class="inline-heading">Hidden Site:</span>{' '}
-    <Fragment set:html={renderBulletMarkdown(hiddenSites[0])} />
-  </div>
-) : (
-  <div>
-    <span class="inline-heading keep-with-next">Hidden Sites:</span>
-  </div>
-  <ul>
-    {hiddenSites.map((site: string) => <li><Fragment set:html={renderBulletMarkdown(site)} /></li>)}
-  </ul>
-)}
+function isObjectArray(arr: any[]): arr is { description: string }[] {
+  return typeof arr[0] === 'object' && 'description' in arr[0];
+}
+---
+{hiddenSites && hiddenSites.length > 0 && (
+<>
+  {isObjectArray(hiddenSites) ? (
+    <HiddenSitesDetailList sites={hiddenSites} />
+  ) : (
+    <HiddenSitesStringList sites={hiddenSites} />
+  )}
+</>
+  )}

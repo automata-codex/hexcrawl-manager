@@ -2,13 +2,29 @@ import { z } from 'zod';
 import { EncounterOverrideSchema } from './encounter-table.js';
 import { RandomEncounterTableSchema } from './random-encounter-table.js';
 
+export const HiddenSiteTreasureSchema = z.object({
+  name: z.string(),
+  value: z.number().optional(),  // only for non-magic treasure
+  type: z.enum(['art', 'currency', 'magic-item', 'relic', 'salvage']),
+  rarity: z.enum(['common', 'uncommon', 'rare', 'very rare', 'legendary', 'artifact']).optional(), // only for magic items
+  notes: z.string().optional(),
+});
+
+export const HiddenSitesSchema = z.object({
+  description: z.string(),
+  treasureValue: z.number(),
+  treasure: z.array(HiddenSiteTreasureSchema),
+});
+
 export const HexSchema = z.object({
   id: z.string(),
   slug: z.string(),
   name: z.string(),
-  coordinates: z.tuple([z.string(), z.number()]).optional(), // We can derive coordinates from the id, but this is still in the schema for backwards compatibility.
   landmark: z.string(),
-  hiddenSites: z.array(z.string()).optional(),
+  hiddenSites: z.union([
+    z.array(z.string()),
+    z.array(HiddenSitesSchema),
+  ]).optional(),
   secretSite: z.string().optional(),
   regionId: z.string(),
   hideInCatalog: z.boolean().optional(),
