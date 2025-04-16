@@ -40,7 +40,11 @@ const dungeonTreasure = dungeons
 const hiddenSiteItems = hexData
   .filter(hex => hex.data.regionId === region.id)
   .flatMap(hex => hex.data.hiddenSites as any[] || [])
-  .flatMap(site => typeof site !== 'string' && Array.isArray(site.magicItems) ? site.magicItems : [])
+  .flatMap(site =>
+    typeof site !== 'string' && Array.isArray(site.treasure)
+      ? site.treasure.filter((item: {type: string}) => item.type === 'magic-item')
+      : []
+  )
   .filter(item => typeof item === 'object' && item.rarity)
   .reduce((acc, item) => {
     acc[item.rarity] = (acc[item.rarity] || 0) + 1;
