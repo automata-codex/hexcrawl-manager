@@ -1,3 +1,4 @@
+import mdx from '@astrojs/mdx';
 import vercel from '@astrojs/vercel';
 import clerk from '@clerk/astro'
 import { defineConfig } from 'astro/config';
@@ -9,7 +10,7 @@ import svelte from '@astrojs/svelte';
 // https://astro.build/config
 export default defineConfig({
   adapter: vercel(),
-  integrations: [clerk(), svelte()],
+  integrations: [clerk(), mdx(), svelte()],
   markdown: {
     rehypePlugins: [
       // Changes to these plugins should also be made to the pipeline in `src/utils/markdown.ts`
