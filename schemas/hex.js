@@ -5,7 +5,7 @@ import { TreasureSchema } from './treasure.js';
 
 export const HiddenSitesSchema = z.object({
   description: z.string(),
-  treasureValue: z.number(),
+  treasureValue: z.number().optional(), // deprecated
   treasure: z.array(TreasureSchema),
 });
 

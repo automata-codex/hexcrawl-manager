@@ -26,11 +26,29 @@ async function formatNotes(notes?: string): Promise<string> {
 }
 ---
 <style>
+    .container td, .container th {
+        border-bottom: 1px solid var(--bulma-border);
+        padding-right: 1rem;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+
+    .container th {
+        border-top: 1px solid var(--bulma-border);
+    }
+
     table {
+        border-spacing: 0;
         margin: 1rem 0;
     }
     th, td {
+        border-bottom: 1px solid var(--bulma-border);
         padding-right: 1rem;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+    th {
+        border-top: 1px solid var(--bulma-border);
     }
 </style>
 {treasure.length > 0 && (

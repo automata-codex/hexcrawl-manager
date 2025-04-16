@@ -1,5 +1,5 @@
 ---
-import type { DungeonEntry, HexEntry, RegionData } from '../../types';
+import type { DungeonEntry, HexEntry, RegionData, TreasureData } from '../../types';
 import { allRarities, initialRarityCounts, type Rarity } from '../../utils/magic-items';
 
 interface Props {
@@ -66,8 +66,16 @@ const hiddenSiteItems = hexData
 const hiddenSiteTreasure = hexData
   .filter(hex => hex.data.regionId === region.id)
   .flatMap(hex => hex.data.hiddenSites as any[] || [])
-  .reduce((total, site) => total + ((typeof site !== 'string' && site.treasureValue) || 0), 0);
-
+  .reduce((total, site) => {
+    if (typeof site !== 'string' && Array.isArray(site.treasure)) {
+      const siteTotal = site.treasure.reduce(
+        (sum: number, item: TreasureData) => sum + (item.value || 0),
+        0
+      );
+      return total + siteTotal;
+    }
+    return total;
+  }, 0);
 
 const totalItemCounts = allRarities.reduce((acc, rarity) => {
   acc[rarity] = (hiddenSiteItems[rarity] || 0) + (dungeonItems[rarity] || 0);
