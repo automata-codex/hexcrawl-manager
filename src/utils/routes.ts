@@ -42,6 +42,7 @@ export const ROUTES = {
     progress: '/players-reference/progress',
     rules: {
       havens: '/players-reference/rules/havens',
+      hexcrawlRules: '/players-reference/rules/hexcrawl-rules',
       houseRules: '/players-reference/rules/house-rules',
       supplements: '/players-reference/rules/supplements',
     },
@@ -140,6 +141,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'griffon-hunt',
     path: ROUTES.sessionToolkit.minigames.griffonHunt,
+  },
+  {
+    slug: 'hexcrawl-rules',
+    path: ROUTES.playersReference.rules.hexcrawlRules,
   },
   {
     slug: 'house-rules',
