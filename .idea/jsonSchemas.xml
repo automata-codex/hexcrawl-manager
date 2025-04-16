@@ -129,6 +129,24 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="loot-pack">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="loot-pack" />
+              <option name="relativePathToSchema" value="schemas/loot-pack.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/loot-packs" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="npc">
           <value>
             <SchemaInfo>

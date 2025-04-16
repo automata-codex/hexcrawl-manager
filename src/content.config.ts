@@ -11,6 +11,7 @@ import { EncounterSchema } from '../schemas/encounter';
 import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { HexSchema } from '../schemas/hex';
+import { LootPackSchema } from '../schemas/loot-pack';
 import { NpcSchema } from '../schemas/npc';
 import { PlayerSchema } from '../schemas/player';
 import { RegionSchema } from '../schemas/region';
@@ -23,11 +24,11 @@ import type {
   BountyData,
   ClassData,
   FactionData,
+  LootPackData,
   NpcData,
   PlayerData,
   RumorData,
   SupplementData,
-  TreasureData,
 } from './types.ts';
 
 const DATA_DIR = 'data';
@@ -44,6 +45,7 @@ const DIRS = {
   FLOATING_CLUES: `${DATA_DIR}/floating-clues`,
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
+  LOOT_PACKS: `${DATA_DIR}/loot-packs`,
   NPCS: `${DATA_DIR}/npcs`,
   PLAYERS: `${DATA_DIR}/players`,
   REGIONS: `${DATA_DIR}/regions`,
@@ -51,7 +53,6 @@ const DIRS = {
   SESSIONS: `${DATA_DIR}/sessions`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
   SUPPLEMENTS: `${DATA_DIR}/supplements`,
-  TREASURE: `${DATA_DIR}/treasure`,
 } as const;
 
 function getDirectoryYamlLoader<T>(directory: string): () => T[] {
@@ -141,6 +142,13 @@ const hexes = defineCollection({
   },
 });
 
+const lootPacks = defineCollection({
+  loader: getDirectoryYamlLoader<LootPackData>(DIRS.LOOT_PACKS),
+  schema: {
+    ...LootPackSchema,
+  },
+});
+
 const npcs = defineCollection({
   loader: getDirectoryYamlLoader<NpcData>(DIRS.NPCS),
   schema: {
@@ -190,13 +198,6 @@ const supplements = defineCollection({
   },
 });
 
-const treasure = defineCollection({
-  loader: getDirectoryYamlLoader<TreasureData>(DIRS.TREASURE),
-  schema: {
-    ...TreasureSchema,
-  },
-});
-
 export const collections = {
   articles,
   bounties,
@@ -208,6 +209,7 @@ export const collections = {
   floatingClues,
   fixedClues,
   hexes,
+  'loot-packs': lootPacks,
   npcs,
   players,
   regions,
@@ -215,5 +217,4 @@ export const collections = {
   sessions,
   statBlocks,
   supplements,
-  treasure,
 };
