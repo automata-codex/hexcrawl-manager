@@ -6,6 +6,7 @@
   import Visited from './Visited.svelte';
   import Dungeon from './Dungeon.svelte';
   import Neighbors from './Neighbors.svelte';
+  import Landmark from './Landmark.svelte';
 
   interface Props {
     dungeons: DungeonEntry[]
@@ -41,3 +42,4 @@
 <div class="data-bar">
   <Neighbors {hex} />
 </div>
+<Landmark {hex} />
