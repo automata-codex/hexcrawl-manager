@@ -1,14 +1,15 @@
 ---
-import type { DungeonEntry, HexEntry, RegionData, TreasureData } from '../../types';
+import type { ArticleEntry, DungeonEntry, HexEntry, RegionData, TreasureData } from '../../types';
 import { allRarities, initialRarityCounts, type Rarity } from '../../utils/magic-items';
 
 interface Props {
+  articles: ArticleEntry[],
   dungeons: DungeonEntry[],
   hexData: HexEntry[],
   region: RegionData,
 }
 
-const { dungeons, hexData, region } = Astro.props;
+const { articles, dungeons, hexData, region } = Astro.props;
 
 const treasureRatingDescriptions = {
   1: 'Very Low (250–500 gp, no or 1 consumable item)',
@@ -17,6 +18,31 @@ const treasureRatingDescriptions = {
   4: 'High (2,000–4,000 gp, 3–5 items, including rare)',
   5: 'Very High (4,000+ gp, multiple rare or very rare items)',
 } as const;
+
+const articleItems = articles
+  .filter(article => article.data.treasureRegionId === region.id)
+  .flatMap(article => {
+    const treasure = article.data.treasure
+    if (!treasure || typeof treasure !== 'object') return []
+    return Object.values(treasure) as TreasureData[];
+  })
+  .filter(item => typeof item === 'object' && item.type === 'magic-item' && item.rarity)
+  .reduce<Record<string, number>>((acc, item: any) => {
+    acc[item.rarity] = (acc[item.rarity] || 0) + 1
+    return acc
+  }, {});
+const articleTreasure = articles
+  .filter(article => article.data.treasureRegionId === region.id)
+  .reduce((total, article) => {
+    const treasureMap = article.data.treasure;
+    if (!treasureMap || typeof treasureMap !== 'object') return total;
+
+    const valueFromMap = Object.values(treasureMap)
+      .filter(item => typeof item === 'object' && typeof item.value === 'number')
+      .reduce((sum, item: any) => sum + item.value, 0);
+
+    return total + valueFromMap;
+  }, 0);
 
 const dungeonItems = dungeons
   .filter(dungeon => {
@@ -49,9 +75,9 @@ const dungeonTreasure = dungeons
     return total + calculatedValue;
   }, 0);
 
-// I don't like casting to `any[]`, but it's the only way I've found to make the types work in here
 const hiddenSiteItems = hexData
   .filter(hex => hex.data.regionId === region.id)
+  // I don't like casting to `any[]`, but it's the only way I've found to make the types work in here
   .flatMap(hex => hex.data.hiddenSites as any[] || [])
   .flatMap(site =>
     typeof site !== 'string' && Array.isArray(site.treasure)
@@ -78,10 +104,10 @@ const hiddenSiteTreasure = hexData
   }, 0);
 
 const totalItemCounts = allRarities.reduce((acc, rarity) => {
-  acc[rarity] = (hiddenSiteItems[rarity] || 0) + (dungeonItems[rarity] || 0);
+  acc[rarity] = (articleItems[rarity] || 0) + (hiddenSiteItems[rarity] || 0) + (dungeonItems[rarity] || 0);
   return acc;
 }, { ...initialRarityCounts });
-const totalTreasureValue = hiddenSiteTreasure + dungeonTreasure;
+const totalTreasureValue = articleTreasure + hiddenSiteTreasure + dungeonTreasure;
 ---
 <p class="hanging-indent">
   <span class="inline-heading">Treasure Rating:</span>{' '}
