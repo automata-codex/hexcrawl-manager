@@ -35,6 +35,9 @@
             return site.toLowerCase().includes(q);
           }
           return site.description.toLowerCase().includes(q)
+        }) ||
+        hex.notes?.some((note) => {
+          return note.toLowerCase().includes(q);
         })
       );
     }
