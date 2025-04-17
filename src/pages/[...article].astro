@@ -1,9 +1,8 @@
 ---
 import { ARTICLE_ROUTES } from '../utils/routes';
-import { getEntry } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import ArticleLayout from '../layouts/ArticleLayout.astro';
 import SecretArticleLayout from '../layouts/SecretArticleLayout.astro';
-import { renderMarkdown } from '../utils/markdown';
 
 const currentPath = Astro.url.pathname;
 const route = ARTICLE_ROUTES.find((r) => r.path === currentPath);
@@ -22,19 +21,20 @@ if (article === undefined) {
   });
 }
 
+const { Content } = await render(article);
 const isSecure = article.data.secure ?? false;
 const title = article.data.title;
 ---
 {isSecure ? (
   <SecretArticleLayout title={title}>
     <article>
-      <Fragment set:html={renderMarkdown(article.body ?? '')} />
+      <Content />
     </article>
   </SecretArticleLayout>
 ) : (
   <ArticleLayout title={title}>
     <article>
-      <Fragment set:html={renderMarkdown(article.body ?? '')} />
+      <Content />
     </article>
   </ArticleLayout>
 )}
