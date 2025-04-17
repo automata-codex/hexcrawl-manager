@@ -77,7 +77,7 @@ const articles = defineCollection({
     title: z.string(),
     secure: z.boolean().optional(),
     treasure: z.record(z.string(), TreasureSchema).optional(),
-    treasureRegionId: reference('regions').optional(),
+    treasureRegionId: z.string().optional(),
   }),
 });
 

@@ -22,8 +22,8 @@ function getRecHeading() {
   return `<${element} class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</${element}>`;
 }
 
+const articles = await getCollection('articles');
 const dungeons = await getCollection('dungeons');
-
 const hexData = await getCollection('hexes');
 const hexes = hexData
   .filter(hex => hex.data.regionId === region.id)
@@ -67,7 +67,12 @@ const hexes = hexData
       hexCount={hexes.length}
       region={region}
     />
-    <TreasureRating dungeons={dungeons} hexData={hexData} region={region} />
+    <TreasureRating
+      articles={articles}
+      dungeons={dungeons}
+      hexData={hexData}
+      region={region}
+    />
     <div class="description-container">
       <Fragment set:html={renderMarkdown(region.description)} />
     </div>
