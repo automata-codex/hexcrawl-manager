@@ -11,6 +11,6 @@ const hexData = hexEntries
   .sort(hexSort)
   .filter((hex) => !hex.hideInCatalog);
 ---
-<SecretLayout title="Hex Search">
+<SecretLayout title="Hex Catalog">
   <HexSearch client:load dungeons={dungeons} hexes={hexData} />
 </SecretLayout>
