@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { HexData } from '../../types';
-  import GmHexDetails from './GmHexDetails.svelte'; // Update path as needed
+  import GmHexDetails from './GmHexDetails.svelte';
 
   interface Props {
     hexes: HexData[];
@@ -44,14 +44,13 @@
     results = hexes; // Show all by default
   });
 </script>
-
 <div class="hex-search">
   <input
+    class="input"
     type="text"
     bind:value={query}
     oninput={searchHexes}
     placeholder="Search by Hex ID (e.g. R17) or keyword..."
-    class="search-input"
   />
 
   {#if results.length === 0 && query}
@@ -59,13 +58,9 @@
   {/if}
 
   {#if results.length > 0}
-    <ul class="results">
-      {#each results as hex}
-        <li>
-          <h2 class="title is-3">{hex.id.toUpperCase()}: {hex.name}</h2>
-          <GmHexDetails {hex} showSelfLink={true} />
-        </li>
-      {/each}
-    </ul>
+    {#each results as hex (hex.id)}
+      <h2 class="title is-3">{hex.id.toUpperCase()}: {hex.name}</h2>
+      <GmHexDetails {hex} showSelfLink={true} />
+    {/each}
   {/if}
 </div>

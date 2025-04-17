@@ -7,7 +7,8 @@ import { hexSort } from '../../../utils/sort';
 const hexEntries = await getCollection('hexes');
 const hexData = hexEntries
   .map((entry) => entry.data)
-  .sort(hexSort);
+  .sort(hexSort)
+  .filter((hex) => !hex.hideInCatalog);
 ---
 <SecretLayout title="Hex Search">
   <HexSearch client:load hexes={hexData} />
