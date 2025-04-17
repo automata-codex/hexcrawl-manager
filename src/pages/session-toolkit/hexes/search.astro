@@ -4,6 +4,7 @@ import HexSearch from '../../../components/HexDetails/HexSearch.svelte';
 import { getCollection } from 'astro:content';
 import { hexSort } from '../../../utils/sort';
 
+const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
 const hexData = hexEntries
   .map((entry) => entry.data)
@@ -11,5 +12,5 @@ const hexData = hexEntries
   .filter((hex) => !hex.hideInCatalog);
 ---
 <SecretLayout title="Hex Search">
-  <HexSearch client:load hexes={hexData} />
+  <HexSearch client:load dungeons={dungeons} hexes={hexData} />
 </SecretLayout>

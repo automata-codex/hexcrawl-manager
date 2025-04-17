@@ -1,13 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { HexData } from '../../types';
+  import type { DungeonEntry, HexData } from '../../types';
   import GmHexDetails from './GmHexDetails.svelte';
 
   interface Props {
+    dungeons: DungeonEntry[]
     hexes: HexData[];
   }
 
-  const { hexes }: Props = $props();
+  const { dungeons, hexes }: Props = $props();
 
   let query = $state('');
   let results: HexData[] = $state([]);
@@ -63,7 +64,7 @@
   {#if results.length > 0}
     {#each results as hex (hex.id)}
       <h2 class="title is-3">{hex.id.toUpperCase()}: {hex.name}</h2>
-      <GmHexDetails {hex} showSelfLink={true} />
+      <GmHexDetails {dungeons} {hex} showSelfLink={true} />
     {/each}
   {/if}
 </div>

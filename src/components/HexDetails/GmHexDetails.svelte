@@ -1,16 +1,18 @@
 <script lang="ts">
-  import type { HexData } from '../../types.ts';
+  import type { DungeonEntry, HexData } from '../../types.ts';
   import { getRegionTitle } from '../../utils/id-parsers.ts';
   import { getHexPath, getRegionPath } from '../../utils/routes.ts';
   import Explored from './Explored.svelte';
   import Visited from './Visited.svelte';
+  import Dungeon from './Dungeon.svelte';
 
   interface Props {
+    dungeons: DungeonEntry[]
     hex: HexData;
     showSelfLink?: boolean;
   }
 
-  const { hex, showSelfLink = true }: Props = $props();
+  const { dungeons, hex, showSelfLink = true }: Props = $props();
 </script>
 <style>
     .data-bar {
@@ -33,4 +35,5 @@
     <div class="data-bar-cell">
       <a href={getRegionPath(hex.regionId)}>{getRegionTitle(hex.regionId)}</a>
     </div>
+    <Dungeon {dungeons} {hex} />
   </div>
