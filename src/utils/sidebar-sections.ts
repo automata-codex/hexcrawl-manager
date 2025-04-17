@@ -65,7 +65,8 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       label: 'Session Toolkit',
       items: [
         { id: 'map-regions', label: 'Map Regions', href: '/session-toolkit/regions' },
-        { id: 'hex-catalog', label: 'Hex Catalog', href: '/session-toolkit/hexes' },
+        { id: 'hex-catalog', label: 'Hex Catalog', href: ROUTES.sessionToolkit.hexes.index },
+        { id: 'hex-search', label: 'Hex Search', href: ROUTES.sessionToolkit.hexes.search },
         { id: 'scaling-encounters', label: 'Scaling Encounters', href: '/session-toolkit/scaling-encounters' },
         {
           id: 'clues',

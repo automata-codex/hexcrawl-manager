@@ -75,7 +75,8 @@ export const ROUTES = {
     },
     hexes: {
       id: '/session-toolkit/hexes/[id]',
-      index: '/session-toolkit/hexes/index',
+      index: '/session-toolkit/hexes',
+      search: '/session-toolkit/hexes/search',
     },
     lootPacks: {
       id: '/session-toolkit/loot-packs/[id]',
