@@ -24,7 +24,10 @@
     <ul>
       {#each hex.renderedHiddenSites as site}
         <li>
-          {@html site}
+          {@html site.description}
+          {#if site.treasure}
+            <TreasureTable treasure={site.treasure} />
+          {/if}
         </li>
       {/each}
     </ul>
