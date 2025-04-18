@@ -39,7 +39,8 @@
         }) ||
         hex.notes?.some((note) => {
           return note.toLowerCase().includes(q);
-        })
+        }) ||
+        hex.secretSite?.toLowerCase().includes(q)
       );
     }
   };

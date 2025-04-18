@@ -29,6 +29,7 @@ const hexes: ExtendedHexData[] = await Promise.all(intermediateHexes.map(async (
   renderedHiddenSites: await Promise.all(renderHiddenSites(hex.hiddenSites ?? [])),
   renderedNotes: await Promise.all(hex.notes?.map(renderBulletMarkdown) ?? []),
   renderedLandmark: await renderBulletMarkdown(hex.landmark),
+  renderedSecretSite: await renderBulletMarkdown(hex.secretSite ?? ''),
 })));
 ---
 <SecretLayout title="Hex Catalog">

@@ -45,5 +45,19 @@
 </div>
 <Landmark {hex} />
 <HiddenSites {hex} />
-<!-- secret sites -->
-<!-- notes sites -->
+{#if hex.secretSite}
+  <div class="hanging-indent">
+    <span class="inline-heading">Secret Site:</span>{' '}
+    {@html hex.renderedSecretSite}
+  </div>
+{/if}
+{#if hex.notes}
+  <p class="hanging-indent">
+    <span class="inline-heading">GM&rsquo;s Notes:</span>
+  </p>
+  <ul>
+  {#each hex.renderedNotes as note}
+    <li>{note}</li>
+  {/each}
+  </ul>
+{/if}

@@ -67,6 +67,7 @@ export type ExtendedHexData = HexData & {
   renderedHiddenSites: string[]
   renderedNotes: string[];
   renderedLandmark: string;
+  renderedSecretSite: string;
 }
 
 export type ArticleEntry = CollectionEntry<'articles'>;
