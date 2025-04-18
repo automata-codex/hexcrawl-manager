@@ -1,16 +1,23 @@
 ---
-import SecretLayout from '../../../layouts/SecretLayout.astro';
-import HexSearch from '../../../components/HexDetails/HexSearch.svelte';
 import { getCollection } from 'astro:content';
+import HexSearch from '../../../components/HexDetails/HexSearch.svelte';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import type { ExtendedHexData } from '../../../types';
+import { renderBulletMarkdown } from '../../../utils/markdown';
 import { hexSort } from '../../../utils/sort';
 
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
-const hexData = hexEntries
+const intermediateHexes = hexEntries
   .map((entry) => entry.data)
   .sort(hexSort)
   .filter((hex) => !hex.hideInCatalog);
+const hexes: ExtendedHexData[] = await Promise.all(intermediateHexes.map(async (hex) => ({
+  ...hex,
+  renderedNotes: await Promise.all(hex.notes?.map(renderBulletMarkdown) ?? []),
+  renderedLandmark: await renderBulletMarkdown(hex.landmark),
+})));
 ---
 <SecretLayout title="Hex Catalog">
-  <HexSearch client:load dungeons={dungeons} hexes={hexData} />
+  <HexSearch client:load dungeons={dungeons} hexes={hexes} />
 </SecretLayout>

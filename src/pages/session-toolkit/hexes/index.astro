@@ -14,34 +14,6 @@ const hexes = hexData
 const title = 'Baruun Khil Hex Catalog';
 ---
 <SecretLayout title={title}>
-  <script>
-    // ✅ These are now in the browser-visible scope
-  </script>
-
-  <Search client:load onSearch={(query: string) => {
-    const hexIdRegex = new RegExp('^[a-z]\\d{1,2}$', 'i');
-
-    function isHTMLElement(el: unknown): el is HTMLElement {
-      return el instanceof HTMLElement;
-    }
-
-    const q = query.trim().toLowerCase();
-    console.log(`>> query: ${q}`);
-    document.querySelectorAll('.hex').forEach(el => {
-      if (!isHTMLElement(el)) return;
-
-      const id = el.dataset.hexId?.toLowerCase() ?? '';
-      const name = el.dataset.hexName?.toLowerCase() ?? '';
-      const landmark = el.dataset.hexLandmark?.toLowerCase() ?? '';
-      const text = el.textContent?.toLowerCase() ?? '';
-
-      el.hidden = !!q && !(
-        hexIdRegex.test(q) ? id === q : (
-          name.includes(q) || landmark.includes(q) || text.includes(q)
-        )
-      );
-    });
-  }} />
   <main>
     {
       hexes.map((hex) =>
