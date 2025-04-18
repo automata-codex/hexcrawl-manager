@@ -15,8 +15,10 @@ if (!regionId) {
 }
 
 const dungeons = await getCollection('dungeons');
+const hexEntries = await getCollection('hexes');
+const regions = await getCollection('regions');
 
-const allHexes = await getHexEntriesForRegion(regionId)
+const allHexes = await getHexEntriesForRegion(regions, hexEntries, regionId)
 const intermediateHexes = allHexes
   .filter((hex: HexEntry | undefined) => !!hex)
   .map((entry: HexEntry) => entry.data)

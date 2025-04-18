@@ -1,9 +1,7 @@
-import { getCollection, getEntry } from 'astro:content';
+import type { HexEntry, RegionEntry } from '../types.ts';
 
 // Create a map of region IDs to their associated hex IDs
-export async function getHexesByRegion() {
-  const hexes = await getCollection('hexes');
-  const regions = await getCollection('regions');
+export async function getHexesByRegion(regions: RegionEntry[], hexes: HexEntry[]) {
 
   // Create a map of region IDs to their associated hex IDs
   return regions.reduce((map, region) => {
@@ -15,12 +13,12 @@ export async function getHexesByRegion() {
 }
 
 // Fetch full hex entries for a specific region
-export async function getHexEntriesForRegion(regionId: string) {
-  const hexesByRegion = await getHexesByRegion();
+export async function getHexEntriesForRegion(regions: RegionEntry[], hexes: HexEntry[], regionId: string) {
+  const hexesByRegion = await getHexesByRegion(regions, hexes);
 
   const hexIds = hexesByRegion[regionId] || [];
   return Promise.all(
-    hexIds.map(hexId => getEntry('hexes', hexId))
+    hexIds.map(hexId => hexes.find(hex => hex.id === hexId))
   );
 }
 

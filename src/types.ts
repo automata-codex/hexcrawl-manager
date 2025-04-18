@@ -76,6 +76,7 @@ export type ExtendedTreasureData = TreasureData & {
 export type ArticleEntry = CollectionEntry<'articles'>;
 export type DungeonEntry = CollectionEntry<'dungeons'>;
 export type HexEntry = CollectionEntry<'hexes'>;
+export type RegionEntry = CollectionEntry<'regions'>;
 
 export type Pillar = keyof CharacterData['advancementPoints'];
 
