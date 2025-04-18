@@ -64,6 +64,7 @@ export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>
 export type TreasureData = z.infer<typeof TreasureSchema>;
 
 export type ExtendedHexData = HexData & {
+  renderedHiddenSites: string[]
   renderedNotes: string[];
   renderedLandmark: string;
 }

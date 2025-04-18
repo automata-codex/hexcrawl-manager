@@ -2,9 +2,21 @@
 import { getCollection } from 'astro:content';
 import HexSearch from '../../../components/HexDetails/HexSearch.svelte';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
-import type { ExtendedHexData } from '../../../types';
+import type { ExtendedHexData, HiddenSitesData } from '../../../types';
 import { renderBulletMarkdown } from '../../../utils/markdown';
 import { hexSort } from '../../../utils/sort';
+
+function isObjectArray(arr: any[]): arr is { description: string }[] {
+  return typeof arr[0] === 'object' && 'description' in arr[0];
+}
+
+function renderHiddenSites(hiddenSites: HiddenSitesData[] | string[]) {
+  if (isObjectArray(hiddenSites)) {
+    return hiddenSites.map(async (site) => renderBulletMarkdown(site.description));
+  } else {
+    return hiddenSites.map(async (site) => renderBulletMarkdown(site));
+  }
+}
 
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
@@ -14,6 +26,7 @@ const intermediateHexes = hexEntries
   .filter((hex) => !hex.hideInCatalog);
 const hexes: ExtendedHexData[] = await Promise.all(intermediateHexes.map(async (hex) => ({
   ...hex,
+  renderedHiddenSites: await Promise.all(renderHiddenSites(hex.hiddenSites ?? [])),
   renderedNotes: await Promise.all(hex.notes?.map(renderBulletMarkdown) ?? []),
   renderedLandmark: await renderBulletMarkdown(hex.landmark),
 })));

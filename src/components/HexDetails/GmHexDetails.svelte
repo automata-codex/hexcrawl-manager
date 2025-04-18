@@ -7,6 +7,7 @@
   import Dungeon from './Dungeon.svelte';
   import Neighbors from './Neighbors.svelte';
   import Landmark from './Landmark.svelte';
+  import HiddenSites from './HiddenSites.svelte';
 
   interface Props {
     dungeons: DungeonEntry[]
@@ -43,3 +44,6 @@
   <Neighbors {hex} />
 </div>
 <Landmark {hex} />
+<HiddenSites {hex} />
+<!-- secret sites -->
+<!-- notes sites -->
