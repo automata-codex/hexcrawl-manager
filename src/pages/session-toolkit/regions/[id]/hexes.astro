@@ -2,10 +2,10 @@
 import { getCollection } from 'astro:content';
 import GmHexDetails from '../../../../components/GmHexDetails/GmHexDetails.svelte';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
-import type { ExtendedHexData } from '../../../../types';
+import type { ExtendedHexData, HexData, HexEntry } from '../../../../types';
 import { processHex } from '../../../../utils/hexes';
 import { getRegionTitle } from '../../../../utils/id-parsers';
-import { getHexEntriesForRegion } from '../../../../utils/region-hex-mapper';
+import { getHexEntriesForRegion } from '../../../../utils/regions';
 import { hexSort } from '../../../../utils/sort';
 
 const { id: regionId } = Astro.params;
@@ -20,9 +20,9 @@ const dungeons = await getCollection('dungeons');
 
 const allHexes = await getHexEntriesForRegion(regionId)
 const intermediateHexes = allHexes
-  .filter(hex => !!hex)
-  .map((entry) => entry.data)
-  .filter((hex) => !hex.hideInCatalog)
+  .filter((hex: HexEntry | undefined) => !!hex)
+  .map((entry: HexEntry) => entry.data)
+  .filter((hex: HexData) => !hex.hideInCatalog)
   .sort(hexSort);
 const hexes: ExtendedHexData[] = await Promise.all(
   intermediateHexes.map(processHex)
