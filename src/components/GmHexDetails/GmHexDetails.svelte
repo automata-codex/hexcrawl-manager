@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { DungeonEntry, ExtendedHexData } from '../../types.ts';
-  import { getRegionTitle } from '../../utils/id-parsers.ts';
+  import { getRegionTitle } from '../../utils/regions.ts';
   import { getHexPath, getRegionPath } from '../../utils/routes.ts';
   import Explored from './Explored.svelte';
   import Visited from './Visited.svelte';

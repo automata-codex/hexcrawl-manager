@@ -23,3 +23,19 @@ export async function getHexEntriesForRegion(regionId: string) {
     hexIds.map(hexId => getEntry('hexes', hexId))
   );
 }
+
+export function getRegionNumber(regionId: string): number {
+  const regionNumber = regionId.split('-')[1];
+  return parseInt(regionNumber, 10);
+}
+
+export function getRegionTitle(regionId: string): string {
+  const regionNumber = getRegionNumber(regionId);
+  return `Region ${regionNumber}`;
+}
+
+export function regionSort(a: string, b: string): number {
+  const aRegionNumber = getRegionNumber(a);
+  const bRegionNumber = getRegionNumber(b);
+  return aRegionNumber - bRegionNumber;
+}

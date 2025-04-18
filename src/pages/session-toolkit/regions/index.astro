@@ -1,11 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
-import { getRegionTitle, regionIdCompare } from '../../../utils/id-parsers';
+import { getRegionTitle, regionSort } from '../../../utils/regions';
 
 const regions = await getCollection('regions');
 const regionLinks = regions
-  .sort((a, b) => regionIdCompare(a.id, b.id))
+  .sort((a, b) => regionSort(a.id, b.id))
   .map(region => ({
     href: `/session-toolkit/regions/${region.id}`,
     name: `${getRegionTitle(region.id)}: ${region.data.name}`
