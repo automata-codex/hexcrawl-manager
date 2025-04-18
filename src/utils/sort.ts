@@ -13,7 +13,7 @@ export function hexSort(a: HexData, b: HexData): number {
   }
 }
 
-export function regionIdCompare(a: string, b: string): number {
+export function regionSort(a: string, b: string): number {
   const aRegionNumber = getRegionNumber(a);
   const bRegionNumber = getRegionNumber(b);
   return aRegionNumber - bRegionNumber;
