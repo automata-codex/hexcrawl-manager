@@ -3,19 +3,18 @@ export const ROUTES = {
     characters: {
       id: '/gm-reference/characters/[id]',
       all: '/gm-reference/characters/all',
-      index: '/gm-reference/characters/index',
+      index: '/gm-reference/characters',
     },
-    cosmology: '/gm-reference/cosmology',
     dungeons: {
       id: '/gm-reference/dungeons/[id]',
-      index: '/gm-reference/dungeons/index',
+      index: '/gm-reference/dungeons',
     },
     encounters: {
       id: '/gm-reference/encounters/[id]',
-      index: '/gm-reference/encounters/index',
+      index: '/gm-reference/encounters',
     },
     factions: {
-      index: '/gm-reference/factions/index',
+      index: '/gm-reference/factions',
     },
     firstCivilization: {
       airships: '/gm-reference/first-civilization/airships',
@@ -31,7 +30,7 @@ export const ROUTES = {
     },
     westernFrontierGmsNotes: '/gm-reference/western-frontier-gms-notes',
   },
-  index: '/index',
+  index: '/',
   playersGuide: {
     advancement: '/players-guide/advancement',
     ancestriesAndCultures: '/players-guide/ancestries-and-cultures',
@@ -52,8 +51,10 @@ export const ROUTES = {
       baruunKhilMapPrint: '/players-reference/setting/baruun-khil-map-print',
       bountyBoard: {
         id: '/players-reference/setting/bounty-board/[id]',
-        index: '/players-reference/setting/bounty-board/index',
+        index: '/players-reference/setting/bounty-board',
       },
+      cosmology: '/players-reference/setting/cosmology',
+      glintingStepsMap: '/players-reference/setting/glinting-steps-map',
       knownWorld: '/players-reference/setting/known-world',
       npcs: '/players-reference/setting/npcs',
       vaulridgeNobility: '/players-reference/setting/vaulridge-nobility',
@@ -76,7 +77,6 @@ export const ROUTES = {
     hexes: {
       id: '/session-toolkit/hexes/[id]',
       index: '/session-toolkit/hexes',
-      search: '/session-toolkit/hexes/search',
     },
     lootPacks: {
       id: '/session-toolkit/loot-packs/[id]',
@@ -132,12 +132,12 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.playersGuide.characterGoals,
   },
   {
-    slug: 'cosmology',
-    path: ROUTES.gmReference.cosmology,
-  },
-  {
     slug: 'first-civilization-demographics',
     path: ROUTES.gmReference.firstCivilization.demographics,
+  },
+  {
+    slug: 'glinting-steps-map',
+    path: ROUTES.playersReference.setting.glintingStepsMap,
   },
   {
     slug: 'griffon-hunt',

@@ -25,12 +25,13 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           label: 'Setting',
           expandable: true,
           items: [
-            { label: 'The Known World', href: '/players-reference/setting/known-world' },
-            { label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
-            { label: 'Baruun Khil, the Western Frontier', href: '/players-reference/setting/western-frontier' },
-            { label: 'Explored Hexes', href: '/players-reference/setting/baruun-khil-map' },
-            { label: 'NPCs', href: '/players-reference/setting/npcs' },
-            { label: 'Bounty Board', href: '/players-reference/setting/bounty-board' },
+            { label: 'The Known World', href: ROUTES.playersReference.setting.knownWorld },
+            { label: 'Nobility of Vaulridge', href: ROUTES.playersReference.setting.vaulridgeNobility },
+            { label: 'Baruun Khil, the Western Frontier', href: ROUTES.playersReference.setting.westernFrontier },
+            { label: 'Explored Hexes', href: ROUTES.playersReference.setting.baruunKhilMap },
+            { label: 'NPCs', href: ROUTES.playersReference.setting.npcs },
+            { label: 'Bounty Board', href: ROUTES.playersReference.setting.bountyBoard.index },
+            { label: 'Cosmology', href: ROUTES.playersReference.setting.cosmology },
           ],
         },
         {
@@ -40,6 +41,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           items: [
             { label: 'The Known World', href: '/players-reference/setting/known-world' },
             { label: 'Baruun Khil, the Western Frontier', href: '/players-reference/setting/baruun-khil-map' },
+            { label: 'Glinting Steps', href: ROUTES.playersReference.setting.glintingStepsMap },
           ],
         },
         {
@@ -64,10 +66,9 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       id: 'session-toolkit',
       label: 'Session Toolkit',
       items: [
-        { id: 'map-regions', label: 'Map Regions', href: '/session-toolkit/regions' },
+        { id: 'map-regions', label: 'Map Regions', href: ROUTES.sessionToolkit.regions.index },
         { id: 'hex-catalog', label: 'Hex Catalog', href: ROUTES.sessionToolkit.hexes.index },
-        { id: 'hex-search', label: 'Hex Search', href: ROUTES.sessionToolkit.hexes.search },
-        { id: 'scaling-encounters', label: 'Scaling Encounters', href: '/session-toolkit/scaling-encounters' },
+        { id: 'scaling-encounters', label: 'Scaling Encounters', href: ROUTES.sessionToolkit.scalingEncounters },
         {
           id: 'clues',
           label: 'Clues',
@@ -88,9 +89,9 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
             { label: 'Kobold Caves', href: '/session-toolkit/maps/kobold-caves' },
           ],
         },
-        { id: 'rumors', label: 'Rumors', href: '/session-toolkit/rumors' },
+        { id: 'rumors', label: 'Rumors', href: ROUTES.sessionToolkit.rumors.index },
         { id: 'scar-sites', label: 'Scar Sites', href: ROUTES.sessionToolkit.scarSites },
-        { id: 'timeline', label: 'Timeline', href: '/session-toolkit/timeline' },
+        { id: 'timeline', label: 'Timeline', href: ROUTES.sessionToolkit.timeline },
         {
           id: 'minigames',
           label: 'Minigames',
@@ -105,9 +106,9 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       id: 'gm-reference',
       label: 'GM Reference',
       items: [
-        { id: 'characters', label: 'Characters', href: '/gm-reference/characters' },
-        { id: 'cosmology', label: 'Cosmology', href: '/gm-reference/cosmology' },
-        { id: 'dungeons', label: 'Dungeons', href: '/gm-reference/dungeons' },
+        { id: 'characters', label: 'Characters', href: ROUTES.gmReference.characters.index },
+        { id: 'cosmology', label: 'Cosmology', href: ROUTES.playersReference.setting.cosmology },
+        { id: 'dungeons', label: 'Dungeons', href: ROUTES.gmReference.dungeons.index },
         { id: 'encounters', label: 'Encounters', href: '/gm-reference/encounters' },
         { id: 'factions', label: 'Factions', href: '/gm-reference/factions' },
         {
