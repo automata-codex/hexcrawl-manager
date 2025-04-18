@@ -66,10 +66,9 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       id: 'session-toolkit',
       label: 'Session Toolkit',
       items: [
-        { id: 'map-regions', label: 'Map Regions', href: '/session-toolkit/regions' },
+        { id: 'map-regions', label: 'Map Regions', href: ROUTES.sessionToolkit.regions.index },
         { id: 'hex-catalog', label: 'Hex Catalog', href: ROUTES.sessionToolkit.hexes.index },
-        { id: 'hex-search', label: 'Hex Search', href: ROUTES.sessionToolkit.hexes.search },
-        { id: 'scaling-encounters', label: 'Scaling Encounters', href: '/session-toolkit/scaling-encounters' },
+        { id: 'scaling-encounters', label: 'Scaling Encounters', href: ROUTES.sessionToolkit.scalingEncounters },
         {
           id: 'clues',
           label: 'Clues',
@@ -90,9 +89,9 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
             { label: 'Kobold Caves', href: '/session-toolkit/maps/kobold-caves' },
           ],
         },
-        { id: 'rumors', label: 'Rumors', href: '/session-toolkit/rumors' },
+        { id: 'rumors', label: 'Rumors', href: ROUTES.sessionToolkit.rumors.index },
         { id: 'scar-sites', label: 'Scar Sites', href: ROUTES.sessionToolkit.scarSites },
-        { id: 'timeline', label: 'Timeline', href: '/session-toolkit/timeline' },
+        { id: 'timeline', label: 'Timeline', href: ROUTES.sessionToolkit.timeline },
         {
           id: 'minigames',
           label: 'Minigames',
