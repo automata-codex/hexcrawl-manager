@@ -7,8 +7,6 @@
   }
 
   const { treasure }: Props = $props();
-
-
 </script>
 <style>
     .treasure-table td, .treasure-table th {
