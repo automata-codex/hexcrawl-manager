@@ -1,8 +1,8 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 
-import GmHexDetails from '../../../components/HexData/GmHexDetails.astro';
-import PlayerHexDetails from '../../../components/HexData/PlayerHexDetails.astro';
+import GmHexDetails from '../../../components/GmHexDetails/GmHexDetails.svelte';
+import PlayerHexDetails from '../../../components/PlayerHexDetails/PlayerHexDetails.astro';
 import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
 import OpenContent from '../../../components/Content/OpenContent.astro';
 import SecretContent from '../../../components/Content/SecretContent.astro';
@@ -13,6 +13,7 @@ import type {
   EncounterTableData,
   HexData,
 } from '../../../types';
+import { processHex } from '../../../utils/hexes';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -34,6 +35,7 @@ if (hexData === undefined) {
   });
 }
 
+const dungeons = await getCollection('dungeons');
 const hex: HexData = hexData.data;
 const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
 
@@ -78,13 +80,15 @@ export function mergeHexOverrides(
 if (encounters && hex.encounterOverrides) {
   encounters = mergeHexOverrides(encounters, hex.encounterOverrides);
 }
+
+const extendedHexData = await processHex(hex);
 ---
 <ComponentLayout title={title}>
   <OpenContent>
     <PlayerHexDetails hex={hex} />
   </OpenContent>
   <SecretContent>
-    <GmHexDetails hex={hex} showSelfLink={false} />
+    <GmHexDetails dungeons={dungeons} hex={extendedHexData} showSelfLink={false} />
     <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
     <p>
       <span class="inline-heading">Chance of encounter:</span>

@@ -1,7 +1,6 @@
 ---
 import type { HiddenSitesData } from '../../types';
 import { renderBulletMarkdown } from '../../utils/markdown';
-import TreasureTable from '../TreasureTable/TreasureTable.astro';
 
 interface Props {
   sites: HiddenSitesData[];
@@ -15,9 +14,6 @@ const { sites } = Astro.props;
       <span class="inline-heading">Hidden Site:</span>{' '}
       <Fragment set:html={renderBulletMarkdown(site.description)} />
     </div>
-    {site.treasure.length > 0 && (
-      <TreasureTable treasure={site.treasure} />
-    )}
   </div>
 )) : (
   <div>
@@ -25,10 +21,8 @@ const { sites } = Astro.props;
   </div>
   <ul>
     {sites.map((site) => (
-        <li><Fragment set:html={renderBulletMarkdown(site.description)} />
-        {site.treasure.length > 0 && (
-          <TreasureTable treasure={site.treasure} />
-        )}
+        <li>
+          <Fragment set:html={renderBulletMarkdown(site.description)} />
         </li>
     ))}
   </ul>
