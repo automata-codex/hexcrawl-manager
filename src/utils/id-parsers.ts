@@ -15,9 +15,3 @@ export function getRegionTitle(regionId: string): string {
   const regionNumber = getRegionNumber(regionId);
   return `Region ${regionNumber}`;
 }
-
-export function regionIdCompare(a: string, b: string): number {
-  const aRegionNumber = getRegionNumber(a);
-  const bRegionNumber = getRegionNumber(b);
-  return aRegionNumber - bRegionNumber;
-}

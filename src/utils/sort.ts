@@ -1,4 +1,4 @@
-import { getHexColumn, getHexRow } from './id-parsers.ts';
+import { getHexColumn, getHexRow, getRegionNumber } from './id-parsers.ts';
 import type { HexData } from '../types.ts';
 
 export function hexSort(a: HexData, b: HexData): number {
@@ -11,4 +11,10 @@ export function hexSort(a: HexData, b: HexData): number {
   } else {
     return aCol.localeCompare(bCol);
   }
+}
+
+export function regionIdCompare(a: string, b: string): number {
+  const aRegionNumber = getRegionNumber(a);
+  const bRegionNumber = getRegionNumber(b);
+  return aRegionNumber - bRegionNumber;
 }

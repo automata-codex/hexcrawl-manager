@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { HexData } from '../../types.ts';
-  import { getHexNeighbors } from '../../utils/get-hex-neighbors.ts';
+  import { getHexNeighbors } from '../../utils/hexes.ts';
   import { getHexPath } from '../../utils/routes.ts';
 
   interface Props {
