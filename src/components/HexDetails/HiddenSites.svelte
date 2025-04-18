@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ExtendedHexData } from '../../types.ts';
+  import TreasureTable from '../TreasureTable/TreasureTable.svelte';
 
   interface Props {
     hex: ExtendedHexData;
@@ -11,8 +12,11 @@
   {#if hex.renderedHiddenSites.length === 1}
     <div class="hanging-indent">
       <span class="inline-heading">Hidden Site:</span>{' '}
-      {@html hex.renderedHiddenSites[0]}
+      {@html hex.renderedHiddenSites[0].description}
     </div>
+    {#if hex.renderedHiddenSites[0].treasure}
+       <TreasureTable treasure={hex.renderedHiddenSites[0].treasure} />
+    {/if}
   {:else}
     <div>
       <span class="inline-heading keep-with-next">Hidden Sites:</span>

@@ -1,15 +1,23 @@
-import type { ExtendedHexData, HexData, HiddenSitesData } from '../types.ts';
+import type { ExtendedHexData, ExtendedTreasureData, HexData, HiddenSitesData } from '../types.ts';
 import { renderBulletMarkdown } from './markdown.ts';
+import { processTreasure } from './treasure.ts';
 
 function isObjectArray(arr: any[]): arr is { description: string }[] {
   return typeof arr[0] === 'object' && 'description' in arr[0];
 }
 
-function renderHiddenSites(hiddenSites: HiddenSitesData[] | string[]) {
+function renderHiddenSites(
+  hiddenSites: HiddenSitesData[] | string[]
+): Promise<{ description: string; treasure?: ExtendedTreasureData[]; }>[] {
   if (isObjectArray(hiddenSites)) {
-    return hiddenSites.map(async (site) => renderBulletMarkdown(site.description));
+    return hiddenSites.map(async (site) => ({
+      description: await renderBulletMarkdown(site.description),
+      treasure: await processTreasure(site.treasure),
+    }));
   } else {
-    return hiddenSites.map(async (site) => renderBulletMarkdown(site));
+    return hiddenSites.map(async (site) => ({
+      description: await renderBulletMarkdown(site),
+    }));
   }
 }
 
