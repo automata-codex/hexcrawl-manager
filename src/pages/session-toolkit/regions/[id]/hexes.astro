@@ -1,6 +1,9 @@
 ---
-import GmHexDetails from '../../../../components/HexData/GmHexDetails.astro';
+import { getCollection } from 'astro:content';
+import GmHexDetails from '../../../../components/HexDetails/GmHexDetails.svelte';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
+import type { ExtendedHexData } from '../../../../types';
+import { processHex } from '../../../../utils/hexes';
 import { getRegionTitle } from '../../../../utils/id-parsers';
 import { getHexEntriesForRegion } from '../../../../utils/region-hex-mapper';
 import { hexSort } from '../../../../utils/sort';
@@ -13,14 +16,21 @@ if (!regionId) {
   });
 }
 
+const dungeons = await getCollection('dungeons');
+
 const allHexes = await getHexEntriesForRegion(regionId)
-const hexData = allHexes
+const intermediateHexes = allHexes
   .filter(hex => !!hex)
-  .sort((a, b) => hexSort(a.data, b.data));
+  .map((entry) => entry.data)
+  .filter((hex) => !hex.hideInCatalog)
+  .sort(hexSort);
+const hexes: ExtendedHexData[] = await Promise.all(
+  intermediateHexes.map(processHex)
+);
 ---
 <SecretLayout title={`${getRegionTitle(regionId)} Hexes`}>
-  {hexData.map((hex) => (
-    <h2 class="title is-3">{hex.id.toUpperCase()}: {hex.data.name}</h2>
-    <GmHexDetails hex={hex.data} />
+  {hexes.map((hex) => (
+    <h2 class="title is-3">{hex.id.toUpperCase()}: {hex.name}</h2>
+    <GmHexDetails dungeons={dungeons} hex={hex} />
   ))}
 </SecretLayout>

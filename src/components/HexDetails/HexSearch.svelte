@@ -1,17 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { DungeonEntry, HexData } from '../../types';
+  import type { DungeonEntry, ExtendedHexData } from '../../types';
   import GmHexDetails from './GmHexDetails.svelte';
 
   interface Props {
     dungeons: DungeonEntry[]
-    hexes: HexData[];
+    hexes: ExtendedHexData[];
   }
 
   const { dungeons, hexes }: Props = $props();
 
   let query = $state('');
-  let results: HexData[] = $state([]);
+  let results: ExtendedHexData[] = $state([]);
 
   const isHexId = (input: string): boolean =>
     /^[a-z]\s*-?\s*\d{1,2}$/i.test(input.trim());
