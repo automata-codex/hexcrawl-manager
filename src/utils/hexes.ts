@@ -1,6 +1,7 @@
 import type { ExtendedHexData, ExtendedTreasureData, HexData, HiddenSitesData } from '../types.ts';
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
+import { getHexColumn, getHexRow } from './id-parsers.ts';
 
 export function getHexNeighbors(hex: string): string[] {
   // Extract column (letter) and row (number) from the input hex string
@@ -60,6 +61,18 @@ export function getHexNeighbors(hex: string): string[] {
   // Filter out null values (invalid neighbors)
   const output = neighbors.filter(Boolean) as string[];
   return output.sort();
+}
+
+export function hexSort(a: HexData, b: HexData): number {
+  const aCol = getHexColumn(a.id);
+  const aRow = getHexRow(a.id);
+  const bCol = getHexColumn(b.id);
+  const bRow = getHexRow(b.id);
+  if (aCol === bCol) {
+    return aRow - bRow;
+  } else {
+    return aCol.localeCompare(bCol);
+  }
 }
 
 function isObjectArray(arr: any[]): arr is { description: string }[] {

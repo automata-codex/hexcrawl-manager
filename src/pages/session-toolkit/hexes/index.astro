@@ -3,8 +3,7 @@ import { getCollection } from 'astro:content';
 import HexSearch from '../../../components/GmHexDetails/HexSearch.svelte';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import type { ExtendedHexData } from '../../../types';
-import { processHex } from '../../../utils/hexes';
-import { hexSort } from '../../../utils/sort';
+import { hexSort, processHex } from '../../../utils/hexes';
 
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');

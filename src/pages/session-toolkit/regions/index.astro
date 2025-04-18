@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import { getRegionTitle } from '../../../utils/id-parsers';
-import { regionSort } from '../../../utils/sort';
+import { regionSort } from '../../../utils/regions';
 
 const regions = await getCollection('regions');
 const regionLinks = regions

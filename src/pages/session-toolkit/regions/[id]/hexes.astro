@@ -3,10 +3,9 @@ import { getCollection } from 'astro:content';
 import GmHexDetails from '../../../../components/GmHexDetails/GmHexDetails.svelte';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
 import type { ExtendedHexData, HexData, HexEntry } from '../../../../types';
-import { processHex } from '../../../../utils/hexes';
+import { hexSort, processHex } from '../../../../utils/hexes';
 import { getRegionTitle } from '../../../../utils/id-parsers';
 import { getHexEntriesForRegion } from '../../../../utils/regions';
-import { hexSort } from '../../../../utils/sort';
 
 const { id: regionId } = Astro.params;
 if (!regionId) {

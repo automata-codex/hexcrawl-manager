@@ -1,4 +1,5 @@
 import { getCollection, getEntry } from 'astro:content';
+import { getRegionNumber } from './id-parsers.ts';
 
 // Create a map of region IDs to their associated hex IDs
 export async function getHexesByRegion() {
@@ -22,4 +23,10 @@ export async function getHexEntriesForRegion(regionId: string) {
   return Promise.all(
     hexIds.map(hexId => getEntry('hexes', hexId))
   );
+}
+
+export function regionSort(a: string, b: string): number {
+  const aRegionNumber = getRegionNumber(a);
+  const bRegionNumber = getRegionNumber(b);
+  return aRegionNumber - bRegionNumber;
 }
