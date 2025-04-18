@@ -1,39 +1,22 @@
----
-import { startCase, toLower } from 'lodash-es';
-import type { TreasureData } from '../types';
-import { renderBulletMarkdown } from '../utils/markdown';
+<script lang="ts">
+  import type { ExtendedTreasureData } from '../../types';
+  import { formatRarity, formatType, formatValue } from '../../utils/treasure.ts';
 
-interface Props {
-  treasure: TreasureData[];
-}
+  interface Props {
+    treasure: ExtendedTreasureData[];
+  }
 
-const { treasure } = Astro.props;
-
-function formatValue(value?: number): string {
-  return value != null ? `${value} gp` : '—';
-}
-
-function formatRarity(rarity?: string): string {
-  return rarity ? startCase(toLower(rarity)) : '—';
-}
-
-function formatType(type?: string): string {
-  return type ? startCase(toLower(type)) : '—';
-}
-
-async function formatNotes(notes?: string): Promise<string> {
-  return notes ? await renderBulletMarkdown(notes) : '—';
-}
----
+  const { treasure }: Props = $props();
+</script>
 <style>
-    .container td, .container th {
+    .treasure-table td, .treasure-table th {
         border-bottom: 1px solid var(--bulma-border);
         padding-right: 1rem;
         padding-top: 0.25rem;
         padding-bottom: 0.25rem;
     }
 
-    .container th {
+    .treasure-table th {
         border-top: 1px solid var(--bulma-border);
     }
 
@@ -41,17 +24,19 @@ async function formatNotes(notes?: string): Promise<string> {
         border-spacing: 0;
         margin: 1rem 0;
     }
+
     th, td {
         border-bottom: 1px solid var(--bulma-border);
         padding-right: 1rem;
         padding-top: 0.25rem;
         padding-bottom: 0.25rem;
     }
+
     th {
         border-top: 1px solid var(--bulma-border);
     }
 </style>
-{treasure.length > 0 && (
+{#if treasure.length > 0}
   <table class="treasure-table">
     <thead>
     <tr>
@@ -63,15 +48,15 @@ async function formatNotes(notes?: string): Promise<string> {
     </tr>
     </thead>
     <tbody>
-    {treasure.map((item) => (
+    {#each treasure as item, index (index)}
       <tr>
         <td>{item.name}</td>
         <td>{formatValue(item.value)}</td>
         <td>{formatType(item.type)}</td>
         <td>{formatRarity(item.rarity)}</td>
-        <td><Fragment set:html={formatNotes(item.notes)} /></td>
+        <td>{item.renderedNotes}</td>
       </tr>
-    ))}
+    {/each}
     </tbody>
   </table>
-)}
+{/if}

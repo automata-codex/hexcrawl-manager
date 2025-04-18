@@ -63,6 +63,16 @@ export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
 export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>
 export type TreasureData = z.infer<typeof TreasureSchema>;
 
+export type ExtendedHexData = HexData & {
+  renderedHiddenSites: { description: string; treasure?: ExtendedTreasureData[] }[];
+  renderedNotes: string[];
+  renderedLandmark: string;
+  renderedSecretSite: string;
+}
+export type ExtendedTreasureData = TreasureData & {
+  renderedNotes: string;
+}
+
 export type ArticleEntry = CollectionEntry<'articles'>;
 export type DungeonEntry = CollectionEntry<'dungeons'>;
 export type HexEntry = CollectionEntry<'hexes'>;
