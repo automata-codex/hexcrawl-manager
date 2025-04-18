@@ -4,8 +4,7 @@ import GmHexDetails from '../../../../components/GmHexDetails/GmHexDetails.svelt
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
 import type { ExtendedHexData, HexData, HexEntry } from '../../../../types';
 import { hexSort, processHex } from '../../../../utils/hexes';
-import { getRegionTitle } from '../../../../utils/id-parsers';
-import { getHexEntriesForRegion } from '../../../../utils/regions';
+import { getHexEntriesForRegion, getRegionTitle } from '../../../../utils/regions';
 
 const { id: regionId } = Astro.params;
 if (!regionId) {
