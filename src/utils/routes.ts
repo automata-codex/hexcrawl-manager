@@ -54,6 +54,7 @@ export const ROUTES = {
         id: '/players-reference/setting/bounty-board/[id]',
         index: '/players-reference/setting/bounty-board/index',
       },
+      glintingStepsMap: '/players-reference/setting/glinting-steps-map',
       knownWorld: '/players-reference/setting/known-world',
       npcs: '/players-reference/setting/npcs',
       vaulridgeNobility: '/players-reference/setting/vaulridge-nobility',
@@ -138,6 +139,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'first-civilization-demographics',
     path: ROUTES.gmReference.firstCivilization.demographics,
+  },
+  {
+    slug: 'glinting-steps-map',
+    path: ROUTES.playersReference.setting.glintingStepsMap,
   },
   {
     slug: 'griffon-hunt',

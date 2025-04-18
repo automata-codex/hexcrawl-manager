@@ -40,6 +40,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           items: [
             { label: 'The Known World', href: '/players-reference/setting/known-world' },
             { label: 'Baruun Khil, the Western Frontier', href: '/players-reference/setting/baruun-khil-map' },
+            { label: 'Glinting Steps', href: ROUTES.playersReference.setting.glintingStepsMap },
           ],
         },
         {
