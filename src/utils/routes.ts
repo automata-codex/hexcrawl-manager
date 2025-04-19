@@ -202,7 +202,7 @@ export function getFloatingCluePath(floatingClueId: string): string {
 }
 
 export function getHexPath(hexId: string): string {
-  return interpolateRoute(ROUTES.sessionToolkit.hexes.id, { id: hexId });
+  return interpolateRoute(ROUTES.sessionToolkit.hexes.id, { id: hexId }).toLowerCase();
 }
 
 export function getLootPackPath(lootPackId: string): string {
