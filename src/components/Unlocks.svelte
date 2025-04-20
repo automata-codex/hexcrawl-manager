@@ -16,13 +16,13 @@
 
 {#if unlocks.length > 0}
   <section class="knowledge-unlocks">
-    <h2>Knowledge Unlocked</h2>
+    <p class="inline-heading">Knowledge Unlocked:</p>
     <ul>
       {#each unlocks as key}
         {@const node = resolveNode(key)}
         {#if node}
           <li>
-            <strong>{node.name}</strong><br />
+            <span class="inline-heading">{node.name}</span>:{' '}
             <span class="text-muted">{node.description}</span>
           </li>
         {:else}
