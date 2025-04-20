@@ -4,6 +4,7 @@ import HexSearch from '../../../components/GmHexDetails/HexSearch.svelte';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import type { ExtendedHexData } from '../../../types';
 import { hexSort, processHex } from '../../../utils/hexes';
+import { knowledgeTrees } from '../../../utils/knowledge-trees';
 
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
@@ -16,5 +17,5 @@ const hexes: ExtendedHexData[] = await Promise.all(
 );
 ---
 <SecretLayout title="Hex Catalog">
-  <HexSearch client:load dungeons={dungeons} hexes={hexes} />
+  <HexSearch client:load dungeons={dungeons} hexes={hexes} knowledgeTrees={knowledgeTrees} />
 </SecretLayout>

@@ -1,15 +1,34 @@
-import type { KnowledgeNodeData } from '../types.ts';
+import fs from 'fs';
+import path from 'path';
+import yaml from 'yaml';
+import { KnowledgeNodeSchema } from '../../schemas/knowledge-node';
+import type { FlatKnowledgeTree, KnowledgeNodeData } from '../types.ts';
 
 export function flattenKnowledgeTree(
   node: KnowledgeNodeData,
-  parentPath: string[] = []
-): { fullId: string; node: KnowledgeNodeData }[] {
-  const fullId = [...parentPath, node.id].join('.');
-  const entries = [{ fullId, node }];
+  prefix: string[] = [],
+): FlatKnowledgeTree {
+  const id = [...prefix, node.id].join('.');
+  const result: FlatKnowledgeTree = { [id]: node };
   if (node.children) {
     for (const child of node.children) {
-      entries.push(...flattenKnowledgeTree(child, [...parentPath, node.id]));
+      Object.assign(result, flattenKnowledgeTree(child, [...prefix, node.id]));
     }
   }
-  return entries;
+  return result;
 }
+
+const knowledgeTrees: Record<string, FlatKnowledgeTree> = {};
+
+const dir = path.resolve('data/knowledge-trees');
+const files = fs.readdirSync(dir).filter(file => /\.ya?ml$/.test(file));
+
+for (const file of files) {
+  const rootId = file.replace(/\.ya?ml$/, '');
+  const content = fs.readFileSync(path.join(dir, file), 'utf8');
+  const parsed = yaml.parse(content);
+  const tree = KnowledgeNodeSchema.parse(parsed);
+  knowledgeTrees[rootId] = flattenKnowledgeTree(tree);
+}
+
+export { knowledgeTrees };
