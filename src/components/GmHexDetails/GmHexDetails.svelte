@@ -17,7 +17,6 @@
   }
 
   const { dungeons, hex, knowledgeTrees, showSelfLink = true }: Props = $props();
-  console.log(`>> GmHexDetails.svelte: ${knowledgeTrees}`)
 </script>
 <style>
     .data-bar {

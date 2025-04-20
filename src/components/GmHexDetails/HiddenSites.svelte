@@ -9,7 +9,6 @@
   }
 
   const { hex, knowledgeTrees }: Props = $props();
-  console.log(`>> HiddenSites.svelte: ${knowledgeTrees}`)
 </script>
 {#if hex.renderedHiddenSites && hex.renderedHiddenSites.length > 0}
   {#if hex.renderedHiddenSites.length === 1}

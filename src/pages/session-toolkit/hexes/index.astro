@@ -6,8 +6,6 @@ import type { ExtendedHexData } from '../../../types';
 import { hexSort, processHex } from '../../../utils/hexes';
 import { knowledgeTrees } from '../../../utils/knowledge-trees';
 
-console.log(`>> index.astro: ${knowledgeTrees}`)
-
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
 const intermediateHexes = hexEntries
@@ -19,5 +17,10 @@ const hexes: ExtendedHexData[] = await Promise.all(
 );
 ---
 <SecretLayout title="Hex Catalog">
-  <HexSearch client:load dungeons={dungeons} hexes={hexes} knowledgeTrees={knowledgeTrees} />
+  <HexSearch
+    client:load
+    dungeons={dungeons}
+    hexes={hexes}
+    knowledgeTrees={knowledgeTrees}
+  />
 </SecretLayout>

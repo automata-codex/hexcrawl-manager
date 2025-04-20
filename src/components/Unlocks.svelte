@@ -10,8 +10,6 @@
 
   function resolveNode(key: string) {
     const [root] = key.split('.');
-    console.log(`>> Looking up node with key: ${key}`);
-    // console.log(`>> Knowledge roots: ${Object.keys(knowledgeTrees)}`);
     return knowledgeTrees[root]?.[key];
   }
 </script>
