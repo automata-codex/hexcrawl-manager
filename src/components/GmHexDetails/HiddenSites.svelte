@@ -1,12 +1,15 @@
 <script lang="ts">
-  import type { ExtendedHexData } from '../../types.ts';
+  import type { ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
   import TreasureTable from '../TreasureTable/TreasureTable.svelte';
+  import Unlocks from '../Unlocks.svelte';
 
   interface Props {
     hex: ExtendedHexData;
+    knowledgeTrees: Record<string, FlatKnowledgeTree>;
   }
 
-  const { hex }: Props = $props();
+  const { hex, knowledgeTrees }: Props = $props();
+  console.log(`>> HiddenSites.svelte: ${knowledgeTrees}`)
 </script>
 {#if hex.renderedHiddenSites && hex.renderedHiddenSites.length > 0}
   {#if hex.renderedHiddenSites.length === 1}
@@ -16,6 +19,9 @@
     </div>
     {#if hex.renderedHiddenSites[0].treasure}
        <TreasureTable treasure={hex.renderedHiddenSites[0].treasure} />
+    {/if}
+    {#if hex.renderedHiddenSites[0].unlocks}
+      <Unlocks knowledgeTrees={knowledgeTrees} unlocks={hex.renderedHiddenSites[0].unlocks} />
     {/if}
   {:else}
     <div>
@@ -27,6 +33,9 @@
           {@html site.description}
           {#if site.treasure}
             <TreasureTable treasure={site.treasure} />
+          {/if}
+          {#if site.unlocks}
+            <Unlocks knowledgeTrees={knowledgeTrees} unlocks={site.unlocks} />
           {/if}
         </li>
       {/each}

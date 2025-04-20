@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DungeonEntry, ExtendedHexData } from '../../types.ts';
+  import type { DungeonEntry, ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
   import { getHexPath, getRegionPath } from '../../utils/routes.ts';
   import Explored from './Explored.svelte';
@@ -12,10 +12,12 @@
   interface Props {
     dungeons: DungeonEntry[]
     hex: ExtendedHexData;
+    knowledgeTrees: Record<string, FlatKnowledgeTree>;
     showSelfLink?: boolean;
   }
 
-  const { dungeons, hex, showSelfLink = true }: Props = $props();
+  const { dungeons, hex, knowledgeTrees, showSelfLink = true }: Props = $props();
+  console.log(`>> GmHexDetails.svelte: ${knowledgeTrees}`)
 </script>
 <style>
     .data-bar {
@@ -44,7 +46,7 @@
   <Neighbors {hex} />
 </div>
 <Landmark {hex} />
-<HiddenSites {hex} />
+<HiddenSites {hex} {knowledgeTrees} />
 {#if hex.secretSite}
   <div class="hanging-indent">
     <span class="inline-heading">Secret Site:</span>{' '}

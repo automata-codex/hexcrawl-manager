@@ -6,6 +6,8 @@ import type { ExtendedHexData } from '../../../types';
 import { hexSort, processHex } from '../../../utils/hexes';
 import { knowledgeTrees } from '../../../utils/knowledge-trees';
 
+console.log(`>> index.astro: ${knowledgeTrees}`)
+
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
 const intermediateHexes = hexEntries

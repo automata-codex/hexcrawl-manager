@@ -54,7 +54,7 @@
         <td>{formatValue(item.value)}</td>
         <td>{formatType(item.type)}</td>
         <td>{formatRarity(item.rarity)}</td>
-        <td>{item.renderedNotes}</td>
+        <td>{@html item.renderedNotes}</td>
       </tr>
     {/each}
     </tbody>
