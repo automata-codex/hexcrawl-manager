@@ -133,7 +133,7 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.playersGuide.characterGoals,
   },
   {
-    slug: 'crystal-system',
+    slug: 'crystals',
     path: ROUTES.gmReference.firstCivilization.crystals,
   },
   {
