@@ -20,6 +20,7 @@ export const ROUTES = {
       airships: '/gm-reference/first-civilization/airships',
       catastropheAndAftermath: '/gm-reference/first-civilization/catastrophe-and-aftermath',
       crystals: '/gm-reference/first-civilization/crystals',
+      crystalReference: '/gm-reference/first-civilization/crystal-reference',
       demographics: '/gm-reference/first-civilization/demographics',
       skyspire: '/gm-reference/first-civilization/the-skyspire',
       velari: '/gm-reference/first-civilization/the-velari',
@@ -131,6 +132,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'character-goals',
     path: ROUTES.playersGuide.characterGoals,
+  },
+  {
+    slug: 'crystal-reference',
+    path: ROUTES.gmReference.firstCivilization.crystalReference,
   },
   {
     slug: 'crystals',
