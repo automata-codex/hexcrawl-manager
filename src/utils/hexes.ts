@@ -82,21 +82,22 @@ export function hexSort(a: HexData, b: HexData): number {
   }
 }
 
-function isObjectArray(arr: any[]): arr is { description: string }[] {
-  return typeof arr[0] === 'object' && 'description' in arr[0];
+function isStringArray(arr: any[]): arr is string[] {
+  return typeof arr[0] === 'string';
 }
 
 function renderHiddenSites(
   hiddenSites: HiddenSitesData[] | string[]
 ): Promise<{ description: string; treasure?: ExtendedTreasureData[]; }>[] {
-  if (isObjectArray(hiddenSites)) {
+  if (isStringArray(hiddenSites)) {
     return hiddenSites.map(async (site) => ({
-      description: await renderBulletMarkdown(site.description),
-      treasure: await processTreasure(site.treasure),
+      description: await renderBulletMarkdown(site),
     }));
   } else {
     return hiddenSites.map(async (site) => ({
-      description: await renderBulletMarkdown(site),
+      ...site,
+      description: await renderBulletMarkdown(site.description),
+      treasure: await processTreasure(site.treasure),
     }));
   }
 }

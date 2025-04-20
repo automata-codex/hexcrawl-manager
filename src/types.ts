@@ -66,10 +66,14 @@ export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>
 export type TreasureData = z.infer<typeof TreasureSchema>;
 
 export type ExtendedHexData = HexData & {
-  renderedHiddenSites: { description: string; treasure?: ExtendedTreasureData[] }[];
+  renderedHiddenSites: ExtendedHiddenSites[];
   renderedNotes: string[];
   renderedLandmark: string;
   renderedSecretSite: string;
+}
+export type ExtendedHiddenSites = HiddenSitesData & {
+  description: string;
+  treasure?: ExtendedTreasureData[];
 }
 export type ExtendedTreasureData = TreasureData & {
   renderedNotes: string;
@@ -79,6 +83,8 @@ export type ArticleEntry = CollectionEntry<'articles'>;
 export type DungeonEntry = CollectionEntry<'dungeons'>;
 export type HexEntry = CollectionEntry<'hexes'>;
 export type RegionEntry = CollectionEntry<'regions'>;
+
+export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
 
 export type Pillar = keyof CharacterData['advancementPoints'];
 

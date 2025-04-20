@@ -6,7 +6,8 @@ import { TreasureSchema } from './treasure.js';
 export const HiddenSitesSchema = z.object({
   description: z.string(),
   treasureValue: z.number().optional(), // deprecated
-  treasure: z.array(TreasureSchema),
+  treasure: z.array(TreasureSchema).optional,
+  unlocks: z.array(z.string()).optional(), // IDs of knowledge nodes that are unlocked by this site
 });
 
 export const HexSchema = z.object({
