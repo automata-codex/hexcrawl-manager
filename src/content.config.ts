@@ -76,6 +76,7 @@ const articles = defineCollection({
   schema: z.object({
     title: z.string(),
     secure: z.boolean().optional(),
+    showToc: z.boolean().optional(),
     treasure: z.record(z.string(), TreasureSchema).optional(),
     treasureRegionId: z.string().optional(),
   }),
