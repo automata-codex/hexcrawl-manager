@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { faChevronRight } from '@fortawesome/pro-light-svg-icons'
+  import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+
   import type { KnowledgeNodeData, PlacementRef } from '../types';
   import { getDungeonPath, getHexPath } from '../utils/routes.js';
 
@@ -34,17 +37,53 @@
     }
   }
 </script>
+<style>
+    button {
+        background: none;
+        border: none;
+        font-size: 1em;
+        padding: 0;
+        cursor: pointer;
+        width: 1.5em;
+    }
 
-<div>
+    span.rotated {
+        display: inline-block;
+        transform: rotate(90deg);
+        transition: transform 0.2s ease;
+    }
+
+    span {
+        display: inline-block;
+        transition: transform 0.2s ease;
+    }
+
+    .heading {
+        /*margin-top: 1rem;*/
+    }
+
+    .node-name {
+        font-weight: bold;
+    }
+
+    .unused {
+        color: var(--bulma-strong-color);
+    }
+</style>
+<div class:heading={node.children?.length}>
   <div style="display: flex">
     {#if node.children?.length}
       <button on:click={() => (isExpanded = !isExpanded)}>
-        {isExpanded ? '▼' : '▶'}
+        <span class:rotated={isExpanded}>
+          <FontAwesomeIcon icon={faChevronRight} />
+        </span>
       </button>
+    {:else}
+      <span style="width: 1.5em"></span>
     {/if}
     <div>
-      <strong>{node.name}</strong>
-      <small>{node.description}</small>
+      <span class="node-name" class:unused={!node.children?.length}>{node.name}:{' '}</span>
+      <span class="node-description">{node.description}</span>
       {#if placementMap[fullId]?.length}
         <ul>
           {#each placementMap[fullId] as ref}
@@ -56,7 +95,7 @@
           {/each}
         </ul>
       {:else if !node.children?.length}
-        <span>❌ Not placed</span>
+        <ul><li>❌ Not placed</li></ul>
       {/if}
     </div>
   </div>
@@ -69,13 +108,3 @@
     </div>
   {/if}
 </div>
-
-<style>
-    button {
-        background: none;
-        border: none;
-        font-size: 1em;
-        padding: 0;
-        cursor: pointer;
-    }
-</style>

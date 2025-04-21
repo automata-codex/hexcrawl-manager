@@ -58,7 +58,7 @@
   </p>
   <ul>
   {#each hex.renderedNotes as note}
-    <li>{note}</li>
+    <li>{@html note}</li>
   {/each}
   </ul>
 {/if}
