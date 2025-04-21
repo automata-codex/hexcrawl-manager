@@ -9,14 +9,14 @@
 </script>
 
 <div>
-  <div>
+  <div style="display: flex">
     {#if node.children?.length}
       <button on:click={() => (isExpanded = !isExpanded)}>
         {isExpanded ? '▼' : '▶'}
       </button>
     {/if}
     <div>
-      <strong>{node.name}</strong><br />
+      <strong>{node.name}</strong>
       <small>{node.description}</small>
       {#if placementMap[fullId]?.length}
         <ul>
@@ -24,14 +24,14 @@
             <li>🔗 {ref}</li>
           {/each}
         </ul>
-      {:else}
-        <div>❌ Not placed</div>
+      {:else if !node.children?.length}
+        <span>❌ Not placed</span>
       {/if}
     </div>
   </div>
 
   {#if isExpanded && node.children?.length}
-    <div>
+    <div style="margin-left: 1.5em;">
       {#each node.children as child}
         <svelte:self node={child} fullId={`${fullId}.${child.id}`} {placementMap} />
       {/each}
