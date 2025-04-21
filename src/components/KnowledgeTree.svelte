@@ -53,17 +53,17 @@
         transition: transform 0.2s ease;
     }
 
-    span {
+    span.chevron {
         display: inline-block;
         transition: transform 0.2s ease;
     }
 
-    .heading {
-        /*margin-top: 1rem;*/
+    .leaf-node-name {
+        font-weight: bold;
     }
 
-    .node-name {
-        font-weight: bold;
+    .parent-node-text {
+        color: var(--bulma-strong-color);
     }
 
     .unused {
@@ -74,30 +74,53 @@
   <div style="display: flex">
     {#if node.children?.length}
       <button on:click={() => (isExpanded = !isExpanded)}>
-        <span class:rotated={isExpanded}>
+        <span class="chevron" class:rotated={isExpanded}>
           <FontAwesomeIcon icon={faChevronRight} />
         </span>
       </button>
-    {:else}
-      <span style="width: 1.5em"></span>
     {/if}
-    <div>
-      <span class="node-name" class:unused={!node.children?.length}>{node.name}:{' '}</span>
-      <span class="node-description">{node.description}</span>
-      {#if placementMap[fullId]?.length}
-        <ul>
-          {#each placementMap[fullId] as ref}
-            <li>
-              <a href={generateLink(ref)}>{ref.label}</a>
-              {' '}
-              {generateLabelAppendix(ref)}
-            </li>
-          {/each}
-        </ul>
-      {:else if !node.children?.length}
-        <ul><li>❌ Not placed</li></ul>
-      {/if}
-    </div>
+    {#if !node.children?.length}
+      <ul>
+        <li>
+          <span class="leaf-node-name" class:unused={!placementMap[fullId]?.length}>{node.name}:{' '}</span>
+          <span class="node-description">{node.description}</span>
+          {#if placementMap[fullId]?.length}
+            <ul>
+              {#each placementMap[fullId] as ref}
+                <li>
+                  <a href={generateLink(ref)}>{ref.label}</a>
+                  {' '}
+                  {generateLabelAppendix(ref)}
+                </li>
+              {/each}
+            </ul>
+          {:else}
+            <ul><li>❌ Not placed</li></ul>
+          {/if}
+        </li>
+      </ul>
+    {:else}
+      <div>
+        <span class="parent-node-text">
+          <span class="leaf-node-name">{node.name}:</span>
+          {' '}
+          {node.description}
+        </span>
+        {#if placementMap[fullId]?.length}
+          <ul>
+            {#each placementMap[fullId] as ref}
+              <li>
+                <a href={generateLink(ref)}>{ref.label}</a>
+                {' '}
+                {generateLabelAppendix(ref)}
+              </li>
+            {/each}
+          </ul>
+        {:else if !node.children?.length}
+          <ul><li>❌ Not placed</li></ul>
+        {/if}
+      </div>
+    {/if}
   </div>
 
   {#if isExpanded && node.children?.length}

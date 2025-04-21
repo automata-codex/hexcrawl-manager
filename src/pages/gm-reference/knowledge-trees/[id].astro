@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { startCase, toLower } from 'lodash-es';
 import KnowledgeTree from '../../../components/KnowledgeTree.svelte';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import type { PlacementMap } from '../../../types';
@@ -30,6 +31,6 @@ const dungeons = dungeonEntries
 
 const placementMap: PlacementMap = buildPlacementMap(hexes, dungeons);
 ---
-<SecretLayout title="Knowledge Tree">
+<SecretLayout title={`Knowledge Tree: ${startCase(toLower(id))}`}>
   <KnowledgeTree client:load node={tree} placementMap={placementMap} />
 </SecretLayout>
