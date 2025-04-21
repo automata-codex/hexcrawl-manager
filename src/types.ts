@@ -88,11 +88,15 @@ export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
 
 export type Pillar = keyof CharacterData['advancementPoints'];
 
+export type PlacementMap = Record<string, PlacementRef[]>;
+
 export interface PlacementRef {
   type: 'hex' | 'hidden-site' | 'dungeon';
   id: string;
   label: string;
 }
+
+export type PlacementType = PlacementRef['type'];
 
 export interface SidebarSection {
   id: string;

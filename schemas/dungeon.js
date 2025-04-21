@@ -30,4 +30,5 @@ export const DungeonDataSchema = z.object({
     rarity: z.enum(['common', 'uncommon', 'rare', 'very rare', 'legendary', 'artifact']),
   })).optional(), // new but already deprecated
   treasure: z.array(TreasureSchema).optional(), // new
+  unlocks: z.array(z.string()).optional(), // IDs of knowledge nodes that are unlocked by this site
 }).describe('Data for a dungeon on a hex map');

@@ -2,7 +2,57 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 import { KnowledgeNodeSchema } from '../../schemas/knowledge-node';
-import type { FlatKnowledgeTree, KnowledgeNodeData } from '../types.ts';
+import type {
+  DungeonData,
+  FlatKnowledgeTree,
+  HexData,
+  KnowledgeNodeData,
+  PlacementMap,
+  PlacementType,
+} from '../types.ts';
+
+export function buildPlacementMap(hexes: HexData[], dungeons: DungeonData[]): PlacementMap {
+  const placementMap: PlacementMap = {};
+
+  // Hex-level unlocks (e.g., from landmarks)
+  for (const hex of hexes) {
+    const ref = { type: 'hex' as PlacementType, id: hex.id, label: hex.name };
+    const unlockKeys = typeof hex.landmark === 'string' ? [] : hex.landmark.unlocks;
+    for (const unlockKey of unlockKeys ?? []) {
+      placementMap[unlockKey] ||= [];
+      placementMap[unlockKey].push(ref);
+    }
+
+    // Hidden sites within hex
+    for (const site of hex.hiddenSites ?? []) {
+      const siteRef = {
+        type: 'hidden-site' as PlacementType,
+        id: hex.id,
+        label: hex.name,
+      };
+      const siteUnlockKeys = typeof site === 'string' ? [] : site.unlocks;
+      for (const unlockKey of siteUnlockKeys ?? []) {
+        placementMap[unlockKey] ||= [];
+        placementMap[unlockKey].push(siteRef);
+      }
+    }
+  }
+
+  // Dungeons
+  for (const dungeon of dungeons) {
+    const ref = {
+      type: 'dungeon' as PlacementType,
+      id: dungeon.id,
+      label: dungeon.name,
+    };
+    for (const unlockKey of dungeon.unlocks ?? []) {
+      placementMap[unlockKey] ||= [];
+      placementMap[unlockKey].push(ref);
+    }
+  }
+
+  return placementMap;
+}
 
 export function flattenKnowledgeTree(
   node: KnowledgeNodeData,
