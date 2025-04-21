@@ -1,11 +1,38 @@
 <script lang="ts">
   import type { KnowledgeNodeData, PlacementRef } from '../types';
+  import { getDungeonPath, getHexPath } from '../utils/routes.js';
 
   export let node: KnowledgeNodeData;
   export let fullId: string = node.id;
   export let placementMap: Record<string, PlacementRef[]> = {};
 
   let isExpanded = true;
+
+  function generateLink(ref: PlacementRef): string {
+    switch (ref.type) {
+      case 'dungeon':
+        return getDungeonPath(ref.id);
+      case 'hex':
+        return getHexPath(ref.id);
+      case 'hidden-site':
+        return getHexPath(ref.id);
+      default:
+        throw new Error(`Unknown reference type: ${ref.type}`);
+    }
+  }
+
+  function generateLabelAppendix(ref: PlacementRef): string {
+    switch (ref.type) {
+      case 'dungeon':
+        return '';
+      case 'hex':
+        return '(Landmark)';
+      case 'hidden-site':
+        return `(Hidden Site)`;
+      default:
+        throw new Error(`Unknown reference type: ${ref.type}`);
+    }
+  }
 </script>
 
 <div>
@@ -21,7 +48,11 @@
       {#if placementMap[fullId]?.length}
         <ul>
           {#each placementMap[fullId] as ref}
-            <li><a href={`/${ref.type === 'hidden-site' ? 'gm/hidden-sites' : `gm/${ref.type}s`}/${ref.id}`}>🔗 {ref.label}</a></li>
+            <li>
+              <a href={generateLink(ref)}>{ref.label}</a>
+              {' '}
+              {generateLabelAppendix(ref)}
+            </li>
           {/each}
         </ul>
       {:else if !node.children?.length}
