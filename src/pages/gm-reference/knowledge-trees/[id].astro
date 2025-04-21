@@ -13,7 +13,7 @@ if (!id) {
   });
 }
 
-const tree = knowledgeTrees[id]?.[id] as KnowledgeNodeData;
+const tree = knowledgeTrees[id];
 
 if (!tree) {
   throw new Error(`Unknown knowledge tree: ${id}`);
