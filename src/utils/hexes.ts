@@ -103,11 +103,12 @@ function renderHiddenSites(
 }
 
 export async function processHex(hex: HexData): Promise<ExtendedHexData> {
+  const landmark = typeof hex.landmark === 'string' ? hex.landmark : hex.landmark.description;
   return {
     ...hex,
     renderedHiddenSites: await Promise.all(renderHiddenSites(hex.hiddenSites ?? [])),
     renderedNotes: await Promise.all(hex.notes?.map(renderBulletMarkdown) ?? []),
-    renderedLandmark: await renderBulletMarkdown(hex.landmark),
+    renderedLandmark: await renderBulletMarkdown(landmark),
     renderedSecretSite: await renderBulletMarkdown(hex.secretSite ?? ''),
   };
 }

@@ -44,7 +44,7 @@
 <div class="data-bar">
   <Neighbors {hex} />
 </div>
-<Landmark {hex} />
+<Landmark {hex} {knowledgeTrees} />
 <HiddenSites {hex} {knowledgeTrees} />
 {#if hex.secretSite}
   <div class="hanging-indent">

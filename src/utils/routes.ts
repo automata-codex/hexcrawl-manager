@@ -71,12 +71,12 @@ export const ROUTES = {
       fixedClues: {
         id: '/session-toolkit/clues/fixed-clues/[id]',
         all: '/session-toolkit/clues/fixed-clues/all',
-        index: '/session-toolkit/clues/fixed-clues/index',
+        index: '/session-toolkit/clues/fixed-clues',
       },
       floatingClues: {
         id: '/session-toolkit/clues/floating-clues/[id]',
         all: '/session-toolkit/clues/floating-clues/all',
-        index: '/session-toolkit/clues/floating-clues/index',
+        index: '/session-toolkit/clues/floating-clues',
       },
     },
     hexes: {
@@ -97,12 +97,12 @@ export const ROUTES = {
     regions: {
       id: '/session-toolkit/regions/[id]',
       all: '/session-toolkit/regions/all',
-      index: '/session-toolkit/regions/index',
+      index: '/session-toolkit/regions',
     },
     rumors: {
       id: '/session-toolkit/rumors/[id]',
       all: '/session-toolkit/rumors/all',
-      index: '/session-toolkit/rumors/index',
+      index: '/session-toolkit/rumors',
     },
     scalingEncounters: '/session-toolkit/scaling-encounters',
     scarSites: '/session-toolkit/scar-sites',
