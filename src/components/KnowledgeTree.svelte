@@ -27,7 +27,7 @@
   function generateLabelAppendix(ref: PlacementRef): string {
     switch (ref.type) {
       case 'dungeon':
-        return '';
+        return '(Dungeon)';
       case 'hex':
         return '(Landmark)';
       case 'hidden-site':
