@@ -31,7 +31,8 @@
     } else {
       results = hexes.filter(hex =>
         hex.name.toLowerCase().includes(q) ||
-        hex.landmark?.toLowerCase().includes(q) ||
+        (typeof hex.landmark === 'string' && hex.landmark.toLowerCase().includes(q)) ||
+        (typeof hex.landmark !== 'string' && hex.landmark.description.toLowerCase().includes(q)) ||
         hex.hiddenSites?.some((site) => {
           if (typeof site === 'string') {
             return site.toLowerCase().includes(q);

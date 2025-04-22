@@ -34,7 +34,7 @@
       {#each hex.renderedHiddenSites as site}
         <li>
           {@html site.description}
-          <div style="margin-left: 1rem">
+          <div>
             {#if site.unlocks}
               <Unlocks knowledgeTrees={knowledgeTrees} unlocks={site.unlocks} />
             {/if}
