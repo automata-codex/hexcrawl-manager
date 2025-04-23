@@ -1,0 +1,31 @@
+---
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import { faTreasureChest } from '@fortawesome/pro-solid-svg-icons';
+import type { LootPackData } from '../../types';
+import { renderMarkdown } from '../../utils/markdown';
+import { getLootPackPath } from '../../utils/routes';
+
+interface Props {
+  treasure: LootPackData;
+}
+
+const { treasure } = Astro.props;
+
+const treasureIcon = icon(faTreasureChest);
+---
+<style>
+  .heading-container {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+</style>
+<div class="heading-container">
+  <h2 class="title is-3">{treasure.name}</h2>
+  <div>
+    <a href={getLootPackPath(treasure.id)} title="View details">
+      <Fragment set:html={treasureIcon.html} />
+    </a>
+  </div>
+</div>
+<div><Fragment set:html={renderMarkdown(treasure.description)} /></div>

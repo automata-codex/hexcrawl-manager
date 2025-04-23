@@ -1,0 +1,33 @@
+---
+import { getEntry } from 'astro:content';
+import SecretArticleLayout from '../../../../layouts/SecretArticleLayout.astro';
+import { renderMarkdown } from '../../../../utils/markdown';
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+// Query for the entry directly using the request slug
+const articleData = await getEntry('fixedClues', id);
+
+// Redirect if the entry does not exist
+if (articleData === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+const article = articleData.data;
+const title = `Fixed Clue: ${article.title}`;
+---
+<SecretArticleLayout title={title}>
+  <article>
+    <Fragment set:html={renderMarkdown(articleData.body ?? '')} />
+  </article>
+</SecretArticleLayout>

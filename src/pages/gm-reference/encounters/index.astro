@@ -1,0 +1,69 @@
+---
+import { getCollection } from 'astro:content';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import type { EncounterTableData } from '../../../types';
+
+const encounterData = await getCollection('encounters');
+const encounters = encounterData.sort((a, b) => a.data.name.localeCompare(b.data.name));
+const title = 'Encounters';
+
+/**
+ * Build a unique list of all encounter IDs across region tables
+ */
+export function getAllEncounterIdsFromRegions(regionTables: EncounterTableData[]): string[] {
+  const seen = new Set<string>();
+
+  for (const table of regionTables) {
+    for (const category of Object.values(table.categoryTables)) {
+      for (const entries of Object.values(category)) {
+        for (const entry of entries) {
+          seen.add(entry.encounterId);
+        }
+      }
+    }
+  }
+
+  return Array.from(seen);
+}
+const regions = await getCollection('regions');
+const regionTables = regions
+  .map((region) => region.data.encounters)
+  .filter((region) => !!region);
+const usedEncounters = getAllEncounterIdsFromRegions(regionTables);
+
+function formatEncounterName(encounterId: string, encounterName: string) {
+  if (!usedEncounters.includes(encounterId)) {
+    return `<span class="unused-encounter">${encounterName}</span>`;
+  }
+  return encounterName;
+}
+---
+<style is:global>
+    .unused-encounter {
+        color: var(--bulma-text);
+        font-style: italic;
+        font-weight: bold;
+    }
+</style>
+<style>
+    p {
+        margin-bottom: 1rem;;
+    }
+
+    ul {
+        columns: 3;
+        margin-top: 0;
+    }
+</style>
+<SecretLayout title={title}>
+  <p>Encounter names <span class="unused-encounter">in this style</span> are unused.</p>
+  <ul>
+    {encounters.map((encounter) => (
+      <li>
+        <a href=`/gm-reference/encounters/${encounter.id}`>
+          <Fragment set:html={formatEncounterName(encounter.id, encounter.data.name)} />
+        </a>
+      </li>
+    ))}
+  </ul>
+</SecretLayout>

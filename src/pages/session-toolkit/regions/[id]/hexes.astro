@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import GmHexDetails from '../../../../components/GmHexDetails/GmHexDetails.svelte';
+import SecretLayout from '../../../../layouts/SecretLayout.astro';
+import type { ExtendedHexData, HexData, HexEntry } from '../../../../types';
+import { hexSort, processHex } from '../../../../utils/hexes';
+import { getHexEntriesForRegion, getRegionTitle } from '../../../../utils/regions';
+import { flatKnowledgeTrees } from '../../../../utils/knowledge-trees';
+
+const { id: regionId } = Astro.params;
+if (!regionId) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+const dungeons = await getCollection('dungeons');
+const hexEntries = await getCollection('hexes');
+const regions = await getCollection('regions');
+
+const allHexes = await getHexEntriesForRegion(regions, hexEntries, regionId)
+const intermediateHexes = allHexes
+  .filter((hex: HexEntry | undefined) => !!hex)
+  .map((entry: HexEntry) => entry.data)
+  .filter((hex: HexData) => !hex.hideInCatalog)
+  .sort(hexSort);
+const hexes: ExtendedHexData[] = await Promise.all(
+  intermediateHexes.map(processHex)
+);
+---
+<SecretLayout title={`${getRegionTitle(regionId)} Hexes`}>
+  {hexes.map((hex) => (
+    <h2 class="title is-3">{hex.id.toUpperCase()}: {hex.name}</h2>
+    <GmHexDetails
+      client:load
+      dungeons={dungeons}
+      hex={hex}
+      knowledgeTrees={flatKnowledgeTrees}
+    />
+  ))}
+</SecretLayout>

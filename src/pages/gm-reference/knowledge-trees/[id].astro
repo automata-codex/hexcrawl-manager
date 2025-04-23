@@ -1,0 +1,39 @@
+---
+import { getCollection } from 'astro:content';
+import { startCase, toLower } from 'lodash-es';
+import KnowledgeTree from '../../../components/KnowledgeTree.svelte';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import type { PlacementMap } from '../../../types';
+import { buildPlacementMap, knowledgeTrees } from '../../../utils/knowledge-trees';
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+const tree = knowledgeTrees[id];
+
+if (!tree) {
+  throw new Error(`Unknown knowledge tree: ${id}`);
+}
+
+const hexEntries = await getCollection('hexes');
+const hexes = hexEntries
+  .map((entry) => entry.data)
+  .filter((hex) => !hex.hideInCatalog);
+const dungeonEntries = await getCollection('dungeons');
+const dungeons = dungeonEntries
+  .map((entry) => entry.data);
+const floatingClueEntries = await getCollection('floatingClues');
+const floatingClues = floatingClueEntries
+  .map((entry) => entry.data);
+
+const placementMap: PlacementMap = buildPlacementMap(hexes, dungeons, floatingClues);
+---
+<SecretLayout title={`Knowledge Tree: ${startCase(toLower(id))}`}>
+  <KnowledgeTree client:load node={tree} placementMap={placementMap} />
+</SecretLayout>

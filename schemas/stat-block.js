@@ -96,6 +96,7 @@ const ActionSchema = z.union([
 
 export const StatBlockSchema = z.object({
   id: z.string(),
+  slug: z.string().optional(),
   desc: z.string().optional(),
   name: z.string(),
   size: z.enum([
@@ -124,6 +125,8 @@ export const StatBlockSchema = z.object({
   ]),
   subtype: z.string().optional(),
   group: z.string().nullable().optional(),
+  family: z.string().nullable().optional(),
+  family_name: z.string().nullable().optional(),
   alignment: z.enum([
     'any',
     'unaligned',
@@ -143,6 +146,7 @@ export const StatBlockSchema = z.object({
   hit_points: z.number(),
   hit_dice: z.string(),
   speed: z.object({
+    burrow: z.number().optional(),
     climb: z.number().optional(),
     fly: z.number().optional(),
     hover: z.boolean().optional(),

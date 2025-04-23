@@ -1,0 +1,16 @@
+---
+import { getCollection } from 'astro:content';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import RumorDetail from '../../../components/RumorDetail.astro';
+
+const rumorsData = await getCollection('rumors');
+const rumors = rumorsData
+  .map((rumor) => rumor.data)
+  .sort((a, b) => a.title.localeCompare(b.title));
+---
+<SecretLayout title="All Rumors">
+  {rumors.map((rumor) => (
+    <h2 class="title is-3">{rumor.title}</h2>
+    <RumorDetail rumor={rumor} isSubcomponent={true} />
+  ))}
+</SecretLayout>

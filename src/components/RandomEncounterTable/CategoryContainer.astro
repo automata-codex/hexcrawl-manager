@@ -1,0 +1,30 @@
+---
+import type { TieredSubtableData } from '../../types';
+import TierSubtable from './TierSubtable.astro';
+
+interface Props {
+  label: string;
+  table: TieredSubtableData;
+  weight: number;
+}
+const { label, table, weight } = Astro.props;
+
+---
+<style>
+  .category-container {
+      display: flex;
+      flex-wrap: wrap
+  }
+  .subtable-container {
+      margin-right: 2rem;
+  }
+</style>
+<h3 class="title is-4">{label}</h3>
+<div class="category-container">
+  {Object.entries(table).map(
+    ([tier, entries]) =>
+      <div class="subtable-container">
+        <TierSubtable tier={tier} entries={entries} weight={weight} />
+      </div>
+  )}
+</div>

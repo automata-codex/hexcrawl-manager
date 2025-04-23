@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+import StatBlockList from '../../../components/StatBlockList.svelte';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+const statBlocks = await getCollection('statBlocks');
+
+type DisplayEntry =
+  | { type: 'group'; label: string; entries: typeof statBlocks }
+  | { type: 'single'; label: string; entry: typeof statBlocks[number] };
+
+// Group into `family` and `ungrouped`
+const grouped = statBlocks.reduce((acc, block) => {
+    const { family, family_name } = block.data;
+    if (family) {
+      if (!acc.families[family]) {
+        acc.families[family] = [];
+        acc.familyNames[family] =
+          family_name ??
+          statBlocks.find(e => e.data.family === family && e.data.family_name)?.data.family_name ??
+          family.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      }
+      acc.families[family].push(block);
+    } else {
+      acc.ungrouped.push(block);
+    }
+    return acc;
+  },
+  {
+    families: {} as Record<string, typeof statBlocks[number][]>,
+    familyNames: {} as Record<string, string>,
+    ungrouped: [] as typeof statBlocks
+  }
+);
+
+// Put all entries into a flat list, sorted by label
+const displayEntries: DisplayEntry[] = [
+  ...Object.entries(grouped.families).map(([slug, entries]) => ({
+    type: 'group',
+    label: grouped.familyNames[slug],
+    entries,
+  } as const)),
+  ...grouped.ungrouped.map((entry) => ({
+    type: 'single',
+    label: entry.data.name,
+    entry,
+  } as const)),
+].sort((a, b) => a.label.localeCompare(b.label));
+---
+<style is:global>
+    .stat-block-index {
+        columns: 3;
+        margin-top: 0;
+    }
+</style>
+<SecretLayout title="Stat Blocks">
+  <StatBlockList client:load entries={displayEntries} />
+</SecretLayout>

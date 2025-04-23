@@ -11,6 +11,11 @@ html {
     widows: 2;
 }
 
+blockquote {
+    font-style: italic;
+    margin: 0 10% 1rem;
+}
+
 h1, h2, h3, h4, h5, h6 {
     font-family: "Souvenir", serif;
     margin-top: 1rem;

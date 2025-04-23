@@ -1,7 +1,9 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
-import { renderBulletMarkdown, renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
+import { getCollection, getEntry, render } from 'astro:content';
+import Unlocks from '../components/Unlocks.svelte';
 import type { DungeonEntry } from '../types';
+import { renderBulletMarkdown } from '../utils/markdown';
+import { flatKnowledgeTrees } from '../utils/knowledge-trees';
 import StatBlock from './StatBlock/StatBlock.astro';
 
 interface Props {
@@ -15,8 +17,7 @@ if (!hexData) {
   throw new Error('Hex not found: ' + dungeon.data.hexId);
 }
 
-const body = isSubcomponent ? dungeon.data.summary ?? dungeon.body : dungeon.body;
-const content = isSubcomponent ? await renderSubArticleMarkdown(body ?? '') : await renderMarkdown(body ?? '');
+const { Content } = await render(dungeon);
 
 const statBlockData = await getCollection('statBlocks');
 
@@ -56,19 +57,19 @@ const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.st
     }
 
     .spacer {
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
     }
 </style>
 <div class="dungeon-data-bar">
   <div>
     Hex:
-    <a href={`/hexes/${hexData.id}`}>
+    <a href={`/session-toolkit/hexes/${hexData.id}`}>
       {renderBulletMarkdown(`${hexData.data.id.toUpperCase()} "${hexData.data.name}"`)}
     </a>
   </div>
   {isSubcomponent && (
     <div>
-      <a href={`/dungeons/${dungeon.id}`}>
+      <a href={`/gm-reference/dungeons/${dungeon.id}`}>
         View Dungeon
       </a>
     </div>
@@ -97,9 +98,12 @@ const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.st
       </ul>
     </div>
   )}
+<Unlocks knowledgeTrees={flatKnowledgeTrees} unlocks={dungeon.data.unlocks ?? []} />
 <div class="spacer"></div>
 <h2 class="description-header">Description</h2>
-<Fragment set:html={content} />
+<div class="dungeon-content">
+  {isSubcomponent ? dungeon.data.summary : <Content />}
+</div>
 {!isSubcomponent && (statBlocks.length > 0) && (
   <div>
     <h2 class="title is-3">Stat Blocks</h2>
@@ -107,4 +111,19 @@ const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.st
       <StatBlock data={statBlock} />
     ))}
   </div>
+)}
+{isSubcomponent && (
+  <script>
+    const container = document.querySelector('.dungeon-content');
+    const offset = 1; // shift down by 1 level
+
+    if (container) {
+      container.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+        const tagLevel = parseInt(el.tagName[1]);
+        const visualLevel = Math.min(tagLevel + offset, 6);
+        el.setAttribute('role', 'heading');
+        el.setAttribute('aria-level', visualLevel.toString());
+      });
+    }
+  </script>
 )}

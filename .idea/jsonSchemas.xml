@@ -57,6 +57,24 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="encounter-entry">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="encounter-entry" />
+              <option name="relativePathToSchema" value="schemas/encounter-entry.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/encounters" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="faction">
           <value>
             <SchemaInfo>
@@ -75,12 +93,12 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="floating-clue-list">
+        <entry key="floating-clue">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="floating-clue-list" />
-              <option name="relativePathToSchema" value="schemas/floating-clue-list.json" />
+              <option name="name" value="floating-clue" />
+              <option name="relativePathToSchema" value="schemas/floating-clue.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -93,17 +111,53 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="hex-database">
+        <entry key="hex">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="hex-database" />
-              <option name="relativePathToSchema" value="schemas/hex-database.json" />
+              <option name="name" value="hex" />
+              <option name="relativePathToSchema" value="schemas/hex.json" />
               <option name="patterns">
                 <list>
                   <Item>
                     <option name="directory" value="true" />
                     <option name="path" value="data/hexes" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="knowledge-node">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="knowledge-node" />
+              <option name="relativePathToSchema" value="schemas/knowledge-node.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/knowledge-trees" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="loot-pack">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="loot-pack" />
+              <option name="relativePathToSchema" value="schemas/loot-pack.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/loot-packs" />
                     <option name="mappingKind" value="Directory" />
                   </Item>
                 </list>
@@ -140,24 +194,6 @@
                   <Item>
                     <option name="directory" value="true" />
                     <option name="path" value="data/players" />
-                    <option name="mappingKind" value="Directory" />
-                  </Item>
-                </list>
-              </option>
-            </SchemaInfo>
-          </value>
-        </entry>
-        <entry key="random-encounter">
-          <value>
-            <SchemaInfo>
-              <option name="generatedName" value="New Schema" />
-              <option name="name" value="random-encounter" />
-              <option name="relativePathToSchema" value="schemas/random-encounter.json" />
-              <option name="patterns">
-                <list>
-                  <Item>
-                    <option name="directory" value="true" />
-                    <option name="path" value="data/encounters" />
                     <option name="mappingKind" value="Directory" />
                   </Item>
                 </list>
@@ -267,6 +303,22 @@
                     <option name="directory" value="true" />
                     <option name="path" value="data/treasure" />
                     <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="unused-hidden-site">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="unused-hidden-site" />
+              <option name="relativePathToSchema" value="schemas/unused-hidden-site.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="data/unused-hidden-sites.yml" />
                   </Item>
                 </list>
               </option>
