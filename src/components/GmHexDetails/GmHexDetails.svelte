@@ -27,7 +27,35 @@
     :global(.data-bar-cell) {
         margin-right: 1rem;
     }
+
+    .updates {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+
+    .updates ul {
+        padding-left: 1rem;
+    }
+
+    .warning {
+        background-color: var(--bulma-danger);
+        color: var(--bulma-white);
+        font-weight: bold;
+        padding: 1rem;
+        text-align: center;
+        margin: 0 0 1rem;
+    }
 </style>
+{#if hex.updates}
+  <div class="box updates">
+    <p class="warning">⚠️ Updates ⚠️</p>
+    <ul>
+      {#each hex.renderedUpdates as update}
+        <li>{@html update}</li>
+      {/each}
+    </ul>
+  </div>
+{/if}
 <div class="data-bar">
   <Visited {hex} />
   <Explored {hex} />
