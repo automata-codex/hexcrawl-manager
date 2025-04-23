@@ -74,8 +74,10 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
 const articles = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.ARTICLES }),
   schema: z.object({
-    title: z.string(),
     secure: z.boolean().optional(),
+    slug: z.string().optional(),
+    showToc: z.boolean().optional(),
+    title: z.string(),
     treasure: z.record(z.string(), TreasureSchema).optional(),
     treasureRegionId: z.string().optional(),
   }),

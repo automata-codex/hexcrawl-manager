@@ -82,31 +82,33 @@ export function hexSort(a: HexData, b: HexData): number {
   }
 }
 
-function isObjectArray(arr: any[]): arr is { description: string }[] {
-  return typeof arr[0] === 'object' && 'description' in arr[0];
+function isStringArray(arr: any[]): arr is string[] {
+  return typeof arr[0] === 'string';
 }
 
 function renderHiddenSites(
   hiddenSites: HiddenSitesData[] | string[]
 ): Promise<{ description: string; treasure?: ExtendedTreasureData[]; }>[] {
-  if (isObjectArray(hiddenSites)) {
+  if (isStringArray(hiddenSites)) {
     return hiddenSites.map(async (site) => ({
-      description: await renderBulletMarkdown(site.description),
-      treasure: await processTreasure(site.treasure),
+      description: await renderBulletMarkdown(site),
     }));
   } else {
     return hiddenSites.map(async (site) => ({
-      description: await renderBulletMarkdown(site),
+      ...site,
+      description: await renderBulletMarkdown(site.description),
+      treasure: await processTreasure(site.treasure),
     }));
   }
 }
 
 export async function processHex(hex: HexData): Promise<ExtendedHexData> {
+  const landmark = typeof hex.landmark === 'string' ? hex.landmark : hex.landmark.description;
   return {
     ...hex,
     renderedHiddenSites: await Promise.all(renderHiddenSites(hex.hiddenSites ?? [])),
     renderedNotes: await Promise.all(hex.notes?.map(renderBulletMarkdown) ?? []),
-    renderedLandmark: await renderBulletMarkdown(hex.landmark),
+    renderedLandmark: await renderBulletMarkdown(landmark),
     renderedSecretSite: await renderBulletMarkdown(hex.secretSite ?? ''),
   };
 }

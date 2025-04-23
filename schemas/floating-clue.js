@@ -9,4 +9,5 @@ export const FloatingClueSchema = z.object({
     url: z.string().url(),
   }).optional(),
   detailText: z.string().optional(),
+  unlocks: z.array(z.string()).optional(),
 });

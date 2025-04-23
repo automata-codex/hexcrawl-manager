@@ -8,6 +8,7 @@ import { EncounterTableSchema } from '../schemas/encounter-table.js';
 import { FactionListSchema } from '../schemas/faction.js';
 import { FloatingClueSchema } from '../schemas/floating-clue.js';
 import { HexSchema } from '../schemas/hex.js';
+import { KnowledgeNodeSchema } from '../schemas/knowledge-node.js';
 import { LootPackListSchema } from '../schemas/loot-pack.js';
 import { NpcSchema } from '../schemas/npc.js';
 import { PlayerListSchema } from '../schemas/player.js';
@@ -65,6 +66,12 @@ const hexFile = new URL('../schemas/hex.json', import.meta.url);
 writeFileSync(
   hexFile,
   JSON.stringify(zodToJsonSchema(HexSchema), null, 2)
+);
+
+const knowledgeNodeFile = new URL('../schemas/knowledge-node.json', import.meta.url);
+writeFileSync(
+  knowledgeNodeFile,
+  JSON.stringify(zodToJsonSchema(KnowledgeNodeSchema), null, 2)
 );
 
 const lootPackFile = new URL('../schemas/loot-pack.json', import.meta.url);

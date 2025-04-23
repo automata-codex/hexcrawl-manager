@@ -5,6 +5,7 @@ import SecretLayout from '../../../../layouts/SecretLayout.astro';
 import type { ExtendedHexData, HexData, HexEntry } from '../../../../types';
 import { hexSort, processHex } from '../../../../utils/hexes';
 import { getHexEntriesForRegion, getRegionTitle } from '../../../../utils/regions';
+import { flatKnowledgeTrees } from '../../../../utils/knowledge-trees';
 
 const { id: regionId } = Astro.params;
 if (!regionId) {
@@ -31,6 +32,11 @@ const hexes: ExtendedHexData[] = await Promise.all(
 <SecretLayout title={`${getRegionTitle(regionId)} Hexes`}>
   {hexes.map((hex) => (
     <h2 class="title is-3">{hex.id.toUpperCase()}: {hex.name}</h2>
-    <GmHexDetails dungeons={dungeons} hex={hex} />
+    <GmHexDetails
+      client:load
+      dungeons={dungeons}
+      hex={hex}
+      knowledgeTrees={flatKnowledgeTrees}
+    />
   ))}
 </SecretLayout>

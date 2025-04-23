@@ -24,6 +24,7 @@ if (article === undefined) {
 const { Content } = await render(article);
 const isSecure = article.data.secure ?? false;
 const title = article.data.title;
+const showToc = article.data.showToc ?? false;
 ---
 {isSecure ? (
   <SecretArticleLayout title={title}>

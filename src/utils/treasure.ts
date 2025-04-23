@@ -19,8 +19,11 @@ export async function formatNotes(notes?: string): Promise<string> {
 }
 
 export async function processTreasure(
-  treasures: TreasureData[]
+  treasures?: TreasureData[]
 ): Promise<ExtendedTreasureData[]> {
+  if (!treasures) {
+    return [];
+  }
   return Promise.all(
     treasures.map(async (treasure) => ({
       ...treasure,

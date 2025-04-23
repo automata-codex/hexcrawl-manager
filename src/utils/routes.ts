@@ -19,9 +19,14 @@ export const ROUTES = {
     firstCivilization: {
       airships: '/gm-reference/first-civilization/airships',
       catastropheAndAftermath: '/gm-reference/first-civilization/catastrophe-and-aftermath',
+      crystals: '/gm-reference/first-civilization/crystals',
+      crystalReference: '/gm-reference/first-civilization/crystal-reference',
       demographics: '/gm-reference/first-civilization/demographics',
       skyspire: '/gm-reference/first-civilization/the-skyspire',
       velari: '/gm-reference/first-civilization/the-velari',
+    },
+    knowledgeTrees: {
+      id: '/gm-reference/knowledge-trees/[id]',
     },
     regionBudgetGuidelines: '/gm-reference/region-budget-guidelines',
     statBlocks: {
@@ -66,12 +71,12 @@ export const ROUTES = {
       fixedClues: {
         id: '/session-toolkit/clues/fixed-clues/[id]',
         all: '/session-toolkit/clues/fixed-clues/all',
-        index: '/session-toolkit/clues/fixed-clues/index',
+        index: '/session-toolkit/clues/fixed-clues',
       },
       floatingClues: {
         id: '/session-toolkit/clues/floating-clues/[id]',
         all: '/session-toolkit/clues/floating-clues/all',
-        index: '/session-toolkit/clues/floating-clues/index',
+        index: '/session-toolkit/clues/floating-clues',
       },
     },
     hexes: {
@@ -92,12 +97,12 @@ export const ROUTES = {
     regions: {
       id: '/session-toolkit/regions/[id]',
       all: '/session-toolkit/regions/all',
-      index: '/session-toolkit/regions/index',
+      index: '/session-toolkit/regions',
     },
     rumors: {
       id: '/session-toolkit/rumors/[id]',
       all: '/session-toolkit/rumors/all',
-      index: '/session-toolkit/rumors/index',
+      index: '/session-toolkit/rumors',
     },
     scalingEncounters: '/session-toolkit/scaling-encounters',
     scarSites: '/session-toolkit/scar-sites',
@@ -130,6 +135,14 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'character-goals',
     path: ROUTES.playersGuide.characterGoals,
+  },
+  {
+    slug: 'crystal-reference',
+    path: ROUTES.gmReference.firstCivilization.crystalReference,
+  },
+  {
+    slug: 'crystals',
+    path: ROUTES.gmReference.firstCivilization.crystals,
   },
   {
     slug: 'first-civilization-demographics',
@@ -202,7 +215,7 @@ export function getFloatingCluePath(floatingClueId: string): string {
 }
 
 export function getHexPath(hexId: string): string {
-  return interpolateRoute(ROUTES.sessionToolkit.hexes.id, { id: hexId });
+  return interpolateRoute(ROUTES.sessionToolkit.hexes.id, { id: hexId }).toLowerCase();
 }
 
 export function getLootPackPath(lootPackId: string): string {

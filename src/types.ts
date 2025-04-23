@@ -14,6 +14,7 @@ import {
   TieredSubtableSchema,
 } from '../schemas/encounter-table';
 import { HexSchema, HiddenSitesSchema } from '../schemas/hex.js';
+import { KnowledgeNodeSchema } from '../schemas/knowledge-node';
 import { LootPackSchema } from '../schemas/loot-pack';
 import { NpcSchema } from '../schemas/npc';
 import { PlayerSchema } from '../schemas/player';
@@ -46,6 +47,7 @@ export type FactionData = z.infer<typeof FactionSchema>;
 export type FloatingClueData = z.infer<typeof FloatingClueSchema>;
 export type HexData = z.infer<typeof HexSchema>;
 export type HiddenSitesData = z.infer<typeof HiddenSitesSchema>;
+export type KnowledgeNodeData = z.infer<typeof KnowledgeNodeSchema>;
 export type LootPackData = z.infer<typeof LootPackSchema>;
 export type MeleeWeaponAttackData = z.infer<typeof MeleeWeaponAttackSchema>;
 export type NpcData = z.infer<typeof NpcSchema>;
@@ -64,10 +66,14 @@ export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>
 export type TreasureData = z.infer<typeof TreasureSchema>;
 
 export type ExtendedHexData = HexData & {
-  renderedHiddenSites: { description: string; treasure?: ExtendedTreasureData[] }[];
+  renderedHiddenSites: ExtendedHiddenSites[];
   renderedNotes: string[];
   renderedLandmark: string;
   renderedSecretSite: string;
+}
+export type ExtendedHiddenSites = HiddenSitesData & {
+  description: string;
+  treasure?: ExtendedTreasureData[];
 }
 export type ExtendedTreasureData = TreasureData & {
   renderedNotes: string;
@@ -78,7 +84,19 @@ export type DungeonEntry = CollectionEntry<'dungeons'>;
 export type HexEntry = CollectionEntry<'hexes'>;
 export type RegionEntry = CollectionEntry<'regions'>;
 
+export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
+
 export type Pillar = keyof CharacterData['advancementPoints'];
+
+export type PlacementMap = Record<string, PlacementRef[]>;
+
+export interface PlacementRef {
+  type: 'hex' | 'hidden-site' | 'dungeon' | 'floating-clue';
+  id: string;
+  label: string;
+}
+
+export type PlacementType = PlacementRef['type'];
 
 export interface SidebarSection {
   id: string;

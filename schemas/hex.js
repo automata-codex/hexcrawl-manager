@@ -6,14 +6,23 @@ import { TreasureSchema } from './treasure.js';
 export const HiddenSitesSchema = z.object({
   description: z.string(),
   treasureValue: z.number().optional(), // deprecated
-  treasure: z.array(TreasureSchema),
+  treasure: z.array(TreasureSchema).optional(),
+  unlocks: z.array(z.string()).optional(), // IDs of knowledge nodes that are unlocked by this site
+});
+
+export const LandmarkSchema = z.object({
+  description: z.string(),
+  unlocks: z.array(z.string()).optional(), // IDs of knowledge nodes that are unlocked by this site
 });
 
 export const HexSchema = z.object({
   id: z.string(),
   slug: z.string(),
   name: z.string(),
-  landmark: z.string(),
+  landmark: z.union([
+    z.string(),
+    LandmarkSchema,
+  ]),
   hiddenSites: z.union([
     z.array(z.string()),
     z.array(HiddenSitesSchema),
@@ -24,7 +33,7 @@ export const HexSchema = z.object({
   isVisited: z.boolean().optional(),
   isExplored: z.boolean().optional(),
   encounterChance: z.number().int().min(1).max(20).optional(),
-  encounters: RandomEncounterTableSchema.optional(),
+  encounters: RandomEncounterTableSchema.optional(), // deprecated
   encounterOverrides: EncounterOverrideSchema.optional(),
   notes: z.array(z.string()).optional(), // Private GM eyes-only notes
   updates: z.array(z.string()).optional(), // Private GM-only changes to the hex since the last visit

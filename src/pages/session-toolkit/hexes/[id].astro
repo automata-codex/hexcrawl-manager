@@ -14,6 +14,7 @@ import type {
   HexData,
 } from '../../../types';
 import { processHex } from '../../../utils/hexes';
+import { flatKnowledgeTrees } from '../../../utils/knowledge-trees';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -88,7 +89,13 @@ const extendedHexData = await processHex(hex);
     <PlayerHexDetails hex={hex} />
   </OpenContent>
   <SecretContent>
-    <GmHexDetails dungeons={dungeons} hex={extendedHexData} showSelfLink={false} />
+    <GmHexDetails
+      client:load
+      dungeons={dungeons}
+      hex={extendedHexData}
+      knowledgeTrees={flatKnowledgeTrees}
+      showSelfLink={false}
+    />
     <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
     <p>
       <span class="inline-heading">Chance of encounter:</span>

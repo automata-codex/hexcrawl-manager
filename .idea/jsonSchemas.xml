@@ -129,6 +129,24 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="knowledge-node">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="knowledge-node" />
+              <option name="relativePathToSchema" value="schemas/knowledge-node.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/knowledge-trees" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="loot-pack">
           <value>
             <SchemaInfo>
