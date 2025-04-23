@@ -70,6 +70,7 @@ export type ExtendedHexData = HexData & {
   renderedNotes: string[];
   renderedLandmark: string;
   renderedSecretSite: string;
+  renderedUpdates: string[];
 }
 export type ExtendedHiddenSites = HiddenSitesData & {
   description: string;

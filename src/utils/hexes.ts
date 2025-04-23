@@ -110,6 +110,7 @@ export async function processHex(hex: HexData): Promise<ExtendedHexData> {
     renderedNotes: await Promise.all(hex.notes?.map(renderBulletMarkdown) ?? []),
     renderedLandmark: await renderBulletMarkdown(landmark),
     renderedSecretSite: await renderBulletMarkdown(hex.secretSite ?? ''),
+    renderedUpdates: await Promise.all(hex.updates?.map(renderBulletMarkdown) ?? []),
   };
 }
 
