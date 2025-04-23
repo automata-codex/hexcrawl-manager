@@ -50,6 +50,7 @@ export const ROUTES = {
       houseRules: '/players-reference/rules/house-rules',
       supplements: '/players-reference/rules/supplements',
     },
+    retcons: '/players-reference/retcons',
     sessions: '/players-reference/sessions',
     setting: {
       baruunKhilMap: '/players-reference/setting/baruun-khil-map',
@@ -171,6 +172,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'region-budget-guidelines',
     path: ROUTES.gmReference.regionBudgetGuidelines,
+  },
+  {
+    slug: 'retcons',
+    path: ROUTES.playersReference.retcons,
   },
   {
     slug: 'scaling-encounters',
