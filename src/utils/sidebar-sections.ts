@@ -44,6 +44,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
             { label: 'Glinting Steps', href: ROUTES.playersReference.setting.glintingStepsMap },
           ],
         },
+        { id: 'retcons', label: 'Retcons', href: ROUTES.playersReference.retcons },
         {
           id: 'player-rules',
           label: 'Rules',
