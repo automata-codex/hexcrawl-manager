@@ -3,7 +3,11 @@
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 
   import type { KnowledgeNodeData, PlacementRef } from '../types';
-  import { getDungeonPath, getHexPath } from '../utils/routes.js';
+  import {
+    getDungeonPath,
+    getFloatingCluePath,
+    getHexPath,
+  } from '../utils/routes.js';
 
   export let node: KnowledgeNodeData;
   export let fullId: string = node.id;
@@ -15,6 +19,8 @@
     switch (ref.type) {
       case 'dungeon':
         return getDungeonPath(ref.id);
+      case 'floating-clue':
+        return getFloatingCluePath(ref.id)
       case 'hex':
         return getHexPath(ref.id);
       case 'hidden-site':
@@ -28,6 +34,8 @@
     switch (ref.type) {
       case 'dungeon':
         return '(Dungeon)';
+      case 'floating-clue':
+        return '(Floating Clue)';
       case 'hex':
         return '(Landmark)';
       case 'hidden-site':

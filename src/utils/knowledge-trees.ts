@@ -5,13 +5,18 @@ import { KnowledgeNodeSchema } from '../../schemas/knowledge-node';
 import type {
   DungeonData,
   FlatKnowledgeTree,
+  FloatingClueData,
   HexData,
   KnowledgeNodeData,
   PlacementMap,
   PlacementType,
 } from '../types.ts';
 
-export function buildPlacementMap(hexes: HexData[], dungeons: DungeonData[]): PlacementMap {
+export function buildPlacementMap(
+  hexes: HexData[],
+  dungeons: DungeonData[],
+  floatingClues: FloatingClueData[],
+): PlacementMap {
   const placementMap: PlacementMap = {};
 
   // Hex-level unlocks (e.g., from landmarks)
@@ -46,6 +51,19 @@ export function buildPlacementMap(hexes: HexData[], dungeons: DungeonData[]): Pl
       label: dungeon.name,
     };
     for (const unlockKey of dungeon.unlocks ?? []) {
+      placementMap[unlockKey] ||= [];
+      placementMap[unlockKey].push(ref);
+    }
+  }
+
+  // Floating clues
+  for (const clue of floatingClues) {
+    const ref = {
+      type: 'floating-clue' as PlacementType,
+      id: clue.id,
+      label: clue.name,
+    }
+    for (const unlockKey of clue.unlocks ?? []) {
       placementMap[unlockKey] ||= [];
       placementMap[unlockKey].push(ref);
     }

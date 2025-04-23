@@ -91,7 +91,7 @@ export type Pillar = keyof CharacterData['advancementPoints'];
 export type PlacementMap = Record<string, PlacementRef[]>;
 
 export interface PlacementRef {
-  type: 'hex' | 'hidden-site' | 'dungeon';
+  type: 'hex' | 'hidden-site' | 'dungeon' | 'floating-clue';
   id: string;
   label: string;
 }

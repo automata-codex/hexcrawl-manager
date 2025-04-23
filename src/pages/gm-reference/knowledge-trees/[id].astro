@@ -28,8 +28,11 @@ const hexes = hexEntries
 const dungeonEntries = await getCollection('dungeons');
 const dungeons = dungeonEntries
   .map((entry) => entry.data);
+const floatingClueEntries = await getCollection('floatingClues');
+const floatingClues = floatingClueEntries
+  .map((entry) => entry.data);
 
-const placementMap: PlacementMap = buildPlacementMap(hexes, dungeons);
+const placementMap: PlacementMap = buildPlacementMap(hexes, dungeons, floatingClues);
 ---
 <SecretLayout title={`Knowledge Tree: ${startCase(toLower(id))}`}>
   <KnowledgeTree client:load node={tree} placementMap={placementMap} />
