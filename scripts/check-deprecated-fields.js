@@ -12,13 +12,15 @@ import { get } from 'lodash-es';
 
 // ---- Config ----
 
+const WARN_ON_UNMAPPED = process.argv.includes('-w') || process.argv.includes('--warn-unmapped');
+
 const SCHEMA_DIR = '../schemas';
 const DATA_ROOT = '../data';
 
 /** @type {Record<string, string>} */
 const manualSchemaMap = {
-  'hex': 'hexes',
   'dungeon': 'dungeons',
+  'hex': 'hexes',
 };
 
 // ---- Utilities ----
@@ -163,7 +165,9 @@ function walkAndCheck(dir, deprecatedPaths) {
     const baseName = basename(filePath, '.js');
     const contentSubdir = manualSchemaMap[baseName];
     if (!contentSubdir) {
-      console.warn(`⚠️ Skipping ${baseName} (no directory mapped in manualSchemaMap)`);
+      if (WARN_ON_UNMAPPED) {
+        console.warn(`⚠️ Skipping ${baseName} (no directory mapped in manualSchemaMap)`);
+      }
       continue;
     }
 
@@ -173,7 +177,9 @@ function walkAndCheck(dir, deprecatedPaths) {
     const schema = mod.default || Object.values(mod).find(v => v instanceof z.ZodObject);
 
     if (!schema || !(schema instanceof z.ZodObject)) {
-      console.warn(`⚠️ Skipping ${filePath} (no valid Zod schema found)`);
+      if (WARN_ON_UNMAPPED) {
+        console.warn(`⚠️ Skipping ${baseName} (no directory mapped in manualSchemaMap)`);
+      }
       continue;
     }
 
