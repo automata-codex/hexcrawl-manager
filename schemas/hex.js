@@ -1,11 +1,9 @@
 import { z } from 'zod';
 import { EncounterOverrideSchema } from './encounter-table.js';
-import { RandomEncounterTableSchema } from './random-encounter-table.js';
 import { TreasureSchema } from './treasure.js';
 
 export const HiddenSitesSchema = z.object({
   description: z.string(),
-  treasureValue: z.number().optional().describe('deprecated'),
   treasure: z.array(TreasureSchema).optional(),
   unlocks: z.array(z.string()).optional(), // IDs of knowledge nodes that are unlocked by this site
 });
@@ -33,7 +31,6 @@ export const HexSchema = z.object({
   isVisited: z.boolean().optional(),
   isExplored: z.boolean().optional(),
   encounterChance: z.number().int().min(1).max(20).optional(),
-  encounters: RandomEncounterTableSchema.optional().describe('deprecated'),
   encounterOverrides: EncounterOverrideSchema.optional(),
   notes: z.array(z.string()).optional(), // Private GM eyes-only notes
   updates: z.array(z.string()).optional(), // Private GM-only changes to the hex since the last visit
