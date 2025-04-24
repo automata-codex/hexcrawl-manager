@@ -18,6 +18,7 @@ const DATA_ROOT = '../data';
 /** @type {Record<string, string>} */
 const manualSchemaMap = {
   'hex': 'hexes',
+  'dungeon': 'dungeons',
 };
 
 // ---- Utilities ----
@@ -96,7 +97,17 @@ function findDeprecatedFieldsInYaml(obj, deprecatedPaths) {
 }
 
 /**
- * Walk a content directory and check YAML files for deprecated fields
+ * Extract frontmatter YAML from a Markdown file
+ * @param {string} content
+ * @returns {string|null}
+ */
+function extractFrontmatter(content) {
+  const match = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
+  return match ? match[1] : null;
+}
+
+/**
+ * Walk a content directory and check YAML or frontmatter for deprecated fields
  * @param {string} dir
  * @param {string[]} deprecatedPaths
  * @returns {string[]}
@@ -110,10 +121,23 @@ function walkAndCheck(dir, deprecatedPaths) {
 
     if (stats.isDirectory()) {
       deprecatedUsages.push(...walkAndCheck(fullPath, deprecatedPaths));
-    } else if (fileOrDir.endsWith('.yaml') || fileOrDir.endsWith('.yml')) {
+    } else if (
+      fileOrDir.endsWith('.yaml') ||
+      fileOrDir.endsWith('.yml') ||
+      fileOrDir.endsWith('.md') ||
+      fileOrDir.endsWith('.mdx')
+    ) {
       try {
-        const content = readFileSync(fullPath, 'utf8');
-        const parsed = parse(content);
+        const raw = readFileSync(fullPath, 'utf8');
+        let parsed;
+
+        if (fileOrDir.endsWith('.md') || fileOrDir.endsWith('.mdx')) {
+          const frontmatter = extractFrontmatter(raw);
+          if (!frontmatter) continue;
+          parsed = parse(frontmatter);
+        } else {
+          parsed = parse(raw);
+        }
 
         if (typeof parsed === 'object' && parsed !== null) {
           const found = findDeprecatedFieldsInYaml(parsed, deprecatedPaths);
@@ -146,7 +170,7 @@ function walkAndCheck(dir, deprecatedPaths) {
     const contentDir = join(DATA_ROOT, contentSubdir);
     const fileUrl = pathToFileURL(filePath).href;
     const mod = await import(fileUrl);
-    const schema = mod.HexSchema || mod.default || Object.values(mod).find(v => v instanceof z.ZodObject);
+    const schema = mod.default || Object.values(mod).find(v => v instanceof z.ZodObject);
 
     if (!schema || !(schema instanceof z.ZodObject)) {
       console.warn(`⚠️ Skipping ${filePath} (no valid Zod schema found)`);
