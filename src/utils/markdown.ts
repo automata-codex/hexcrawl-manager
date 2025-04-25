@@ -61,10 +61,10 @@ export async function renderMarkdownWithAdditionalPlugin(markdown: string, addit
   return result.toString();
 }
 
-export async function renderSubArticleMarkdown(markdown: string) {
+export async function renderSubArticleMarkdown(markdown: string, depth = 1) {
   const behead: AdditionalPlugin = {
     plugin: remarkBehead,
-    options: { depth: 1 },
+    options: { depth },
     position: 0,
   };
   return renderMarkdownWithAdditionalPlugin(markdown, [ behead ]);

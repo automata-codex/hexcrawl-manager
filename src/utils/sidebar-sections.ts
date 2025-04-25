@@ -90,6 +90,17 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
             { label: 'Kobold Caves', href: '/session-toolkit/maps/kobold-caves' },
           ],
         },
+        {
+          id: 'roleplay-books',
+          label: 'Roleplay Books',
+          expandable: true,
+          items: [
+            { label: 'Alseid', href: ROUTES.sessionToolkit.roleplayBooks.alseid },
+            { label: 'Bearfolk', href: ROUTES.sessionToolkit.roleplayBooks.bearfolk },
+            { label: 'Gearforged', href: ROUTES.sessionToolkit.roleplayBooks.gearforged },
+            { label: 'Kobolds', href: ROUTES.sessionToolkit.roleplayBooks.kobolds },
+          ],
+        },
         { id: 'rumors', label: 'Rumors', href: ROUTES.sessionToolkit.rumors.index },
         { id: 'scar-sites', label: 'Scar Sites', href: ROUTES.sessionToolkit.scarSites },
         { id: 'timeline', label: 'Timeline', href: ROUTES.sessionToolkit.timeline },
