@@ -1,5 +1,4 @@
 import yaml
-import numpy as np
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -12,7 +11,8 @@ HEXES_DIR = Path("../../data/hexes")
 OUTPUT_FILE = Path("../../data/clue-links.yaml")
 
 # Settings
-TOP_N_MATCHES = 3
+MATCH_THRESHOLD = 0.4
+TOP_N_MATCHES = 5
 
 # Load model
 print("🔮 Loading sentence transformer model...")
@@ -95,13 +95,19 @@ def main():
     output = []
     for i, clue in enumerate(clues):
         similarity_scores = similarity_matrix[i]
-        top_indices = np.argsort(similarity_scores)[::-1][:TOP_N_MATCHES]
+        # Get all hexes where similarity >= threshold
         linked = []
-        for j in top_indices:
-            linked.append({
-                "hexId": hexes[j]["id"],
-                "score": float(f"{similarity_scores[j]:.4f}")  # Round for readability
-            })
+        for j, score in enumerate(similarity_scores):
+            if score >= MATCH_THRESHOLD:
+                linked.append({
+                    "hexId": hexes[j]["id"],
+                    "score": float(f"{score:.4f}")
+                })
+
+        # Sort linked hexes by descending score
+        linked.sort(key=lambda x: x["score"], reverse=True)
+        # Limit to top N matches
+        linked = linked[:TOP_N_MATCHES]
         output.append({
             "clueId": clue["id"],
             "name": clue["name"],
