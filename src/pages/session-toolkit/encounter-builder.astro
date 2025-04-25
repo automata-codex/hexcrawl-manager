@@ -8,5 +8,5 @@ const encounters = (await getCollection('encounters')).map((entry) => entry.data
 const statBlocks = (await getCollection('statBlocks')).map((entry) => entry.data);
 ---
 <SecretLayout title="Encounter Builder">
-  <EncounterBuilderPage {characters} {encounters} {statBlocks} />
+  <EncounterBuilderPage client:load {characters} {encounters} {statBlocks} />
 </SecretLayout>

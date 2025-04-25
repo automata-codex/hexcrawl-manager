@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { EncounterData, StatBlockData } from '../../types.ts';
   import { encounterBuilderStore } from '../../stores/encounter-builder.ts';
+  import type { CharacterData, EncounterData, StatBlockData } from '../../types.ts';
   import PartyBuilder from './PartyBuilder.svelte';
   import EncounterBuilder from './EncounterBuilder.svelte';
 
@@ -16,7 +16,7 @@
   encounterBuilderStore.init({ characters, encounters, statBlocks });
 </script>
 
-<div class="flex flex-col gap-8 p-4">
+<div class="content">
   <PartyBuilder />
   <EncounterBuilder />
 </div>
