@@ -25,11 +25,15 @@ def load_clues():
     for file in clue_files:
         with open(file, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
-            base_text = f"{data['name']}: {data['summary']}"
+            name = data["name"]
+            summary = data["summary"]
+            base_text = f"{name}: {summary}"
             detail_text = md_to_text(data.get("detailText", "")).strip()
             combined_text = f"{base_text}\n{detail_text}".strip()
             clues.append({
                 "id": data["id"],
+                "name": name,
+                "summary": summary,
                 "text": combined_text
             })
     return clues
@@ -100,6 +104,8 @@ def main():
             })
         output.append({
             "clueId": clue["id"],
+            "name": clue["name"],
+            "summary": clue["summary"],
             "linkedHexes": linked
         })
 

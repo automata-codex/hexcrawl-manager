@@ -5,8 +5,15 @@
   export let hexId: string;
   export let clueLinks: ClueLink[];
 
+  type ClueData = {
+    clueId: string;
+    name: string;
+    score: number;
+    summary: string;
+  }
+
   // Build a lookup map: hexId -> [clues]
-  const hexToClues: Record<string, { clueId: string; score: number }[]> = {};
+  const hexToClues: Record<string, ClueData[]> = {};
 
   for (const clue of clueLinks) {
     for (const link of clue.linkedHexes) {
@@ -15,7 +22,9 @@
       }
       hexToClues[link.hexId].push({
         clueId: clue.clueId,
+        name: clue.name,
         score: link.score,
+        summary: clue.summary,
       });
     }
   }
@@ -27,10 +36,11 @@
   <section class="floating-clues">
     <p class="inline-heading">Floating Clues:</p>
     <ul>
-      {#each cluesForThisHex as { clueId, score }}
+      {#each cluesForThisHex as clue (clue.clueId)}
         <li>
-          <a href={getFloatingCluePath(clueId)}>{clueId.replace(/-/g, ' ')}</a>
-          <span class="score">({(score * 100).toFixed(1)}% match)</span>
+          <a href={getFloatingCluePath(clue.clueId)}>{clue.name}</a>
+          <span class="score">({(clue.score * 100).toFixed(1)}% match)</span>
+          <span>{clue.summary}</span>
         </li>
       {/each}
     </ul>

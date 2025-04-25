@@ -85,6 +85,8 @@ export type RegionEntry = CollectionEntry<'regions'>;
 
 export type ClueLink = {
   clueId: string;
+  name: string;
+  summary: string;
   linkedHexes: {
     hexId: string;
     score: number;
