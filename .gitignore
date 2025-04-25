@@ -26,3 +26,4 @@ pnpm-debug.log*
 
 *.zip
 /.vercel/
+/scripts/clue-linker/.venv-clue-linker/

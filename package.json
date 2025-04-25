@@ -4,7 +4,9 @@
   "version": "2.1.0",
   "scripts": {
     "astro": "astro",
-    "build": "astro check && astro build",
+    "build": "astro check && npm run build:clue-links && astro build",
+    "build:clue-links": "bash scripts/clue-linker/setup_virtualenv.sh && scripts/clue-linker/.venv-clue-linker/bin/python scripts/clue-linker/generate_clue_links.py",
+    "clue-linker:setup": "bash scripts/clue-linker/setup_virtualenv.sh",
     "check": "astro check",
     "dev": "astro dev",
     "gen-json-schema": "node ./scripts/generate-json-schema.js",
