@@ -29,7 +29,7 @@
     }
   }
 
-  const cluesForThisHex = hexToClues[hexId] ?? [];
+  const cluesForThisHex = [...hexToClues[hexId] ?? []].sort((a, b) => b.score - a.score);
 </script>
 
 {#if cluesForThisHex.length > 0}
