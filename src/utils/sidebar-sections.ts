@@ -90,6 +90,14 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
             { label: 'Kobold Caves', href: '/session-toolkit/maps/kobold-caves' },
           ],
         },
+        {
+          id: 'roleplay-books',
+          label: 'Roleplay Books',
+          expandable: true,
+          items: [
+            { label: 'Alseid', href: ROUTES.sessionToolkit.roleplayBooks.alseid },
+          ],
+        },
         { id: 'rumors', label: 'Rumors', href: ROUTES.sessionToolkit.rumors.index },
         { id: 'scar-sites', label: 'Scar Sites', href: ROUTES.sessionToolkit.scarSites },
         { id: 'timeline', label: 'Timeline', href: ROUTES.sessionToolkit.timeline },

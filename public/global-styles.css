@@ -13,6 +13,22 @@ html {
 
 blockquote {
     font-style: italic;
+    border-left: 4px solid var(--bulma-text);
+    padding-left: 1rem;
+    margin: 1rem 0;
+}
+
+blockquote p {
+    margin-bottom: 1rem;
+    text-indent: 0;
+}
+
+blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+blockquote.dramatic {
+    font-style: italic;
     margin: 0 10% 1rem;
 }
 

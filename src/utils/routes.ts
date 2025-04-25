@@ -100,6 +100,9 @@ export const ROUTES = {
       all: '/session-toolkit/regions/all',
       index: '/session-toolkit/regions',
     },
+    roleplayBooks: {
+      alseid: '/session-toolkit/roleplay-books/alseid',
+    },
     rumors: {
       id: '/session-toolkit/rumors/[id]',
       all: '/session-toolkit/rumors/all',
@@ -176,6 +179,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'retcons',
     path: ROUTES.playersReference.retcons,
+  },
+  {
+    slug: 'roleplay-book-alseid',
+    path: ROUTES.sessionToolkit.roleplayBooks.alseid,
   },
   {
     slug: 'scaling-encounters',
