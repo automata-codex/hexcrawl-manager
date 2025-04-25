@@ -15,6 +15,9 @@ import type {
 } from '../../../types';
 import { processHex } from '../../../utils/hexes';
 import { flatKnowledgeTrees } from '../../../utils/knowledge-trees';
+import { loadClueLinks } from '../../../utils/clue-links';
+
+const clueLinks = await loadClueLinks();
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -91,6 +94,7 @@ const extendedHexData = await processHex(hex);
   <SecretContent>
     <GmHexDetails
       client:load
+      clueLinks={clueLinks}
       dungeons={dungeons}
       hex={extendedHexData}
       knowledgeTrees={flatKnowledgeTrees}
