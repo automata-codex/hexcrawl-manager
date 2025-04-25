@@ -96,6 +96,9 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           expandable: true,
           items: [
             { label: 'Alseid', href: ROUTES.sessionToolkit.roleplayBooks.alseid },
+            { label: 'Bearfolk', href: ROUTES.sessionToolkit.roleplayBooks.bearfolk },
+            { label: 'Gearforged', href: ROUTES.sessionToolkit.roleplayBooks.gearforged },
+            { label: 'Kobolds', href: ROUTES.sessionToolkit.roleplayBooks.kobolds },
           ],
         },
         { id: 'rumors', label: 'Rumors', href: ROUTES.sessionToolkit.rumors.index },

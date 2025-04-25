@@ -102,6 +102,9 @@ export const ROUTES = {
     },
     roleplayBooks: {
       alseid: '/session-toolkit/roleplay-books/alseid',
+      bearfolk: '/session-toolkit/roleplay-books/bearfolk',
+      gearforged: '/session-toolkit/roleplay-books/gearforged',
+      kobolds: '/session-toolkit/roleplay-books/kobolds',
     },
     rumors: {
       id: '/session-toolkit/rumors/[id]',
@@ -183,6 +186,18 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'roleplay-book-alseid',
     path: ROUTES.sessionToolkit.roleplayBooks.alseid,
+  },
+  {
+    slug: 'roleplay-book-bearfolk',
+    path: ROUTES.sessionToolkit.roleplayBooks.bearfolk,
+  },
+  {
+    slug: 'roleplay-book-gearforged',
+    path: ROUTES.sessionToolkit.roleplayBooks.gearforged,
+  },
+  {
+    slug: 'roleplay-book-kobolds',
+    path: ROUTES.sessionToolkit.roleplayBooks.kobolds,
   },
   {
     slug: 'scaling-encounters',
