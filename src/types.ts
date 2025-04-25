@@ -83,6 +83,16 @@ export type DungeonEntry = CollectionEntry<'dungeons'>;
 export type HexEntry = CollectionEntry<'hexes'>;
 export type RegionEntry = CollectionEntry<'regions'>;
 
+export type ClueLink = {
+  clueId: string;
+  name: string;
+  summary: string;
+  linkedHexes: {
+    hexId: string;
+    score: number;
+  }[];
+}
+
 export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
 
 export type Pillar = keyof CharacterData['advancementPoints'];

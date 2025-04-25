@@ -7,6 +7,8 @@
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
       <excludeFolder url="file://$MODULE_DIR$/.astro" />
       <excludeFolder url="file://$MODULE_DIR$/.vercel" />
+      <excludeFolder url="file://$MODULE_DIR$/scripts/clue-linker" />
+      <excludeFolder url="file://$MODULE_DIR$/scripts/clue-linker/.venv-clue-linker" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
