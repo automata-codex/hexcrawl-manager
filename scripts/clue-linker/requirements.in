@@ -1,4 +1,5 @@
-sentence-transformers
+markdownify
 numpy
-scikit-learn
 pyyaml
+scikit-learn
+sentence-transformers
