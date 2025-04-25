@@ -5,10 +5,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 from datetime import datetime
 from markdownify import markdownify as md_to_text
 
-# Paths
-CLUES_DIR = Path("../../data/floating-clues")
-HEXES_DIR = Path("../../data/hexes")
-OUTPUT_FILE = Path("../../data/clue-links.yaml")
+# Paths (relative to the project root, not this file, because it gets called by npm in the project root)
+CLUES_DIR = Path("./data/floating-clues")
+HEXES_DIR = Path("./data/hexes")
+OUTPUT_FILE = Path("./data/clue-links.yaml")
 
 # Settings
 MATCH_THRESHOLD = 0.4

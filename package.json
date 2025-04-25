@@ -5,7 +5,7 @@
   "scripts": {
     "astro": "astro",
     "build": "astro check && npm run build:clue-links && astro build",
-    "build:clue-links": "bash scripts/clue-linker/setup_virtualenv.sh && scripts/clue-linker/.venv-clue-linker/bin/python scripts/clue-linker/generate_clue_links.py",
+    "build:clue-links": "bash scripts/clue-linker/setup_virtualenv.sh && scripts/clue-linker/.venv-clue-linker/bin/python scripts/clue-linker/generate-clue-links.py",
     "clue-linker:setup": "bash scripts/clue-linker/setup_virtualenv.sh",
     "check": "astro check",
     "dev": "astro dev",
