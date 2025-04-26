@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import YAML from 'yaml';
 
-const targetDir = '../data/floating-clues'; // Directory containing list-based .yml files
+const targetDir = '../../data/floating-clues'; // Directory containing list-based .yml files
 
 const files = await fs.readdir(targetDir);
 
