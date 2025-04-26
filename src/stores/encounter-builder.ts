@@ -54,6 +54,29 @@ function createEncounterBuilderStore() {
       });
     },
 
+    addMonsterToEncounter(monsterId: string) {
+      update((state) => {
+        const monster = state.statBlocks.find((m) => m.id === monsterId);
+        if (!monster) {
+          return state;
+        }
+
+        const alreadyInEncounter = state.encounterMonsters.find((em) => em.id === monsterId);
+        if (alreadyInEncounter) {
+          // If monster already added, maybe increase quantity later, but for now just ignore
+          return state;
+        }
+
+        return {
+          ...state,
+          encounterMonsters: [
+            ...state.encounterMonsters,
+            { id: monsterId, quantity: 1 },
+          ],
+        };
+      });
+    },
+
     addToParty(id: string) {
       update((state) => {
         const character = state.characters.find((c) => c.id === id);
