@@ -78,6 +78,9 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           items: [
             { label: 'Fixed Clues', href: '/session-toolkit/clues/fixed-clues' },
             { label: 'Floating Clues', href: '/session-toolkit/clues/floating-clues' },
+            { label: 'Clues for Alistar', href: ROUTES.sessionToolkit.clues.cluesForAlistar },
+            { label: 'Clues for Daemaris', href: ROUTES.sessionToolkit.clues.cluesForDaemaris },
+            { label: 'Clues for Thorn', href: ROUTES.sessionToolkit.clues.cluesForThorn },
           ],
         },
         { id: 'loot-packs', label: 'Loot Packs', href: ROUTES.sessionToolkit.lootPacks.index },

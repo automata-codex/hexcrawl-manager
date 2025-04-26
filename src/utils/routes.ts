@@ -69,6 +69,9 @@ export const ROUTES = {
   },
   sessionToolkit: {
     clues: {
+      cluesForAlistar: '/session-toolkit/clues/clues-for-alistar',
+      cluesForDaemaris: '/session-toolkit/clues/clues-for-daemaris',
+      cluesForThorn: '/session-toolkit/clues/clues-for-thorn',
       fixedClues: {
         id: '/session-toolkit/clues/fixed-clues/[id]',
         all: '/session-toolkit/clues/fixed-clues/all',
@@ -95,6 +98,9 @@ export const ROUTES = {
     },
     minigames: {
       griffonHunt: '/session-toolkit/minigames/griffon-hunt',
+    },
+    npcs: {
+      magisterUlrichVerrian: '/session-toolkit/npcs/magister-ulrich-verrian',
     },
     regions: {
       id: '/session-toolkit/regions/[id]',
@@ -145,6 +151,18 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.playersGuide.characterGoals,
   },
   {
+    slug: 'clues/clues-for-alistar',
+    path: ROUTES.sessionToolkit.clues.cluesForAlistar,
+  },
+  {
+    slug: 'clues/clues-for-daemaris',
+    path: ROUTES.sessionToolkit.clues.cluesForDaemaris,
+  },
+  {
+    slug: 'clues/clues-for-thorn',
+    path: ROUTES.sessionToolkit.clues.cluesForThorn,
+  },
+  {
     slug: 'crystal-reference',
     path: ROUTES.gmReference.firstCivilization.crystalReference,
   },
@@ -175,6 +193,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'kobold-caves',
     path: ROUTES.sessionToolkit.maps.koboldCaves,
+  },
+  {
+    slug: 'npcs/magister-ulrich-verrian',
+    path: ROUTES.sessionToolkit.npcs.magisterUlrichVerrian,
   },
   {
     slug: 'region-budget-guidelines',
