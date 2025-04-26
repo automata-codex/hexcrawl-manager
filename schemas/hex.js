@@ -5,12 +5,16 @@ import { TreasureSchema } from './treasure.js';
 export const HiddenSitesSchema = z.object({
   description: z.string(),
   treasure: z.array(TreasureSchema).optional(),
-  unlocks: z.array(z.string()).optional(), // IDs of knowledge nodes that are unlocked by this site
+  unlocks: z.array(z.string())
+    .optional()
+    .describe('IDs of knowledge nodes that are unlocked by this site'),
 });
 
 export const LandmarkSchema = z.object({
   description: z.string(),
-  unlocks: z.array(z.string()).optional(), // IDs of knowledge nodes that are unlocked by this site
+  unlocks: z.array(z.string())
+    .optional()
+    .describe('IDs of knowledge nodes that are unlocked by this site'),
 });
 
 export const HexSchema = z.object({
@@ -32,6 +36,13 @@ export const HexSchema = z.object({
   isExplored: z.boolean().optional(),
   encounterChance: z.number().int().min(1).max(20).optional(),
   encounterOverrides: EncounterOverrideSchema.optional(),
-  notes: z.array(z.string()).optional(), // Private GM eyes-only notes
-  updates: z.array(z.string()).optional(), // Private GM-only changes to the hex since the last visit
+  notes: z.array(z.string())
+    .optional()
+    .describe('Private GM eyes-only notes'),
+  updates: z.array(z.string())
+    .optional()
+    .describe('Private GM-only changes to the hex since the last visit'),
+  tags: z.array(z.string())
+    .optional()
+    .describe('Tags for filtering hexes, matching clues, etc.'),
 }).describe('HexSchema');
