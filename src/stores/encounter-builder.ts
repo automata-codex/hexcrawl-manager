@@ -10,10 +10,11 @@ export interface CurrentPartyMember {
 
 interface EncounterBuilderState {
   characters: CharacterData[];
-  encounters: EncounterData[];
-  statBlocks: StatBlockData[];
   currentParty: CurrentPartyMember[];
   encounterMonsters: { id: string; quantity: number }[];
+  encounters: EncounterData[];
+  loaded: boolean;
+  statBlocks: StatBlockData[];
 }
 
 interface InitArgs {
@@ -26,10 +27,11 @@ const LOCAL_STORAGE_KEY = "encounter-builder-state";
 
 const defaultState: EncounterBuilderState = {
   characters: [],
-  encounters: [],
-  statBlocks: [],
   currentParty: [],
   encounterMonsters: [],
+  encounters: [],
+  loaded: false,
+  statBlocks: [],
 };
 
 function createEncounterBuilderStore() {
@@ -133,6 +135,7 @@ function createEncounterBuilderStore() {
         ...state,
         characters,
         encounters,
+        loaded: true,
         statBlocks,
       })),
 

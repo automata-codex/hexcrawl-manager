@@ -17,6 +17,10 @@
 </script>
 
 <div class="content">
-  <PartyBuilder />
-  <EncounterBuilder />
+  {#if $encounterBuilderStore.loaded}
+    <PartyBuilder />
+    <EncounterBuilder />
+  {:else}
+    <div class="has-text-grey">Loading...</div>
+  {/if}
 </div>
