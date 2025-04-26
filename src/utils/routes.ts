@@ -69,19 +69,16 @@ export const ROUTES = {
   },
   sessionToolkit: {
     clues: {
-      cluesForAlistar: '/session-toolkit/clues/clues-for-alistar',
-      cluesForDaemaris: '/session-toolkit/clues/clues-for-daemaris',
-      cluesForThorn: '/session-toolkit/clues/clues-for-thorn',
-      fixedClues: {
-        id: '/session-toolkit/clues/fixed-clues/[id]',
-        all: '/session-toolkit/clues/fixed-clues/all',
-        index: '/session-toolkit/clues/fixed-clues',
-      },
       floatingClues: {
         id: '/session-toolkit/clues/floating-clues/[id]',
         all: '/session-toolkit/clues/floating-clues/all',
         index: '/session-toolkit/clues/floating-clues',
       },
+      cluesForAlistar: '/session-toolkit/clues/clues-for-alistar',
+      cluesForDaemaris: '/session-toolkit/clues/clues-for-daemaris',
+      cluesForThorn: '/session-toolkit/clues/clues-for-thorn',
+      drunkenSoldier: '/session-toolkit/clues/drunken-soldier',
+      twinSigils: '/session-toolkit/clues/twin-sigils',
     },
     encounterBuilder: '/session-toolkit/encounter-builder',
     hexes: {
@@ -161,6 +158,14 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'clues/clues-for-thorn',
     path: ROUTES.sessionToolkit.clues.cluesForThorn,
+  },
+  {
+    slug: 'clues/drunken-soldier',
+    path: ROUTES.sessionToolkit.clues.drunkenSoldier,
+  },
+  {
+    slug: 'clues/twin-sigils',
+    path: ROUTES.sessionToolkit.clues.twinSigils,
   },
   {
     slug: 'crystal-reference',
