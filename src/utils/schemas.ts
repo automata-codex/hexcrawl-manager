@@ -34,16 +34,17 @@ export function flattenZodSchema(
   if (unwrapped instanceof ZodObject) {
     const shape = unwrapped.shape as Record<string, ZodTypeAny>;
     for (const [key, value] of Object.entries(shape)) {
-      const fullKey = prefix ? `${prefix}.${key}` : key;
       const unwrappedForTraversal = unwrapEffects(value as ZodTypeAny);
-      let type = getFieldType(value);
-      const isOptional = value instanceof ZodOptional || value instanceof ZodNullable;
 
+      const description = (value as ZodTypeAny).description || unwrappedForTraversal.description || '';
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      const isOptional = value instanceof ZodOptional || value instanceof ZodNullable;
+      const type = getFieldType(value);
       flat.push({
         key: fullKey,
         type,
         required: parentRequired && !isOptional,
-        description: unwrappedForTraversal.description || '',
+        description,
         depth,
       });
 
