@@ -2,46 +2,33 @@
 import { promises as fs } from 'node:fs';
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
-import type { ZodTypeAny } from 'zod';
 
 import SecretLayout from '../../layouts/SecretLayout.astro';
-import { flattenZodSchema } from '../../utils/schemas';
+import { flattenJsonSchema } from '../../utils/schemas';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const SCHEMA_DIR = resolve(__dirname, '../../../schemas');
 
 // Load all Zod schemas dynamically
-async function loadZodSchemas() {
+async function loadJsonSchemas() {
   const filenames = await fs.readdir(SCHEMA_DIR);
   const schemas = [];
 
   for (const filename of filenames) {
-    if (filename.endsWith('.js') || filename.endsWith('.ts')) {
-      const modulePath = '../../../schemas/' + filename.replace(/\.(js|ts)$/, '');
-      const schemaModule = await import( /* @vite-ignore */ modulePath);
-
-      // Heuristic: pick the last exported item that ends with 'Schema'
-      const schemaEntry = [...Object.entries(schemaModule)]
-        .reverse()
-        .find(([key]) => key.endsWith('Schema'));
-
-      if (schemaEntry) {
-        const [name, schema] = schemaEntry;
-        const fields = flattenZodSchema(schema as ZodTypeAny);
-        schemas.push({ name, fields });
-      }
+    if (filename.endsWith('.json')) {
+      const file = await fs.readFile(resolve(SCHEMA_DIR, filename), 'utf-8');
+      const parsed = JSON.parse(file);
+      schemas.push({
+        filename,
+        fields: flattenJsonSchema(parsed, { definitions: parsed.definitions, filename }),
+      });
     }
   }
 
   return schemas;
 }
 
-const schemaList = await loadZodSchemas();
-console.log('schemaList', JSON.stringify(
-  schemaList.filter(({ name }) => name === 'EncounterOverrideSchema'),
-  null,
-  2
-));
+const schemaList = await loadJsonSchemas();
 ---
 <style>
     table {
@@ -59,9 +46,9 @@ console.log('schemaList', JSON.stringify(
 
 <SecretLayout title="Game Master Reference: Schemas">
   {
-    schemaList.map(({ name, fields }) => (
+    schemaList.map(({ filename, fields }) => (
       <section>
-        <h2 class="title is-4"><code>{name}</code></h2>
+        <h2 class="title is-4"><code>{filename}</code></h2>
         <table>
           <thead>
           <tr>

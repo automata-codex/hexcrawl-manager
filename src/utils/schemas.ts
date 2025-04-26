@@ -1,20 +1,4 @@
-import {
-  ZodArray,
-  ZodBoolean,
-  ZodDefault,
-  ZodEffects,
-  ZodEnum,
-  ZodNullable,
-  ZodNumber,
-  ZodObject,
-  ZodOptional,
-  ZodRecord,
-  ZodString,
-  type ZodTypeAny,
-  ZodUnion,
-} from 'zod';
-
-type FlattenedField = {
+export type FlattenedField = {
   key: string;
   type: string;
   required: boolean;
@@ -22,175 +6,124 @@ type FlattenedField = {
   depth: number;
 };
 
-export function flattenZodSchema(
-  schema: ZodTypeAny,
+type FlattenOptions = {
+  definitions?: Record<string, JsonSchema>;
+  filename?: string;
+};
+
+type JsonSchema = {
+  type?: string;
+  description?: string;
+  properties?: Record<string, JsonSchema>;
+  required?: string[];
+  items?: JsonSchema | JsonSchema[];
+  additionalProperties?: JsonSchema | boolean;
+  anyOf?: JsonSchema[];
+  oneOf?: JsonSchema[];
+  $ref?: string;
+  definitions?: Record<string, JsonSchema>;
+};
+
+export function flattenJsonSchema(
+  schema: JsonSchema,
+  options: FlattenOptions = {},
   prefix = '',
   depth = 0,
   parentRequired = true
 ): FlattenedField[] {
   const flat: FlattenedField[] = [];
 
-  // Handle preprocessed schemas like .optional(), .nullable(), or .default()
-  const unwrapped = unwrapEffects(schema);
+  function resolveRef(ref: string, fileName: string): JsonSchema | 'SELF' {
+    const refName = ref.replace(/^#\/definitions\//, '');
 
-  if (unwrapped instanceof ZodObject) {
-    const shape = unwrapped.shape as Record<string, ZodTypeAny>;
-    for (const [key, value] of Object.entries(shape)) {
-      const unwrappedForTraversal = unwrapEffects(value as ZodTypeAny);
+    if (ref === '#' || refName === '') {
+      return 'SELF';
+    }
 
-      const description = (value as ZodTypeAny).description || unwrappedForTraversal.description || '';
+    const resolved = options.definitions?.[refName];
+    if (!resolved) {
+      throw new Error(`Missing $ref: ${ref} in file ${fileName}`);
+    }
+    return resolved;
+  }
+
+  const currentType = schema.type || (schema.anyOf || schema.oneOf ? 'union' : 'unknown');
+
+  if (schema.$ref) {
+    const resolved = resolveRef(schema.$ref, options.filename ?? '[unknown file]');
+
+    if (resolved === 'SELF') {
+      flat.push({
+        key: prefix || '[root]',
+        type: '<self>',
+        required: parentRequired,
+        description: schema.description || '',
+        depth,
+      });
+      return flat;
+    }
+
+    return flattenJsonSchema(resolved, options, prefix, depth, parentRequired);
+  }
+
+  if (currentType === 'object' && schema.properties) {
+    for (const [key, prop] of Object.entries(schema.properties)) {
       const fullKey = prefix ? `${prefix}.${key}` : key;
-      const isOptional = value instanceof ZodOptional || value instanceof ZodNullable;
-      const type = getFieldType(value);
+      const isRequired = schema.required?.includes(key) ?? false;
+      const propType = prop.type || (prop.anyOf || prop.oneOf ? 'union' : 'unknown');
+
       flat.push({
         key: fullKey,
-        type,
-        required: parentRequired && !isOptional,
-        description,
+        type: propType,
+        required: parentRequired && isRequired,
+        description: prop.description || '',
         depth,
       });
 
-      // Recurse into nested objects
-      if (unwrappedForTraversal instanceof ZodObject) {
-        flat.push(...flattenZodSchema(unwrappedForTraversal, fullKey, depth + 1));
-      }
-
-      // Recurse into arrays of objects
-      if (unwrappedForTraversal instanceof ZodArray) {
-        const elementUnwrapped = unwrapEffects(unwrappedForTraversal.element);
-        if (elementUnwrapped instanceof ZodObject) {
-          flat.push(...flattenZodSchema(elementUnwrapped, fullKey, depth + 1));
-        }
-      }
-
-      if (unwrappedForTraversal instanceof ZodRecord) {
-        const valueSchema = unwrapEffects(unwrappedForTraversal._def.valueType);
-
-        flat.push({
-          key: prefix ? `${prefix}.[key]` : '[key]',
-          type: 'key',
-          required: true,
-          description: '',
-          depth,
-        });
-
-        const deepUnwrapped = unwrapDeepRecord(valueSchema);
-
-        if (deepUnwrapped instanceof ZodObject || deepUnwrapped instanceof ZodArray) {
-          flat.push(...flattenZodSchema(deepUnwrapped, prefix ? `${prefix}.[key]` : '[key]', depth + 1));
-        } else {
-          // if primitive
-          flat.push({
-            key: prefix ? `${prefix}.[value]` : '[value]',
-            type: getFieldType(deepUnwrapped),
-            required: true,
-            description: '',
-            depth: depth + 1,
-          });
-        }
-      }
+      flat.push(...flattenJsonSchema(prop, options, fullKey, depth + 1, parentRequired && isRequired));
     }
-  } else if (unwrapped instanceof ZodRecord) {
-    const valueSchema = unwrapEffects(unwrapped._def.valueType);
+  }
+
+  if (currentType === 'array' && schema.items && !Array.isArray(schema.items)) {
+    const item = schema.items;
+    const itemType = item.type || (item.anyOf || item.oneOf ? 'union' : 'unknown');
 
     flat.push({
-      key: prefix ? `${prefix}.[key]` : '[key]',
-      type: 'string',
-      required: true,
-      description: '',
+      key: prefix ? `${prefix}.[item]` : '[item]',
+      type: `array of ${itemType}`,
+      required: parentRequired,
+      description: item.description || '',
       depth: depth + 1,
     });
 
-    const deepUnwrapped = unwrapDeepRecord(valueSchema);
+    flat.push(...flattenJsonSchema(item, options, prefix ? `${prefix}.[item]` : '[item]', depth + 2, parentRequired));
+  }
 
-    if (deepUnwrapped instanceof ZodObject || deepUnwrapped instanceof ZodArray) {
-      flat.push(...flattenZodSchema(deepUnwrapped, prefix ? `${prefix}.[key]` : '[key]', depth + 1));
-    } else {
-      // if primitive
-      flat.push({
-        key: prefix ? `${prefix}.[value]` : '[value]',
-        type: getFieldType(deepUnwrapped),
-        required: true,
-        description: '',
-        depth: depth + 1,
-      });
-    }
+  if (currentType === 'object' && schema.additionalProperties && typeof schema.additionalProperties === 'object') {
+    const additional = schema.additionalProperties;
+    const additionalType = additional.type || (additional.anyOf || additional.oneOf ? 'union' : 'unknown');
+
+    flat.push({
+      key: prefix ? `${prefix}.[key]` : '[key]',
+      type: `record of ${additionalType}`,
+      required: parentRequired,
+      description: additional.description || '',
+      depth: depth + 1,
+    });
+
+    flat.push(...flattenJsonSchema(additional, options, prefix ? `${prefix}.[key]` : '[key]', depth + 2, parentRequired));
+  }
+
+  if (schema.anyOf || schema.oneOf) {
+    const optionsList = schema.anyOf || schema.oneOf || [];
+    flat.push({
+      key: prefix,
+      type: optionsList.map(opt => opt.type || 'unknown').join(' | '),
+      required: parentRequired,
+      description: schema.description || '',
+      depth,
+    });
   }
 
   return flat;
-}
-
-// Helper to get field type as a string
-function getFieldType(schema: ZodTypeAny): string {
-  while (
-    schema instanceof ZodOptional ||
-    schema instanceof ZodNullable ||
-    schema instanceof ZodDefault ||
-    schema instanceof ZodEffects
-    ) {
-    if (schema instanceof ZodOptional || schema instanceof ZodNullable || schema instanceof ZodDefault) {
-      schema = schema._def.innerType;
-    } else if (schema instanceof ZodEffects) {
-      schema = schema._def.schema;
-    }
-  }
-
-  if (schema instanceof ZodString) return 'string';
-  if (schema instanceof ZodNumber) return 'number';
-  if (schema instanceof ZodBoolean) return 'boolean';
-  if (schema instanceof ZodEnum) return `enum (${schema._def.values.join(' | ')})`;
-  if (schema instanceof ZodArray) {
-    const elementType = getFieldType(schema._def.type);
-    return `array of ${elementType}`;
-  }
-  if (schema instanceof ZodObject) return 'object';
-  if (schema instanceof ZodRecord) {
-    const valueType = getFieldType(schema._def.valueType);
-    return `record of ${valueType}`;
-  }
-  if (schema instanceof ZodUnion) {
-    return schema._def.options.map((opt: ZodTypeAny) => getFieldType(opt as ZodTypeAny)).join(' | ');
-  }
-
-  return 'unknown';
-}
-
-function unwrapDeepRecord(schema: ZodTypeAny): ZodTypeAny {
-  let current = schema;
-  while (current instanceof ZodRecord) {
-    current = unwrapEffects(current._def.valueType);
-  }
-  return current;
-}
-
-// Helper to unwrap ZodEffects (from .optional(), .nullable(), .default(), etc.)
-function unwrapEffects(schema: ZodTypeAny): ZodTypeAny {
-  while (
-    schema instanceof ZodOptional ||
-    schema instanceof ZodNullable ||
-    schema instanceof ZodEffects
-    ) {
-    if (schema instanceof ZodOptional || schema instanceof ZodNullable) {
-      schema = schema._def.innerType;
-    } else if (schema instanceof ZodEffects) {
-      schema = schema._def.schema;
-    }
-  }
-
-  // Special case: unwrap unions if one branch is an object
-  if (schema instanceof ZodUnion) {
-    const objectOption = schema._def.options.find((opt: ZodTypeAny) => {
-      const unwrapped = unwrapEffects(opt);
-      return unwrapped instanceof ZodObject || (unwrapped instanceof ZodArray && unwrapEffects(unwrapped.element) instanceof ZodObject);
-    });
-
-    if (objectOption) {
-      return unwrapEffects(objectOption);
-    } else {
-      // Fallback: just return the first option if no object is found
-      return unwrapEffects(schema._def.options[0]);
-    }
-  }
-
-  return schema;
 }
