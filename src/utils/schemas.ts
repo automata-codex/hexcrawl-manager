@@ -9,6 +9,7 @@ export type FlattenedField = {
 type FlattenOptions = {
   definitions?: Record<string, JsonSchema>;
   filename?: string;
+  rootSchema?: JsonSchema;
 };
 
 type JsonSchema = {
@@ -33,24 +34,32 @@ export function flattenJsonSchema(
 ): FlattenedField[] {
   const flat: FlattenedField[] = [];
 
-  function resolveRef(ref: string, fileName: string): JsonSchema | 'SELF' {
-    const refName = ref.replace(/^#\/definitions\//, '');
-
-    if (ref === '#' || refName === '') {
+  function resolveRef(ref: string, rootSchema: JsonSchema, fileName: string): JsonSchema | 'SELF' {
+    if (ref === '#' || ref === '#/') {
       return 'SELF';
     }
 
-    const resolved = options.definitions?.[refName];
-    if (!resolved) {
-      throw new Error(`Missing $ref: ${ref} in file ${fileName}`);
+    if (!ref.startsWith('#/')) {
+      throw new Error(`Unsupported external $ref: ${ref} in file ${fileName}`);
     }
-    return resolved;
+
+    const path = ref.slice(2).split('/'); // Remove "#/" and split
+    let current: any = rootSchema;
+
+    for (const segment of path) {
+      if (!(segment in current)) {
+        throw new Error(`Missing $ref target: ${ref} (segment ${segment}) in file ${fileName}`);
+      }
+      current = current[segment];
+    }
+
+    return current;
   }
 
   const currentType = schema.type || (schema.anyOf || schema.oneOf ? 'union' : 'unknown');
 
   if (schema.$ref) {
-    const resolved = resolveRef(schema.$ref, options.filename ?? '[unknown file]');
+    const resolved = resolveRef(schema.$ref, options.rootSchema ?? {}, options.filename ?? '[unknown file]');
 
     if (resolved === 'SELF') {
       flat.push({

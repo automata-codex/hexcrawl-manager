@@ -20,7 +20,11 @@ async function loadJsonSchemas() {
       const parsed = JSON.parse(file);
       schemas.push({
         filename,
-        fields: flattenJsonSchema(parsed, { definitions: parsed.definitions, filename }),
+        fields: flattenJsonSchema(parsed, {
+          definitions: parsed.definitions,
+          rootSchema: parsed,
+          filename,
+        }),
       });
     }
   }
