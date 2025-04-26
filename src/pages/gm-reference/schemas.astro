@@ -2,94 +2,39 @@
 import { promises as fs } from 'node:fs';
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
+import type { ZodTypeAny } from 'zod';
+
 import SecretLayout from '../../layouts/SecretLayout.astro';
+import { flattenZodSchema } from '../../utils/schemas';
 
-type FlattenedField = {
-  key: string;
-  type: string;
-  required: boolean;
-  description: string;
-  depth: number;
-};
-
-type JsonSchemaProperty = {
-  type?: string;
-  description?: string;
-  properties?: Record<string, JsonSchemaProperty>;
-  required?: string[];
-  anyOf?: { type: string }[];
-  items?: JsonSchemaProperty | JsonSchemaProperty[];
-};
-
-// Convert import.meta.url into a real filesystem path
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const SCHEMA_DIR = resolve(__dirname, '../../../schemas');
 
-// Helper to flatten nested properties
-function flattenProperties(
-  properties: Record<string, JsonSchemaProperty> = {},
-  requiredFields: string[] = [],
-  prefix = '',
-  depth = 0,
-): FlattenedField[] {
-  const flat: FlattenedField[] = [];
-
-  for (const [ key, value ] of Object.entries(properties ?? {})) {
-    const baseType = value.type || (value.anyOf ? value.anyOf.map(opt => opt.type).join('|') : 'unknown');
-    let type = baseType;
-
-    if (baseType === 'array' && value.items && !Array.isArray(value.items)) {
-      const itemSchema = value.items;
-      const itemType = itemSchema.type || (itemSchema.anyOf ? itemSchema.anyOf.map(opt => opt.type).join('|') : 'unknown');
-      type = `array of ${itemType}`;
-    }
-
-    const fullKey = prefix ? `${prefix}.${key}` : key;
-
-    flat.push({
-      key: fullKey,
-      type,
-      required: requiredFields.includes(key),
-      description: value.description || '',
-      depth,
-    });
-
-    // Recurse into nested objects
-    if (type === 'object' && value.properties) {
-      flat.push(...flattenProperties(value.properties, value.required || [], fullKey, depth + 1));
-    }
-
-    // Recurse into arrays of objects
-    if (type === 'array' && value.items && !Array.isArray(value.items)) {
-      if (value.items.type === 'object' && value.items.properties) {
-        flat.push(...flattenProperties(value.items.properties, value.items.required || [], fullKey, depth + 1));
-      }
-    }
-  }
-
-  return flat;
-}
-
-// Utility function to load all JSON schema files
-async function loadSchemas() {
-  const filenames = await fs.readdir(resolve(import.meta.url, SCHEMA_DIR));
+// Load all Zod schemas dynamically
+async function loadZodSchemas() {
+  const filenames = await fs.readdir(SCHEMA_DIR);
   const schemas = [];
 
   for (const filename of filenames) {
-    if (filename.endsWith('.json')) {
-      const file = await fs.readFile(resolve(import.meta.url, SCHEMA_DIR, filename), 'utf-8');
-      const parsed = JSON.parse(file);
-      schemas.push({
-        filename,
-        schema: parsed,
-      });
+    if (filename.endsWith('.js') || filename.endsWith('.ts')) {
+      const modulePath = '../../../schemas/' + filename.replace(/\.(js|ts)$/, '');
+      const schemaModule = await import( /* @vite-ignore */ modulePath);
+
+      // Heuristic: pick the first exported item that ends with 'Schema'
+      const schemaEntry = Object.entries(schemaModule).find(([key]) => key.endsWith('Schema'));
+
+      if (schemaEntry) {
+        const [name, schema] = schemaEntry;
+        const fields = flattenZodSchema(schema as ZodTypeAny);
+        schemas.push({ name, fields });
+      }
     }
   }
 
   return schemas;
 }
 
-const schemas = await loadSchemas();
+const schemaList = await loadZodSchemas();
 ---
 <style>
     table {
@@ -101,43 +46,41 @@ const schemas = await loadSchemas();
     th, td {
         text-align: left;
         border-bottom: 1px solid #666;
+        padding-right: 1rem;
     }
 </style>
+
 <SecretLayout title="Game Master Reference: Schemas">
   {
-    schemas.map(({ filename, schema }) => {
-      const fields = flattenProperties(schema.properties, schema.required);
-
-      return (
-        <section>
-          <h2 class="title is-4"><code>{filename.replace('.json', '')}</code></h2>
-          <table>
-            <thead>
+    schemaList.map(({ name, fields }) => (
+      <section>
+        <h2 class="title is-4"><code>{name}</code></h2>
+        <table>
+          <thead>
+          <tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Description</th>
+          </tr>
+          </thead>
+          <tbody>
+          {fields.map(field => (
             <tr>
-              <th>Field</th>
-              <th>Type</th>
-              <th>Required</th>
-              <th>Description</th>
+              <td>
+                <span style={`padding-left: ${field.depth}rem; display: inline-block;`}>
+                  {field.depth > 0 && '└ '}
+                  {field.key.split('.').pop()}
+                </span>
+              </td>
+              <td>{field.type}</td>
+              <td>{field.required ? '✓' : ''}</td>
+              <td>{field.description}</td>
             </tr>
-            </thead>
-            <tbody>
-            {fields.map(field => (
-              <tr>
-                <td>
-                  <span style={`padding-left: ${field.depth}rem; display: inline-block;`}>
-                    {field.depth > 0 && '└ '}
-                    {field.key.split('.').pop()}
-                  </span>
-                </td>
-                <td>{field.type}</td>
-                <td>{field.required ? '✓' : ''}</td>
-                <td>{field.description}</td>
-              </tr>
-            ))}
-            </tbody>
-          </table>
-        </section>
-      );
-    })
+          ))}
+          </tbody>
+        </table>
+      </section>
+    ))
   }
 </SecretLayout>
