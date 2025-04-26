@@ -15,4 +15,5 @@ export const FloatingClueSchema = z.object({
     trigger: z.string().describe('When to trigger fallback (e.g., leaving a region)'),
     consequence: z.string().describe('What happens if clue goes unfound'),
   }).optional().describe('Optional fallback trigger and consequence'),
+  status: z.enum(['undiscovered', 'revealed', 'expired']).default('undiscovered'),
 });
