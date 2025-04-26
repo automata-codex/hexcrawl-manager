@@ -41,7 +41,6 @@ const DIRS = {
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   FACTIONS: `${DATA_DIR}/factions`,
-  FIXED_CLUES: `${DATA_DIR}/fixed-clues`,
   FLOATING_CLUES: `${DATA_DIR}/floating-clues`,
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
@@ -124,13 +123,6 @@ const factions = defineCollection({
   },
 });
 
-const fixedClues = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: DIRS.FIXED_CLUES }),
-  schema: z.object({
-    title: z.string(),
-  }),
-});
-
 const floatingClues = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.FLOATING_CLUES }),
   schema: {
@@ -211,7 +203,6 @@ export const collections = {
   encounters,
   factions,
   floatingClues,
-  fixedClues,
   hexes,
   'loot-packs': lootPacks,
   npcs,
