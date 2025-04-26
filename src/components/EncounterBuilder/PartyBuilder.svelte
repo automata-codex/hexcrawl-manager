@@ -1,9 +1,12 @@
 <script lang="ts">
   import { type CurrentPartyMember, encounterBuilderStore } from '../../stores/encounter-builder';
 
-  const { setOverrideLevel, removeFromParty, addToParty } = encounterBuilderStore;
+  const { addCustomCharacter, addToParty, removeFromParty, setOverrideLevel } = encounterBuilderStore;
 
+  let customLevel = $state(1);
+  let customName = $state('');
   let selectedCharacterId = $state('');
+  let showQuickAdd = $state(false);
 
   function calculateApl(party: CurrentPartyMember[]) {
     const levels = party.map((member) => member.overrideLevel ?? member.level);
@@ -15,6 +18,15 @@
     if (selectedCharacterId) {
       addToParty(selectedCharacterId);
       selectedCharacterId = '';
+    }
+  }
+
+  function handleAddCustomCharacter() {
+    if (customName.trim() && customLevel >= 1) {
+      addCustomCharacter(customName.trim(), customLevel);
+      customName = '';
+      customLevel = 1;
+      showQuickAdd = false;
     }
   }
 
@@ -44,7 +56,44 @@
         Add to Party
       </button>
     </div>
+    <div class="control">
+      <button class="button" onclick={() => showQuickAdd = !showQuickAdd}>
+        {showQuickAdd ? 'Cancel' : 'Quick Add'}
+      </button>
+    </div>
   </div>
+
+  <!-- Quick Add Panel -->
+  {#if showQuickAdd}
+    <div class="box">
+      <div class="field">
+        <label class="label" for="custom-name">Name</label>
+        <div class="control">
+          <input id="custom-name" class="input" type="text" bind:value={customName} placeholder="Character Name" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="custom-level">Level</label>
+        <div class="control">
+          <input id="custom-level" class="input" type="number" min="1" bind:value={customLevel} />
+        </div>
+      </div>
+
+      <div class="field is-grouped">
+        <div class="control">
+          <button class="button is-success" onclick={handleAddCustomCharacter}>
+            Add Custom Character
+          </button>
+        </div>
+        <div class="control">
+          <button class="button is-light" onclick={() => showQuickAdd = false}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
 
   <!-- Current Party List -->
   <div class="box">

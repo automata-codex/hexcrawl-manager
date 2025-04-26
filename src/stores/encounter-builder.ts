@@ -36,6 +36,24 @@ function createEncounterBuilderStore() {
   return {
     subscribe,
 
+    addCustomCharacter(name: string, level: number) {
+      update((state) => {
+        const id = `custom-${crypto.randomUUID()}`;
+        return {
+          ...state,
+          currentParty: [
+            ...state.currentParty,
+            {
+              id,
+              name,
+              level,
+              overrideLevel: undefined,
+            },
+          ],
+        };
+      });
+    },
+
     addToParty(id: string) {
       update((state) => {
         const character = state.characters.find((c) => c.id === id);
