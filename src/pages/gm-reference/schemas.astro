@@ -20,8 +20,10 @@ async function loadZodSchemas() {
       const modulePath = '../../../schemas/' + filename.replace(/\.(js|ts)$/, '');
       const schemaModule = await import( /* @vite-ignore */ modulePath);
 
-      // Heuristic: pick the first exported item that ends with 'Schema'
-      const schemaEntry = Object.entries(schemaModule).find(([key]) => key.endsWith('Schema'));
+      // Heuristic: pick the last exported item that ends with 'Schema'
+      const schemaEntry = [...Object.entries(schemaModule)]
+        .reverse()
+        .find(([key]) => key.endsWith('Schema'));
 
       if (schemaEntry) {
         const [name, schema] = schemaEntry;
@@ -45,7 +47,7 @@ const schemaList = await loadZodSchemas();
 
     th, td {
         text-align: left;
-        border-bottom: 1px solid #666;
+        border-bottom: 1px solid #333;
         padding-right: 1rem;
     }
 </style>
