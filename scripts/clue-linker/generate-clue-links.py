@@ -29,7 +29,7 @@ def load_yaml_files(directory):
 def load_clues():
     clues = []
     for data in load_yaml_files(CLUES_DIR):
-        if data["status"] != "undiscovered":
+        if data.get("status", "undiscovered") != "undiscovered":
             continue
         name = data["name"]
         summary = data["summary"]
