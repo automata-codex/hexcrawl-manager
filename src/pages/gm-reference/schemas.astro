@@ -35,8 +35,17 @@ function flattenProperties(
   const flat: FlattenedField[] = [];
 
   for (const [ key, value ] of Object.entries(properties ?? {})) {
+    const baseType = value.type || (value.anyOf ? value.anyOf.map(opt => opt.type).join('|') : 'unknown');
+    let type = baseType;
+
+    if (baseType === 'array' && value.items && !Array.isArray(value.items)) {
+      const itemSchema = value.items;
+      const itemType = itemSchema.type || (itemSchema.anyOf ? itemSchema.anyOf.map(opt => opt.type).join('|') : 'unknown');
+      type = `array of ${itemType}`;
+    }
+
     const fullKey = prefix ? `${prefix}.${key}` : key;
-    const type = value.type || (value.anyOf ? value.anyOf.map(opt => opt.type).join('|') : 'unknown');
+
     flat.push({
       key: fullKey,
       type,
