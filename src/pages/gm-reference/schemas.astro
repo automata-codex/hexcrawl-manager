@@ -20,6 +20,7 @@ async function loadJsonSchemas() {
       const parsed = JSON.parse(file);
       schemas.push({
         filename,
+        name: parsed.description || filename,
         fields: flattenJsonSchema(parsed, {
           definitions: parsed.definitions,
           rootSchema: parsed,
@@ -50,9 +51,9 @@ const schemaList = await loadJsonSchemas();
 
 <SecretLayout title="Game Master Reference: Schemas">
   {
-    schemaList.map(({ filename, fields }) => (
+    schemaList.map(({ name, fields }) => (
       <section>
-        <h2 class="title is-4"><code>{filename}</code></h2>
+        <h2 class="title is-4"><code>{name}</code></h2>
         <table>
           <thead>
           <tr>

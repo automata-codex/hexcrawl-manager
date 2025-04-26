@@ -6,4 +6,4 @@ export const EncounterSchema = z.object({
   description: z.string(),
   statBlocks: z.array(z.string()),
   weight: z.number().default(1),
-}).describe('Detail about a random encounter');
+}).describe('EncounterSchema');
