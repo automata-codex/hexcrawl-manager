@@ -1,12 +1,14 @@
 import {
   ZodArray,
-  ZodBoolean, ZodDefault,
+  ZodBoolean,
+  ZodDefault,
   ZodEffects,
   ZodEnum,
   ZodNullable,
   ZodNumber,
   ZodObject,
   ZodOptional,
+  ZodRecord,
   ZodString,
   type ZodTypeAny,
   ZodUnion,
@@ -60,6 +62,58 @@ export function flattenZodSchema(
           flat.push(...flattenZodSchema(elementUnwrapped, fullKey, depth + 1));
         }
       }
+
+      if (unwrappedForTraversal instanceof ZodRecord) {
+        const valueSchema = unwrapEffects(unwrappedForTraversal._def.valueType);
+
+        flat.push({
+          key: prefix ? `${prefix}.[key]` : '[key]',
+          type: 'key',
+          required: true,
+          description: '',
+          depth,
+        });
+
+        const deepUnwrapped = unwrapDeepRecord(valueSchema);
+
+        if (deepUnwrapped instanceof ZodObject || deepUnwrapped instanceof ZodArray) {
+          flat.push(...flattenZodSchema(deepUnwrapped, prefix ? `${prefix}.[key]` : '[key]', depth + 1));
+        } else {
+          // if primitive
+          flat.push({
+            key: prefix ? `${prefix}.[value]` : '[value]',
+            type: getFieldType(deepUnwrapped),
+            required: true,
+            description: '',
+            depth: depth + 1,
+          });
+        }
+      }
+    }
+  } else if (unwrapped instanceof ZodRecord) {
+    const valueSchema = unwrapEffects(unwrapped._def.valueType);
+
+    flat.push({
+      key: prefix ? `${prefix}.[key]` : '[key]',
+      type: 'string',
+      required: true,
+      description: '',
+      depth: depth + 1,
+    });
+
+    const deepUnwrapped = unwrapDeepRecord(valueSchema);
+
+    if (deepUnwrapped instanceof ZodObject || deepUnwrapped instanceof ZodArray) {
+      flat.push(...flattenZodSchema(deepUnwrapped, prefix ? `${prefix}.[key]` : '[key]', depth + 1));
+    } else {
+      // if primitive
+      flat.push({
+        key: prefix ? `${prefix}.[value]` : '[value]',
+        type: getFieldType(deepUnwrapped),
+        required: true,
+        description: '',
+        depth: depth + 1,
+      });
     }
   }
 
@@ -68,7 +122,6 @@ export function flattenZodSchema(
 
 // Helper to get field type as a string
 function getFieldType(schema: ZodTypeAny): string {
-  // Unwrap common wrappers first
   while (
     schema instanceof ZodOptional ||
     schema instanceof ZodNullable ||
@@ -91,10 +144,23 @@ function getFieldType(schema: ZodTypeAny): string {
     return `array of ${elementType}`;
   }
   if (schema instanceof ZodObject) return 'object';
-  if (schema instanceof ZodUnion) {
-    return schema._def.options.map((opt: ZodTypeAny) => getFieldType(opt)).join(' | ');
+  if (schema instanceof ZodRecord) {
+    const valueType = getFieldType(schema._def.valueType);
+    return `record of ${valueType}`;
   }
+  if (schema instanceof ZodUnion) {
+    return schema._def.options.map((opt: ZodTypeAny) => getFieldType(opt as ZodTypeAny)).join(' | ');
+  }
+
   return 'unknown';
+}
+
+function unwrapDeepRecord(schema: ZodTypeAny): ZodTypeAny {
+  let current = schema;
+  while (current instanceof ZodRecord) {
+    current = unwrapEffects(current._def.valueType);
+  }
+  return current;
 }
 
 // Helper to unwrap ZodEffects (from .optional(), .nullable(), .default(), etc.)

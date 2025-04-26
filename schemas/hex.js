@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { EncounterOverrideSchema } from './encounter-table.js';
+import { EncounterOverrideSchema } from './encounter-override.js';
 import { TreasureSchema } from './treasure.js';
 
 export const HiddenSitesSchema = z.object({

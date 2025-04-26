@@ -37,6 +37,11 @@ async function loadZodSchemas() {
 }
 
 const schemaList = await loadZodSchemas();
+console.log('schemaList', JSON.stringify(
+  schemaList.filter(({ name }) => name === 'EncounterOverrideSchema'),
+  null,
+  2
+));
 ---
 <style>
     table {
