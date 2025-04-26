@@ -18,6 +18,7 @@ type JsonSchemaProperty = {
   properties?: Record<string, JsonSchemaProperty>;
   required?: string[];
   anyOf?: { type: string }[];
+  items?: JsonSchemaProperty | JsonSchemaProperty[];
 };
 
 // Convert import.meta.url into a real filesystem path
@@ -35,16 +36,25 @@ function flattenProperties(
 
   for (const [ key, value ] of Object.entries(properties ?? {})) {
     const fullKey = prefix ? `${prefix}.${key}` : key;
+    const type = value.type || (value.anyOf ? value.anyOf.map(opt => opt.type).join('|') : 'unknown');
     flat.push({
       key: fullKey,
-      type: value.type || (value.anyOf ? value.anyOf.map(opt => opt.type).join('|') : 'unknown'),
+      type,
       required: requiredFields.includes(key),
       description: value.description || '',
       depth,
     });
 
-    if (value.type === 'object' && value.properties) {
+    // Recurse into nested objects
+    if (type === 'object' && value.properties) {
       flat.push(...flattenProperties(value.properties, value.required || [], fullKey, depth + 1));
+    }
+
+    // Recurse into arrays of objects
+    if (type === 'array' && value.items && !Array.isArray(value.items)) {
+      if (value.items.type === 'object' && value.items.properties) {
+        flat.push(...flattenProperties(value.items.properties, value.items.required || [], fullKey, depth + 1));
+      }
     }
   }
 
@@ -105,7 +115,7 @@ const schemas = await loadSchemas();
             {fields.map(field => (
               <tr>
                 <td>
-                  <span style={`padding-left: ${field.depth * 1.5}rem; display: inline-block;`}>
+                  <span style={`padding-left: ${field.depth}rem; display: inline-block;`}>
                     {field.depth > 0 && '└ '}
                     {field.key.split('.').pop()}
                   </span>
