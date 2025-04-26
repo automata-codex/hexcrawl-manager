@@ -4,9 +4,52 @@ import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 import SecretLayout from '../../layouts/SecretLayout.astro';
 
+type FlattenedField = {
+  key: string;
+  type: string;
+  required: boolean;
+  description: string;
+  depth: number;
+};
+
+type JsonSchemaProperty = {
+  type?: string;
+  description?: string;
+  properties?: Record<string, JsonSchemaProperty>;
+  required?: string[];
+  anyOf?: { type: string }[];
+};
+
 // Convert import.meta.url into a real filesystem path
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const SCHEMA_DIR = resolve(__dirname, '../../../schemas');
+
+// Helper to flatten nested properties
+function flattenProperties(
+  properties: Record<string, JsonSchemaProperty> = {},
+  requiredFields: string[] = [],
+  prefix = '',
+  depth = 0,
+): FlattenedField[] {
+  const flat: FlattenedField[] = [];
+
+  for (const [ key, value ] of Object.entries(properties ?? {})) {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+    flat.push({
+      key: fullKey,
+      type: value.type || (value.anyOf ? value.anyOf.map(opt => opt.type).join('|') : 'unknown'),
+      required: requiredFields.includes(key),
+      description: value.description || '',
+      depth,
+    });
+
+    if (value.type === 'object' && value.properties) {
+      flat.push(...flattenProperties(value.properties, value.required || [], fullKey, depth + 1));
+    }
+  }
+
+  return flat;
+}
 
 // Utility function to load all JSON schema files
 async function loadSchemas() {
@@ -30,48 +73,52 @@ async function loadSchemas() {
 const schemas = await loadSchemas();
 ---
 <style>
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 2rem;
-  }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 2rem;
+    }
 
-  th, td {
-    padding: 0.5rem;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-
-  th {
-  }
+    th, td {
+        text-align: left;
+        border-bottom: 1px solid #666;
+    }
 </style>
 <SecretLayout title="Game Master Reference: Schemas">
   {
-    schemas.map(({ filename, schema }) => (
-      <section>
-        <h2 class="title is-4">{filename.replace('.json', '')}</h2>
-        <table>
-          <thead>
-          <tr>
-            <th>Field</th>
-            <th>Type</th>
-            <th>Required</th>
-            <th>Description</th>
-          </tr>
-          </thead>
-          <tbody>
-          {/* Assume it's a JSON Schema "properties" structure */}
-          {Object.entries(schema.properties ?? {}).map(([ key, value ]) => (
+    schemas.map(({ filename, schema }) => {
+      const fields = flattenProperties(schema.properties, schema.required);
+
+      return (
+        <section>
+          <h2 class="title is-4"><code>{filename.replace('.json', '')}</code></h2>
+          <table>
+            <thead>
             <tr>
-              <td>{key}</td>
-              <td>{value.type || 'unknown'}</td>
-              <td>{(schema.required ?? []).includes(key) ? 'Yes' : 'No'}</td>
-              <td>{value.description || ''}</td>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Required</th>
+              <th>Description</th>
             </tr>
-          ))}
-          </tbody>
-        </table>
-      </section>
-    ))
+            </thead>
+            <tbody>
+            {fields.map(field => (
+              <tr>
+                <td>
+                  <span style={`padding-left: ${field.depth * 1.5}rem; display: inline-block;`}>
+                    {field.depth > 0 && '└ '}
+                    {field.key.split('.').pop()}
+                  </span>
+                </td>
+                <td>{field.type}</td>
+                <td>{field.required ? '✓' : ''}</td>
+                <td>{field.description}</td>
+              </tr>
+            ))}
+            </tbody>
+          </table>
+        </section>
+      );
+    })
   }
 </SecretLayout>
