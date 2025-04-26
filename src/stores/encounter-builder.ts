@@ -8,7 +8,7 @@ export interface CurrentPartyMember {
   overrideLevel?: number;
 }
 
-interface EncounterTunerState {
+interface EncounterBuilderState {
   characters: CharacterData[];
   encounters: EncounterData[];
   statBlocks: StatBlockData[];
@@ -22,7 +22,9 @@ interface InitArgs {
   statBlocks: StatBlockData[];
 }
 
-const defaultState: EncounterTunerState = {
+const LOCAL_STORAGE_KEY = "encounter-builder-state";
+
+const defaultState: EncounterBuilderState = {
   characters: [],
   encounters: [],
   statBlocks: [],
@@ -31,7 +33,31 @@ const defaultState: EncounterTunerState = {
 };
 
 function createEncounterBuilderStore() {
-  const { subscribe, set, update } = writable<EncounterTunerState>(defaultState);
+  const initialState = loadFromLocalStorage() ?? defaultState;
+  const { subscribe, set, update } = writable<EncounterBuilderState>(initialState);
+
+  subscribe((state) => {
+    saveToLocalStorage(state);
+  });
+
+  function loadFromLocalStorage(): EncounterBuilderState | null {
+    if (typeof localStorage === "undefined") {
+      return null;
+    }
+    try {
+      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveToLocalStorage(state: EncounterBuilderState) {
+    if (typeof localStorage === "undefined") {
+      return;
+    }
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+  }
 
   return {
     subscribe,
@@ -103,7 +129,12 @@ function createEncounterBuilderStore() {
     },
 
     init: ({ characters, encounters, statBlocks }: InitArgs) =>
-      set({ ...defaultState, characters, encounters, statBlocks }),
+      update((state) => ({
+        ...state,
+        characters,
+        encounters,
+        statBlocks,
+      })),
 
     removeFromParty(id: string) {
       update((state) => ({

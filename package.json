@@ -8,7 +8,7 @@
     "build:clue-links": "bash scripts/clue-linker/setup_virtualenv.sh && scripts/clue-linker/.venv-clue-linker/bin/python scripts/clue-linker/generate-clue-links.py",
     "clue-linker:setup": "bash scripts/clue-linker/setup_virtualenv.sh",
     "check": "astro check",
-    "dev": "astro dev",
+    "dev": "astro dev --host",
     "gen-json-schema": "node ./scripts/generate-json-schema.js",
     "preview": "astro preview"
   },
