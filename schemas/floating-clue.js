@@ -16,4 +16,5 @@ export const FloatingClueSchema = z.object({
     consequence: z.string().describe('What happens if clue goes unfound'),
   }).optional().describe('Optional fallback trigger and consequence'),
   status: z.enum(['undiscovered', 'revealed', 'expired']).default('undiscovered'),
+  encounters: z.array(z.string()).optional().describe('Encounters that may be use to reveal this clue'),
 });
