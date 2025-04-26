@@ -17,6 +17,11 @@ interface EncounterBuilderState {
   statBlocks: StatBlockData[];
 }
 
+type EncounterBuilderSaveData = Pick<
+  EncounterBuilderState,
+  'currentParty' | 'encounterMonsters'
+>;
+
 interface InitArgs {
   characters: CharacterData[];
   encounters: EncounterData[];
@@ -35,7 +40,11 @@ const defaultState: EncounterBuilderState = {
 };
 
 function createEncounterBuilderStore() {
-  const initialState = loadFromLocalStorage() ?? defaultState;
+  const saved = loadFromLocalStorage();
+  const initialState: EncounterBuilderState = {
+    ...defaultState,
+    ...saved,
+  };
   const { subscribe, set, update } = writable<EncounterBuilderState>(initialState);
 
   subscribe((state) => {
@@ -58,7 +67,11 @@ function createEncounterBuilderStore() {
     if (typeof localStorage === "undefined") {
       return;
     }
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+    const data: EncounterBuilderSaveData = {
+      currentParty: state.currentParty,
+      encounterMonsters: state.encounterMonsters,
+    };
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
   }
 
   return {
