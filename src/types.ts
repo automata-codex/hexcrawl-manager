@@ -7,9 +7,8 @@ import { DungeonDataSchema } from '../schemas/dungeon';
 import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { EncounterSchema } from '../schemas/encounter';
-import {
-  CategoryTable,
-  EncounterOverrideSchema,
+import { EncounterOverrideSchema } from '../schemas/encounter-override.js';
+import { CategoryTable,
   EncounterTableSchema,
   TieredSubtableSchema,
 } from '../schemas/encounter-table';

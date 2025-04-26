@@ -4,6 +4,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from datetime import datetime
 from markdownify import markdownify as md_to_text
+import re
 
 # Paths (relative to the project root, not this file, because it gets called by npm in the project root)
 CLUES_DIR = Path("./data/floating-clues")
@@ -12,69 +13,69 @@ OUTPUT_FILE = Path("./data/clue-links.yaml")
 
 # Settings
 MATCH_THRESHOLD = 0.4
+TAG_BOOST = 0.05  # How much to boost similarity per matching tag
 TOP_N_MATCHES = 5
 
 # Load model
 print("🔮 Loading sentence transformer model...")
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
+# Helper: Load YAML files
+def load_yaml_files(directory):
+    files = list(directory.glob("**/*.yml")) + list(directory.glob("**/*.yaml"))
+    return [yaml.safe_load(file.read_text(encoding="utf-8")) for file in files]
+
 # Load clues
 def load_clues():
     clues = []
-    clue_files = list(CLUES_DIR.glob("**/*.yml")) + list(CLUES_DIR.glob("**/*.yaml"))
-    for file in clue_files:
-        with open(file, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-            name = data["name"]
-            summary = data["summary"]
-            base_text = f"{name}: {summary}"
-            detail_text = md_to_text(data.get("detailText", "")).strip()
-            combined_text = f"{base_text}\n{detail_text}".strip()
-            clues.append({
-                "id": data["id"],
-                "name": name,
-                "summary": summary,
-                "text": combined_text
-            })
+    for data in load_yaml_files(CLUES_DIR):
+        name = data["name"]
+        summary = data["summary"]
+        base_text = f"{name}: {summary}"
+        detail_text = md_to_text(data.get("detailText", "")).strip()
+        combined_text = f"{base_text}\n{detail_text}".strip()
+        clues.append({
+            "id": data["id"],
+            "name": name,
+            "summary": summary,
+            "text": combined_text,
+            "tags": data.get("tags", [])
+        })
     return clues
 
 # Load hexes
 def load_hexes():
     hexes = []
-    hex_files = list(HEXES_DIR.glob("**/*.yml")) + list(HEXES_DIR.glob("**/*.yaml"))
-    for file in hex_files:
-        with open(file, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-            text_parts = []
+    for data in load_yaml_files(HEXES_DIR):
+        text_parts = []
 
-            if "landmark" in data:
-                text_parts.append(data["landmark"])
+        if "landmark" in data:
+            text_parts.append(data["landmark"])
 
-            if "hiddenSites" in data:
-                for hs in data["hiddenSites"]:
-                    if isinstance(hs, str):
-                        text_parts.append(hs)
-                    elif isinstance(hs, dict):
-                        text_parts.append(hs.get("description", ""))
+        if "hiddenSites" in data:
+            for hs in data["hiddenSites"]:
+                if isinstance(hs, str):
+                    text_parts.append(hs)
+                elif isinstance(hs, dict):
+                    text_parts.append(hs.get("description", ""))
 
-            if "notes" in data:
-                for note in data["notes"]:
-                    text_parts.append(note)
+        if "notes" in data:
+            for note in data["notes"]:
+                text_parts.append(note)
 
-            flat_text_parts = []
-            for part in text_parts:
-                if isinstance(part, list):
-                    for subpart in part:
-                        flat_text_parts.append(str(subpart))
-                else:
-                    flat_text_parts.append(str(part))
+        flat_text_parts = []
+        for part in text_parts:
+            if isinstance(part, list):
+                for subpart in part:
+                    flat_text_parts.append(str(subpart))
+            else:
+                flat_text_parts.append(str(part))
 
-            text = "\n".join(flat_text_parts)
-
-            hexes.append({
-                "id": data["slug"],
-                "text": text
-            })
+        hexes.append({
+            "id": data["slug"],
+            "text": "\n".join(flat_text_parts),
+            "tags": data.get("tags", [])
+        })
 
     return hexes
 
@@ -88,32 +89,60 @@ def main():
     clue_embeddings = model.encode([c["text"] for c in clues])
     hex_embeddings = model.encode([h["text"] for h in hexes])
 
-    print("📈 Computing cosine similarity...")
-    similarity_matrix = cosine_similarity(clue_embeddings, hex_embeddings)
-
-    print("🔗 Selecting top matches...")
+    print("🔗 Matching clues to hexes...")
     output = []
-    for i, clue in enumerate(clues):
-        similarity_scores = similarity_matrix[i]
-        # Get all hexes where similarity >= threshold
-        linked = []
-        for j, score in enumerate(similarity_scores):
-            if score >= MATCH_THRESHOLD:
-                linked.append({
-                    "hexId": hexes[j]["id"],
-                    "score": float(f"{score:.4f}")
-                })
 
-        # Sort linked hexes by descending score
+    for clue_idx, clue in enumerate(clues):
+        clue_tags = set(tag.lower() for tag in clue.get("tags", []))
+
+        linked = []
+
+        # Handle forced hex placements first
+        forced_hex_tags = [tag for tag in clue_tags if tag.startswith("hex-")]
+        forced_hex_ids = [tag.replace("hex-", "") for tag in forced_hex_tags]
+
+        for hex_id in forced_hex_ids:
+            linked.append({
+                "hexId": hex_id,
+                "score": 1.0  # Always perfect match
+            })
+
+        # Now do fuzzy matching
+        similarity_scores = cosine_similarity(
+            [clue_embeddings[clue_idx]],
+            hex_embeddings
+        )[0]
+
+        for hex_idx, hex_ in enumerate(hexes):
+            base_score = similarity_scores[hex_idx]
+            hex_tags = set(tag.lower() for tag in hex_.get("tags", []))
+
+            # Boost if tags overlap
+            common_tags = clue_tags & hex_tags
+            boosted_score = base_score + (len(common_tags) * TAG_BOOST)
+
+            if boosted_score >= MATCH_THRESHOLD:
+                hex_id = hex_["id"]
+                # Don't add a fuzzy link if it's already a forced link
+                if hex_id not in forced_hex_ids:
+                    linked.append({
+                        "hexId": hex_id,
+                        "score": float(f"{boosted_score:.4f}")
+                    })
+
+        # Sort all linked hexes by descending score
         linked.sort(key=lambda x: x["score"], reverse=True)
+
         # Limit to top N matches
         linked = linked[:TOP_N_MATCHES]
-        output.append({
-            "clueId": clue["id"],
-            "name": clue["name"],
-            "summary": clue["summary"],
-            "linkedHexes": linked
-        })
+
+        if linked:
+            output.append({
+                "clueId": clue["id"],
+                "name": clue["name"],
+                "summary": clue["summary"],
+                "linkedHexes": linked
+            })
 
     print(f"💾 Writing output to {OUTPUT_FILE}...")
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
