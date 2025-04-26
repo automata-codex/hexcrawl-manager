@@ -1,9 +1,7 @@
 <script lang="ts">
   import EncounterList from './EncounterList.svelte';
   import MonsterSelector from './MonsterSelector.svelte';
-
-  // We will fill these in later
-  // import XpCalculator from './XpCalculator.svelte';
+  import XpCalculator from './XpCalculator.svelte';
 </script>
 
 <div>
@@ -24,7 +22,6 @@
   <!-- XP Calculation and Difficulty -->
   <div class="notification is-light">
     <h3 class="subtitle is-5">Encounter Difficulty</h3>
-    <!-- <XpCalculator /> -->
-    <p class="has-text-grey">XP scaling and thresholds coming soon...</p>
+     <XpCalculator />
   </div>
 </div>
