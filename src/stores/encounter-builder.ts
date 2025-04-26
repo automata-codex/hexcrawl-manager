@@ -112,6 +112,22 @@ function createEncounterBuilderStore() {
       }));
     },
 
+    removeMonsterFromEncounter(monsterId: string) {
+      update((state) => ({
+        ...state,
+        encounterMonsters: state.encounterMonsters.filter((em) => em.id !== monsterId),
+      }));
+    },
+
+    setMonsterQuantity(monsterId: string, newQuantity: number) {
+      update((state) => ({
+        ...state,
+        encounterMonsters: state.encounterMonsters.map((em) =>
+          em.id === monsterId ? { ...em, quantity: newQuantity } : em
+        ),
+      }));
+    },
+
     setOverrideLevel(id: string, level: number) {
       update((state) => ({
         ...state,

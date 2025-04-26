@@ -1,8 +1,8 @@
 <script lang="ts">
+  import EncounterList from './EncounterList.svelte';
   import MonsterSelector from './MonsterSelector.svelte';
 
   // We will fill these in later
-  // import EncounterList from './EncounterList.svelte';
   // import XpCalculator from './XpCalculator.svelte';
 </script>
 
@@ -18,8 +18,7 @@
   <!-- Current Encounter List -->
   <div class="box">
     <h3 class="subtitle is-5">Encounter Composition</h3>
-    <!-- <EncounterList /> -->
-    <p class="has-text-grey">Encounter list coming soon...</p>
+     <EncounterList />
   </div>
 
   <!-- XP Calculation and Difficulty -->
