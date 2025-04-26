@@ -69,6 +69,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       items: [
         { id: 'map-regions', label: 'Map Regions', href: ROUTES.sessionToolkit.regions.index },
         { id: 'hex-catalog', label: 'Hex Catalog', href: ROUTES.sessionToolkit.hexes.index },
+        { id: 'encounter-builder', label: 'Encounter Builder', href: ROUTES.sessionToolkit.encounterBuilder },
         { id: 'scaling-encounters', label: 'Scaling Encounters', href: ROUTES.sessionToolkit.scalingEncounters },
         {
           id: 'clues',

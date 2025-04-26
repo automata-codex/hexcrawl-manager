@@ -1,0 +1,12 @@
+---
+import EncounterBuilderPage from '../../components/EncounterBuilder/EncounterBuilderPage.svelte';
+import { getCollection } from 'astro:content';
+import SecretLayout from '../../layouts/SecretLayout.astro';
+
+const characters = (await getCollection('characters')).map((entry) => entry.data);
+const encounters = (await getCollection('encounters')).map((entry) => entry.data);
+const statBlocks = (await getCollection('statBlocks')).map((entry) => entry.data);
+---
+<SecretLayout title="Encounter Builder">
+  <EncounterBuilderPage client:load {characters} {encounters} {statBlocks} />
+</SecretLayout>

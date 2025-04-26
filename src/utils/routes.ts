@@ -80,6 +80,7 @@ export const ROUTES = {
         index: '/session-toolkit/clues/floating-clues',
       },
     },
+    encounterBuilder: '/session-toolkit/encounter-builder',
     hexes: {
       id: '/session-toolkit/hexes/[id]',
       index: '/session-toolkit/hexes',
