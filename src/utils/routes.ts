@@ -29,6 +29,7 @@ export const ROUTES = {
       id: '/gm-reference/knowledge-trees/[id]',
     },
     regionBudgetGuidelines: '/gm-reference/region-budget-guidelines',
+    schemas: '/gm-reference/schemas',
     statBlocks: {
       id: '/gm-reference/stat-blocks/[id]',
       index: '/gm-reference/stat-blocks',

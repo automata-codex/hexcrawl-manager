@@ -25,5 +25,5 @@ export const DungeonDataSchema = z.object({
   summary: z.string().optional(),
   statBlocks: z.array(z.string()).optional(),
   treasure: z.array(TreasureSchema).optional(),
-  unlocks: z.array(z.string()).optional(), // IDs of knowledge nodes that are unlocked by this site
+  unlocks: z.array(z.string()).optional().describe('IDs of knowledge nodes that are unlocked by this site'),
 }).describe('Data for a dungeon on a hex map');
