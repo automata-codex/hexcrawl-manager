@@ -144,10 +144,18 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
             { label: 'Airships', href: ROUTES.gmReference.firstCivilization.airships },
           ],
         },
-        { id: 'gm-notes-western-frontier', label: 'GM\'s Notes on Baruun Khil', href: '/gm-reference/western-frontier-gms-notes' },
         { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
         { id: 'region-budget', label: 'Region Budget Guidelines', href: ROUTES.gmReference.regionBudgetGuidelines },
         { id: 'schemas', label: 'Schemas', href: ROUTES.gmReference.schemas },
+        {
+          id: 'gm-setting',
+          label: 'Setting',
+          expandable: true,
+          items: [
+            { label: 'Early Frontier', href: ROUTES.gmReference.setting.earlyFrontier },
+            { label: 'GM\'s Notes on Baruun Khil', href: ROUTES.gmReference.setting.westernFrontierGmsNotes },
+          ],
+        },
         { id: 'stat-blocks', label: 'Stat Blocks', href: ROUTES.gmReference.statBlocks.index },
       ],
     }
