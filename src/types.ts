@@ -95,6 +95,8 @@ export type ClueLink = {
   }[];
 }
 
+export type EncounterCategoryTables = Record<string, Record<string, EncounterEntryData[]>>;
+
 export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
 
 export type Pillar = keyof CharacterData['advancementPoints'];

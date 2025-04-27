@@ -1,13 +1,17 @@
 ---
 import { getCollection } from 'astro:content';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
-import type { EncounterEntryData, EncounterOverrideData, EncounterTableData, HexData } from '../../../types';
+import type {
+  EncounterCategoryTables,
+  EncounterOverrideData,
+  EncounterTableData,
+  HexData,
+} from '../../../types';
 
 const encounterData = await getCollection('encounters');
 const encounters = encounterData.sort((a, b) => a.data.name.localeCompare(b.data.name));
 const title = 'Encounters';
 
-type EncounterCategoryTables = Record<string, Record<string, EncounterEntryData[]>>;
 
 /**
  * Build a unique list of all encounter IDs across region tables and hex encounter overrides
