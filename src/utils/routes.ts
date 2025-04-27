@@ -29,11 +29,15 @@ export const ROUTES = {
       id: '/gm-reference/knowledge-trees/[id]',
     },
     regionBudgetGuidelines: '/gm-reference/region-budget-guidelines',
+    schemas: '/gm-reference/schemas',
+    setting: {
+      earlyFrontier: '/gm-reference/setting/early-frontier',
+      westernFrontierGmsNotes: '/gm-reference/western-frontier-gms-notes',
+    },
     statBlocks: {
       id: '/gm-reference/stat-blocks/[id]',
       index: '/gm-reference/stat-blocks',
     },
-    westernFrontierGmsNotes: '/gm-reference/western-frontier-gms-notes',
   },
   index: '/',
   playersGuide: {
@@ -81,6 +85,7 @@ export const ROUTES = {
       twinSigils: '/session-toolkit/clues/twin-sigils',
     },
     encounterBuilder: '/session-toolkit/encounter-builder',
+    hexcrawlQuickReference: '/session-toolkit/hexcrawl-quick-reference',
     hexes: {
       id: '/session-toolkit/hexes/[id]',
       index: '/session-toolkit/hexes',
@@ -176,6 +181,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.gmReference.firstCivilization.crystals,
   },
   {
+    slug: 'early-frontier',
+    path: ROUTES.gmReference.setting.earlyFrontier,
+  },
+  {
     slug: 'first-civilization-demographics',
     path: ROUTES.gmReference.firstCivilization.demographics,
   },
@@ -190,6 +199,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'hexcrawl-rules',
     path: ROUTES.playersReference.rules.hexcrawlRules,
+  },
+  {
+    slug: 'hexcrawl-quick-reference',
+    path: ROUTES.sessionToolkit.hexcrawlQuickReference,
   },
   {
     slug: 'house-rules',
@@ -253,7 +266,7 @@ export const ARTICLE_ROUTES: RouteData[] = [
   },
   {
     slug: 'western-frontier-gms-notes',
-    path: ROUTES.gmReference.westernFrontierGmsNotes,
+    path: ROUTES.gmReference.setting.westernFrontierGmsNotes,
   },
 ];
 

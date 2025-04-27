@@ -36,6 +36,9 @@ export const HexSchema = z.object({
   isExplored: z.boolean().optional(),
   encounterChance: z.number().int().min(1).max(20).optional(),
   encounterOverrides: EncounterOverrideSchema.optional(),
+  flags: z.object({
+    isScarSite: z.boolean().optional(),
+  }).optional().describe('Flags for different hex categories and types'),
   notes: z.array(z.string())
     .optional()
     .describe('Private GM eyes-only notes'),

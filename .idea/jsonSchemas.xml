@@ -57,18 +57,21 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="encounter-entry">
+        <entry key="encounter">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="encounter-entry" />
-              <option name="relativePathToSchema" value="schemas/encounter-entry.json" />
+              <option name="name" value="encounter" />
+              <option name="relativePathToSchema" value="schemas/encounter.json" />
               <option name="patterns">
                 <list>
                   <Item>
                     <option name="directory" value="true" />
                     <option name="path" value="data/encounters" />
                     <option name="mappingKind" value="Directory" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/encounters/veil-shepherd-acolytes.yml" />
                   </Item>
                 </list>
               </option>

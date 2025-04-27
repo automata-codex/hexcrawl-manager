@@ -8,7 +8,9 @@ import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { EncounterSchema } from '../schemas/encounter';
 import { EncounterOverrideSchema } from '../schemas/encounter-override.js';
-import { CategoryTable,
+import {
+  CategoryTable,
+  EncounterEntrySchema,
   EncounterTableSchema,
   TieredSubtableSchema,
 } from '../schemas/encounter-table';
@@ -39,6 +41,7 @@ export type ClassData = z.infer<typeof ClassSchema>;
 export type DescriptiveActionData = z.infer<typeof DescriptiveActionSchema>;
 export type DungeonData = z.infer<typeof DungeonDataSchema>;
 export type EncounterData = z.infer<typeof EncounterSchema>;
+export type EncounterEntryData = z.infer<typeof EncounterEntrySchema>;
 export type EncounterOverrideData = z.infer<typeof EncounterOverrideSchema>;
 export type EncounterTableData = z.infer<typeof EncounterTableSchema>;
 export type FactionData = z.infer<typeof FactionSchema>;
@@ -79,6 +82,7 @@ export type ExtendedTreasureData = TreasureData & {
 
 export type ArticleEntry = CollectionEntry<'articles'>;
 export type DungeonEntry = CollectionEntry<'dungeons'>;
+export type FloatingClueEntry = CollectionEntry<'floatingClues'>;
 export type HexEntry = CollectionEntry<'hexes'>;
 export type RegionEntry = CollectionEntry<'regions'>;
 
@@ -91,6 +95,8 @@ export type ClueLink = {
     score: number;
   }[];
 }
+
+export type EncounterCategoryTables = Record<string, Record<string, EncounterEntryData[]>>;
 
 export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
 

@@ -16,6 +16,7 @@ import type {
 import { processHex } from '../../../utils/hexes';
 import { flatKnowledgeTrees } from '../../../utils/knowledge-trees';
 import { loadClueLinks } from '../../../utils/clue-links';
+import GhostlyEchoes from '../../../components/GhostlyEchoes.astro';
 
 const clueLinks = await loadClueLinks();
 
@@ -29,10 +30,10 @@ if (!id) {
 }
 
 // Query for the entry directly using the request slug
-const hexData = await getEntry('hexes', id);
+const hexEntry = await getEntry('hexes', id);
 
 // Redirect if the entry does not exist
-if (hexData === undefined) {
+if (hexEntry === undefined) {
   return new Response(null, {
     status: 404,
     statusText: 'Not found'
@@ -40,7 +41,7 @@ if (hexData === undefined) {
 }
 
 const dungeons = await getCollection('dungeons');
-const hex: HexData = hexData.data;
+const hex: HexData = hexEntry.data;
 const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
 
 // Build the random encounter table
@@ -108,5 +109,6 @@ const extendedHexData = await processHex(hex);
       (&le;{encounterChance})
     </p>
     <RandomEncounterTable data={encounters} />
+    <GhostlyEchoes isScarSite={!!hex.flags?.isScarSite} />
   </SecretContent>
 </ComponentLayout>
