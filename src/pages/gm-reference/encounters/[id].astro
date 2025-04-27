@@ -9,7 +9,7 @@ import type {
   RegionEntry,
 } from '../../../types';
 import { renderBulletMarkdown, renderMarkdown, renderSubArticleMarkdown } from '../../../utils/markdown';
-import { getHexPath } from '../../../utils/routes';
+import { getHexPath, getRegionPath } from '../../../utils/routes';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -39,9 +39,9 @@ const hexes = await getCollection('hexes');
 const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
 
 function encounterIsInRegion(region: RegionEntry, encounterId: string): boolean {
-  for (const categoryTable of Object.values(region.data.encounters ?? {})) {
+  for (const categoryTable of Object.values(region.data.encounters?.categoryTables ?? {})) {
     for (const entries of Object.values(categoryTable ?? {})) {
-      if (Array.isArray(entries) && entries.some((entry: any) => entry.encounterId === encounterId)) {
+      if (entries.some((entry) => entry.encounterId === encounterId)) {
         return true;
       }
     }
@@ -65,6 +65,7 @@ function encounterIsInHex(hex: HexEntry, encounterId: string): boolean {
 }
 
 const regionsUsingEncounter = regions.filter(region => encounterIsInRegion(region, id));
+const regionList = regionsUsingEncounter.map(region => `<a href=${getRegionPath(region.id)}>${region.data.name}</a>`).join(', ');
 const hexesUsingEncounter = hexes.filter(hex => encounterIsInHex(hex, id));
 const hexList = hexesUsingEncounter.map(hex => `<a href=${getHexPath(hex.id)}>${hex.data.name}</a>`).join(', ');
 
@@ -122,17 +123,10 @@ const roleplayBookEntries = (await Promise.all(
     }
 </style>
 <SecretLayout title={title}>
-  {regionsUsingEncounter.length > 0 && (
-    <div class="region-list">
-      <h2 class="title is-3">Regions</h2>
-      <ul>
-        {regionsUsingEncounter.map(region => (
-          <li>
-            <a href={`/gm-reference/regions/${region.id}`}>{region.data.name}</a>
-          </li>
-        ))}
-      </ul>
-    </div>
+  {regionList.length > 0 && (
+    <p>
+      Regions with this encounter: <Fragment set:html={regionList} />
+    </p>
   )}
   {hexList.length > 0 && (
     <p>
