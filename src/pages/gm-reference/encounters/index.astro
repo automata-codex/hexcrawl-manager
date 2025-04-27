@@ -1,18 +1,21 @@
 ---
 import { getCollection } from 'astro:content';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
-import type { EncounterTableData } from '../../../types';
+import type { EncounterEntryData, EncounterOverrideData, EncounterTableData, HexData } from '../../../types';
 
 const encounterData = await getCollection('encounters');
 const encounters = encounterData.sort((a, b) => a.data.name.localeCompare(b.data.name));
 const title = 'Encounters';
 
+type EncounterCategoryTables = Record<string, Record<string, EncounterEntryData[]>>;
+
 /**
- * Build a unique list of all encounter IDs across region tables
+ * Build a unique list of all encounter IDs across region tables and hex encounter overrides
  */
-export function getAllEncounterIdsFromRegions(regionTables: EncounterTableData[]): string[] {
+export function getAllEncounterIds(regionTables: EncounterTableData[], hexes: HexData[]): string[] {
   const seen = new Set<string>();
 
+  // Add encounters from region tables
   for (const table of regionTables) {
     for (const category of Object.values(table.categoryTables)) {
       for (const entries of Object.values(category)) {
@@ -23,13 +26,35 @@ export function getAllEncounterIdsFromRegions(regionTables: EncounterTableData[]
     }
   }
 
+  // Add encounters from hex encounterOverrides
+  for (const hex of hexes) {
+    const overrides: EncounterOverrideData | undefined = hex.encounterOverrides;
+    if (overrides) {
+      if ('categoryTables' in overrides) {
+        Object.values(overrides.categoryTables as EncounterCategoryTables).forEach((category) => {
+          for (const entries of Object.values(category)) {
+            for (const entry of entries) {
+              seen.add(entry.encounterId);
+            }
+          }
+        });
+      }
+    }
+  }
+
   return Array.from(seen);
 }
+
+const hexEntries = await getCollection('hexes');
+const hexes = hexEntries
+  .filter((hex) => !!hex.data.encounterOverrides)
+  .map((hex) => hex.data);
 const regions = await getCollection('regions');
+
 const regionTables = regions
   .map((region) => region.data.encounters)
   .filter((region) => !!region);
-const usedEncounters = getAllEncounterIdsFromRegions(regionTables);
+const usedEncounters = getAllEncounterIds(regionTables, hexes);
 
 function formatEncounterName(encounterId: string, encounterName: string) {
   if (!usedEncounters.includes(encounterId)) {
