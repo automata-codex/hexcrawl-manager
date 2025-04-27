@@ -82,6 +82,7 @@ export const ROUTES = {
       twinSigils: '/session-toolkit/clues/twin-sigils',
     },
     encounterBuilder: '/session-toolkit/encounter-builder',
+    hexcrawlQuickReference: '/session-toolkit/hexcrawl-quick-reference',
     hexes: {
       id: '/session-toolkit/hexes/[id]',
       index: '/session-toolkit/hexes',
@@ -191,6 +192,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'hexcrawl-rules',
     path: ROUTES.playersReference.rules.hexcrawlRules,
+  },
+  {
+    slug: 'hexcrawl-quick-reference',
+    path: ROUTES.sessionToolkit.hexcrawlQuickReference,
   },
   {
     slug: 'house-rules',

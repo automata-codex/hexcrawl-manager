@@ -95,6 +95,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
             { label: 'Kobold Caves', href: '/session-toolkit/maps/kobold-caves' },
           ],
         },
+        { id: 'hexcrawl-quick-reference', label: 'Hexcrawl Quick Reference', href: ROUTES.sessionToolkit.hexcrawlQuickReference },
         {
           id: 'roleplay-books',
           label: 'Roleplay Books',
