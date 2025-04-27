@@ -5,11 +5,12 @@ import StatBlock from '../../../components/StatBlock/StatBlock.astro';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import type {
   EncounterData,
+  FloatingClueEntry,
   HexEntry,
   RegionEntry,
 } from '../../../types';
 import { renderBulletMarkdown, renderMarkdown, renderSubArticleMarkdown } from '../../../utils/markdown';
-import { getHexPath, getRegionPath } from '../../../utils/routes';
+import { getFloatingCluePath, getHexPath, getRegionPath } from '../../../utils/routes';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -35,8 +36,13 @@ const encounter: EncounterData = encounterData.data;
 const statBlocks = await getCollection('statBlocks');
 const regions = await getCollection('regions');
 const hexes = await getCollection('hexes');
+const floatingClues = await getCollection('floatingClues');
 
 const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
+
+function clueUsesEncounter(clue: FloatingClueEntry, encounterId: string): boolean {
+  return !!clue.data.encounters?.includes(encounterId);
+}
 
 function encounterIsInRegion(region: RegionEntry, encounterId: string): boolean {
   for (const categoryTable of Object.values(region.data.encounters?.categoryTables ?? {})) {
@@ -68,6 +74,9 @@ const regionsUsingEncounter = regions.filter(region => encounterIsInRegion(regio
 const regionList = regionsUsingEncounter.map(region => `<a href=${getRegionPath(region.id)}>${region.data.name}</a>`).join(', ');
 const hexesUsingEncounter = hexes.filter(hex => encounterIsInHex(hex, id));
 const hexList = hexesUsingEncounter.map(hex => `<a href=${getHexPath(hex.id)}>${hex.data.name}</a>`).join(', ');
+
+const floatingCluesUsingEncounter = floatingClues.filter(clue => clueUsesEncounter(clue, id));
+const floatingClueList = floatingCluesUsingEncounter.map(clue => `<a href=${getFloatingCluePath(clue.id)}>${clue.data.name}</a>`).join(', ');
 
 export const ROLEPLAY_BOOKS = [
   { keyword: 'bearfolk', slug: 'roleplay-book-bearfolk' },
@@ -123,6 +132,12 @@ const roleplayBookEntries = (await Promise.all(
     }
 </style>
 <SecretLayout title={title}>
+  {floatingClueList.length > 0 && (
+    <p>
+      <strong>Floating Clues</strong> using this encounter: <Fragment set:html={floatingClueList} />
+    </p>
+  )}
+
   {regionList.length > 0 && (
     <p>
       Regions with this encounter: <Fragment set:html={regionList} />
