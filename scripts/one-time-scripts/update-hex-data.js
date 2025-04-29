@@ -1,7 +1,9 @@
-import { readFile, ensureDir, writeFile } from 'fs-extra';
+import pkg from 'fs-extra';
 import { join } from 'path';
 import { parse, stringify } from 'yaml';
-import globby from 'globby';
+import { globby } from 'globby';
+
+const { readFile, ensureDir, writeFile } = pkg;
 
 // 🛠️ Configurable constants
 const INPUT_FILES = [
