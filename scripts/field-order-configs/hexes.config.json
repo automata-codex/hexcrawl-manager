@@ -1,5 +1,5 @@
 {
-  "targetGlob": "/Users/alexgs/projects/skyreach/data/region-*/*.{yaml,yml}",
+  "targetGlob": "/Users/alexgs/projects/skyreach/data/hexes/region-*/*.{yaml,yml}",
   "fieldOrder": [
     "id",
     "slug",
