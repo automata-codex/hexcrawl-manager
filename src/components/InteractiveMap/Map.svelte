@@ -1,33 +1,21 @@
-<script lang="ts">
-  import { onMount } from 'svelte';
-  import { Application, Graphics, Text, TextStyle } from 'pixi.js';
-
-  let container: HTMLDivElement;
-
-  onMount(() => {
-    let app: Application;
-
-    // Can't pass async callback directly to onMount, so we use an IIFE
-    (async () => {
-      app = new Application();
-      await app.init({
-        resizeTo: container,
-        autoStart: true,
-        antialias: true,
-        backgroundColor: 0x202020
-      });
-
-      container.appendChild(app.canvas); // 🔥 use .canvas, not .view (deprecated)
-
-      // Placeholder: Just draw a red square
-      const square = new Graphics()
-        .rect(50, 50, 100, 100)
-        .fill({ color: 0xff0000 });
-      app.stage.addChild(square);
-    })();
-
-    return () => app?.destroy(true);
-  });
+<script>
+  // Optional: width and height of your box
+  const boxSize = 100;
 </script>
 
-<div bind:this={container} class="map-viewer" style="width: 100%; height: 100vh;" ></div>
+<svg
+  width="100%"
+  height="100%"
+  viewBox="0 0 500 500"
+  xmlns="http://www.w3.org/2000/svg"
+  style="background: #f0f0f0;"
+>
+  <!-- Red square centered in the viewBox -->
+  <rect
+    x={(500 - boxSize) / 2}
+    y={(500 - boxSize) / 2}
+    width={boxSize}
+    height={boxSize}
+    fill="red"
+  />
+</svg>

@@ -27,7 +27,6 @@
     "@fortawesome/svelte-fontawesome": "^0.2.3",
     "astro": "^5.1.1",
     "lodash-es": "^4.17.21",
-    "pixi.js": "^8.9.2",
     "rehype-add-classes": "^1.0.0",
     "remark": "^15.0.1",
     "remark-behead": "^3.1.0",
