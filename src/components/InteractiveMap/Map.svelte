@@ -66,18 +66,74 @@
   function handleWheel(e: WheelEvent) {
     e.preventDefault();
     e.stopPropagation();
+
     const zoomFactor = 1.1;
     const direction = e.deltaY > 0 ? 1 / zoomFactor : zoomFactor;
+
+    const rect = svgEl.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Current view top-left in SVG coords
+    const viewX = centerX - svgWidth / 2 / zoom;
+    const viewY = centerY - svgHeight / 2 / zoom;
+
+    // Mouse point in SVG coords before zoom
+    const svgMouseX = viewX + (mouseX / svgWidth) * (svgWidth / zoom);
+    const svgMouseY = viewY + (mouseY / svgHeight) * (svgHeight / zoom);
+
+    // Zoom update
     zoom *= direction;
+
+    // New view top-left after zoom
+    const newViewWidth = svgWidth / zoom;
+    const newViewHeight = svgHeight / zoom;
+
+    // Recompute center so svgMouseX/Y stays under the cursor
+    centerX = svgMouseX - (mouseX / svgWidth) * newViewWidth + newViewWidth / 2;
+    centerY = svgMouseY - (mouseY / svgHeight) * newViewHeight + newViewHeight / 2;
   }
 
   let svgEl: SVGElement;
   onMount(() => {
-    svgWidth = svgEl.clientWidth;
-    svgHeight = svgEl.clientHeight;
+    const resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const newWidth = entry.contentRect.width;
+        const newHeight = entry.contentRect.height;
+
+        // Adjust center to preserve current center of screen in SVG coords
+        const oldViewWidth = svgWidth / zoom;
+        const oldViewHeight = svgHeight / zoom;
+        const newViewWidth = newWidth / zoom;
+        const newViewHeight = newHeight / zoom;
+
+        const viewX = centerX - oldViewWidth / 2;
+        const viewY = centerY - oldViewHeight / 2;
+
+        centerX = viewX + newViewWidth / 2;
+        centerY = viewY + newViewHeight / 2;
+
+        svgWidth = newWidth;
+        svgHeight = newHeight;
+      }
+    });
+
+    resizeObserver.observe(svgEl);
+    return () => resizeObserver.disconnect();
   });
 
+  let mouseScreenX = $state(0);
+  let mouseScreenY = $state(0);
+  let svgMouseX = $state(0);
+  let svgMouseY = $state(0);
+
 </script>
+<div style="position: absolute; top: 0; left: 0; background: white; padding: 0.5em; font-family: monospace; z-index: 1000;">
+  Mouse: {mouseScreenX}, {mouseScreenY}<br />
+  SVG: {svgMouseX.toFixed(2)}, {svgMouseY.toFixed(2)}<br />
+  Center: {centerX.toFixed(2)}, {centerY.toFixed(2)}<br />
+  Zoom: {zoom.toFixed(2)}
+</div>
 
 <svg
   role="presentation"
