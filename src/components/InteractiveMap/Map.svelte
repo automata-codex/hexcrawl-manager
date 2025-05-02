@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
 
   const HEX_WIDTH = 100;
@@ -12,13 +12,13 @@
     }
   }
 
-  function axialToPixel(q, r) {
+  function axialToPixel(q: number, r: number) {
     const x = q * (0.75 * HEX_WIDTH);
-    const y = HEX_HEIGHT * (r + 0.5 * (q % 2));
+    const y = HEX_HEIGHT * (r + 0.5 * ((q + 1) % 2));
     return { x, y };
   }
 
-  function hexPath(x, y) {
+  function hexPath(x: number, y: number) {
     const size = HEX_WIDTH / 2;
     const points = [];
     for (let i = 0; i < 6; i++) {
@@ -43,13 +43,13 @@
   let lastX = $state(0);
   let lastY = $state(0);
 
-  function startPan(e) {
+  function startPan(e: MouseEvent) {
     isPanning = true;
     lastX = e.clientX;
     lastY = e.clientY;
   }
 
-  function movePan(e) {
+  function movePan(e: MouseEvent) {
     if (!isPanning) return;
     const dx = (e.clientX - lastX) / zoom;
     const dy = (e.clientY - lastY) / zoom;
@@ -63,14 +63,15 @@
     isPanning = false;
   }
 
-  function handleWheel(e) {
+  function handleWheel(e: WheelEvent) {
+    e.preventDefault();
+    e.stopPropagation();
     const zoomFactor = 1.1;
     const direction = e.deltaY > 0 ? 1 / zoomFactor : zoomFactor;
     zoom *= direction;
-    e.preventDefault();
   }
 
-  let svgEl;
+  let svgEl: SVGElement;
   onMount(() => {
     svgWidth = svgEl.clientWidth;
     svgHeight = svgEl.clientHeight;
