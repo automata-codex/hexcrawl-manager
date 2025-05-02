@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
+  import { mapView, updateZoomAtPoint } from '../../stores/interactive-map/map-view';
 
   const HEX_WIDTH = 100;
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
@@ -33,9 +35,13 @@
   // Initial viewBox center and zoom
   let centerX = $state(400);
   let centerY = $state(400);
-  let zoom = $state(1);
-  let svgWidth = $state(800);
   let svgHeight = $state(800);
+  let svgWidth = $state(800);
+  let zoom = $state(1);
+
+  mapView.subscribe(state => {
+    ({ centerX, centerY, svgHeight, svgWidth, zoom } = state);
+  });
 
   let viewBox = $derived(`${centerX - svgWidth / 2 / zoom} ${centerY - svgHeight / 2 / zoom} ${svgWidth / zoom} ${svgHeight / zoom}`);
 
@@ -67,31 +73,19 @@
     e.preventDefault();
     e.stopPropagation();
 
-    const zoomFactor = 1.1;
-    const direction = e.deltaY > 0 ? 1 / zoomFactor : zoomFactor;
+    const state = get(mapView);
 
     const rect = svgEl.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    // Current view top-left in SVG coords
-    const viewX = centerX - svgWidth / 2 / zoom;
-    const viewY = centerY - svgHeight / 2 / zoom;
+    const viewX = state.centerX - state.svgWidth / 2 / state.zoom;
+    const viewY = state.centerY - state.svgHeight / 2 / state.zoom;
 
-    // Mouse point in SVG coords before zoom
-    const svgMouseX = viewX + (mouseX / svgWidth) * (svgWidth / zoom);
-    const svgMouseY = viewY + (mouseY / svgHeight) * (svgHeight / zoom);
+    const svgMouseX = viewX + (mouseX / state.svgWidth) * (state.svgWidth / state.zoom);
+    const svgMouseY = viewY + (mouseY / state.svgHeight) * (state.svgHeight / state.zoom);
 
-    // Zoom update
-    zoom *= direction;
-
-    // New view top-left after zoom
-    const newViewWidth = svgWidth / zoom;
-    const newViewHeight = svgHeight / zoom;
-
-    // Recompute center so svgMouseX/Y stays under the cursor
-    centerX = svgMouseX - (mouseX / svgWidth) * newViewWidth + newViewWidth / 2;
-    centerY = svgMouseY - (mouseY / svgHeight) * newViewHeight + newViewHeight / 2;
+    updateZoomAtPoint(svgMouseX, svgMouseY, mouseX, mouseY, -Math.sign(e.deltaY));
   }
 
   let svgEl: SVGElement;
@@ -101,7 +95,9 @@
         const newWidth = entry.contentRect.width;
         const newHeight = entry.contentRect.height;
 
-        // Adjust center to preserve current center of screen in SVG coords
+        const state = get(mapView);
+        const { zoom, centerX, centerY, svgWidth, svgHeight } = state;
+
         const oldViewWidth = svgWidth / zoom;
         const oldViewHeight = svgHeight / zoom;
         const newViewWidth = newWidth / zoom;
@@ -110,11 +106,16 @@
         const viewX = centerX - oldViewWidth / 2;
         const viewY = centerY - oldViewHeight / 2;
 
-        centerX = viewX + newViewWidth / 2;
-        centerY = viewY + newViewHeight / 2;
+        const newCenterX = viewX + newViewWidth / 2;
+        const newCenterY = viewY + newViewHeight / 2;
 
-        svgWidth = newWidth;
-        svgHeight = newHeight;
+        mapView.update(state => ({
+          ...state,
+          svgWidth: newWidth,
+          svgHeight: newHeight,
+          centerX: newCenterX,
+          centerY: newCenterY,
+        }));
       }
     });
 
@@ -127,24 +128,19 @@
   let svgMouseX = $state(0);
   let svgMouseY = $state(0);
 
-  function applyZoom(factor: number) {
-    // Center of the screen in screen coordinates
-    const mouseX = svgWidth / 2;
-    const mouseY = svgHeight / 2;
+  function applyZoom(delta: number) {
+    const state = get(mapView);
 
-    const viewX = centerX - svgWidth / 2 / zoom;
-    const viewY = centerY - svgHeight / 2 / zoom;
+    const screenX = state.svgWidth / 2;
+    const screenY = state.svgHeight / 2;
 
-    const svgMouseX = viewX + (mouseX / svgWidth) * (svgWidth / zoom);
-    const svgMouseY = viewY + (mouseY / svgHeight) * (svgHeight / zoom);
+    const viewX = state.centerX - state.svgWidth / 2 / state.zoom;
+    const viewY = state.centerY - state.svgHeight / 2 / state.zoom;
 
-    zoom *= factor;
+    const svgX = viewX + (screenX / state.svgWidth) * (state.svgWidth / state.zoom);
+    const svgY = viewY + (screenY / state.svgHeight) * (state.svgHeight / state.zoom);
 
-    const newViewWidth = svgWidth / zoom;
-    const newViewHeight = svgHeight / zoom;
-
-    centerX = svgMouseX - (mouseX / svgWidth) * newViewWidth + newViewWidth / 2;
-    centerY = svgMouseY - (mouseY / svgHeight) * newViewHeight + newViewHeight / 2;
+    updateZoomAtPoint(svgX, svgY, screenX, screenY, delta);
   }
 </script>
 <style>
@@ -178,8 +174,8 @@
   Zoom: {zoom.toFixed(2)}
 </div>
 <div class="zoom-controls">
-  <button onclick={() => applyZoom(1.1)}>+</button>
-  <button onclick={() => applyZoom(1 / 1.1)}>−</button>
+  <button onclick={() => applyZoom(1)}>+</button>
+  <button onclick={() => applyZoom(-1)}>−</button>
 </div>
 
 <svg
