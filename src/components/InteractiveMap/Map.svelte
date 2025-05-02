@@ -1,4 +1,6 @@
 <script>
+  import { onMount } from 'svelte';
+
   const HEX_WIDTH = 100;
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
 
@@ -27,10 +29,64 @@
     }
     return points.join(" ");
   }
+
+  // Initial viewBox center and zoom
+  let centerX = $state(400);
+  let centerY = $state(400);
+  let zoom = $state(1);
+  let svgWidth = $state(800);
+  let svgHeight = $state(800);
+
+  let viewBox = $derived(`${centerX - svgWidth / 2 / zoom} ${centerY - svgHeight / 2 / zoom} ${svgWidth / zoom} ${svgHeight / zoom}`);
+
+  let isPanning = $state(false);
+  let lastX = $state(0);
+  let lastY = $state(0);
+
+  function startPan(e) {
+    isPanning = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  }
+
+  function movePan(e) {
+    if (!isPanning) return;
+    const dx = (e.clientX - lastX) / zoom;
+    const dy = (e.clientY - lastY) / zoom;
+    centerX = centerX - dx;
+    centerY = centerY - dy;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  }
+
+  function endPan() {
+    isPanning = false;
+  }
+
+  function handleWheel(e) {
+    const zoomFactor = 1.1;
+    const direction = e.deltaY > 0 ? 1 / zoomFactor : zoomFactor;
+    zoom *= direction;
+    e.preventDefault();
+  }
+
+  let svgEl;
+  onMount(() => {
+    svgWidth = svgEl.clientWidth;
+    svgHeight = svgEl.clientHeight;
+  });
+
 </script>
 
 <svg
-  viewBox="0 0 800 800"
+  role="presentation"
+  bind:this={svgEl}
+  onmousedown={startPan}
+  onmousemove={movePan}
+  onmouseup={endPan}
+  onmouseleave={endPan}
+  onwheel={handleWheel}
+  viewBox={viewBox}
   width="100%"
   height="100%"
   xmlns="http://www.w3.org/2000/svg"
