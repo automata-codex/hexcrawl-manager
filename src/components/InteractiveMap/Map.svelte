@@ -127,12 +127,59 @@
   let svgMouseX = $state(0);
   let svgMouseY = $state(0);
 
+  function applyZoom(factor: number) {
+    // Center of the screen in screen coordinates
+    const mouseX = svgWidth / 2;
+    const mouseY = svgHeight / 2;
+
+    const viewX = centerX - svgWidth / 2 / zoom;
+    const viewY = centerY - svgHeight / 2 / zoom;
+
+    const svgMouseX = viewX + (mouseX / svgWidth) * (svgWidth / zoom);
+    const svgMouseY = viewY + (mouseY / svgHeight) * (svgHeight / zoom);
+
+    zoom *= factor;
+
+    const newViewWidth = svgWidth / zoom;
+    const newViewHeight = svgHeight / zoom;
+
+    centerX = svgMouseX - (mouseX / svgWidth) * newViewWidth + newViewWidth / 2;
+    centerY = svgMouseY - (mouseY / svgHeight) * newViewHeight + newViewHeight / 2;
+  }
 </script>
+<style>
+    .zoom-controls {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        z-index: 100;
+    }
+
+    .zoom-controls button {
+        font-size: 1.25rem;
+        padding: 0.4em 0.6em;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 0.25em;
+        cursor: pointer;
+    }
+
+    .zoom-controls button:hover {
+        background: #eee;
+    }
+</style>
 <div style="position: absolute; top: 0; left: 0; background: white; padding: 0.5em; font-family: monospace; z-index: 1000;">
   Mouse: {mouseScreenX}, {mouseScreenY}<br />
   SVG: {svgMouseX.toFixed(2)}, {svgMouseY.toFixed(2)}<br />
   Center: {centerX.toFixed(2)}, {centerY.toFixed(2)}<br />
   Zoom: {zoom.toFixed(2)}
+</div>
+<div class="zoom-controls">
+  <button onclick={() => applyZoom(1.1)}>+</button>
+  <button onclick={() => applyZoom(1 / 1.1)}>−</button>
 </div>
 
 <svg
