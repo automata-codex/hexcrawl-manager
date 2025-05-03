@@ -21,9 +21,11 @@
   let viewBox = $derived(computeViewBox($mapView));
 
   // Sample data — just a 10x10 grid
+  const NUM_ROWS = 27
+  const NUM_COLS = 23;
   let hexes = [];
-  for (let q = 0; q < 10; q++) {
-    for (let r = 0; r < 10; r++) {
+  for (let q = 0; q < NUM_COLS; q++) {
+    for (let r = 0; r < NUM_ROWS; r++) {
       hexes.push({ q, r });
     }
   }
@@ -48,6 +50,11 @@
     const x = q * (0.75 * HEX_WIDTH);
     const y = HEX_HEIGHT * (r + 0.5 * ((q + 1) % 2));
     return { x, y };
+  }
+
+  function hexLabel(col: number, row: number): string {
+    const colLabel = String.fromCharCode(65 + col); // A = 65
+    return `${colLabel}${row + 1}`;
   }
 
   function hexPath(x: number, y: number) {
@@ -164,7 +171,7 @@
         text-anchor="middle"
         fill="black"
       >
-        {q},{r}
+        {hexLabel(q, r)}
       </text>
     {/key}
   {/each}
