@@ -9,6 +9,7 @@
     updateSvgSizeAndPreserveCenter,
     updateZoomAtPoint,
   } from '../../stores/interactive-map/map-view';
+  import svgDefs from 'virtual:svg-symbols';
 
   const HEX_WIDTH = 100;
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
@@ -155,6 +156,8 @@
   xmlns="http://www.w3.org/2000/svg"
   style="background: #fafafa;"
 >
+  {@html svgDefs}
+
   {#each hexes as { q, r }}
     {#key `${q},${r}`}
       {@const { x, y } = axialToPixel(q, r)}
@@ -175,4 +178,6 @@
       </text>
     {/key}
   {/each}
+
+  <use href="#icon-camp" x={50} y={50} width="24" height="24" />
 </svg>
