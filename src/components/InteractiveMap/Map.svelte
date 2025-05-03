@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { mapView, updateZoomAtPoint } from '../../stores/interactive-map/map-view';
+  import { mapView, panBy, updateZoomAtPoint } from '../../stores/interactive-map/map-view';
 
   const HEX_WIDTH = 100;
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
@@ -57,10 +57,9 @@
 
   function movePan(e: MouseEvent) {
     if (!isPanning) return;
-    const dx = (e.clientX - lastX) / zoom;
-    const dy = (e.clientY - lastY) / zoom;
-    centerX = centerX - dx;
-    centerY = centerY - dy;
+    const dx = (e.clientX - lastX);
+    const dy = (e.clientY - lastY);
+    panBy(dx, dy);
     lastX = e.clientX;
     lastY = e.clientY;
   }

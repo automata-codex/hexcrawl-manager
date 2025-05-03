@@ -11,6 +11,14 @@ export const mapView = writable({
   svgHeight: 800,
 });
 
+export function panBy(deltaX: number, deltaY: number) {
+  mapView.update(state => ({
+    ...state,
+    centerX: state.centerX - deltaX / state.zoom,
+    centerY: state.centerY - deltaY / state.zoom,
+  }));
+}
+
 export function updateZoomAtPoint(
   svgX: number,
   svgY: number,
