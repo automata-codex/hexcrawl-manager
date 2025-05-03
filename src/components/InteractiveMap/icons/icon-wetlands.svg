@@ -1,12 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-miterlimit:5;">
-    <rect id="Artboard1" x="0" y="0" width="64" height="64" style="fill:none;"/>
-    <g id="Artboard11" serif:id="Artboard1">
-        <g id="Wetlands">
-            <path d="M6.801,41.284C6.801,44.752 16.822,44.696 16.822,41.353C16.822,38.01 26.922,38.01 26.922,41.353C26.922,44.696 37.072,44.696 37.072,41.353C37.072,38.01 47.136,38.01 47.136,41.353C47.136,44.708 57.199,44.708 57.199,41.353" style="fill:none;stroke:black;stroke-width:2.08px;"/>
-            <path d="M6.801,32.228C6.801,35.696 16.822,35.64 16.822,32.297C16.822,28.954 26.922,28.954 26.922,32.297C26.922,35.64 37.072,35.64 37.072,32.297C37.072,28.954 47.136,28.954 47.136,32.297C47.136,35.652 57.199,35.652 57.199,32.297" style="fill:none;stroke:black;stroke-width:2.08px;"/>
-            <path d="M6.801,22.565C6.801,26.033 16.822,25.978 16.822,22.635C16.822,19.292 26.922,19.292 26.922,22.635C26.922,25.978 37.072,25.978 37.072,22.635C37.072,19.292 47.136,19.292 47.136,22.635C47.136,25.99 57.199,25.99 57.199,22.635" style="fill:none;stroke:black;stroke-width:2.08px;"/>
+<symbol id="icon-wetlands" viewBox="0 0 64 64" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-miterlimit:5;">
+    <rect height="64" width="64" x="0" y="0" style="fill:none;" />
+    <g>
+        <g>
+            <path d="M6.801,41.284C6.801,44.752 16.822,44.696 16.822,41.353C16.822,38.01 26.922,38.01 26.922,41.353C26.922,44.696 37.072,44.696 37.072,41.353C37.072,38.01 47.136,38.01 47.136,41.353C47.136,44.708 57.199,44.708 57.199,41.353" style="fill:none;stroke:black;stroke-width:2.08px;" />
+            <path d="M6.801,32.228C6.801,35.696 16.822,35.64 16.822,32.297C16.822,28.954 26.922,28.954 26.922,32.297C26.922,35.64 37.072,35.64 37.072,32.297C37.072,28.954 47.136,28.954 47.136,32.297C47.136,35.652 57.199,35.652 57.199,32.297" style="fill:none;stroke:black;stroke-width:2.08px;" />
+            <path d="M6.801,22.565C6.801,26.033 16.822,25.978 16.822,22.635C16.822,19.292 26.922,19.292 26.922,22.635C26.922,25.978 37.072,25.978 37.072,22.635C37.072,19.292 47.136,19.292 47.136,22.635C47.136,25.99 57.199,25.99 57.199,22.635" style="fill:none;stroke:black;stroke-width:2.08px;" />
         </g>
     </g>
-</svg>
+</symbol>
