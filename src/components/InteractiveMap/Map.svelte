@@ -1,10 +1,24 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { mapView, panBy, updateZoomAtPoint } from '../../stores/interactive-map/map-view';
+  import {
+    applyZoomAtCenter,
+    computeViewBox,
+    mapView,
+    panBy,
+    updateSvgSizeAndPreserveCenter,
+    updateZoomAtPoint,
+  } from '../../stores/interactive-map/map-view';
 
   const HEX_WIDTH = 100;
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
+
+  let isPanning = $state(false);
+  let lastX = $state(0);
+  let lastY = $state(0);
+  let svgEl: SVGElement;
+
+  let viewBox = $derived(computeViewBox($mapView));
 
   // Sample data — just a 10x10 grid
   let hexes = [];
@@ -12,6 +26,22 @@
     for (let r = 0; r < 10; r++) {
       hexes.push({ q, r });
     }
+  }
+
+  onMount(() => {
+    const resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width;
+        const height = entry.contentRect.height;
+        updateSvgSizeAndPreserveCenter(width, height);
+      }
+    });
+    resizeObserver.observe(svgEl);
+    return () => resizeObserver.disconnect();
+  });
+
+  function applyZoomDelta(direction: number) {
+    applyZoomAtCenter(direction);
   }
 
   function axialToPixel(q: number, r: number) {
@@ -32,39 +62,26 @@
     return points.join(" ");
   }
 
-  // Initial viewBox center and zoom
-  let centerX = $state(400);
-  let centerY = $state(400);
-  let svgHeight = $state(800);
-  let svgWidth = $state(800);
-  let zoom = $state(1);
-
-  mapView.subscribe(state => {
-    ({ centerX, centerY, svgHeight, svgWidth, zoom } = state);
-  });
-
-  let viewBox = $derived(`${centerX - svgWidth / 2 / zoom} ${centerY - svgHeight / 2 / zoom} ${svgWidth / zoom} ${svgHeight / zoom}`);
-
-  let isPanning = $state(false);
-  let lastX = $state(0);
-  let lastY = $state(0);
-
-  function startPan(e: MouseEvent) {
+  function handleMouseDown(e: MouseEvent) {
     isPanning = true;
     lastX = e.clientX;
     lastY = e.clientY;
   }
 
-  function movePan(e: MouseEvent) {
+  function handleMouseLeave() {
+    isPanning = false;
+  }
+
+  function handleMouseMove(e: MouseEvent) {
     if (!isPanning) return;
-    const dx = (e.clientX - lastX);
-    const dy = (e.clientY - lastY);
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
     panBy(dx, dy);
     lastX = e.clientX;
     lastY = e.clientY;
   }
 
-  function endPan() {
+  function handleMouseUp() {
     isPanning = false;
   }
 
@@ -72,74 +89,19 @@
     e.preventDefault();
     e.stopPropagation();
 
-    const state = get(mapView);
+    const { svgWidth, svgHeight, centerX, centerY, zoom } = get(mapView);
 
     const rect = svgEl.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    const viewX = state.centerX - state.svgWidth / 2 / state.zoom;
-    const viewY = state.centerY - state.svgHeight / 2 / state.zoom;
+    const viewX = centerX - svgWidth / 2 / zoom;
+    const viewY = centerY - svgHeight / 2 / zoom;
 
-    const svgMouseX = viewX + (mouseX / state.svgWidth) * (state.svgWidth / state.zoom);
-    const svgMouseY = viewY + (mouseY / state.svgHeight) * (state.svgHeight / state.zoom);
+    const svgMouseX = viewX + (mouseX / svgWidth) * (svgWidth / zoom);
+    const svgMouseY = viewY + (mouseY / svgHeight) * (svgHeight / zoom);
 
     updateZoomAtPoint(svgMouseX, svgMouseY, mouseX, mouseY, -Math.sign(e.deltaY));
-  }
-
-  let svgEl: SVGElement;
-  onMount(() => {
-    const resizeObserver = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        const newWidth = entry.contentRect.width;
-        const newHeight = entry.contentRect.height;
-
-        const state = get(mapView);
-        const { zoom, centerX, centerY, svgWidth, svgHeight } = state;
-
-        const oldViewWidth = svgWidth / zoom;
-        const oldViewHeight = svgHeight / zoom;
-        const newViewWidth = newWidth / zoom;
-        const newViewHeight = newHeight / zoom;
-
-        const viewX = centerX - oldViewWidth / 2;
-        const viewY = centerY - oldViewHeight / 2;
-
-        const newCenterX = viewX + newViewWidth / 2;
-        const newCenterY = viewY + newViewHeight / 2;
-
-        mapView.update(state => ({
-          ...state,
-          svgWidth: newWidth,
-          svgHeight: newHeight,
-          centerX: newCenterX,
-          centerY: newCenterY,
-        }));
-      }
-    });
-
-    resizeObserver.observe(svgEl);
-    return () => resizeObserver.disconnect();
-  });
-
-  let mouseScreenX = $state(0);
-  let mouseScreenY = $state(0);
-  let svgMouseX = $state(0);
-  let svgMouseY = $state(0);
-
-  function applyZoom(delta: number) {
-    const state = get(mapView);
-
-    const screenX = state.svgWidth / 2;
-    const screenY = state.svgHeight / 2;
-
-    const viewX = state.centerX - state.svgWidth / 2 / state.zoom;
-    const viewY = state.centerY - state.svgHeight / 2 / state.zoom;
-
-    const svgX = viewX + (screenX / state.svgWidth) * (state.svgWidth / state.zoom);
-    const svgY = viewY + (screenY / state.svgHeight) * (state.svgHeight / state.zoom);
-
-    updateZoomAtPoint(svgX, svgY, screenX, screenY, delta);
   }
 </script>
 <style>
@@ -166,24 +128,19 @@
         background: #eee;
     }
 </style>
-<div style="position: absolute; top: 0; left: 0; background: white; padding: 0.5em; font-family: monospace; z-index: 1000;">
-  Mouse: {mouseScreenX}, {mouseScreenY}<br />
-  SVG: {svgMouseX.toFixed(2)}, {svgMouseY.toFixed(2)}<br />
-  Center: {centerX.toFixed(2)}, {centerY.toFixed(2)}<br />
-  Zoom: {zoom.toFixed(2)}
-</div>
+
 <div class="zoom-controls">
-  <button onclick={() => applyZoom(1)}>+</button>
-  <button onclick={() => applyZoom(-1)}>−</button>
+  <button onclick={() => applyZoomDelta(1)}>+</button>
+  <button onclick={() => applyZoomDelta(-1)}>−</button>
 </div>
 
 <svg
   role="presentation"
   bind:this={svgEl}
-  onmousedown={startPan}
-  onmousemove={movePan}
-  onmouseup={endPan}
-  onmouseleave={endPan}
+  onmousedown={handleMouseDown}
+  onmousemove={handleMouseMove}
+  onmouseup={handleMouseUp}
+  onmouseleave={handleMouseLeave}
   onwheel={handleWheel}
   viewBox={viewBox}
   width="100%"
