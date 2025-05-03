@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5;">
+    <rect id="Artboard1" x="0" y="0" width="64" height="64" style="fill:none;"/>
+    <g id="Artboard11" serif:id="Artboard1">
+        <g id="Hills">
+            <path d="M16.966,47.424C16.966,47.424 19.736,41.071 24.592,39.6C29.447,38.129 37.092,38.545 41.079,39.537C44.385,40.36 50.703,46.946 50.703,46.946" style="fill:none;stroke:black;stroke-width:4.17px;"/>
+            <path d="M27.311,20.143C31.664,15.773 34.357,13.129 40.853,14.714C45.485,15.844 48.653,17.496 51.171,20.532" style="fill:none;stroke:black;stroke-width:4.17px;"/>
+            <path d="M9.939,33.823C9.939,33.823 13.68,29.231 18.535,27.76C23.39,26.29 25.88,26.47 29.867,27.462C33.172,28.285 37.6,32.527 37.6,32.527" style="fill:none;stroke:black;stroke-width:4.17px;"/>
+        </g>
+    </g>
+</svg>
