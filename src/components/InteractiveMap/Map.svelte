@@ -13,19 +13,11 @@
   import type { HexData } from '../../types.ts';
   import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
 
-  interface Props {
-    hexes: HexData[];
-  }
-
-  const { hexes }: Props = $props();
-
-  // const hexA2 = hexes.find(h => h.id.toLowerCase() === 'a2');
-  // console.log(`Hex A2: ${JSON.stringify(hexA2)}`);
-
   const HEX_WIDTH = 100;
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
   const ICON_SIZE = 90;
 
+  let hexes: HexData[] = $state([]);
   let isPanning = $state(false);
   let lastX = $state(0);
   let lastY = $state(0);
@@ -34,6 +26,11 @@
   let viewBox = $derived(computeViewBox($mapView));
 
   onMount(() => {
+    (async () => {
+      const res = await fetch('/api/hexes.json');
+      hexes = await res.json();
+    })();
+
     const resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
         const width = entry.contentRect.width;
