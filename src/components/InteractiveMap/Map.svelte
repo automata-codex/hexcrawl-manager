@@ -9,9 +9,22 @@
     updateSvgSizeAndPreserveCenter,
     updateZoomAtPoint,
   } from '../../stores/interactive-map/map-view';
+  import svgDefs from 'virtual:svg-symbols';
+  import type { HexData } from '../../types.ts';
+  import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
+
+  interface Props {
+    hexes: HexData[];
+  }
+
+  const { hexes }: Props = $props();
+
+  // const hexA2 = hexes.find(h => h.id.toLowerCase() === 'a2');
+  // console.log(`Hex A2: ${JSON.stringify(hexA2)}`);
 
   const HEX_WIDTH = 100;
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
+  const ICON_SIZE = 90;
 
   let isPanning = $state(false);
   let lastX = $state(0);
@@ -19,16 +32,6 @@
   let svgEl: SVGElement;
 
   let viewBox = $derived(computeViewBox($mapView));
-
-  // Sample data — just a 10x10 grid
-  const NUM_ROWS = 27
-  const NUM_COLS = 23;
-  let hexes = [];
-  for (let q = 0; q < NUM_COLS; q++) {
-    for (let r = 0; r < NUM_ROWS; r++) {
-      hexes.push({ q, r });
-    }
-  }
 
   onMount(() => {
     const resizeObserver = new ResizeObserver(entries => {
@@ -50,6 +53,25 @@
     const x = q * (0.75 * HEX_WIDTH);
     const y = HEX_HEIGHT * (r + 0.5 * ((q + 1) % 2));
     return { x, y };
+  }
+
+  function getTerrainIcon(terrain: string) {
+    switch (terrain) {
+      case 'mountains':
+        return '#icon-mountains';
+      case 'hills':
+        return '#icon-hills';
+      case 'highland-bog':
+      case 'marsh':
+      case 'moors':
+      case 'swamp':
+      case 'wetlands':
+        return '#icon-wetlands';
+      case 'peak':
+        return '#icon-peak';
+      default:
+        return '#icon-default';
+    }
   }
 
   function hexLabel(col: number, row: number): string {
@@ -155,24 +177,38 @@
   xmlns="http://www.w3.org/2000/svg"
   style="background: #fafafa;"
 >
-  {#each hexes as { q, r }}
-    {#key `${q},${r}`}
-      {@const { x, y } = axialToPixel(q, r)}
-      <polygon
-        points={hexPath(x, y)}
-        fill="lightblue"
-        stroke="black"
-        stroke-width="1"
-      />
-      <text
-        x={x}
-        y={y + 4}
-        font-size="12"
-        text-anchor="middle"
-        fill="black"
-      >
-        {hexLabel(q, r)}
-      </text>
-    {/key}
+  {@html svgDefs}
+
+  {#each hexes as hex}
+    {#if isValidHexId(hex.id)}
+      {#key hex.id}
+        {@const { q, r } = parseHexId(hex.id)}
+        {@const { x, y } = axialToPixel(q, r)}
+        <polygon
+          points={hexPath(x, y)}
+          fill="lightblue"
+          stroke="black"
+          stroke-width="1"
+        />
+        <use
+          href={getTerrainIcon(hex.terrain)}
+          x={x - ICON_SIZE / 2}
+          y={y - ICON_SIZE / 2}
+          width={ICON_SIZE}
+          height={ICON_SIZE}
+        />
+        <text
+          x={x}
+          y={y + (HEX_HEIGHT / 2) - 4}
+          font-size="12"
+          text-anchor="middle"
+          fill="black"
+        >
+          {hexLabel(q, r)}
+        </text>
+      {/key}
+    {/if}
   {/each}
+
+  <use href="#icon-hills" x={50} y={50} width="64" height="64" />
 </svg>

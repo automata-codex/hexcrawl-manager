@@ -48,4 +48,6 @@ export const HexSchema = z.object({
   tags: z.array(z.string())
     .optional()
     .describe('Tags for filtering hexes, matching clues, etc.'),
+  terrain: z.string(),
+  vegetation: z.string(),
 }).describe('HexSchema');

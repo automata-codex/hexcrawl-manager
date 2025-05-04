@@ -1,0 +1,12 @@
+<symbol id="icon-mountains" viewBox="0 0 64 64" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <rect height="64" width="64" x="0" y="0" style="fill:none;" />
+    <g>
+        <g>
+            <path d="M13.651,22.741L14.195,33.825L6.719,32.328L13.651,22.741Z" style="stroke:black;stroke-width:2.08px;" />
+            <path d="M25.46,21.102L18.382,16.197L6.719,32.328L14.195,33.825L13.651,22.741" style="fill:none;stroke:black;stroke-width:2.08px;stroke-linejoin:miter;stroke-miterlimit:5;" />
+            <path d="M26.161,27.966L29.032,47.803L14.679,45.383L26.161,27.966Z" style="stroke:black;stroke-width:2.08px;" />
+            <path d="M55.757,39.435L41.907,31.118L31.303,20.166L14.679,45.383L29.032,47.803L26.161,27.966" style="fill:none;stroke:black;stroke-width:2.08px;stroke-linejoin:miter;stroke-miterlimit:5;" />
+            <path d="M42.273,25.167L46.039,21.443L57.281,32.222" style="fill:none;stroke:black;stroke-width:2.08px;stroke-linejoin:miter;stroke-miterlimit:5;" />
+        </g>
+    </g>
+</symbol>
