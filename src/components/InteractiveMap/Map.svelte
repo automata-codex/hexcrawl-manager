@@ -55,6 +55,36 @@
     return { x, y };
   }
 
+  function getHexColor(hex: HexData) {
+    switch (hex.terrain) {
+      case 'glacier':
+        return '#FFFFFF'; // white
+      case 'water':
+        return '#1E90FF'; // dodger blue
+    }
+
+    switch (hex.vegetation) {
+      case 'alpine-tundra':
+        return '#666'; // dark gray
+      case 'dense-forest':
+        return '#006600'; // dark green
+      case 'light-forest':
+      case 'swamp':
+        return '#009900'; // medium green
+      case 'sparse-forest':
+        return '#66CC66'; // light green
+      case 'highland-bog':
+      case 'marsh':
+      case 'moors':
+      case 'grasslands':
+        return '#B8E49A';
+      case 'rocky-highland':
+        return '#999999'; // gray
+      default:
+        return '#D3D3D3'; // light gray
+    }
+  }
+
   function getTerrainIcon(terrain: string) {
     switch (terrain) {
       case 'mountains':
@@ -186,7 +216,7 @@
         {@const { x, y } = axialToPixel(q, r)}
         <polygon
           points={hexPath(x, y)}
-          fill="lightblue"
+          fill={getHexColor(hex)}
           stroke="black"
           stroke-width="1"
         />
@@ -209,6 +239,4 @@
       {/key}
     {/if}
   {/each}
-
-  <use href="#icon-hills" x={50} y={50} width="64" height="64" />
 </svg>
