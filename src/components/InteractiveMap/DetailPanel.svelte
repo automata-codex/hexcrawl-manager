@@ -20,11 +20,15 @@
 
 <!-- Sliding Panel -->
 <aside class:open={isOpen} class="hex-panel">
-  <p>Hex Details</p>
-  <div>
-    <p>Selected hex: {$selectedHex?.toUpperCase()}</p>
-    <p>{currentHex?.name}</p>
-  </div>
+  {#if $selectedHex}
+    <p>Hex Details</p>
+    <div>
+      <p>Selected hex: {$selectedHex?.toUpperCase()}</p>
+      <p>{currentHex?.name}</p>
+    </div>
+  {:else}
+    <p>Please select a hex to get started.</p>
+  {/if}
 </aside>
 
 <style>
@@ -33,7 +37,8 @@
         top: 0;
         left: 0;
         bottom: 0;
-        width: 300px;
+        width: 25%;
+        min-width: 300px;
         background-color: var(--bulma-body-background-color);
         box-shadow: 2px 0 5px rgba(0,0,0,0.5);
         transform: translateX(-100%);
