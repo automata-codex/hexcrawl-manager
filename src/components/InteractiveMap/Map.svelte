@@ -221,15 +221,50 @@
 >
   {@html svgDefs}
 
-  {#each hexes as hex}
-    {#if isValidHexId(hex.id)}
-      {#key hex.id}
+  <g id="hex-background">
+    {#each hexes as hex}
+      {#if isValidHexId(hex.id)}
+        {#key hex.id}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexTile
+            fill={getHexColor(hex)}
+            hexId={hex.id}
+            hexWidth={HEX_WIDTH}
+            onClick={handleHexClick}
+            {x}
+            {y}
+          />
+          <use
+            href={getTerrainIcon(hex.terrain)}
+            x={x - ICON_SIZE / 2}
+            y={y - ICON_SIZE / 2}
+            width={ICON_SIZE}
+            height={ICON_SIZE}
+          />
+          <text
+            x={x}
+            y={y + (HEX_HEIGHT / 2) - 4}
+            font-size="12"
+            text-anchor="middle"
+            fill="black"
+          >
+            {hexLabel(q, r)}
+          </text>
+        {/key}
+      {/if}
+    {/each}
+  </g>
+  <g id="hex-highlight">
+    {#if $selectedHex}
+      {@const hex = hexes.find(h => h.id === $selectedHex)}
+      {#if hex}
         {@const { q, r } = parseHexId(hex.id)}
         {@const { x, y } = axialToPixel(q, r)}
         <HexTile
-          active={$selectedHex === hex.id}
+          active={true}
           fill={getHexColor(hex)}
-          hexId={hex.id}
+          hexId={$selectedHex}
           hexWidth={HEX_WIDTH}
           onClick={handleHexClick}
           {x}
@@ -251,7 +286,7 @@
         >
           {hexLabel(q, r)}
         </text>
-      {/key}
+      {/if}
     {/if}
-  {/each}
+  </g>
 </svg>
