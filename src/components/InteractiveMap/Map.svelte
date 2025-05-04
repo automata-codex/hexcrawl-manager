@@ -23,6 +23,7 @@
   let lastX = $state(0);
   let lastY = $state(0);
   let svgEl: SVGElement;
+  let wasPanning = $state(false);
 
   let viewBox = $derived(computeViewBox($mapView));
 
@@ -102,25 +103,19 @@
     }
   }
 
-  function hexLabel(col: number, row: number): string {
-    const colLabel = String.fromCharCode(65 + col); // A = 65
-    return `${colLabel}${row + 1}`;
-  }
+  function handleHexClick(e: MouseEvent) {
+    if (wasPanning) return; // suppress accidental clicks after pan
 
-  function hexPath(x: number, y: number) {
-    const size = HEX_WIDTH / 2;
-    const points = [];
-    for (let i = 0; i < 6; i++) {
-      const angle = Math.PI / 180 * (60 * i);
-      const px = x + size * Math.cos(angle);
-      const py = y + size * Math.sin(angle);
-      points.push(`${px},${py}`);
+    const hexId = (e.currentTarget as SVGElement)?.dataset?.hexid;
+    if (hexId) {
+      console.log(`Clicked hex: ${hexId}`);
+      // optionally: selectedHex.set(findHexById(hexId));
     }
-    return points.join(" ");
   }
 
   function handleMouseDown(e: MouseEvent) {
     isPanning = true;
+    wasPanning = false;
     lastX = e.clientX;
     lastY = e.clientY;
   }
@@ -136,10 +131,16 @@
     panBy(dx, dy);
     lastX = e.clientX;
     lastY = e.clientY;
+    wasPanning = true;
   }
 
   function handleMouseUp() {
     isPanning = false;
+
+    // Reset wasPanning after current frame so the hex-click handler can read it
+    setTimeout(() => {
+      wasPanning = false;
+    }, 0);
   }
 
   function handleWheel(e: WheelEvent) {
@@ -159,6 +160,23 @@
     const svgMouseY = viewY + (mouseY / svgHeight) * (svgHeight / zoom);
 
     updateZoomAtPoint(svgMouseX, svgMouseY, mouseX, mouseY, -Math.sign(e.deltaY));
+  }
+
+  function hexLabel(col: number, row: number): string {
+    const colLabel = String.fromCharCode(65 + col); // A = 65
+    return `${colLabel}${row + 1}`;
+  }
+
+  function hexPath(x: number, y: number) {
+    const size = HEX_WIDTH / 2;
+    const points = [];
+    for (let i = 0; i < 6; i++) {
+      const angle = Math.PI / 180 * (60 * i);
+      const px = x + size * Math.cos(angle);
+      const py = y + size * Math.sin(angle);
+      points.push(`${px},${py}`);
+    }
+    return points.join(" ");
   }
 </script>
 <style>
@@ -219,6 +237,8 @@
           fill={getHexColor(hex)}
           stroke="black"
           stroke-width="1"
+          data-hexid={hex.id}
+          onclick={handleHexClick}
         />
         <use
           href={getTerrainIcon(hex.terrain)}
