@@ -61,6 +61,10 @@
         return '#icon-mountains';
       case 'hills':
         return '#icon-hills';
+      case 'highland-bog':
+      case 'marsh':
+      case 'moors':
+      case 'swamp':
       case 'wetlands':
         return '#icon-wetlands';
       case 'peak':
