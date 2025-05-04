@@ -1,0 +1,8 @@
+polygon:focus {
+    outline: none;
+}
+
+polygon:focus-visible {
+    outline: 2px solid #444; /* Or customize the visible keyboard focus */
+}
+

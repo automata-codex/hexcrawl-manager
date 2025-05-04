@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import svgDefs from 'virtual:svg-symbols';
   import {
     applyZoomAtCenter,
     computeViewBox,
@@ -9,10 +10,10 @@
     updateSvgSizeAndPreserveCenter,
     updateZoomAtPoint,
   } from '../../stores/interactive-map/map-view';
-  import svgDefs from 'virtual:svg-symbols';
   import type { HexData } from '../../types.ts';
   import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
   import DetailPanel from './DetailPanel.svelte';
+  import HexTile from './HexTile.svelte';
 
   const HEX_WIDTH = 100;
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
@@ -103,7 +104,7 @@
     }
   }
 
-  function handleHexClick(e: MouseEvent) {
+  function handleHexClick(e: Event) {
     if (wasPanning) return; // suppress accidental clicks after pan
 
     const hexId = (e.currentTarget as SVGElement)?.dataset?.hexid;
@@ -166,18 +167,6 @@
     const colLabel = String.fromCharCode(65 + col); // A = 65
     return `${colLabel}${row + 1}`;
   }
-
-  function hexPath(x: number, y: number) {
-    const size = HEX_WIDTH / 2;
-    const points = [];
-    for (let i = 0; i < 6; i++) {
-      const angle = Math.PI / 180 * (60 * i);
-      const px = x + size * Math.cos(angle);
-      const py = y + size * Math.sin(angle);
-      points.push(`${px},${py}`);
-    }
-    return points.join(" ");
-  }
 </script>
 <style>
     .zoom-controls {
@@ -232,13 +221,13 @@
       {#key hex.id}
         {@const { q, r } = parseHexId(hex.id)}
         {@const { x, y } = axialToPixel(q, r)}
-        <polygon
-          points={hexPath(x, y)}
+        <HexTile
           fill={getHexColor(hex)}
-          stroke="black"
-          stroke-width="1"
-          data-hexid={hex.id}
-          onclick={handleHexClick}
+          hexId={hex.id}
+          hexWidth={HEX_WIDTH}
+          onClick={handleHexClick}
+          {x}
+          {y}
         />
         <use
           href={getTerrainIcon(hex.terrain)}
