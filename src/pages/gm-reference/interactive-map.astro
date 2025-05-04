@@ -1,11 +1,11 @@
 ---
 import Map from '../../components/InteractiveMap/Map.svelte';
-import SecretLayout from '../../layouts/SecretLayout.astro';
+import MapLayout from '../../layouts/MapLayout.astro';
 import { getCollection } from 'astro:content';
 
 const hexEntries = await getCollection('hexes');
 const hexes = hexEntries.map((entry) => entry.data);
 ---
-<SecretLayout title="Interactive Map">
+<MapLayout title="Interactive Map">
   <Map client:load {hexes} />
-</SecretLayout>
+</MapLayout>
