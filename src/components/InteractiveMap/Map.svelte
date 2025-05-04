@@ -14,6 +14,7 @@
   import type { HexData } from '../../types.ts';
   import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
   import DetailPanel from './DetailPanel.svelte';
+  import HexHitTarget from './HexHitTarget.svelte';
   import HexTile from './HexTile.svelte';
 
   const HEX_WIDTH = 100;
@@ -221,55 +222,25 @@
 >
   {@html svgDefs}
 
-  <g id="hex-background">
-    {#each hexes as hex}
+  <g id="layer-vegetation">
+    {#each hexes as hex (hex.id)}
       {#if isValidHexId(hex.id)}
-        {#key hex.id}
-          {@const { q, r } = parseHexId(hex.id)}
-          {@const { x, y } = axialToPixel(q, r)}
-          <HexTile
-            fill={getHexColor(hex)}
-            hexId={hex.id}
-            hexWidth={HEX_WIDTH}
-            onClick={handleHexClick}
-            {x}
-            {y}
-          />
-          <use
-            href={getTerrainIcon(hex.terrain)}
-            x={x - ICON_SIZE / 2}
-            y={y - ICON_SIZE / 2}
-            width={ICON_SIZE}
-            height={ICON_SIZE}
-          />
-          <text
-            x={x}
-            y={y + (HEX_HEIGHT / 2) - 4}
-            font-size="12"
-            text-anchor="middle"
-            fill="black"
-          >
-            {hexLabel(q, r)}
-          </text>
-        {/key}
-      {/if}
-    {/each}
-  </g>
-  <g id="hex-highlight">
-    {#if $selectedHex}
-      {@const hex = hexes.find(h => h.id === $selectedHex)}
-      {#if hex}
         {@const { q, r } = parseHexId(hex.id)}
         {@const { x, y } = axialToPixel(q, r)}
         <HexTile
-          active={true}
           fill={getHexColor(hex)}
-          hexId={$selectedHex}
           hexWidth={HEX_WIDTH}
-          onClick={handleHexClick}
           {x}
           {y}
         />
+      {/if}
+    {/each}
+  </g>
+  <g id="layer-terrain">
+    {#each hexes as hex (hex.id)}
+      {#if isValidHexId(hex.id)}
+        {@const { q, r } = parseHexId(hex.id)}
+        {@const { x, y } = axialToPixel(q, r)}
         <use
           href={getTerrainIcon(hex.terrain)}
           x={x - ICON_SIZE / 2}
@@ -277,6 +248,14 @@
           width={ICON_SIZE}
           height={ICON_SIZE}
         />
+      {/if}
+    {/each}
+  </g>
+  <g id="layer-hex-labels">
+    {#each hexes as hex (hex.id)}
+      {#if isValidHexId(hex.id)}
+        {@const { q, r } = parseHexId(hex.id)}
+        {@const { x, y } = axialToPixel(q, r)}
         <text
           x={x}
           y={y + (HEX_HEIGHT / 2) - 4}
@@ -287,6 +266,22 @@
           {hexLabel(q, r)}
         </text>
       {/if}
-    {/if}
+    {/each}
+  </g>
+  <g id="layer-hit-target">
+    {#each hexes as hex (hex.id)}
+      {#if isValidHexId(hex.id)}
+        {@const { q, r } = parseHexId(hex.id)}
+        {@const { x, y } = axialToPixel(q, r)}
+        <HexHitTarget
+          active={$selectedHex === hex.id}
+          hexId={hex.id}
+          hexWidth={HEX_WIDTH}
+          x={x}
+          y={y}
+          onClick={handleHexClick}
+        />
+      {/if}
+    {/each}
   </g>
 </svg>
