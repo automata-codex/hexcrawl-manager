@@ -1,5 +1,6 @@
 <script lang="ts">
   interface Props {
+    active?: boolean;
     fill: string;
     hexId: string;
     hexWidth: number;
@@ -8,7 +9,15 @@
     y: number;
   }
 
-  const { fill = '#CCC', hexId, hexWidth, onClick, x, y }: Props = $props();
+  const {
+    active = false,
+    fill = '#CCC',
+    hexId,
+    hexWidth,
+    onClick,
+    x,
+    y,
+  }: Props = $props();
 
   function hexPath(x: number, y: number) {
     const size = hexWidth / 2;
@@ -33,8 +42,16 @@
     }
   }
 </script>
-
+<style>
+    polygon.active {
+        stroke: gold;
+        stroke-width: 3;
+        filter: drop-shadow(0 0 6px gold);
+        transition: stroke-width 0.1s ease, filter 0.2s ease;
+    }
+</style>
 <polygon
+  class:active={active}
   data-hexid={hexId}
   points={hexPath(x, y)}
   fill={fill}

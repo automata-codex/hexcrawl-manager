@@ -10,6 +10,7 @@
     updateSvgSizeAndPreserveCenter,
     updateZoomAtPoint,
   } from '../../stores/interactive-map/map-view';
+  import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import type { HexData } from '../../types.ts';
   import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
   import DetailPanel from './DetailPanel.svelte';
@@ -110,7 +111,11 @@
     const hexId = (e.currentTarget as SVGElement)?.dataset?.hexid;
     if (hexId) {
       console.log(`Clicked hex: ${hexId}`);
-      // optionally: selectedHex.set(findHexById(hexId));
+      if ($selectedHex === hexId) {
+        selectedHex.set(null);
+      } else {
+        selectedHex.set(hexId);
+      }
     }
   }
 
@@ -222,6 +227,7 @@
         {@const { q, r } = parseHexId(hex.id)}
         {@const { x, y } = axialToPixel(q, r)}
         <HexTile
+          active={$selectedHex === hex.id}
           fill={getHexColor(hex)}
           hexId={hex.id}
           hexWidth={HEX_WIDTH}
