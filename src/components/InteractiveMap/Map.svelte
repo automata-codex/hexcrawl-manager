@@ -204,7 +204,9 @@
   <button onclick={() => applyZoomDelta(-1)}>−</button>
 </div>
 
-<DetailPanel />
+{#if hexes}
+  <DetailPanel {hexes} />
+{/if}
 
 <svg
   role="presentation"

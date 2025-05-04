@@ -1,4 +1,15 @@
 <script lang="ts">
+  import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
+  import type { HexData } from '../../types.ts';
+
+  interface Props {
+    hexes: HexData[];
+  }
+
+  const { hexes }: Props = $props();
+
+  const currentHex = $derived(hexes.find((hex) => hex.id.toLowerCase() === $selectedHex?.toLowerCase()));
+
   let isOpen = $state(false);
 </script>
 
@@ -8,10 +19,11 @@
 </button>
 
 <!-- Sliding Panel -->
-<aside class:open={isOpen} class="hex-panel panel">
-  <p class="panel-heading">Hex Details</p>
-  <div class="panel-block">
-    <p>This will contain hex data later.</p>
+<aside class:open={isOpen} class="hex-panel">
+  <p>Hex Details</p>
+  <div>
+    <p>Selected hex: {$selectedHex?.toUpperCase()}</p>
+    <p>{currentHex?.name}</p>
   </div>
 </aside>
 
@@ -22,8 +34,8 @@
         left: 0;
         bottom: 0;
         width: 300px;
-        background: white;
-        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        background-color: var(--bulma-body-background-color);
+        box-shadow: 2px 0 5px rgba(0,0,0,0.5);
         transform: translateX(-100%);
         transition: transform 0.3s ease;
         z-index: 1000;
