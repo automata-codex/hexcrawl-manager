@@ -12,6 +12,7 @@
   import svgDefs from 'virtual:svg-symbols';
   import type { HexData } from '../../types.ts';
   import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
+  import DetailPanel from './DetailPanel.svelte';
 
   const HEX_WIDTH = 100;
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
@@ -189,6 +190,8 @@
   <button onclick={() => applyZoomDelta(1)}>+</button>
   <button onclick={() => applyZoomDelta(-1)}>−</button>
 </div>
+
+<DetailPanel />
 
 <svg
   role="presentation"
