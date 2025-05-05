@@ -4,6 +4,8 @@
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import type { HexData } from '../../types.ts';
   import { getHexPath } from '../../utils/routes.ts';
+  import { getRegionTitle } from '../../utils/regions.ts';
+  import CheckBoxIcon from './CheckBoxIcon.svelte';
 
   interface Props {
     hexes: HexData[];
@@ -14,6 +16,14 @@
   const currentHex = $derived(hexes.find((hex) => hex.id.toLowerCase() === $selectedHex?.toLowerCase()));
 
   let isOpen = $state(!!$selectedHex);
+
+  function formatText(text?: string) {
+    if (!text) return '';
+    return text
+      .replace(/[-_]/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
 </script>
 
 <!-- Toggle Button -->
@@ -29,14 +39,40 @@
   {#if $selectedHex}
     <h2 class="title is-5" style="text-align: center">{$selectedHex?.toUpperCase()}: {currentHex?.name}</h2>
     <div>
-      <p><a href={getHexPath($selectedHex)}>View Hex</a></p>
-      <p>Dungeons: unknown</p>
-      <p>Terrain: {currentHex?.terrain}</p>
-      <p>Vegetation: {currentHex?.vegetation}</p>
-      <p>Landmark: {currentHex?.landmark}</p>
-      <p>Region: {currentHex?.regionId}</p>
-      <p>Visited: {currentHex?.isVisited ?? false}</p>
-      <p>Explored: {currentHex?.isExplored ?? false}</p>
+      <p class="hanging-indent">
+        <a href={getHexPath($selectedHex)}>View Hex</a>
+      </p>
+      <div class="hex-data-bar">
+        <div>
+          <span class="inline-heading">Visited:</span>{' '}
+          <CheckBoxIcon checked={currentHex?.isVisited ?? false} />
+        </div>
+        <div>
+          <span class="inline-heading">Explored:</span>{' '}
+          <CheckBoxIcon checked={currentHex?.isExplored ?? false} />
+        </div>
+      </div>
+      <p class="hanging-indent">
+        <span class="inline-heading">Dungeons:</span>{' '}unknown
+      </p>
+      <p class="hanging-indent">
+        <span class="inline-heading">Terrain:</span>
+        {' '}
+        {formatText(currentHex?.terrain)}
+      </p>
+      <p class="hanging-indent">
+        <span class="inline-heading">Vegetation:</span>
+        {' '}
+        {formatText(currentHex?.vegetation)}
+      </p>
+      <p class="hanging-indent">
+        <span class="inline-heading">Landmark:</span>{' '}{currentHex?.landmark}
+      </p>
+      <p class="hanging-indent">
+        <span class="inline-heading">Region:</span>
+        {' '}
+        {getRegionTitle(currentHex?.regionId ?? '')}
+      </p>
     </div>
   {:else}
     <p>Please select a hex to get started.</p>
@@ -44,6 +80,14 @@
 </aside>
 
 <style>
+    .hex-data-bar {
+        display: flex;
+    }
+
+    .hex-data-bar > div {
+        margin-right: 1rem;
+    }
+
     .hex-panel {
         position: fixed;
         top: 0;
