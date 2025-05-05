@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { faXmark } from '@fortawesome/pro-light-svg-icons';
+  import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import type { HexData } from '../../types.ts';
+  import { getHexPath } from '../../utils/routes.ts';
 
   interface Props {
     hexes: HexData[];
@@ -20,11 +23,20 @@
 
 <!-- Sliding Panel -->
 <aside class:open={isOpen} class="hex-panel">
+  <button class="hex-panel-close" onclick={() => isOpen = false} aria-label="Close menu">
+    <FontAwesomeIcon icon={faXmark} />
+  </button>
   {#if $selectedHex}
-    <p>Hex Details</p>
+    <h2 class="title is-5" style="text-align: center">{$selectedHex?.toUpperCase()}: {currentHex?.name}</h2>
     <div>
-      <p>Selected hex: {$selectedHex?.toUpperCase()}</p>
-      <p>{currentHex?.name}</p>
+      <p><a href={getHexPath($selectedHex)}>View Hex</a></p>
+      <p>Dungeons: unknown</p>
+      <p>Terrain: {currentHex?.terrain}</p>
+      <p>Vegetation: {currentHex?.vegetation}</p>
+      <p>Landmark: {currentHex?.landmark}</p>
+      <p>Region: {currentHex?.regionId}</p>
+      <p>Visited: {currentHex?.isVisited ?? false}</p>
+      <p>Explored: {currentHex?.isExplored ?? false}</p>
     </div>
   {:else}
     <p>Please select a hex to get started.</p>
@@ -46,14 +58,30 @@
         z-index: 1000;
         overflow-y: auto;
         margin-bottom: 0;
+        padding: 0.5rem;
     }
+
     .hex-panel.open {
         transform: translateX(0%);
     }
+
     .open-panel-button {
         position: absolute;
         top: 1rem;
         left: 1rem;
-        z-index: 1100;
+        z-index: 900;
+    }
+
+    .hex-panel-close {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.75rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #ccc;
+        cursor: pointer;
+        padding: 0.25rem;
+        z-index: 1001;
     }
 </style>

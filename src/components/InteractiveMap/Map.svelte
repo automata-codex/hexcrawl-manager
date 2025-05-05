@@ -111,7 +111,6 @@
 
     const hexId = (e.currentTarget as SVGElement)?.dataset?.hexid;
     if (hexId) {
-      console.log(`Clicked hex: ${hexId}`);
       if ($selectedHex === hexId) {
         selectedHex.set(null);
       } else {
