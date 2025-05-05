@@ -10,7 +10,7 @@
 
   const currentHex = $derived(hexes.find((hex) => hex.id.toLowerCase() === $selectedHex?.toLowerCase()));
 
-  let isOpen = $state(false);
+  let isOpen = $state(!!$selectedHex);
 </script>
 
 <!-- Toggle Button -->

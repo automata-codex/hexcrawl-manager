@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { STORAGE_KEYS } from '../../utils/constants.ts';
 
 export interface MapViewState {
   zoom: number;
@@ -11,7 +12,7 @@ export interface MapViewState {
   svgHeight: number;
 }
 
-export const mapView = writable({
+const defaultMapView: MapViewState = {
   zoom: 1,
   zoomFactor: 1.1,
   minZoom: 0.25,
@@ -20,6 +21,43 @@ export const mapView = writable({
   centerY: 400,
   svgWidth: 800,
   svgHeight: 800,
+};
+
+function loadInitialMapView(): MapViewState {
+  if (typeof localStorage === 'undefined') return defaultMapView;
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.MAP_VIEW);
+    if (!raw) return defaultMapView;
+
+    const parsed = JSON.parse(raw);
+    return {
+      ...defaultMapView,
+      ...parsed,
+    };
+  } catch (e) {
+    console.warn('Failed to load mapView from localStorage:', e);
+    return defaultMapView;
+  }
+}
+
+export const mapView = writable<MapViewState>(loadInitialMapView());
+
+mapView.subscribe((value) => {
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const toSave = {
+        zoom: value.zoom,
+        centerX: value.centerX,
+        centerY: value.centerY,
+        svgWidth: value.svgWidth,
+        svgHeight: value.svgHeight,
+      };
+      localStorage.setItem(STORAGE_KEYS.MAP_VIEW, JSON.stringify(toSave));
+    } catch (e) {
+      console.warn('Failed to save mapView to localStorage:', e);
+    }
+  }
 });
 
 export function applyZoomAtCenter(delta: number) {
