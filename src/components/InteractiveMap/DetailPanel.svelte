@@ -3,8 +3,8 @@
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import type { HexData } from '../../types.ts';
-  import { getHexPath } from '../../utils/routes.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
+  import { getHexPath, getRegionPath } from '../../utils/routes.ts';
   import CheckBoxIcon from './CheckBoxIcon.svelte';
 
   interface Props {
@@ -39,22 +39,24 @@
   {#if $selectedHex}
     <h2 class="title is-5" style="text-align: center">{$selectedHex?.toUpperCase()}: {currentHex?.name}</h2>
     <div>
-      <p class="hanging-indent">
-        <a href={getHexPath($selectedHex)}>View Hex</a>
-      </p>
       <div class="hex-data-bar">
         <div>
-          <span class="inline-heading">Visited:</span>{' '}
+          <a href={getHexPath($selectedHex)}>View Hex</a>
+        </div>
+        <div>
+          <a href={getRegionPath(currentHex?.regionId ?? '')}>{getRegionTitle(currentHex?.regionId ?? '')}</a>
+        </div>
+      </div>
+      <div class="hex-data-bar">
+        <div>
+          Visited:{' '}
           <CheckBoxIcon checked={currentHex?.isVisited ?? false} />
         </div>
         <div>
-          <span class="inline-heading">Explored:</span>{' '}
+          Explored:{' '}
           <CheckBoxIcon checked={currentHex?.isExplored ?? false} />
         </div>
       </div>
-      <p class="hanging-indent">
-        <span class="inline-heading">Dungeons:</span>{' '}unknown
-      </p>
       <p class="hanging-indent">
         <span class="inline-heading">Terrain:</span>
         {' '}
@@ -68,11 +70,6 @@
       <p class="hanging-indent">
         <span class="inline-heading">Landmark:</span>{' '}{currentHex?.landmark}
       </p>
-      <p class="hanging-indent">
-        <span class="inline-heading">Region:</span>
-        {' '}
-        {getRegionTitle(currentHex?.regionId ?? '')}
-      </p>
     </div>
   {:else}
     <p>Please select a hex to get started.</p>
@@ -82,6 +79,7 @@
 <style>
     .hex-data-bar {
         display: flex;
+        font-weight: bold;
     }
 
     .hex-data-bar > div {
