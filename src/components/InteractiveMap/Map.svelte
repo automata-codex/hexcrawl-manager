@@ -200,6 +200,16 @@
   }
 </script>
 <style>
+    .map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .map-container {
+        width: 100vw;
+        height: 100vh;
+    }
+
     .zoom-controls {
         position: absolute;
         bottom: 1rem;
@@ -245,109 +255,110 @@
 
 <LayersPanel />
 
-<svg
-  role="presentation"
-  bind:this={svgEl}
-  onmousedown={handleMouseDown}
-  onmousemove={handleMouseMove}
-  onmouseup={handleMouseUp}
-  onmouseleave={handleMouseLeave}
-  onwheel={handleWheel}
-  viewBox={viewBox}
-  width="100%"
-  height="100%"
-  xmlns="http://www.w3.org/2000/svg"
-  style="background: #fafafa;"
->
-  {@html svgDefs}
+<div class="map-container">
+  <svg
+    class="map"
+    role="presentation"
+    bind:this={svgEl}
+    onmousedown={handleMouseDown}
+    onmousemove={handleMouseMove}
+    onmouseup={handleMouseUp}
+    onmouseleave={handleMouseLeave}
+    onwheel={handleWheel}
+    viewBox={viewBox}
+    xmlns="http://www.w3.org/2000/svg"
+    style="background: #fafafa;"
+  >
+    {@html svgDefs}
 
-  <g
-    id="layer-vegetation"
-    style:display={!$layerVisibility['vegetation'] ? 'none' : undefined}
-  >
-    {#each hexes as hex (hex.id)}
-      {#if isValidHexId(hex.id)}
-        {@const { q, r } = parseHexId(hex.id)}
-        {@const { x, y } = axialToPixel(q, r)}
-        <HexTile
-          fill={getHexColor(hex)}
-          hexWidth={HEX_WIDTH}
-          stroke="none"
-          {x}
-          {y}
-        />
-      {/if}
-    {/each}
-  </g>
-  <g
-    id="layer-terrain"
-    style:display={!$layerVisibility['terrain'] ? 'none' : undefined}
-  >
-    {#each hexes as hex (hex.id)}
-      {#if isValidHexId(hex.id)}
-        {@const { q, r } = parseHexId(hex.id)}
-        {@const { x, y } = axialToPixel(q, r)}
-        <use
-          href={getTerrainIcon(hex.terrain)}
-          x={x - ICON_SIZE / 2}
-          y={y - ICON_SIZE / 2}
-          width={ICON_SIZE}
-          height={ICON_SIZE}
-        />
-      {/if}
-    {/each}
-  </g>
-  <g
-    id="layer-hex-labels"
-    style:display={!$layerVisibility['labels'] ? 'none' : undefined}
-  >
-    {#each hexes as hex (hex.id)}
-      {#if isValidHexId(hex.id)}
-        {@const { q, r } = parseHexId(hex.id)}
-        {@const { x, y } = axialToPixel(q, r)}
-        <text
-          x={x}
-          y={y + (HEX_HEIGHT / 2) - 4}
-          font-size="12"
-          text-anchor="middle"
-          fill="black"
-        >
-          {hexLabel(q, r)}
-        </text>
-      {/if}
-    {/each}
-  </g>
-  <g
-    id="layer-hex-borders"
-    style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
-  >
-    {#each hexes as hex (hex.id)}
-      {#if isValidHexId(hex.id)}
-        {@const { q, r } = parseHexId(hex.id)}
-        {@const { x, y } = axialToPixel(q, r)}
-        <HexTile
-          fill="none"
-          hexWidth={HEX_WIDTH}
-          {x}
-          {y}
-        />
-      {/if}
-    {/each}
-  </g>
-  <g id="layer-hit-target">
-    {#each hexes as hex (hex.id)}
-      {#if isValidHexId(hex.id)}
-        {@const { q, r } = parseHexId(hex.id)}
-        {@const { x, y } = axialToPixel(q, r)}
-        <HexHitTarget
-          active={$selectedHex === hex.id}
-          hexId={hex.id}
-          hexWidth={HEX_WIDTH}
-          x={x}
-          y={y}
-          onClick={handleHexClick}
-        />
-      {/if}
-    {/each}
-  </g>
-</svg>
+    <g
+      id="layer-vegetation"
+      style:display={!$layerVisibility['vegetation'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexTile
+            fill={getHexColor(hex)}
+            hexWidth={HEX_WIDTH}
+            stroke="none"
+            {x}
+            {y}
+          />
+        {/if}
+      {/each}
+    </g>
+    <g
+      id="layer-terrain"
+      style:display={!$layerVisibility['terrain'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <use
+            href={getTerrainIcon(hex.terrain)}
+            x={x - ICON_SIZE / 2}
+            y={y - ICON_SIZE / 2}
+            width={ICON_SIZE}
+            height={ICON_SIZE}
+          />
+        {/if}
+      {/each}
+    </g>
+    <g
+      id="layer-hex-labels"
+      style:display={!$layerVisibility['labels'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <text
+            x={x}
+            y={y + (HEX_HEIGHT / 2) - 4}
+            font-size="12"
+            text-anchor="middle"
+            fill="black"
+          >
+            {hexLabel(q, r)}
+          </text>
+        {/if}
+      {/each}
+    </g>
+    <g
+      id="layer-hex-borders"
+      style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexTile
+            fill="none"
+            hexWidth={HEX_WIDTH}
+            {x}
+            {y}
+          />
+        {/if}
+      {/each}
+    </g>
+    <g id="layer-hit-target">
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexHitTarget
+            active={$selectedHex === hex.id}
+            hexId={hex.id}
+            hexWidth={HEX_WIDTH}
+            x={x}
+            y={y}
+            onClick={handleHexClick}
+          />
+        {/if}
+      {/each}
+    </g>
+  </svg>
+</div>
