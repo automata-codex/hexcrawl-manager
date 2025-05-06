@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
+  import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import {
     applyZoomAtCenter,
     computeViewBox,
@@ -21,6 +22,7 @@
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
   const ICON_SIZE = 90;
 
+  let dungeons: DungeonEssentialData[] = $state([]);
   let hexes: HexData[] = $state([]);
   let isPanning = $state(false);
   let lastX = $state(0);
@@ -32,8 +34,10 @@
 
   onMount(() => {
     (async () => {
-      const res = await fetch('/api/hexes.json');
-      hexes = await res.json();
+      const dungeonResponse = await fetch('/api/dungeons.json');
+      dungeons = await dungeonResponse.json();
+      const hexResponse = await fetch('/api/hexes.json');
+      hexes = await hexResponse.json();
     })();
 
     const resizeObserver = new ResizeObserver(entries => {
@@ -186,25 +190,25 @@
 
     .zoom-controls button {
         font-size: 1.25rem;
-        padding: 0.4em 0.6em;
-        background: white;
-        border: 1px solid #ccc;
+        padding: 0.5rem;
+        height: 2.5rem;
+        width: 2.5rem;
         border-radius: 0.25em;
         cursor: pointer;
     }
 
     .zoom-controls button:hover {
-        background: #eee;
+        background: #888;
     }
 </style>
 
 <div class="zoom-controls">
-  <button onclick={() => applyZoomDelta(1)}>+</button>
-  <button onclick={() => applyZoomDelta(-1)}>−</button>
+  <button class="button" onclick={() => applyZoomDelta(1)}>+</button>
+  <button class="button" onclick={() => applyZoomDelta(-1)}>−</button>
 </div>
 
 {#if hexes}
-  <DetailPanel {hexes} />
+  <DetailPanel {dungeons} {hexes} />
 {/if}
 
 <svg

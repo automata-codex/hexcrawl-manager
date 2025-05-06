@@ -1,19 +1,25 @@
 <script lang="ts">
-  import { faXmark } from '@fortawesome/pro-light-svg-icons';
+  import { faSidebar, faXmark } from '@fortawesome/pro-light-svg-icons';
+  import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import type { HexData } from '../../types.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
-  import { getHexPath, getRegionPath } from '../../utils/routes.ts';
+  import { getDungeonPath, getHexPath, getRegionPath } from '../../utils/routes.ts';
   import CheckBoxIcon from './CheckBoxIcon.svelte';
+  import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
 
   interface Props {
+    dungeons: DungeonEssentialData[];
     hexes: HexData[];
   }
 
-  const { hexes }: Props = $props();
+  const { dungeons, hexes }: Props = $props();
 
   const currentHex = $derived(hexes.find((hex) => hex.id.toLowerCase() === $selectedHex?.toLowerCase()));
+  const dungeonsInHex = $derived(
+    dungeons.filter((dungeon) => dungeon.hexId.toLowerCase() === $selectedHex?.toLowerCase())
+  );
 
   let isOpen = $state(!!$selectedHex);
 
@@ -27,8 +33,8 @@
 </script>
 
 <!-- Toggle Button -->
-<button class="button is-primary open-panel-button" onclick={() => isOpen = !isOpen}>
-  {isOpen ? 'Close' : 'Open'} Panel
+<button class="button open-panel-button" onclick={() => isOpen = !isOpen}>
+  <FontAwesomeIcon icon={faSidebar} />
 </button>
 
 <!-- Sliding Panel -->
@@ -45,6 +51,14 @@
         </div>
         <div>
           <a href={getRegionPath(currentHex?.regionId ?? '')}>{getRegionTitle(currentHex?.regionId ?? '')}</a>
+        </div>
+        <div>
+          {#each dungeonsInHex as dungeon (dungeon.id)}
+            <a href={getDungeonPath(dungeon.id)}>
+              <FontAwesomeIcon icon={faDungeon} />
+            </a>
+            {' '}
+          {/each}
         </div>
       </div>
       <div class="hex-data-bar">
@@ -112,6 +126,12 @@
         top: 1rem;
         left: 1rem;
         z-index: 900;
+        height: 2.5rem;
+        width: 2.5rem;
+    }
+
+    .open-panel-button:hover {
+        background: #888;
     }
 
     .hex-panel-close {
