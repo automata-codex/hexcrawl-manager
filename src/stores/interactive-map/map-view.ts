@@ -104,6 +104,13 @@ export function panBy(deltaX: number, deltaY: number) {
   }));
 }
 
+export function resetZoom() {
+  mapView.update(state => ({
+    ...state,
+    zoom: 1,
+  }));
+}
+
 export function updateSvgSizeAndPreserveCenter(newWidth: number, newHeight: number) {
   mapView.update(state => {
     const { zoom, centerX, centerY, svgWidth, svgHeight } = state;

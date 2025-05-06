@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { faLocationCrosshairs, faMagnifyingGlassArrowsRotate } from '@fortawesome/pro-light-svg-icons';
+  import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
@@ -9,6 +11,7 @@
     computeViewBox,
     mapView,
     panBy,
+    resetZoom,
     updateSvgSizeAndPreserveCenter,
     updateZoomAtPoint,
   } from '../../stores/interactive-map/map-view';
@@ -125,6 +128,19 @@
     }
   }
 
+  function handleCenterSelectedHexClick() {
+    if ($selectedHex) {
+      const { q, r } = parseHexId($selectedHex);
+      const { x, y } = axialToPixel(q, r);
+
+      mapView.update(state => ({
+        ...state,
+        centerX: x,
+        centerY: y,
+      }));
+    }
+  }
+
   function handleMouseDown(e: MouseEvent) {
     isPanning = true;
     wasPanning = false;
@@ -174,6 +190,10 @@
     updateZoomAtPoint(svgMouseX, svgMouseY, mouseX, mouseY, -Math.sign(e.deltaY));
   }
 
+  function handleZoomReset() {
+    resetZoom();
+  }
+
   function hexLabel(col: number, row: number): string {
     const colLabel = String.fromCharCode(65 + col); // A = 65
     return `${colLabel}${row + 1}`;
@@ -188,6 +208,7 @@
         flex-direction: column;
         gap: 0.25rem;
         z-index: 100;
+        align-items: flex-end;
     }
 
     .zoom-controls button {
@@ -207,6 +228,15 @@
 <div class="zoom-controls">
   <button class="button" onclick={() => applyZoomDelta(1)}>+</button>
   <button class="button" onclick={() => applyZoomDelta(-1)}>−</button>
+  <button class="button" onclick={handleCenterSelectedHexClick}>
+    <FontAwesomeIcon icon={faLocationCrosshairs} />
+  </button>
+  <button class="button" onclick={handleZoomReset}>
+    <FontAwesomeIcon icon={faMagnifyingGlassArrowsRotate} />
+  </button>
+  <div class="button">
+    Zoom: {Math.round($mapView.zoom * 100)}%
+  </div>
 </div>
 
 {#if hexes}
