@@ -1,39 +1,50 @@
 <script lang="ts">
+  import { faLocationCrosshairs, faMagnifyingGlassArrowsRotate } from '@fortawesome/pro-light-svg-icons';
+  import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import svgDefs from 'virtual:svg-symbols';
+  import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
+  import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import {
     applyZoomAtCenter,
     computeViewBox,
     mapView,
     panBy,
+    resetZoom,
     updateSvgSizeAndPreserveCenter,
     updateZoomAtPoint,
   } from '../../stores/interactive-map/map-view';
-  import svgDefs from 'virtual:svg-symbols';
+  import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import type { HexData } from '../../types.ts';
   import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
-
-  interface Props {
-    hexes: HexData[];
-  }
-
-  const { hexes }: Props = $props();
-
-  // const hexA2 = hexes.find(h => h.id.toLowerCase() === 'a2');
-  // console.log(`Hex A2: ${JSON.stringify(hexA2)}`);
+  import DetailPanel from './DetailPanel.svelte';
+  import HexHitTarget from './HexHitTarget.svelte';
+  import HexTile from './HexTile.svelte';
+  import LayersPanel from './LayersPanel.svelte';
 
   const HEX_WIDTH = 100;
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
   const ICON_SIZE = 90;
 
+  let dungeons: DungeonEssentialData[] = $state([]);
+  let hexes: HexData[] = $state([]);
   let isPanning = $state(false);
   let lastX = $state(0);
   let lastY = $state(0);
   let svgEl: SVGElement;
+  let wasPanning = $state(false);
 
   let viewBox = $derived(computeViewBox($mapView));
 
   onMount(() => {
+    (async () => {
+      const dungeonResponse = await fetch('/api/dungeons.json');
+      dungeons = await dungeonResponse.json();
+      const hexResponse = await fetch('/api/hexes.json');
+      hexes = await hexResponse.json();
+    })();
+
     const resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
         const width = entry.contentRect.width;
@@ -104,25 +115,35 @@
     }
   }
 
-  function hexLabel(col: number, row: number): string {
-    const colLabel = String.fromCharCode(65 + col); // A = 65
-    return `${colLabel}${row + 1}`;
+  function handleHexClick(e: Event) {
+    if (wasPanning) return; // suppress accidental clicks after pan
+
+    const hexId = (e.currentTarget as SVGElement)?.dataset?.hexid;
+    if (hexId) {
+      if ($selectedHex === hexId) {
+        selectedHex.set(null);
+      } else {
+        selectedHex.set(hexId);
+      }
+    }
   }
 
-  function hexPath(x: number, y: number) {
-    const size = HEX_WIDTH / 2;
-    const points = [];
-    for (let i = 0; i < 6; i++) {
-      const angle = Math.PI / 180 * (60 * i);
-      const px = x + size * Math.cos(angle);
-      const py = y + size * Math.sin(angle);
-      points.push(`${px},${py}`);
+  function handleCenterSelectedHexClick() {
+    if ($selectedHex) {
+      const { q, r } = parseHexId($selectedHex);
+      const { x, y } = axialToPixel(q, r);
+
+      mapView.update(state => ({
+        ...state,
+        centerX: x,
+        centerY: y,
+      }));
     }
-    return points.join(" ");
   }
 
   function handleMouseDown(e: MouseEvent) {
     isPanning = true;
+    wasPanning = false;
     lastX = e.clientX;
     lastY = e.clientY;
   }
@@ -138,10 +159,16 @@
     panBy(dx, dy);
     lastX = e.clientX;
     lastY = e.clientY;
+    wasPanning = true;
   }
 
   function handleMouseUp() {
     isPanning = false;
+
+    // Reset wasPanning after current frame so the hex-click handler can read it
+    setTimeout(() => {
+      wasPanning = false;
+    }, 0);
   }
 
   function handleWheel(e: WheelEvent) {
@@ -162,8 +189,27 @@
 
     updateZoomAtPoint(svgMouseX, svgMouseY, mouseX, mouseY, -Math.sign(e.deltaY));
   }
+
+  function handleZoomReset() {
+    resetZoom();
+  }
+
+  function hexLabel(col: number, row: number): string {
+    const colLabel = String.fromCharCode(65 + col); // A = 65
+    return `${colLabel}${row + 1}`;
+  }
 </script>
 <style>
+    .map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .map-container {
+        width: 100vw;
+        height: 100vh;
+    }
+
     .zoom-controls {
         position: absolute;
         bottom: 1rem;
@@ -172,71 +218,147 @@
         flex-direction: column;
         gap: 0.25rem;
         z-index: 100;
+        align-items: flex-end;
     }
 
     .zoom-controls button {
         font-size: 1.25rem;
-        padding: 0.4em 0.6em;
-        background: white;
-        border: 1px solid #ccc;
+        padding: 0.5rem;
+        height: 2.5rem;
+        width: 2.5rem;
         border-radius: 0.25em;
         cursor: pointer;
     }
 
     .zoom-controls button:hover {
-        background: #eee;
+        background: #888;
     }
 </style>
 
 <div class="zoom-controls">
-  <button onclick={() => applyZoomDelta(1)}>+</button>
-  <button onclick={() => applyZoomDelta(-1)}>−</button>
+  <button class="button" onclick={() => applyZoomDelta(1)}>+</button>
+  <button class="button" onclick={() => applyZoomDelta(-1)}>−</button>
+  <button class="button" onclick={handleCenterSelectedHexClick}>
+    <FontAwesomeIcon icon={faLocationCrosshairs} />
+  </button>
+  <button class="button" onclick={handleZoomReset}>
+    <FontAwesomeIcon icon={faMagnifyingGlassArrowsRotate} />
+  </button>
+  <div class="button">
+    Zoom: {Math.round($mapView.zoom * 100)}%
+  </div>
 </div>
 
-<svg
-  role="presentation"
-  bind:this={svgEl}
-  onmousedown={handleMouseDown}
-  onmousemove={handleMouseMove}
-  onmouseup={handleMouseUp}
-  onmouseleave={handleMouseLeave}
-  onwheel={handleWheel}
-  viewBox={viewBox}
-  width="100%"
-  height="100%"
-  xmlns="http://www.w3.org/2000/svg"
-  style="background: #fafafa;"
->
-  {@html svgDefs}
+{#if hexes}
+  <DetailPanel {dungeons} {hexes} />
+{/if}
 
-  {#each hexes as hex}
-    {#if isValidHexId(hex.id)}
-      {#key hex.id}
-        {@const { q, r } = parseHexId(hex.id)}
-        {@const { x, y } = axialToPixel(q, r)}
-        <polygon
-          points={hexPath(x, y)}
-          fill={getHexColor(hex)}
-          stroke="black"
-          stroke-width="1"
-        />
-        <use
-          href={getTerrainIcon(hex.terrain)}
-          x={x - ICON_SIZE / 2}
-          y={y - ICON_SIZE / 2}
-          width={ICON_SIZE}
-          height={ICON_SIZE}
-        />
-        <text
-          x={x}
-          y={y + (HEX_HEIGHT / 2) - 4}
-          font-size="12"
-          text-anchor="middle"
-          fill="black"
-        >
-          {hexLabel(q, r)}
-        </text>
-      {/key}
-    {/if}
-  {/each}
-</svg>
+<LayersPanel />
+
+<div class="map-container">
+  <svg
+    class="map"
+    role="presentation"
+    bind:this={svgEl}
+    onmousedown={handleMouseDown}
+    onmousemove={handleMouseMove}
+    onmouseup={handleMouseUp}
+    onmouseleave={handleMouseLeave}
+    onwheel={handleWheel}
+    viewBox={viewBox}
+    xmlns="http://www.w3.org/2000/svg"
+    style="background: #fafafa;"
+  >
+    {@html svgDefs}
+
+    <g
+      id="layer-vegetation"
+      style:display={!$layerVisibility['vegetation'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexTile
+            fill={getHexColor(hex)}
+            hexWidth={HEX_WIDTH}
+            stroke="none"
+            {x}
+            {y}
+          />
+        {/if}
+      {/each}
+    </g>
+    <g
+      id="layer-terrain"
+      style:display={!$layerVisibility['terrain'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <use
+            href={getTerrainIcon(hex.terrain)}
+            x={x - ICON_SIZE / 2}
+            y={y - ICON_SIZE / 2}
+            width={ICON_SIZE}
+            height={ICON_SIZE}
+          />
+        {/if}
+      {/each}
+    </g>
+    <g
+      id="layer-hex-labels"
+      style:display={!$layerVisibility['labels'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <text
+            x={x}
+            y={y + (HEX_HEIGHT / 2) - 4}
+            font-size="12"
+            text-anchor="middle"
+            fill="black"
+          >
+            {hexLabel(q, r)}
+          </text>
+        {/if}
+      {/each}
+    </g>
+    <g
+      id="layer-hex-borders"
+      style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexTile
+            fill="none"
+            hexWidth={HEX_WIDTH}
+            {x}
+            {y}
+          />
+        {/if}
+      {/each}
+    </g>
+    <g id="layer-hit-target">
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexHitTarget
+            active={$selectedHex === hex.id}
+            hexId={hex.id}
+            hexWidth={HEX_WIDTH}
+            x={x}
+            y={y}
+            onClick={handleHexClick}
+          />
+        {/if}
+      {/each}
+    </g>
+  </svg>
+</div>

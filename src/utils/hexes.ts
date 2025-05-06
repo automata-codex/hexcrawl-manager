@@ -70,6 +70,18 @@ export function getHexRow(hexId: string): number {
   return parseInt(hexId.substring(1), 10);
 }
 
+export function getHexSvgPath(x: number, y: number, hexWidth: number): string {
+  const size = hexWidth / 2;
+  const points = [];
+  for (let i = 0; i < 6; i++) {
+    const angle = Math.PI / 180 * (60 * i);
+    const px = x + size * Math.cos(angle);
+    const py = y + size * Math.sin(angle);
+    points.push(`${px},${py}`);
+  }
+  return points.join(" ");
+}
+
 export function hexSort(a: HexData, b: HexData): number {
   const aCol = getHexColumn(a.id);
   const aRow = getHexRow(a.id);

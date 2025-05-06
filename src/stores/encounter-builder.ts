@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import type { CharacterData, EncounterData, StatBlockData } from '../types.ts';
+import { STORAGE_KEYS } from '../utils/constants.ts';
 
 export interface CurrentPartyMember {
   id: string;
@@ -28,8 +29,6 @@ interface InitArgs {
   statBlocks: StatBlockData[];
 }
 
-const LOCAL_STORAGE_KEY = "encounter-builder-state";
-
 const defaultState: EncounterBuilderState = {
   characters: [],
   currentParty: [],
@@ -56,7 +55,7 @@ function createEncounterBuilderStore() {
       return null;
     }
     try {
-      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEYS.ENCOUNTER_BUILDER);
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
@@ -71,7 +70,7 @@ function createEncounterBuilderStore() {
       currentParty: state.currentParty,
       encounterMonsters: state.encounterMonsters,
     };
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(STORAGE_KEYS.ENCOUNTER_BUILDER, JSON.stringify(data));
   }
 
   return {
