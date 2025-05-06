@@ -15,6 +15,7 @@ export type SecurityRole = typeof SECURITY_ROLE[keyof typeof SECURITY_ROLE];
 
 export const STORAGE_KEYS = {
   ENCOUNTER_BUILDER: 'encounter-builder-state',
+  LAYER_VISIBILITY: 'layer-visibility-state',
   MAP_VIEW: 'map-view-state',
   SELECTED_HEX: 'selected-hex-state',
 } as const;
