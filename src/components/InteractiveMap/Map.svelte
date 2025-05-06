@@ -17,6 +17,7 @@
   import DetailPanel from './DetailPanel.svelte';
   import HexHitTarget from './HexHitTarget.svelte';
   import HexTile from './HexTile.svelte';
+  import LayersPanel from './LayersPanel.svelte';
 
   const HEX_WIDTH = 100;
   const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
@@ -210,6 +211,8 @@
 {#if hexes}
   <DetailPanel {dungeons} {hexes} />
 {/if}
+
+<LayersPanel />
 
 <svg
   role="presentation"
