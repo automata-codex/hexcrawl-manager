@@ -231,7 +231,10 @@
 >
   {@html svgDefs}
 
-  <g id="layer-vegetation" style:display={!$layerVisibility.vegetation ? 'none' : undefined}>
+  <g
+    id="layer-vegetation"
+    style:display={!$layerVisibility['vegetation'] ? 'none' : undefined}
+  >
     {#each hexes as hex (hex.id)}
       {#if isValidHexId(hex.id)}
         {@const { q, r } = parseHexId(hex.id)}
@@ -239,13 +242,17 @@
         <HexTile
           fill={getHexColor(hex)}
           hexWidth={HEX_WIDTH}
+          stroke="none"
           {x}
           {y}
         />
       {/if}
     {/each}
   </g>
-  <g id="layer-terrain" style:display={!$layerVisibility.terrain ? 'none' : undefined}>
+  <g
+    id="layer-terrain"
+    style:display={!$layerVisibility['terrain'] ? 'none' : undefined}
+  >
     {#each hexes as hex (hex.id)}
       {#if isValidHexId(hex.id)}
         {@const { q, r } = parseHexId(hex.id)}
@@ -260,7 +267,10 @@
       {/if}
     {/each}
   </g>
-  <g id="layer-hex-labels" style:display={!$layerVisibility.labels ? 'none' : undefined}>
+  <g
+    id="layer-hex-labels"
+    style:display={!$layerVisibility['labels'] ? 'none' : undefined}
+  >
     {#each hexes as hex (hex.id)}
       {#if isValidHexId(hex.id)}
         {@const { q, r } = parseHexId(hex.id)}
@@ -274,6 +284,23 @@
         >
           {hexLabel(q, r)}
         </text>
+      {/if}
+    {/each}
+  </g>
+  <g
+    id="layer-hex-borders"
+    style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
+  >
+    {#each hexes as hex (hex.id)}
+      {#if isValidHexId(hex.id)}
+        {@const { q, r } = parseHexId(hex.id)}
+        {@const { x, y } = axialToPixel(q, r)}
+        <HexTile
+          fill="none"
+          hexWidth={HEX_WIDTH}
+          {x}
+          {y}
+        />
       {/if}
     {/each}
   </g>

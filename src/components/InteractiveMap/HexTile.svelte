@@ -2,8 +2,9 @@
   import { getHexSvgPath } from '../../utils/hexes.ts';
 
   interface Props {
-    fill: string;
+    fill?: string;
     hexWidth: number;
+    stroke?: string;
     x: number;
     y: number;
   }
@@ -11,6 +12,7 @@
   const {
     fill = '#CCC',
     hexWidth,
+    stroke = 'black',
     x,
     y,
   }: Props = $props();
@@ -18,6 +20,6 @@
 <polygon
   points={getHexSvgPath(x, y, hexWidth)}
   fill={fill}
-  stroke={'black'}
+  stroke={stroke}
   stroke-width={1}
 />
