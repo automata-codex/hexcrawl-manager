@@ -3,6 +3,7 @@
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
+  import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import {
     applyZoomAtCenter,
     computeViewBox,
@@ -230,7 +231,7 @@
 >
   {@html svgDefs}
 
-  <g id="layer-vegetation">
+  <g id="layer-vegetation" style:display={!$layerVisibility.vegetation ? 'none' : undefined}>
     {#each hexes as hex (hex.id)}
       {#if isValidHexId(hex.id)}
         {@const { q, r } = parseHexId(hex.id)}
@@ -244,7 +245,7 @@
       {/if}
     {/each}
   </g>
-  <g id="layer-terrain">
+  <g id="layer-terrain" style:display={!$layerVisibility.terrain ? 'none' : undefined}>
     {#each hexes as hex (hex.id)}
       {#if isValidHexId(hex.id)}
         {@const { q, r } = parseHexId(hex.id)}
@@ -259,7 +260,7 @@
       {/if}
     {/each}
   </g>
-  <g id="layer-hex-labels">
+  <g id="layer-hex-labels" style:display={!$layerVisibility.labels ? 'none' : undefined}>
     {#each hexes as hex (hex.id)}
       {#if isValidHexId(hex.id)}
         {@const { q, r } = parseHexId(hex.id)}
