@@ -3,6 +3,7 @@
  */
 
 import { readFileSync, existsSync, writeFileSync } from 'fs';
+import { kebabCase } from 'lodash-es';
 import { join } from 'path';
 import { parse, parseDocument } from 'yaml';
 
@@ -18,14 +19,12 @@ const PATCH_FILES = [
   'patches/natural_biome_patch_final.yaml',
 ];
 
-const HEX_ROOT = 'hexes';
-
 function applyPatch(patchPath) {
   const patchYaml = readFileSync(join(BASE_DIR, patchPath), 'utf8');
   const patchEntries = parse(patchYaml);
 
   for (const entry of patchEntries) {
-    const filePath = join(BASE_DIR, HEX_ROOT, entry.path);
+    const filePath = join(BASE_DIR, entry.path);
     if (!existsSync(filePath)) {
       console.warn(`Skipping missing file: ${filePath}`);
       continue;
@@ -35,7 +34,8 @@ function applyPatch(patchPath) {
       const raw = readFileSync(filePath, 'utf8');
       const doc = parseDocument(raw);
 
-      doc.set('biome', entry.biome);
+      const kebabBiome = kebabCase(entry.biome);
+      doc.set("biome", kebabBiome);
 
       writeFileSync(filePath, doc.toString(), "utf8");
       console.log(`Updated: ${filePath}`);
