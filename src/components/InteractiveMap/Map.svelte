@@ -88,6 +88,11 @@
       case 'marsh':                   return '#507D6A';
       case 'bog':                     return '#4C8063';
 
+      case 'coastal-ocean': return '#2E8BC0';
+      case 'freshwater-lake': return '#72C6E5';
+      case 'montane-grassland': return '#B7B767';
+      case 'subalpine-woodland': return '#6BAF84';
+
       // Original biome/color palette
       case 'temperate-forest': return '#5FA973';
       case 'alpine-forest': return '#3E7D4E';
