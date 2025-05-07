@@ -124,6 +124,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
       id: 'gm-reference',
       label: 'GM Reference',
       items: [
+        { id: 'biomes', label: 'Biomes', href: ROUTES.gmReference.biomes },
         { id: 'characters', label: 'Characters', href: ROUTES.gmReference.characters.index },
         { id: 'cosmology', label: 'Cosmology', href: ROUTES.playersReference.setting.cosmology },
         { id: 'dungeons', label: 'Dungeons', href: ROUTES.gmReference.dungeons.index },
