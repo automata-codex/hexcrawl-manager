@@ -66,6 +66,31 @@
     return { x, y };
   }
 
+  export function getBiomeColor(biome: string): string {
+    switch (biome) {
+      case 'temperate-forest': return '#5FA973';
+      case 'alpine-forest': return '#3E7D4E';
+      case 'tropical-rainforest': return '#2F7D5C';
+      case 'savanna': return '#D2B85F';
+      case 'prairie': return '#CABF61';
+      case 'swamp': return '#3F9F9F';
+      case 'marsh': return '#507D6A';
+      case 'mangrove': return '#4C8063';
+      case 'desert': return '#E2C275';
+      case 'rocky-desert': return '#C7A163';
+      case 'badlands': return '#A07750';
+      case 'tundra': return '#A8C9D6';
+      case 'glacier': return '#DDF1F9';
+      case 'mountain': return '#888888';
+      case 'volcanic': return '#5A5A5A';
+      case 'fungal-forest': return '#8165A0';
+      case 'magical-grove': return '#4ACCC2';
+      case 'corrupted-wastes': return '#7DAF4F';
+      case 'crystal-expanse': return '#B5AEE3';
+      default: return '#CCCCCC';
+    }
+  }
+
   function getHexColor(hex: HexData) {
     switch (hex.terrain) {
       case 'glacier':
