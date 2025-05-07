@@ -92,6 +92,7 @@
       case 'freshwater-lake': return '#72C6E5';
       case 'montane-grassland': return '#B7B767';
       case 'subalpine-woodland': return '#6BAF84';
+      case 'coastal-prairie': return '#A9C77D';
 
       // Original biome/color palette
       case 'temperate-forest': return '#5FA973';
