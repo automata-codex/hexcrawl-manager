@@ -93,6 +93,7 @@
       case 'montane-grassland': return '#B7B767';
       case 'subalpine-woodland': return '#6BAF84';
       case 'coastal-prairie': return '#A9C77D';
+      case 'coastal-swamp': return '#4E948F';
 
       // Original biome/color palette
       case 'temperate-forest': return '#5FA973';

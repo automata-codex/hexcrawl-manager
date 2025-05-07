@@ -6,6 +6,7 @@ const BiomeEnum = z.enum([
   "alpine-tundra",
   "coastal-ocean",
   "coastal-prairie",
+  "coastal-swamp",
   "forested-plain",
   "freshwater-lake",
   "glacier",
@@ -20,6 +21,7 @@ const BiomeEnum = z.enum([
   "savanna",
   "subalpine-woodland",
   "swamp",
+  "temperate-forest",
   "temperate-forested-hills",
   "temperate-rainforest",
   "temperate-woodland"
