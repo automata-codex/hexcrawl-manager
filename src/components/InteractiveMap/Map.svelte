@@ -66,15 +66,36 @@
     return { x, y };
   }
 
-  export function getBiomeColor(biome: string): string {
+  function getBiomeColor(biome: string): string {
     switch (biome) {
+      case 'temperate-forested-hills': return '#5FA973';
+      case 'temperate-woodland':       return '#73B87D';
+      case 'temperate-rainforest':     return '#3E7D4E';
+      case 'montane-forest':           return '#2F6D4A';
+      case 'mixed-woodland-hills':     return '#8BBF8E';
+
+      case 'prairie':                  return '#CABF61';
+      case 'open-plain':              return '#D9CF7A';
+      case 'forested-plain':          return '#A1B96A';
+      case 'savanna':                 return '#D2B85F';
+
+      case 'alpine-tundra':           return '#A8C9D6';
+      case 'rocky-hills':             return '#A9A9A9';
+      case 'heathland':               return '#C1AD7C'; // if added later
+      case 'mixed-terrain':           return '#B8B8B8';
+
+      case 'swamp':                   return '#3F9F9F';
+      case 'marsh':                   return '#507D6A';
+      case 'bog':                     return '#4C8063';
+
+      // Original biome/color palette
       case 'temperate-forest': return '#5FA973';
       case 'alpine-forest': return '#3E7D4E';
       case 'tropical-rainforest': return '#2F7D5C';
-      case 'savanna': return '#D2B85F';
-      case 'prairie': return '#CABF61';
-      case 'swamp': return '#3F9F9F';
-      case 'marsh': return '#507D6A';
+      // case 'savanna': return '#D2B85F';
+      // case 'prairie': return '#CABF61';
+      // case 'swamp': return '#3F9F9F';
+      // case 'marsh': return '#507D6A';
       case 'mangrove': return '#4C8063';
       case 'desert': return '#E2C275';
       case 'rocky-desert': return '#C7A163';
@@ -306,6 +327,24 @@
           {@const { x, y } = axialToPixel(q, r)}
           <HexTile
             fill={getHexColor(hex)}
+            hexWidth={HEX_WIDTH}
+            stroke="none"
+            {x}
+            {y}
+          />
+        {/if}
+      {/each}
+    </g>
+    <g
+      id="layer-biomes"
+      style:display={!$layerVisibility['biomes'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexTile
+            fill={getBiomeColor(hex.biome)}
             hexWidth={HEX_WIDTH}
             stroke="none"
             {x}

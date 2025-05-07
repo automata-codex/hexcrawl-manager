@@ -82,6 +82,11 @@
         {formatText(currentHex?.vegetation)}
       </p>
       <p class="hanging-indent">
+        <span class="inline-heading">Biome:</span>
+        {' '}
+        {formatText(currentHex?.biome)}
+      </p>
+      <p class="hanging-indent">
         <span class="inline-heading">Landmark:</span>{' '}{currentHex?.landmark}
       </p>
     </div>

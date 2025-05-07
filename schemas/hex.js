@@ -2,6 +2,23 @@ import { z } from 'zod';
 import { EncounterOverrideSchema } from './encounter-override.js';
 import { TreasureSchema } from './treasure.js';
 
+const BiomeEnum = z.enum([
+  "alpine-tundra",
+  "forested-plain",
+  "marsh",
+  "mixed-terrain",
+  "mixed-woodland-hills",
+  "montane-forest",
+  "open-plain",
+  "prairie",
+  "rocky-hills",
+  "savanna",
+  "swamp",
+  "temperate-forested-hills",
+  "temperate-rainforest",
+  "temperate-woodland"
+]);
+
 export const HiddenSitesSchema = z.object({
   description: z.string(),
   treasure: z.array(TreasureSchema).optional(),
@@ -50,4 +67,5 @@ export const HexSchema = z.object({
     .describe('Tags for filtering hexes, matching clues, etc.'),
   terrain: z.string(),
   vegetation: z.string(),
+  biome: BiomeEnum,
 }).describe('HexSchema');
