@@ -94,6 +94,7 @@
       case 'subalpine-woodland': return '#6BAF84';
       case 'coastal-prairie': return '#A9C77D';
       case 'coastal-swamp': return '#4E948F';
+      case 'highland-bog': return '#7E8D77';
 
       // Original biome/color palette
       case 'temperate-forest': return '#5FA973';
