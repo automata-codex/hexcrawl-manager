@@ -89,6 +89,27 @@
       <p class="hanging-indent">
         <span class="inline-heading">Landmark:</span>{' '}{currentHex?.landmark}
       </p>
+      {#if currentHex?.avgElevation}
+        <p class="hanging-indent">
+          <span class="inline-heading">Average Elevation:</span>
+          {' '}
+          {currentHex?.avgElevation.toLocaleString()} ft.
+        </p>
+      {/if}
+      {#if currentHex?.minElevation}
+        <p class="hanging-indent">
+          <span class="inline-heading">Minimum Elevation:</span>
+          {' '}
+          {currentHex?.minElevation.toLocaleString()} ft.
+        </p>
+      {/if}
+      {#if currentHex?.maxElevation}
+        <p class="hanging-indent">
+          <span class="inline-heading">Maximum Elevation:</span>
+          {' '}
+          {currentHex?.maxElevation.toLocaleString()} ft.
+        </p>
+      {/if}
     </div>
   {:else}
     <p>Please select a hex to get started.</p>

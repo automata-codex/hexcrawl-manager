@@ -89,6 +89,27 @@
     }
   }
 
+  export function getElevationColor(elevation: number | null | undefined): string {
+    if (elevation == null || isNaN(elevation)) return '#999';
+
+    // Clamp to valid elevation range
+    const minElevation = 0;
+    const maxElevation = 12000;
+    const clamped = Math.max(minElevation, Math.min(elevation, maxElevation));
+
+    // Compute band index (100-foot bands)
+    const band = Math.floor(clamped / 100);
+    const maxBand = Math.floor(maxElevation / 100);
+
+    // Map band to HSL hue
+    // Lower = blue (~190°), middle = yellow-green (~90°), higher = gray (~0–40°)
+    const hue = interpolate(band, 0, maxBand, 190, 20); // hue in degrees
+    const saturation = interpolate(band, 0, maxBand, 60, 0); // fades out at high elevation
+    const lightness = interpolate(band, 0, maxBand, 50, 95); // gets lighter with height
+
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  }
+
   function getHexColor(hex: HexData) {
     switch (hex.terrain) {
       case 'glacier':
@@ -222,6 +243,16 @@
     return `${colLabel}${row + 1}`;
   }
 
+  function interpolate(
+    value: number,
+    inMin: number,
+    inMax: number,
+    outMin: number,
+    outMax: number
+  ): number {
+    const ratio = (value - inMin) / (inMax - inMin);
+    return outMin + ratio * (outMax - outMin);
+  }
 </script>
 <style>
     .map {
@@ -323,6 +354,24 @@
           {@const { x, y } = axialToPixel(q, r)}
           <HexTile
             fill={getBiomeColor(hex.biome)}
+            hexWidth={HEX_WIDTH}
+            stroke="none"
+            {x}
+            {y}
+          />
+        {/if}
+      {/each}
+    </g>
+    <g
+      id="layer-elevation"
+      style:display={!$layerVisibility['elevation'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexTile
+            fill={getElevationColor(hex.avgElevation)}
             hexWidth={HEX_WIDTH}
             stroke="none"
             {x}
