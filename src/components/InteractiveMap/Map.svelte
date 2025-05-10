@@ -89,23 +89,20 @@
     }
   }
 
-  export function getElevationColor(elevation: number | null | undefined): string {
+  function getElevationColor(elevation: number | null | undefined): string {
     if (elevation == null || isNaN(elevation)) return '#999';
 
-    // Clamp to valid elevation range
     const minElevation = 0;
     const maxElevation = 12000;
+
     const clamped = Math.max(minElevation, Math.min(elevation, maxElevation));
 
-    // Compute band index (100-foot bands)
-    const band = Math.floor(clamped / 100);
-    const maxBand = Math.floor(maxElevation / 100);
+    // Map elevation linearly across 360° hue wheel
+    const hue = ((clamped - minElevation) / (maxElevation - minElevation)) * 360;
 
-    // Map band to HSL hue
-    // Lower = blue (~190°), middle = yellow-green (~90°), higher = gray (~0–40°)
-    const hue = interpolate(band, 0, maxBand, 190, 20); // hue in degrees
-    const saturation = interpolate(band, 0, maxBand, 60, 0); // fades out at high elevation
-    const lightness = interpolate(band, 0, maxBand, 50, 95); // gets lighter with height
+    // Optional: tweak these for visual clarity
+    const saturation = 70;
+    const lightness = 60;
 
     return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
   }
@@ -241,17 +238,6 @@
   function hexLabel(col: number, row: number): string {
     const colLabel = String.fromCharCode(65 + col); // A = 65
     return `${colLabel}${row + 1}`;
-  }
-
-  function interpolate(
-    value: number,
-    inMin: number,
-    inMax: number,
-    outMin: number,
-    outMax: number
-  ): number {
-    const ratio = (value - inMin) / (inMax - inMin);
-    return outMin + ratio * (outMax - outMin);
   }
 </script>
 <style>
