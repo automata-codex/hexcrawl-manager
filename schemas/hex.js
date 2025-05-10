@@ -4,6 +4,7 @@ import { TreasureSchema } from './treasure.js';
 
 const BiomeEnum = z.enum([
   "alpine-tundra",
+  "boreal-forest",
   "coastal-ocean",
   "coastal-prairie",
   "coastal-swamp",
@@ -17,8 +18,10 @@ const BiomeEnum = z.enum([
   "mixed-woodland-hills",
   "montane-forest",
   "montane-grassland",
+  "moors",
   "open-plain",
   "prairie",
+  "rocky-highlands",
   "rocky-hills",
   "savanna",
   "subalpine-woodland",

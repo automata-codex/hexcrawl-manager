@@ -95,6 +95,9 @@
       case 'coastal-prairie': return '#A9C77D';
       case 'coastal-swamp': return '#4E948F';
       case 'highland-bog': return '#7E8D77';
+      case 'moors': return '#A4A78A';
+      case 'rocky-highlands': return '#999688';
+      case 'boreal-forest': return '#4C6E5C';
 
       // Original biome/color palette
       case 'temperate-forest': return '#5FA973';
