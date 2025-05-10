@@ -5,6 +5,7 @@
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
+  import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import {
     applyZoomAtCenter,
@@ -22,16 +23,15 @@
   import HexHitTarget from './HexHitTarget.svelte';
   import HexTile from './HexTile.svelte';
   import LayersPanel from './LayersPanel.svelte';
-
-  const HEX_WIDTH = 100;
-  const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
-  const ICON_SIZE = 90;
+  import MapPath from './MapPath.svelte';
+  import { HEX_HEIGHT, HEX_WIDTH, ICON_SIZE } from './constants.ts';
 
   let dungeons: DungeonEssentialData[] = $state([]);
   let hexes: HexData[] = $state([]);
   let isPanning = $state(false);
   let lastX = $state(0);
   let lastY = $state(0);
+  let rivers: MapPathPlayerData[] = $state([]);
   let svgEl: SVGElement;
   let wasPanning = $state(false);
 
@@ -43,6 +43,9 @@
       dungeons = await dungeonResponse.json();
       const hexResponse = await fetch('/api/hexes.json');
       hexes = await hexResponse.json();
+      const mapPathResponse = await fetch('/api/map-paths.json');
+      const mapPaths = await mapPathResponse.json();
+      rivers = mapPaths.filter((path: MapPathPlayerData) => path.type === 'river');
     })();
 
     const resizeObserver = new ResizeObserver(entries => {
@@ -224,6 +227,7 @@
     const colLabel = String.fromCharCode(65 + col); // A = 65
     return `${colLabel}${row + 1}`;
   }
+
 </script>
 <style>
     .map {
@@ -333,6 +337,7 @@
         {/if}
       {/each}
     </g>
+    <MapPath paths={rivers} type="river" />
     <g
       id="layer-terrain"
       style:display={!$layerVisibility['terrain'] ? 'none' : undefined}

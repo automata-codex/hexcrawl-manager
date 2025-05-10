@@ -17,6 +17,7 @@ import {
 import { HexSchema, HiddenSitesSchema } from '../schemas/hex.js';
 import { KnowledgeNodeSchema } from '../schemas/knowledge-node';
 import { LootPackSchema } from '../schemas/loot-pack';
+import type { SegmentMetadataSchema } from '../schemas/map-path';
 import { NpcSchema } from '../schemas/npc';
 import { PlayerSchema } from '../schemas/player';
 import { RegionSchema } from '../schemas/region';
@@ -57,6 +58,7 @@ export type RangedWeaponAttackData = z.infer<typeof RangedWeaponAttackSchema>;
 export type RegionData = z.infer<typeof RegionSchema>;
 export type RumorData = z.infer<typeof RumorSchema>;
 export type Scope = z.infer<typeof ScopeSchema>;
+export type SegmentMetadataData = z.infer<typeof SegmentMetadataSchema>;
 export type SessionData = z.infer<typeof SessionSchema>;
 export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;

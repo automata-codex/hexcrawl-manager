@@ -13,6 +13,7 @@ export const layerList: LayerMetadata[] = [
   { key: 'hexBorders', label: 'Hex Borders', defaultVisible: true },
   { key: 'biomes', label: 'Biomes', defaultVisible: false },
   { key: 'vegetation', label: 'Vegetation', defaultVisible: true },
+  { key: 'river', label: 'Rivers', defaultVisible: true },
 ];
 
 const initial = Object.fromEntries(

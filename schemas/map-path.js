@@ -17,7 +17,7 @@ const PointStringSchema = z
   .regex(/^[a-z]\d{1,2}:(northeast|east|southeast|center|northwest|west|southwest)$/);
 
 // Segment metadata (customizable as needed)
-const SegmentMetadataSchema = z.object({
+export const SegmentMetadataSchema = z.object({
   impedesTravel: z.boolean().optional(),
   // other per-segment flags can go here, e.g.:
   // elevationChange: z.number().optional(),
@@ -27,6 +27,7 @@ const SegmentMetadataSchema = z.object({
 export const MapPathSchema = z.object({
   id: z.string(),
   type: z.enum(["river", "conduit", "trail", "road", "leyLine"]), // add others as needed
+  label: z.string().optional(),
   // color: z.string().optional(),
   // width: z.number().optional(),
   points: z.array(PointStringSchema).min(2), // at least 2 points required
