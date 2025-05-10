@@ -1,9 +1,7 @@
 <script lang="ts">
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import { DEG_TO_RAD, HEX_HEIGHT, HEX_RADIUS, HEX_WIDTH } from './constants.ts';
+  import { axialToPixel, DEG_TO_RAD, HEX_RADIUS } from '../../utils/interactive-map.ts';
   import { parseHexId } from '../../utils/hexes.ts';
-  import { get } from 'svelte/store';
-  import { mapView } from '../../stores/interactive-map/map-view.ts';
   import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import type { SegmentMetadataData } from '../../types.ts';
 
@@ -49,21 +47,6 @@
     },
   };
 
-  function applyMapTransform(mapX: number, mapY: number): { x: number; y: number } {
-    const { zoom, centerX, centerY, svgWidth, svgHeight } = get(mapView);
-
-    const viewBoxWidth = svgWidth / zoom;
-    const viewBoxHeight = svgHeight / zoom;
-
-    const viewBoxMinX = centerX - viewBoxWidth / 2;
-    const viewBoxMinY = centerY - viewBoxHeight / 2;
-
-    return {
-      x: (mapX - viewBoxMinX) * zoom,
-      y: (mapY - viewBoxMinY) * zoom,
-    };
-  }
-
   export function pointsToSegments(
     points: { x: number; y: number }[],
     segmentMetadata?: Record<string, SegmentMetadataData>,
@@ -86,19 +69,17 @@
     const [ hexId, anchor ] = point.split(':');
     const { q, r } = parseHexId(hexId);
 
-    // Flat-top hex axial to pixel
-    const baseX = HEX_WIDTH * (3 / 4) * q;
-    const baseY = HEX_HEIGHT * (r + (q % 2 === 1 ? 0.5 : 0));
+    const { x: baseX, y: baseY } = axialToPixel(q, r);
 
     const offset = ANCHOR_OFFSETS[anchor as keyof typeof ANCHOR_OFFSETS];
     if (!offset) {
       throw new Error(`Unknown anchor '${anchor}'`);
     }
 
-    const localX = baseX + offset.dx;
-    const localY = baseY + offset.dy;
-
-    return applyMapTransform(localX, localY);
+    return {
+      x: baseX + offset.dx,
+      y: baseY + offset.dy,
+    };
   }
 
   const lineSegments = $derived(
@@ -118,8 +99,8 @@
       y1={segment.from.y}
       x2={segment.to.x}
       y2={segment.to.y}
-      stroke={'blue'}
-      stroke-width={2}
+      stroke={'#72C6E5'}
+      stroke-width={4}
       stroke-dasharray={segment.metadata?.impedesTravel ? '4 2' : 'none'}
     />
   {/each}

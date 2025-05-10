@@ -24,7 +24,7 @@
   import HexTile from './HexTile.svelte';
   import LayersPanel from './LayersPanel.svelte';
   import MapPath from './MapPath.svelte';
-  import { HEX_HEIGHT, HEX_WIDTH, ICON_SIZE } from './constants.ts';
+  import { axialToPixel, HEX_HEIGHT, HEX_WIDTH, ICON_SIZE } from '../../utils/interactive-map.ts';
 
   let dungeons: DungeonEssentialData[] = $state([]);
   let hexes: HexData[] = $state([]);
@@ -61,12 +61,6 @@
 
   function applyZoomDelta(direction: number) {
     applyZoomAtCenter(direction);
-  }
-
-  function axialToPixel(q: number, r: number) {
-    const x = q * (0.75 * HEX_WIDTH);
-    const y = HEX_HEIGHT * (r + 0.5 * ((q + 1) % 2));
-    return { x, y };
   }
 
   function getBiomeColor(biome: string): string {
@@ -337,7 +331,6 @@
         {/if}
       {/each}
     </g>
-    <MapPath paths={rivers} type="river" />
     <g
       id="layer-terrain"
       style:display={!$layerVisibility['terrain'] ? 'none' : undefined}
@@ -357,6 +350,24 @@
       {/each}
     </g>
     <g
+      id="layer-hex-borders"
+      style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexTile
+            fill="none"
+            hexWidth={HEX_WIDTH}
+            {x}
+            {y}
+          />
+        {/if}
+      {/each}
+    </g>
+    <MapPath paths={rivers} type="river" />
+    <g
       id="layer-hex-labels"
       style:display={!$layerVisibility['labels'] ? 'none' : undefined}
     >
@@ -373,23 +384,6 @@
           >
             {hexLabel(q, r)}
           </text>
-        {/if}
-      {/each}
-    </g>
-    <g
-      id="layer-hex-borders"
-      style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
-    >
-      {#each hexes as hex (hex.id)}
-        {#if isValidHexId(hex.id)}
-          {@const { q, r } = parseHexId(hex.id)}
-          {@const { x, y } = axialToPixel(q, r)}
-          <HexTile
-            fill="none"
-            hexWidth={HEX_WIDTH}
-            {x}
-            {y}
-          />
         {/if}
       {/each}
     </g>

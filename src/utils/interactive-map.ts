@@ -3,3 +3,10 @@ export const HEX_WIDTH = 100;
 export const HEX_HEIGHT = Math.sqrt(3) / 2 * HEX_WIDTH;
 export const HEX_RADIUS = HEX_WIDTH / 2;
 export const ICON_SIZE = 90;
+
+export function axialToPixel(q: number, r: number) {
+  const x = q * (0.75 * HEX_WIDTH);
+  const y = HEX_HEIGHT * (r + 0.5 * ((q + 1) % 2));
+  return { x, y };
+}
+
