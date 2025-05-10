@@ -8,12 +8,11 @@ export interface LayerMetadata {
 }
 
 export const layerList: LayerMetadata[] = [
-  { key: 'vegetation', label: 'Vegetation', defaultVisible: true },
-  { key: 'terrain', label: 'Terrain', defaultVisible: true },
   { key: 'labels', label: 'Hex Labels', defaultVisible: true },
-  { key: 'highlights', label: 'Highlights', defaultVisible: false },
-  { key: 'debug', label: 'Debug Overlay', defaultVisible: false },
+  { key: 'terrain', label: 'Terrain', defaultVisible: true },
   { key: 'hexBorders', label: 'Hex Borders', defaultVisible: true },
+  { key: 'biomes', label: 'Biomes', defaultVisible: false },
+  { key: 'vegetation', label: 'Vegetation', defaultVisible: true },
 ];
 
 const initial = Object.fromEntries(

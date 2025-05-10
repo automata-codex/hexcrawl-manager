@@ -1,3 +1,8 @@
+/**
+ * Reads in YAML files with terrain and vegetation for each hex and generates
+ * data files for any that are missing.
+ */
+
 import pkg from 'fs-extra';
 import { join } from 'path';
 import { parse, stringify } from 'yaml';

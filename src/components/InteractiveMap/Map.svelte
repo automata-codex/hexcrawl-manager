@@ -66,6 +66,32 @@
     return { x, y };
   }
 
+  function getBiomeColor(biome: string): string {
+    switch (biome) {
+      case 'alpine-tundra': return '#A8C9D6';
+      case 'boreal-forest': return '#4C6E5C';
+      case 'coastal-ocean': return '#2E8BC0';
+      case 'coastal-prairie': return '#A9C77D';
+      case 'coastal-swamp': return '#4E948F';
+      case 'freshwater-lake': return '#72C6E5';
+      case 'glacier': return '#DDF1F9';
+      case 'highland-bog': return '#7E8D77';
+      case 'marsh': return '#507D6A';
+      case 'mixed-woodland': return '#8BBF8E';
+      case 'montane-forest': return '#2F6D4A';
+      case 'montane-grassland': return '#B7B767';
+      case 'moors': return '#A4A78A';
+      case 'prairie': return '#CABF61';
+      case 'rocky-highland': return '#999688';
+      case 'subalpine-woodland': return '#6BAF84';
+      case 'swamp': return '#3F9F9F';
+      case 'temperate-forest': return '#5FA973';
+      case 'temperate-rainforest': return '#3E7D4E';
+      case 'temperate-woodland': return '#73B87D';
+      default: return '#CCCCCC';
+    }
+  }
+
   function getHexColor(hex: HexData) {
     switch (hex.terrain) {
       case 'glacier':
@@ -281,6 +307,24 @@
           {@const { x, y } = axialToPixel(q, r)}
           <HexTile
             fill={getHexColor(hex)}
+            hexWidth={HEX_WIDTH}
+            stroke="none"
+            {x}
+            {y}
+          />
+        {/if}
+      {/each}
+    </g>
+    <g
+      id="layer-biomes"
+      style:display={!$layerVisibility['biomes'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexTile
+            fill={getBiomeColor(hex.biome)}
             hexWidth={HEX_WIDTH}
             stroke="none"
             {x}

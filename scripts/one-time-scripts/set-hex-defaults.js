@@ -1,3 +1,8 @@
+/**
+ * Adds default data to hexes that don't have it. Used after generating
+ * vegetation and terrain data for all hexes.
+ */
+
 import pkg from 'fs-extra';
 import { basename, extname } from 'path';
 import { parse, stringify } from 'yaml';

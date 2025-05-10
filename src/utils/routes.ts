@@ -1,5 +1,6 @@
 export const ROUTES = {
   gmReference: {
+    biomes: '/gm-reference/biomes',
     characters: {
       id: '/gm-reference/characters/[id]',
       all: '/gm-reference/characters/all',
@@ -139,6 +140,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'ancestries-and-cultures',
     path: ROUTES.playersGuide.ancestriesAndCultures,
+  },
+  {
+    slug: 'biomes',
+    path: ROUTES.gmReference.biomes,
   },
   {
     slug: 'catastrophe-and-aftermath',
