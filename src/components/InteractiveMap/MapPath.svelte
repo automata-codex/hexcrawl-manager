@@ -14,7 +14,7 @@
     index: number;
     from: { x: number; y: number };
     to: { x: number; y: number };
-    metadata?: SegmentMetadataData;
+    segmentMetadata?: SegmentMetadataData;
     parent: string;
   }
 
@@ -64,7 +64,7 @@
         index: i,
         from: points[i],
         to: points[i + 1],
-        metadata: segmentMetadata?.[i],
+        segmentMetadata: segmentMetadata?.[i],
         parent: pathName,
       });
     }
@@ -92,7 +92,7 @@
   const lineSegments = $derived(
     paths.flatMap((path) => {
       const points = path.points.map(resolvePathPoint);
-      return pointsToSegments(points, path.metadata, path.id);
+      return pointsToSegments(points, path.segmentMetadata, path.id);
     }),
   );
 </script>
@@ -101,6 +101,7 @@
   style:display={!$layerVisibility[type] ? 'none' : undefined}
 >
   {#each lineSegments as segment (`${segment.parent}-${segment.index}`)}
+    {@const impedesTravel = segment.segmentMetadata?.impedesTravel ?? true}
     <line
       x1={segment.from.x}
       y1={segment.from.y}
@@ -109,7 +110,7 @@
       stroke={'#72C6E5'}
       stroke-width={4}
       stroke-linecap="round"
-      stroke-dasharray={segment.metadata?.impedesTravel ? '4 2' : 'none'}
+      stroke-dasharray={impedesTravel ? 'none' : '1, 8'}
     />
   {/each}
 </g>

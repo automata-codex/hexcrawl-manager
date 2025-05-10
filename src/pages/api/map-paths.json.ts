@@ -11,7 +11,7 @@ export interface MapPathPlayerData {
   label?: string;
   points: string[];
   type: string;
-  metadata?: Record<string, SegmentMetadataData>;
+  segmentMetadata?: Record<string, SegmentMetadataData>;
 }
 
 export const GET: APIRoute = async ({ locals }) => {
@@ -20,6 +20,7 @@ export const GET: APIRoute = async ({ locals }) => {
 
   const mapPaths = dungeonEntries.map((entry) => {
     const path = entry.data;
+    // console.log(path);
 
     if (role === SECURITY_ROLE.GM) {
       return path;
@@ -30,10 +31,13 @@ export const GET: APIRoute = async ({ locals }) => {
     }
 
     // Redact fields for players
+    // if (path.segmentMetadata) {
+    //   console.log(path.id, path.segmentMetadata);
+    // }
     return {
       id: path.id,
       label: path.label,
-      metadata: path.segmentMetadata,
+      segmentMetadata: path.segmentMetadata,
       points: path.points,
       type: path.type,
     };
