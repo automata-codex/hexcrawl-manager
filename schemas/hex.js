@@ -13,6 +13,7 @@ const BiomeEnum = z.enum([
   "highland-bog",
   "marsh",
   "mixed-terrain",
+  "mixed-woodlands",
   "mixed-woodland-hills",
   "montane-forest",
   "montane-grassland",

@@ -72,7 +72,7 @@
       case 'temperate-woodland':       return '#73B87D';
       case 'temperate-rainforest':     return '#3E7D4E';
       case 'montane-forest':           return '#2F6D4A';
-      case 'mixed-woodland-hills':     return '#8BBF8E';
+      case 'mixed-woodlands':     return '#8BBF8E';
 
       case 'prairie':                  return '#CABF61';
       case 'open-plain':              return '#D9CF7A';
