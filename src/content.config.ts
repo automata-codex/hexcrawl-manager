@@ -30,6 +30,7 @@ import type {
   RumorData,
   SupplementData,
 } from './types.ts';
+import { MapPathSchema } from '../schemas/map-path';
 
 const DATA_DIR = 'data';
 
@@ -45,6 +46,7 @@ const DIRS = {
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
   LOOT_PACKS: `${DATA_DIR}/loot-packs`,
+  MAP_PATHS: `${DATA_DIR}/map-paths`,
   NPCS: `${DATA_DIR}/npcs`,
   PLAYERS: `${DATA_DIR}/players`,
   REGIONS: `${DATA_DIR}/regions`,
@@ -145,6 +147,13 @@ const lootPacks = defineCollection({
   },
 });
 
+const mapPaths = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.MAP_PATHS }),
+  schema: {
+    ...MapPathSchema,
+  },
+});
+
 const npcs = defineCollection({
   loader: getDirectoryYamlLoader<NpcData>(DIRS.NPCS),
   schema: {
@@ -205,6 +214,7 @@ export const collections = {
   floatingClues,
   hexes,
   'loot-packs': lootPacks,
+  'map-paths': mapPaths,
   npcs,
   players,
   regions,

@@ -10,6 +10,7 @@ import { FloatingClueSchema } from '../schemas/floating-clue.js';
 import { HexSchema } from '../schemas/hex.js';
 import { KnowledgeNodeSchema } from '../schemas/knowledge-node.js';
 import { LootPackListSchema } from '../schemas/loot-pack.js';
+import { MapPathSchema } from '../schemas/map-path.js';
 import { NpcSchema } from '../schemas/npc.js';
 import { PlayerListSchema } from '../schemas/player.js';
 import { RegionSchema } from '../schemas/region.js';
@@ -78,6 +79,12 @@ const lootPackFile = new URL('../schemas/loot-pack.json', import.meta.url);
 writeFileSync(
   lootPackFile,
   JSON.stringify(zodToJsonSchema(LootPackListSchema), null, 2)
+);
+
+const mapPath = new URL('../schemas/map-path.json', import.meta.url);
+writeFileSync(
+  mapPath,
+  JSON.stringify(zodToJsonSchema(MapPathSchema), null, 2)
 );
 
 const npcFile = new URL('../schemas/npc.json', import.meta.url);
