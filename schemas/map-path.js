@@ -9,12 +9,13 @@ const AnchorEnum = z.enum([
   "northwest",
   "west",
   "southwest",
+  "south",
 ]);
 
 // Format: "R17:center"
 const PointStringSchema = z
   .string()
-  .regex(/^[a-z]\d{1,2}:(northeast|east|southeast|center|northwest|west|southwest)$/);
+  .regex(/^[a-z]\d{1,2}:(northeast|east|southeast|center|northwest|west|southwest|south)$/);
 
 // Segment metadata (customizable as needed)
 export const SegmentMetadataSchema = z.object({

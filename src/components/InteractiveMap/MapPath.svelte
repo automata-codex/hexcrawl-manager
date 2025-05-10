@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import { axialToPixel, DEG_TO_RAD, HEX_RADIUS } from '../../utils/interactive-map.ts';
+  import { axialToPixel, DEG_TO_RAD, HEX_HEIGHT, HEX_RADIUS } from '../../utils/interactive-map.ts';
   import { parseHexId } from '../../utils/hexes.ts';
   import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import type { SegmentMetadataData } from '../../types.ts';
@@ -15,6 +15,7 @@
     from: { x: number; y: number };
     to: { x: number; y: number };
     metadata?: SegmentMetadataData;
+    parent: string;
   }
 
   let { paths, type }: Props = $props();
@@ -45,11 +46,16 @@
       dx: HEX_RADIUS * Math.sin(330 * DEG_TO_RAD),
       dy: -HEX_RADIUS * Math.cos(330 * DEG_TO_RAD),
     },
+    south: {
+      dx: 0,
+      dy: HEX_HEIGHT / 2,
+    },
   };
 
   export function pointsToSegments(
     points: { x: number; y: number }[],
-    segmentMetadata?: Record<string, SegmentMetadataData>,
+    segmentMetadata: Record<string, SegmentMetadataData> | undefined,
+    pathName: string,
   ): Segment[] {
     const segments = [];
 
@@ -59,6 +65,7 @@
         from: points[i],
         to: points[i + 1],
         metadata: segmentMetadata?.[i],
+        parent: pathName,
       });
     }
 
@@ -85,7 +92,7 @@
   const lineSegments = $derived(
     paths.flatMap((path) => {
       const points = path.points.map(resolvePathPoint);
-      return pointsToSegments(points, path.metadata);
+      return pointsToSegments(points, path.metadata, path.id);
     }),
   );
 </script>
@@ -93,7 +100,7 @@
   id={`layer-${type}`}
   style:display={!$layerVisibility[type] ? 'none' : undefined}
 >
-  {#each lineSegments as segment (segment.index)}
+  {#each lineSegments as segment (`${segment.parent}-${segment.index}`)}
     <line
       x1={segment.from.x}
       y1={segment.from.y}
@@ -101,6 +108,7 @@
       y2={segment.to.y}
       stroke={'#72C6E5'}
       stroke-width={4}
+      stroke-linecap="round"
       stroke-dasharray={segment.metadata?.impedesTravel ? '4 2' : 'none'}
     />
   {/each}
