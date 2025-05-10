@@ -68,57 +68,26 @@
 
   function getBiomeColor(biome: string): string {
     switch (biome) {
-      case 'temperate-forested-hills': return '#5FA973';
-      case 'temperate-woodland':       return '#73B87D';
-      case 'temperate-rainforest':     return '#3E7D4E';
-      case 'montane-forest':           return '#2F6D4A';
-      case 'mixed-woodlands':     return '#8BBF8E';
-
-      case 'prairie':                  return '#CABF61';
-      case 'open-plain':              return '#D9CF7A';
-      case 'forested-plain':          return '#A1B96A';
-      case 'savanna':                 return '#D2B85F';
-
-      case 'alpine-tundra':           return '#A8C9D6';
-      case 'rocky-hills':             return '#A9A9A9';
-      case 'heathland':               return '#C1AD7C'; // if added later
-      case 'mixed-terrain':           return '#B8B8B8';
-
-      case 'swamp':                   return '#3F9F9F';
-      case 'marsh':                   return '#507D6A';
-      case 'bog':                     return '#4C8063';
-
+      case 'alpine-tundra': return '#A8C9D6';
+      case 'boreal-forest': return '#4C6E5C';
       case 'coastal-ocean': return '#2E8BC0';
-      case 'freshwater-lake': return '#72C6E5';
-      case 'montane-grassland': return '#B7B767';
-      case 'subalpine-woodland': return '#6BAF84';
       case 'coastal-prairie': return '#A9C77D';
       case 'coastal-swamp': return '#4E948F';
-      case 'highland-bog': return '#7E8D77';
-      case 'moors': return '#A4A78A';
-      case 'rocky-highlands': return '#999688';
-      case 'boreal-forest': return '#4C6E5C';
-
-      // Original biome/color palette
-      case 'temperate-forest': return '#5FA973';
-      case 'alpine-forest': return '#3E7D4E';
-      case 'tropical-rainforest': return '#2F7D5C';
-      // case 'savanna': return '#D2B85F';
-      // case 'prairie': return '#CABF61';
-      // case 'swamp': return '#3F9F9F';
-      // case 'marsh': return '#507D6A';
-      case 'mangrove': return '#4C8063';
-      case 'desert': return '#E2C275';
-      case 'rocky-desert': return '#C7A163';
-      case 'badlands': return '#A07750';
-      case 'tundra': return '#A8C9D6';
+      case 'freshwater-lake': return '#72C6E5';
       case 'glacier': return '#DDF1F9';
-      case 'mountain': return '#888888';
-      case 'volcanic': return '#5A5A5A';
-      case 'fungal-forest': return '#8165A0';
-      case 'magical-grove': return '#4ACCC2';
-      case 'corrupted-wastes': return '#7DAF4F';
-      case 'crystal-expanse': return '#B5AEE3';
+      case 'highland-bog': return '#7E8D77';
+      case 'marsh': return '#507D6A';
+      case 'mixed-woodland': return '#8BBF8E';
+      case 'montane-forest': return '#2F6D4A';
+      case 'montane-grassland': return '#B7B767';
+      case 'moors': return '#A4A78A';
+      case 'prairie': return '#CABF61';
+      case 'rocky-highland': return '#999688';
+      case 'subalpine-woodland': return '#6BAF84';
+      case 'swamp': return '#3F9F9F';
+      case 'temperate-forest': return '#5FA973';
+      case 'temperate-rainforest': return '#3E7D4E';
+      case 'temperate-woodland': return '#73B87D';
       default: return '#CCCCCC';
     }
   }
