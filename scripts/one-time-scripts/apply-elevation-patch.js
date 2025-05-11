@@ -21,7 +21,9 @@ function findHexFile(hexId) {
 }
 
 let totalUpdated = 0;
-const patchFiles = readdirSync(patchDir).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
+const patchFiles = readdirSync(patchDir)
+  .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'))
+  .sort();
 
 for (const patchFile of patchFiles) {
   const patchPath = join(patchDir, patchFile);
