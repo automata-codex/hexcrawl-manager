@@ -40,8 +40,8 @@ const syntheticEdgeElevation = (col, row) => {
   if (SYNTHETIC_EDGES[id]) return SYNTHETIC_EDGES[id];
   if (row === 0) return 10000; // alpine-tundra
   if (col === 'x') return 9500; // alpine-tundra
-  if (col >= 'z' || row >= 99) return 0; // ocean beyond map
-  return null;
+  console.log(`Warning: synthetic edge elevation for ${id} not found`);
+  return 0; // ocean beyond map
 };
 
 const loadYAML = (filePath) => {
@@ -129,7 +129,10 @@ const finalizeElevations = () => {
     };
   }
 
-  const yamlText = yaml.stringify(patch);
+  const sortedPatch = Object.fromEntries(
+    Object.entries(patch).sort(([a], [b]) => a.localeCompare(b))
+  );
+  const yamlText = yaml.stringify(sortedPatch);
   fs.writeFileSync(OUTPUT_PATCH, yamlText, 'utf-8');
   console.log(`Elevation patch written to ${OUTPUT_PATCH}`);
 };
