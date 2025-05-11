@@ -9,7 +9,7 @@ HEX_DIR = '/Users/alexgs/projects/skyreach/data/hexes'
 RIVER_DIR = '/Users/alexgs/projects/skyreach/data'
 OUTPUT_PATCH = '/Users/alexgs/projects/skyreach/data/patches/elevation/elevation-solver-patch.yaml'
 
-# Biome elevation ranges (soft target)
+# Soft biome elevation ranges (used for biasing)
 BIOME_RANGES = {
     "coastal-ocean": (0, 0),
     "freshwater-lake": (0, 6500),
@@ -31,54 +31,6 @@ BIOME_RANGES = {
     "glacier": (10000, 14000),
     "lowland-tundra": (0, 1800),
     "subalpine-woodland": (6000, 9800),
-}
-
-# Biome tension (spread resistance)
-BIOME_TENSION = {
-    "coastal-ocean": 0.0,
-    "freshwater-lake": 0.2,
-    "marsh": 0.2,
-    "swamp": 0.2,
-    "coastal-swamp": 0.2,
-    "coastal-prairie": 0.3,
-    "prairie": 0.3,
-    "temperate-rainforest": 0.4,
-    "temperate-forest": 0.4,
-    "temperate-woodland": 0.4,
-    "mixed-woodland": 0.4,
-    "boreal-forest": 0.5,
-    "moors": 0.3,
-    "montane-grassland": 0.6,
-    "montane-forest": 0.7,
-    "rocky-highland": 0.8,
-    "alpine-tundra": 0.9,
-    "glacier": 1.0,
-    "lowland-tundra": 0.3,
-    "subalpine-woodland": 0.6,
-}
-
-# Max slope per biome (used for clamping min/max)
-BIOME_MAX_SLOPE = {
-    "coastal-ocean": 0,
-    "freshwater-lake": 150,
-    "marsh": 150,
-    "swamp": 150,
-    "coastal-swamp": 150,
-    "coastal-prairie": 200,
-    "prairie": 300,
-    "temperate-rainforest": 400,
-    "temperate-forest": 500,
-    "temperate-woodland": 500,
-    "mixed-woodland": 500,
-    "boreal-forest": 600,
-    "moors": 400,
-    "montane-grassland": 800,
-    "montane-forest": 1000,
-    "rocky-highland": 1200,
-    "alpine-tundra": 1400,
-    "glacier": 1600,
-    "lowland-tundra": 300,
-    "subalpine-woodland": 800,
 }
 
 def parse_hex_id(hex_id):
@@ -108,7 +60,7 @@ def get_neighbors(hex_id, all_hexes):
         if neighbor_id in all_hexes:
             neighbors.append(neighbor_id)
         else:
-            # Off-map logic
+            # Off-map edge logic
             if n_row > 99 or n_col > 25:
                 neighbors.append(('coastal-ocean', 0))
             elif n_row == 0:
@@ -189,7 +141,6 @@ def relax(hex_data, iterations=25, step_size=200, zero_init=False, threshold=Non
             biome = data["biome"]
             avg = data["avgElevation"]
             bmin, bmax = BIOME_RANGES.get(biome, (avg - 1000, avg + 1000))
-            tension = BIOME_TENSION.get(biome, 0.5)
             bias = biome_bias_force(avg, bmin, bmax)
 
             neighbor_vals = []
@@ -224,35 +175,9 @@ def relax(hex_data, iterations=25, step_size=200, zero_init=False, threshold=Non
             print(f"Convergence threshold ({threshold}) reached. Stopping early.")
             break
 
-    # Final slope-aware band assignment
-    for hex_id, data in hex_data.items():
-        avg = data["avgElevation"]
-        biome = data["biome"]
-        slope = BIOME_MAX_SLOPE.get(biome, 1000)
-        neighbor_maxes = []
-        neighbor_mins = []
-        for n in data["neighbors"]:
-            if isinstance(n, str):
-                n_avg = hex_data[n]["avgElevation"]
-            elif isinstance(n, tuple):
-                _, n_avg = n
-            else:
-                continue
-            neighbor_maxes.append(n_avg + slope)
-            neighbor_mins.append(n_avg - slope)
-
-        ceiling = max(neighbor_mins) if neighbor_mins else avg
-        floor = min(neighbor_maxes) if neighbor_maxes else avg
-        data["minElevation"] = round(min(avg, floor))
-        data["maxElevation"] = round(max(avg, ceiling))
-
 def write_patch(hex_data, output_path):
     patch = {
-        hex_id: {
-            "avgElevation": int(data["avgElevation"]),
-            "minElevation": int(data["minElevation"]),
-            "maxElevation": int(data["maxElevation"]),
-        }
+        hex_id: {"avgElevation": int(data["avgElevation"])}
         for hex_id, data in hex_data.items()
     }
     with open(output_path, "w") as f:
