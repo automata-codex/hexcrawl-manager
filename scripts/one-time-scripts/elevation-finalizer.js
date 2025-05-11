@@ -100,37 +100,66 @@ const getNeighbors = (hexId, allHexes) => {
 };
 
 const finalizeElevations = () => {
+  const passes = 5;
+  const maxStep = 100;
   const hexes = loadHexes();
   const manual = loadManualOverrides();
-  const patch = {};
+  let current = {};
 
-  for (const [hexId, hex] of Object.entries(hexes)) {
+  for (const hexId of Object.keys(hexes)) {
     const overrides = manual[hexId] || {};
-    const biome = hex.biome;
-    const terrain = (hex.terrain || '').toLowerCase();
-    const avg = hex.avgElevation;
-
+    const biome = hexes[hexId].biome;
     if (biome === 'coastal-ocean') {
-      patch[hexId] = { minElevation: 0, maxElevation: 0, avgElevation: 0 };
-      continue;
+      current[hexId] = { minElevation: 0, maxElevation: 0, avgElevation: 0 };
+    } else {
+      const avg = hexes[hexId].avgElevation;
+      current[hexId] = {
+        minElevation: overrides.minElevation ?? avg,
+        maxElevation: overrides.maxElevation ?? avg,
+      };
     }
+  }
 
-    const neighbors = getNeighbors(hexId, hexes);
-    const neighborAvgs = neighbors.map(n => n.elev).filter(n => n != null);
-    const slope = Math.max(...neighborAvgs.map(n => Math.abs(n - avg)), 0);
-    const spread = Math.max(MIN_SPREAD_BY_TERRAIN[terrain] || 300, slope * 0.8);
+  for (let pass = 0; pass < passes; pass++) {
+    let totalChange = 0;
 
-    const min = overrides.minElevation ?? Math.round(avg - spread / 2);
-    const max = overrides.maxElevation ?? Math.round(avg + spread / 2);
+    for (const [hexId, hex] of Object.entries(hexes)) {
+      const overrides = manual[hexId] || {};
+      const biome = hex.biome;
+      const terrain = (hex.terrain || '').toLowerCase();
+      const avg = hex.avgElevation;
 
-    patch[hexId] = {
-      minElevation: min,
-      maxElevation: max,
-    };
+      if (biome === 'coastal-ocean') continue;
+
+      const neighbors = getNeighbors(hexId, hexes);
+      const neighborAvgs = neighbors.map(n => n.elev).filter(n => n != null);
+      const slope = Math.max(...neighborAvgs.map(n => Math.abs(n - avg)), 0);
+      const spread = Math.max(MIN_SPREAD_BY_TERRAIN[terrain] || 300, slope * 0.8);
+
+      let min = overrides.minElevation ?? Math.round(avg - spread / 2);
+      const neighborMaxes = neighbors.map(n => n.elev + spread / 2);
+      const lowestNeighborMax = Math.min(...neighborMaxes);
+      if (min > lowestNeighborMax) min = lowestNeighborMax;
+
+      let max = overrides.maxElevation ?? Math.round(avg + spread / 2);
+      const neighborMins = neighbors.map(n => n.elev - spread / 2);
+      const highestNeighborMin = Math.max(...neighborMins);
+      if (max < highestNeighborMin) max = highestNeighborMin;
+
+      const prev = current[hexId];
+      const deltaMin = Math.max(-maxStep, Math.min(maxStep, min - prev.minElevation));
+      const deltaMax = Math.max(-maxStep, Math.min(maxStep, max - prev.maxElevation));
+      totalChange += Math.abs(deltaMin) + Math.abs(deltaMax);
+      current[hexId] = {
+        minElevation: prev.minElevation + deltaMin,
+        maxElevation: prev.maxElevation + deltaMax,
+      };
+    }
+    console.log(`Pass ${pass + 1}: total change = ${totalChange}`);
   }
 
   const sortedPatch = Object.fromEntries(
-    Object.entries(patch).sort(([a], [b]) => a.localeCompare(b))
+    Object.entries(current).sort(([a], [b]) => a.localeCompare(b)),
   );
   const yamlText = yaml.stringify(sortedPatch);
   fs.writeFileSync(OUTPUT_PATCH, yamlText, 'utf-8');
