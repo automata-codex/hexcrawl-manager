@@ -72,9 +72,7 @@ export const HexSchema = z.object({
     .optional()
     .describe('Tags for filtering hexes, matching clues, etc.'),
   terrain: z.string(),
-  vegetation: z.string(),
+  vegetation: z.string().optional().describe('Deprecated: use `biome` instead'),
   biome: BiomeEnum,
-  minElevation: z.number().int().describe('Minimum elevation in feet'),
-  maxElevation: z.number().int().describe('Maximum elevation in feet'),
-  avgElevation: z.number().int().describe('Weighted average elevation in feet'),
+  elevation: z.number().int().describe('Weighted average elevation in feet'),
 }).describe('HexSchema');

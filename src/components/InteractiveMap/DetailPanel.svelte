@@ -77,11 +77,6 @@
         {formatText(currentHex?.terrain)}
       </p>
       <p class="hanging-indent">
-        <span class="inline-heading">Vegetation:</span>
-        {' '}
-        {formatText(currentHex?.vegetation)}
-      </p>
-      <p class="hanging-indent">
         <span class="inline-heading">Biome:</span>
         {' '}
         {formatText(currentHex?.biome)}
@@ -90,19 +85,9 @@
         <span class="inline-heading">Landmark:</span>{' '}{currentHex?.landmark}
       </p>
       <p class="hanging-indent">
-        <span class="inline-heading">Average Elevation:</span>
+        <span class="inline-heading">Elevation:</span>
         {' '}
-        {currentHex?.avgElevation.toLocaleString()} ft.
-      </p>
-      <p class="hanging-indent">
-        <span class="inline-heading">Minimum Elevation:</span>
-        {' '}
-        {currentHex?.minElevation.toLocaleString()} ft.
-      </p>
-      <p class="hanging-indent">
-        <span class="inline-heading">Maximum Elevation:</span>
-        {' '}
-        {currentHex?.maxElevation.toLocaleString()} ft.
+        {currentHex?.elevation.toLocaleString()} ft.
       </p>
     </div>
   {:else}

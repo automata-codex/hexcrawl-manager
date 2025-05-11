@@ -357,7 +357,7 @@
           {@const { q, r } = parseHexId(hex.id)}
           {@const { x, y } = axialToPixel(q, r)}
           <HexTile
-            fill={getElevationColor(hex.avgElevation)}
+            fill={getElevationColor(hex.elevation)}
             hexWidth={HEX_WIDTH}
             stroke="none"
             {x}

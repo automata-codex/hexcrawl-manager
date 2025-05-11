@@ -1,4 +1,6 @@
 /**
+ * ⚠️ WARNING: DO NOT USE!! DOES NOT WORK CORRECTLY!! ⚠️
+ *
  * After running the "elevation solver" script and generating manual elevation
  * tweaks, this script makes a final pass over the elevation data to sanity-
  * check the min and max values.
