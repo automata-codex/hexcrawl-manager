@@ -36,9 +36,9 @@ for (const patchFile of patchFiles) {
     }
 
     const original = parse(readFileSync(filePath, 'utf8'));
-    original.minElevation = elevData.minElevation;
-    original.maxElevation = elevData.maxElevation;
-    original.avgElevation = elevData.avgElevation;
+    if ('minElevation' in elevData) original.minElevation = elevData.minElevation;
+    if ('maxElevation' in elevData) original.maxElevation = elevData.maxElevation;
+    if ('avgElevation' in elevData) original.avgElevation = elevData.avgElevation;
 
     writeFileSync(filePath, stringify(original));
     updated++;

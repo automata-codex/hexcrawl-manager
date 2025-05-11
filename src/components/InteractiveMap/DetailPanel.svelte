@@ -18,7 +18,7 @@
 
   const currentHex = $derived(hexes.find((hex) => hex.id.toLowerCase() === $selectedHex?.toLowerCase()));
   const dungeonsInHex = $derived(
-    dungeons.filter((dungeon) => dungeon.hexId.toLowerCase() === $selectedHex?.toLowerCase())
+    dungeons.filter((dungeon) => dungeon.hexId.toLowerCase() === $selectedHex?.toLowerCase()),
   );
 
   let isOpen = $state(!!$selectedHex);
@@ -89,27 +89,21 @@
       <p class="hanging-indent">
         <span class="inline-heading">Landmark:</span>{' '}{currentHex?.landmark}
       </p>
-      {#if currentHex?.avgElevation}
-        <p class="hanging-indent">
-          <span class="inline-heading">Average Elevation:</span>
-          {' '}
-          {currentHex?.avgElevation.toLocaleString()} ft.
-        </p>
-      {/if}
-      {#if currentHex?.minElevation}
-        <p class="hanging-indent">
-          <span class="inline-heading">Minimum Elevation:</span>
-          {' '}
-          {currentHex?.minElevation.toLocaleString()} ft.
-        </p>
-      {/if}
-      {#if currentHex?.maxElevation}
-        <p class="hanging-indent">
-          <span class="inline-heading">Maximum Elevation:</span>
-          {' '}
-          {currentHex?.maxElevation.toLocaleString()} ft.
-        </p>
-      {/if}
+      <p class="hanging-indent">
+        <span class="inline-heading">Average Elevation:</span>
+        {' '}
+        {currentHex?.avgElevation.toLocaleString()} ft.
+      </p>
+      <p class="hanging-indent">
+        <span class="inline-heading">Minimum Elevation:</span>
+        {' '}
+        {currentHex?.minElevation.toLocaleString()} ft.
+      </p>
+      <p class="hanging-indent">
+        <span class="inline-heading">Maximum Elevation:</span>
+        {' '}
+        {currentHex?.maxElevation.toLocaleString()} ft.
+      </p>
     </div>
   {:else}
     <p>Please select a hex to get started.</p>
@@ -134,7 +128,7 @@
         width: 25%;
         min-width: 300px;
         background-color: var(--bulma-body-background-color);
-        box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
         transform: translateX(-100%);
         transition: transform 0.3s ease;
         z-index: 1000;
