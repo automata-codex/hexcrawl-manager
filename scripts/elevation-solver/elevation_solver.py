@@ -1,37 +1,38 @@
-
+#!/usr/bin/env python3
 import os
 import re
 import yaml
 import numpy as np
-from collections import defaultdict
 
 HEX_DIR = '/Users/alexgs/projects/skyreach/data/hexes'
 RIVER_DIR = '/Users/alexgs/projects/skyreach/data/map-paths/rivers'
 OUTPUT_PATCH = '/Users/alexgs/projects/skyreach/data/patches/elevation/elevation-solver-patch.yaml'
 
-BIOME_TARGET = {
-    "coastal-ocean": 0,
-    "freshwater-lake": 1800,
-    "marsh": 1200,
-    "swamp": 800,
-    "coastal-swamp": 400,
-    "coastal-prairie": 200,
-    "prairie": 2400,
-    "temperate-rainforest": 2000,
-    "temperate-forest": 4200,
-    "temperate-woodland": 3500,
-    "mixed-woodland": 2800,
-    "boreal-forest": 4600,
-    "moors": 5200,
-    "montane-grassland": 6900,
-    "montane-forest": 7500,
-    "rocky-highland": 8800,
-    "alpine-tundra": 9800,
-    "glacier": 11000,
+# Elevation ranges per biome
+BIOME_RANGES = {
+    "coastal-ocean": (0, 0),
+    "freshwater-lake": (0, 6500),
+    "marsh": (0, 2000),
+    "swamp": (0, 1000),
+    "coastal-swamp": (0, 500),
+    "coastal-prairie": (0, 650),
+    "prairie": (500, 3300),
+    "temperate-rainforest": (0, 3300),
+    "temperate-forest": (500, 3300),
+    "temperate-woodland": (300, 2600),
+    "mixed-woodland": (500, 3300),
+    "boreal-forest": (1000, 5000),
+    "moors": (1300, 4000),
+    "montane-grassland": (3300, 7200),
+    "montane-forest": (3300, 8200),
+    "rocky-highland": (3300, 9800),
+    "alpine-tundra": (9800, 13000),
+    "glacier": (10000, 14000),
 }
 
+# Tension: 0.0 = flat/loose, 1.0 = steep/rigid
 BIOME_TENSION = {
-    "coastal-ocean": 0.1,
+    "coastal-ocean": 0.0,
     "freshwater-lake": 0.2,
     "marsh": 0.2,
     "swamp": 0.2,
@@ -96,7 +97,8 @@ def load_hex_data():
                     hex_data[hex_id] = {
                         'biome': biome,
                         'avgElevation': avg,
-                        'neighbors': [],  # will fill later
+                        'fixed': biome == 'coastal-ocean',
+                        'neighbors': [],
                         'flowTo': set()
                     }
     return hex_data
@@ -116,6 +118,14 @@ def load_river_flows(hex_data):
                         hex_data[prev_hex]['flowTo'].add(current)
                     prev_hex = current
 
+def biome_bias_force(elev, biome_min, biome_max):
+    if elev < biome_min:
+        return biome_min - elev  # pull upward
+    elif elev > biome_max:
+        return biome_max - elev  # pull downward
+    else:
+        return 0  # no force
+
 def relax(hex_data, iterations=25, step_size=200):
     for hex_id in hex_data:
         hex_data[hex_id]['neighbors'] = get_neighbors(hex_id, hex_data)
@@ -123,40 +133,56 @@ def relax(hex_data, iterations=25, step_size=200):
     for _ in range(iterations):
         updated = {}
         for hex_id, data in hex_data.items():
-            current = data['avgElevation']
-            biome = data['biome']
-            target = BIOME_TARGET.get(biome, current)
-            tension = BIOME_TENSION.get(biome, 0.5)
-            neighbor_ids = data['neighbors']
-            if not neighbor_ids:
-                updated[hex_id] = current
+            if data['fixed']:
+                updated[hex_id] = data['avgElevation']
                 continue
 
+            current = data['avgElevation']
+            biome = data['biome']
+            biome_min, biome_max = BIOME_RANGES.get(biome, (current - 500, current + 500))
+            tension = BIOME_TENSION.get(biome, 0.5)
+            bias = biome_bias_force(current, biome_min, biome_max)
+
+            neighbor_ids = data['neighbors']
             neighbor_vals = [hex_data[n]['avgElevation'] for n in neighbor_ids]
-            # Add river-weighted influence
+
             for down_hex in data['flowTo']:
                 if down_hex in hex_data:
                     neighbor_vals.append(hex_data[down_hex]['avgElevation'] - 300)
 
-            neighbor_avg = np.mean(neighbor_vals)
-            desired = 0.5 * target + 0.5 * neighbor_avg
-            delta = desired - current
-            delta = np.clip(delta, -step_size, step_size)
+            neighbor_avg = np.mean(neighbor_vals) if neighbor_vals else current
+            desired = current + 0.5 * bias + 0.5 * (neighbor_avg - current)
+            delta = np.clip(desired - current, -step_size, step_size)
             updated[hex_id] = round(current + delta)
 
         for hex_id in updated:
             hex_data[hex_id]['avgElevation'] = updated[hex_id]
 
+    # Enforce: minElevation ≤ min(neighbor.maxElevation)
+    for hex_id, data in hex_data.items():
+        tension = BIOME_TENSION.get(data['biome'], 0.5)
+        neighbor_ids = data['neighbors']
+        neighbor_maxes = [hex_data[n]['avgElevation'] + 1000 * BIOME_TENSION.get(hex_data[n]['biome'], 0.5)
+                          for n in neighbor_ids if n in hex_data]
+        if neighbor_maxes:
+            max_min = min(neighbor_maxes)
+            if not data['fixed']:
+                data['minElevation'] = min(data['avgElevation'], max_min)
+            else:
+                data['minElevation'] = 0
+        else:
+            data['minElevation'] = data['avgElevation']
+
+        data['maxElevation'] = round(data['avgElevation'] + 1000 * tension)
+        data['minElevation'] = round(data['minElevation'])
+
 def write_patch(hex_data, output_path):
     patch = {}
     for hex_id, data in hex_data.items():
-        avg = data['avgElevation']
-        tension = BIOME_TENSION.get(data['biome'], 0.5)
-        spread = 1000
         patch[hex_id] = {
-            'avgElevation': int(avg),
-            'minElevation': int(avg - spread * (1 - tension)),
-            'maxElevation': int(avg + spread * tension)
+            'avgElevation': int(data['avgElevation']),
+            'minElevation': int(data['minElevation']),
+            'maxElevation': int(data['maxElevation']),
         }
     with open(output_path, 'w') as f:
         yaml.dump(patch, f, sort_keys=True)
