@@ -12,9 +12,8 @@ export const layerList: LayerMetadata[] = [
   { key: 'terrain', label: 'Terrain', defaultVisible: true },
   { key: 'river', label: 'Rivers', defaultVisible: true },
   { key: 'hexBorders', label: 'Hex Borders', defaultVisible: true },
-  { key: 'biomes', label: 'Biomes', defaultVisible: true },
   { key: 'elevation', label: 'Elevation', defaultVisible: false },
-  { key: 'vegetation', label: 'Vegetation', defaultVisible: false },
+  { key: 'biomes', label: 'Biomes', defaultVisible: true },
 ];
 
 const initial = Object.fromEntries(
