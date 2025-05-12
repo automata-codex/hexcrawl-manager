@@ -89,6 +89,24 @@
     }
   }
 
+  function getElevationColor(elevation: number | null | undefined): string {
+    if (elevation == null || isNaN(elevation)) return '#999';
+
+    const minElevation = 0;
+    const maxElevation = 12000;
+
+    const clamped = Math.max(minElevation, Math.min(elevation, maxElevation));
+
+    // Map elevation linearly across 360° hue wheel
+    const hue = ((clamped - minElevation) / (maxElevation - minElevation)) * 360;
+
+    // Optional: tweak these for visual clarity
+    const saturation = 70;
+    const lightness = 60;
+
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  }
+
   function getHexColor(hex: HexData) {
     switch (hex.terrain) {
       case 'glacier':
@@ -221,7 +239,6 @@
     const colLabel = String.fromCharCode(65 + col); // A = 65
     return `${colLabel}${row + 1}`;
   }
-
 </script>
 <style>
     .map {
@@ -323,6 +340,24 @@
           {@const { x, y } = axialToPixel(q, r)}
           <HexTile
             fill={getBiomeColor(hex.biome)}
+            hexWidth={HEX_WIDTH}
+            stroke="none"
+            {x}
+            {y}
+          />
+        {/if}
+      {/each}
+    </g>
+    <g
+      id="layer-elevation"
+      style:display={!$layerVisibility['elevation'] ? 'none' : undefined}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id)}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexTile
+            fill={getElevationColor(hex.elevation)}
             hexWidth={HEX_WIDTH}
             stroke="none"
             {x}

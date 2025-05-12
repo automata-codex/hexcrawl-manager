@@ -27,7 +27,7 @@ export const SegmentMetadataSchema = z.object({
 // The main path entry schema
 export const MapPathSchema = z.object({
   id: z.string(),
-  type: z.enum(["river", "conduit", "trail", "road", "leyLine"]), // add others as needed
+  type: z.enum(["river", "unused-river", "conduit", "trail"]), // add others as needed
   label: z.string().optional(),
   // color: z.string().optional(),
   // width: z.number().optional(),

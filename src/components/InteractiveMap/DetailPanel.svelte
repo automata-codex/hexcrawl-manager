@@ -18,7 +18,7 @@
 
   const currentHex = $derived(hexes.find((hex) => hex.id.toLowerCase() === $selectedHex?.toLowerCase()));
   const dungeonsInHex = $derived(
-    dungeons.filter((dungeon) => dungeon.hexId.toLowerCase() === $selectedHex?.toLowerCase())
+    dungeons.filter((dungeon) => dungeon.hexId.toLowerCase() === $selectedHex?.toLowerCase()),
   );
 
   let isOpen = $state(!!$selectedHex);
@@ -77,17 +77,17 @@
         {formatText(currentHex?.terrain)}
       </p>
       <p class="hanging-indent">
-        <span class="inline-heading">Vegetation:</span>
-        {' '}
-        {formatText(currentHex?.vegetation)}
-      </p>
-      <p class="hanging-indent">
         <span class="inline-heading">Biome:</span>
         {' '}
         {formatText(currentHex?.biome)}
       </p>
       <p class="hanging-indent">
         <span class="inline-heading">Landmark:</span>{' '}{currentHex?.landmark}
+      </p>
+      <p class="hanging-indent">
+        <span class="inline-heading">Elevation:</span>
+        {' '}
+        {currentHex?.elevation.toLocaleString()} ft.
       </p>
     </div>
   {:else}
@@ -113,7 +113,7 @@
         width: 25%;
         min-width: 300px;
         background-color: var(--bulma-body-background-color);
-        box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
         transform: translateX(-100%);
         transition: transform 0.3s ease;
         z-index: 1000;
