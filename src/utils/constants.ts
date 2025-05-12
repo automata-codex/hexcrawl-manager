@@ -19,3 +19,5 @@ export const STORAGE_KEYS = {
   MAP_VIEW: 'map-view-state',
   SELECTED_HEX: 'selected-hex-state',
 } as const;
+
+export const UNKNOWN_CONTENT = 'Unknown';

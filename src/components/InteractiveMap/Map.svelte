@@ -403,6 +403,23 @@
     </g>
     <MapPath paths={rivers} type="river" />
     <g
+      id="layer-player-mask"
+      style:display={'true'}
+    >
+      {#each hexes as hex (hex.id)}
+        {#if isValidHexId(hex.id) && !hex.isVisited}
+          {@const { q, r } = parseHexId(hex.id)}
+          {@const { x, y } = axialToPixel(q, r)}
+          <HexTile
+            fill="white"
+            hexWidth={HEX_WIDTH}
+            {x}
+            {y}
+          />
+        {/if}
+      {/each}
+    </g>
+    <g
       id="layer-hex-labels"
       style:display={!$layerVisibility['labels'] ? 'none' : undefined}
     >

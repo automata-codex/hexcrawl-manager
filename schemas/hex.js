@@ -22,7 +22,8 @@ const BiomeEnum = z.enum([
   "swamp",
   "temperate-forest",
   "temperate-rainforest",
-  "temperate-woodland"
+  "temperate-woodland",
+  "Unknown",
 ]);
 
 export const HiddenSitesSchema = z.object({
