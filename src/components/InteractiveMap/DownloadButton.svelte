@@ -4,6 +4,14 @@
   import { Canvg } from 'canvg';
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
+  import { canAccess } from '../../utils/auth.ts';
+  import { SCOPES } from '../../utils/constants.ts';
+
+  interface Props {
+    role: string | null;
+  }
+
+  const { role }: Props = $props();
 
   let isOpen = $state(false);
   let dropdownRef: HTMLDivElement | null = $state(null);
@@ -36,7 +44,7 @@
   async function exportSvgAsPng(
     svgElement: SVGSVGElement,
     fileName: string = 'map.png',
-    fullMap: boolean = false
+    fullMap: boolean = false,
   ) {
     const clonedSvg = svgElement.cloneNode(true) as SVGSVGElement;
 
@@ -89,25 +97,36 @@
     }
 </style>
 
-<div class="dropdown is-right is-active" bind:this={dropdownRef}>
-  <!-- Toggle Button -->
-  <div class="dropdown-trigger">
-    <button class="button open-panel-button" aria-haspopup="true" aria-controls="dropdown-menu" onclick={() => (isOpen = !isOpen)}>
-      <FontAwesomeIcon icon={faArrowDownToBracket} />
-    </button>
-  </div>
-
-  <!-- Dropdown Menu -->
-  {#if isOpen}
-    <div class="dropdown-menu" id="dropdown-menu" role="menu" transition:fade>
-      <div class="dropdown-content">
-        <button class="dropdown-item" onclick={exportCurrentView}>
-          Export Current View
-        </button>
-        <button class="dropdown-item" onclick={exportFullMap}>
-          Export Full Map
-        </button>
-      </div>
+{#if canAccess(role, [SCOPES.GM])}
+  <div class="dropdown is-right is-active" bind:this={dropdownRef}>
+    <!-- Toggle Button -->
+    <div class="dropdown-trigger">
+      <button
+        class="button open-panel-button"
+        aria-haspopup="true"
+        aria-controls="dropdown-menu"
+        onclick={() => (isOpen = !isOpen)}
+      >
+        <FontAwesomeIcon icon={faArrowDownToBracket} />
+      </button>
     </div>
-  {/if}
-</div>
+
+    <!-- Dropdown Menu -->
+    {#if isOpen}
+      <div class="dropdown-menu" id="dropdown-menu" role="menu" transition:fade>
+        <div class="dropdown-content">
+          <button class="dropdown-item" onclick={exportCurrentView}>
+            Export Current View
+          </button>
+          <button class="dropdown-item" onclick={exportFullMap}>
+            Export Full Map
+          </button>
+        </div>
+      </div>
+    {/if}
+  </div>
+{:else}
+  <button class="button open-panel-button" onclick={exportCurrentView}>
+    <FontAwesomeIcon icon={faArrowDownToBracket} />
+  </button>
+{/if}

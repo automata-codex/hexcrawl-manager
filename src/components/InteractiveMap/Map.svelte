@@ -328,7 +328,7 @@
 
 <div class="main-controls">
   <LayersPanel />
-  <DownloadButton />
+  <DownloadButton {role} />
 </div>
 
 <div class="map-container">
