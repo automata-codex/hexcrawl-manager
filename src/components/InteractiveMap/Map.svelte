@@ -80,27 +80,48 @@
 
   function getBiomeColor(biome: string): string {
     switch (biome) {
-      case 'alpine-tundra': return '#A8C9D6';
-      case 'boreal-forest': return '#4C6E5C';
-      case 'coastal-ocean': return '#2E8BC0';
-      case 'coastal-prairie': return '#A9C77D';
-      case 'coastal-swamp': return '#4E948F';
-      case 'freshwater-lake': return '#72C6E5';
-      case 'glacier': return '#DDF1F9';
-      case 'highland-bog': return '#7E8D77';
-      case 'marsh': return '#507D6A';
-      case 'mixed-woodland': return '#8BBF8E';
-      case 'montane-forest': return '#2F6D4A';
-      case 'montane-grassland': return '#B7B767';
-      case 'moors': return '#A4A78A';
-      case 'prairie': return '#CABF61';
-      case 'rocky-highland': return '#999688';
-      case 'subalpine-woodland': return '#6BAF84';
-      case 'swamp': return '#3F9F9F';
-      case 'temperate-forest': return '#5FA973';
-      case 'temperate-rainforest': return '#3E7D4E';
-      case 'temperate-woodland': return '#73B87D';
-      default: return '#CCCCCC';
+      case 'alpine-tundra':
+        return '#A8C9D6';
+      case 'boreal-forest':
+        return '#4C6E5C';
+      case 'coastal-ocean':
+        return '#2E8BC0';
+      case 'coastal-prairie':
+        return '#A9C77D';
+      case 'coastal-swamp':
+        return '#4E948F';
+      case 'freshwater-lake':
+        return '#72C6E5';
+      case 'glacier':
+        return '#DDF1F9';
+      case 'highland-bog':
+        return '#7E8D77';
+      case 'marsh':
+        return '#507D6A';
+      case 'mixed-woodland':
+        return '#8BBF8E';
+      case 'montane-forest':
+        return '#2F6D4A';
+      case 'montane-grassland':
+        return '#B7B767';
+      case 'moors':
+        return '#A4A78A';
+      case 'prairie':
+        return '#CABF61';
+      case 'rocky-highland':
+        return '#999688';
+      case 'subalpine-woodland':
+        return '#6BAF84';
+      case 'swamp':
+        return '#3F9F9F';
+      case 'temperate-forest':
+        return '#5FA973';
+      case 'temperate-rainforest':
+        return '#3E7D4E';
+      case 'temperate-woodland':
+        return '#73B87D';
+      default:
+        return '#CCCCCC';
     }
   }
 
@@ -348,119 +369,89 @@
   >
     {@html svgDefs}
 
-    <g
-      id="layer-vegetation"
-      style:display={!$layerVisibility['vegetation'] ? 'none' : undefined}
-    >
-      {#each hexes as hex (hex.id)}
-        {#if isValidHexId(hex.id)}
-          {@const { q, r } = parseHexId(hex.id)}
-          {@const { x, y } = axialToPixel(q, r)}
-          <HexTile
-            fill={getHexColor(hex)}
-            hexWidth={HEX_WIDTH}
-            stroke="none"
-            {x}
-            {y}
-          />
-        {/if}
-      {/each}
-    </g>
-    <g
-      id="layer-biomes"
-      style:display={!$layerVisibility['biomes'] ? 'none' : undefined}
-    >
-      {#each hexes as hex (hex.id)}
-        {#if isValidHexId(hex.id)}
-          {@const { q, r } = parseHexId(hex.id)}
-          {@const { x, y } = axialToPixel(q, r)}
-          <HexTile
-            fill={getBiomeColor(hex.biome)}
-            hexWidth={HEX_WIDTH}
-            stroke="none"
-            {x}
-            {y}
-          />
-        {/if}
-      {/each}
-    </g>
-    <g
-      id="layer-elevation"
-      style:display={!$layerVisibility['elevation'] ? 'none' : undefined}
-    >
-      {#each hexes as hex (hex.id)}
-        {#if isValidHexId(hex.id)}
-          {@const { q, r } = parseHexId(hex.id)}
-          {@const { x, y } = axialToPixel(q, r)}
-          <HexTile
-            fill={getElevationColor(hex.elevation)}
-            hexWidth={HEX_WIDTH}
-            stroke="none"
-            {x}
-            {y}
-          />
-        {/if}
-      {/each}
-    </g>
-    <g
-      id="layer-terrain"
-      style:display={!$layerVisibility['terrain'] ? 'none' : undefined}
-    >
-      {#each hexes as hex (hex.id)}
-        {#if isValidHexId(hex.id)}
-          {@const { q, r } = parseHexId(hex.id)}
-          {@const { x, y } = axialToPixel(q, r)}
-          <use
-            href={getTerrainIcon(hex.terrain)}
-            x={x - TERRAIN_ICON_SIZE / 2}
-            y={y - TERRAIN_ICON_SIZE / 2}
-            width={TERRAIN_ICON_SIZE}
-            height={TERRAIN_ICON_SIZE}
-          />
-        {/if}
-      {/each}
-    </g>
-    <g
-      id="layer-hex-borders"
-      style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
-    >
-      {#each hexes as hex (hex.id)}
-        {#if isValidHexId(hex.id)}
-          {@const { q, r } = parseHexId(hex.id)}
-          {@const { x, y } = axialToPixel(q, r)}
-          <HexTile
-            fill="none"
-            hexWidth={HEX_WIDTH}
-            {x}
-            {y}
-          />
-        {/if}
-      {/each}
-    </g>
-    <MapPath paths={rivers} type="river" />
-    <g
-      id="layer-fort-dagaric-icon"
-      style:display={!$layerVisibility['fortDagaric'] ? 'none' : undefined}
-    >
-      <use
-        href="#icon-fort-dagaric"
-        x={getFortDagaricCoords().x - DAGARIC_ICON_SIZE / 2}
-        y={getFortDagaricCoords().y - DAGARIC_ICON_SIZE / 2}
-        width={DAGARIC_ICON_SIZE}
-        height={DAGARIC_ICON_SIZE}
-      />
-    </g>
-    {#if !canAccess(role, [SCOPES.GM])}
+    <g id="map-content">
       <g
-        id="layer-player-mask"
-        style:display={'true'}
+        id="layer-vegetation"
+        style:display={!$layerVisibility['vegetation'] ? 'none' : undefined}
       >
         {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id) && !hex.isVisited}
+          {#if isValidHexId(hex.id)}
             {@const { q, r } = parseHexId(hex.id)}
             {@const { x, y } = axialToPixel(q, r)}
             <HexTile
-              fill="white"
+              fill={getHexColor(hex)}
+              hexWidth={HEX_WIDTH}
+              stroke="none"
+              {x}
+              {y}
+            />
+          {/if}
+        {/each}
+      </g>
+      <g
+        id="layer-biomes"
+        style:display={!$layerVisibility['biomes'] ? 'none' : undefined}
+      >
+        {#each hexes as hex (hex.id)}
+          {#if isValidHexId(hex.id)}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <HexTile
+              fill={getBiomeColor(hex.biome)}
+              hexWidth={HEX_WIDTH}
+              stroke="none"
+              {x}
+              {y}
+            />
+          {/if}
+        {/each}
+      </g>
+      <g
+        id="layer-elevation"
+        style:display={!$layerVisibility['elevation'] ? 'none' : undefined}
+      >
+        {#each hexes as hex (hex.id)}
+          {#if isValidHexId(hex.id)}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <HexTile
+              fill={getElevationColor(hex.elevation)}
+              hexWidth={HEX_WIDTH}
+              stroke="none"
+              {x}
+              {y}
+            />
+          {/if}
+        {/each}
+      </g>
+      <g
+        id="layer-terrain"
+        style:display={!$layerVisibility['terrain'] ? 'none' : undefined}
+      >
+        {#each hexes as hex (hex.id)}
+          {#if isValidHexId(hex.id)}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <use
+              href={getTerrainIcon(hex.terrain)}
+              x={x - TERRAIN_ICON_SIZE / 2}
+              y={y - TERRAIN_ICON_SIZE / 2}
+              width={TERRAIN_ICON_SIZE}
+              height={TERRAIN_ICON_SIZE}
+            />
+          {/if}
+        {/each}
+      </g>
+      <g
+        id="layer-hex-borders"
+        style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
+      >
+        {#each hexes as hex (hex.id)}
+          {#if isValidHexId(hex.id)}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <HexTile
+              fill="none"
               hexWidth={HEX_WIDTH}
               {x}
               {y}
@@ -468,42 +459,74 @@
           {/if}
         {/each}
       </g>
-    {/if}
-    <g
-      id="layer-hex-labels"
-      style:display={!$layerVisibility['labels'] ? 'none' : undefined}
-    >
-      {#each hexes as hex (hex.id)}
-        {#if isValidHexId(hex.id)}
-          {@const { q, r } = parseHexId(hex.id)}
-          {@const { x, y } = axialToPixel(q, r)}
-          <text
-            x={x}
-            y={y + (HEX_HEIGHT / 2) - 4}
-            font-size="12"
-            text-anchor="middle"
-            fill="black"
-          >
-            {hexLabel(q, r)}
-          </text>
-        {/if}
-      {/each}
-    </g>
-    <g id="layer-hit-target">
-      {#each hexes as hex (hex.id)}
-        {#if isValidHexId(hex.id)}
-          {@const { q, r } = parseHexId(hex.id)}
-          {@const { x, y } = axialToPixel(q, r)}
-          <HexHitTarget
-            active={$selectedHex === hex.id}
-            hexId={hex.id}
-            hexWidth={HEX_WIDTH}
-            x={x}
-            y={y}
-            onClick={handleHexClick}
-          />
-        {/if}
-      {/each}
+      <MapPath paths={rivers} type="river" />
+      <g
+        id="layer-fort-dagaric-icon"
+        style:display={!$layerVisibility['fortDagaric'] ? 'none' : undefined}
+      >
+        <use
+          href="#icon-fort-dagaric"
+          x={getFortDagaricCoords().x - DAGARIC_ICON_SIZE / 2}
+          y={getFortDagaricCoords().y - DAGARIC_ICON_SIZE / 2}
+          width={DAGARIC_ICON_SIZE}
+          height={DAGARIC_ICON_SIZE}
+        />
+      </g>
+      {#if !canAccess(role, [SCOPES.GM])}
+        <g
+          id="layer-player-mask"
+          style:display={'true'}
+        >
+          {#each hexes as hex (hex.id)}
+            {#if isValidHexId(hex.id) && !hex.isVisited}
+              {@const { q, r } = parseHexId(hex.id)}
+              {@const { x, y } = axialToPixel(q, r)}
+              <HexTile
+                fill="white"
+                hexWidth={HEX_WIDTH}
+                {x}
+                {y}
+              />
+            {/if}
+          {/each}
+        </g>
+      {/if}
+      <g
+        id="layer-hex-labels"
+        style:display={!$layerVisibility['labels'] ? 'none' : undefined}
+      >
+        {#each hexes as hex (hex.id)}
+          {#if isValidHexId(hex.id)}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <text
+              x={x}
+              y={y + (HEX_HEIGHT / 2) - 4}
+              font-size="12"
+              text-anchor="middle"
+              fill="black"
+            >
+              {hexLabel(q, r)}
+            </text>
+          {/if}
+        {/each}
+      </g>
+      <g id="layer-hit-target">
+        {#each hexes as hex (hex.id)}
+          {#if isValidHexId(hex.id)}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <HexHitTarget
+              active={$selectedHex === hex.id}
+              hexId={hex.id}
+              hexWidth={HEX_WIDTH}
+              x={x}
+              y={y}
+              onClick={handleHexClick}
+            />
+          {/if}
+        {/each}
+      </g>
     </g>
   </svg>
 </div>

@@ -44,34 +44,49 @@
   async function exportSvgAsPng(
     svgElement: SVGSVGElement,
     fileName: string = 'map.png',
-    fullMap: boolean = false,
+    fullMap: boolean = false
   ) {
+    // Clone the original SVG so we can modify it
     const clonedSvg = svgElement.cloneNode(true) as SVGSVGElement;
 
-    // Remove transforms if exporting full map
+    let width: number, height: number, offsetX = 0, offsetY = 0;
+
     if (fullMap) {
-      clonedSvg.removeAttribute('viewBox'); // optional, depends on your setup
-      clonedSvg.setAttribute('width', String(svgElement.scrollWidth || svgElement.clientWidth));
-      clonedSvg.setAttribute('height', String(svgElement.scrollHeight || svgElement.clientHeight));
+      const inner = svgElement.querySelector('#map-content');
+      if (!(inner instanceof SVGGraphicsElement)) {
+        throw new Error('#map-content is not an SVGGraphicsElement');
+      }
+
+      const bbox = inner.getBBox(); // includes negative coords!
+      width = Math.ceil(bbox.width);
+      height = Math.ceil(bbox.height);
+      offsetX = Math.floor(bbox.x);
+      offsetY = Math.floor(bbox.y);
+
+      // Set appropriate width/height on the clone
+      clonedSvg.setAttribute('width', String(width));
+      clonedSvg.setAttribute('height', String(height));
+      clonedSvg.setAttribute('viewBox', `${offsetX} ${offsetY} ${width} ${height}`);
     } else {
-      // Otherwise, preserve current visual size
-      clonedSvg.setAttribute('width', String(svgElement.clientWidth));
-      clonedSvg.setAttribute('height', String(svgElement.clientHeight));
+      width = svgElement.clientWidth;
+      height = svgElement.clientHeight;
+      clonedSvg.setAttribute('width', String(width));
+      clonedSvg.setAttribute('height', String(height));
     }
 
-    // Serialize and prepare canvas
     const svgString = new XMLSerializer().serializeToString(clonedSvg);
-    const canvas = document.createElement('canvas');
-    canvas.width = parseInt(clonedSvg.getAttribute('width') || '800', 10);
-    canvas.height = parseInt(clonedSvg.getAttribute('height') || '600', 10);
 
+    // Set up canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Could not get canvas context');
+    if (!ctx) throw new Error('Failed to get canvas context');
 
     const v = Canvg.fromString(ctx, svgString);
     await v.render();
 
-    // Trigger download
+    // Download as PNG
     canvas.toBlob(blob => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
