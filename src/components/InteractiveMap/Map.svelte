@@ -25,6 +25,8 @@
   import LayersPanel from './LayersPanel.svelte';
   import MapPath from './MapPath.svelte';
   import { axialToPixel, HEX_HEIGHT, HEX_WIDTH, ICON_SIZE } from '../../utils/interactive-map.ts';
+  import { canAccess } from '../../utils/auth.ts';
+  import { SCOPES } from '../../utils/constants.ts';
 
   interface Props {
     role: string | null;
@@ -408,23 +410,25 @@
       {/each}
     </g>
     <MapPath paths={rivers} type="river" />
-    <g
-      id="layer-player-mask"
-      style:display={'true'}
-    >
-      {#each hexes as hex (hex.id)}
-        {#if isValidHexId(hex.id) && !hex.isVisited}
-          {@const { q, r } = parseHexId(hex.id)}
-          {@const { x, y } = axialToPixel(q, r)}
-          <HexTile
-            fill="white"
-            hexWidth={HEX_WIDTH}
-            {x}
-            {y}
-          />
-        {/if}
-      {/each}
-    </g>
+    {#if !canAccess(role, [SCOPES.GM])}
+      <g
+        id="layer-player-mask"
+        style:display={'true'}
+      >
+        {#each hexes as hex (hex.id)}
+          {#if isValidHexId(hex.id) && !hex.isVisited}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <HexTile
+              fill="white"
+              hexWidth={HEX_WIDTH}
+              {x}
+              {y}
+            />
+          {/if}
+        {/each}
+      </g>
+    {/if}
     <g
       id="layer-hex-labels"
       style:display={!$layerVisibility['labels'] ? 'none' : undefined}
