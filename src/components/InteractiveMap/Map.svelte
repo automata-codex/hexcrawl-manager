@@ -24,7 +24,13 @@
   import HexTile from './HexTile.svelte';
   import LayersPanel from './LayersPanel.svelte';
   import MapPath from './MapPath.svelte';
-  import { axialToPixel, HEX_HEIGHT, HEX_WIDTH, ICON_SIZE } from '../../utils/interactive-map.ts';
+  import {
+    DAGARIC_ICON_SIZE,
+    HEX_HEIGHT,
+    HEX_WIDTH,
+    TERRAIN_ICON_SIZE,
+    axialToPixel,
+  } from '../../utils/interactive-map.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
 
@@ -143,6 +149,12 @@
       default:
         return '#D3D3D3'; // light gray
     }
+  }
+
+  function getFortDagaricCoords() {
+    const { q, r } = parseHexId('v17');
+    const { x, y } = axialToPixel(q, r);
+    return { x, y };
   }
 
   function getTerrainIcon(terrain: string) {
@@ -384,10 +396,10 @@
           {@const { x, y } = axialToPixel(q, r)}
           <use
             href={getTerrainIcon(hex.terrain)}
-            x={x - ICON_SIZE / 2}
-            y={y - ICON_SIZE / 2}
-            width={ICON_SIZE}
-            height={ICON_SIZE}
+            x={x - TERRAIN_ICON_SIZE / 2}
+            y={y - TERRAIN_ICON_SIZE / 2}
+            width={TERRAIN_ICON_SIZE}
+            height={TERRAIN_ICON_SIZE}
           />
         {/if}
       {/each}
@@ -410,6 +422,18 @@
       {/each}
     </g>
     <MapPath paths={rivers} type="river" />
+    <g
+      id="layer-fort-dagaric-icon"
+      style:display={!$layerVisibility['fortDagaric'] ? 'none' : undefined}
+    >
+      <use
+        href="#icon-fort-dagaric"
+        x={getFortDagaricCoords().x - DAGARIC_ICON_SIZE / 2}
+        y={getFortDagaricCoords().y - DAGARIC_ICON_SIZE / 2}
+        width={DAGARIC_ICON_SIZE}
+        height={DAGARIC_ICON_SIZE}
+      />
+    </g>
     {#if !canAccess(role, [SCOPES.GM])}
       <g
         id="layer-player-mask"
