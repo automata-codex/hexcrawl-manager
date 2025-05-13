@@ -334,6 +334,7 @@
 <div class="map-container">
   <svg
     class="map"
+    id="map"
     role="presentation"
     bind:this={svgEl}
     onmousedown={handleMouseDown}
