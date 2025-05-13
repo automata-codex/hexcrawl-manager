@@ -26,6 +26,12 @@
   import MapPath from './MapPath.svelte';
   import { axialToPixel, HEX_HEIGHT, HEX_WIDTH, ICON_SIZE } from '../../utils/interactive-map.ts';
 
+  interface Props {
+    role: string | null;
+  }
+
+  const { role }: Props = $props();
+
   let dungeons: DungeonEssentialData[] = $state([]);
   let hexes: HexData[] = $state([]);
   let isPanning = $state(false);
@@ -291,7 +297,7 @@
 </div>
 
 {#if hexes}
-  <DetailPanel {dungeons} {hexes} />
+  <DetailPanel {dungeons} {hexes} {role} />
 {/if}
 
 <LayersPanel />
