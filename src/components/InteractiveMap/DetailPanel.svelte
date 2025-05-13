@@ -2,12 +2,13 @@
   import { faSidebar, faXmark } from '@fortawesome/pro-light-svg-icons';
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+  import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import type { HexData } from '../../types.ts';
+  import { getFavoredTerrain, getTravelDifficulty } from '../../utils/interactive-map.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
   import { getDungeonPath, getHexPath, getRegionPath } from '../../utils/routes.ts';
   import CheckBoxIcon from './CheckBoxIcon.svelte';
-  import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
 
   interface Props {
     dungeons: DungeonEssentialData[];
@@ -83,6 +84,16 @@
       </p>
       <p class="hanging-indent">
         <span class="inline-heading">Landmark:</span>{' '}{currentHex?.landmark}
+      </p>
+      <p class="hanging-indent">
+        <span class="inline-heading">Travel Difficulty:</span>
+        {' '}
+        {getTravelDifficulty(currentHex?.biome, currentHex?.terrain)}
+      </p>
+      <p class="hanging-indent">
+        <span class="inline-heading">Favored Terrain Type:</span>
+        {' '}
+        {getFavoredTerrain(currentHex?.biome, currentHex?.terrain)}
       </p>
       <p class="hanging-indent">
         <span class="inline-heading">Elevation:</span>
