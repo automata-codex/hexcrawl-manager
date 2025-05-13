@@ -18,12 +18,9 @@
   } from '../../stores/interactive-map/map-view';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import type { HexData } from '../../types.ts';
+  import { canAccess } from '../../utils/auth.ts';
+  import { SCOPES } from '../../utils/constants.ts';
   import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
-  import DetailPanel from './DetailPanel.svelte';
-  import HexHitTarget from './HexHitTarget.svelte';
-  import HexTile from './HexTile.svelte';
-  import LayersPanel from './LayersPanel.svelte';
-  import MapPath from './MapPath.svelte';
   import {
     DAGARIC_ICON_SIZE,
     HEX_HEIGHT,
@@ -31,8 +28,12 @@
     TERRAIN_ICON_SIZE,
     axialToPixel,
   } from '../../utils/interactive-map.ts';
-  import { canAccess } from '../../utils/auth.ts';
-  import { SCOPES } from '../../utils/constants.ts';
+  import DetailPanel from './DetailPanel.svelte';
+  import DownloadButton from './DownloadButton.svelte';
+  import HexHitTarget from './HexHitTarget.svelte';
+  import HexTile from './HexTile.svelte';
+  import LayersPanel from './LayersPanel.svelte';
+  import MapPath from './MapPath.svelte';
 
   interface Props {
     role: string | null;
@@ -271,6 +272,17 @@
         height: 100vh;
     }
 
+    .main-controls {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        z-index: 100;
+        align-items: flex-end;
+    }
+
     .zoom-controls {
         position: absolute;
         bottom: 1rem;
@@ -314,7 +326,10 @@
   <DetailPanel {dungeons} {hexes} {role} />
 {/if}
 
-<LayersPanel />
+<div class="main-controls">
+  <LayersPanel />
+  <DownloadButton />
+</div>
 
 <div class="map-container">
   <svg
