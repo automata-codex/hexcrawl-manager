@@ -312,6 +312,24 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="trail">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="trail" />
+              <option name="relativePathToSchema" value="schemas/trail.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/trails" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="treasure">
           <value>
             <SchemaInfo>
