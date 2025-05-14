@@ -18,6 +18,7 @@ import { RumorListSchema } from '../schemas/rumor.js';
 import { SessionSchema } from '../schemas/session.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
 import { SupplementListSchema } from '../schemas/supplement-list.js';
+import { TrailSchema } from '../schemas/trail.js';
 import { TreasureSchema } from '../schemas/treasure.js';
 import { UnusedHiddenSiteListSchema } from '../schemas/unused-hidden-site.js';
 
@@ -127,6 +128,12 @@ const supplementFile = new URL('../schemas/supplement-list.json', import.meta.ur
 writeFileSync(
   supplementFile,
   JSON.stringify(zodToJsonSchema(SupplementListSchema), null, 2)
+);
+
+const trailFile = new URL('../schemas/trail.json', import.meta.url);
+writeFileSync(
+  trailFile,
+  JSON.stringify(zodToJsonSchema(TrailSchema), null, 2)
 );
 
 const treasureFile = new URL('../schemas/treasure.json', import.meta.url);
