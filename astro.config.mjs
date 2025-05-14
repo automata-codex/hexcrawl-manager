@@ -23,6 +23,7 @@ export default defineConfig({
           h2: 'title is-3',
           h3: 'title is-4',
           h4: 'title is-5',
+          h5: 'title is-6',
         },
       ],
     ],
