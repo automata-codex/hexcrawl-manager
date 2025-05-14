@@ -1,7 +1,10 @@
 ---
 import Map from '../../components/InteractiveMap/Map.svelte';
 import MapLayout from '../../layouts/MapLayout.astro';
+import { getCurrentUserRole } from '../../utils/auth';
+
+const role = getCurrentUserRole(Astro.locals);
 ---
 <MapLayout title="Interactive Map">
-  <Map client:load />
+  <Map client:load role={role} />
 </MapLayout>

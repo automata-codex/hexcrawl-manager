@@ -48,6 +48,7 @@ export const ROUTES = {
     classes: '/players-guide/classes',
   },
   playersReference: {
+    interactiveMap: '/players-reference/interactive-map',
     progress: '/players-reference/progress',
     rules: {
       havens: '/players-reference/rules/havens',

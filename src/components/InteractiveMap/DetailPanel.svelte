@@ -2,19 +2,23 @@
   import { faSidebar, faXmark } from '@fortawesome/pro-light-svg-icons';
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+  import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import type { HexData } from '../../types.ts';
+  import { canAccess } from '../../utils/auth.ts';
+  import { SCOPES } from '../../utils/constants.ts';
+  import { getFavoredTerrain, getTravelDifficulty } from '../../utils/interactive-map.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
   import { getDungeonPath, getHexPath, getRegionPath } from '../../utils/routes.ts';
   import CheckBoxIcon from './CheckBoxIcon.svelte';
-  import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
 
   interface Props {
     dungeons: DungeonEssentialData[];
     hexes: HexData[];
+    role: string | null;
   }
 
-  const { dungeons, hexes }: Props = $props();
+  const { dungeons, hexes, role }: Props = $props();
 
   const currentHex = $derived(hexes.find((hex) => hex.id.toLowerCase() === $selectedHex?.toLowerCase()));
   const dungeonsInHex = $derived(
@@ -45,22 +49,24 @@
   {#if $selectedHex}
     <h2 class="title is-5" style="text-align: center">{$selectedHex?.toUpperCase()}: {currentHex?.name}</h2>
     <div>
-      <div class="hex-data-bar">
-        <div>
-          <a href={getHexPath($selectedHex)}>View Hex</a>
+      {#if canAccess(role, [SCOPES.GM])}
+        <div class="hex-data-bar">
+          <div>
+            <a href={getHexPath($selectedHex)}>View Hex</a>
+          </div>
+          <div>
+            <a href={getRegionPath(currentHex?.regionId ?? '')}>{getRegionTitle(currentHex?.regionId ?? '')}</a>
+          </div>
+          <div>
+            {#each dungeonsInHex as dungeon (dungeon.id)}
+              <a href={getDungeonPath(dungeon.id)}>
+                <FontAwesomeIcon icon={faDungeon} />
+              </a>
+              {' '}
+            {/each}
+          </div>
         </div>
-        <div>
-          <a href={getRegionPath(currentHex?.regionId ?? '')}>{getRegionTitle(currentHex?.regionId ?? '')}</a>
-        </div>
-        <div>
-          {#each dungeonsInHex as dungeon (dungeon.id)}
-            <a href={getDungeonPath(dungeon.id)}>
-              <FontAwesomeIcon icon={faDungeon} />
-            </a>
-            {' '}
-          {/each}
-        </div>
-      </div>
+      {/if}
       <div class="hex-data-bar">
         <div>
           Visited:{' '}
@@ -83,6 +89,16 @@
       </p>
       <p class="hanging-indent">
         <span class="inline-heading">Landmark:</span>{' '}{currentHex?.landmark}
+      </p>
+      <p class="hanging-indent">
+        <span class="inline-heading">Travel Difficulty:</span>
+        {' '}
+        {getTravelDifficulty(currentHex?.biome, currentHex?.terrain)}
+      </p>
+      <p class="hanging-indent">
+        <span class="inline-heading">Favored Terrain Type:</span>
+        {' '}
+        {getFavoredTerrain(currentHex?.biome, currentHex?.terrain)}
       </p>
       <p class="hanging-indent">
         <span class="inline-heading">Elevation:</span>

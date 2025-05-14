@@ -10,22 +10,14 @@ export interface DungeonEssentialData {
 }
 
 export const GET: APIRoute = async ({ locals }) => {
-  const dungeonEntries = await getCollection('dungeons');
   const role = getCurrentUserRole(locals);
+  let dungeons: DungeonEssentialData[] = [];
 
-  const dungeons = dungeonEntries.map((entry) => {
-    const dungeon = entry.data;
-    if (role === SECURITY_ROLE.GM) {
-      return dungeon;
-    }
-
-    // Redact fields for players
-    return {
-      id: dungeon.id,
-      hexId: dungeon.hexId,
-      name: dungeon.name,
-    };
-  });
+  // Only return info if the user is GM
+  if (role === SECURITY_ROLE.GM) {
+    const dungeonEntries = await getCollection('dungeons');
+    dungeons = dungeonEntries.map((entry) => entry.data);
+  }
 
   return new Response(JSON.stringify(dungeons), {
     headers: { 'Content-Type': 'application/json' },

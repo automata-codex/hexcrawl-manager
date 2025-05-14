@@ -74,10 +74,6 @@
     }
 
     .open-panel-button {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        z-index: 900;
         height: 2.5rem;
         width: 2.5rem;
     }
