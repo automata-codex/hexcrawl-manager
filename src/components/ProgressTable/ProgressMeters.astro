@@ -23,6 +23,12 @@ const labelLevelPlus2 = {
 }
 ---
 <style is:global>
+    .interlevel-border {
+        //border-right: 1px solid var(--skyreach-table-inactive);
+        border-right: 1px solid var(--bulma-border);
+        height: 35px;
+    }
+
     .level-label {
         color: var(--skyreach-table-inactive);
         font-size: small;
@@ -67,23 +73,27 @@ const labelLevelPlus2 = {
   <div class="pillar-name" />
   <div class="pillar-points"/>
   <div class:list={labelLevelPlus1}>Level {character.level + 1}</div>
+  <div class="interlevel-border"></div>
   <div class:list={labelLevelPlus2}>Level {character.level + 2}</div>
 </div>
 <div class="row">
   <div class="pillar-name">Combat:</div>
   <div class="pillar-points">{character.advancementPoints.combat}</div>
   <ProgressIcons character={character} level={character.level + 1} pillar="combat" />
+  <div class="interlevel-border"></div>
   <ProgressIcons character={character} level={character.level + 2} pillar="combat" />
 </div>
 <div class="row">
   <div class="pillar-name">Exploration:</div>
   <div class="pillar-points">{character.advancementPoints.exploration}</div>
   <ProgressIcons character={character} level={character.level + 1} pillar="exploration" />
+  <div class="interlevel-border"></div>
   <ProgressIcons character={character} level={character.level + 2} pillar="exploration" />
 </div>
 <div class="row">
   <div class="pillar-name">Social:</div>
   <div class="pillar-points">{character.advancementPoints.social}</div>
   <ProgressIcons character={character} level={character.level + 1} pillar="social" />
+  <div class="interlevel-border"></div>
   <ProgressIcons character={character} level={character.level + 2} pillar="social" />
 </div>

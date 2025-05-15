@@ -1,18 +1,44 @@
 import { z } from 'zod';
-import { EncounterOverrideSchema } from './encounter-table.js';
-import { RandomEncounterTableSchema } from './random-encounter-table.js';
+import { EncounterOverrideSchema } from './encounter-override.js';
 import { TreasureSchema } from './treasure.js';
+
+const BiomeEnum = z.enum([
+  "alpine-tundra",
+  "boreal-forest",
+  "coastal-ocean",
+  "coastal-prairie",
+  "coastal-swamp",
+  "freshwater-lake",
+  "glacier",
+  "highland-bog",
+  "marsh",
+  "mixed-woodland",
+  "montane-forest",
+  "montane-grassland",
+  "moors",
+  "prairie",
+  "rocky-highland",
+  "subalpine-woodland",
+  "swamp",
+  "temperate-forest",
+  "temperate-rainforest",
+  "temperate-woodland",
+  "Unknown",
+]);
 
 export const HiddenSitesSchema = z.object({
   description: z.string(),
-  treasureValue: z.number().optional(), // deprecated
   treasure: z.array(TreasureSchema).optional(),
-  unlocks: z.array(z.string()).optional(), // IDs of knowledge nodes that are unlocked by this site
+  unlocks: z.array(z.string())
+    .optional()
+    .describe('IDs of knowledge nodes that are unlocked by this site'),
 });
 
 export const LandmarkSchema = z.object({
   description: z.string(),
-  unlocks: z.array(z.string()).optional(), // IDs of knowledge nodes that are unlocked by this site
+  unlocks: z.array(z.string())
+    .optional()
+    .describe('IDs of knowledge nodes that are unlocked by this site'),
 });
 
 export const HexSchema = z.object({
@@ -33,8 +59,21 @@ export const HexSchema = z.object({
   isVisited: z.boolean().optional(),
   isExplored: z.boolean().optional(),
   encounterChance: z.number().int().min(1).max(20).optional(),
-  encounters: RandomEncounterTableSchema.optional(), // deprecated
   encounterOverrides: EncounterOverrideSchema.optional(),
-  notes: z.array(z.string()).optional(), // Private GM eyes-only notes
-  updates: z.array(z.string()).optional(), // Private GM-only changes to the hex since the last visit
-}).describe('Data for a hex in a hex map.');
+  flags: z.object({
+    isScarSite: z.boolean().optional(),
+  }).optional().describe('Flags for different hex categories and types'),
+  notes: z.array(z.string())
+    .optional()
+    .describe('Private GM eyes-only notes'),
+  updates: z.array(z.string())
+    .optional()
+    .describe('Private GM-only changes to the hex since the last visit'),
+  tags: z.array(z.string())
+    .optional()
+    .describe('Tags for filtering hexes, matching clues, etc.'),
+  terrain: z.string(),
+  vegetation: z.string().optional().describe('Deprecated: use `biome` instead'),
+  biome: BiomeEnum,
+  elevation: z.number().int().describe('Weighted average elevation in feet'),
+}).describe('HexSchema');

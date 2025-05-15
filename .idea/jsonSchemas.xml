@@ -57,18 +57,21 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="encounter-entry">
+        <entry key="encounter">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="encounter-entry" />
-              <option name="relativePathToSchema" value="schemas/encounter-entry.json" />
+              <option name="name" value="encounter" />
+              <option name="relativePathToSchema" value="schemas/encounter.json" />
               <option name="patterns">
                 <list>
                   <Item>
                     <option name="directory" value="true" />
                     <option name="path" value="data/encounters" />
                     <option name="mappingKind" value="Directory" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="data/encounters/veil-shepherd-acolytes.yml" />
                   </Item>
                 </list>
               </option>
@@ -158,6 +161,24 @@
                   <Item>
                     <option name="directory" value="true" />
                     <option name="path" value="data/loot-packs" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="map-path">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="map-path" />
+              <option name="relativePathToSchema" value="schemas/map-path.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/map-paths" />
                     <option name="mappingKind" value="Directory" />
                   </Item>
                 </list>
@@ -284,6 +305,24 @@
                   <Item>
                     <option name="directory" value="true" />
                     <option name="path" value="data/supplements" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="trail">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="trail" />
+              <option name="relativePathToSchema" value="schemas/trail.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/trails" />
                     <option name="mappingKind" value="Directory" />
                   </Item>
                 </list>

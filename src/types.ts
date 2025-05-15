@@ -7,18 +7,19 @@ import { DungeonDataSchema } from '../schemas/dungeon';
 import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { EncounterSchema } from '../schemas/encounter';
+import { EncounterOverrideSchema } from '../schemas/encounter-override.js';
 import {
   CategoryTable,
-  EncounterOverrideSchema,
+  EncounterEntrySchema,
   EncounterTableSchema,
   TieredSubtableSchema,
 } from '../schemas/encounter-table';
 import { HexSchema, HiddenSitesSchema } from '../schemas/hex.js';
 import { KnowledgeNodeSchema } from '../schemas/knowledge-node';
 import { LootPackSchema } from '../schemas/loot-pack';
+import type { SegmentMetadataSchema } from '../schemas/map-path';
 import { NpcSchema } from '../schemas/npc';
 import { PlayerSchema } from '../schemas/player';
-import { RandomEncounterTableSchema } from '../schemas/random-encounter-table';
 import { RegionSchema } from '../schemas/region';
 import { RumorSchema } from '../schemas/rumor';
 import { ScopeSchema } from '../schemas/scopes';
@@ -32,6 +33,7 @@ import {
   StatBlockSchema
 } from '../schemas/stat-block.js';
 import { SupplementSchema } from '../schemas/supplement-list';
+import { TrailSchema } from '../schemas/trail';
 import { TreasureSchema } from '../schemas/treasure';
 
 export type BountyData = z.infer<typeof BountySchema>;
@@ -41,6 +43,7 @@ export type ClassData = z.infer<typeof ClassSchema>;
 export type DescriptiveActionData = z.infer<typeof DescriptiveActionSchema>;
 export type DungeonData = z.infer<typeof DungeonDataSchema>;
 export type EncounterData = z.infer<typeof EncounterSchema>;
+export type EncounterEntryData = z.infer<typeof EncounterEntrySchema>;
 export type EncounterOverrideData = z.infer<typeof EncounterOverrideSchema>;
 export type EncounterTableData = z.infer<typeof EncounterTableSchema>;
 export type FactionData = z.infer<typeof FactionSchema>;
@@ -52,17 +55,18 @@ export type LootPackData = z.infer<typeof LootPackSchema>;
 export type MeleeWeaponAttackData = z.infer<typeof MeleeWeaponAttackSchema>;
 export type NpcData = z.infer<typeof NpcSchema>;
 export type PlayerData = z.infer<typeof PlayerSchema>;
-export type RandomEncounterTableData = z.infer<typeof RandomEncounterTableSchema>;
 export type RangedWeaponAttackData = z.infer<typeof RangedWeaponAttackSchema>;
 export type RegionData = z.infer<typeof RegionSchema>;
 export type RumorData = z.infer<typeof RumorSchema>;
 export type Scope = z.infer<typeof ScopeSchema>;
+export type SegmentMetadataData = z.infer<typeof SegmentMetadataSchema>;
 export type SessionData = z.infer<typeof SessionSchema>;
 export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;
 export type SupplementData = z.infer<typeof SupplementSchema>;
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
 export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>
+export type TrailData = z.infer<typeof TrailSchema>;
 export type TreasureData = z.infer<typeof TreasureSchema>;
 
 export type ExtendedHexData = HexData & {
@@ -82,8 +86,21 @@ export type ExtendedTreasureData = TreasureData & {
 
 export type ArticleEntry = CollectionEntry<'articles'>;
 export type DungeonEntry = CollectionEntry<'dungeons'>;
+export type FloatingClueEntry = CollectionEntry<'floatingClues'>;
 export type HexEntry = CollectionEntry<'hexes'>;
 export type RegionEntry = CollectionEntry<'regions'>;
+
+export type ClueLink = {
+  clueId: string;
+  name: string;
+  summary: string;
+  linkedHexes: {
+    hexId: string;
+    score: number;
+  }[];
+}
+
+export type EncounterCategoryTables = Record<string, Record<string, EncounterEntryData[]>>;
 
 export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
 

@@ -10,6 +10,7 @@ import { FloatingClueSchema } from '../schemas/floating-clue.js';
 import { HexSchema } from '../schemas/hex.js';
 import { KnowledgeNodeSchema } from '../schemas/knowledge-node.js';
 import { LootPackListSchema } from '../schemas/loot-pack.js';
+import { MapPathSchema } from '../schemas/map-path.js';
 import { NpcSchema } from '../schemas/npc.js';
 import { PlayerListSchema } from '../schemas/player.js';
 import { RegionSchema } from '../schemas/region.js';
@@ -17,6 +18,7 @@ import { RumorListSchema } from '../schemas/rumor.js';
 import { SessionSchema } from '../schemas/session.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
 import { SupplementListSchema } from '../schemas/supplement-list.js';
+import { TrailSchema } from '../schemas/trail.js';
 import { TreasureSchema } from '../schemas/treasure.js';
 import { UnusedHiddenSiteListSchema } from '../schemas/unused-hidden-site.js';
 
@@ -80,6 +82,12 @@ writeFileSync(
   JSON.stringify(zodToJsonSchema(LootPackListSchema), null, 2)
 );
 
+const mapPath = new URL('../schemas/map-path.json', import.meta.url);
+writeFileSync(
+  mapPath,
+  JSON.stringify(zodToJsonSchema(MapPathSchema), null, 2)
+);
+
 const npcFile = new URL('../schemas/npc.json', import.meta.url);
 writeFileSync(
   npcFile,
@@ -120,6 +128,12 @@ const supplementFile = new URL('../schemas/supplement-list.json', import.meta.ur
 writeFileSync(
   supplementFile,
   JSON.stringify(zodToJsonSchema(SupplementListSchema), null, 2)
+);
+
+const trailFile = new URL('../schemas/trail.json', import.meta.url);
+writeFileSync(
+  trailFile,
+  JSON.stringify(zodToJsonSchema(TrailSchema), null, 2)
 );
 
 const treasureFile = new URL('../schemas/treasure.json', import.meta.url);

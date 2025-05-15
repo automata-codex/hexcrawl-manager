@@ -1,11 +1,15 @@
-// migrate-hexes.js
+/**
+ * Migrates hex files from a many-in-one-file structure to a one-per-file
+ * structure organized by regionId.
+ */
+
 import fs from 'fs-extra';
 import path from 'path';
 import YAML from 'yaml';
 
 // Modify these paths as needed
-const inputDir = '../data/hexes';
-const outputDir = '../data/hexes';
+const inputDir = '../../data/hexes';
+const outputDir = '../../data/hexes';
 
 async function migrateHexFiles() {
   const files = await fs.readdir(inputDir);

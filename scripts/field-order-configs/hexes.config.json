@@ -1,0 +1,23 @@
+{
+  "targetGlob": "/Users/alexgs/projects/skyreach/data/hexes/region-*/*.{yaml,yml}",
+  "fieldOrder": [
+    "id",
+    "slug",
+    "name",
+    "regionId",
+    "landmark",
+    "hiddenSites",
+    "secretSite",
+    "terrain",
+    "vegetation",
+    "hideInCatalog",
+    "isVisited",
+    "isExplored",
+    "encounterChance",
+    "encounterOverrides",
+    "flags",
+    "notes",
+    "updates",
+    "tags"
+  ]
+}

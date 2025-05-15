@@ -6,7 +6,9 @@ export const BountySchema = z.object({
   poster: z.string(),
   text: z.string(),
   notes: z.string().optional(),
-  statBlocks: z.array(z.string()),
-});
+  statBlocks: z.array(
+    z.string().describe('Stat block ID')
+  ).describe('Stat block IDs'),
+}).describe('BountySchema');
 
-export const BountyListSchema = z.array(BountySchema);
+export const BountyListSchema = z.array(BountySchema).describe('BountyListSchema');

@@ -1,0 +1,12 @@
+<symbol id="icon-peak" viewBox="0 0 64 64">
+<rect height="64" width="64" x="0" y="0" style="fill:none;" />
+    <clipPath id="_clip1">
+        <rect height="64" width="64" x="0" y="0" />
+    </clipPath>
+    <g clip-path="url(#_clip1)">
+        <g>
+            <path d="M25.579,25.709L28.828,46.943L13.306,44.327L25.579,25.709Z" style="stroke:black;stroke-width:4.17px;" />
+            <path d="M55.527,39.417L41.82,30.261L31.283,17.057L13.306,44.327L28.828,46.943L25.579,25.709" style="fill:none;stroke:black;stroke-width:4.17px;stroke-linejoin:miter;stroke-miterlimit:5;" />
+        </g>
+    </g>
+</symbol>

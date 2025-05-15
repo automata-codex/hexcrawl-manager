@@ -1,4 +1,4 @@
-import { defineCollection, reference, z } from 'astro:content';
+import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import fs from 'fs';
 import path from 'path';
@@ -30,6 +30,7 @@ import type {
   RumorData,
   SupplementData,
 } from './types.ts';
+import { MapPathSchema } from '../schemas/map-path';
 
 const DATA_DIR = 'data';
 
@@ -41,11 +42,11 @@ const DIRS = {
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   FACTIONS: `${DATA_DIR}/factions`,
-  FIXED_CLUES: `${DATA_DIR}/fixed-clues`,
   FLOATING_CLUES: `${DATA_DIR}/floating-clues`,
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
   LOOT_PACKS: `${DATA_DIR}/loot-packs`,
+  MAP_PATHS: `${DATA_DIR}/map-paths`,
   NPCS: `${DATA_DIR}/npcs`,
   PLAYERS: `${DATA_DIR}/players`,
   REGIONS: `${DATA_DIR}/regions`,
@@ -85,9 +86,7 @@ const articles = defineCollection({
 
 const bounties = defineCollection({
   loader: getDirectoryYamlLoader<BountyData>(DIRS.BOUNTIES),
-  schema: {
-    ...BountySchema,
-  },
+  schema: BountySchema,
 });
 
 const characters = defineCollection({
@@ -97,109 +96,77 @@ const characters = defineCollection({
 
 const classes = defineCollection({
   loader: getDirectoryYamlLoader<ClassData>(DIRS.CLASSES),
-  schema: {
-    ...ClassSchema,
-  },
+  schema: ClassSchema
 });
 
 const dungeons = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.DUNGEONS }),
-  schema: {
-    ...DungeonDataSchema,
-    hexId: reference('hexes'),
-  },
+  schema: DungeonDataSchema,
 });
 
 const encounters = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.ENCOUNTERS }),
-  schema: {
-    ...EncounterSchema,
-  },
+  schema: EncounterSchema
 });
 
 const factions = defineCollection({
   loader: getDirectoryYamlLoader<FactionData>(DIRS.FACTIONS),
-  schema: {
-    ...FactionSchema,
-  },
-});
-
-const fixedClues = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: DIRS.FIXED_CLUES }),
-  schema: z.object({
-    title: z.string(),
-  }),
+  schema: FactionSchema
 });
 
 const floatingClues = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.FLOATING_CLUES }),
-  schema: {
-    ...FloatingClueSchema,
-  },
+  schema: FloatingClueSchema
 });
 
 const hexes = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.HEXES }),
-  schema: {
-    ...HexSchema,
-    regionId: reference('regions'),
-  },
+  schema: HexSchema,
 });
 
 const lootPacks = defineCollection({
   loader: getDirectoryYamlLoader<LootPackData>(DIRS.LOOT_PACKS),
-  schema: {
-    ...LootPackSchema,
-  },
+  schema: LootPackSchema
+});
+
+const mapPaths = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.MAP_PATHS }),
+  schema: MapPathSchema
 });
 
 const npcs = defineCollection({
   loader: getDirectoryYamlLoader<NpcData>(DIRS.NPCS),
-  schema: {
-    ...NpcSchema,
-  },
+  schema: NpcSchema
 });
 
 const players = defineCollection({
   loader: getDirectoryYamlLoader<PlayerData>(DIRS.PLAYERS),
-  schema: {
-    ...PlayerSchema,
-  },
+  schema: PlayerSchema
 });
 
 const regions = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.REGIONS }),
-  schema: {
-    ...RegionSchema,
-  },
+  schema: RegionSchema
 });
 
 const rumors = defineCollection({
   loader: getDirectoryYamlLoader<RumorData>(DIRS.RUMORS),
-  schema: {
-    ...RumorSchema,
-  },
+  schema: RumorSchema
 });
 
 const sessions = defineCollection({
   loader: glob({ pattern: '**/*.yml', base: DIRS.SESSIONS }),
-  schema: {
-    ...SessionSchema,
-  },
+  schema: SessionSchema
 });
 
 const statBlocks = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.STAT_BLOCKS }),
-  schema: {
-    ...StatBlockSchema,
-  },
+  schema: StatBlockSchema
 });
 
 const supplements = defineCollection({
   loader: getDirectoryYamlLoader<SupplementData>(DIRS.SUPPLEMENTS),
-  schema: {
-    ...SupplementSchema,
-  },
+  schema: SupplementSchema
 });
 
 export const collections = {
@@ -211,9 +178,9 @@ export const collections = {
   encounters,
   factions,
   floatingClues,
-  fixedClues,
   hexes,
   'loot-packs': lootPacks,
+  'map-paths': mapPaths,
   npcs,
   players,
   regions,

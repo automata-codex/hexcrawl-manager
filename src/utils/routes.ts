@@ -1,5 +1,6 @@
 export const ROUTES = {
   gmReference: {
+    biomes: '/gm-reference/biomes',
     characters: {
       id: '/gm-reference/characters/[id]',
       all: '/gm-reference/characters/all',
@@ -29,11 +30,15 @@ export const ROUTES = {
       id: '/gm-reference/knowledge-trees/[id]',
     },
     regionBudgetGuidelines: '/gm-reference/region-budget-guidelines',
+    schemas: '/gm-reference/schemas',
+    setting: {
+      earlyFrontier: '/gm-reference/setting/early-frontier',
+      westernFrontierGmsNotes: '/gm-reference/western-frontier-gms-notes',
+    },
     statBlocks: {
       id: '/gm-reference/stat-blocks/[id]',
       index: '/gm-reference/stat-blocks',
     },
-    westernFrontierGmsNotes: '/gm-reference/western-frontier-gms-notes',
   },
   index: '/',
   playersGuide: {
@@ -43,6 +48,7 @@ export const ROUTES = {
     classes: '/players-guide/classes',
   },
   playersReference: {
+    interactiveMap: '/players-reference/interactive-map',
     progress: '/players-reference/progress',
     rules: {
       havens: '/players-reference/rules/havens',
@@ -69,17 +75,19 @@ export const ROUTES = {
   },
   sessionToolkit: {
     clues: {
-      fixedClues: {
-        id: '/session-toolkit/clues/fixed-clues/[id]',
-        all: '/session-toolkit/clues/fixed-clues/all',
-        index: '/session-toolkit/clues/fixed-clues',
-      },
       floatingClues: {
         id: '/session-toolkit/clues/floating-clues/[id]',
         all: '/session-toolkit/clues/floating-clues/all',
         index: '/session-toolkit/clues/floating-clues',
       },
+      cluesForAlistar: '/session-toolkit/clues/clues-for-alistar',
+      cluesForDaemaris: '/session-toolkit/clues/clues-for-daemaris',
+      cluesForThorn: '/session-toolkit/clues/clues-for-thorn',
+      drunkenSoldier: '/session-toolkit/clues/drunken-soldier',
+      twinSigils: '/session-toolkit/clues/twin-sigils',
     },
+    encounterBuilder: '/session-toolkit/encounter-builder',
+    hexcrawlQuickReference: '/session-toolkit/hexcrawl-quick-reference',
     hexes: {
       id: '/session-toolkit/hexes/[id]',
       index: '/session-toolkit/hexes',
@@ -95,10 +103,19 @@ export const ROUTES = {
     minigames: {
       griffonHunt: '/session-toolkit/minigames/griffon-hunt',
     },
+    npcs: {
+      magisterUlrichVerrian: '/session-toolkit/npcs/magister-ulrich-verrian',
+    },
     regions: {
       id: '/session-toolkit/regions/[id]',
       all: '/session-toolkit/regions/all',
       index: '/session-toolkit/regions',
+    },
+    roleplayBooks: {
+      alseid: '/session-toolkit/roleplay-books/alseid',
+      bearfolk: '/session-toolkit/roleplay-books/bearfolk',
+      gearforged: '/session-toolkit/roleplay-books/gearforged',
+      kobolds: '/session-toolkit/roleplay-books/kobolds',
     },
     rumors: {
       id: '/session-toolkit/rumors/[id]',
@@ -126,6 +143,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.playersGuide.ancestriesAndCultures,
   },
   {
+    slug: 'biomes',
+    path: ROUTES.gmReference.biomes,
+  },
+  {
     slug: 'catastrophe-and-aftermath',
     path: ROUTES.gmReference.firstCivilization.catastropheAndAftermath,
   },
@@ -138,12 +159,36 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.playersGuide.characterGoals,
   },
   {
+    slug: 'clues/clues-for-alistar',
+    path: ROUTES.sessionToolkit.clues.cluesForAlistar,
+  },
+  {
+    slug: 'clues/clues-for-daemaris',
+    path: ROUTES.sessionToolkit.clues.cluesForDaemaris,
+  },
+  {
+    slug: 'clues/clues-for-thorn',
+    path: ROUTES.sessionToolkit.clues.cluesForThorn,
+  },
+  {
+    slug: 'clues/drunken-soldier',
+    path: ROUTES.sessionToolkit.clues.drunkenSoldier,
+  },
+  {
+    slug: 'clues/twin-sigils',
+    path: ROUTES.sessionToolkit.clues.twinSigils,
+  },
+  {
     slug: 'crystal-reference',
     path: ROUTES.gmReference.firstCivilization.crystalReference,
   },
   {
     slug: 'crystals',
     path: ROUTES.gmReference.firstCivilization.crystals,
+  },
+  {
+    slug: 'early-frontier',
+    path: ROUTES.gmReference.setting.earlyFrontier,
   },
   {
     slug: 'first-civilization-demographics',
@@ -162,6 +207,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.playersReference.rules.hexcrawlRules,
   },
   {
+    slug: 'hexcrawl-quick-reference',
+    path: ROUTES.sessionToolkit.hexcrawlQuickReference,
+  },
+  {
     slug: 'house-rules',
     path: ROUTES.playersReference.rules.houseRules,
   },
@@ -170,12 +219,32 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.sessionToolkit.maps.koboldCaves,
   },
   {
+    slug: 'npcs/magister-ulrich-verrian',
+    path: ROUTES.sessionToolkit.npcs.magisterUlrichVerrian,
+  },
+  {
     slug: 'region-budget-guidelines',
     path: ROUTES.gmReference.regionBudgetGuidelines,
   },
   {
     slug: 'retcons',
     path: ROUTES.playersReference.retcons,
+  },
+  {
+    slug: 'roleplay-book-alseid',
+    path: ROUTES.sessionToolkit.roleplayBooks.alseid,
+  },
+  {
+    slug: 'roleplay-book-bearfolk',
+    path: ROUTES.sessionToolkit.roleplayBooks.bearfolk,
+  },
+  {
+    slug: 'roleplay-book-gearforged',
+    path: ROUTES.sessionToolkit.roleplayBooks.gearforged,
+  },
+  {
+    slug: 'roleplay-book-kobolds',
+    path: ROUTES.sessionToolkit.roleplayBooks.kobolds,
   },
   {
     slug: 'scaling-encounters',
@@ -203,7 +272,7 @@ export const ARTICLE_ROUTES: RouteData[] = [
   },
   {
     slug: 'western-frontier-gms-notes',
-    path: ROUTES.gmReference.westernFrontierGmsNotes,
+    path: ROUTES.gmReference.setting.westernFrontierGmsNotes,
   },
 ];
 

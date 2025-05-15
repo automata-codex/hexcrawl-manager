@@ -1,22 +1,30 @@
 <script lang="ts">
-  import type { DungeonEntry, ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
+  import type { ClueLink, DungeonEntry, ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
   import { getHexPath, getRegionPath } from '../../utils/routes.ts';
   import Explored from './Explored.svelte';
-  import Visited from './Visited.svelte';
   import Dungeon from './Dungeon.svelte';
-  import Neighbors from './Neighbors.svelte';
-  import Landmark from './Landmark.svelte';
   import HiddenSites from './HiddenSites.svelte';
+  import Landmark from './Landmark.svelte';
+  import LinkedClues from './LinkedClues.svelte';
+  import Neighbors from './Neighbors.svelte';
+  import Visited from './Visited.svelte';
 
   interface Props {
-    dungeons: DungeonEntry[]
+    clueLinks?: ClueLink[];
+    dungeons: DungeonEntry[];
     hex: ExtendedHexData;
     knowledgeTrees: Record<string, FlatKnowledgeTree>;
     showSelfLink?: boolean;
   }
 
-  const { dungeons, hex, knowledgeTrees, showSelfLink = true }: Props = $props();
+  const {
+    clueLinks,
+    dungeons,
+    hex,
+    knowledgeTrees,
+    showSelfLink = true,
+  }: Props = $props();
 </script>
 <style>
     .data-bar {
@@ -89,4 +97,7 @@
     <li>{@html note}</li>
   {/each}
   </ul>
+{/if}
+{#if clueLinks}
+  <LinkedClues {clueLinks} hexId={hex.id} />
 {/if}
