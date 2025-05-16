@@ -152,6 +152,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           label: 'Puzzles',
           expandable: true,
           items: [
+            { label: 'Gearforged Hermit', href: ROUTES.gmReference.puzzles.gearforgedHermit },
             { label: 'The Pillars of Witness', href: ROUTES.gmReference.puzzles.pillarsOfWitness },
           ]
         },
