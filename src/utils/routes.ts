@@ -29,6 +29,10 @@ export const ROUTES = {
     knowledgeTrees: {
       id: '/gm-reference/knowledge-trees/[id]',
     },
+    puzzles: {
+      gearforgedHermit: '/gm-reference/puzzles/gearforged-hermit',
+      pillarsOfWitness: '/gm-reference/puzzles/pillars-of-witness',
+    },
     regionBudgetGuidelines: '/gm-reference/region-budget-guidelines',
     schemas: '/gm-reference/schemas',
     setting: {
@@ -221,6 +225,14 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'npcs/magister-ulrich-verrian',
     path: ROUTES.sessionToolkit.npcs.magisterUlrichVerrian,
+  },
+  {
+    slug: 'puzzles/gearforged-hermit',
+    path: ROUTES.gmReference.puzzles.gearforgedHermit,
+  },
+  {
+    slug: 'puzzles/pillars-of-witness',
+    path: ROUTES.gmReference.puzzles.pillarsOfWitness,
   },
   {
     slug: 'region-budget-guidelines',
