@@ -30,6 +30,7 @@
     "astro": "^5.7.13",
     "canvg": "^4.0.3",
     "commander": "^13.1.0",
+    "enquirer": "^2.4.1",
     "lodash-es": "^4.17.21",
     "rehype-add-classes": "^1.0.0",
     "remark": "^15.0.1",
