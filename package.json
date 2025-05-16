@@ -29,6 +29,7 @@
     "@fortawesome/svelte-fontawesome": "^0.2.3",
     "astro": "^5.7.13",
     "canvg": "^4.0.3",
+    "commander": "^13.1.0",
     "lodash-es": "^4.17.21",
     "rehype-add-classes": "^1.0.0",
     "remark": "^15.0.1",
@@ -49,6 +50,7 @@
     "@types/node": "^22.15.17",
     "fs-extra": "^11.3.0",
     "globby": "^14.1.0",
+    "tsx": "^4.19.4",
     "yaml": "^2.7.1",
     "zod-to-json-schema": "^3.24.5"
   }
