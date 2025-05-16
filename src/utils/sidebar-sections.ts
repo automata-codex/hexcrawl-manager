@@ -147,6 +147,14 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
           ],
         },
         { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
+        {
+          id: 'puzzles',
+          label: 'Puzzles',
+          expandable: true,
+          items: [
+            { label: 'The Pillars of Witness', href: ROUTES.gmReference.puzzles.pillarsOfWitness },
+          ]
+        },
         { id: 'region-budget', label: 'Region Budget Guidelines', href: ROUTES.gmReference.regionBudgetGuidelines },
         { id: 'schemas', label: 'Schemas', href: ROUTES.gmReference.schemas },
         {
