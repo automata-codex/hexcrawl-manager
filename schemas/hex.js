@@ -36,6 +36,7 @@ export const HiddenSitesSchema = z.object({
 
 export const LandmarkSchema = z.object({
   description: z.string(),
+  treasure: z.array(TreasureSchema).optional(),
   unlocks: z.array(z.string())
     .optional()
     .describe('IDs of knowledge nodes that are unlocked by this site'),
