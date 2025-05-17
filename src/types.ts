@@ -91,6 +91,7 @@ export type DungeonEntry = CollectionEntry<'dungeons'>;
 export type FloatingClueEntry = CollectionEntry<'floatingClues'>;
 export type HexEntry = CollectionEntry<'hexes'>;
 export type RegionEntry = CollectionEntry<'regions'>;
+export type TrailEntry = CollectionEntry<'trails'>;
 
 export type ClueLink = {
   clueId: string;

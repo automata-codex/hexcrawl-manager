@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
-import type { SegmentMetadataData } from '../../types.ts';
+import type { SegmentMetadataData, TrailEntry } from '../../types.ts';
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE } from '../../utils/constants.ts';
 
@@ -14,14 +14,31 @@ export interface MapPathPlayerData {
   segmentMetadata?: Record<string, SegmentMetadataData>;
 }
 
+function convertTrailsToPaths(trailEntries: TrailEntry[]): MapPathPlayerData[] {
+  return trailEntries.map((entry) => {
+    return {
+      id: `${entry.data.from}-${entry.data.to}`,
+      label: `trail-${entry.data.from}-${entry.data.to}`,
+      points: [
+        `${entry.data.from}:center`,
+        `${entry.data.to}:center`,
+      ],
+      type: 'trail',
+    };
+  });
+}
+
 export const GET: APIRoute = async ({ locals }) => {
-  const dungeonEntries = await getCollection('map-paths');
+  const pathEntries = await getCollection('map-paths');
   const role = getCurrentUserRole(locals);
+  const trailEntries = await getCollection('trails');
 
-  const mapPaths = dungeonEntries.map((entry) => {
-    const path = entry.data;
-    // console.log(path);
+  const paths: MapPathPlayerData[] = [
+    ...convertTrailsToPaths(trailEntries),
+    ...pathEntries.map((entry) => entry.data),
+  ]
 
+  const mapPaths = paths.map((path) => {
     if (role === SECURITY_ROLE.GM) {
       return path;
     }
@@ -30,10 +47,6 @@ export const GET: APIRoute = async ({ locals }) => {
       return null;
     }
 
-    // Redact fields for players
-    // if (path.segmentMetadata) {
-    //   console.log(path.id, path.segmentMetadata);
-    // }
     return {
       id: path.id,
       label: path.label,
