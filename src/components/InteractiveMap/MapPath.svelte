@@ -7,7 +7,7 @@
 
   interface Props {
     paths: MapPathPlayerData[];
-    type: 'river';
+    type: 'river' | 'trail';
   }
 
   interface Segment {
@@ -89,11 +89,24 @@
     };
   }
 
+  function getColor() {
+    switch (type) {
+      case 'river':
+        return '#72C6E5';
+      case 'trail':
+        return 'pink';
+      default:
+        return '#000000';
+    }
+  }
+
   const lineSegments = $derived(
-    paths.flatMap((path) => {
-      const points = path.points.map(resolvePathPoint);
-      return pointsToSegments(points, path.segmentMetadata, path.id);
-    }),
+    paths
+      .filter((path) => path.type === type)
+      .flatMap((path) => {
+        const points = path.points.map(resolvePathPoint);
+        return pointsToSegments(points, path.segmentMetadata, path.id);
+      }),
   );
 </script>
 <g
@@ -107,7 +120,7 @@
       y1={segment.from.y}
       x2={segment.to.x}
       y2={segment.to.y}
-      stroke={'#72C6E5'}
+      stroke={getColor()}
       stroke-width={4}
       stroke-linecap="round"
       stroke-dasharray={impedesTravel ? 'none' : '1, 8'}

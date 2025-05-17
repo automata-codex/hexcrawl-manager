@@ -11,6 +11,7 @@ export const layerList: LayerMetadata[] = [
   { key: 'labels', label: 'Hex Labels', defaultVisible: true },
   { key: 'fortDagaric', label: 'Fort Dagaric', defaultVisible: true },
   { key: 'terrain', label: 'Terrain', defaultVisible: true },
+  { key: 'trail', label: 'Trails', defaultVisible: true },
   { key: 'river', label: 'Rivers', defaultVisible: true },
   { key: 'hexBorders', label: 'Hex Borders', defaultVisible: true },
   { key: 'elevation', label: 'Elevation', defaultVisible: false },
