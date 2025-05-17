@@ -3,6 +3,7 @@
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { onMount } from 'svelte';
+  import Explored from '../GmHexDetails/Explored.svelte';
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
@@ -104,10 +105,9 @@
           Visited:{' '}
           <CheckBoxIcon checked={currentHex?.isVisited ?? false} />
         </div>
-        <div>
-          Explored:{' '}
-          <CheckBoxIcon checked={currentHex?.isExplored ?? false} />
-        </div>
+        {#if currentHex}
+          <Explored hex={currentHex} />
+        {/if}
       </div>
       <p class="hanging-indent">
         <span class="inline-heading">Terrain:</span>
@@ -137,24 +137,26 @@
         {' '}
         {currentHex?.elevation.toLocaleString()} ft.
       </p>
-      <h3 class="title is-5">Trails</h3>
-      <ul>
-        {#each trailsInHex.map(formatTrailData) as trail (trail.to)}
-          <li>
-          <div>
-            <span>
-              <span style="font-weight: bold">To:</span>{' '}{trail.to.toUpperCase()}
-            </span>
-            <span>
-              ({trail.uses} uses)
-            </span>
-          </div>
+      {#if trailsInHex.length > 0}
+        <h3 class="title is-5">Trails</h3>
+        <ul>
+          {#each trailsInHex.map(formatTrailData) as trail (trail.to)}
+            <li>
             <div>
-              <span style="font-weight: bold">Last used:</span>{' '}{trail.lastUsed}
+              <span>
+                <span style="font-weight: bold">To:</span>{' '}{trail.to.toUpperCase()}
+              </span>
+              <span>
+                ({trail.uses} uses)
+              </span>
             </div>
-          </li>
-        {/each}
-      </ul>
+              <div>
+                <span style="font-weight: bold">Last used:</span>{' '}{trail.lastUsed}
+              </div>
+            </li>
+          {/each}
+        </ul>
+      {/if}
     </div>
   {:else}
     <p>Please select a hex to get started.</p>
