@@ -8,6 +8,7 @@
   }
 
   const { hex, knowledgeTrees }: Props = $props();
+  // TODO Handle a treasure entry in the landmark data structure
 </script>
 <div class="hanging-indent">
   <span class="inline-heading">Landmark:</span>{' '}

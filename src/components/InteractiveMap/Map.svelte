@@ -5,6 +5,7 @@
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
+  import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import {
@@ -42,7 +43,7 @@
   const { role }: Props = $props();
 
   let dungeons: DungeonEssentialData[] = $state([]);
-  let hexes: HexData[] = $state([]);
+  let hexes: HexPlayerData[] = $state([]);
   let isPanning = $state(false);
   let lastX = $state(0);
   let lastY = $state(0);
