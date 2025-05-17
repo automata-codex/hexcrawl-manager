@@ -5,9 +5,10 @@
   import { onMount } from 'svelte';
   import Explored from '../GmHexDetails/Explored.svelte';
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
+  import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
-  import type { HexData, TrailData } from '../../types.ts';
+  import type { TrailData } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
   import { getFavoredTerrain, getTravelDifficulty } from '../../utils/interactive-map.ts';
@@ -17,7 +18,7 @@
 
   interface Props {
     dungeons: DungeonEssentialData[];
-    hexes: HexData[];
+    hexes: HexPlayerData[];
     mapPaths: MapPathPlayerData[];
     role: string | null;
   }
@@ -120,7 +121,7 @@
         {formatText(currentHex?.biome)}
       </p>
       <p class="hanging-indent">
-        <span class="inline-heading">Landmark:</span>{' '}{currentHex?.landmark}
+        <span class="inline-heading">Landmark:</span>{' '}{@html currentHex?.renderedLandmark}
       </p>
       <p class="hanging-indent">
         <span class="inline-heading">Travel Difficulty:</span>
