@@ -46,7 +46,7 @@
   let isPanning = $state(false);
   let lastX = $state(0);
   let lastY = $state(0);
-  let rivers: MapPathPlayerData[] = $state([]);
+  let mapPaths: MapPathPlayerData[] = $state([]);
   let svgEl: SVGElement;
   let wasPanning = $state(false);
 
@@ -59,8 +59,7 @@
       const hexResponse = await fetch('/api/hexes.json');
       hexes = await hexResponse.json();
       const mapPathResponse = await fetch('/api/map-paths.json');
-      const mapPaths = await mapPathResponse.json();
-      rivers = mapPaths.filter((path: MapPathPlayerData) => path.type === 'river');
+      mapPaths = await mapPathResponse.json();
     })();
 
     const resizeObserver = new ResizeObserver(entries => {
@@ -344,7 +343,7 @@
 </div>
 
 {#if hexes}
-  <DetailPanel {dungeons} {hexes} {role} />
+  <DetailPanel {dungeons} {hexes} {mapPaths} {role} />
 {/if}
 
 <div class="main-controls">
@@ -459,7 +458,8 @@
           {/if}
         {/each}
       </g>
-      <MapPath paths={rivers} type="river" />
+      <MapPath paths={mapPaths} type="river" />
+      <MapPath paths={mapPaths} type="trail" />
       <g
         id="layer-fort-dagaric-icon"
         style:display={!$layerVisibility['fortDagaric'] ? 'none' : undefined}

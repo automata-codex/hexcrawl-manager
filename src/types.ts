@@ -1,5 +1,6 @@
 import type { CollectionEntry } from 'astro:content';
 import { z } from 'zod';
+import { CampaignDateSchema } from './config/campaign-date.ts';
 import { BountySchema } from '../schemas/bounty';
 import { CharacterSchema } from '../schemas/character';
 import { ClassSchema } from '../schemas/class';
@@ -38,6 +39,7 @@ import { TreasureSchema } from '../schemas/treasure';
 
 export type BountyData = z.infer<typeof BountySchema>;
 export type CategoryTableData = z.infer<typeof CategoryTable>;
+export type CampaignDate = z.infer<typeof CampaignDateSchema>;
 export type CharacterData = z.infer<typeof CharacterSchema>;
 export type ClassData = z.infer<typeof ClassSchema>;
 export type DescriptiveActionData = z.infer<typeof DescriptiveActionSchema>;
@@ -89,6 +91,7 @@ export type DungeonEntry = CollectionEntry<'dungeons'>;
 export type FloatingClueEntry = CollectionEntry<'floatingClues'>;
 export type HexEntry = CollectionEntry<'hexes'>;
 export type RegionEntry = CollectionEntry<'regions'>;
+export type TrailEntry = CollectionEntry<'trails'>;
 
 export type ClueLink = {
   clueId: string;
