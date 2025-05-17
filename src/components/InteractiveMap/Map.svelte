@@ -18,11 +18,13 @@
     updateZoomAtPoint,
   } from '../../stores/interactive-map/map-view';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
+  import type { HexFlag } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
   import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
   import {
     DAGARIC_ICON_SIZE,
+    FC_ICON_SIZE,
     HEX_HEIGHT,
     HEX_WIDTH,
     TERRAIN_ICON_SIZE,
@@ -75,6 +77,15 @@
 
   function applyZoomDelta(direction: number) {
     applyZoomAtCenter(direction);
+  }
+
+  function filterHexesByFlag(flag: string) {
+    return hexes.filter(hex => {
+      if (hex.flags) {
+        return hex.flags?.[flag as HexFlag];
+      }
+      return false;
+    });
   }
 
   function getBiomeColor(biome: string): string {
@@ -413,6 +424,27 @@
       <MapPath paths={mapPaths} type="river" />
       <MapPath paths={mapPaths} type="conduit" />
       <MapPath paths={mapPaths} type="trail" />
+      <g
+        id="layer-scar-sites"
+        style:display={!$layerVisibility['scarSites'] ? 'none' : undefined}
+      >
+        {#each filterHexesByFlag('isScarSite') as hex (hex.id)}
+          {#if isValidHexId(hex.id)}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <use
+              href="#icon-first-civ"
+              x={x - FC_ICON_SIZE / 2}
+              y={y - FC_ICON_SIZE / 2}
+              width={FC_ICON_SIZE}
+              height={FC_ICON_SIZE}
+              stroke="black"
+              fill="#E5F20D"
+            />
+          {/if}
+        {/each}
+
+      </g>
       <g
         id="layer-fort-dagaric-icon"
         style:display={!$layerVisibility['fortDagaric'] ? 'none' : undefined}

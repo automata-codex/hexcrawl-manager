@@ -71,6 +71,8 @@ export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>
 export type TrailData = z.infer<typeof TrailSchema>;
 export type TreasureData = z.infer<typeof TreasureSchema>;
 
+export type HexFlag = keyof z.infer<typeof HexSchema>['flags'];
+
 export type ExtendedHexData = HexData & {
   renderedHiddenSites: ExtendedHiddenSites[];
   renderedNotes: string[];
