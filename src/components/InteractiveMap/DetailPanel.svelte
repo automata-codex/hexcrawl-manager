@@ -21,6 +21,12 @@
     role: string | null;
   }
 
+  interface LocalTrailData {
+    to: string;
+    uses: number;
+    lastUsed: string;
+  }
+
   const { dungeons, hexes, mapPaths, role }: Props = $props();
 
   let isOpen = $state(!!$selectedHex);
@@ -51,6 +57,14 @@
       .replace(/[-_]/g, ' ')
       .replace(/([a-z])([A-Z])/g, '$1 $2')
       .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  function formatTrailData(trail: TrailData): LocalTrailData {
+    return {
+      to: trail.to === $selectedHex ? trail.from : trail.to,
+      uses: trail.uses,
+      lastUsed: trail.lastUsed,
+    };
   }
 </script>
 
@@ -124,9 +138,23 @@
         {currentHex?.elevation.toLocaleString()} ft.
       </p>
       <h3 class="title is-5">Trails</h3>
-      <pre>
-        {JSON.stringify(trailsInHex, null, 2)}
-      </pre>
+      <ul>
+        {#each trailsInHex.map(formatTrailData) as trail (trail.to)}
+          <li>
+          <div>
+            <span>
+              <span style="font-weight: bold">To:</span>{' '}{trail.to.toUpperCase()}
+            </span>
+            <span>
+              ({trail.uses} uses)
+            </span>
+          </div>
+            <div>
+              <span style="font-weight: bold">Last used:</span>{' '}{trail.lastUsed}
+            </div>
+          </li>
+        {/each}
+      </ul>
     </div>
   {:else}
     <p>Please select a hex to get started.</p>
