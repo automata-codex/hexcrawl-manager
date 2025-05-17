@@ -4,7 +4,7 @@ import type { SegmentMetadataData, TrailEntry } from '../../types.ts';
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE } from '../../utils/constants.ts';
 
-const ALLOWED_PLAYER_TYPES = ['river'];
+const ALLOWED_PLAYER_TYPES = ['river', 'trail'];
 
 export interface MapPathPlayerData {
   id: string;

@@ -3,6 +3,7 @@
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
+  import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import type { HexData } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
@@ -15,14 +16,20 @@
   interface Props {
     dungeons: DungeonEssentialData[];
     hexes: HexData[];
+    mapPaths: MapPathPlayerData[];
     role: string | null;
   }
 
-  const { dungeons, hexes, role }: Props = $props();
+  const { dungeons, hexes, mapPaths, role }: Props = $props();
 
   const currentHex = $derived(hexes.find((hex) => hex.id.toLowerCase() === $selectedHex?.toLowerCase()));
   const dungeonsInHex = $derived(
     dungeons.filter((dungeon) => dungeon.hexId.toLowerCase() === $selectedHex?.toLowerCase()),
+  );
+  const trailsInHex = $derived(
+    mapPaths
+      .filter((path) => path.type === 'trail')
+      .filter((trail) => trail.label?.toLowerCase().includes($selectedHex?.toLowerCase() ?? '')),
   );
 
   let isOpen = $state(!!$selectedHex);
@@ -105,6 +112,10 @@
         {' '}
         {currentHex?.elevation.toLocaleString()} ft.
       </p>
+      <h3 class="title is-5">Trails</h3>
+      <pre>
+        {JSON.stringify(trailsInHex, null, 2)}
+      </pre>
     </div>
   {:else}
     <p>Please select a hex to get started.</p>
