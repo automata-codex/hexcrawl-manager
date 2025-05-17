@@ -411,6 +411,7 @@
         {/each}
       </g>
       <MapPath paths={mapPaths} type="river" />
+      <MapPath paths={mapPaths} type="conduit" />
       <MapPath paths={mapPaths} type="trail" />
       <g
         id="layer-fort-dagaric-icon"
