@@ -2,10 +2,11 @@
   import { faSidebar, faXmark } from '@fortawesome/pro-light-svg-icons';
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+  import { onMount } from 'svelte';
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
-  import type { HexData } from '../../types.ts';
+  import type { HexData, TrailData } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
   import { getFavoredTerrain, getTravelDifficulty } from '../../utils/interactive-map.ts';
@@ -22,17 +23,27 @@
 
   const { dungeons, hexes, mapPaths, role }: Props = $props();
 
+  let isOpen = $state(!!$selectedHex);
+  let trails: TrailData[] = $state([]);
+
   const currentHex = $derived(hexes.find((hex) => hex.id.toLowerCase() === $selectedHex?.toLowerCase()));
   const dungeonsInHex = $derived(
     dungeons.filter((dungeon) => dungeon.hexId.toLowerCase() === $selectedHex?.toLowerCase()),
   );
   const trailsInHex = $derived(
-    mapPaths
-      .filter((path) => path.type === 'trail')
-      .filter((trail) => trail.label?.toLowerCase().includes($selectedHex?.toLowerCase() ?? '')),
+    trails
+      .filter((trail) => {
+        return trail.from.toLowerCase().includes($selectedHex?.toLowerCase() ?? '') ||
+          trail.to.toLowerCase().includes($selectedHex?.toLowerCase() ?? '');
+      }),
   );
 
-  let isOpen = $state(!!$selectedHex);
+  onMount(() => {
+    (async () => {
+      const trailsResponse = await fetch('/api/trails.json');
+      trails = await trailsResponse.json();
+    })();
+  });
 
   function formatText(text?: string) {
     if (!text) return '';
