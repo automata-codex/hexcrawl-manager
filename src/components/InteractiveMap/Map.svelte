@@ -18,7 +18,6 @@
     updateZoomAtPoint,
   } from '../../stores/interactive-map/map-view';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
-  import type { HexData } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
   import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
@@ -141,36 +140,6 @@
     const lightness = 60;
 
     return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-  }
-
-  function getHexColor(hex: HexData) {
-    switch (hex.terrain) {
-      case 'glacier':
-        return '#FFFFFF'; // white
-      case 'water':
-        return '#1E90FF'; // dodger blue
-    }
-
-    switch (hex.vegetation) {
-      case 'alpine-tundra':
-        return '#666'; // dark gray
-      case 'dense-forest':
-        return '#006600'; // dark green
-      case 'light-forest':
-      case 'swamp':
-        return '#009900'; // medium green
-      case 'sparse-forest':
-        return '#66CC66'; // light green
-      case 'highland-bog':
-      case 'marsh':
-      case 'moors':
-      case 'grasslands':
-        return '#B8E49A';
-      case 'rocky-highland':
-        return '#999999'; // gray
-      default:
-        return '#D3D3D3'; // light gray
-    }
   }
 
   function getFortDagaricCoords() {
@@ -348,7 +317,7 @@
 {/if}
 
 <div class="main-controls">
-  <LayersPanel />
+  <LayersPanel {role} />
   <DownloadButton {role} />
 </div>
 
@@ -370,24 +339,6 @@
     {@html svgDefs}
 
     <g id="map-content">
-      <g
-        id="layer-vegetation"
-        style:display={!$layerVisibility['vegetation'] ? 'none' : undefined}
-      >
-        {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <HexTile
-              fill={getHexColor(hex)}
-              hexWidth={HEX_WIDTH}
-              stroke="none"
-              {x}
-              {y}
-            />
-          {/if}
-        {/each}
-      </g>
       <g
         id="layer-biomes"
         style:display={!$layerVisibility['biomes'] ? 'none' : undefined}
