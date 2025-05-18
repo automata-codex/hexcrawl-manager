@@ -34,6 +34,18 @@ export const HiddenSitesSchema = z.object({
     .describe('IDs of knowledge nodes that are unlocked by this site'),
 });
 
+export const KnownTagEnum = z.enum([
+  'crystal-bounty',
+  'dungeon',
+  'settlement',
+  'dragon-ruins',
+  'fc-ruins',
+  'goblin-ruins',
+  'haven',
+  'scar-site',
+]);
+
+
 export const LandmarkSchema = z.object({
   description: z.string(),
   treasure: z.array(TreasureSchema).optional(),
@@ -41,6 +53,8 @@ export const LandmarkSchema = z.object({
     .optional()
     .describe('IDs of knowledge nodes that are unlocked by this site'),
 });
+
+export const TagSchema = z.union([KnownTagEnum, z.string()]);
 
 export const HexSchema = z.object({
   id: z.string(),
@@ -77,7 +91,7 @@ export const HexSchema = z.object({
   updates: z.array(z.string())
     .optional()
     .describe('Private GM-only changes to the hex since the last visit'),
-  tags: z.array(z.string())
+  tags: z.array(TagSchema)
     .optional()
     .describe('Tags for filtering hexes, matching clues, etc.'),
   terrain: z.string(),
