@@ -62,6 +62,13 @@ export const HexSchema = z.object({
   encounterChance: z.number().int().min(1).max(20).optional(),
   encounterOverrides: EncounterOverrideSchema.optional(),
   flags: z.object({
+    hasCrystals: z.boolean().optional(),
+    hasDungeon: z.boolean().optional(),
+    hasSettlement: z.boolean().optional(),
+    isDragonRuins: z.boolean().optional(),
+    isFcRuins: z.boolean().optional(),
+    isGoblinRuins: z.boolean().optional(),
+    isHaven: z.boolean().optional(),
     isScarSite: z.boolean().optional(),
   }).optional().describe('Flags for different hex categories and types'),
   notes: z.array(z.string())
