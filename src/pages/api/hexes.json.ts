@@ -17,7 +17,7 @@ export type HexPlayerData = Pick<
   | 'isVisited'
   | 'isExplored'
   | 'renderedLandmark'
-  | 'flags'
+  | 'tags'
 >;
 
 export const GET: APIRoute = async ({ locals }) => {

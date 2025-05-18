@@ -18,7 +18,7 @@
     updateZoomAtPoint,
   } from '../../stores/interactive-map/map-view';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
-  import type { HexFlag } from '../../types.ts';
+  import type { KnownTag } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
   import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
@@ -79,10 +79,10 @@
     applyZoomAtCenter(direction);
   }
 
-  function filterHexesByFlag(flag: string) {
+  function filterHexesByTag(tag: KnownTag | string) {
     return hexes.filter(hex => {
-      if (hex.flags) {
-        return hex.flags?.[flag as HexFlag];
+      if (hex.tags) {
+        return hex.tags.includes(tag.toString());
       }
       return false;
     });
@@ -428,7 +428,7 @@
         id="layer-scar-sites"
         style:display={!$layerVisibility['scarSites'] ? 'none' : undefined}
       >
-        {#each filterHexesByFlag('isScarSite') as hex (hex.id)}
+        {#each filterHexesByTag('scar-site') as hex (hex.id)}
           {#if isValidHexId(hex.id)}
             {@const { q, r } = parseHexId(hex.id)}
             {@const { x, y } = axialToPixel(q, r)}

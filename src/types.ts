@@ -15,7 +15,7 @@ import {
   EncounterTableSchema,
   TieredSubtableSchema,
 } from '../schemas/encounter-table';
-import { HexSchema, HiddenSitesSchema } from '../schemas/hex.js';
+import { HexSchema, HiddenSitesSchema, KnownTagEnum } from '../schemas/hex.js';
 import { KnowledgeNodeSchema } from '../schemas/knowledge-node';
 import { LootPackSchema } from '../schemas/loot-pack';
 import type { SegmentMetadataSchema } from '../schemas/map-path';
@@ -71,7 +71,7 @@ export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>
 export type TrailData = z.infer<typeof TrailSchema>;
 export type TreasureData = z.infer<typeof TreasureSchema>;
 
-export type HexFlag = keyof z.infer<typeof HexSchema>['flags'];
+export type KnownTag = keyof z.infer<typeof KnownTagEnum>;
 
 export type ExtendedHexData = HexData & {
   renderedHiddenSites: ExtendedHiddenSites[];

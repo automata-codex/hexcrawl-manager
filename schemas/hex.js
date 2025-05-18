@@ -45,7 +45,6 @@ export const KnownTagEnum = z.enum([
   'scar-site',
 ]);
 
-
 export const LandmarkSchema = z.object({
   description: z.string(),
   treasure: z.array(TreasureSchema).optional(),
