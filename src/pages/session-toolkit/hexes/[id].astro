@@ -109,6 +109,6 @@ const extendedHexData = await processHex(hex);
       (&le;{encounterChance})
     </p>
     <RandomEncounterTable data={encounters} />
-    <GhostlyEchoes isScarSite={!!hex.flags?.isScarSite} />
+    <GhostlyEchoes isScarSite={hex.tags?.includes('scar-site')} />
   </SecretContent>
 </ComponentLayout>
