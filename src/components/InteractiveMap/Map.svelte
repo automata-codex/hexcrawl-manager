@@ -18,12 +18,13 @@
     updateZoomAtPoint,
   } from '../../stores/interactive-map/map-view';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
-  import type { HexData } from '../../types.ts';
+  import type { KnownTag } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
   import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
   import {
     DAGARIC_ICON_SIZE,
+    FC_ICON_SIZE,
     HEX_HEIGHT,
     HEX_WIDTH,
     TERRAIN_ICON_SIZE,
@@ -76,6 +77,15 @@
 
   function applyZoomDelta(direction: number) {
     applyZoomAtCenter(direction);
+  }
+
+  function filterHexesByTag(tag: KnownTag | string) {
+    return hexes.filter(hex => {
+      if (hex.tags) {
+        return hex.tags.includes(tag.toString());
+      }
+      return false;
+    });
   }
 
   function getBiomeColor(biome: string): string {
@@ -141,36 +151,6 @@
     const lightness = 60;
 
     return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-  }
-
-  function getHexColor(hex: HexData) {
-    switch (hex.terrain) {
-      case 'glacier':
-        return '#FFFFFF'; // white
-      case 'water':
-        return '#1E90FF'; // dodger blue
-    }
-
-    switch (hex.vegetation) {
-      case 'alpine-tundra':
-        return '#666'; // dark gray
-      case 'dense-forest':
-        return '#006600'; // dark green
-      case 'light-forest':
-      case 'swamp':
-        return '#009900'; // medium green
-      case 'sparse-forest':
-        return '#66CC66'; // light green
-      case 'highland-bog':
-      case 'marsh':
-      case 'moors':
-      case 'grasslands':
-        return '#B8E49A';
-      case 'rocky-highland':
-        return '#999999'; // gray
-      default:
-        return '#D3D3D3'; // light gray
-    }
   }
 
   function getFortDagaricCoords() {
@@ -348,7 +328,7 @@
 {/if}
 
 <div class="main-controls">
-  <LayersPanel />
+  <LayersPanel {role} />
   <DownloadButton {role} />
 </div>
 
@@ -370,24 +350,6 @@
     {@html svgDefs}
 
     <g id="map-content">
-      <g
-        id="layer-vegetation"
-        style:display={!$layerVisibility['vegetation'] ? 'none' : undefined}
-      >
-        {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <HexTile
-              fill={getHexColor(hex)}
-              hexWidth={HEX_WIDTH}
-              stroke="none"
-              {x}
-              {y}
-            />
-          {/if}
-        {/each}
-      </g>
       <g
         id="layer-biomes"
         style:display={!$layerVisibility['biomes'] ? 'none' : undefined}
@@ -460,7 +422,71 @@
         {/each}
       </g>
       <MapPath paths={mapPaths} type="river" />
+      <MapPath paths={mapPaths} type="conduit" />
       <MapPath paths={mapPaths} type="trail" />
+      <g
+        id="layer-scar-sites"
+        style:display={!$layerVisibility['scarSites'] ? 'none' : undefined}
+      >
+        {#each filterHexesByTag('scar-site') as hex (hex.id)}
+          {#if isValidHexId(hex.id)}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <use
+              href="#icon-first-civ"
+              x={x - FC_ICON_SIZE / 2}
+              y={y - FC_ICON_SIZE / 2}
+              width={FC_ICON_SIZE}
+              height={FC_ICON_SIZE}
+              stroke-width="4"
+              stroke="black"
+              fill="#E5F20D"
+            />
+          {/if}
+        {/each}
+      </g>
+      <g
+        id="layer-fc-ruins"
+        style:display={!$layerVisibility['fcRuins'] ? 'none' : undefined}
+      >
+        {#each filterHexesByTag('fc-ruins') as hex (hex.id)}
+          {#if isValidHexId(hex.id)}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <use
+              href="#icon-first-civ"
+              x={x - FC_ICON_SIZE / 2}
+              y={y - FC_ICON_SIZE / 2}
+              width={FC_ICON_SIZE}
+              height={FC_ICON_SIZE}
+              stroke-width="4"
+              stroke="#0DCAF2"
+              fill="#0DCAF2"
+            />
+          {/if}
+        {/each}
+      </g>
+      <g
+        id="layer-fc-cities"
+        style:display={!$layerVisibility['fcCities'] ? 'none' : undefined}
+      >
+        {#each filterHexesByTag('fc-city') as hex (hex.id)}
+          {#if isValidHexId(hex.id)}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <use
+              href="#icon-first-civ"
+              x={x - FC_ICON_SIZE / 2}
+              y={y - FC_ICON_SIZE / 2}
+              width={FC_ICON_SIZE}
+              height={FC_ICON_SIZE}
+              stroke-width="4"
+              stroke="#0DCAF2"
+              fill="white"
+            />
+          {/if}
+        {/each}
+      </g>
       <g
         id="layer-fort-dagaric-icon"
         style:display={!$layerVisibility['fortDagaric'] ? 'none' : undefined}

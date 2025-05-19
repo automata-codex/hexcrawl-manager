@@ -2,6 +2,13 @@
   import { faLayerGroup, faXmark } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { layerList, layerVisibility } from '../../stores/interactive-map/layer-visibility';
+  import { canAccess } from '../../utils/auth.ts';
+
+  interface Props {
+    role: string | null;
+  }
+
+  const { role }: Props = $props();
 
   let isOpen = $state(false);
 
@@ -26,16 +33,18 @@
     <FontAwesomeIcon icon={faXmark} />
   </button>
   {#each layerList as layer (layer.key)}
-    <div>
-      <label>
-        <input
-          type="checkbox"
-          checked={$layerVisibility[layer.key]}
-          onchange={(e) => handleToggleClick(e, layer.key)}
-        />
-        {layer.label}
-      </label>
-    </div>
+    {#if !layer.scopes || (layer.scopes && canAccess(role, layer.scopes))}
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            checked={$layerVisibility[layer.key]}
+            onchange={(e) => handleToggleClick(e, layer.key)}
+          />
+          {layer.label}
+        </label>
+      </div>
+    {/if}
   {/each}
 </aside>
 
@@ -46,7 +55,7 @@
         right: 1rem;
         width: 250px;
         background-color: var(--bulma-body-background-color);
-        box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
         transform: translateX(+110%);
         transition: transform 0.3s ease;
         z-index: 1000;
