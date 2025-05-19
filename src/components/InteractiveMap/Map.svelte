@@ -505,7 +505,7 @@
           style:display={'true'}
         >
           {#each hexes as hex (hex.id)}
-            {#if isValidHexId(hex.id) && !hex.isVisited}
+            {#if isValidHexId(hex.id) && !hex.isVisited && !hex.isScouted}
               {@const { q, r } = parseHexId(hex.id)}
               {@const { x, y } = axialToPixel(q, r)}
               <HexTile
