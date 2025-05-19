@@ -39,6 +39,7 @@ export const KnownTagEnum = z.enum([
   'dungeon',
   'settlement',
   'dragon-ruins',
+  'fc-city',
   'fc-ruins',
   'goblin-ruins',
   'haven',

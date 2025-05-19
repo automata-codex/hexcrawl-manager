@@ -467,6 +467,27 @@
         {/each}
       </g>
       <g
+        id="layer-fc-cities"
+        style:display={!$layerVisibility['fcCities'] ? 'none' : undefined}
+      >
+        {#each filterHexesByTag('fc-city') as hex (hex.id)}
+          {#if isValidHexId(hex.id)}
+            {@const { q, r } = parseHexId(hex.id)}
+            {@const { x, y } = axialToPixel(q, r)}
+            <use
+              href="#icon-first-civ"
+              x={x - FC_ICON_SIZE / 2}
+              y={y - FC_ICON_SIZE / 2}
+              width={FC_ICON_SIZE}
+              height={FC_ICON_SIZE}
+              stroke-width="4"
+              stroke="#0DCAF2"
+              fill="white"
+            />
+          {/if}
+        {/each}
+      </g>
+      <g
         id="layer-fort-dagaric-icon"
         style:display={!$layerVisibility['fortDagaric'] ? 'none' : undefined}
       >
