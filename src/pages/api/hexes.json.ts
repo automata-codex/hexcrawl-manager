@@ -16,6 +16,7 @@ export type HexPlayerData = Pick<
   | 'elevation'
   | 'isVisited'
   | 'isExplored'
+  | 'isScouted'
   | 'renderedLandmark'
   | 'tags'
 >;
@@ -47,7 +48,22 @@ export const GET: APIRoute = async ({ locals }) => {
             isVisited: data.isVisited,
             isExplored: data.isExplored,
             renderedLandmark: data.renderedLandmark,
-            flags: data.flags,
+          };
+        }
+
+        if (hex.isScouted) {
+          return {
+            id: data.id,
+            name: data.tags?.includes('landmark-known') ? data.name : UNKNOWN_CONTENT,
+            landmark: data.tags?.includes('landmark-known') ? data.landmark : UNKNOWN_CONTENT,
+            regionId: data.regionId,
+            terrain: data.terrain,
+            biome: data.biome,
+            elevation: data.elevation,
+            isVisited: data.isVisited,
+            isExplored: data.isExplored,
+            isScouted: data.isScouted,
+            renderedLandmark: data.tags?.includes('landmark-known') ? data.renderedLandmark : UNKNOWN_CONTENT,
           };
         }
 
