@@ -24,6 +24,7 @@ export const ROUTES = {
       crystalReference: '/gm-reference/first-civilization/crystal-reference',
       demographics: '/gm-reference/first-civilization/demographics',
       skyspire: '/gm-reference/first-civilization/the-skyspire',
+      skyspireOccupations: '/gm-reference/first-civilization/skyspire-occupations',
       velari: '/gm-reference/first-civilization/the-velari',
     },
     knowledgeTrees: {
@@ -139,20 +140,12 @@ interface RouteData {
 
 export const ARTICLE_ROUTES: RouteData[] = [
   {
-    slug: 'airships',
-    path: ROUTES.gmReference.firstCivilization.airships,
-  },
-  {
     slug: 'ancestries-and-cultures',
     path: ROUTES.playersGuide.ancestriesAndCultures,
   },
   {
     slug: 'biomes',
     path: ROUTES.gmReference.biomes,
-  },
-  {
-    slug: 'catastrophe-and-aftermath',
-    path: ROUTES.gmReference.firstCivilization.catastropheAndAftermath,
   },
   {
     slug: 'character-advancement',
@@ -195,8 +188,28 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.gmReference.setting.earlyFrontier,
   },
   {
-    slug: 'first-civilization-demographics',
+    slug: 'first-civ/airships',
+    path: ROUTES.gmReference.firstCivilization.airships,
+  },
+  {
+    slug: 'first-civ/catastrophe-and-aftermath',
+    path: ROUTES.gmReference.firstCivilization.catastropheAndAftermath,
+  },
+  {
+    slug: 'first-civ/first-civilization-demographics',
     path: ROUTES.gmReference.firstCivilization.demographics,
+  },
+  {
+    slug: 'first-civ/skyspire/skyspire',
+    path: ROUTES.gmReference.firstCivilization.skyspire,
+  },
+  {
+    slug: 'first-civ/skyspire/skyspire-occupations',
+    path: ROUTES.gmReference.firstCivilization.skyspireOccupations,
+  },
+  {
+    slug: 'first-civ/velari',
+    path: ROUTES.gmReference.firstCivilization.velari,
   },
   {
     slug: 'glinting-steps-map',
@@ -267,16 +280,8 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.sessionToolkit.scarSites,
   },
   {
-    slug: 'skyspire',
-    path: ROUTES.gmReference.firstCivilization.skyspire,
-  },
-  {
     slug: 'timeline',
     path: ROUTES.sessionToolkit.timeline,
-  },
-  {
-    slug: 'velari',
-    path: ROUTES.gmReference.firstCivilization.velari,
   },
   {
     slug: 'western-frontier',
