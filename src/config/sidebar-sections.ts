@@ -1,6 +1,6 @@
-import { canAccess } from './auth.ts';
-import { SCOPES } from './constants.ts';
 import type { SidebarSection } from '../types.ts';
+import { canAccess } from '../utils/auth.ts';
+import { SCOPES } from '../utils/constants.ts';
 import { ROUTES } from './routes.ts';
 
 export function getSidebarSections(role: string|null): SidebarSection[] {

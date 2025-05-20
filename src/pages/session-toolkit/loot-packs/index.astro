@@ -1,8 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import LootPackSummary from '../../../components/LootPacks/LootPackSummary.astro';
+import { ROUTES } from '../../../config/routes';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
-import { ROUTES } from '../../../utils/routes';
 
 const treasureData = await getCollection('loot-packs');
 const treasures = treasureData

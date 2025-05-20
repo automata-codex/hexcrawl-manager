@@ -2,9 +2,9 @@
 import { getCollection } from 'astro:content';
 import PublicContent from '../../../components/Content/PublicContent.astro';
 import HiddenContent from '../../../components/Content/HiddenContent.astro';
+import { ROUTES } from '../../../config/routes';
 import ArticleLayout from '../../../layouts/ArticleLayout.astro';
 import { renderBulletMarkdown, renderMarkdown } from '../../../utils/markdown';
-import { ROUTES } from '../../../utils/routes';
 
 const supplementsCollection = await getCollection('supplements');
 const supplements = supplementsCollection

@@ -2,6 +2,7 @@
 import { getCollection, getEntry } from 'astro:content';
 
 import StatBlock from '../../../components/StatBlock/StatBlock.astro';
+import { getFloatingCluePath, getHexPath, getRegionPath } from '../../../config/routes';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import type {
   EncounterData,
@@ -10,7 +11,6 @@ import type {
   RegionEntry,
 } from '../../../types';
 import { renderBulletMarkdown, renderMarkdown, renderSubArticleMarkdown } from '../../../utils/markdown';
-import { getFloatingCluePath, getHexPath, getRegionPath } from '../../../utils/routes';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ClueLink, DungeonEntry, ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
-  import { getHexPath, getRegionPath } from '../../utils/routes.ts';
+  import { getHexPath, getRegionPath } from '../../config/routes.ts';
   import Explored from './Explored.svelte';
   import Dungeon from './Dungeon.svelte';
   import HiddenSites from './HiddenSites.svelte';

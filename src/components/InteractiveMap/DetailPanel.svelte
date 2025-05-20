@@ -13,7 +13,7 @@
   import { SCOPES } from '../../utils/constants.ts';
   import { getFavoredTerrain, getTravelDifficulty } from '../../utils/interactive-map.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
-  import { getDungeonPath, getHexPath, getRegionPath } from '../../utils/routes.ts';
+  import { getDungeonPath, getHexPath, getRegionPath } from '../../config/routes.ts';
   import CheckBoxIcon from './CheckBoxIcon.svelte';
 
   interface Props {

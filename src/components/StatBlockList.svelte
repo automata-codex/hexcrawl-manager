@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getStatBlockPath } from '../utils/routes.ts';
+  import { getStatBlockPath } from '../config/routes.ts';
 
   interface Entry {
     type: 'group' | 'single';
