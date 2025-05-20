@@ -25,6 +25,7 @@ export const ROUTES = {
       demographics: '/gm-reference/first-civilization/demographics',
       skyspire: '/gm-reference/first-civilization/the-skyspire',
       skyspireOccupations: '/gm-reference/first-civilization/skyspire-occupations',
+      skyspireMaterialsAndZones: '/gm-reference/first-civilization/skyspire-materials-and-zones',
       velari: '/gm-reference/first-civilization/the-velari',
     },
     knowledgeTrees: {
@@ -198,6 +199,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'first-civ/first-civilization-demographics',
     path: ROUTES.gmReference.firstCivilization.demographics,
+  },
+  {
+    slug: 'first-civ/skyspire/materials-and-zones',
+    path: ROUTES.gmReference.firstCivilization.skyspireMaterialsAndZones,
   },
   {
     slug: 'first-civ/skyspire/skyspire',

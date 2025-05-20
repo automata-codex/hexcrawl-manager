@@ -142,6 +142,7 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
             { label: 'Scar Sites', href: ROUTES.sessionToolkit.scarSites },
             { label: 'The Skyspire', href: ROUTES.gmReference.firstCivilization.skyspire },
             { label: 'Occupations at the Skyspire', href: ROUTES.gmReference.firstCivilization.skyspireOccupations },
+            { label: 'Skyspire Materials and Zones', href: ROUTES.gmReference.firstCivilization.skyspireMaterialsAndZones },
             { label: 'Crystals', href: ROUTES.gmReference.firstCivilization.crystals },
             { label: 'Crystal Reference', href: ROUTES.gmReference.firstCivilization.crystalReference },
             { label: 'Airships', href: ROUTES.gmReference.firstCivilization.airships },
