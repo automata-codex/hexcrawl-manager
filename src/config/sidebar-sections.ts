@@ -129,8 +129,8 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
         { id: 'characters', label: 'Characters', href: ROUTES.gmReference.characters.index },
         { id: 'cosmology', label: 'Cosmology', href: ROUTES.playersReference.setting.cosmology },
         { id: 'dungeons', label: 'Dungeons', href: ROUTES.gmReference.dungeons.index },
-        { id: 'encounters', label: 'Encounters', href: '/gm-reference/encounters' },
-        { id: 'factions', label: 'Factions', href: '/gm-reference/factions' },
+        { id: 'encounters', label: 'Encounters', href: ROUTES.gmReference.encounters.index },
+        { id: 'factions', label: 'Factions', href: ROUTES.gmReference.factions.index },
         {
           id: 'first-civilization',
           label: 'First Civilization',
@@ -148,7 +148,8 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
             { label: 'Airships', href: ROUTES.gmReference.firstCivilization.airships },
           ],
         },
-        { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
+        { id: 'glossary', label: 'Glossary', href: ROUTES.gmReference.glossary },
+        { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: ROUTES.playersReference.setting.vaulridgeNobility },
         {
           id: 'puzzles',
           label: 'Puzzles',

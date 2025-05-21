@@ -28,6 +28,7 @@ export const ROUTES = {
       skyspireMaterialsAndZones: '/gm-reference/first-civilization/skyspire-materials-and-zones',
       velari: '/gm-reference/first-civilization/the-velari',
     },
+    glossary: '/gm-reference/glossary',
     knowledgeTrees: {
       id: '/gm-reference/knowledge-trees/[id]',
     },
@@ -219,6 +220,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'glinting-steps-map',
     path: ROUTES.playersReference.setting.glintingStepsMap,
+  },
+  {
+    slug: 'glossary',
+    path: ROUTES.gmReference.glossary,
   },
   {
     slug: 'griffon-hunt',
