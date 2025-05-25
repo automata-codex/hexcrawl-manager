@@ -24,8 +24,9 @@ export const ROUTES = {
       crystalReference: '/gm-reference/first-civilization/crystal-reference',
       demographics: '/gm-reference/first-civilization/demographics',
       skyspire: '/gm-reference/first-civilization/the-skyspire',
-      skyspireOccupations: '/gm-reference/first-civilization/skyspire-occupations',
       skyspireMaterialsAndZones: '/gm-reference/first-civilization/skyspire-materials-and-zones',
+      skyspireOccupations: '/gm-reference/first-civilization/skyspire-occupations',
+      skyspireTerrain: '/gm-reference/first-civilization/skyspire-terrain',
       velari: '/gm-reference/first-civilization/the-velari',
     },
     glossary: '/gm-reference/glossary',
@@ -212,6 +213,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'first-civ/skyspire/skyspire-occupations',
     path: ROUTES.gmReference.firstCivilization.skyspireOccupations,
+  },
+  {
+    slug: 'first-civ/skyspire/terrain',
+    path: ROUTES.gmReference.firstCivilization.skyspireTerrain,
   },
   {
     slug: 'first-civ/velari',
