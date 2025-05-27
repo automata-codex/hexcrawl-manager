@@ -7,7 +7,7 @@
     getDungeonPath,
     getFloatingCluePath,
     getHexPath,
-  } from '../utils/routes.js';
+  } from '../config/routes.js';
 
   export let node: KnowledgeNodeData;
   export let fullId: string = node.id;

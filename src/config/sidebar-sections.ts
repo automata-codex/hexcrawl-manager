@@ -1,6 +1,6 @@
-import { canAccess } from './auth.ts';
-import { SCOPES } from './constants.ts';
 import type { SidebarSection } from '../types.ts';
+import { canAccess } from '../utils/auth.ts';
+import { SCOPES } from '../utils/constants.ts';
 import { ROUTES } from './routes.ts';
 
 export function getSidebarSections(role: string|null): SidebarSection[] {
@@ -129,8 +129,8 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
         { id: 'characters', label: 'Characters', href: ROUTES.gmReference.characters.index },
         { id: 'cosmology', label: 'Cosmology', href: ROUTES.playersReference.setting.cosmology },
         { id: 'dungeons', label: 'Dungeons', href: ROUTES.gmReference.dungeons.index },
-        { id: 'encounters', label: 'Encounters', href: '/gm-reference/encounters' },
-        { id: 'factions', label: 'Factions', href: '/gm-reference/factions' },
+        { id: 'encounters', label: 'Encounters', href: ROUTES.gmReference.encounters.index },
+        { id: 'factions', label: 'Factions', href: ROUTES.gmReference.factions.index },
         {
           id: 'first-civilization',
           label: 'First Civilization',
@@ -141,12 +141,17 @@ export function getSidebarSections(role: string|null): SidebarSection[] {
             { label: 'The Catastrophe and Aftermath', href: ROUTES.gmReference.firstCivilization.catastropheAndAftermath },
             { label: 'Scar Sites', href: ROUTES.sessionToolkit.scarSites },
             { label: 'The Skyspire', href: ROUTES.gmReference.firstCivilization.skyspire },
+            { label: 'Occupations at the Skyspire', href: ROUTES.gmReference.firstCivilization.skyspireOccupations },
+            { label: 'Skyspire Materials and Zones', href: ROUTES.gmReference.firstCivilization.skyspireMaterialsAndZones },
+            { label: 'Skyspire Original Zones', href: ROUTES.gmReference.firstCivilization.skyspireOriginalZones },
+            { label: 'Skyspire Terrain', href: ROUTES.gmReference.firstCivilization.skyspireTerrain },
             { label: 'Crystals', href: ROUTES.gmReference.firstCivilization.crystals },
             { label: 'Crystal Reference', href: ROUTES.gmReference.firstCivilization.crystalReference },
             { label: 'Airships', href: ROUTES.gmReference.firstCivilization.airships },
           ],
         },
-        { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: '/players-reference/setting/vaulridge-nobility' },
+        { id: 'glossary', label: 'Glossary', href: ROUTES.gmReference.glossary },
+        { id: 'gm-nobility', label: 'Nobility of Vaulridge', href: ROUTES.playersReference.setting.vaulridgeNobility },
         {
           id: 'puzzles',
           label: 'Puzzles',

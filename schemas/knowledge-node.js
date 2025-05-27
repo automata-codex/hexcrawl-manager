@@ -6,4 +6,5 @@ export const KnowledgeNodeSchema = z.object({
   description: z.string(),
   isKnown: z.boolean().optional().default(false),
   name: z.string(),
+  details: z.string().optional().describe('Further details about the clue; extended information'),
 });
