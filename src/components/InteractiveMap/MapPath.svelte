@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import { axialToPixel, DEG_TO_RAD, HEX_HEIGHT, HEX_RADIUS } from '../../utils/interactive-map.ts';
+  import { axialToPixel, DEG_TO_RAD, EDGE_OFFSET, HEX_HEIGHT, HEX_RADIUS } from '../../utils/interactive-map.ts';
   import { parseHexId } from '../../utils/hexes.ts';
   import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import type { SegmentMetadataData } from '../../types.ts';
 
   interface Props {
     paths: MapPathPlayerData[];
-    type: 'river';
+    type: 'conduit' | 'river' | 'trail';
   }
 
   interface Segment {
@@ -46,9 +46,29 @@
       dx: HEX_RADIUS * Math.sin(330 * DEG_TO_RAD),
       dy: -HEX_RADIUS * Math.cos(330 * DEG_TO_RAD),
     },
-    south: {
+    side1: {
       dx: 0,
-      dy: HEX_HEIGHT / 2,
+      dy: -EDGE_OFFSET,
+    },
+    side2: {
+      dx: EDGE_OFFSET * Math.sin(60 * DEG_TO_RAD),
+      dy: -EDGE_OFFSET * Math.cos(60 * DEG_TO_RAD),
+    },
+    side3: {
+      dx: EDGE_OFFSET * Math.sin(120 * DEG_TO_RAD),
+      dy: -EDGE_OFFSET * Math.cos(120 * DEG_TO_RAD),
+    },
+    side4: {
+      dx: 0,
+      dy: EDGE_OFFSET,
+    },
+    side5: {
+      dx: EDGE_OFFSET * Math.sin(240 * DEG_TO_RAD),
+      dy: -EDGE_OFFSET * Math.cos(240 * DEG_TO_RAD),
+    },
+    side6: {
+      dx: EDGE_OFFSET * Math.sin(300 * DEG_TO_RAD),
+      dy: -EDGE_OFFSET * Math.cos(300 * DEG_TO_RAD),
     },
   };
 
@@ -89,11 +109,26 @@
     };
   }
 
+  function getColor() {
+    switch (type) {
+      case 'conduit':
+        return '#911AE6';
+      case 'river':
+        return '#72C6E5';
+      case 'trail':
+        return 'pink';
+      default:
+        return '#000000';
+    }
+  }
+
   const lineSegments = $derived(
-    paths.flatMap((path) => {
-      const points = path.points.map(resolvePathPoint);
-      return pointsToSegments(points, path.segmentMetadata, path.id);
-    }),
+    paths
+      .filter((path) => path.type === type)
+      .flatMap((path) => {
+        const points = path.points.map(resolvePathPoint);
+        return pointsToSegments(points, path.segmentMetadata, path.id);
+      }),
   );
 </script>
 <g
@@ -107,7 +142,7 @@
       y1={segment.from.y}
       x2={segment.to.x}
       y2={segment.to.y}
-      stroke={'#72C6E5'}
+      stroke={getColor()}
       stroke-width={4}
       stroke-linecap="round"
       stroke-dasharray={impedesTravel ? 'none' : '1, 8'}

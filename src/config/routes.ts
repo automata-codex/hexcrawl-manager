@@ -24,8 +24,13 @@ export const ROUTES = {
       crystalReference: '/gm-reference/first-civilization/crystal-reference',
       demographics: '/gm-reference/first-civilization/demographics',
       skyspire: '/gm-reference/first-civilization/the-skyspire',
+      skyspireMaterialsAndZones: '/gm-reference/first-civilization/skyspire-materials-and-zones',
+      skyspireOccupations: '/gm-reference/first-civilization/skyspire-occupations',
+      skyspireOriginalZones: '/gm-reference/first-civilization/skyspire-original-zones',
+      skyspireTerrain: '/gm-reference/first-civilization/skyspire-terrain',
       velari: '/gm-reference/first-civilization/the-velari',
     },
+    glossary: '/gm-reference/glossary',
     knowledgeTrees: {
       id: '/gm-reference/knowledge-trees/[id]',
     },
@@ -139,20 +144,12 @@ interface RouteData {
 
 export const ARTICLE_ROUTES: RouteData[] = [
   {
-    slug: 'airships',
-    path: ROUTES.gmReference.firstCivilization.airships,
-  },
-  {
     slug: 'ancestries-and-cultures',
     path: ROUTES.playersGuide.ancestriesAndCultures,
   },
   {
     slug: 'biomes',
     path: ROUTES.gmReference.biomes,
-  },
-  {
-    slug: 'catastrophe-and-aftermath',
-    path: ROUTES.gmReference.firstCivilization.catastropheAndAftermath,
   },
   {
     slug: 'character-advancement',
@@ -195,12 +192,48 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.gmReference.setting.earlyFrontier,
   },
   {
-    slug: 'first-civilization-demographics',
+    slug: 'first-civ/airships',
+    path: ROUTES.gmReference.firstCivilization.airships,
+  },
+  {
+    slug: 'first-civ/catastrophe-and-aftermath',
+    path: ROUTES.gmReference.firstCivilization.catastropheAndAftermath,
+  },
+  {
+    slug: 'first-civ/first-civilization-demographics',
     path: ROUTES.gmReference.firstCivilization.demographics,
+  },
+  {
+    slug: 'first-civ/skyspire/materials-and-zones',
+    path: ROUTES.gmReference.firstCivilization.skyspireMaterialsAndZones,
+  },
+  {
+    slug: 'first-civ/skyspire/original-zones',
+    path: ROUTES.gmReference.firstCivilization.skyspireOriginalZones,
+  },
+  {
+    slug: 'first-civ/skyspire/skyspire',
+    path: ROUTES.gmReference.firstCivilization.skyspire,
+  },
+  {
+    slug: 'first-civ/skyspire/skyspire-occupations',
+    path: ROUTES.gmReference.firstCivilization.skyspireOccupations,
+  },
+  {
+    slug: 'first-civ/skyspire/terrain',
+    path: ROUTES.gmReference.firstCivilization.skyspireTerrain,
+  },
+  {
+    slug: 'first-civ/velari',
+    path: ROUTES.gmReference.firstCivilization.velari,
   },
   {
     slug: 'glinting-steps-map',
     path: ROUTES.playersReference.setting.glintingStepsMap,
+  },
+  {
+    slug: 'glossary',
+    path: ROUTES.gmReference.glossary,
   },
   {
     slug: 'griffon-hunt',
@@ -267,16 +300,8 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.sessionToolkit.scarSites,
   },
   {
-    slug: 'skyspire',
-    path: ROUTES.gmReference.firstCivilization.skyspire,
-  },
-  {
     slug: 'timeline',
     path: ROUTES.sessionToolkit.timeline,
-  },
-  {
-    slug: 'velari',
-    path: ROUTES.gmReference.firstCivilization.velari,
   },
   {
     slug: 'western-frontier',

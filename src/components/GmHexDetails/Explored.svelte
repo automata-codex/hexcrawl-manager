@@ -11,8 +11,6 @@
 
   const icon = $derived(hex.isExplored ? faSquareCheck : faSquare);
 </script>
-{#if hex.hiddenSites && hex.hiddenSites.length > 0}
-  <div class="data-bar-cell">
-    Explored:{' '}<FontAwesomeIcon {icon} />
-  </div>
-{/if}
+<div class="data-bar-cell">
+  Explored:{' '}<FontAwesomeIcon {icon} />
+</div>

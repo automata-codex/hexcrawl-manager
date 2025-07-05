@@ -1,8 +1,8 @@
 ---
 import SideNav from '../components/SideNav.svelte';
 import TopBar from '../components/TopBar.astro';
+import { getSidebarSections } from '../config/sidebar-sections';
 import { getCurrentUserRole } from '../utils/auth';
-import { getSidebarSections } from '../utils/sidebar-sections';
 
 interface Props {
   title: string;

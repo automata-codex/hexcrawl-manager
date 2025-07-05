@@ -1,8 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import FloatingClue from '../../../../components/FloatingClue.astro';
+import { ROUTES } from '../../../../config/routes';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
-import { ROUTES } from '../../../../utils/routes';
 
 const cluesData = await getCollection('floatingClues');
 const clues = cluesData.sort((a, b) => a.data.name.localeCompare(b.data.name));

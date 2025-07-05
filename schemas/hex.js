@@ -34,6 +34,19 @@ export const HiddenSitesSchema = z.object({
     .describe('IDs of knowledge nodes that are unlocked by this site'),
 });
 
+export const KnownTagEnum = z.enum([
+  'crystal-bounty',
+  'dungeon',
+  'settlement',
+  'dragon-ruins',
+  'fc-city',
+  'fc-ruins',
+  'goblin-ruins',
+  'haven',
+  'landmark-known',
+  'scar-site',
+]);
+
 export const LandmarkSchema = z.object({
   description: z.string(),
   treasure: z.array(TreasureSchema).optional(),
@@ -41,6 +54,8 @@ export const LandmarkSchema = z.object({
     .optional()
     .describe('IDs of knowledge nodes that are unlocked by this site'),
 });
+
+export const TagSchema = z.union([KnownTagEnum, z.string()]);
 
 export const HexSchema = z.object({
   id: z.string(),
@@ -59,18 +74,16 @@ export const HexSchema = z.object({
   hideInCatalog: z.boolean().optional(),
   isVisited: z.boolean().optional(),
   isExplored: z.boolean().optional(),
+  isScouted: z.boolean().optional(),
   encounterChance: z.number().int().min(1).max(20).optional(),
   encounterOverrides: EncounterOverrideSchema.optional(),
-  flags: z.object({
-    isScarSite: z.boolean().optional(),
-  }).optional().describe('Flags for different hex categories and types'),
   notes: z.array(z.string())
     .optional()
     .describe('Private GM eyes-only notes'),
   updates: z.array(z.string())
     .optional()
     .describe('Private GM-only changes to the hex since the last visit'),
-  tags: z.array(z.string())
+  tags: z.array(TagSchema)
     .optional()
     .describe('Tags for filtering hexes, matching clues, etc.'),
   terrain: z.string(),

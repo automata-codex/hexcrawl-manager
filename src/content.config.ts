@@ -12,6 +12,7 @@ import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
 import { HexSchema } from '../schemas/hex';
 import { LootPackSchema } from '../schemas/loot-pack';
+import { MapPathSchema } from '../schemas/map-path';
 import { NpcSchema } from '../schemas/npc';
 import { PlayerSchema } from '../schemas/player';
 import { RegionSchema } from '../schemas/region';
@@ -19,6 +20,7 @@ import { RumorSchema } from '../schemas/rumor';
 import { SessionSchema } from '../schemas/session';
 import { StatBlockSchema } from '../schemas/stat-block';
 import { SupplementSchema } from '../schemas/supplement-list';
+import { TrailSchema } from '../schemas/trail';
 import { TreasureSchema } from '../schemas/treasure';
 import type {
   BountyData,
@@ -30,7 +32,6 @@ import type {
   RumorData,
   SupplementData,
 } from './types.ts';
-import { MapPathSchema } from '../schemas/map-path';
 
 const DATA_DIR = 'data';
 
@@ -54,6 +55,7 @@ const DIRS = {
   SESSIONS: `${DATA_DIR}/sessions`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
   SUPPLEMENTS: `${DATA_DIR}/supplements`,
+  TRAILS: `${DATA_DIR}/trails`,
 } as const;
 
 function getDirectoryYamlLoader<T>(directory: string): () => T[] {
@@ -169,6 +171,11 @@ const supplements = defineCollection({
   schema: SupplementSchema
 });
 
+const trails = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.TRAILS }),
+  schema: TrailSchema,
+});
+
 export const collections = {
   articles,
   bounties,
@@ -188,4 +195,5 @@ export const collections = {
   sessions,
   statBlocks,
   supplements,
+  trails,
 };

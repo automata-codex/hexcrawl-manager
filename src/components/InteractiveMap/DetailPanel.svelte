@@ -2,30 +2,56 @@
   import { faSidebar, faXmark } from '@fortawesome/pro-light-svg-icons';
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+  import { onMount } from 'svelte';
+  import Explored from '../GmHexDetails/Explored.svelte';
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
+  import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
+  import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
-  import type { HexData } from '../../types.ts';
+  import type { TrailData } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
   import { getFavoredTerrain, getTravelDifficulty } from '../../utils/interactive-map.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
-  import { getDungeonPath, getHexPath, getRegionPath } from '../../utils/routes.ts';
+  import { getDungeonPath, getHexPath, getRegionPath } from '../../config/routes.ts';
   import CheckBoxIcon from './CheckBoxIcon.svelte';
 
   interface Props {
     dungeons: DungeonEssentialData[];
-    hexes: HexData[];
+    hexes: HexPlayerData[];
+    mapPaths: MapPathPlayerData[];
     role: string | null;
   }
 
-  const { dungeons, hexes, role }: Props = $props();
+  interface LocalTrailData {
+    to: string;
+    uses: number;
+    lastUsed: string;
+  }
+
+  const { dungeons, hexes, mapPaths, role }: Props = $props();
+
+  let isOpen = $state(!!$selectedHex);
+  let trails: TrailData[] = $state([]);
 
   const currentHex = $derived(hexes.find((hex) => hex.id.toLowerCase() === $selectedHex?.toLowerCase()));
   const dungeonsInHex = $derived(
     dungeons.filter((dungeon) => dungeon.hexId.toLowerCase() === $selectedHex?.toLowerCase()),
   );
+  const trailsInHex = $derived(
+    trails
+      .filter((trail) => {
+        return trail.from.toLowerCase().includes($selectedHex?.toLowerCase() ?? '') ||
+          trail.to.toLowerCase().includes($selectedHex?.toLowerCase() ?? '');
+      }),
+  );
 
-  let isOpen = $state(!!$selectedHex);
+  onMount(() => {
+    (async () => {
+      const trailsResponse = await fetch('/api/trails.json');
+      trails = await trailsResponse.json();
+    })();
+  });
 
   function formatText(text?: string) {
     if (!text) return '';
@@ -33,6 +59,14 @@
       .replace(/[-_]/g, ' ')
       .replace(/([a-z])([A-Z])/g, '$1 $2')
       .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  function formatTrailData(trail: TrailData): LocalTrailData {
+    return {
+      to: trail.to === $selectedHex ? trail.from : trail.to,
+      uses: trail.uses,
+      lastUsed: trail.lastUsed,
+    };
   }
 </script>
 
@@ -72,10 +106,9 @@
           Visited:{' '}
           <CheckBoxIcon checked={currentHex?.isVisited ?? false} />
         </div>
-        <div>
-          Explored:{' '}
-          <CheckBoxIcon checked={currentHex?.isExplored ?? false} />
-        </div>
+        {#if currentHex}
+          <Explored hex={currentHex} />
+        {/if}
       </div>
       <p class="hanging-indent">
         <span class="inline-heading">Terrain:</span>
@@ -88,7 +121,7 @@
         {formatText(currentHex?.biome)}
       </p>
       <p class="hanging-indent">
-        <span class="inline-heading">Landmark:</span>{' '}{currentHex?.landmark}
+        <span class="inline-heading">Landmark:</span>{' '}{@html currentHex?.renderedLandmark}
       </p>
       <p class="hanging-indent">
         <span class="inline-heading">Travel Difficulty:</span>
@@ -105,6 +138,26 @@
         {' '}
         {currentHex?.elevation.toLocaleString()} ft.
       </p>
+      {#if trailsInHex.length > 0}
+        <h3 class="title is-5">Trails</h3>
+        <ul>
+          {#each trailsInHex.map(formatTrailData) as trail (trail.to)}
+            <li>
+            <div>
+              <span>
+                <span style="font-weight: bold">To:</span>{' '}{trail.to.toUpperCase()}
+              </span>
+              <span>
+                ({trail.uses} uses)
+              </span>
+            </div>
+              <div>
+                <span style="font-weight: bold">Last used:</span>{' '}{trail.lastUsed}
+              </div>
+            </li>
+          {/each}
+        </ul>
+      {/if}
     </div>
   {:else}
     <p>Please select a hex to get started.</p>

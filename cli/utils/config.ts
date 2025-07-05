@@ -1,0 +1,39 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { z } from 'zod';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const ConfigSchema = z.object({
+  repoRoot: z.string().min(1)
+});
+
+export type SkyreachConfig = z.infer<typeof ConfigSchema>;
+
+let cachedConfig: SkyreachConfig | null = null;
+
+export function loadConfig(): SkyreachConfig {
+  if (cachedConfig) return cachedConfig;
+
+  const configPath = path.resolve(__dirname, '../../skyreach.config.json');
+
+  if (!fs.existsSync(configPath)) {
+    throw new Error(`Config file not found at ${configPath}`);
+  }
+
+  const parsed = ConfigSchema.safeParse(JSON.parse(fs.readFileSync(configPath, 'utf-8')));
+
+  if (!parsed.success) {
+    console.error('❌ Invalid skyreach.config.json:', parsed.error.format());
+    throw new Error('Failed to load config');
+  }
+
+  cachedConfig = parsed.data;
+  return cachedConfig;
+}
+
+export function getRepoPath(...segments: string[]): string {
+  return path.join(loadConfig().repoRoot, ...segments);
+}
