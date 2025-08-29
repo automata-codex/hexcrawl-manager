@@ -6,13 +6,15 @@
     "astro": "astro",
     "build": "astro check && npm run gen-json-schema && npm run build:clue-links && astro build",
     "build:clue-links": "bash scripts/clue-linker/setup_virtualenv.sh && scripts/clue-linker/.venv-clue-linker/bin/python scripts/clue-linker/generate-clue-links.py",
+    "changeset": "changeset",
     "clue-linker:setup": "bash scripts/clue-linker/setup_virtualenv.sh",
     "check": "astro check",
     "dev": "astro dev --host",
     "elevation:setup": "bash scripts/elevation-solver/setup_virtualenv.sh",
     "elevation:run": "bash scripts/elevation-solver/setup_virtualenv.sh && scripts/elevation-solver/.venv-elevation-solver/bin/python scripts/elevation-solver/elevation_solver.py",
     "gen-json-schema": "node ./scripts/generate-json-schema.js",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "release:version": "changeset version"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
