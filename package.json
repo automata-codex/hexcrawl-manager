@@ -1,7 +1,7 @@
 {
   "name": "skyreach",
   "type": "module",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "scripts": {
     "astro": "astro",
     "build": "astro check && npm run gen-json-schema && npm run build:clue-links && astro build",
