@@ -1,8 +1,8 @@
 import { Command } from 'commander';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
-import { ensureLogs, inprogressPath, sessionsDir } from '../utils/session-files';
+import { ensureLogs, inprogressPath, inprogressDir, sessionsDir } from '../utils/session-files';
 import { type Event, readJsonl, writeJsonl, appendJsonl } from '../utils/jsonl';
 
 type Context = {
@@ -14,8 +14,9 @@ type Context = {
 const HEX_RE = /^[A-Za-z][0-9]+$/;
 const HELP_TEXT = `
 Commands:
-  start <hex>                start/resume a session using default/preset id
-  start <sessionId> <hex>    start/resume with explicit session id
+  start <hex>                start a new session using default/preset id
+  start <sessionId> <hex>    start with explicit session id
+  resume [sessionId]         resume the latest (or the specified) in-progress session
   move <to> [pace]           record a move (pace: fast|normal|slow)
   note <text...>             add a note
   view [n]                   show last n events (default 10)
@@ -37,6 +38,33 @@ function appendEvent(ctx: Context, kind: string, payload: Record<string, unknown
   const rec: Event = { seq: nextSeq(evs), ts: nowISO(), kind, payload };
   appendJsonl(ctx.file, rec);
   return rec;
+}
+
+function findLatestInprogress(): { id: string; path: string } | null {
+  const dir = inprogressDir();
+  if (!existsSync(dir)) return null;
+  const files = readdirSync(dir).filter(f => f.endsWith('.jsonl'));
+  if (!files.length) return null;
+  const withStats = files
+    .map(f => ({ f, p: path.join(dir, f), s: statSync(path.join(dir, f)) }))
+    .sort((a, b) => b.s.mtimeMs - a.s.mtimeMs);
+  const top = withStats[0];
+  const id = top.f.replace(/\.jsonl$/, '');
+  return { id, path: top.p };
+}
+
+function lastHexFromEvents(evs: Event[]) {
+  const lastMove = [...evs].reverse().find(e => e.kind === 'move');
+  if (lastMove?.payload && typeof lastMove.payload === 'object') {
+    const to = (lastMove.payload as any).to;
+    if (typeof to === 'string') return to.toUpperCase();
+  }
+  const start = evs.find(e => e.kind === 'session_start');
+  if (start?.payload && typeof start.payload === 'object') {
+    const hx = (start.payload as any).startHex;
+    if (typeof hx === 'string') return hx.toUpperCase();
+  }
+  return null;
 }
 
 function nextSeq(existing: Event[]) {
@@ -105,8 +133,7 @@ export const scribeCommand = new Command('scribe')
         console.log(`started: ${id} @ ${startHexNorm}`);
       } else {
         const evs = readJsonl(ctx.file);
-        const lastMove = [...evs].reverse().find(e => e.kind === 'move');
-        ctx.lastHex = (lastMove?.payload as any)?.to ?? startHexNorm;
+        ctx.lastHex = lastHexFromEvents(evs) ?? startHexNorm;
         console.log(`resumed: ${id} (${evs.length} events)`);
       }
     };
@@ -137,16 +164,52 @@ export const scribeCommand = new Command('scribe')
         start(id, hex);
       },
 
+      resume: (args) => {
+        // 1) If a session id is given, resume that exact file
+        if (args[0]) {
+          const id = args[0];
+          const p = inprogressPath(id);
+          if (!existsSync(p)) {
+            console.log(`❌ No in-progress log for '${id}' at ${p}`);
+            return;
+          }
+          ctx.sessionId = id;
+          ctx.file = p;
+          const evs = readJsonl(p);
+          ctx.lastHex = lastHexFromEvents(evs);
+          console.log(`resumed: ${id} (${evs.length} events)${ctx.lastHex ? ` — last hex ${ctx.lastHex}` : ''}`);
+          return;
+        }
+
+        // 2) Otherwise, resume the most recent in-progress file by mtime
+        const latest = findLatestInprogress();
+        if (!latest) {
+          console.log('∅ No in-progress sessions found. Use: start <hex>  or  start <sessionId> <hex>');
+          return;
+        }
+        ctx.sessionId = latest.id;
+        ctx.file = latest.path;
+        const evs = readJsonl(latest.path);
+        ctx.lastHex = lastHexFromEvents(evs);
+        console.log(`resumed: ${latest.id} (${evs.length} events)${ctx.lastHex ? ` — last hex ${ctx.lastHex}` : ''}`);
+      },
+
       move: (args) => {
         if (!ctx.sessionId) {
-          return console.log('⚠ start a session first');
+          return console.log('⚠ start or resume a session first');
         }
         const to = (args[0] ?? '').toUpperCase();
         if (!to) {
           return console.log('usage: move <to> [pace]');
         }
+        if (!HEX_RE.test(to)) {
+          return console.log('❌ Invalid hex id');
+        }
         const pace = (args[1] ?? 'normal') as 'fast'|'normal'|'slow';
         const from = ctx.lastHex;
+        if (!from) {
+          console.log('(note) starting move has no previous hex');
+        }
         appendEvent(ctx, 'move', { from, to, pace });
         ctx.lastHex = to;
         console.log(`→ move to ${to}${from ? ` (from ${from})` : ''} [${pace}]`);
