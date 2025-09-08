@@ -29,10 +29,6 @@ Commands:
   view [n]                   show last n events (default 10)
 `;
 
-function normalizeHex(h: string) {
-  return h.trim().toUpperCase();
-}
-
 function appendEvent(ctx: Context, kind: string, payload: Record<string, unknown>) {
   if (!ctx.file) {
     throw new Error('No session started. Use: start <hex> or start <sessionId> <hex>');
@@ -41,6 +37,30 @@ function appendEvent(ctx: Context, kind: string, payload: Record<string, unknown
   const rec: Event = { seq: nextSeq(evs), ts: nowISO(), kind, payload };
   appendJsonl(ctx.file, rec);
   return rec;
+}
+
+function deriveCurrentHex(ctx: Context): string | null {
+  if (!ctx.file) {
+    return null;
+  }
+  const evs = readJsonl(ctx.file);
+  // Prefer the last move's destination
+  const lastMove = [...evs].reverse().find(e => e.kind === 'move');
+  if (lastMove && lastMove.payload && typeof lastMove.payload === 'object') {
+    const to = (lastMove.payload as any).to;
+    if (typeof to === 'string') {
+      return to.toUpperCase();
+    }
+  }
+  // Fallback to the start hex if present
+  const start = evs.find(e => e.kind === 'session_start');
+  if (start && start.payload && typeof start.payload === 'object') {
+    const hx = (start.payload as any).startHex;
+    if (typeof hx === 'string') {
+      return hx.toUpperCase();
+    }
+  }
+  return null;
 }
 
 function findLatestInprogress(): { id: string; path: string } | null {
@@ -72,6 +92,10 @@ function lastHexFromEvents(evs: Event[]) {
 
 function nextSeq(existing: Event[]) {
   return existing.length ? Math.max(...existing.map(e => e.seq)) + 1 : 1;
+}
+
+function normalizeHex(h: string) {
+  return h.trim().toUpperCase();
 }
 
 function nowISO() { return new Date().toISOString(); }
@@ -142,6 +166,18 @@ export const scribeCommand = new Command('scribe')
     };
 
     const handlers: Record<string, (args: string[]) => void> = {
+      current: () => {
+        if (!ctx.sessionId || !ctx.file) {
+          return console.log('⚠ start or resume a session first');
+        }
+        const hex = ctx.lastHex ?? deriveCurrentHex(ctx);
+        ctx.lastHex = hex; // cache for subsequent commands
+        if (!hex) {
+          return console.log('∅ current hex unknown');
+        }
+        console.log(hex);
+      },
+
       exit: () => rl.close(),
 
       finalize: () => {
