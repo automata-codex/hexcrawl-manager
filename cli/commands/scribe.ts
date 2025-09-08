@@ -14,17 +14,19 @@ type Context = {
 const HEX_RE = /^[A-Za-z][0-9]+$/;
 const HELP_TEXT = `
 Commands:
-  start <hex>                start a new session using default/preset id
-  start <sessionId> <hex>    start with explicit session id
-  resume [sessionId]         resume the latest (or the specified) in-progress session
-  move <to> [pace]           record a move (pace: fast|normal|slow)
-  mark <hex>                 mark a trail from current hex to <hex>
-  note <text...>             add a note
-  view [n]                   show last n events (default 10)
-  undo [n]                   remove last n in-progress events (default 1)
+  current                    print the current hex
+  exit                       leave the shell
   finalize                   freeze session → logs/sessions/<id>.jsonl
   help                       show this help
-  exit/quit                  leave the shell
+  mark <hex>                 mark a trail from current hex to <hex>
+  move <to> [pace]           record a move (pace: fast|normal|slow)
+  note <text...>             add a note
+  quit                       leave the shell
+  resume [sessionId]         resume the latest (or the specified) in-progress session
+  start <hex>                start a new session using default/preset id
+  start <sessionId> <hex>    start with explicit session id
+  undo [n]                   remove last n in-progress events (default 1)
+  view [n]                   show last n events (default 10)
 `;
 
 function normalizeHex(h: string) {
@@ -140,30 +142,89 @@ export const scribeCommand = new Command('scribe')
     };
 
     const handlers: Record<string, (args: string[]) => void> = {
-      start: (args) => {
-        if (args.length === 0) {
-          console.log('usage:\n  start <hex>\n  start <sessionId> <hex>');
-          return;
+      exit: () => rl.close(),
+
+      finalize: () => {
+        if (!ctx.sessionId || !ctx.file) {
+          return console.log('⚠ start a session first');
         }
-        if (args.length === 1) {
-          // form: start <hex>  (use preset or default id)
-          const hex = args[0];
-          if (!HEX_RE.test(hex)) {
-            console.log('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
-            return;
-          }
-          const id = presetSessionId ?? new Date().toISOString().slice(0,10);
-          start(id, hex);
-          return;
+        const evs = readJsonl(ctx.file);
+        if (!evs.find(e => e.kind === 'session_end')) {
+          evs.push({
+            seq: (evs.at(-1)?.seq ?? 0) + 1,
+            ts: nowISO(),
+            kind: 'session_end',
+            payload: { status: 'final' }
+          });
         }
-        // form: start <sessionId> <hex>
-        const [id, hex] = args;
-        if (!HEX_RE.test(hex)) {
-          console.log('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
-          return;
-        }
-        start(id, hex);
+        // renumber by timestamp so it’s clean
+        evs.sort((a,b)=> a.ts.localeCompare(b.ts));
+        evs.forEach((e,i)=> e.seq = i+1);
+        const out = path.join(sessionsDir(), `${ctx.sessionId}.jsonl`);
+        writeJsonl(out, evs);
+        console.log(`✔ finalized → ${out}`);
       },
+
+      help: () => help(),
+
+      mark: (args) => {
+        if (!ctx.sessionId) {
+          return console.log('⚠ start or resume a session first');
+        }
+        if (!ctx.lastHex) {
+          return console.log('⚠ no current hex known—make a move or start with a starting hex first');
+        }
+        const otherRaw = args[0];
+        if (!otherRaw) {
+          return console.log('usage: mark <hex>');
+        }
+        const other = normalizeHex(otherRaw);
+        if (!HEX_RE.test(other)) {
+          return console.log('❌ Invalid hex. Example: mark P14');
+        }
+        const from = normalizeHex(ctx.lastHex);
+        if (from === other) {
+          return console.log('❌ Cannot mark a trail to the same hex');
+        }
+
+        appendEvent(ctx, 'trail', { from, to: other, marked: true });
+        console.log(`✓ marked trail ${from} ↔ ${other}`);
+      },
+
+      move: (args) => {
+        if (!ctx.sessionId) {
+          return console.log('⚠ start or resume a session first');
+        }
+        const to = (args[0] ?? '').toUpperCase();
+        if (!to) {
+          return console.log('usage: move <to> [pace]');
+        }
+        if (!HEX_RE.test(to)) {
+          return console.log('❌ Invalid hex id');
+        }
+        const pace = (args[1] ?? 'normal') as 'fast'|'normal'|'slow';
+        const from = ctx.lastHex;
+        if (!from) {
+          console.log('(note) starting move has no previous hex');
+        }
+        appendEvent(ctx, 'move', { from, to, pace });
+        ctx.lastHex = to;
+        console.log(`→ move to ${to}${from ? ` (from ${from})` : ''} [${pace}]`);
+      },
+
+      note: (args) => {
+        if (!ctx.sessionId) {
+          return console.log('⚠ start a session first');
+        }
+        const text = args.join(' ');
+        if (!text) {
+          return console.log('usage: note <text…>');
+        }
+        appendEvent(ctx, 'note', { text, scope: 'session' });
+        console.log(`  note added`);
+      },
+
+      quit: () => rl.close(),
 
       resume: (args) => {
         // 1) If a session id is given, resume that exact file
@@ -195,72 +256,29 @@ export const scribeCommand = new Command('scribe')
         console.log(`resumed: ${latest.id} (${evs.length} events)${ctx.lastHex ? ` — last hex ${ctx.lastHex}` : ''}`);
       },
 
-      move: (args) => {
-        if (!ctx.sessionId) {
-          return console.log('⚠ start or resume a session first');
+      start: (args) => {
+        if (args.length === 0) {
+          console.log('usage:\n  start <hex>\n  start <sessionId> <hex>');
+          return;
         }
-        const to = (args[0] ?? '').toUpperCase();
-        if (!to) {
-          return console.log('usage: move <to> [pace]');
+        if (args.length === 1) {
+          // form: start <hex>  (use preset or default id)
+          const hex = args[0];
+          if (!HEX_RE.test(hex)) {
+            console.log('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
+            return;
+          }
+          const id = presetSessionId ?? new Date().toISOString().slice(0,10);
+          start(id, hex);
+          return;
         }
-        if (!HEX_RE.test(to)) {
-          return console.log('❌ Invalid hex id');
+        // form: start <sessionId> <hex>
+        const [id, hex] = args;
+        if (!HEX_RE.test(hex)) {
+          console.log('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
+          return;
         }
-        const pace = (args[1] ?? 'normal') as 'fast'|'normal'|'slow';
-        const from = ctx.lastHex;
-        if (!from) {
-          console.log('(note) starting move has no previous hex');
-        }
-        appendEvent(ctx, 'move', { from, to, pace });
-        ctx.lastHex = to;
-        console.log(`→ move to ${to}${from ? ` (from ${from})` : ''} [${pace}]`);
-      },
-
-      mark: (args) => {
-        if (!ctx.sessionId) {
-          return console.log('⚠ start or resume a session first');
-        }
-        if (!ctx.lastHex) {
-          return console.log('⚠ no current hex known—make a move or start with a starting hex first');
-        }
-        const otherRaw = args[0];
-        if (!otherRaw) {
-          return console.log('usage: mark <hex>');
-        }
-        const other = normalizeHex(otherRaw);
-        if (!HEX_RE.test(other)) {
-          return console.log('❌ Invalid hex. Example: mark P14');
-        }
-        const from = normalizeHex(ctx.lastHex);
-        if (from === other) {
-          return console.log('❌ Cannot mark a trail to the same hex');
-        }
-
-        appendEvent(ctx, 'trail', { from, to: other, marked: true });
-        console.log(`✓ marked trail ${from} ↔ ${other}`);
-      },
-
-      note: (args) => {
-        if (!ctx.sessionId) {
-          return console.log('⚠ start a session first');
-        }
-        const text = args.join(' ');
-        if (!text) {
-          return console.log('usage: note <text…>');
-        }
-        appendEvent(ctx, 'note', { text, scope: 'session' });
-        console.log(`  note added`);
-      },
-
-      view: (args) => {
-        if (!ctx.file) {
-          return console.log('⚠ no session');
-        }
-        const n = Math.max(1, parseInt(args[0] ?? '10', 10));
-        const evs = readJsonl(ctx.file);
-        for (const e of evs.slice(-n)) {
-          console.log(`#${e.seq} ${e.ts} ${e.kind} ${JSON.stringify(e.payload)}`);
-        }
+        start(id, hex);
       },
 
       undo: (args) => {
@@ -279,30 +297,16 @@ export const scribeCommand = new Command('scribe')
         console.log(`↩ undone ${Math.min(n, evs.length)} event(s)`);
       },
 
-      finalize: () => {
-        if (!ctx.sessionId || !ctx.file) {
-          return console.log('⚠ start a session first');
+      view: (args) => {
+        if (!ctx.file) {
+          return console.log('⚠ no session');
         }
+        const n = Math.max(1, parseInt(args[0] ?? '10', 10));
         const evs = readJsonl(ctx.file);
-        if (!evs.find(e => e.kind === 'session_end')) {
-          evs.push({
-            seq: (evs.at(-1)?.seq ?? 0) + 1,
-            ts: nowISO(),
-            kind: 'session_end',
-            payload: { status: 'final' }
-          });
+        for (const e of evs.slice(-n)) {
+          console.log(`#${e.seq} ${e.ts} ${e.kind} ${JSON.stringify(e.payload)}`);
         }
-        // renumber by timestamp so it’s clean
-        evs.sort((a,b)=> a.ts.localeCompare(b.ts));
-        evs.forEach((e,i)=> e.seq = i+1);
-        const out = path.join(sessionsDir(), `${ctx.sessionId}.jsonl`);
-        writeJsonl(out, evs);
-        console.log(`✔ finalized → ${out}`);
-      },
-
-      help: () => help(),
-      exit: () => rl.close(),
-      quit: () => rl.close()
+      }
     };
 
     help();
