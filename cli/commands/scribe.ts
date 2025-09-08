@@ -1,7 +1,9 @@
 import { Command } from 'commander';
-import { existsSync, readdirSync, statSync } from 'node:fs';
+import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
+import yaml from 'yaml';
+import { getRepoPath } from '../utils/config';
 import { ensureLogs, inprogressPath, inprogressDir, sessionsDir } from '../utils/session-files';
 import { type Event, readJsonl, writeJsonl, appendJsonl } from '../utils/jsonl';
 
@@ -9,7 +11,10 @@ type Context = {
   sessionId: string | null;
   file: string | null; // in-progress file path
   lastHex: string | null;
+  party: string[];
 };
+
+let CACHED_CHAR_IDS: string[] | null = null;
 
 const HEX_RE = /^[A-Za-z][0-9]+$/;
 const HELP_TEXT = `
@@ -21,6 +26,10 @@ Commands:
   mark <hex>                 mark a trail from current hex to <hex>
   move <to> [pace]           record a move (pace: fast|normal|slow)
   note <text...>             add a note
+  party add <id>             add a character (TAB to autocomplete)
+  party clear                remove all characters
+  party list                 list active characters
+  party remove <id>          remove one character by id (TAB to autocomplete)
   quit                       leave the shell
   resume [sessionId]         resume the latest (or the specified) in-progress session
   start <hex>                start a new session using default/preset id
@@ -76,6 +85,12 @@ function findLatestInprogress(): { id: string; path: string } | null {
   return { id, path: top.p };
 }
 
+function getAllCharacterIds(): string[] {
+  if (CACHED_CHAR_IDS) return CACHED_CHAR_IDS;
+  CACHED_CHAR_IDS = loadCharacterIds(); // your existing YAML reader from data/characters
+  return CACHED_CHAR_IDS;
+}
+
 function lastHexFromEvents(evs: Event[]) {
   const lastMove = [...evs].reverse().find(e => e.kind === 'move');
   if (lastMove?.payload && typeof lastMove.payload === 'object') {
@@ -90,6 +105,38 @@ function lastHexFromEvents(evs: Event[]) {
   return null;
 }
 
+function loadCharacterIds(): string[] {
+  // Read all character YAML files and pull `id`
+  const dir = getRepoPath('data', 'characters');
+  if (!fs.existsSync(dir)) {
+    return [];
+  }
+  const files = fs.readdirSync(dir).filter(f => /\.ya?ml$/i.test(f));
+  const ids: string[] = [];
+  for (const f of files) {
+    const p = path.join(dir, f);
+    try {
+      const doc = yaml.parse(fs.readFileSync(p, 'utf8'));
+      const id = doc?.id;
+      if (id && typeof id === 'string') {
+        ids.push(id);
+      }
+    } catch { /* ignore parse errors for now */ }
+  }
+
+  // Dedupe (case-insensitive), but keep original casing of the first seen
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const id of ids) {
+    const key = id.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      out.push(id);
+    }
+  }
+  return out.sort((a,b) => a.localeCompare(b, undefined, { sensitivity:'base' }));
+}
+
 function nextSeq(existing: Event[]) {
   return existing.length ? Math.max(...existing.map(e => e.seq)) + 1 : 1;
 }
@@ -99,6 +146,46 @@ function normalizeHex(h: string) {
 }
 
 function nowISO() { return new Date().toISOString(); }
+
+/**
+ * readline completer: returns [matches, original]
+ * We complete only for:
+ *   - "party add <partial>"
+ *   - "party remove <partial>"
+ */
+function scribeCompleter(line: string): [string[], string] {
+  // word = last whitespace-delimited token at the cursor (end of line)
+  const m = /([^\s]*)$/.exec(line) || ['',''];
+  const word = m[1]; // <-- this is the ONLY part readline will replace
+  const before = line.slice(0, line.length - word.length).trimStart();
+  const parts = before.split(/\s+/).filter(Boolean); // tokens BEFORE `word`
+
+  // Default: no completions
+  let matches: string[] = [];
+
+  if (parts[0] === 'party') {
+    const sub = parts[1] ?? '';
+    const subs = ['add', 'list', 'clear', 'remove'];
+
+    // Completing subcommand (after "party ")
+    if (parts.length <= 2 && (sub === '' || !['add','list','clear','remove'].includes(sub))) {
+      const q = (word || '').toLowerCase();
+      matches = subs.filter(s => s.startsWith(q));
+      return [matches, word]; // <-- return last token only
+    }
+
+    // Completing an ID for "party add <id...>" or "party remove <id...>"
+    if (sub === 'add' || sub === 'remove') {
+      const all = getAllCharacterIds(); // your cached list
+      const q = (word || '').toLowerCase();
+      const starts = all.filter(id => id.toLowerCase().startsWith(q));
+      matches = starts.length ? starts : all.filter(id => id.toLowerCase().includes(q));
+      return [matches, word]; // <-- only replace the id fragment
+    }
+  }
+
+  return [matches, word]; // safe default
+}
 
 // Allow quoted args: note "party rests here"
 function tokenize(s: string): string[] {
@@ -132,13 +219,19 @@ export const scribeCommand = new Command('scribe')
   .argument('[presetSessionId]', 'Optional: preset session id to use with `start <hex>`')
   .action((presetSessionId?: string) => {
     ensureLogs();
-    const ctx: Context = { sessionId: null, file: null, lastHex: null };
+    const ctx: Context = {
+      sessionId: null,
+      file: null,
+      lastHex: null,
+      party: [],
+    };
 
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
       prompt: 'scribe > ',
       historySize: 200,
+      completer: scribeCompleter,
     });
 
     const help = () => { console.log(HELP_TEXT); };
@@ -258,6 +351,69 @@ export const scribeCommand = new Command('scribe')
         }
         appendEvent(ctx, 'note', { text, scope: 'session' });
         console.log(`  note added`);
+      },
+
+      party: async (args) => {
+        const sub = (args[0] ?? '').toLowerCase();
+
+        if (sub === 'add') {
+          if (!ctx.sessionId) {
+            return console.log('⚠ start or resume a session first');
+          }
+          const id = args[1];
+          if (!id) {
+            console.log('usage: party add <id>   (TIP: type a letter then press TAB)');
+            return;
+          }
+          const exists = getAllCharacterIds().some(c => c.toLowerCase() === id.toLowerCase());
+          if (!exists) {
+            console.log(`❌ unknown id '${id}'. Try TAB for suggestions.`);
+            return;
+          }
+          if (!ctx.party.find(p => p.toLowerCase() === id.toLowerCase())) {
+            ctx.party.push(id);
+            appendEvent(ctx, 'party_set', { ids: [...ctx.party] });
+          }
+          console.log(`✓ party: ${ctx.party.join(', ')}`);
+          return;
+        }
+
+        if (sub === 'clear') {
+          if (!ctx.sessionId) {
+            return console.log('⚠ start or resume a session first');
+          }
+          ctx.party = [];
+          appendEvent(ctx, 'party_set', { ids: [] });
+          console.log('✓ party cleared');
+          return;
+        }
+
+        if (sub === 'list') {
+          console.log(ctx.party.length ? ctx.party.join(', ') : '∅ (no active characters)');
+          return;
+        }
+
+        if (sub === 'remove') {
+          if (!ctx.sessionId) {
+            return console.log('⚠ start or resume a session first');
+          }
+          const id = args[1];
+          if (!id) {
+            console.log('usage: party remove <id>   (TIP: type a letter then press TAB)');
+            return;
+          }
+          const before = ctx.party.length;
+          ctx.party = ctx.party.filter(p => p.toLowerCase() !== id.toLowerCase());
+          if (ctx.party.length === before) {
+            console.log(`∅ '${id}' not in party`);
+            return;
+          }
+          appendEvent(ctx, 'party_set', { ids: [...ctx.party] });
+          console.log(`✓ removed '${id}'. party: ${ctx.party.join(', ') || '∅'}`);
+          return;
+        }
+
+        console.log('usage: party <list|add <id>|clear|remove <id>>');
       },
 
       quit: () => rl.close(),
