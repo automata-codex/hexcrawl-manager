@@ -18,6 +18,7 @@ Commands:
   start <sessionId> <hex>    start with explicit session id
   resume [sessionId]         resume the latest (or the specified) in-progress session
   move <to> [pace]           record a move (pace: fast|normal|slow)
+  mark <hex>                 mark a trail from current hex to <hex>
   note <text...>             add a note
   view [n]                   show last n events (default 10)
   undo [n]                   remove last n in-progress events (default 1)
@@ -213,6 +214,30 @@ export const scribeCommand = new Command('scribe')
         appendEvent(ctx, 'move', { from, to, pace });
         ctx.lastHex = to;
         console.log(`→ move to ${to}${from ? ` (from ${from})` : ''} [${pace}]`);
+      },
+
+      mark: (args) => {
+        if (!ctx.sessionId) {
+          return console.log('⚠ start or resume a session first');
+        }
+        if (!ctx.lastHex) {
+          return console.log('⚠ no current hex known—make a move or start with a starting hex first');
+        }
+        const otherRaw = args[0];
+        if (!otherRaw) {
+          return console.log('usage: mark <hex>');
+        }
+        const other = normalizeHex(otherRaw);
+        if (!HEX_RE.test(other)) {
+          return console.log('❌ Invalid hex. Example: mark P14');
+        }
+        const from = normalizeHex(ctx.lastHex);
+        if (from === other) {
+          return console.log('❌ Cannot mark a trail to the same hex');
+        }
+
+        appendEvent(ctx, 'trail', { from, to: other, marked: true });
+        console.log(`✓ marked trail ${from} ↔ ${other}`);
       },
 
       note: (args) => {
