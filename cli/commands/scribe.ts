@@ -4,7 +4,7 @@ import path from 'node:path';
 import readline from 'node:readline';
 import yaml from 'yaml';
 import { getRepoPath } from '../utils/config';
-import { ensureLogs, inprogressPath, inprogressDir, sessionsDir } from '../utils/session-files';
+import { ensureLogs, inProgressPath, inProgressDir, sessionsDir } from '../utils/session-files';
 import { type Event, readJsonl, writeJsonl, appendJsonl } from '../utils/jsonl';
 
 type Context = {
@@ -72,8 +72,8 @@ function deriveCurrentHex(ctx: Context): string | null {
   return null;
 }
 
-function findLatestInprogress(): { id: string; path: string } | null {
-  const dir = inprogressDir();
+function findLatestInProgress(): { id: string; path: string } | null {
+  const dir = inProgressDir();
   if (!existsSync(dir)) return null;
   const files = readdirSync(dir).filter(f => f.endsWith('.jsonl'));
   if (!files.length) return null;
@@ -147,12 +147,6 @@ function normalizeHex(h: string) {
 
 function nowISO() { return new Date().toISOString(); }
 
-/**
- * readline completer: returns [matches, original]
- * We complete only for:
- *   - "party add <partial>"
- *   - "party remove <partial>"
- */
 function scribeCompleter(line: string): [string[], string] {
   // word = last whitespace-delimited token at the cursor (end of line)
   const m = /([^\s]*)$/.exec(line) || ['',''];
@@ -239,7 +233,7 @@ export const scribeCommand = new Command('scribe')
     const start = (id: string, startHex: string) => {
       const startHexNorm = normalizeHex(startHex);
       ctx.sessionId = id;
-      ctx.file = inprogressPath(id);
+      ctx.file = inProgressPath(id);
 
       if (!HEX_RE.test(startHexNorm)) {
         console.log(`❌ Invalid starting hex: ${startHex}`);
@@ -422,7 +416,7 @@ export const scribeCommand = new Command('scribe')
         // 1) If a session id is given, resume that exact file
         if (args[0]) {
           const id = args[0];
-          const p = inprogressPath(id);
+          const p = inProgressPath(id);
           if (!existsSync(p)) {
             console.log(`❌ No in-progress log for '${id}' at ${p}`);
             return;
@@ -436,7 +430,7 @@ export const scribeCommand = new Command('scribe')
         }
 
         // 2) Otherwise, resume the most recent in-progress file by mtime
-        const latest = findLatestInprogress();
+        const latest = findLatestInProgress();
         if (!latest) {
           console.log('∅ No in-progress sessions found. Use: start <hex>  or  start <sessionId> <hex>');
           return;
