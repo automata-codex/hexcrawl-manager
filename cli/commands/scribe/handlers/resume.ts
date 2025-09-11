@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { lastHexFromEvents } from '../hex';
+import { selectCurrentHex } from '../projector.ts';
 import { error, info, warn } from '../report.ts';
 import { readEvents } from '../services/event-log.ts';
 import { findLatestInProgress, inProgressPathFor } from '../services/session.ts';
@@ -17,7 +17,7 @@ export default function resume(ctx: Context) {
       ctx.sessionId = id;
       ctx.file = p;
       const evs = readEvents(p);
-      ctx.lastHex = lastHexFromEvents(evs);
+      ctx.lastHex = selectCurrentHex(evs);
       info(`resumed: ${id} (${evs.length} events)${ctx.lastHex ? ` — last hex ${ctx.lastHex}` : ''}`);
       return;
     }
@@ -30,7 +30,7 @@ export default function resume(ctx: Context) {
     ctx.sessionId = latest.id;
     ctx.file = latest.path;
     const evs = readEvents(latest.path);
-    ctx.lastHex = lastHexFromEvents(evs);
+    ctx.lastHex = selectCurrentHex(evs);
     info(`resumed: ${latest.id} (${evs.length} events)${ctx.lastHex ? ` — last hex ${ctx.lastHex}` : ''}`);
   };
 }

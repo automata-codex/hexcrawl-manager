@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
-import { normalizeHex, lastHexFromEvents, isHexId } from '../hex';
+import { normalizeHex, isHexId } from '../hex';
+import { selectCurrentHex } from '../projector.ts';
 import { error, info, usage } from '../report.ts';
 import { inProgressPathFor } from '../services/session.ts';
 import { appendEvent, readEvents } from '../services/event-log.ts';
@@ -22,7 +23,7 @@ export default function start(ctx: Context, presetSessionId?: string) {
       info(`started: ${id} @ ${startHexNorm}`);
     } else {
       const evs = readEvents(ctx.file);
-      ctx.lastHex = lastHexFromEvents(evs) ?? startHexNorm;
+      ctx.lastHex = selectCurrentHex(evs) ?? startHexNorm;
       info(`resumed: ${id} (${evs.length} events)`);
     }
   };
