@@ -1,16 +1,15 @@
 import { existsSync } from 'node:fs';
-import { appendEvent } from '../events';
 import { normalizeHex, lastHexFromEvents, isHexId } from '../hex';
-import { inProgressPath } from '../lib/session-files';
-import { readJsonl } from '../lib/jsonl';
 import { error, info, usage } from '../report.ts';
+import { inProgressPathFor } from '../services/session.ts';
+import { appendEvent, readEvents } from '../services/event-log.ts';
 import type { Context } from '../types';
 
 export default function start(ctx: Context, presetSessionId?: string) {
   const doStart = (id: string, startHex: string) => {
     const startHexNorm = normalizeHex(startHex);
     ctx.sessionId = id;
-    ctx.file = inProgressPath(id);
+    ctx.file = inProgressPathFor(id);
 
     if (!isHexId(startHexNorm)) {
       error(`❌ Invalid starting hex: ${startHex}`);
@@ -22,7 +21,7 @@ export default function start(ctx: Context, presetSessionId?: string) {
       appendEvent(ctx.file, 'session_start', { status: 'in-progress', id, startHex: startHexNorm });
       info(`started: ${id} @ ${startHexNorm}`);
     } else {
-      const evs = readJsonl(ctx.file);
+      const evs = readEvents(ctx.file);
       ctx.lastHex = lastHexFromEvents(evs) ?? startHexNorm;
       info(`resumed: ${id} (${evs.length} events)`);
     }

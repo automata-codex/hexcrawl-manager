@@ -1,8 +1,8 @@
 import { PILLARS, TIERS } from '../constants';
-import { appendEvent } from '../events';
 import { requireSession } from '../guards';
 import { selectCurrentHex, selectParty } from '../projector.ts';
 import { info, usage } from '../report.ts';
+import { appendEvent } from '../services/event-log';
 import type { Context } from '../types';
 import { getEvents } from './_shared.ts';
 

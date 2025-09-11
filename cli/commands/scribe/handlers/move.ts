@@ -1,8 +1,8 @@
-import { appendEvent } from '../events';
 import { requireSession } from '../guards';
 import { isHexId, normalizeHex } from '../hex';
 import { selectCurrentHex } from '../projector.ts';
 import { error, info, usage, warn } from '../report.ts';
+import { appendEvent } from '../services/event-log';
 import type { Context, Pace } from '../types';
 import { getEvents } from './_shared.ts';
 

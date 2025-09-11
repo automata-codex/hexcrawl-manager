@@ -1,6 +1,6 @@
-import { appendEvent } from '../events';
 import { requireSession } from '../guards.ts';
 import { info, usage } from '../report.ts';
+import { appendEvent } from '../services/event-log';
 import type { Context } from '../types';
 
 export default function note(ctx: Context) {

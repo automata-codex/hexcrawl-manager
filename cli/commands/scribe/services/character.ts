@@ -1,15 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
-import { getRepoPath } from '../../utils/config';
-
-let CACHED_CHAR_IDS: string[] | null = null;
-
-export function getAllCharacterIds(): string[] {
-  if (CACHED_CHAR_IDS) return CACHED_CHAR_IDS;
-  CACHED_CHAR_IDS = loadCharacterIds();
-  return CACHED_CHAR_IDS;
-}
+import { getRepoPath } from '../../../utils/config'; // adjust if your config lives elsewhere
 
 export function loadCharacterIds(): string[] {
   const dir = getRepoPath('data', 'characters');
@@ -24,14 +16,22 @@ export function loadCharacterIds(): string[] {
       if (id && typeof id === 'string') ids.push(id);
     } catch { /* ignore */ }
   }
-  const seen = new Set<string>();
-  const out: string[] = [];
+  const seen = new Set<string>(), out: string[] = [];
   for (const id of ids) {
-    const key = id.toLowerCase();
-    if (!seen.has(key)) {
-      seen.add(key);
-      out.push(id);
-    }
+    const k = id.toLowerCase();
+    if (!seen.has(k)) { seen.add(k); out.push(id); }
   }
   return out.sort((a,b) => a.localeCompare(b, undefined, { sensitivity:'base' }));
+}
+
+let memo: string[] | null = null;
+
+export function getAllCharacterIds(): string[] {
+  if (memo) return memo;
+  memo = loadCharacterIds();
+  return memo;
+}
+export function reloadCharacterIds(): string[] {
+  memo = loadCharacterIds();
+  return memo;
 }

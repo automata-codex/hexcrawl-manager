@@ -1,8 +1,8 @@
-import type { Context } from '../types';
-import { getAllCharacterIds } from '../characters';
-import { appendEvent } from '../events';
 import { requireSession } from '../guards.ts';
 import { error, info, usage, warn } from '../report.ts';
+import { getAllCharacterIds } from '../services/character';
+import { appendEvent } from '../services/event-log';
+import type { Context } from '../types';
 
 export default function party(ctx: Context) {
   return async (args: string[]) => {

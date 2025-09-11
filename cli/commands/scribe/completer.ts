@@ -1,5 +1,5 @@
-import { getAllCharacterIds } from './characters';
 import { PILLARS, TIERS } from './constants';
+import { getAllCharacterIds } from './services/character';
 
 export function scribeCompleter(line: string): [string[], string] {
   const m = /([^\s]*)$/.exec(line) || ['', ''];
