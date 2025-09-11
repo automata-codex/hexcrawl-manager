@@ -1,8 +1,9 @@
 import { Command } from 'commander';
 import readline from 'node:readline';
+
 import { scribeCompleter } from './completer';
-import { makeHandlers } from './handlers';
-import { ensureLogs } from './lib/session-files.ts';
+import { buildHandlers, showHelp } from './handlers';
+import { ensureLogs } from './lib/session-files';
 import { tokenize } from './tokenize';
 import { type Context } from './types';
 
@@ -27,17 +28,24 @@ export const scribeCommand = new Command('scribe')
       completer: scribeCompleter,
     });
 
-    const { handlers, help } = makeHandlers(ctx, presetSessionId);
+    const handlers = buildHandlers(ctx, presetSessionId);
 
-    help();
+    showHelp();
     rl.prompt();
 
     rl.on('line', async (line) => {
       const [cmd, ...args] = tokenize(line.trim());
-      if (!cmd) { rl.prompt(); return; }
+      if (!cmd) {
+        rl.prompt();
+        return;
+      }
       const h = handlers[cmd];
       if (h) {
-        try { await h(args); } catch (e:any) { console.error('Error:', e.message ?? e); }
+        try {
+          await h(args);
+        } catch (e:any) {
+          console.error('Error:', e?.message ?? e);
+        }
       } else {
         console.log(`Unknown command: ${cmd}`);
       }
