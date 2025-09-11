@@ -14,29 +14,32 @@ type Context = {
   party: string[];
 };
 
-let CACHED_CHAR_IDS: string[] | null = null;
-
+const ALLOWED_PILLARS = ['explore', 'social', 'combat'] as const;
+const ALLOWED_TIERS = [1, 2, 3, 4] as const;
 const HEX_RE = /^[A-Za-z][0-9]+$/;
 const HELP_TEXT = `
 Commands:
-  current                    print the current hex
-  exit                       leave the shell
-  finalize                   freeze session → logs/sessions/<id>.jsonl
-  help                       show this help
-  move <to> [pace]           record a move (pace: fast|normal|slow)
-  note <text...>             add a note
-  party add <id>             add a character (TAB to autocomplete)
-  party clear                remove all characters
-  party list                 list active characters
-  party remove <id>          remove one character by id (TAB to autocomplete)
-  quit                       leave the shell
-  resume [sessionId]         resume the latest (or the specified) in-progress session
-  start <hex>                start a new session using default/preset id
-  start <sessionId> <hex>    start with explicit session id
-  trail <hex>                mark a trail from current hex to <hex>
-  undo [n]                   remove last n in-progress events (default 1)
-  view [n]                   show last n events (default 10)
+  ap <pillar> <tier> "<note...>" record an advancement-point event
+  current                        print the current hex
+  exit                           leave the shell
+  finalize                       freeze session → logs/sessions/<id>.jsonl
+  help                           show this help
+  move <to> [pace]               record a move (pace: fast|normal|slow)
+  note "<text...>"               add a note
+  party add <id>                 add a character (TAB to autocomplete)
+  party clear                    remove all characters
+  party list                     list active characters
+  party remove <id>              remove one character by id (TAB to autocomplete)
+  quit                           leave the shell
+  resume [sessionId]             resume the latest (or the specified) in-progress session
+  start <hex>                    start a new session using default/preset id
+  start <sessionId> <hex>        start with explicit session id
+  trail <hex>                    mark a trail from current hex to <hex>
+  undo [n]                       remove last n in-progress events (default 1)
+  view [n]                       show last n events (default 10)
 `;
+
+let CACHED_CHAR_IDS: string[] | null = null;
 
 function appendEvent(ctx: Context, kind: string, payload: Record<string, unknown>) {
   if (!ctx.file) {
@@ -149,7 +152,7 @@ function nowISO() { return new Date().toISOString(); }
 
 function scribeCompleter(line: string): [string[], string] {
   // word = last whitespace-delimited token at the cursor (end of line)
-  const m = /([^\s]*)$/.exec(line) || ['',''];
+  const m = /([^\s]*)$/.exec(line) || ['', ''];
   const word = m[1]; // <-- this is the ONLY part readline will replace
   const before = line.slice(0, line.length - word.length).trimStart();
   const parts = before.split(/\s+/).filter(Boolean); // tokens BEFORE `word`
@@ -157,28 +160,53 @@ function scribeCompleter(line: string): [string[], string] {
   // Default: no completions
   let matches: string[] = [];
 
+  // --- Party Completions ---
   if (parts[0] === 'party') {
     const sub = parts[1] ?? '';
-    const subs = ['add', 'list', 'clear', 'remove'];
+    const subs = ['add', 'clear', 'list', 'remove'];
 
     // Completing subcommand (after "party ")
-    if (parts.length <= 2 && (sub === '' || !['add','list','clear','remove'].includes(sub))) {
+    if (parts.length <= 2 && (sub === '' || !subs.includes(sub))) {
       const q = (word || '').toLowerCase();
       matches = subs.filter(s => s.startsWith(q));
-      return [matches, word]; // <-- return last token only
+      return [matches, word];
     }
 
-    // Completing an ID for "party add <id...>" or "party remove <id...>"
+    // Completing an ID for "party add <id>" or "party remove <id>"
     if (sub === 'add' || sub === 'remove') {
-      const all = getAllCharacterIds(); // your cached list
+      const all = getAllCharacterIds();
       const q = (word || '').toLowerCase();
       const starts = all.filter(id => id.toLowerCase().startsWith(q));
       matches = starts.length ? starts : all.filter(id => id.toLowerCase().includes(q));
-      return [matches, word]; // <-- only replace the id fragment
+      return [matches, word];
     }
   }
 
-  return [matches, word]; // safe default
+  // --- AP Completions ---
+  if (parts[0] === 'ap') {
+    // Position 1 (completing pillar): "ap <pillar>"
+    if (parts.length <= 1) {
+      const q = (word || '').toLowerCase();
+      const all = ALLOWED_PILLARS as readonly string[];
+      const starts = all.filter(p => p.toLowerCase().startsWith(q));
+      matches = starts.length ? starts : all.filter(p => p.toLowerCase().includes(q));
+      return [matches as string[], word];
+    }
+
+    // Position 2 (completing tier): "ap <pillar> <tier>"
+    if (parts.length === 2) {
+      const q = (word || '').toLowerCase();
+      const all = (ALLOWED_TIERS as readonly number[]).map(String);
+      const starts = all.filter(t => t.startsWith(q));
+      matches = starts.length ? starts : all.filter(t => t.includes(q));
+      return [matches, word];
+    }
+
+    // Position >=3 → note field: no completion
+    return [[], word];
+  }
+
+  return [matches, word];
 }
 
 // Allow quoted args: note "party rests here"
@@ -243,7 +271,7 @@ export const scribeCommand = new Command('scribe')
       // create file if missing, seed with session_start
       if (!existsSync(ctx.file)) {
         ctx.lastHex = startHexNorm;
-        appendEvent(ctx, 'session_start', { status: 'inprogress', id, startHex: startHexNorm });
+        appendEvent(ctx, 'session_start', { status: 'in-progress', id, startHex: startHexNorm });
         console.log(`started: ${id} @ ${startHexNorm}`);
       } else {
         const evs = readJsonl(ctx.file);
@@ -253,6 +281,52 @@ export const scribeCommand = new Command('scribe')
     };
 
     const handlers: Record<string, (args: string[]) => void> = {
+      ap: (args) => {
+        if (!ctx.sessionId) {
+          return console.log('⚠ start or resume a session first');
+        }
+
+        const pillar = (args[0] ?? '').toLowerCase();
+        const tierStr = args[1];
+        const note = args[2].trim();
+
+        // Validate pillar
+        const PILLARS = ALLOWED_PILLARS as readonly string[];
+        if (!pillar || !PILLARS.includes(pillar)) {
+          console.log(`usage: ap <pillar> <tier> <note...>\n  pillars: ${PILLARS.join(', ')}`);
+          return;
+        }
+
+        // Validate tier
+        const TIERS = ALLOWED_TIERS as readonly number[];
+        const tier = Number(tierStr);
+        if (!tierStr || !Number.isInteger(tier) || !TIERS.includes(tier)) {
+          console.log(`usage: ap <pillar> <tier> <note...>\n  tiers: ${TIERS.join(', ')}`);
+          return;
+        }
+
+        // Validate note
+        if (!note) {
+          console.log('usage: ap <pillar> <tier> <note...>');
+          return;
+        }
+
+        // Resolve current hex (best-effort)
+        const hex = ctx.lastHex ?? deriveCurrentHex(ctx);
+
+        appendEvent(ctx, 'advancement_point', {
+          pillar,
+          tier,
+          note,
+          at: {
+            hex: hex ?? null,
+            party: [...ctx.party],
+          }
+        });
+
+        console.log(`✓ ap: ${pillar} (${tier}) — ${note}${hex ? ` @ ${hex}` : ''}`);
+      },
+
       current: () => {
         if (!ctx.sessionId || !ctx.file) {
           return console.log('⚠ start or resume a session first');
