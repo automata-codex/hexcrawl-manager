@@ -1,5 +1,6 @@
 import { HELP_TEXT } from '../constants';
+import { info } from '../report.ts';
 
 export default function help() {
-  return () => { console.log(HELP_TEXT); };
+  return () => { info(HELP_TEXT); };
 }

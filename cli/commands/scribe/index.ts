@@ -4,6 +4,7 @@ import readline from 'node:readline';
 import { scribeCompleter } from './completer';
 import { buildHandlers, showHelp } from './handlers';
 import { ensureLogs } from './lib/session-files';
+import { error, warn } from './report.ts';
 import { tokenize } from './tokenize';
 import { type Context } from './types';
 
@@ -44,10 +45,10 @@ export const scribeCommand = new Command('scribe')
         try {
           await h(args);
         } catch (e:any) {
-          console.error('Error:', e?.message ?? e);
+          error(`Error: ${e?.message ?? e}`);
         }
       } else {
-        console.log(`Unknown command: ${cmd}`);
+        warn(`Unknown command: ${cmd}`);
       }
       rl.prompt();
     });

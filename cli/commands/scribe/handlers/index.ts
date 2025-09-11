@@ -1,4 +1,5 @@
 import { HELP_TEXT } from '../constants';
+import { info } from '../report.ts';
 import type { Context } from '../types';
 
 import ap from './ap';
@@ -39,5 +40,5 @@ export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMa
 }
 
 export function showHelp() {
-  console.log(HELP_TEXT);
+  info(HELP_TEXT);
 }

@@ -2,6 +2,7 @@ import { PILLARS, TIERS } from '../constants';
 import { appendEvent } from '../events';
 import { requireSession } from '../guards';
 import { deriveCurrentHex } from '../hex';
+import { info, usage } from '../report.ts';
 import type { Context } from '../types';
 
 export default function ap(ctx: Context) {
@@ -16,19 +17,19 @@ export default function ap(ctx: Context) {
 
     const pillars = PILLARS as readonly string[];
     if (!pillar || !pillars.includes(pillar)) {
-      console.log(`usage: ap <pillar> <tier> <note...>\n  pillars: ${pillars.join(', ')}`);
+      usage(`usage: ap <pillar> <tier> <note...>\n  pillars: ${pillars.join(', ')}`);
       return;
     }
 
     const tiers = TIERS as readonly number[];
     const tier = Number(tierStr);
     if (!tierStr || !Number.isInteger(tier) || !tiers.includes(tier)) {
-      console.log(`usage: ap <pillar> <tier> <note...>\n  tiers: ${tiers.join(', ')}`);
+      usage(`usage: ap <pillar> <tier> <note...>\n  tiers: ${tiers.join(', ')}`);
       return;
     }
 
     if (!note) {
-      return console.log('usage: ap <pillar> <tier> <note...>');
+      return usage('usage: ap <pillar> <tier> <note...>');
     }
 
     const hex = ctx.lastHex ?? deriveCurrentHex(ctx.file);
@@ -43,6 +44,6 @@ export default function ap(ctx: Context) {
       }
     });
 
-    console.log(`✓ ap: ${pillar} (${tier}) — ${note}${hex ? ` @ ${hex}` : ''}`);
+    info(`✓ ap: ${pillar} (${tier}) — ${note}${hex ? ` @ ${hex}` : ''}`);
   };
 }

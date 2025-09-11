@@ -1,9 +1,10 @@
 import path from 'node:path';
 import { nowISO } from '../events';
+import { requireFile, requireSession } from '../guards.ts';
 import { readJsonl, writeJsonl } from '../lib/jsonl';
 import { sessionsDir } from '../lib/session-files';
+import { info } from '../report.ts';
 import type { Context } from '../types';
-import { requireFile, requireSession } from '../guards.ts';
 
 export default function finalize(ctx: Context) {
   return () => {
@@ -26,6 +27,6 @@ export default function finalize(ctx: Context) {
     evs.forEach((e, i) => e.seq = i + 1);
     const out = path.join(sessionsDir(), `${ctx.sessionId}.jsonl`);
     writeJsonl(out, evs);
-    console.log(`✔ finalized → ${out}`);
+    info(`✔ finalized → ${out}`);
   };
 }

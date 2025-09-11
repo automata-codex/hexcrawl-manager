@@ -1,6 +1,7 @@
-import type { Context } from '../types';
-import { deriveCurrentHex } from '../hex';
 import { requireFile, requireSession } from '../guards.ts';
+import { deriveCurrentHex } from '../hex';
+import { info } from '../report.ts';
+import type { Context } from '../types';
 
 export default function current(ctx: Context) {
   return () => {
@@ -13,8 +14,8 @@ export default function current(ctx: Context) {
     const hex = ctx.lastHex ?? deriveCurrentHex(ctx.file);
     ctx.lastHex = hex;
     if (!hex) {
-      return console.log('∅ current hex unknown');
+      return info('∅ current hex unknown');
     }
-    console.log(hex);
+    info(hex);
   };
 }

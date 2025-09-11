@@ -3,6 +3,7 @@ import { appendEvent } from '../events';
 import { normalizeHex, lastHexFromEvents, isHexId } from '../hex';
 import { inProgressPath } from '../lib/session-files';
 import { readJsonl } from '../lib/jsonl';
+import { error, info, usage } from '../report.ts';
 import type { Context } from '../types';
 
 export default function start(ctx: Context, presetSessionId?: string) {
@@ -12,30 +13,30 @@ export default function start(ctx: Context, presetSessionId?: string) {
     ctx.file = inProgressPath(id);
 
     if (!isHexId(startHexNorm)) {
-      console.log(`❌ Invalid starting hex: ${startHex}`);
+      error(`❌ Invalid starting hex: ${startHex}`);
       return;
     }
 
     if (!existsSync(ctx.file)) {
       ctx.lastHex = startHexNorm;
       appendEvent(ctx.file, 'session_start', { status: 'in-progress', id, startHex: startHexNorm });
-      console.log(`started: ${id} @ ${startHexNorm}`);
+      info(`started: ${id} @ ${startHexNorm}`);
     } else {
       const evs = readJsonl(ctx.file);
       ctx.lastHex = lastHexFromEvents(evs) ?? startHexNorm;
-      console.log(`resumed: ${id} (${evs.length} events)`);
+      info(`resumed: ${id} (${evs.length} events)`);
     }
   };
 
   return (args: string[]) => {
     if (args.length === 0) {
-      console.log('usage:\n  start <hex>\n  start <sessionId> <hex>');
+      usage('usage:\n  start <hex>\n  start <sessionId> <hex>');
       return;
     }
     if (args.length === 1) {
       const hex = args[0];
       if (!isHexId(hex)) {
-        console.log('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
+        error('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
         return;
       }
       const id = presetSessionId ?? new Date().toISOString().slice(0,10);
@@ -44,7 +45,7 @@ export default function start(ctx: Context, presetSessionId?: string) {
     }
     const [id, hex] = args;
     if (!isHexId(hex)) {
-      console.log('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
+      error('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
       return;
     }
     doStart(id, hex);

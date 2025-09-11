@@ -1,6 +1,7 @@
-import type { Context } from '../types';
 import { appendEvent } from '../events';
 import { requireSession } from '../guards.ts';
+import { info, usage } from '../report.ts';
+import type { Context } from '../types';
 
 export default function note(ctx: Context) {
   return (args: string[]) => {
@@ -9,9 +10,9 @@ export default function note(ctx: Context) {
     }
     const text = args.join(' ');
     if (!text) {
-      return console.log('usage: note <text…>');
+      return usage('usage: note <text…>');
     }
     appendEvent(ctx.file!, 'note', { text, scope: 'session' });
-    console.log(`  note added`);
+    info(`  note added`);
   };
 }

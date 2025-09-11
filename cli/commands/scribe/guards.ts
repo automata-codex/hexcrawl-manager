@@ -1,8 +1,9 @@
-import type {Context} from './types.ts';
+import { warn } from './report';
+import type {Context} from './types';
 
 export function requireCurrentHex(ctx: Context): boolean {
   if (!ctx.lastHex) {
-    console.log('⚠ no current hex; move to a hex first');
+    warn('⚠ no current hex; move to a hex first');
     return false;
   }
   return true;
@@ -10,7 +11,7 @@ export function requireCurrentHex(ctx: Context): boolean {
 
 export function requireFile(ctx: Context): boolean {
   if (!ctx.file) {
-    console.log('⚠ no in-progress file; start a session first');
+    warn('⚠ no in-progress file; start a session first');
     return false;
   }
   return true;
@@ -18,7 +19,7 @@ export function requireFile(ctx: Context): boolean {
 
 export function requireSession(ctx: Context): boolean {
   if (!ctx.sessionId) {
-    console.log('⚠ start or resume a session first');
+    warn('⚠ start or resume a session first');
     return false;
   }
   return true;
