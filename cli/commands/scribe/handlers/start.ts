@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
-import { HEX_RE } from '../constants';
 import { appendEvent } from '../events';
-import { normalizeHex, lastHexFromEvents } from '../hex';
+import { normalizeHex, lastHexFromEvents, isHexId } from '../hex';
 import { inProgressPath } from '../lib/session-files';
 import { readJsonl } from '../lib/jsonl';
 import type { Context } from '../types';
@@ -12,7 +11,7 @@ export default function start(ctx: Context, presetSessionId?: string) {
     ctx.sessionId = id;
     ctx.file = inProgressPath(id);
 
-    if (!HEX_RE.test(startHexNorm)) {
+    if (!isHexId(startHexNorm)) {
       console.log(`❌ Invalid starting hex: ${startHex}`);
       return;
     }
@@ -35,7 +34,7 @@ export default function start(ctx: Context, presetSessionId?: string) {
     }
     if (args.length === 1) {
       const hex = args[0];
-      if (!HEX_RE.test(hex)) {
+      if (!isHexId(hex)) {
         console.log('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
         return;
       }
@@ -44,7 +43,7 @@ export default function start(ctx: Context, presetSessionId?: string) {
       return;
     }
     const [id, hex] = args;
-    if (!HEX_RE.test(hex)) {
+    if (!isHexId(hex)) {
       console.log('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
       return;
     }

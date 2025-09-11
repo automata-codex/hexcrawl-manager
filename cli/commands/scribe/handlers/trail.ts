@@ -1,7 +1,6 @@
-import { HEX_RE } from '../constants';
 import { appendEvent } from '../events';
-import { requireCurrentHex, requireSession } from '../guards.ts';
-import { normalizeHex } from '../hex';
+import { requireCurrentHex, requireSession } from '../guards';
+import { isHexId, normalizeHex } from '../hex';
 import type { Context } from '../types';
 
 export default function trail(ctx: Context) {
@@ -19,7 +18,7 @@ export default function trail(ctx: Context) {
     }
 
     const other = normalizeHex(otherRaw);
-    if (!HEX_RE.test(other)) {
+    if (!isHexId(other)) {
       return console.log('❌ Invalid hex. Example: trail P14');
     }
 

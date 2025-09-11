@@ -1,6 +1,6 @@
-import { HEX_RE } from '../constants';
 import { appendEvent } from '../events';
 import { requireSession } from '../guards';
+import { isHexId, normalizeHex } from '../hex';
 import type { Context, Pace } from '../types';
 
 export default function move(ctx: Context) {
@@ -8,11 +8,12 @@ export default function move(ctx: Context) {
     if (!requireSession(ctx)) {
       return;
     }
-    const to = (args[0] ?? '').toUpperCase();
-    if (!to) {
+    const toRaw = (args[0] ?? '');
+    if (!toRaw) {
       return console.log('usage: move <to> [pace]');
     }
-    if (!HEX_RE.test(to)) {
+    const to = normalizeHex(toRaw);
+    if (!isHexId(to)) {
       return console.log('❌ Invalid hex id');
     }
     const pace = (args[1] ?? 'normal') as Pace;
