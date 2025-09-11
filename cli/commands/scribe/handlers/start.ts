@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
-import { normalizeHex, isHexId } from '../hex';
+import { normalizeHex, isHexId } from '../lib/hex.ts';
+import { error, info, usage } from '../lib/report.ts';
 import { selectCurrentHex } from '../projector.ts';
-import { error, info, usage } from '../report.ts';
 import { inProgressPathFor } from '../services/session.ts';
 import { appendEvent, readEvents } from '../services/event-log.ts';
 import type { Context } from '../types';

@@ -1,6 +1,6 @@
-import { requireFile, requireSession } from '../guards.ts';
+import { requireFile, requireSession } from '../lib/guards.ts';
+import { info } from '../lib/report.ts';
 import { selectCurrentHex } from '../projector.ts';
-import { info } from '../report.ts';
 import { readEvents } from '../services/event-log.ts';
 import type { Context } from '../types';
 

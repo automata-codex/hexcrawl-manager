@@ -3,9 +3,9 @@ import readline from 'node:readline';
 
 import { scribeCompleter } from './completer';
 import { buildHandlers, showHelp } from './handlers';
+import { error, warn } from './lib/report.ts';
 import { ensureLogs } from './lib/session-files';
-import { error, warn } from './report.ts';
-import { tokenize } from './tokenize';
+import { tokenize } from './lib/tokenize.ts';
 import { type Context } from './types';
 
 export const scribeCommand = new Command('scribe')

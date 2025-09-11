@@ -1,4 +1,4 @@
-import { normalizeHex } from './hex.ts';
+import { normalizeHex } from './lib/hex.ts';
 import type { Event } from './lib/jsonl';
 
 /** Returns the current hex derived from the event log. */

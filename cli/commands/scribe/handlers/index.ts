@@ -1,5 +1,5 @@
 import { HELP_TEXT } from '../constants';
-import { info } from '../report.ts';
+import { info } from '../lib/report.ts';
 import type { Context } from '../types';
 
 import ap from './ap';

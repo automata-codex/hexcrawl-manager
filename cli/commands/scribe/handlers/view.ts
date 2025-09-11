@@ -1,5 +1,5 @@
-import { requireFile } from '../guards.ts';
-import { info, warn } from '../report.ts';
+import { requireFile } from '../lib/guards.ts';
+import { info, warn } from '../lib/report.ts';
 import { readEvents } from '../services/event-log.ts';
 import type { Context } from '../types';
 

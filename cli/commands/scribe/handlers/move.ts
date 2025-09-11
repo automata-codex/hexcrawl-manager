@@ -1,7 +1,7 @@
-import { requireSession } from '../guards';
-import { isHexId, normalizeHex } from '../hex';
+import { requireSession } from '../lib/guards.ts';
+import { isHexId, normalizeHex } from '../lib/hex.ts';
+import { error, info, usage, warn } from '../lib/report.ts';
 import { selectCurrentHex } from '../projector.ts';
-import { error, info, usage, warn } from '../report.ts';
 import { appendEvent, readEvents } from '../services/event-log';
 import type { Context, Pace } from '../types';
 

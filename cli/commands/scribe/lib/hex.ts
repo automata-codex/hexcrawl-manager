@@ -1,4 +1,4 @@
-import { HEX_RE } from './constants.ts';
+import { HEX_RE } from '../constants.ts';
 
 export function isHexId(id: string): boolean {
   return HEX_RE.test(id);

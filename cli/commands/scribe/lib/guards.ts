@@ -1,5 +1,5 @@
-import { warn } from './report';
-import type {Context} from './types';
+import { warn } from './report.ts';
+import type {Context} from '../types.ts';
 
 export function requireCurrentHex(ctx: Context): boolean {
   if (!ctx.lastHex) {

@@ -1,5 +1,5 @@
-import { requireFile, requireSession } from '../guards.ts';
-import { info } from '../report.ts';
+import { requireFile, requireSession } from '../lib/guards.ts';
+import { info } from '../lib/report.ts';
 import { finalizeSession } from '../services/session.ts';
 import type { Context } from '../types';
 

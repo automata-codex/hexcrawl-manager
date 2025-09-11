@@ -1,5 +1,5 @@
-import { requireSession } from '../guards.ts';
-import { error, info, usage, warn } from '../report.ts';
+import { requireSession } from '../lib/guards.ts';
+import { error, info, usage, warn } from '../lib/report.ts';
 import { getAllCharacterIds } from '../services/character';
 import { appendEvent } from '../services/event-log';
 import type { Context } from '../types';
