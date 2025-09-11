@@ -1,9 +1,10 @@
 import { PILLARS, TIERS } from '../constants';
 import { appendEvent } from '../events';
 import { requireSession } from '../guards';
-import { deriveCurrentHex } from '../hex';
+import { selectCurrentHex, selectParty } from '../projector.ts';
 import { info, usage } from '../report.ts';
 import type { Context } from '../types';
+import { getEvents } from './_shared.ts';
 
 export default function ap(ctx: Context) {
   return (args: string[]) => {
@@ -32,7 +33,9 @@ export default function ap(ctx: Context) {
       return usage('usage: ap <pillar> <tier> <note...>');
     }
 
-    const hex = ctx.lastHex ?? deriveCurrentHex(ctx.file);
+    const events = ctx.file ? getEvents(ctx.file) : [];
+    const hex = selectCurrentHex(events);
+    const party = selectParty(events);
 
     appendEvent(ctx.file!, 'advancement_point', {
       pillar,
@@ -40,7 +43,7 @@ export default function ap(ctx: Context) {
       note,
       at: {
         hex: hex ?? null,
-        party: [...ctx.party],
+        party,
       }
     });
 

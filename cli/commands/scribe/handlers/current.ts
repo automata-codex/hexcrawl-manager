@@ -1,7 +1,8 @@
 import { requireFile, requireSession } from '../guards.ts';
-import { deriveCurrentHex } from '../hex';
+import { selectCurrentHex } from '../projector.ts';
 import { info } from '../report.ts';
 import type { Context } from '../types';
+import { getEvents } from './_shared.ts';
 
 export default function current(ctx: Context) {
   return () => {
@@ -11,8 +12,8 @@ export default function current(ctx: Context) {
     if (!requireFile(ctx)) {
       return;
     }
-    const hex = ctx.lastHex ?? deriveCurrentHex(ctx.file);
-    ctx.lastHex = hex;
+    const events = getEvents(ctx.file!); // Checked by `requireFile`
+    const hex = selectCurrentHex(events);
     if (!hex) {
       return info('∅ current hex unknown');
     }
