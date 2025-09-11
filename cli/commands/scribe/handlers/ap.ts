@@ -1,12 +1,13 @@
 import { ALLOWED_PILLARS, ALLOWED_TIERS } from '../constants';
 import { appendEvent } from '../events';
+import { requireSession } from '../guards.ts';
 import { deriveCurrentHex } from '../hex';
 import type { Context } from '../types';
 
 export default function ap(ctx: Context) {
   return (args: string[]) => {
-    if (!ctx.sessionId) {
-      return console.log('⚠ start or resume a session first');
+    if (!requireSession(ctx)) {
+      return;
     }
 
     const pillar = (args[0] ?? '').toLowerCase();

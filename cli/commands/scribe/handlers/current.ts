@@ -1,10 +1,14 @@
 import type { Context } from '../types';
 import { deriveCurrentHex } from '../hex';
+import { requireFile, requireSession } from '../guards.ts';
 
 export default function current(ctx: Context) {
   return () => {
-    if (!ctx.sessionId || !ctx.file) {
-      return console.log('⚠ start or resume a session first');
+    if (!requireSession(ctx)) {
+      return;
+    }
+    if (!requireFile(ctx)) {
+      return;
     }
     const hex = ctx.lastHex ?? deriveCurrentHex(ctx.file);
     ctx.lastHex = hex;

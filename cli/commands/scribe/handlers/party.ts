@@ -1,14 +1,15 @@
 import type { Context } from '../types';
 import { getAllCharacterIds } from '../characters';
 import { appendEvent } from '../events';
+import { requireSession } from '../guards.ts';
 
 export default function party(ctx: Context) {
   return async (args: string[]) => {
     const sub = (args[0] ?? '').toLowerCase();
 
     if (sub === 'add') {
-      if (!ctx.sessionId) {
-        return console.log('⚠ start or resume a session first');
+      if (!requireSession(ctx)) {
+        return;
       }
       const id = args[1];
       if (!id) {
@@ -27,8 +28,8 @@ export default function party(ctx: Context) {
     }
 
     if (sub === 'clear') {
-      if (!ctx.sessionId) {
-        return console.log('⚠ start or resume a session first');
+      if (!requireSession(ctx)) {
+        return;
       }
       ctx.party = [];
       appendEvent(ctx.file!, 'party_set', { ids: [] });
@@ -42,8 +43,8 @@ export default function party(ctx: Context) {
     }
 
     if (sub === 'remove') {
-      if (!ctx.sessionId) {
-        return console.log('⚠ start or resume a session first');
+      if (!requireSession(ctx)) {
+        return;
       }
       const id = args[1];
       if (!id) {

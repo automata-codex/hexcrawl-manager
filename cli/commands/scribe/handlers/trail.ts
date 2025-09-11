@@ -1,15 +1,16 @@
-import type { Context } from '../types';
 import { HEX_RE } from '../constants';
-import { normalizeHex } from '../hex';
 import { appendEvent } from '../events';
+import { requireCurrentHex, requireSession } from '../guards.ts';
+import { normalizeHex } from '../hex';
+import type { Context } from '../types';
 
 export default function trail(ctx: Context) {
   return (args: string[]) => {
-    if (!ctx.sessionId) {
-      return console.log('⚠ start or resume a session first');
+    if (!requireSession(ctx)) {
+      return;
     }
-    if (!ctx.lastHex) {
-      return console.log('⚠ no current hex known—make a move or start with a starting hex first');
+    if (!requireCurrentHex(ctx)) {
+      return;
     }
 
     const otherRaw = args[0];
@@ -22,7 +23,7 @@ export default function trail(ctx: Context) {
       return console.log('❌ Invalid hex. Example: trail P14');
     }
 
-    const from = normalizeHex(ctx.lastHex);
+    const from = normalizeHex(ctx.lastHex!); // Checked by `requireCurrentHex`
     if (from === other) {
       return console.log('❌ Cannot mark a trail to the same hex');
     }
