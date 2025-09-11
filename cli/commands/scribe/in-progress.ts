@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
-import { inProgressDir } from '../../utils/session-files';
+import { inProgressDir } from './lib/session-files.ts';
 
 export function findLatestInProgress(): { id: string; path: string } | null {
   const dir = inProgressDir();

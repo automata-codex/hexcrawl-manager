@@ -1,4 +1,4 @@
-import { readJsonl, type Event } from '../../utils/jsonl';
+import { readJsonl, type Event } from './lib/jsonl.ts';
 
 export function normalizeHex(h: string) {
   return h.trim().toUpperCase();

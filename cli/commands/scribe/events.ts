@@ -1,4 +1,4 @@
-import { readJsonl, appendJsonl, type Event } from '../../utils/jsonl'; // adjust relative path if needed
+import { readJsonl, appendJsonl, type Event } from './lib/jsonl.ts';
 
 export function appendEvent(filePath: string, kind: string, payload: Record<string, unknown>) {
   const evs = readJsonl(filePath);

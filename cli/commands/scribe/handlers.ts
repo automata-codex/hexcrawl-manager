@@ -1,13 +1,13 @@
 import path from 'node:path';
 import { existsSync } from 'node:fs';
-import { readJsonl, writeJsonl } from '../../utils/jsonl';
-import { sessionsDir, inProgressPath } from '../../utils/session-files';
 
 import { getAllCharacterIds } from './characters';
 import { HELP_TEXT, ALLOWED_PILLARS, ALLOWED_TIERS, HEX_RE } from './constants';
 import { appendEvent, nowISO } from './events';
 import { normalizeHex, deriveCurrentHex, lastHexFromEvents } from './hex';
 import { findLatestInProgress } from './in-progress';
+import { readJsonl, writeJsonl } from './lib/jsonl.ts';
+import { sessionsDir, inProgressPath } from './lib/session-files.ts';
 import { type Context } from './types';
 
 export function makeHandlers(ctx: Context, presetSessionId?: string) {

@@ -1,8 +1,8 @@
 import { Command } from 'commander';
 import readline from 'node:readline';
-import { ensureLogs } from '../../utils/session-files';
 import { scribeCompleter } from './completer';
 import { makeHandlers } from './handlers';
+import { ensureLogs } from './lib/session-files.ts';
 import { tokenize } from './tokenize';
 import { type Context } from './types';
 
