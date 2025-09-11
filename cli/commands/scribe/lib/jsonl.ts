@@ -1,12 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-
-export type Event = {
-  seq: number;              // 1..N within the file
-  ts: string;               // ISO timestamp
-  kind: string;             // "move" | "scout" | ...
-  payload: Record<string, unknown>;
-};
+import type { Event } from '../types';
 
 export function readJsonl(p: string): Event[] {
   if (!fs.existsSync(p)) return [];

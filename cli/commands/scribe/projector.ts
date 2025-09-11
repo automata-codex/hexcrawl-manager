@@ -1,5 +1,5 @@
 import { normalizeHex } from './lib/hex.ts';
-import type { Event } from './lib/jsonl';
+import type { Event } from './types';
 
 /** Returns the current hex derived from the event log. */
 export function selectCurrentHex(events: Event[]): string | null {

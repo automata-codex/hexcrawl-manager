@@ -1,4 +1,5 @@
-import { readJsonl, appendJsonl, writeJsonl, type Event } from '../lib/jsonl';
+import { readJsonl, appendJsonl, writeJsonl } from '../lib/jsonl';
+import type { Event } from '../types';
 
 const nowISO = () => new Date().toISOString();
 const nextSeq = (evs: Event[]) => (evs.length ? Math.max(...evs.map(e => e.seq)) + 1 : 1);
