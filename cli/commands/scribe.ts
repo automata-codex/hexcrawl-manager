@@ -23,7 +23,6 @@ Commands:
   exit                       leave the shell
   finalize                   freeze session → logs/sessions/<id>.jsonl
   help                       show this help
-  mark <hex>                 mark a trail from current hex to <hex>
   move <to> [pace]           record a move (pace: fast|normal|slow)
   note <text...>             add a note
   party add <id>             add a character (TAB to autocomplete)
@@ -34,6 +33,7 @@ Commands:
   resume [sessionId]         resume the latest (or the specified) in-progress session
   start <hex>                start a new session using default/preset id
   start <sessionId> <hex>    start with explicit session id
+  trail <hex>                mark a trail from current hex to <hex>
   undo [n]                   remove last n in-progress events (default 1)
   view [n]                   show last n events (default 10)
 `;
@@ -290,30 +290,6 @@ export const scribeCommand = new Command('scribe')
 
       help: () => help(),
 
-      mark: (args) => {
-        if (!ctx.sessionId) {
-          return console.log('⚠ start or resume a session first');
-        }
-        if (!ctx.lastHex) {
-          return console.log('⚠ no current hex known—make a move or start with a starting hex first');
-        }
-        const otherRaw = args[0];
-        if (!otherRaw) {
-          return console.log('usage: mark <hex>');
-        }
-        const other = normalizeHex(otherRaw);
-        if (!HEX_RE.test(other)) {
-          return console.log('❌ Invalid hex. Example: mark P14');
-        }
-        const from = normalizeHex(ctx.lastHex);
-        if (from === other) {
-          return console.log('❌ Cannot mark a trail to the same hex');
-        }
-
-        appendEvent(ctx, 'trail', { from, to: other, marked: true });
-        console.log(`✓ marked trail ${from} ↔ ${other}`);
-      },
-
       move: (args) => {
         if (!ctx.sessionId) {
           return console.log('⚠ start or resume a session first');
@@ -465,6 +441,30 @@ export const scribeCommand = new Command('scribe')
           return;
         }
         start(id, hex);
+      },
+
+      trail: (args) => {
+        if (!ctx.sessionId) {
+          return console.log('⚠ start or resume a session first');
+        }
+        if (!ctx.lastHex) {
+          return console.log('⚠ no current hex known—make a move or start with a starting hex first');
+        }
+        const otherRaw = args[0];
+        if (!otherRaw) {
+          return console.log('usage: trail <hex>');
+        }
+        const other = normalizeHex(otherRaw);
+        if (!HEX_RE.test(other)) {
+          return console.log('❌ Invalid hex. Example: trail P14');
+        }
+        const from = normalizeHex(ctx.lastHex);
+        if (from === other) {
+          return console.log('❌ Cannot mark a trail to the same hex');
+        }
+
+        appendEvent(ctx, 'trail', { from, to: other, marked: true });
+        console.log(`✓ marked trail ${from} ↔ ${other}`);
       },
 
       undo: (args) => {
