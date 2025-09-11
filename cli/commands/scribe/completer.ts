@@ -1,5 +1,5 @@
 import { getAllCharacterIds } from './characters';
-import { ALLOWED_PILLARS, ALLOWED_TIERS } from './constants';
+import { PILLARS, TIERS } from './constants';
 
 export function scribeCompleter(line: string): [string[], string] {
   const m = /([^\s]*)$/.exec(line) || ['', ''];
@@ -29,14 +29,14 @@ export function scribeCompleter(line: string): [string[], string] {
   if (parts[0] === 'ap') {
     if (parts.length <= 1) {
       const q = (word || '').toLowerCase();
-      const all = ALLOWED_PILLARS as readonly string[];
+      const all = PILLARS as readonly string[];
       const starts = all.filter(p => p.toLowerCase().startsWith(q));
       matches = starts.length ? starts : all.filter(p => p.toLowerCase().includes(q));
       return [matches as string[], word];
     }
     if (parts.length === 2) {
       const q = (word || '').toLowerCase();
-      const all = (ALLOWED_TIERS as readonly number[]).map(String);
+      const all = (TIERS as readonly number[]).map(String);
       const starts = all.filter(t => t.startsWith(q));
       matches = starts.length ? starts : all.filter(t => t.includes(q));
       return [matches, word];

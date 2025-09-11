@@ -4,3 +4,9 @@ export type Context = {
   lastHex: string | null;
   party: string[];
 };
+
+export type Pace = 'fast' | 'normal' | 'slow';
+
+export type Pillar = 'explore' | 'social' | 'combat';
+
+export type Tier = 1 | 2 | 3 | 4;

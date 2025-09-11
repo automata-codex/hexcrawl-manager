@@ -1,6 +1,6 @@
-import { ALLOWED_PILLARS, ALLOWED_TIERS } from '../constants';
+import { PILLARS, TIERS } from '../constants';
 import { appendEvent } from '../events';
-import { requireSession } from '../guards.ts';
+import { requireSession } from '../guards';
 import { deriveCurrentHex } from '../hex';
 import type { Context } from '../types';
 
@@ -14,16 +14,16 @@ export default function ap(ctx: Context) {
     const tierStr = args[1];
     const note = (args[2] ?? '').trim();
 
-    const PILLARS = ALLOWED_PILLARS as readonly string[];
-    if (!pillar || !PILLARS.includes(pillar)) {
-      console.log(`usage: ap <pillar> <tier> <note...>\n  pillars: ${PILLARS.join(', ')}`);
+    const pillars = PILLARS as readonly string[];
+    if (!pillar || !pillars.includes(pillar)) {
+      console.log(`usage: ap <pillar> <tier> <note...>\n  pillars: ${pillars.join(', ')}`);
       return;
     }
 
-    const TIERS = ALLOWED_TIERS as readonly number[];
+    const tiers = TIERS as readonly number[];
     const tier = Number(tierStr);
-    if (!tierStr || !Number.isInteger(tier) || !TIERS.includes(tier)) {
-      console.log(`usage: ap <pillar> <tier> <note...>\n  tiers: ${TIERS.join(', ')}`);
+    if (!tierStr || !Number.isInteger(tier) || !tiers.includes(tier)) {
+      console.log(`usage: ap <pillar> <tier> <note...>\n  tiers: ${tiers.join(', ')}`);
       return;
     }
 

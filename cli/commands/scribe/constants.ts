@@ -1,8 +1,4 @@
-export const ALLOWED_PILLARS = ['explore', 'social', 'combat'] as const;
-
-export const ALLOWED_TIERS = [1, 2, 3, 4] as const;
-
-export const HEX_RE = /^[A-Za-z][0-9]+$/;
+import type { Pace, Pillar, Tier } from './types.ts';
 
 export const HELP_TEXT = `
 Commands:
@@ -25,3 +21,11 @@ Commands:
   undo [n]                       remove last n in-progress events (default 1)
   view [n]                       show last n events (default 10)
 `;
+
+export const HEX_RE = /^[A-Za-z][0-9]+$/;
+
+export const PACES: readonly Pace[] = ['fast', 'normal', 'slow'] as const;
+
+export const PILLARS: readonly Pillar[] = ['explore', 'social', 'combat'] as const;
+
+export const TIERS: readonly Tier[] = [1, 2, 3, 4] as const;

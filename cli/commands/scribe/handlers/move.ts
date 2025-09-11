@@ -1,7 +1,7 @@
-import type { Context } from '../types';
 import { HEX_RE } from '../constants';
 import { appendEvent } from '../events';
-import { requireSession } from '../guards.ts';
+import { requireSession } from '../guards';
+import type { Context, Pace } from '../types';
 
 export default function move(ctx: Context) {
   return (args: string[]) => {
@@ -15,7 +15,7 @@ export default function move(ctx: Context) {
     if (!HEX_RE.test(to)) {
       return console.log('❌ Invalid hex id');
     }
-    const pace = (args[1] ?? 'normal') as 'fast'|'normal'|'slow';
+    const pace = (args[1] ?? 'normal') as Pace;
     const from = ctx.lastHex ?? null;
     if (!from) {
       console.log('(note) starting move has no previous hex');
