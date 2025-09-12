@@ -3,7 +3,7 @@ import type { Pace, Pillar, Tier } from './types.ts';
 export const HELP_TEXT = `
 Commands:
   ap <pillar> <tier> "<note...>" record an advancement-point event
-  current                        print the current hex
+  current                        show current session status (alias for \`status\`)
   date <new date>                set or correct the current calendar date
   day end                        end the current day and show a summary
   day start [date]               start a new in-game day (auto-increments date if omitted)
@@ -21,6 +21,7 @@ Commands:
   resume [sessionId]             resume the latest (or the specified) in-progress session
   start <hex>                    start a new session using default/preset id
   start <sessionId> <hex>        start with explicit session id
+  status                         show current session status
   time <hours>                   log active time (rounded up to 1.5h segments)
   trail <hex>                    mark a trail from current hex to <hex>
   undo [n]                       remove last n in-progress events (default 1)
