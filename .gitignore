@@ -29,3 +29,4 @@ pnpm-debug.log*
 /scripts/clue-linker/.venv-clue-linker/
 /data/clue-links.yaml
 /scripts/elevation-solver/.venv-elevation-solver/
+/data/session-logs/in-progress/
