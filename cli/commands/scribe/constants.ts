@@ -33,4 +33,7 @@ export const PACES: readonly Pace[] = ['fast', 'normal', 'slow'] as const;
 
 export const PILLARS: readonly Pillar[] = ['explore', 'social', 'combat'] as const;
 
+// 1 segment = 1.5 hours (integer math internally)
+export const STEP_HOURS = 1.5;
+
 export const TIERS: readonly Tier[] = [1, 2, 3, 4] as const;

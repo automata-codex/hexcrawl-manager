@@ -1,10 +1,8 @@
+import { STEP_HOURS } from '../constants.ts';
 import { requireFile } from '../lib/guards.ts';
 import { info, usage, warn } from '../lib/report';
 import { appendEvent, readEvents } from '../services/event-log';
 import type { Context, Event } from '../types';
-
-// 1 segment = 1.5 hours (integer math internally)
-const STEP_HOURS = 1.5;
 
 function hoursToSegmentsCeil(hours: number) {
   return Math.ceil(hours / STEP_HOURS);

@@ -1,5 +1,5 @@
-// cli/commands/scribe/handlers/day.ts
-import { CALENDAR_CONFIG } from '../config/calendar.config.ts'
+import { CALENDAR_CONFIG } from '../config/calendar.config.ts';
+import { STEP_HOURS } from '../constants.ts';
 import { info, warn, usage, error } from '../lib/report';
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { readEvents, appendEvent } from '../services/event-log';
@@ -101,28 +101,41 @@ export default function day(ctx: Context) {
         return warn('No open day. Use `day start [date]` first.');
       }
 
-      // Summarize since last day_start
-      let active = 0;
-      let daylight = 0;
-      let night = 0;
+      // Summarize since last day_start — use integer segments internally
+      const segmentsToHours = (segments: number) => segments * STEP_HOURS;
+      let activeSegments = 0;
+      let daylightSegments = 0;
+      let nightSegments = 0;
 
       for (let i = events.length - 1; i >= 0; i--) {
         const e = events[i];
-        if (e.kind === 'day_start') break;
+        if (e.kind === 'day_start') {
+          break;
+        }
         if (e.kind === 'time_log') {
-          const h = Number((e as any).payload?.hours ?? 0);
+          const segments = Number((e as any).payload?.segments ?? 0);
           const phase = String((e as any).payload?.phase ?? '');
-          active += h;
-          if (phase === 'daylight') daylight += h;
-          else if (phase === 'night') night += h;
+          activeSegments += segments;
+          if (phase === 'daylight') {
+            daylightSegments += segments;
+          } else if (phase === 'night') {
+            nightSegments += segments;
+          }
         }
       }
 
-      appendEvent(ctx.file!, 'day_end', {
-        summary: { active, daylight, night },
+      // Convert to hours for stored summary and display
+      const activeH = segmentsToHours(activeSegments);
+      const daylightH = segmentsToHours(daylightSegments);
+      const nightH = segmentsToHours(nightSegments);
+
+      appendEvent(ctx.file!, 'day_end', { // Checked by `requireFile`
+        summary: { active: activeH, daylight: daylightH, night: nightH },
       });
 
-      return info(`🌙 Day ended (active ${active.toFixed(1)}h: daylight ${daylight.toFixed(1)}h, night ${night.toFixed(1)}h)`);
+      return info(
+        `🌙 Day ended (active ${activeH.toFixed(1)}h: daylight ${daylightH.toFixed(1)}h, night ${nightH.toFixed(1)}h)`
+      );
     }
   };
 }
