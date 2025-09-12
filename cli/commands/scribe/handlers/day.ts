@@ -1,0 +1,128 @@
+// cli/commands/scribe/handlers/day.ts
+import { CALENDAR_CONFIG } from '../config/calendar.config.ts'
+import { info, warn, usage, error } from '../lib/report';
+import { requireFile, requireSession } from '../lib/guards.ts';
+import { readEvents, appendEvent } from '../services/event-log';
+import type { CanonicalDate, Context, Event } from '../types';
+
+function findOpenDay(events: Event[]) {
+  // An open day exists if there's a day_start after the last day_end
+  let lastStartIdx = -1;
+  let lastEndIdx = -1;
+  for (let i = events.length - 1; i >= 0; i--) {
+    const k = events[i].kind;
+    if (k === 'day_end' && lastEndIdx === -1) {
+      lastEndIdx = i;
+    }
+    if (k === 'day_start' && lastStartIdx === -1) {
+      lastStartIdx = i;
+    }
+    if (lastStartIdx !== -1 && lastEndIdx !== -1) {
+      break;
+    }
+  }
+  const open = lastStartIdx !== -1 && (lastEndIdx === -1 || lastStartIdx > lastEndIdx);
+  return {
+    open,
+    lastStart: open ? events[lastStartIdx] : null,
+  };
+}
+
+function lastCalendarDate(events: Event[]): CanonicalDate | null {
+  for (let i = events.length - 1; i >= 0; i--) {
+    const e = events[i];
+    if (e.kind === 'day_start' && (e as any).payload?.calendarDate) {
+      return (e as any).payload.calendarDate as CanonicalDate;
+    }
+    if (e.kind === 'date_set' && (e as any).payload?.calendarDate) {
+      return (e as any).payload.calendarDate as CanonicalDate;
+    }
+  }
+  return null;
+}
+
+export default function day(ctx: Context) {
+  return (args: string[]) => {
+    if (!requireSession(ctx)) {
+      return;
+    }
+    if (!requireFile(ctx)) {
+      return;
+    }
+
+    const sub = (args[0] || '').toLowerCase();
+    if (sub !== 'start' && sub !== 'end') {
+      return usage('usage: day <start [date]|end>');
+    }
+
+    const events = readEvents(ctx.file!); // Checked by `requireFile`
+    const { open } = findOpenDay(events);
+
+    if (sub === 'start') {
+      if (open) {
+        return warn('A day is already open. Use `day end` (or `rest`) before starting a new day.');
+      }
+
+      // Parse/resolve date
+      const dateArg = args.slice(1).join(' ').trim(); // may be empty
+      let calendarDate: CanonicalDate | null = null;
+
+      try {
+        if (dateArg) {
+          // Accept full/partial/relative; delegate to your calendar service.
+          // Replace with your actual API (e.g., ctx.calendar.parse(dateArg))
+          calendarDate = ctx.calendar.parseDate(dateArg);
+        } else {
+          const last = lastCalendarDate(events);
+          if (!last) {
+            return usage('usage: day start <date>  (no prior date found)');
+          }
+          calendarDate = ctx.calendar.incrementDate(last, 1);
+        }
+      } catch (e: any) {
+        return error(`Invalid date. ${e?.message ?? ''}`.trim());
+      }
+
+      // Determine season and daylight cap
+      const season = ctx.calendar.seasonFor(calendarDate!);
+      const daylightCap = CALENDAR_CONFIG.daylightCaps[season];
+
+      appendEvent(ctx.file!, 'day_start', {
+        calendarDate,
+        season,
+        daylightCap,
+      });
+
+      return info(`📅 Day started: ${ctx.calendar.formatDate(calendarDate!)} (daylight cap ${daylightCap}h)`);
+    }
+
+    if (sub === 'end') {
+      if (!open) {
+        return warn('No open day. Use `day start [date]` first.');
+      }
+
+      // Summarize since last day_start
+      let active = 0;
+      let daylight = 0;
+      let night = 0;
+
+      for (let i = events.length - 1; i >= 0; i--) {
+        const e = events[i];
+        if (e.kind === 'day_start') break;
+        if (e.kind === 'time_log') {
+          const h = Number((e as any).payload?.hours ?? 0);
+          const phase = String((e as any).payload?.phase ?? '');
+          active += h;
+          if (phase === 'daylight') daylight += h;
+          else if (phase === 'night') night += h;
+        }
+      }
+
+      appendEvent(ctx.file!, 'day_end', {
+        summary: { active, daylight, night },
+      });
+
+      return info(`🌙 Day ended (active ${active.toFixed(1)}h: daylight ${daylight.toFixed(1)}h, night ${night.toFixed(1)}h)`);
+    }
+  };
+}

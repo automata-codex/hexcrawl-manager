@@ -1,3 +1,5 @@
+import type { CalendarService } from './services/calendar.ts';
+
 export type CalendarConfig = {
   daylightCaps: Record<Season, number>;              // { winter:6, spring:9, summer:12, autumn:9 }
   displayFormat?: "D Month YYYY";                    // reserved for future; one format supported today
@@ -22,6 +24,7 @@ export type CanonicalDate = {
 export type Context = {
   sessionId: string | null;
   file: string | null;      // in-progress file path
+  calendar: CalendarService;
 };
 
 export type Event = {
