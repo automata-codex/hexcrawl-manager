@@ -133,9 +133,11 @@ export default function day(ctx: Context) {
         summary: { active: activeH, daylight: daylightH, night: nightH },
       });
 
-      return info(
-        `🌙 Day ended (active ${activeH.toFixed(1)}h: daylight ${daylightH.toFixed(1)}h, night ${nightH.toFixed(1)}h)`
-      );
+      let msg = `🌙 Day ended (active ${activeH.toFixed(1)}h: daylight ${daylightH.toFixed(1)}h, night ${nightH.toFixed(1)}h)`;
+      if (activeH > 12) {
+        msg += ` ⚠️ Exceeded 12h exhaustion threshold`;
+      }
+      return info(msg);
     }
   };
 }

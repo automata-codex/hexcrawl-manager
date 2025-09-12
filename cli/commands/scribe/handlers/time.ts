@@ -12,6 +12,18 @@ function segmentsToHours(segments: number) {
   return segments * STEP_HOURS;
 }
 
+// Sum ALL time segments (daylight + night) since the last day_start
+function activeSegmentsSinceStart(events: Event[], startIdx: number) {
+  let segments = 0;
+  for (let i = startIdx + 1; i < events.length; i++) {
+    const e = events[i];
+    if (e.kind === 'time_log') {
+      segments += Number((e as any).payload?.segments ?? 0);
+    }
+  }
+  return segments;
+}
+
 function findOpenDay(events: Event[]) {
   let lastStartIdx = -1;
   let lastEndIdx = -1;
@@ -28,18 +40,18 @@ function findOpenDay(events: Event[]) {
     }
   }
   const open = lastStartIdx !== -1 && (lastEndIdx === -1 || lastStartIdx > lastEndIdx);
-  return {open, lastStartIdx};
+  return { open, lastStartIdx };
 }
 
 function daylightSegmentsSinceStart(events: Event[], startIdx: number) {
-  let segs = 0;
+  let segments = 0;
   for (let i = startIdx + 1; i < events.length; i++) {
     const e = events[i];
     if (e.kind === 'time_log' && (e as any).payload?.phase === 'daylight') {
-      segs += Number((e as any).payload?.segments ?? 0);
+      segments += Number((e as any).payload?.segments ?? 0);
     }
   }
-  return segs;
+  return segments;
 }
 
 export default function time(ctx: Context) {
@@ -58,7 +70,7 @@ export default function time(ctx: Context) {
     }
 
     const events = readEvents(ctx.file!); // Checked by `requireFile`
-    const {open, lastStartIdx} = findOpenDay(events);
+    const { open, lastStartIdx } = findOpenDay(events);
     if (!open) {
       return warn('❌ No open day. Start one with: day start [date]');
     }
@@ -89,17 +101,30 @@ export default function time(ctx: Context) {
 
     const phase = nightSegments > 0 && daylightSegments === 0 ? 'night' : 'daylight';
     // Store segments + phase only (integers internally)
-    appendEvent(ctx.file!, 'time_log', {segments: segments, phase}); // Checked by `requireFile`
+    appendEvent(ctx.file!, 'time_log', { segments: segments, phase }); // Checked by `requireFile`
 
     // User-facing output in hours
     const daylightH = segmentsToHours(daylightSegments);
     const nightH = segmentsToHours(nightSegments);
+
+    // Exhaustion check (12h total active per day)
+    const EXHAUSTION_HOURS = 12;
+    const EXHAUSTION_SEGMENTS = Math.round(EXHAUSTION_HOURS / STEP_HOURS); // 12 / 1.5 = 8
+    const activeBefore = activeSegmentsSinceStart(events, lastStartIdx);
+    const activeAfter = activeBefore + segments;
+    const totalAfterH = segmentsToHours(activeAfter);
+
+    let msg: string;
     if (phase === 'daylight' && nightSegments === 0) {
-      return info(`⏱️ Logged: ${roundedHours}h — daylight`);
+      msg = `⏱️ Logged: ${roundedHours}h — daylight`;
+    } else if (daylightSegments > 0 && nightSegments > 0) {
+      msg = `⏱️ Logged: ${roundedHours}h — ${daylightH}h daylight, ${nightH}h 🌙 night`;
+    } else {
+      msg = `⏱️ Logged: ${roundedHours}h — 🌙 night`;
     }
-    if (daylightSegments > 0 && nightSegments > 0) {
-      return info(`⏱️ Logged: ${roundedHours}h — ${daylightH}h daylight, ${nightH}h 🌙 night`);
+    if (activeAfter > EXHAUSTION_SEGMENTS) {
+      msg += ` ⚠️ Exceeded 12h exhaustion threshold (${totalAfterH.toFixed(1)}h total)`;
     }
-    return info(`⏱️ Logged: ${roundedHours}h — 🌙 night`);
+    return info(msg);
   };
 }
