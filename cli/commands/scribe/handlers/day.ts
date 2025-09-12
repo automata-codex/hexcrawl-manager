@@ -1,45 +1,9 @@
 import { CALENDAR_CONFIG } from '../config/calendar.config.ts';
-import { STEP_HOURS } from '../constants.ts';
-import { info, warn, usage, error } from '../lib/report';
+import { findOpenDay, lastCalendarDate, segmentsToHours } from '../lib/day.ts';
 import { requireFile, requireSession } from '../lib/guards.ts';
+import { info, warn, usage, error } from '../lib/report';
 import { readEvents, appendEvent } from '../services/event-log';
-import type { CanonicalDate, Context, Event } from '../types';
-
-function findOpenDay(events: Event[]) {
-  // An open day exists if there's a day_start after the last day_end
-  let lastStartIdx = -1;
-  let lastEndIdx = -1;
-  for (let i = events.length - 1; i >= 0; i--) {
-    const k = events[i].kind;
-    if (k === 'day_end' && lastEndIdx === -1) {
-      lastEndIdx = i;
-    }
-    if (k === 'day_start' && lastStartIdx === -1) {
-      lastStartIdx = i;
-    }
-    if (lastStartIdx !== -1 && lastEndIdx !== -1) {
-      break;
-    }
-  }
-  const open = lastStartIdx !== -1 && (lastEndIdx === -1 || lastStartIdx > lastEndIdx);
-  return {
-    open,
-    lastStart: open ? events[lastStartIdx] : null,
-  };
-}
-
-function lastCalendarDate(events: Event[]): CanonicalDate | null {
-  for (let i = events.length - 1; i >= 0; i--) {
-    const e = events[i];
-    if (e.kind === 'day_start' && (e as any).payload?.calendarDate) {
-      return (e as any).payload.calendarDate as CanonicalDate;
-    }
-    if (e.kind === 'date_set' && (e as any).payload?.calendarDate) {
-      return (e as any).payload.calendarDate as CanonicalDate;
-    }
-  }
-  return null;
-}
+import type { CanonicalDate, Context } from '../types';
 
 export default function day(ctx: Context) {
   return (args: string[]) => {
@@ -102,7 +66,6 @@ export default function day(ctx: Context) {
       }
 
       // Summarize since last day_start — use integer segments internally
-      const segmentsToHours = (segments: number) => segments * STEP_HOURS;
       let activeSegments = 0;
       let daylightSegments = 0;
       let nightSegments = 0;

@@ -1,17 +1,8 @@
-import type { Context, Event } from '../types';
-import { readEvents, appendEvent } from '../services/event-log';
-import { info, usage, error } from '../lib/report';
+import { lastCalendarDate } from '../lib/day.ts';
 import { requireFile } from '../lib/guards.ts';
-
-function lastCalendarDate(events: Event[]) {
-  for (let i = events.length - 1; i >= 0; i--) {
-    const e = events[i];
-    if (e.kind === 'day_start' || e.kind === 'date_set') {
-      return (e as any).payload?.calendarDate ?? null;
-    }
-  }
-  return null;
-}
+import { info, usage, error } from '../lib/report';
+import { readEvents, appendEvent } from '../services/event-log';
+import type { Context, Event } from '../types';
 
 function isDayOpen(events: Event[]) {
   let lastStartIdx = -1;

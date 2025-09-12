@@ -1,58 +1,15 @@
 import { STEP_HOURS } from '../constants.ts';
+import {
+  activeSegmentsSinceStart,
+  daylightSegmentsSinceStart,
+  findOpenDay,
+  hoursToSegmentsCeil,
+  segmentsToHours
+} from '../lib/day.ts';
 import { requireFile } from '../lib/guards.ts';
 import { info, usage, warn } from '../lib/report';
 import { appendEvent, readEvents } from '../services/event-log';
-import type { Context, Event } from '../types';
-
-function hoursToSegmentsCeil(hours: number) {
-  return Math.ceil(hours / STEP_HOURS);
-}
-
-function segmentsToHours(segments: number) {
-  return segments * STEP_HOURS;
-}
-
-// Sum ALL time segments (daylight + night) since the last day_start
-function activeSegmentsSinceStart(events: Event[], startIdx: number) {
-  let segments = 0;
-  for (let i = startIdx + 1; i < events.length; i++) {
-    const e = events[i];
-    if (e.kind === 'time_log') {
-      segments += Number((e as any).payload?.segments ?? 0);
-    }
-  }
-  return segments;
-}
-
-function findOpenDay(events: Event[]) {
-  let lastStartIdx = -1;
-  let lastEndIdx = -1;
-  for (let i = events.length - 1; i >= 0; i--) {
-    const k = events[i].kind;
-    if (k === 'day_end' && lastEndIdx === -1) {
-      lastEndIdx = i;
-    }
-    if (k === 'day_start' && lastStartIdx === -1) {
-      lastStartIdx = i;
-    }
-    if (lastStartIdx !== -1 && lastEndIdx !== -1) {
-      break;
-    }
-  }
-  const open = lastStartIdx !== -1 && (lastEndIdx === -1 || lastStartIdx > lastEndIdx);
-  return { open, lastStartIdx };
-}
-
-function daylightSegmentsSinceStart(events: Event[], startIdx: number) {
-  let segments = 0;
-  for (let i = startIdx + 1; i < events.length; i++) {
-    const e = events[i];
-    if (e.kind === 'time_log' && (e as any).payload?.phase === 'daylight') {
-      segments += Number((e as any).payload?.segments ?? 0);
-    }
-  }
-  return segments;
-}
+import type { Context } from '../types';
 
 export default function time(ctx: Context) {
   return (args: string[]) => {

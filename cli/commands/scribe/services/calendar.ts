@@ -119,7 +119,7 @@ export class CalendarService {
     return out;
   }
 
-  parseDate(input: string, base?: CanonicalDate): CanonicalDate {
+  parseDate(input: string, base?: CanonicalDate | null): CanonicalDate {
     const raw = (input ?? "").trim();
     if (!raw) {
       throw new CalendarError("Empty date string.");
@@ -149,7 +149,9 @@ export class CalendarService {
 
     const numericAll = parts.filter(t => /^\d+$/.test(t)).map(Number);
     let year: number | undefined = numericAll.length ? numericAll[numericAll.length - 1] : undefined;
-    if (!Number.isFinite(year) || year === day) year = base?.year;
+    if (!Number.isFinite(year) || year === day) {
+      year = base?.year;
+    }
 
     if (!Number.isFinite(day)) {
       throw new CalendarError(`Missing/invalid day in "${input}".`);
