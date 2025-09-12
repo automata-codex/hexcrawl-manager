@@ -18,13 +18,12 @@ export default function start(ctx: Context, presetSessionId?: string) {
     }
 
     if (!existsSync(ctx.file)) {
-      ctx.lastHex = startHexNorm;
       appendEvent(ctx.file, 'session_start', { status: 'in-progress', id, startHex: startHexNorm });
       info(`started: ${id} @ ${startHexNorm}`);
     } else {
       const evs = readEvents(ctx.file);
-      ctx.lastHex = selectCurrentHex(evs) ?? startHexNorm;
-      info(`resumed: ${id} (${evs.length} events)`);
+      const hex = selectCurrentHex(evs) ?? startHexNorm;
+      info(`resumed: ${id} (${evs.length} events)${hex ? ` — last hex ${hex}` : ''}`);
     }
   };
 

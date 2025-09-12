@@ -15,8 +15,6 @@ export default function undo(ctx: Context) {
     }
     const kept = evs.slice(0, Math.max(0, evs.length - n));
     writeEvents(ctx.file!, kept); // Checked by `requireFile`
-    const lastMove = [...kept].reverse().find(e => e.kind==='move');
-    ctx.lastHex = (lastMove?.payload as any)?.to ?? null;
     info(`↩ undone ${Math.min(n, evs.length)} event(s)`);
   };
 }

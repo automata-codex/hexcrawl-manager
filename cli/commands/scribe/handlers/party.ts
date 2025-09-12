@@ -1,7 +1,8 @@
 import { requireSession } from '../lib/guards.ts';
 import { error, info, usage, warn } from '../lib/report.ts';
+import { selectParty } from '../projector.ts';
 import { getAllCharacterIds } from '../services/character';
-import { appendEvent } from '../services/event-log';
+import { appendEvent, readEvents } from '../services/event-log';
 import type { Context } from '../types';
 
 export default function party(ctx: Context) {
@@ -20,11 +21,13 @@ export default function party(ctx: Context) {
       if (!exists) {
         return error(`❌ unknown id '${id}'. Try TAB for suggestions.`);
       }
-      if (!ctx.party.find(p => p.toLowerCase() === id.toLowerCase())) {
-        ctx.party.push(id);
-        appendEvent(ctx.file!, 'party_set', { ids: [...ctx.party] });
+      const evs = readEvents(ctx.file!);
+      const current = selectParty(evs);
+      if (!current.find(p => p.toLowerCase() === id.toLowerCase())) {
+        const next = [...current, id];
+        appendEvent(ctx.file!, 'party_set', { ids: next });
       }
-      info(`✓ party: ${ctx.party.join(', ')}`);
+      info(`✓ party: ${[...new Set((selectParty(readEvents(ctx.file!))).map(x=>x))].join(', ') || '∅'}`);
       return;
     }
 
@@ -32,14 +35,15 @@ export default function party(ctx: Context) {
       if (!requireSession(ctx)) {
         return;
       }
-      ctx.party = [];
       appendEvent(ctx.file!, 'party_set', { ids: [] });
       info('✓ party cleared');
       return;
     }
 
     if (sub === 'list') {
-      info(ctx.party.length ? ctx.party.join(', ') : '∅ (no active characters)');
+      const evs = readEvents(ctx.file!);
+      const current = selectParty(evs);
+      info(current.length ? current.join(', ') : '∅ (no active characters)');
       return;
     }
 
@@ -51,13 +55,15 @@ export default function party(ctx: Context) {
       if (!id) {
         return usage('usage: party remove <id>   (TIP: type a letter then press TAB)');
       }
-      const before = ctx.party.length;
-      ctx.party = ctx.party.filter(p => p.toLowerCase() !== id.toLowerCase());
-      if (ctx.party.length === before) {
-        return warn(`∅ '${id}' not in party`);
+      const evs = readEvents(ctx.file!);
+      const current = selectParty(evs);
+      const next = current.filter(p => p.toLowerCase() !== id.toLowerCase());
+      if (next.length === current.length) {
+        return info(`∅ '${id}' not in party`);
       }
-      appendEvent(ctx.file!, 'party_set', { ids: [...ctx.party] });
-      info(`✓ removed '${id}'. party: ${ctx.party.join(', ') || '∅'}`);
+      appendEvent(ctx.file!, 'party_set', { ids: next });
+      const latest = selectParty(readEvents(ctx.file!));
+      info(`✓ removed '${id}'. party: ${latest.join(', ') || '∅'}`);
       return;
     }
 

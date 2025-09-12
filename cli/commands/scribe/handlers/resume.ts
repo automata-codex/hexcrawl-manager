@@ -17,8 +17,8 @@ export default function resume(ctx: Context) {
       ctx.sessionId = id;
       ctx.file = p;
       const evs = readEvents(p);
-      ctx.lastHex = selectCurrentHex(evs);
-      info(`resumed: ${id} (${evs.length} events)${ctx.lastHex ? ` — last hex ${ctx.lastHex}` : ''}`);
+      const hex = selectCurrentHex(evs);
+      info(`resumed: ${id} (${evs.length} events)${hex ? ` — last hex ${hex}` : ''}`);
       return;
     }
 
@@ -30,7 +30,7 @@ export default function resume(ctx: Context) {
     ctx.sessionId = latest.id;
     ctx.file = latest.path;
     const evs = readEvents(latest.path);
-    ctx.lastHex = selectCurrentHex(evs);
-    info(`resumed: ${latest.id} (${evs.length} events)${ctx.lastHex ? ` — last hex ${ctx.lastHex}` : ''}`);
+    const hex = selectCurrentHex(evs);
+    info(`resumed: ${latest.id} (${evs.length} events)${hex ? ` — last hex ${hex}` : ''}`);
   };
 }

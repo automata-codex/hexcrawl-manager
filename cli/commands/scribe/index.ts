@@ -17,8 +17,6 @@ export const scribeCommand = new Command('scribe')
     const ctx: Context = {
       sessionId: null,
       file: null,
-      lastHex: null,
-      party: [],
     };
 
     const rl = readline.createInterface({
