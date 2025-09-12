@@ -66,8 +66,8 @@ export default function time(ctx: Context) {
     }
 
     // Round up to nearest step, keep segments internally
-    const segs = hoursToSegmentsCeil(input);
-    const roundedHours = segmentsToHours(segs);
+    const segments = hoursToSegmentsCeil(input);
+    const roundedHours = segmentsToHours(segments);
     if (roundedHours !== input) {
       warn(`⚠️ Rounded ${input}h → ${roundedHours}h (1.5h steps).`);
     }
@@ -75,31 +75,31 @@ export default function time(ctx: Context) {
     // Pull daylight cap (in hours) off today's day_start
     const dayStart = events[lastStartIdx];
     const capHours = Number((dayStart as any).payload?.daylightCap ?? 9);
-    const capSegs = Math.round(capHours / STEP_HOURS); // caps are multiples of 1.5h
-    const usedSegs = daylightSegmentsSinceStart(events, lastStartIdx);
+    const capSegments = Math.round(capHours / STEP_HOURS); // caps are multiples of 1.5h
+    const usedSegments = daylightSegmentsSinceStart(events, lastStartIdx);
 
     // Split newly logged time between daylight and night
-    let daylightSegs = 0;
-    let nightSegs = 0;
-    if (usedSegs < capSegs) {
-      const remaining = capSegs - usedSegs;
-      daylightSegs = Math.min(segs, remaining);
-      nightSegs = segs - daylightSegs;
+    let daylightSegments = 0;
+    let nightSegments = 0;
+    if (usedSegments < capSegments) {
+      const remaining = capSegments - usedSegments;
+      daylightSegments = Math.min(segments, remaining);
+      nightSegments = segments - daylightSegments;
     } else {
-      nightSegs = segs;
+      nightSegments = segments;
     }
 
-    const phase = nightSegs > 0 && daylightSegs === 0 ? 'night' : 'daylight';
+    const phase = nightSegments > 0 && daylightSegments === 0 ? 'night' : 'daylight';
     // Store segments + phase only (integers internally)
-    appendEvent(ctx.file!, 'time_log', {segments: segs, phase}); // Checked by `requireFile`
+    appendEvent(ctx.file!, 'time_log', {segments: segments, phase}); // Checked by `requireFile`
 
     // User-facing output in hours
-    const daylightH = segmentsToHours(daylightSegs);
-    const nightH = segmentsToHours(nightSegs);
-    if (phase === 'daylight' && nightSegs === 0) {
+    const daylightH = segmentsToHours(daylightSegments);
+    const nightH = segmentsToHours(nightSegments);
+    if (phase === 'daylight' && nightSegments === 0) {
       return info(`⏱️ Logged: ${roundedHours}h — daylight`);
     }
-    if (daylightSegs > 0 && nightSegs > 0) {
+    if (daylightSegments > 0 && nightSegments > 0) {
       return info(`⏱️ Logged: ${roundedHours}h — ${daylightH}h daylight, ${nightH}h 🌙 night`);
     }
     return info(`⏱️ Logged: ${roundedHours}h — 🌙 night`);
