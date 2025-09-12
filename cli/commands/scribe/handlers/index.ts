@@ -12,6 +12,7 @@ import move from './move';
 import note from './note';
 import party from './party';
 import quit from './quit';
+import rest from './rest';
 import resume from './resume';
 import start from './start';
 import trail from './trail';
@@ -33,6 +34,7 @@ export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMa
     note: note(ctx),
     party: party(ctx),
     quit: quit(),
+    rest: rest(ctx),
     resume: resume(ctx),
     start: start(ctx, presetSessionId),
     trail: trail(ctx),
