@@ -16,6 +16,7 @@ import quit from './quit';
 import rest from './rest';
 import resume from './resume';
 import start from './start';
+import time from './time.ts';
 import trail from './trail';
 import undo from './undo';
 import view from './view';
@@ -39,6 +40,7 @@ export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMa
     rest: rest(ctx),
     resume: resume(ctx),
     start: start(ctx, presetSessionId),
+    time: time(ctx),
     trail: trail(ctx),
     undo: undo(ctx),
     view: view(ctx),
