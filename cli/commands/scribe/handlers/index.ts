@@ -4,6 +4,7 @@ import type { Context } from '../types';
 
 import ap from './ap';
 import current from './current';
+import date from './date.ts';
 import day from './day.ts';
 import exit from './exit';
 import finalize from './finalize';
@@ -26,6 +27,7 @@ export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMa
   return {
     ap: ap(ctx),
     current: current(ctx),
+    date: date(ctx),
     day: day(ctx),
     exit: exit(),
     finalize: finalize(ctx),
