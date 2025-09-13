@@ -31,6 +31,14 @@ Commands:
   trail <hex>                    mark a trail from current hex to <hex>
   undo [n]                       remove last n in-progress events (default 1)
   view [n]                       show last n events (default 10)
+  weather abandon                discard the weather draft (no log write)
+  weather clear descs            clear chosen descriptors from the draft
+  weather commit                 commit the draft as today's weather (writes to log)
+  weather propose                alias for \`weather roll\`
+  weather roll                   propose today's weather (auto-roll, suggest descriptors)
+  weather set <field> <value>    set a field in the weather draft (season, roll, forecast, category, detail, desc)
+  weather show                   display today's weather draft and committed weather
+  weather use <idx[,idx,...]>    add suggested descriptor(s) by index to the draft
 `;
 
 export const HEX_RE = /^[A-Za-z][0-9]+$/;

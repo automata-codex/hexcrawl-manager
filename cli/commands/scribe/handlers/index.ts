@@ -24,6 +24,7 @@ import time from './time.ts';
 import trail from './trail';
 import undo from './undo';
 import view from './view';
+import weather from './weather';
 
 export type Handler = (args: string[]) => void | Promise<void>;
 export type HandlerMap = Record<string, Handler>;
@@ -52,6 +53,7 @@ export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMa
     trail: trail(ctx),
     undo: undo(ctx),
     view: view(ctx),
+    weather: weather(ctx),
   };
 }
 
