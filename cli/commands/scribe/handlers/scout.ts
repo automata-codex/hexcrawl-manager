@@ -3,6 +3,7 @@ import { isHexId, normalizeHex } from '../lib/hex.ts';
 import { error, info, usage } from '../lib/report.ts';
 import { selectCurrentHex } from '../projector.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+import { getHexNeighbors } from '../../../../src/utils/hexes.ts'
 import type { Context } from '../types';
 
 export default function scout(ctx: Context) {
@@ -40,6 +41,12 @@ export default function scout(ctx: Context) {
       return usage('❌ Cannot scout current hex.');
     }
 
+    // Adjacency check
+    const neighbors = getHexNeighbors(from);
+    if (!neighbors.includes(target)) {
+      info(`Warning: ${target} is not adjacent to ${from}.`);
+    }
+
     // Emit scout event
     appendEvent(ctx.file!, 'scout', {
       from,
@@ -59,4 +66,3 @@ export default function scout(ctx: Context) {
     }
   };
 }
-

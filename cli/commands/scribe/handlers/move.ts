@@ -4,6 +4,7 @@ import { isHexId, normalizeHex } from '../lib/hex.ts';
 import { error, info, usage, warn } from '../lib/report.ts';
 import { selectCurrentHex, isPartyLost } from '../projector.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+import { getHexNeighbors } from '../../../../src/utils/hexes.ts'
 import type { Context, Pace } from '../types';
 
 export default function move(ctx: Context) {
@@ -40,6 +41,12 @@ export default function move(ctx: Context) {
     const from = selectCurrentHex(events);
     if (!from) {
       warn('(note) starting move has no previous hex');
+    } else {
+      // Adjacency check
+      const neighbors = getHexNeighbors(from);
+      if (!neighbors.includes(to)) {
+        warn(`Warning: ${to} is not adjacent to ${from}.`);
+      }
     }
 
     // Use isPartyLost to determine lost state
