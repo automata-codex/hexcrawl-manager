@@ -5,6 +5,7 @@ import weatherAbandon from './weather/abandon.ts';
 import weatherClear from './weather/clear.ts';
 import weatherCommit from './weather/commit.ts';
 import weatherRoll from './weather/roll';
+import weatherSet from './weather/set.ts';
 
 export default function weather(ctx: Context) {
   return async (args: string[]) => {
@@ -27,6 +28,8 @@ export default function weather(ctx: Context) {
         weatherRoll(ctx);
         return;
       case 'set':
+        weatherSet(ctx, args);
+        return;
       case 'show':
       case 'use':
         // Not yet implemented
