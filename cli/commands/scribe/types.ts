@@ -97,29 +97,35 @@ export type WeatherCategory =
 export type WeatherCommitted = {
   category: WeatherCategory;
   date: CanonicalDate;
+  descriptors?: string[];
   detail?: string;
   forecastAfter: number;
   forecastBefore: number;
-  override: boolean;
   roll2d6: number;
   season: Season;
   total: number;
 };
 
 export type WeatherDraft = {
-  category: WeatherCategory;
   date: CanonicalDate;
-  descriptors?: string[]; // chosen phrases (optional)
-  detail?: string;
-  effects: {
-    travelMultiplier: 0.5 | 1 | 2 | 0;
-    navCheck: 'normal' | 'disadvantage' | null;
-    exhaustionOnTravel: boolean | null;
+  overrides: {
+    category?: WeatherCategory;
+    descriptors?: string[];
+    detail?: string;
   };
-  forecastBefore: number; // from projector (default 0)
-  override: boolean;
-  roll2d6: number; // 2..12
-  season: Season;
-  suggestedDescriptors: string[]; // exactly 3 phrases (read-only)
-  total: number; // clamp(roll2d6 + forecastBefore, 2..17)
+  proposed: {
+    category: WeatherCategory; // from seasonal bands
+    detail?: string;           // auto only if Inclement+
+    effects: {
+      travelMultiplier: 0.5|1|2|0;
+      navCheck: "normal"|"disadvantage"|null;
+      exhaustionOnTravel: boolean;
+    };
+    forecastBefore: number;    // from projector (default 0)
+    forecastModifier: number;  // mapping from category (−1..+5)
+    roll2d6: number;           // 2..12
+    season: Season;
+    suggestedDescriptors: string[]; // exactly 3 strings for (season,category)
+    total: number;             // clamp(roll2d6 + forecastBefore, 2..17)
+  };
 };

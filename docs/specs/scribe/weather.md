@@ -170,7 +170,7 @@ Preconditions: a draft exists.
   * `finalDetail   = overrides.detail   ?? proposed.detail ?? null`
   * `finalDescs    = overrides.descriptors` (omit if empty/undefined)
 2. Compute `forecastAfter = clamp(proposed.forecastModifier, -1, 5)`
-3. Append `"weather_committed"` with the payload described above (include small `proposed` and `overrides` snapshots).
+3. Append `"weather_committed"` with the payload described above.
 4. Clear `Context.weatherDraft`.
 
 ### `weather abandon`
@@ -220,7 +220,7 @@ Use the JSON contents we finalized earlier for these three files.
   * `weather set roll 6` recomputes `proposed.total`, `proposed.category`, `proposed.detail?`, `proposed.forecastModifier`, suggestions, and effects.
 
 5. Commit
-  * Event includes resolved `category/detail/descriptors`, `forecastAfter` from `proposed.forecastModifier`, and the compact `proposed` and `overrides` snapshots.
+  * Event includes resolved `category/detail/descriptors` and `forecastAfter` from `proposed.forecastModifier`.
 
 6. Supersede
   * Two commits for today exist; projector returns the latest.
