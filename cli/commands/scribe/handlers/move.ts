@@ -1,3 +1,4 @@
+import { PACES } from '../constants.ts';
 import { requireSession } from '../lib/guards.ts';
 import { isHexId, normalizeHex } from '../lib/hex.ts';
 import { error, info, usage, warn } from '../lib/report.ts';
@@ -10,21 +11,59 @@ export default function move(ctx: Context) {
     if (!requireSession(ctx)) {
       return;
     }
-    const toRaw = (args[0] ?? '');
-    if (!toRaw) {
-      return usage('usage: move <to> [pace]');
+    if (!args[0]) {
+      return usage('usage: move <HEX_ID> [lost] [slow|normal|fast]');
     }
+
+    // Parse arguments
+    const toRaw = args[0];
+    let lostFlag = false;
+    let pace: Pace = 'normal';
+
+    for (let i = 1; i < args.length; i++) {
+      const arg = args[i].toLowerCase();
+      if (arg === 'lost') {
+        lostFlag = true;
+      } else if (PACES.includes(arg)) {
+        pace = arg as Pace;
+      } else {
+        return usage('usage: move <HEX_ID> [lost] [slow|normal|fast]');
+      }
+    }
+
     const to = normalizeHex(toRaw);
     if (!isHexId(to)) {
       return error('❌ Invalid hex id');
     }
-    const pace = (args[1] ?? 'normal') as Pace;
+
     const events = ctx.file ? readEvents(ctx.file) : [];
     const from = selectCurrentHex(events);
     if (!from) {
       warn('(note) starting move has no previous hex');
     }
+
+    // Emit move event
     appendEvent(ctx.file!, 'move', { from, to, pace });
-    info(`→ move to ${to}${from ? ` (from ${from})` : ''} [${pace}]`);
+
+    // Determine lost state
+    let alreadyLost = false;
+    for (let i = events.length - 1; i >= 0; i--) {
+      const ev = events[i];
+      if (ev.kind === 'lost') {
+        alreadyLost = ev.payload.state === 'on';
+        break;
+      }
+    }
+
+    if (lostFlag) {
+      if (!alreadyLost) {
+        appendEvent(ctx.file!, 'lost', { state: 'on', reason: 'nav-fail' });
+        info(`Moved to ${to}. Lost state: ON.`);
+      } else {
+        info(`Moved to ${to}. (Already lost.)`);
+      }
+    } else {
+      info(`Moved to ${to}.`);
+    }
   };
 }

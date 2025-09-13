@@ -1,4 +1,5 @@
 import type { CalendarService } from './services/calendar.ts';
+import type { PACES } from './constants.ts';
 
 export type CalendarConfig = {
   daylightCaps: Record<Season, number>;              // { winter:6, spring:9, summer:12, autumn:9 }
@@ -56,7 +57,7 @@ export type MonthDef = {
   aliases?: string[];  // optional short forms or common misspellings
 };
 
-export type Pace = 'fast' | 'normal' | 'slow';
+export type Pace = typeof PACES[number];
 
 export type Pillar = 'explore' | 'social' | 'combat';
 

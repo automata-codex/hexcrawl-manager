@@ -1,4 +1,4 @@
-import type { Pace, Pillar, Tier } from './types.ts';
+import type { Pillar, Tier } from './types.ts';
 
 export const EXHAUSTION_HOURS = 12;
 
@@ -32,7 +32,7 @@ Commands:
 
 export const HEX_RE = /^[A-Za-z][0-9]+$/;
 
-export const PACES: readonly Pace[] = ['fast', 'normal', 'slow'] as const;
+export const PACES: readonly string[] = ['fast', 'normal', 'slow'] as const;
 
 export const PILLARS: readonly Pillar[] = ['explore', 'social', 'combat'] as const;
 
