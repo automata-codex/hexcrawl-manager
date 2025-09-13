@@ -7,18 +7,18 @@ export default function weather(ctx: Context) {
 
     // Scaffold: subcommand handling structure
     switch (sub) {
-      case 'roll':
-      case 'propose':
-      case 'set':
-      case 'use':
-      case 'clear':
-      case 'show':
-      case 'commit':
       case 'abandon':
+      case 'clear':
+      case 'commit':
+      case 'propose':
+      case 'roll':
+      case 'set':
+      case 'show':
+      case 'use':
         // Not yet implemented
-        return usage('weather <roll|propose|set|use|clear|show|commit|abandon>');
+        return usage('weather <abandon|clear|commit|propose|roll|set|show|use>');
       default:
-        return usage('weather <roll|propose|set|use|clear|show|commit|abandon>');
+        return usage('weather <abandon|clear|commit|propose|roll|set|show|use>');
     }
   };
 }
