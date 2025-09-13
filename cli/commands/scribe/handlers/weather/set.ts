@@ -1,6 +1,7 @@
-import type { Context, WeatherDraft, Season, WeatherCategory } from '../../types.ts';
-import { info, error } from '../../lib/report.ts';
+import { WEATHER_CATEGORIES } from '../../constants.ts';
 import { clamp } from '../../lib/math.ts';
+import { info, error } from '../../lib/report.ts';
+import type { Context, WeatherDraft, Season } from '../../types.ts';
 
 import {
   bandForTotal,
@@ -24,8 +25,14 @@ export default function weatherSet(ctx: Context, args: string[]) {
   switch (field) {
     // Presentation fields: update only overrides
     case 'category': {
-      draft.overrides.category = value as WeatherCategory;
-      info(`Override category set to '${value}'.`);
+      const normalized = value.trim().toLowerCase();
+      const matched = WEATHER_CATEGORIES.find(cat => cat.toLowerCase() === normalized);
+      if (!matched) {
+        error(`Invalid category '${value}'. Allowed: ${WEATHER_CATEGORIES.join(', ')}`);
+        return;
+      }
+      draft.overrides.category = matched;
+      info(`Override category set to '${matched}'.`);
       break;
     }
     case 'desc': {

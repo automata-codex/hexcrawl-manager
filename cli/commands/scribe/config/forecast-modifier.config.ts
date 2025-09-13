@@ -2,11 +2,11 @@ import type { ForecastModifierTable } from '../types';
 
 // Forecast Mapping for weather categories
 export const FORECAST_MODIFIER: ForecastModifierTable = {
-  Ideal:        -1,
-  Nice:          0,
-  Agreeable:     1,
-  Unpleasant:    2,
-  Inclement:     3,
-  Extreme:       4,
-  Catastrophic:  5,
+  ideal:        -1,
+  nice:          0,
+  agreeable:     1,
+  unpleasant:    2,
+  inclement:     3,
+  extreme:       4,
+  catastrophic:  5,
 };

@@ -1,5 +1,5 @@
 import type { CalendarService } from './services/calendar.ts';
-import type { PACES } from './constants.ts';
+import { type PACES, WEATHER_CATEGORIES } from './constants.ts';
 
 export type CalendarConfig = {
   daylightCaps: Record<Season, number>;              // { winter:6, spring:9, summer:12, autumn:9 }
@@ -81,14 +81,7 @@ export type SeasonalBandsTable = Record<Season, SeasonalBand[]>;
 
 export type Tier = 1 | 2 | 3 | 4;
 
-export type WeatherCategory =
-  | 'Ideal'
-  | 'Nice'
-  | 'Agreeable'
-  | 'Unpleasant'
-  | 'Inclement'
-  | 'Extreme'
-  | 'Catastrophic';
+export type WeatherCategory = typeof WEATHER_CATEGORIES[number];
 
 export type WeatherCommitted = {
   category: WeatherCategory;

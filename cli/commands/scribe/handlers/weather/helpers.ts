@@ -40,5 +40,5 @@ export function getSeasonForDate(date: CanonicalDate): Season {
 }
 
 export function isInclementPlus(category: WeatherCategory): boolean {
-  return ["Inclement", "Extreme", "Catastrophic"].includes(category);
+  return ["inclement", "extreme", "catastrophic"].includes(category);
 }
