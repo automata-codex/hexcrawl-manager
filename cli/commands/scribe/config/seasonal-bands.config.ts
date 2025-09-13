@@ -1,4 +1,6 @@
-export const SEASONAL_BANDS = {
+import type { SeasonalBandsTable } from '../types';
+
+export const SEASONAL_BANDS: SeasonalBandsTable = {
   spring: [
     { range: [2, 4], category: 'Ideal' },
     { range: [5, 7], category: 'Nice' },
@@ -36,4 +38,3 @@ export const SEASONAL_BANDS = {
     { range: [16, 17], category: 'Catastrophic' },
   ],
 };
-

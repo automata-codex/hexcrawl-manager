@@ -26,7 +26,22 @@ export type Context = {
   sessionId: string | null;
   file: string | null;      // in-progress file path
   calendar: CalendarService;
+  weatherDraft?: WeatherDraft;
 };
+
+// Weather descriptors
+export type DescriptorLibrary = Record<Season, Record<WeatherCategory, string[]>>;
+
+// Extreme weather details
+export type DetailTable = { die: string; entries: string[] };
+export type DetailTables = Record<Season, DetailTable>;
+
+// Weather effects
+export type EffectsTable = Record<WeatherCategory, {
+  travelMultiplier: 0.5 | 1 | 2 | 0;
+  navCheck: 'normal' | 'disadvantage' | null;
+  exhaustionOnTravel: boolean | null;
+}>;
 
 export type Event = {
   seq: number;              // 1..N within the file
@@ -34,6 +49,8 @@ export type Event = {
   kind: string;             // "move" | "scout" | ...
   payload: Record<string, unknown>;
 };
+
+export type ForecastModifierTable = Record<WeatherCategory, number>;
 
 export type LeapRule = {
   /** Every N years, the leap rule applies (e.g., 4). */
@@ -63,4 +80,47 @@ export type Pillar = 'explore' | 'social' | 'combat';
 
 export type Season = "winter" | "spring" | "summer" | "autumn";
 
+export type SeasonalBand = { range: [number, number]; category: WeatherCategory };
+export type SeasonalBandsTable = Record<Season, SeasonalBand[]>;
+
 export type Tier = 1 | 2 | 3 | 4;
+
+export type WeatherCategory =
+  | 'Ideal'
+  | 'Nice'
+  | 'Agreeable'
+  | 'Unpleasant'
+  | 'Inclement'
+  | 'Extreme'
+  | 'Catastrophic';
+
+export type WeatherCommitted = {
+  date: string;
+  season: Season;
+  roll2d6: number;
+  forecastBefore: number;
+  total: number;
+  category: WeatherCategory;
+  detail?: string;
+  forecastAfter: number;
+  override: boolean;
+};
+
+export type WeatherDraft = {
+  date: string; // YYYY-MM-DD
+  season: Season;
+  roll2d6: number; // 2..12
+  forecastBefore: number; // from projector (default 0)
+  total: number; // clamp(roll2d6 + forecastBefore, 2..17)
+  category: WeatherCategory;
+  detail?: string;
+  suggestedDescriptors: string[]; // exactly 3 phrases (read-only)
+  descriptors?: string[]; // chosen phrases (optional)
+  effects: {
+    travelMultiplier: 0.5 | 1 | 2 | 0;
+    navCheck: 'normal' | 'disadvantage' | null;
+    exhaustionOnTravel: boolean | null;
+  };
+  override: boolean;
+  seed?: string;
+};

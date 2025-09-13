@@ -1,5 +1,7 @@
+import type { DescriptorLibrary } from '../types';
+
 // Descriptor Library: 3 per season×category
-export const DESCRIPTOR_LIBRARY = {
+export const DESCRIPTOR_LIBRARY: DescriptorLibrary = {
   spring: {
     Ideal:       ['crisp sun', 'birdsong', 'clear streams'],
     Nice:        ['mild breeze', 'scattered clouds', 'warming ground'],
@@ -37,4 +39,3 @@ export const DESCRIPTOR_LIBRARY = {
     Catastrophic:['superstorm wall', 'endless drift', 'world gone grey'],
   },
 };
-

@@ -1,5 +1,7 @@
+import type { ForecastModifierTable } from '../types';
+
 // Forecast Mapping for weather categories
-export const FORECAST_MODIFIER = {
+export const FORECAST_MODIFIER: ForecastModifierTable = {
   Ideal:        -1,
   Nice:          0,
   Agreeable:     1,

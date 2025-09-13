@@ -1,5 +1,7 @@
+import type { DetailTables } from '../types';
+
 // Detail Tables for Inclement+ weather
-export const DETAIL_TABLES = {
+export const DETAIL_TABLES: DetailTables = {
   spring: {
     die: '1d6',
     entries: [
@@ -49,4 +51,3 @@ export const DETAIL_TABLES = {
     ],
   },
 };
-
