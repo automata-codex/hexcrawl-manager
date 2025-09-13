@@ -42,9 +42,6 @@ export default function move(ctx: Context) {
       warn('(note) starting move has no previous hex');
     }
 
-    // Emit move event
-    appendEvent(ctx.file!, 'move', { from, to, pace });
-
     // Use isPartyLost to determine lost state
     const alreadyLost = isPartyLost(events);
 
@@ -58,5 +55,8 @@ export default function move(ctx: Context) {
     } else {
       info(`Moved to ${to}.`);
     }
+
+    // Emit move event
+    appendEvent(ctx.file!, 'move', { from, to, pace });
   };
 }
