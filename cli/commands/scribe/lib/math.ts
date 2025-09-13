@@ -1,3 +1,5 @@
+import { randomBytes } from 'crypto';
+
 export function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, val));
 }
@@ -24,19 +26,9 @@ export function rollDice(notation: string): number {
   return total + modifier;
 }
 
-// Returns a random float in [0, 1) using crypto if available
+// Returns a random float in [0, 1) using Node.js crypto
 function secureRandom(): number {
-  if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
-    // Browser
-    const array = new Uint32Array(1);
-    window.crypto.getRandomValues(array);
-    return array[0] / 0x100000000;
-  } else {
-    // Node.js
-    const { randomBytes } = require('crypto');
-    const buf = randomBytes(4);
-    const val = buf.readUInt32BE(0);
-    return val / 0x100000000;
-  }
+  const buf = randomBytes(4);
+  const val = buf.readUInt32BE(0);
+  return val / 0x100000000;
 }
-

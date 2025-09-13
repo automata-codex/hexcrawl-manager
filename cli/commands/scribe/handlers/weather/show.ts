@@ -1,24 +1,25 @@
+import { EFFECTS_TABLE } from '../../config/effects-table.config.ts';
 import { requireFile } from '../../lib/guards.ts';
 import { info } from '../../lib/report.ts';
 import { selectCurrentWeather } from '../../projectors.ts';
 import { readEvents } from '../../services/event-log.ts';
+import type { CalendarService } from '../../services/calendar.ts';
 import type { Context, WeatherDraft, WeatherCommitted } from '../../types.ts';
 
-function printCommitted(committed: WeatherCommitted) {
+function printCommitted(committed: WeatherCommitted, calendar: CalendarService) {
   info(`Committed Weather:`);
-  info(`  Date: ${committed.date.year}-${committed.date.month}-${committed.date.day}`);
+  info(`  Date: ${calendar.formatDate(committed.date)}`);
   info(`  Season: ${committed.season}`);
-  info(`  Roll: ${committed.roll2d6}`);
-  info(`  Forecast: ${committed.forecastBefore}`);
-  info(`  Total: ${committed.total}`);
   info(`  Category: ${committed.category}`);
   if (committed.detail) {
     info(`  Detail: ${committed.detail}`);
   }
   if (committed.descriptors && committed.descriptors.length) {
-    printDescriptors(committed.descriptors, 'Descriptors');
+    printDescriptors(committed.descriptors, '  Descriptors');
   }
-  info(`  Forecast After: ${committed.forecastAfter}`);
+  info(`  Travel time multiplier: ×${EFFECTS_TABLE[committed.category].travelMultiplier}`);
+  info(`  Navigation check: ${EFFECTS_TABLE[committed.category].navCheck}`);
+  info(`  Exhaustion on travel: ${EFFECTS_TABLE[committed.category].exhaustionOnTravel ? 'yes' : 'no'}`);
 }
 
 function printDescriptors(descriptors: string[], label: string) {
@@ -82,6 +83,6 @@ export default function weatherShow(ctx: Context) {
   }
 
   if (committed) {
-    printCommitted(committed);
+    printCommitted(committed, ctx.calendar);
   }
 }
