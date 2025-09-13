@@ -2,8 +2,9 @@
  PROJECTORS: Derive current state from the event log (date, hex, party, weather, etc.)
  */
 
+import { datesEqual } from './lib/date.ts';
 import { normalizeHex } from './lib/hex.ts';
-import type { CanonicalDate, Event } from './types';
+import type { CanonicalDate, Event, WeatherCommitted } from './types';
 
 // Sum ALL time segments (daylight + night) since the last day_start
 export function activeSegmentsSinceStart(events: Event[], startIdx: number) {
@@ -133,3 +134,32 @@ export function selectParty(events: Event[]): string[] {
   return latest ?? [];
 }
 
+/** Returns the most recent WeatherCommitted payload from the event log, or null if none. */
+export function selectCurrentWeather(events: Event[]): WeatherCommitted | null {
+  for (let i = events.length - 1; i >= 0; i--) {
+    const e = events[i];
+    if (e.kind === 'weather_committed' && e.payload) {
+      return e.payload as WeatherCommitted;
+    }
+  }
+  return null;
+}
+
+/** Returns the most recent forecastAfter value from a previous day's weather_committed event, or 0 if none. */
+export function selectCurrentForecast(events: Event[]): number {
+  const today = lastCalendarDate(events);
+  for (let i = events.length - 1; i >= 0; i--) {
+    const e = events[i];
+    if (e.kind === 'weather_committed' && e.payload && typeof e.payload === 'object') {
+      const eventDate = (e.payload as WeatherCommitted).date;
+      if (datesEqual(today, eventDate)) {
+        continue; // skip today's weather
+      }
+      const forecast = (e.payload as WeatherCommitted).forecastAfter;
+      if (typeof forecast === 'number') {
+        return forecast;
+      }
+    }
+  }
+  return 0;
+}

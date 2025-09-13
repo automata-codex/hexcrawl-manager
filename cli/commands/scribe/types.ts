@@ -95,7 +95,7 @@ export type WeatherCategory =
   | 'Catastrophic';
 
 export type WeatherCommitted = {
-  date: string;
+  date: CanonicalDate;
   season: Season;
   roll2d6: number;
   forecastBefore: number;
