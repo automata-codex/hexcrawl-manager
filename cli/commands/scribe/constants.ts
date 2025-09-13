@@ -23,6 +23,7 @@ Commands:
   quit                           leave the shell
   rest                           end the current day and show a summary (alias for \`day end\`)
   resume [sessionId]             resume the latest (or the specified) in-progress session
+  scout <HEX_ID> [landmark]      record scouting of an adjacent hex
   start <hex>                    start a new session using default/preset id
   start <sessionId> <hex>        start with explicit session id
   status                         show current session status

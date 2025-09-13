@@ -17,6 +17,7 @@ import party from './party';
 import quit from './quit';
 import rest from './rest';
 import resume from './resume';
+import scout from './scout';
 import start from './start';
 import status from './status.ts';
 import time from './time.ts';
@@ -44,6 +45,7 @@ export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMa
     quit: quit(),
     rest: rest(ctx),
     resume: resume(ctx),
+    scout: scout(ctx),
     start: start(ctx, presetSessionId),
     status: status(ctx),
     time: time(ctx),
