@@ -9,6 +9,7 @@ Commands:
   date <new date>                set or correct the current calendar date
   day end                        end the current day and show a summary
   day start [date]               start a new in-game day (auto-increments date if omitted)
+  dead-rec <success|fail>        record a dead reckoning attempt (clears lost state on success)
   exit                           leave the shell
   finalize                       freeze session → logs/sessions/<id>.jsonl
   help                           show this help

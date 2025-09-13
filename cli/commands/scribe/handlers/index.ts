@@ -6,6 +6,7 @@ import ap from './ap';
 import current from './current';
 import date from './date.ts';
 import day from './day.ts';
+import deadReckoning from './deadReckoning.ts';
 import exit from './exit';
 import finalize from './finalize';
 import help from './help';
@@ -31,6 +32,7 @@ export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMa
     current: current(ctx),
     date: date(ctx),
     day: day(ctx),
+    deadRec: deadReckoning(ctx), // Register as 'deadRec' (will be mapped to 'dead-rec')
     exit: exit(),
     finalize: finalize(ctx),
     help: help(),
