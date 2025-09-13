@@ -1,9 +1,8 @@
-import type { Context, WeatherDraft } from '../../types.ts';
+import { requireFile } from '../../lib/guards.ts';
+import { clamp } from '../../lib/math.ts';
 import { info, error } from '../../lib/report.ts';
 import { appendEvent } from '../../services/event-log.ts';
-import { forecastAfterForCategory, bandForTotal, getSeasonForDate } from './helpers.ts';
-import { clamp } from '../../lib/math.ts';
-import { requireFile } from '../../lib/guards.ts';
+import type { Context, WeatherDraft } from '../../types.ts';
 
 export default function weatherCommit(ctx: Context) {
   if (!requireFile(ctx)) {
@@ -16,35 +15,29 @@ export default function weatherCommit(ctx: Context) {
     return;
   }
 
-  // Validate required fields
-  if (!draft.season) {
-    draft.season = getSeasonForDate(draft.date);
-  }
-  if (draft.roll2d6 == null || draft.forecastBefore == null || draft.category == null) {
-    error('Draft is missing required fields.');
-    return;
-  }
+  // Resolve presentation fields
+  const finalCategory = draft.overrides.category ?? draft.proposed.category;
+  const finalDetail = draft.overrides.detail ?? draft.proposed.detail ?? null;
+  const finalDescriptors = draft.overrides.descriptors && draft.overrides.descriptors.length > 0
+    ? draft.overrides.descriptors
+    : undefined;
 
-  // Compute total and forecastAfter
-  const total = clamp(draft.roll2d6 + draft.forecastBefore, 2, 17);
-  const expectedCategory = bandForTotal(draft.season, total);
-  const override = draft.category !== expectedCategory; // TODO Revisit this logic after implementing the `set` subcommand
-  const forecastAfter = forecastAfterForCategory(draft.category);
+  // Clamp forecastAfter
+  const forecastAfter = clamp(draft.proposed.forecastModifier, -1, 5);
 
   // Write event
-  appendEvent(ctx.file!, 'weather_committed', { // Checked by `requireFile`
+  appendEvent(ctx.file!, 'weather_committed', {
     date: draft.date,
-    season: draft.season,
-    roll2d6: draft.roll2d6,
-    forecastBefore: draft.forecastBefore,
-    total,
-    category: draft.category,
-    detail: draft.detail,
+    season: draft.proposed.season,
+    roll2d6: draft.proposed.roll2d6,
+    forecastBefore: draft.proposed.forecastBefore,
+    total: draft.proposed.total,
+    category: finalCategory,
+    detail: finalDetail,
+    descriptors: finalDescriptors,
     forecastAfter,
-    override,
   });
 
   ctx.weatherDraft = undefined;
   info('Weather committed for today.');
 }
-
