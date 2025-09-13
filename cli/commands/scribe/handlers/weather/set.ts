@@ -1,11 +1,12 @@
 import type { Context, WeatherDraft, Season, WeatherCategory } from '../../types.ts';
 import { info, error } from '../../lib/report.ts';
+import { clamp } from '../../lib/math.ts';
+
 import {
   bandForTotal,
   descriptorsFor,
-  effectsForCategory,
+  effectsForCategory, isInclementPlus,
 } from './helpers.ts';
-import { clamp } from '../../lib/math.ts';
 
 export default function weatherSet(ctx: Context, args: string[]) {
   const draft: WeatherDraft | undefined = ctx.weatherDraft;
@@ -21,44 +22,45 @@ export default function weatherSet(ctx: Context, args: string[]) {
   const value = args.slice(2).join(' ');
 
   switch (field) {
+    // Presentation fields: update only overrides
     case 'category': {
-      const category = value as WeatherCategory;
-      draft.category = category;
-      const suggested = bandForTotal(draft.season, draft.total);
-      draft.override = category !== suggested;
-      draft.effects = effectsForCategory(category);
-      draft.suggestedDescriptors = descriptorsFor(draft.season, category);
-      info(`Draft category set to '${category}'.`);
+      draft.overrides.category = value as WeatherCategory;
+      info(`Override category set to '${value}'.`);
       break;
     }
     case 'desc': {
-      if (!draft.descriptors) draft.descriptors = [];
-      if (!draft.descriptors.includes(value)) {
-        draft.descriptors.push(value);
-        info(`Descriptor '${value}' added to draft.`);
+      if (!draft.overrides.descriptors) {
+        draft.overrides.descriptors = [];
+      }
+      if (!draft.overrides.descriptors.includes(value)) {
+        draft.overrides.descriptors.push(value);
+        info(`Descriptor '${value}' added to overrides.`);
       } else {
-        info(`Descriptor '${value}' already present.`);
+        info(`Descriptor '${value}' already present in overrides.`);
       }
       break;
     }
     case 'detail': {
-      draft.detail = value;
-      info(`Draft detail set to '${value}'.`);
+      draft.overrides.detail = value;
+      info(`Override detail set to '${value}'.`);
       break;
     }
+    // Core fields: update only proposed and recompute chain
     case 'forecast': {
       const forecast = Number(value);
       if (isNaN(forecast) || forecast < -1 || forecast > 5) {
         error('Forecast must be a number between -1 and 5.');
         return;
       }
-      draft.forecastBefore = forecast;
-      draft.total = clamp(draft.roll2d6 + forecast, 2, 17);
-      const suggested = bandForTotal(draft.season, draft.total);
-      draft.override = draft.category !== suggested;
-      draft.effects = effectsForCategory(draft.category);
-      draft.suggestedDescriptors = descriptorsFor(draft.season, draft.category);
-      info(`Draft forecast set to ${forecast}.`);
+      draft.proposed.forecastBefore = forecast;
+      draft.proposed.total = clamp(draft.proposed.roll2d6 + forecast, 2, 17);
+      draft.proposed.category = bandForTotal(draft.proposed.season, draft.proposed.total);
+      draft.proposed.detail = isInclementPlus(draft.proposed.category)
+        ? draft.proposed.detail
+        : undefined;
+      draft.proposed.suggestedDescriptors = descriptorsFor(draft.proposed.season, draft.proposed.category);
+      draft.proposed.effects = effectsForCategory(draft.proposed.category);
+      info(`Proposed forecast set to ${forecast}.`);
       break;
     }
     case 'roll': {
@@ -67,24 +69,28 @@ export default function weatherSet(ctx: Context, args: string[]) {
         error('Roll must be a number between 2 and 12.');
         return;
       }
-      draft.roll2d6 = roll;
-      draft.total = clamp(roll + draft.forecastBefore, 2, 17);
-      const suggested = bandForTotal(draft.season, draft.total);
-      draft.override = draft.category !== suggested;
-      draft.effects = effectsForCategory(draft.category);
-      draft.suggestedDescriptors = descriptorsFor(draft.season, draft.category);
-      info(`Draft roll set to ${roll}.`);
+      draft.proposed.roll2d6 = roll;
+      draft.proposed.total = clamp(roll + draft.proposed.forecastBefore, 2, 17);
+      draft.proposed.category = bandForTotal(draft.proposed.season, draft.proposed.total);
+      draft.proposed.detail = isInclementPlus(draft.proposed.category)
+        ? draft.proposed.detail
+        : undefined;
+      draft.proposed.suggestedDescriptors = descriptorsFor(draft.proposed.season, draft.proposed.category);
+      draft.proposed.effects = effectsForCategory(draft.proposed.category);
+      info(`Proposed roll set to ${roll}.`);
       break;
     }
     case 'season': {
       const season = value as Season;
-      draft.season = season;
-      draft.total = clamp(draft.roll2d6 + draft.forecastBefore, 2, 17);
-      const suggested = bandForTotal(season, draft.total);
-      draft.override = draft.category !== suggested;
-      draft.effects = effectsForCategory(draft.category);
-      draft.suggestedDescriptors = descriptorsFor(season, draft.category);
-      info(`Draft season set to '${season}'.`);
+      draft.proposed.season = season;
+      draft.proposed.total = clamp(draft.proposed.roll2d6 + draft.proposed.forecastBefore, 2, 17);
+      draft.proposed.category = bandForTotal(season, draft.proposed.total);
+      draft.proposed.detail = isInclementPlus(draft.proposed.category)
+        ? draft.proposed.detail
+        : undefined;
+      draft.proposed.suggestedDescriptors = descriptorsFor(season, draft.proposed.category);
+      draft.proposed.effects = effectsForCategory(draft.proposed.category);
+      info(`Proposed season set to '${season}'.`);
       break;
     }
     default:
@@ -92,4 +98,3 @@ export default function weatherSet(ctx: Context, args: string[]) {
       return;
   }
 }
-
