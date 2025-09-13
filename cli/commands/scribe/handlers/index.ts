@@ -3,6 +3,7 @@ import { info } from '../lib/report.ts';
 import type { Context } from '../types';
 
 import ap from './ap';
+import backtrack from './backtrack';
 import current from './current';
 import date from './date.ts';
 import day from './day.ts';
@@ -29,6 +30,7 @@ export type HandlerMap = Record<string, Handler>;
 export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMap {
   return {
     ap: ap(ctx),
+    backtrack: backtrack(ctx),
     current: current(ctx),
     date: date(ctx),
     day: day(ctx),
