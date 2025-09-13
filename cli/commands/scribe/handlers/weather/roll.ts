@@ -3,15 +3,16 @@ import { requireFile, requireSession } from '../../lib/guards.ts';
 import { lastCalendarDate, selectCurrentForecast } from '../../projectors.ts';
 import { info } from '../../lib/report.ts';
 import { readEvents } from '../../services/event-log.ts';
-import type { Context, WeatherDraft, CanonicalDate, Season } from '../../types.ts';
+import type { CanonicalDate, Context, Season, WeatherCategory, WeatherDraft } from '../../types.ts';
 
 import {
   bandForTotal,
   descriptorsFor,
   detailRoll,
   effectsForCategory,
-  isInclementPlus,
+  forecastAfterForCategory,
   getSeasonForDate,
+  isInclementPlus,
 } from './helpers.ts';
 
 export default function weatherRoll(ctx: Context) {
@@ -43,7 +44,7 @@ export default function weatherRoll(ctx: Context) {
   const total = clamp(roll + forecastBefore, 2, 17);
 
   // 6. Get category
-  const category = bandForTotal(season, total);
+  const category: WeatherCategory = bandForTotal(season, total);
 
   // 7. Get detail if Inclement+
   let detail: string | undefined = undefined;
@@ -57,21 +58,27 @@ export default function weatherRoll(ctx: Context) {
   // 9. Get effects
   const effects = effectsForCategory(category);
 
-  // 10. Store draft in context
+  // 10. Get forecastModifier
+  const forecastModifier = forecastAfterForCategory(category);
+
+  // 11. Store draft in context (spec shape)
   ctx.weatherDraft = {
-    category,
     date,
-    detail,
-    effects,
-    forecastBefore,
-    override: false,
-    roll2d6: roll,
-    season,
-    suggestedDescriptors,
-    total,
+    proposed: {
+      season,
+      roll2d6: roll,
+      forecastBefore,
+      total,
+      category,
+      forecastModifier,
+      detail,
+      suggestedDescriptors,
+      effects,
+    },
+    overrides: {},
   } satisfies WeatherDraft;
 
-  // 11. Print summary
+  // 12. Print summary
   info(
     `Weather draft (today): roll=${roll}, forecast=+${forecastBefore} → total=${total} → ${category} (×${effects.travelMultiplier} travel)`
   );
@@ -80,4 +87,3 @@ export default function weatherRoll(ctx: Context) {
   );
   info(`Use 'weather use 1,3' or 'weather set ...', then 'weather commit'.`);
 }
-

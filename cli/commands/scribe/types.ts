@@ -37,11 +37,7 @@ export type DetailTable = { die: string; entries: string[] };
 export type DetailTables = Record<Season, DetailTable>;
 
 // Weather effects
-export type EffectsTable = Record<WeatherCategory, {
-  travelMultiplier: 0.5 | 1 | 2 | 0;
-  navCheck: 'normal' | 'disadvantage' | null;
-  exhaustionOnTravel: boolean | null;
-}>;
+export type EffectsTable = Record<WeatherCategory, WeatherEffects>;
 
 export type Event = {
   seq: number;              // 1..N within the file
@@ -116,11 +112,7 @@ export type WeatherDraft = {
   proposed: {
     category: WeatherCategory; // from seasonal bands
     detail?: string;           // auto only if Inclement+
-    effects: {
-      travelMultiplier: 0.5|1|2|0;
-      navCheck: "normal"|"disadvantage"|null;
-      exhaustionOnTravel: boolean;
-    };
+    effects: WeatherEffects;
     forecastBefore: number;    // from projector (default 0)
     forecastModifier: number;  // mapping from category (−1..+5)
     roll2d6: number;           // 2..12
@@ -128,4 +120,10 @@ export type WeatherDraft = {
     suggestedDescriptors: string[]; // exactly 3 strings for (season,category)
     total: number;             // clamp(roll2d6 + forecastBefore, 2..17)
   };
+};
+
+export type WeatherEffects = {
+  travelMultiplier: 0.5 | 1 | 2 | 0;
+  navCheck: 'normal' | 'disadvantage' | 'impossible';
+  exhaustionOnTravel: boolean;
 };

@@ -8,5 +8,5 @@ export const EFFECTS_TABLE: EffectsTable = {
   Unpleasant:   { travelMultiplier: 2,   navCheck: 'normal', exhaustionOnTravel: false },
   Inclement:    { travelMultiplier: 2,   navCheck: 'disadvantage', exhaustionOnTravel: false },
   Extreme:      { travelMultiplier: 2,   navCheck: 'disadvantage', exhaustionOnTravel: true },
-  Catastrophic: { travelMultiplier: 0,   navCheck: null, exhaustionOnTravel: null },
+  Catastrophic: { travelMultiplier: 0,   navCheck: 'impossible', exhaustionOnTravel: false },
 };
