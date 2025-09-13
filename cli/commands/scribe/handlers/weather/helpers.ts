@@ -5,7 +5,7 @@ import { DETAIL_TABLES } from '../../config/detail-tables.config.ts';
 import { DESCRIPTOR_LIBRARY } from '../../config/descriptor-library.config.ts';
 import { EFFECTS_TABLE } from '../../config/effects-table.config.ts';
 import { FORECAST_MODIFIER } from '../../config/forecast-modifier.config.ts';
-import { clamp } from '../../lib/math.ts';
+import { clamp, rollDice } from '../../lib/math.ts';
 
 export function bandForTotal(season: Season, total: number): WeatherCategory {
   const bands = SEASONAL_BANDS[season];
@@ -23,12 +23,8 @@ export function descriptorsFor(season: Season, category: WeatherCategory): strin
 
 export function detailRoll(season: Season): string | undefined {
   const table = DETAIL_TABLES[season];
-  const die = table.die;
-  const entries = table.entries;
-  let idx = 0;
-  if (die === '1d6') idx = Math.floor(Math.random() * 6);
-  else if (die === '1d8') idx = Math.floor(Math.random() * 8);
-  return entries[idx];
+  const roll = rollDice(table.die);
+  return table.entries[roll];
 }
 
 export function effectsForCategory(category: WeatherCategory) {

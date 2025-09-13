@@ -1,5 +1,7 @@
 import type { Context } from '../types';
-import { info, usage } from '../lib/report.ts';
+import { usage } from '../lib/report.ts';
+
+import weatherRoll from './weather/roll';
 
 export default function weather(ctx: Context) {
   return async (args: string[]) => {
@@ -10,8 +12,13 @@ export default function weather(ctx: Context) {
       case 'abandon':
       case 'clear':
       case 'commit':
+        // Not yet implemented
+        return usage('weather <abandon|clear|commit|propose|roll|set|show|use>');
       case 'propose':
+        // fall thru
       case 'roll':
+        weatherRoll(ctx);
+        return;
       case 'set':
       case 'show':
       case 'use':

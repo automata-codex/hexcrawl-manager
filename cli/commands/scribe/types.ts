@@ -95,32 +95,31 @@ export type WeatherCategory =
   | 'Catastrophic';
 
 export type WeatherCommitted = {
-  date: CanonicalDate;
-  season: Season;
-  roll2d6: number;
-  forecastBefore: number;
-  total: number;
   category: WeatherCategory;
+  date: CanonicalDate;
   detail?: string;
   forecastAfter: number;
+  forecastBefore: number;
   override: boolean;
+  roll2d6: number;
+  season: Season;
+  total: number;
 };
 
 export type WeatherDraft = {
-  date: string; // YYYY-MM-DD
-  season: Season;
-  roll2d6: number; // 2..12
-  forecastBefore: number; // from projector (default 0)
-  total: number; // clamp(roll2d6 + forecastBefore, 2..17)
   category: WeatherCategory;
-  detail?: string;
-  suggestedDescriptors: string[]; // exactly 3 phrases (read-only)
+  date: CanonicalDate;
   descriptors?: string[]; // chosen phrases (optional)
+  detail?: string;
   effects: {
     travelMultiplier: 0.5 | 1 | 2 | 0;
     navCheck: 'normal' | 'disadvantage' | null;
     exhaustionOnTravel: boolean | null;
   };
+  forecastBefore: number; // from projector (default 0)
   override: boolean;
-  seed?: string;
+  roll2d6: number; // 2..12
+  season: Season;
+  suggestedDescriptors: string[]; // exactly 3 phrases (read-only)
+  total: number; // clamp(roll2d6 + forecastBefore, 2..17)
 };
