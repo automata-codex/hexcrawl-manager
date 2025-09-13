@@ -1,4 +1,4 @@
-import { selectCurrentHex } from '../projector.ts';
+import { selectCurrentHex } from '../projectors.ts';
 import { readEvents } from '../services/event-log.ts';
 import type {Context} from '../types.ts';
 

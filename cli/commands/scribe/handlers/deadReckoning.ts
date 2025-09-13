@@ -1,6 +1,6 @@
 import { usage, info } from '../lib/report';
 import { requireFile } from '../lib/guards.ts';
-import { isPartyLost } from '../projector';
+import { isPartyLost } from '../projectors.ts';
 import { readEvents, appendEvent } from '../services/event-log';
 import type { Context } from '../types';
 

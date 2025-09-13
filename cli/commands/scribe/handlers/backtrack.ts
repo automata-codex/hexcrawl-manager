@@ -1,7 +1,7 @@
 import { PACES } from '../constants.ts';
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { info, usage, warn } from '../lib/report.ts';
-import { isPartyLost, selectCurrentHex } from '../projector.ts';
+import { isPartyLost, selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
 import type { Context, Pace } from '../types';
 

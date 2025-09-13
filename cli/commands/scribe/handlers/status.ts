@@ -1,11 +1,13 @@
+import { segmentsToHours } from '../lib/day.ts';
+import { requireFile } from '../lib/guards.ts';
+import { info } from '../lib/report';
 import {
   activeSegmentsSinceStart,
   daylightSegmentsSinceStart,
-  findOpenDay, segmentsToHours
-} from '../lib/day.ts';
-import { requireFile } from '../lib/guards.ts';
-import { info } from '../lib/report';
-import { selectCurrentHex, isPartyLost } from '../projector.ts';
+  findOpenDay,
+  isPartyLost,
+  selectCurrentHex,
+} from '../projectors.ts';
 import { readEvents } from '../services/event-log';
 import type { Context } from '../types';
 

@@ -27,7 +27,7 @@ Commands:
   start <hex>                    start a new session using default/preset id
   start <sessionId> <hex>        start with explicit session id
   status                         show current session status
-  time <hours>                   log active time (rounded up to 1.5h segments)
+  time <hours>                   log active time
   trail <hex>                    mark a trail from current hex to <hex>
   undo [n]                       remove last n in-progress events (default 1)
   view [n]                       show last n events (default 10)

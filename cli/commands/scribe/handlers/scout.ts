@@ -1,7 +1,7 @@
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { isHexId, normalizeHex } from '../lib/hex.ts';
 import { error, info, usage } from '../lib/report.ts';
-import { selectCurrentHex } from '../projector.ts';
+import { selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
 import { getHexNeighbors } from '../../../../src/utils/hexes.ts'
 import type { Context } from '../types';

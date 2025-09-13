@@ -1,12 +1,14 @@
 import { EXHAUSTION_HOURS, STEP_HOURS } from '../constants.ts';
 import {
-  activeSegmentsSinceStart,
-  daylightSegmentsSinceStart,
-  findOpenDay,
   hoursToSegmentsCeil,
   segmentsToHours
 } from '../lib/day.ts';
 import { requireFile } from '../lib/guards.ts';
+import {
+  activeSegmentsSinceStart,
+  daylightSegmentsSinceStart,
+  findOpenDay
+} from '../projectors.ts';
 import { info, usage, warn } from '../lib/report';
 import { appendEvent, readEvents } from '../services/event-log';
 import type { Context } from '../types';

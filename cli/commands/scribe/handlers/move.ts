@@ -2,7 +2,7 @@ import { PACES } from '../constants.ts';
 import { requireSession } from '../lib/guards.ts';
 import { isHexId, normalizeHex } from '../lib/hex.ts';
 import { error, info, usage, warn } from '../lib/report.ts';
-import { selectCurrentHex, isPartyLost } from '../projector.ts';
+import { selectCurrentHex, isPartyLost } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
 import { getHexNeighbors } from '../../../../src/utils/hexes.ts'
 import type { Context, Pace } from '../types';
