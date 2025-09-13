@@ -12,7 +12,7 @@ Commands:
   exit                           leave the shell
   finalize                       freeze session → logs/sessions/<id>.jsonl
   help                           show this help
-  move <to> [pace]               record a move (pace: fast|normal|slow)
+  move <to> [lost] [pace]        record a move (pace: fast|normal|slow)
   note "<text...>"               add a note
   party add <id>                 add a character (TAB to autocomplete)
   party clear                    remove all characters

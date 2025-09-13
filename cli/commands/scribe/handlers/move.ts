@@ -2,7 +2,7 @@ import { PACES } from '../constants.ts';
 import { requireSession } from '../lib/guards.ts';
 import { isHexId, normalizeHex } from '../lib/hex.ts';
 import { error, info, usage, warn } from '../lib/report.ts';
-import { selectCurrentHex } from '../projector.ts';
+import { selectCurrentHex, isPartyLost } from '../projector.ts';
 import { appendEvent, readEvents } from '../services/event-log';
 import type { Context, Pace } from '../types';
 
@@ -45,15 +45,8 @@ export default function move(ctx: Context) {
     // Emit move event
     appendEvent(ctx.file!, 'move', { from, to, pace });
 
-    // Determine lost state
-    let alreadyLost = false;
-    for (let i = events.length - 1; i >= 0; i--) {
-      const ev = events[i];
-      if (ev.kind === 'lost') {
-        alreadyLost = ev.payload.state === 'on';
-        break;
-      }
-    }
+    // Use isPartyLost to determine lost state
+    const alreadyLost = isPartyLost(events);
 
     if (lostFlag) {
       if (!alreadyLost) {
