@@ -32,7 +32,7 @@ Commands:
   undo [n]                       remove last n in-progress events (default 1)
   view [n]                       show last n events (default 10)
   weather abandon                discard the weather draft (no log write)
-  weather clear descs            clear chosen descriptors from the draft
+  weather clear                  clear chosen descriptors from the draft
   weather commit                 commit the draft as today's weather (writes to log)
   weather propose                alias for \`weather roll\`
   weather roll                   propose today's weather (auto-roll, suggest descriptors)

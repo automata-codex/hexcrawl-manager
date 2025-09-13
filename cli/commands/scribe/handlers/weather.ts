@@ -1,6 +1,8 @@
 import type { Context } from '../types';
 import { usage } from '../lib/report.ts';
 
+import weatherAbandon from './weather/abandon.ts';
+import weatherClear from './weather/clear.ts';
 import weatherRoll from './weather/roll';
 
 export default function weather(ctx: Context) {
@@ -10,7 +12,11 @@ export default function weather(ctx: Context) {
     // Scaffold: subcommand handling structure
     switch (sub) {
       case 'abandon':
+        weatherAbandon(ctx);
+        return;
       case 'clear':
+        weatherClear(ctx);
+        return;
       case 'commit':
         // Not yet implemented
         return usage('weather <abandon|clear|commit|propose|roll|set|show|use>');
