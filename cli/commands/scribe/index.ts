@@ -4,6 +4,7 @@ import readline from 'node:readline';
 import { scribeCompleter } from './completer';
 import { CALENDAR_CONFIG } from './config/calendar.config.ts';
 import { buildHandlers, showHelp } from './handlers';
+import weatherNag from './hooks/weather-nag';
 import { error, warn } from './lib/report.ts';
 import { ensureLogs } from './lib/session-files';
 import { tokenize } from './lib/tokenize.ts';
@@ -35,6 +36,11 @@ export const scribeCommand = new Command('scribe')
     showHelp();
     rl.prompt();
 
+    // Post-command hook: runs after every command
+    function postCommandHook(ctx: Context, cmd: string) {
+      weatherNag(ctx, cmd);
+    }
+
     rl.on('line', async (line) => {
       const [cmd, ...args] = tokenize(line.trim());
       if (!cmd) {
@@ -51,6 +57,7 @@ export const scribeCommand = new Command('scribe')
       } else {
         warn(`Unknown command: ${cmd}`);
       }
+      postCommandHook(ctx, cmd);
       rl.prompt();
     });
 

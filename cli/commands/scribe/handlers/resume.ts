@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { selectCurrentHex } from '../projector.ts';
+import { selectCurrentHex } from '../projectors.ts';
 import { error, info, warn } from '../lib/report.ts';
 import { readEvents } from '../services/event-log.ts';
 import { findLatestInProgress, inProgressPathFor } from '../services/session.ts';

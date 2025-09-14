@@ -1,12 +1,14 @@
-import { STEP_HOURS } from '../constants.ts';
+import { EXHAUSTION_HOURS, STEP_HOURS } from '../constants.ts';
 import {
-  activeSegmentsSinceStart,
-  daylightSegmentsSinceStart,
-  findOpenDay,
   hoursToSegmentsCeil,
   segmentsToHours
 } from '../lib/day.ts';
 import { requireFile } from '../lib/guards.ts';
+import {
+  activeSegmentsSinceStart,
+  daylightSegmentsSinceStart,
+  findOpenDay
+} from '../projectors.ts';
 import { info, usage, warn } from '../lib/report';
 import { appendEvent, readEvents } from '../services/event-log';
 import type { Context } from '../types';
@@ -36,7 +38,7 @@ export default function time(ctx: Context) {
     const segments = hoursToSegmentsCeil(input);
     const roundedHours = segmentsToHours(segments);
     if (roundedHours !== input) {
-      warn(`⚠️ Rounded ${input}h → ${roundedHours}h (1.5h steps).`);
+      warn(`⚠️ Rounded ${input}h → ${roundedHours}h (${STEP_HOURS}h steps).`);
     }
 
     // Pull daylight cap (in hours) off today's day_start
@@ -64,9 +66,8 @@ export default function time(ctx: Context) {
     const daylightH = segmentsToHours(daylightSegments);
     const nightH = segmentsToHours(nightSegments);
 
-    // Exhaustion check (12h total active per day)
-    const EXHAUSTION_HOURS = 12;
-    const EXHAUSTION_SEGMENTS = Math.round(EXHAUSTION_HOURS / STEP_HOURS); // 12 / 1.5 = 8
+    // Exhaustion check (EXHAUSTION_HOURS total active per day)
+    const EXHAUSTION_SEGMENTS = Math.round(EXHAUSTION_HOURS / STEP_HOURS);
     const activeBefore = activeSegmentsSinceStart(events, lastStartIdx);
     const activeAfter = activeBefore + segments;
     const totalAfterH = segmentsToHours(activeAfter);
@@ -80,7 +81,7 @@ export default function time(ctx: Context) {
       msg = `⏱️ Logged: ${roundedHours}h — 🌙 night`;
     }
     if (activeAfter > EXHAUSTION_SEGMENTS) {
-      msg += ` ⚠️ Exceeded 12h exhaustion threshold (${totalAfterH.toFixed(1)}h total)`;
+      msg += ` ⚠️ Exceeded ${EXHAUSTION_HOURS}h exhaustion threshold (${totalAfterH.toFixed(1)}h total)`;
     }
     return info(msg);
   };

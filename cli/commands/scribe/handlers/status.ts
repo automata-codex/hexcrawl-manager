@@ -1,11 +1,13 @@
+import { segmentsToHours } from '../lib/day.ts';
+import { requireFile } from '../lib/guards.ts';
+import { info } from '../lib/report';
 import {
   activeSegmentsSinceStart,
   daylightSegmentsSinceStart,
-  findOpenDay, segmentsToHours
-} from '../lib/day.ts';
-import { requireFile } from '../lib/guards.ts';
-import { info } from '../lib/report';
-import { selectCurrentHex } from '../projector.ts';
+  findOpenDay,
+  isPartyLost,
+  selectCurrentHex,
+} from '../projectors.ts';
 import { readEvents } from '../services/event-log';
 import type { Context } from '../types';
 
@@ -15,6 +17,7 @@ export default function status(ctx: Context) {
 
     const events = readEvents(ctx.file!); // checked by requireFile
     const hex = selectCurrentHex(events) ?? '(unknown)';
+    const lostState = isPartyLost(events) ? 'ON' : 'OFF';
 
     const { open, lastStartIdx } = findOpenDay(events);
 
@@ -39,6 +42,7 @@ export default function status(ctx: Context) {
 
     let out = [
       `📍 Hex: ${hex}`,
+      `🧭 Lost: ${lostState}`,
       `📅 Date: ${calendarDate ? ctx.calendar.formatDate(calendarDate) : '(unset)'}`,
       `☀️ Daylight: ${usedDaylightH.toFixed(1)}h / ${daylightCapH}h`,
       `💪 Active: ${usedActiveH.toFixed(1)}h / ${EXHAUSTION_CAP_H}h`,

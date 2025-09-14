@@ -1,7 +1,8 @@
 import { CALENDAR_CONFIG } from '../config/calendar.config.ts';
-import { findOpenDay, lastCalendarDate, segmentsToHours } from '../lib/day.ts';
+import { segmentsToHours } from '../lib/day.ts';
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { info, warn, usage, error } from '../lib/report';
+import { findOpenDay, lastCalendarDate } from '../projectors.ts';
 import { readEvents, appendEvent } from '../services/event-log';
 import type { CanonicalDate, Context } from '../types';
 

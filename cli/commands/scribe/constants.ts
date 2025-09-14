@@ -1,16 +1,20 @@
-import type { Pace, Pillar, Tier } from './types.ts';
+import type { Pillar, Tier } from './types.ts';
+
+export const EXHAUSTION_HOURS = 12;
 
 export const HELP_TEXT = `
 Commands:
   ap <pillar> <tier> "<note...>" record an advancement-point event
+  backtrack [pace]               move back to the previous hex, clearing lost status (pace: slow|normal)
   current                        show current session status (alias for \`status\`)
   date <new date>                set or correct the current calendar date
   day end                        end the current day and show a summary
   day start [date]               start a new in-game day (auto-increments date if omitted)
+  dead-rec <success|fail>        record a dead reckoning attempt (clears lost state on success)
   exit                           leave the shell
   finalize                       freeze session → logs/sessions/<id>.jsonl
   help                           show this help
-  move <to> [pace]               record a move (pace: fast|normal|slow)
+  move <to> [lost] [pace]        record a move (pace: fast|normal|slow)
   note "<text...>"               add a note
   party add <id>                 add a character (TAB to autocomplete)
   party clear                    remove all characters
@@ -19,22 +23,41 @@ Commands:
   quit                           leave the shell
   rest                           end the current day and show a summary (alias for \`day end\`)
   resume [sessionId]             resume the latest (or the specified) in-progress session
+  scout <HEX_ID> [landmark]      record scouting of an adjacent hex
   start <hex>                    start a new session using default/preset id
   start <sessionId> <hex>        start with explicit session id
   status                         show current session status
-  time <hours>                   log active time (rounded up to 1.5h segments)
+  time <hours>                   log active time
   trail <hex>                    mark a trail from current hex to <hex>
   undo [n]                       remove last n in-progress events (default 1)
   view [n]                       show last n events (default 10)
+  weather abandon                discard the weather draft (no log write)
+  weather clear                  clear chosen descriptors from the draft
+  weather commit                 commit the draft as today's weather (writes to log)
+  weather propose                alias for \`weather roll\`
+  weather roll                   propose today's weather (auto-roll, suggest descriptors)
+  weather set <field> <value>    set a field in the weather draft (season, roll, forecast, category, detail, desc)
+  weather show                   display today's weather draft and committed weather
+  weather use <idx[,idx,...]>    add suggested descriptor(s) by index to the draft
 `;
 
 export const HEX_RE = /^[A-Za-z][0-9]+$/;
 
-export const PACES: readonly Pace[] = ['fast', 'normal', 'slow'] as const;
+export const PACES: readonly string[] = [ 'fast', 'normal', 'slow' ] as const;
 
-export const PILLARS: readonly Pillar[] = ['explore', 'social', 'combat'] as const;
+export const PILLARS: readonly Pillar[] = [ 'explore', 'social', 'combat' ] as const;
 
-// 1 segment = 1.5 hours (integer math internally)
-export const STEP_HOURS = 1.5;
+// 1 segment = 0.5 hours (integer math internally)
+export const STEP_HOURS = 0.5;
 
-export const TIERS: readonly Tier[] = [1, 2, 3, 4] as const;
+export const TIERS: readonly Tier[] = [ 1, 2, 3, 4 ] as const;
+
+export const WEATHER_CATEGORIES: readonly string[] = [
+  'agreeable',
+  'catastrophic',
+  'extreme',
+  'ideal',
+  'inclement',
+  'nice',
+  'unpleasant',
+] as const;
