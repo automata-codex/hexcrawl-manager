@@ -23,7 +23,10 @@ export default function time(ctx: Context) {
       return usage('Usage: time <hours>');
     }
 
+    // Parse <hours> and <note> per spec
     const input = Number(args[0]);
+    const note = (args[1] ?? '').trim();
+
     if (!Number.isFinite(input) || input <= 0) {
       return usage('usage: time <hours>');
     }
@@ -59,8 +62,15 @@ export default function time(ctx: Context) {
     }
 
     const phase = nightSegments > 0 && daylightSegments === 0 ? 'night' : 'daylight';
-    // Store segments + phase only (integers internally)
-    appendEvent(ctx.file!, 'time_log', { segments: segments, phase }); // Checked by `requireFile`
+    // Build event payload per spec -- Store segments + phase only (integers internally)
+    const eventPayload: any = {
+      segments: segments,
+      daylightSegments,
+      nightSegments,
+      phase,
+      note: note.length > 0 ? note : undefined,
+    };
+    appendEvent(ctx.file!, 'time_log', eventPayload); // Checked by `requireFile`
 
     // User-facing output in hours
     const daylightH = segmentsToHours(daylightSegments);
