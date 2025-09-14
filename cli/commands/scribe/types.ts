@@ -27,6 +27,7 @@ export type Context = {
   file: string | null;      // in-progress file path
   calendar: CalendarService;
   weatherDraft?: WeatherDraft;
+  weatherNagPrintedForDates?: Set<string>; // Use strings for easy Set membership
 };
 
 // Weather descriptors

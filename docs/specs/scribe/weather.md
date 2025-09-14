@@ -20,7 +20,7 @@
 * `weather commit` → append event and clear draft.
 * `weather abandon` → discard draft.
 
-Optional lightweight nag printed once per process run:
+Optional lightweight nag printed once per in-game day:
 
 * If no committed weather and no draft for today: `⚠️ No weather yet for today. Run 'weather roll'.`
 * If a draft exists but is not committed: `⚠️ Weather draft exists. Run 'weather commit' or 'weather abandon'.`
