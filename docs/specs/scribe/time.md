@@ -11,7 +11,9 @@ time <hours> [<note>]
 ```
 
 * `<hours>`: positive number of hours to log. May be fractional; will be **ceiled** to the nearest `STEP_HOURS`.
-* `<note>` (optional, positional): free-text annotation for the entry (e.g., reason, activity). If omitted or empty/whitespace, no note is stored.
+* `<note>`: Optional. A single string argument, quoted if it contains spaces. Examples:
+  * `time 3`
+  * `time 3 "move to hex P13"`
 
 > No `--note` flag is required or supported for this command.
 
