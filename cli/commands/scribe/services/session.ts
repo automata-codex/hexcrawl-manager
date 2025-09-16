@@ -6,7 +6,7 @@ import { readEvents, writeEventsWithHeader, timeNowISO } from './event-log';
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { getRepoPath } from '../../../../lib/repo';
 import { sessionsDir } from '../lib/session-files';
-import { type Event, type Context } from '../types';
+import { type CanonicalDate, type Context, type Event } from '../types';
 
 export const inProgressPathFor = (id: string, devMode?: boolean) => {
   const prodDir = getRepoPath('data', 'session-logs', 'in-progress');
@@ -185,7 +185,8 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   let currentBlock: { seasonId: string; events: Event[] } | null = null;
   for (const ev of events) {
     if (ev.kind === 'day_start' && ev.payload && ev.payload.calendarDate && ev.payload.season) {
-      const seasonId = `${ev.payload.calendarDate.year}-${String(ev.payload.season).toLowerCase()}`;
+      const calDate: CanonicalDate = ev.payload.calendarDate as CanonicalDate;
+      const seasonId = `${calDate.year}-${String(ev.payload.season).toLowerCase()}`;
       if (!currentBlock || currentBlock.seasonId !== seasonId) {
         if (currentBlock) {
           blocks.push(currentBlock);
