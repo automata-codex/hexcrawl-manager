@@ -2,6 +2,7 @@ import { HELP_TEXT } from '../constants';
 import { info } from '../lib/report.ts';
 import type { Context } from '../types';
 
+import abort from './abort.ts';
 import ap from './ap';
 import backtrack from './backtrack';
 import current from './current';
@@ -31,6 +32,7 @@ export type HandlerMap = Record<string, Handler>;
 
 export function buildHandlers(ctx: Context): HandlerMap {
   return {
+    abort: abort(ctx),
     ap: ap(ctx),
     backtrack: backtrack(ctx),
     current: current(ctx),
