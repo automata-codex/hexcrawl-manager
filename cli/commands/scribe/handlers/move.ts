@@ -1,10 +1,9 @@
 import { PACES } from '../constants.ts';
 import { requireSession } from '../lib/guards.ts';
-import { isHexId, normalizeHex } from '../lib/hex.ts';
+import { getHexNeighbors, isValidHexId, normalizeHexId } from '../../../../lib/hexes';
 import { error, info, usage, warn } from '../lib/report.ts';
 import { selectCurrentHex, isPartyLost } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
-import { getHexNeighbors } from '../../../../src/utils/hexes.ts'
 import type { Context, Pace } from '../types';
 
 export default function move(ctx: Context) {
@@ -32,8 +31,8 @@ export default function move(ctx: Context) {
       }
     }
 
-    const to = normalizeHex(toRaw);
-    if (!isHexId(to)) {
+    const to = normalizeHexId(toRaw);
+    if (!isValidHexId(to)) {
       return error('❌ Invalid hex id');
     }
 

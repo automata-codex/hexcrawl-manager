@@ -33,7 +33,3 @@ export function loadConfig(): SkyreachConfig {
   cachedConfig = parsed.data;
   return cachedConfig;
 }
-
-export function getRepoPath(...segments: string[]): string {
-  return path.join(loadConfig().repoRoot, ...segments);
-}

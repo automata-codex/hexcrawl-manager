@@ -1,5 +1,5 @@
 import { requireFile, requireSession } from '../lib/guards.ts';
-import { isHexId, normalizeHex } from '../lib/hex.ts';
+import { isValidHexId, normalizeHexId } from '../../../../lib/hexes';
 import { error, info, usage, warn } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
@@ -19,8 +19,8 @@ export default function trail(ctx: Context) {
       return usage('usage: trail <hex>');
     }
 
-    const other = normalizeHex(otherRaw);
-    if (!isHexId(other)) {
+    const other = normalizeHexId(otherRaw);
+    if (!isValidHexId(other)) {
       return error('❌ Invalid hex. Example: trail P14');
     }
 
@@ -29,7 +29,7 @@ export default function trail(ctx: Context) {
     if (!current) {
       return warn('⚠ no current hex known—make a move or start with a starting hex first');
     }
-    const from = normalizeHex(current);
+    const from = normalizeHexId(current);
     if (from === other) {
       return error('❌ Cannot mark a trail to the same hex');
     }

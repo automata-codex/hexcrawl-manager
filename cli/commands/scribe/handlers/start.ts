@@ -1,18 +1,18 @@
 import { existsSync } from 'node:fs';
-import { normalizeHex, isHexId } from '../lib/hex.ts';
+import { isValidHexId, normalizeHexId } from '../../../../lib/hexes';
 import { error, info, usage } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';
-import { inProgressPathFor } from '../services/session.ts';
 import { appendEvent, readEvents } from '../services/event-log.ts';
+import { inProgressPathFor } from '../services/session.ts';
 import type { Context } from '../types';
 
 export default function start(ctx: Context, presetSessionId?: string) {
   const doStart = (id: string, startHex: string) => {
-    const startHexNorm = normalizeHex(startHex);
+    const startHexNorm = normalizeHexId(startHex);
     ctx.sessionId = id;
     ctx.file = inProgressPathFor(id);
 
-    if (!isHexId(startHexNorm)) {
+    if (!isValidHexId(startHexNorm)) {
       error(`❌ Invalid starting hex: ${startHex}`);
       return;
     }
@@ -34,7 +34,7 @@ export default function start(ctx: Context, presetSessionId?: string) {
     }
     if (args.length === 1) {
       const hex = args[0];
-      if (!isHexId(hex)) {
+      if (!isValidHexId(hex)) {
         error('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
         return;
       }
@@ -43,7 +43,7 @@ export default function start(ctx: Context, presetSessionId?: string) {
       return;
     }
     const [id, hex] = args;
-    if (!isHexId(hex)) {
+    if (!isValidHexId(hex)) {
       error('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
       return;
     }

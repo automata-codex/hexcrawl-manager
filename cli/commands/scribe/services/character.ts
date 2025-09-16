@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
-import { getRepoPath } from '../../../utils/config'; // adjust if your config lives elsewhere
+import { getRepoPath } from '../../../../lib/repo';
 
 export function loadCharacterIds(): string[] {
   const dir = getRepoPath('data', 'characters');

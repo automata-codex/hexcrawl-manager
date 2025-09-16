@@ -3,8 +3,8 @@ import enquirer from 'enquirer';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
-import { getRepoPath } from '../utils/config';
-import { campaignDate } from '../../src/config/campaign-date'; // 🆕 Import in-world date
+import { getRepoPath } from '../../lib/repo/get-repo-path.ts';
+import { campaignDate } from '../../src/config/campaign-date';
 import type { TrailData } from '../../src/types';
 import { TrailSchema } from '../../schemas/trail';
 
