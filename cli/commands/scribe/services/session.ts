@@ -1,5 +1,8 @@
 import path from 'node:path';
 import { existsSync, readdirSync, statSync } from 'node:fs';
+import fs from 'node:fs';
+import yaml from 'yaml';
+import { getRepoPath } from '../../../../lib/repo';
 import {
   inProgressDir,
   inProgressPath,
@@ -74,4 +77,74 @@ export function findLatestInProgress(): { id: string; path: string } | null {
     .sort((a, b) => b.s.mtimeMs - a.s.mtimeMs);
   const top = withStats[0];
   return { id: top.f.replace(/\.jsonl$/, ''), path: top.p };
+}
+
+// Discriminated union for prepareSessionStart return value
+export type SessionStartPrep =
+  | { ok: false; error: string }
+  | {
+      ok: true;
+      sessionId: string;
+      inProgressFile: string;
+      lockFile?: string;
+      seq?: number;
+      dev?: boolean;
+    };
+
+/**
+ * Prepares session start: generates sessionId, file paths, and handles
+ * lock/meta logic. Returns a discriminated union: `{ ok: false, error }` or
+ * `{ ok: true, sessionId, inProgressFile, ... }`.
+ */
+export function prepareSessionStart({
+  devMode,
+  date,
+}: {
+  devMode: boolean;
+  date: Date;
+}): SessionStartPrep {
+  const metaPath = getRepoPath('data', 'meta.yaml');
+  const locksDir = getRepoPath('data', 'session-logs', '.locks');
+  const inProgressDirProd = getRepoPath('data', 'session-logs', 'in-progress');
+  const inProgressDirDev = getRepoPath('data', 'session-logs', '_dev');
+  const pad = (n: number, len = 4) => n.toString().padStart(len, '0');
+
+  if (devMode) {
+    const iso = date.toISOString().replace(/[:.]/g, '-');
+    const sessionId = `dev_${iso}`;
+    const inProgressFile = path.join(inProgressDirDev, `${sessionId}.jsonl`);
+    return { ok: true, sessionId, inProgressFile, dev: true };
+  }
+
+  // Production mode
+  if (!fs.existsSync(metaPath)) {
+    return { ok: false, error: `❌ Missing meta file at ${metaPath}` };
+  }
+  const metaRaw = fs.readFileSync(metaPath, 'utf8');
+  const meta = yaml.parse(metaRaw) || {};
+  const seq = meta.nextSessionSeq;
+  if (!seq || typeof seq !== 'number') {
+    return { ok: false, error: '❌ Invalid or missing nextSessionSeq in meta.yaml' };
+  }
+  const ymd = date.toISOString().slice(0, 10);
+  const sessionId = `session_${pad(seq)}_${ymd}`;
+  const inProgressFile = path.join(inProgressDirProd, `${sessionId}.jsonl`);
+  const lockFile = path.join(locksDir, `session_${pad(seq)}.lock`);
+
+  // Check for lock conflict
+  if (fs.existsSync(lockFile)) {
+    return { ok: false, error: `❌ Lock file exists for session sequence ${seq} (${lockFile}). Another session may be active.` };
+  }
+
+  // Create lock file
+  const lockData = {
+    seq,
+    filename: `${sessionId}.jsonl`,
+    createdAt: date.toISOString(),
+    pid: process.pid,
+  };
+  fs.mkdirSync(locksDir, { recursive: true });
+  fs.writeFileSync(lockFile, yaml.stringify(lockData), { flag: 'wx' });
+
+  return { ok: true, sessionId, inProgressFile, lockFile, seq };
 }

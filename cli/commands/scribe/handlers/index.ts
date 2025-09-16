@@ -29,7 +29,7 @@ import weather from './weather';
 export type Handler = (args: string[]) => void | Promise<void>;
 export type HandlerMap = Record<string, Handler>;
 
-export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMap {
+export function buildHandlers(ctx: Context): HandlerMap {
   return {
     ap: ap(ctx),
     backtrack: backtrack(ctx),
@@ -47,7 +47,7 @@ export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMa
     rest: rest(ctx),
     resume: resume(ctx),
     scout: scout(ctx),
-    start: start(ctx, presetSessionId),
+    start: start(ctx),
     status: status(ctx),
     time: time(ctx),
     trail: trail(ctx),
