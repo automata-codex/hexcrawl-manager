@@ -34,10 +34,10 @@ export const CALENDAR_CONFIG: CalendarConfig = {
 
   // Daylight caps per season (hours)
   daylightCaps: {
-    winter: 6,
-    spring: 9,
-    summer: 12,
-    autumn: 9,
+    winter: 9,
+    spring: 12,
+    summer: 15,
+    autumn: 12,
   },
 
   // displayFormat currently informational
