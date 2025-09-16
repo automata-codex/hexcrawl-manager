@@ -13,8 +13,7 @@ import { CalendarService } from './services/calendar.ts';
 
 export const scribeCommand = new Command('scribe')
   .description('Open the in-session logging shell')
-  .argument('[presetSessionId]', 'Optional: preset session id to use with `start <hex>`')
-  .action((presetSessionId?: string) => {
+  .action(() => {
     ensureLogs();
 
     const ctx: Context = {
@@ -31,7 +30,7 @@ export const scribeCommand = new Command('scribe')
       completer: scribeCompleter,
     });
 
-    const handlers = buildHandlers(ctx, presetSessionId);
+    const handlers = buildHandlers(ctx);
 
     showHelp();
     rl.prompt();

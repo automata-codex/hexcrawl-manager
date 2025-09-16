@@ -1,52 +1,50 @@
 import { existsSync } from 'node:fs';
+import { detectDevMode } from '../lib/env.ts';
 import { isValidHexId, normalizeHexId } from '../../../../lib/hexes';
 import { error, info, usage } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log.ts';
-import { inProgressPathFor } from '../services/session.ts';
+import { prepareSessionStart } from '../services/session.ts';
 import type { Context } from '../types';
 
-export default function start(ctx: Context, presetSessionId?: string) {
-  const doStart = (id: string, startHex: string) => {
-    const startHexNorm = normalizeHexId(startHex);
-    ctx.sessionId = id;
-    ctx.file = inProgressPathFor(id);
+export default function start(ctx: Context) {
+  return (args: string[]) => {
+    // Remove --dev if present
+    const filteredArgs = args.filter(a => a !== '--dev');
+    const devMode = detectDevMode(args);
+    const now = new Date();
 
-    if (!isValidHexId(startHexNorm)) {
-      error(`❌ Invalid starting hex: ${startHex}`);
+    if (filteredArgs.length !== 1) {
+      usage('usage:\n  start <hex>');
       return;
     }
+
+    const hex = filteredArgs[0];
+    if (!hex || !isValidHexId(hex)) {
+      error('❌ Invalid hex. Example: `start P13`');
+      return;
+    }
+    const startHexNorm = normalizeHexId(hex);
+
+    // Prepare session (ID, file, lock, etc) -- always auto-generate sessionId
+    const prep = prepareSessionStart({
+      devMode,
+      date: now
+    });
+    if ('error' in prep) {
+      error(prep.error);
+      return;
+    }
+    ctx.sessionId = prep.sessionId;
+    ctx.file = prep.inProgressFile;
 
     if (!existsSync(ctx.file)) {
-      appendEvent(ctx.file, 'session_start', { status: 'in-progress', id, startHex: startHexNorm });
-      info(`started: ${id} @ ${startHexNorm}`);
+      appendEvent(ctx.file, 'session_start', { status: 'in-progress', id: prep.sessionId, startHex: startHexNorm });
+      info(`started: ${prep.sessionId} @ ${startHexNorm}`);
     } else {
       const evs = readEvents(ctx.file);
-      const hex = selectCurrentHex(evs) ?? startHexNorm;
-      info(`resumed: ${id} (${evs.length} events)${hex ? ` — last hex ${hex}` : ''}`);
+      const lastHex = selectCurrentHex(evs) ?? startHexNorm;
+      info(`resumed: ${prep.sessionId} (${evs.length} events)${lastHex ? ` — last hex ${lastHex}` : ''}`);
     }
-  };
-
-  return (args: string[]) => {
-    if (args.length === 0) {
-      usage('usage:\n  start <hex>\n  start <sessionId> <hex>');
-      return;
-    }
-    if (args.length === 1) {
-      const hex = args[0];
-      if (!isValidHexId(hex)) {
-        error('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
-        return;
-      }
-      const id = presetSessionId ?? new Date().toISOString().slice(0,10);
-      doStart(id, hex);
-      return;
-    }
-    const [id, hex] = args;
-    if (!isValidHexId(hex)) {
-      error('❌ Invalid hex. Example: `start P13` or `start session-19 P13`');
-      return;
-    }
-    doStart(id, hex);
   };
 }

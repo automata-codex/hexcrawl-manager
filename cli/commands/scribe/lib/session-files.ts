@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { getRepoPath } from '../../../../lib/repo/get-repo-path.ts';
+import { getRepoPath } from '../../../../lib/repo';
 
 export function ensureLogs() {
   fs.mkdirSync(inProgressDir(), { recursive: true });

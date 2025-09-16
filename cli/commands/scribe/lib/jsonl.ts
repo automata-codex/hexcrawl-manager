@@ -8,7 +8,7 @@ export function readJsonl(p: string): Event[] {
   return lines.map((l) => JSON.parse(l));
 }
 
-export function writeJsonl(p: string, records: Event[]) {
+export function writeJsonl(p: string, records: Array<Record<string, any>>) {
   fs.mkdirSync(path.dirname(p), { recursive: true });
   const body = records.map((r) => JSON.stringify(r)).join('\n') + '\n';
   fs.writeFileSync(p, body, 'utf8');

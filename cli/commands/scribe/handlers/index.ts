@@ -2,6 +2,7 @@ import { HELP_TEXT } from '../constants';
 import { info } from '../lib/report.ts';
 import type { Context } from '../types';
 
+import abort from './abort.ts';
 import ap from './ap';
 import backtrack from './backtrack';
 import current from './current';
@@ -29,8 +30,9 @@ import weather from './weather';
 export type Handler = (args: string[]) => void | Promise<void>;
 export type HandlerMap = Record<string, Handler>;
 
-export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMap {
+export function buildHandlers(ctx: Context): HandlerMap {
   return {
+    abort: abort(ctx),
     ap: ap(ctx),
     backtrack: backtrack(ctx),
     current: current(ctx),
@@ -47,7 +49,7 @@ export function buildHandlers(ctx: Context, presetSessionId?: string): HandlerMa
     rest: rest(ctx),
     resume: resume(ctx),
     scout: scout(ctx),
-    start: start(ctx, presetSessionId),
+    start: start(ctx),
     status: status(ctx),
     time: time(ctx),
     trail: trail(ctx),

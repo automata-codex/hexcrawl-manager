@@ -4,6 +4,7 @@ export const EXHAUSTION_HOURS = 12;
 
 export const HELP_TEXT = `
 Commands:
+  abort                          abandon the current session (deletes in-progress file)
   ap <pillar> <tier> "<note...>" record an advancement-point event
   backtrack [pace]               move back to the previous hex, clearing lost status (pace: slow|normal)
   current                        show current session status (alias for \`status\`)
@@ -24,8 +25,7 @@ Commands:
   rest                           end the current day and show a summary (alias for \`day end\`)
   resume [sessionId]             resume the latest (or the specified) in-progress session
   scout <HEX_ID> [landmark]      record scouting of an adjacent hex
-  start <hex>                    start a new session using default/preset id
-  start <sessionId> <hex>        start with explicit session id
+  start <hex>                    start a new session
   status                         show current session status
   time <hours>                   log active time
   trail <hex>                    mark a trail from current hex to <hex>
