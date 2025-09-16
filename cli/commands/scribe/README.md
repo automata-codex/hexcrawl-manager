@@ -127,6 +127,11 @@ This directory contains utility and helper modules used throughout the Scribe CL
   - `hoursToSegmentsCeil(hours: number): number` — Converts hours to the number of time segments, rounding up.
   - `segmentsToHours(segments: number): number` — Converts a number of segments to hours.
 
+## env.ts
+- **Path:** `cli/commands/scribe/lib/env.ts`
+- **Exports:**
+  - `detectDevMode(args: string[]): boolean` — Returns true if the CLI is running in development mode (via `--dev` flag or `SKYREACH_DEV` environment variable).
+
 ## guards.ts
 - **Path:** `cli/commands/scribe/lib/guards.ts`
 - **Exports:**

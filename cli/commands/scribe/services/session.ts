@@ -11,7 +11,14 @@ import {
 import { type Event } from '../types';
 import { readEvents, writeEvents, timeNowISO } from './event-log';
 
-export const inProgressPathFor = (id: string) => inProgressPath(id);
+export const inProgressPathFor = (id: string, devMode?: boolean) => {
+  const prodDir = getRepoPath('data', 'session-logs', 'in-progress');
+  const devDir = getRepoPath('data', 'session-logs', '_dev');
+  const prodPath = path.join(prodDir, `${id}.jsonl`);
+  const devPath = path.join(devDir, `${id}.jsonl`);
+  if (devMode) return devPath;
+  return prodPath;
+};
 export const sessionsDirPath = () => sessionsDir();
 
 /** Finalizes an in-progress file and writes the canonical session file. Returns output path. */
@@ -68,15 +75,27 @@ export function finalizeSession(sessionId: string, inProgressFile: string) {
 
 /** Latest in-progress file by mtime, or null if none. */
 export function findLatestInProgress(): { id: string; path: string } | null {
-  const dir = inProgressDir();
-  if (!existsSync(dir)) return null;
-  const files = readdirSync(dir).filter(f => f.endsWith('.jsonl'));
-  if (!files.length) return null;
-  const withStats = files
-    .map(f => ({ f, p: path.join(dir, f), s: statSync(path.join(dir, f)) }))
-    .sort((a, b) => b.s.mtimeMs - a.s.mtimeMs);
-  const top = withStats[0];
-  return { id: top.f.replace(/\.jsonl$/, ''), path: top.p };
+  const prodDir = getRepoPath('data', 'session-logs', 'in-progress');
+  const devDir = getRepoPath('data', 'session-logs', '_dev');
+  const candidates: { id: string; path: string; mtime: number }[] = [];
+
+  for (const dir of [prodDir, devDir]) {
+    if (!existsSync(dir)) {
+      continue;
+    }
+    const files = readdirSync(dir).filter(f => f.endsWith('.jsonl'));
+    for (const f of files) {
+      const p = path.join(dir, f);
+      const s = statSync(p);
+      candidates.push({ id: f.replace(/\.jsonl$/, ''), path: p, mtime: s.mtimeMs });
+    }
+  }
+  if (!candidates.length) {
+    return null;
+  }
+  candidates.sort((a, b) => b.mtime - a.mtime);
+  const top = candidates[0];
+  return { id: top.id, path: top.path };
 }
 
 // Discriminated union for prepareSessionStart return value

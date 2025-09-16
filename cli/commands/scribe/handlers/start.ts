@@ -1,14 +1,11 @@
 import { existsSync } from 'node:fs';
+import { detectDevMode } from '../lib/env.ts';
 import { isValidHexId, normalizeHexId } from '../../../../lib/hexes';
 import { error, info, usage } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log.ts';
 import { prepareSessionStart } from '../services/session.ts';
 import type { Context } from '../types';
-
-function detectDevMode(args: string[]): boolean {
-  return process.env.SKYREACH_DEV === 'true' || args.includes('--dev');
-}
 
 export default function start(ctx: Context) {
   return (args: string[]) => {
