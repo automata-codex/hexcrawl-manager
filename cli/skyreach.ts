@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { addTrailCommand } from './commands/add-trail';
 import { scribeCommand } from './commands/scribe';
 import pkg from '../package.json' assert { type: 'json' };
 
@@ -12,8 +11,7 @@ program
   .description('CLI tools for managing your Skyreach campaign')
   .version(pkg.version);
 
-// Register subcommands
-program.addCommand(addTrailCommand);
+// Register commands
 program.addCommand(scribeCommand);
 
 // Parse the CLI args

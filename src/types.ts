@@ -34,7 +34,7 @@ import {
   StatBlockSchema
 } from '../schemas/stat-block.js';
 import { SupplementSchema } from '../schemas/supplement-list';
-import { TrailSchema } from '../schemas/trail';
+import { TrailEntrySchema, TrailSchema } from '../schemas/trails';
 import { TreasureSchema } from '../schemas/treasure';
 
 export type BountyData = z.infer<typeof BountySchema>;
@@ -69,6 +69,7 @@ export type SupplementData = z.infer<typeof SupplementSchema>;
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
 export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>
 export type TrailData = z.infer<typeof TrailSchema>;
+export type TrailEntry = z.infer<typeof TrailEntrySchema>;
 export type TreasureData = z.infer<typeof TreasureSchema>;
 
 export type KnownTag = keyof z.infer<typeof KnownTagEnum>;
@@ -93,7 +94,6 @@ export type DungeonEntry = CollectionEntry<'dungeons'>;
 export type FloatingClueEntry = CollectionEntry<'floatingClues'>;
 export type HexEntry = CollectionEntry<'hexes'>;
 export type RegionEntry = CollectionEntry<'regions'>;
-export type TrailEntry = CollectionEntry<'trails'>;
 
 export type ClueLink = {
   clueId: string;

@@ -1,5 +1,5 @@
 import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { file, glob } from 'astro/loaders';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
@@ -20,7 +20,7 @@ import { RumorSchema } from '../schemas/rumor';
 import { SessionSchema } from '../schemas/session';
 import { StatBlockSchema } from '../schemas/stat-block';
 import { SupplementSchema } from '../schemas/supplement-list';
-import { TrailSchema } from '../schemas/trail';
+import { TrailEntrySchema, TrailsFile } from '../schemas/trails';
 import { TreasureSchema } from '../schemas/treasure';
 import type {
   BountyData,
@@ -31,6 +31,7 @@ import type {
   PlayerData,
   RumorData,
   SupplementData,
+  TrailEntry,
 } from './types.ts';
 
 const DATA_DIR = 'data';
@@ -72,6 +73,11 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
     });
     return data.flat();
   };
+}
+
+export function trailsMapToEntries(input: unknown): TrailEntry[] {
+  const obj = TrailsFile.parse(input);
+  return Object.entries(obj).map(([id, data]) => TrailEntrySchema.parse({ id, ...data }));
 }
 
 const articles = defineCollection({
@@ -172,8 +178,13 @@ const supplements = defineCollection({
 });
 
 const trails = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.TRAILS }),
-  schema: TrailSchema,
+  loader: file("data/trails.yml", {
+    parser: (raw) => {
+      const obj = yaml.parse(raw);
+      return trailsMapToEntries(obj);
+    },
+  }),
+  schema: TrailEntrySchema,
 });
 
 export const collections = {

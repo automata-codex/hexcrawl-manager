@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
+import { parseTrailId } from '../../../lib/trails';
 import type { SegmentMetadataData, TrailEntry } from '../../types.ts';
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE } from '../../utils/constants.ts';
@@ -16,12 +17,17 @@ export interface MapPathPlayerData {
 
 function convertTrailsToPaths(trailEntries: TrailEntry[]): MapPathPlayerData[] {
   return trailEntries.map((entry) => {
+    const hexIds = parseTrailId(entry.id);
+    if (!hexIds) {
+      throw new Error(`Invalid trail id: ${entry.id}`);
+    }
+    const { from, to } = hexIds;
     return {
-      id: `${entry.data.from}-${entry.data.to}`,
-      label: `trail-${entry.data.from}-${entry.data.to}`,
+      id: `${entry.id}`,
+      label: `trail-${entry.id}`,
       points: [
-        `${entry.data.from}:center`,
-        `${entry.data.to}:center`,
+        `${from}:center`,
+        `${to}:center`,
       ],
       type: 'trail',
     };
@@ -31,7 +37,8 @@ function convertTrailsToPaths(trailEntries: TrailEntry[]): MapPathPlayerData[] {
 export const GET: APIRoute = async ({ locals }) => {
   const pathEntries = await getCollection('map-paths');
   const role = getCurrentUserRole(locals);
-  const trailEntries = await getCollection('trails');
+  const trailEntryCollection = await getCollection('trails');
+  const trailEntries = trailEntryCollection.map((entry) => entry.data);
 
   const paths: MapPathPlayerData[] = [
     ...convertTrailsToPaths(trailEntries),
