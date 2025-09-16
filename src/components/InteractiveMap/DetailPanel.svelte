@@ -8,13 +8,14 @@
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
-  import type { TrailData } from '../../types.ts';
+  import type { TrailData, TrailEntry } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
   import { getFavoredTerrain, getTravelDifficulty } from '../../utils/interactive-map.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
   import { getDungeonPath, getHexPath, getRegionPath } from '../../config/routes.ts';
   import CheckBoxIcon from './CheckBoxIcon.svelte';
+  import { parseTrailId } from '../../../lib/trails';
 
   interface Props {
     dungeons: DungeonEssentialData[];
@@ -25,24 +26,29 @@
 
   interface LocalTrailData {
     to: string;
-    uses: number;
-    lastUsed: string;
+    permanent: boolean;
+    lastSeasonTouched: string;
   }
 
   const { dungeons, hexes, mapPaths, role }: Props = $props();
 
   let isOpen = $state(!!$selectedHex);
-  let trails: TrailData[] = $state([]);
+  let trails: TrailEntry[] = $state([]);
 
-  const currentHex = $derived(hexes.find((hex) => hex.id.toLowerCase() === $selectedHex?.toLowerCase()));
+  const currentHex = $derived(hexes.find((hex) => hex.id?.toLowerCase() === $selectedHex?.toLowerCase()));
   const dungeonsInHex = $derived(
     dungeons.filter((dungeon) => dungeon.hexId.toLowerCase() === $selectedHex?.toLowerCase()),
   );
   const trailsInHex = $derived(
     trails
       .filter((trail) => {
-        return trail.from.toLowerCase().includes($selectedHex?.toLowerCase() ?? '') ||
-          trail.to.toLowerCase().includes($selectedHex?.toLowerCase() ?? '');
+        const hexIds = parseTrailId(trail.id);
+        if (!hexIds) {
+          return false;
+        }
+        const { from, to } = hexIds;
+        return from.toLowerCase().includes($selectedHex?.toLowerCase() ?? '') ||
+          to.toLowerCase().includes($selectedHex?.toLowerCase() ?? '');
       }),
   );
 
@@ -61,11 +67,16 @@
       .replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
-  function formatTrailData(trail: TrailData): LocalTrailData {
+  function formatTrailData(trail: TrailEntry): LocalTrailData {
+    const hexIds = parseTrailId(trail.id);
+    if (!hexIds) {
+      throw new Error(`Invalid trail ID: ${trail.id}`);
+    }
+    const { from, to } = hexIds;
     return {
-      to: trail.to === $selectedHex ? trail.from : trail.to,
-      uses: trail.uses,
-      lastUsed: trail.lastUsed,
+      to: to === $selectedHex ? from : to,
+      permanent: trail.permanent,
+      lastSeasonTouched: trail.lastSeasonTouched,
     };
   }
 </script>
@@ -147,12 +158,13 @@
               <span>
                 <span style="font-weight: bold">To:</span>{' '}{trail.to.toUpperCase()}
               </span>
+              &mdash;
               <span>
-                ({trail.uses} uses)
+                <span style="font-weight: bold">Permanent:</span>{' '}<CheckBoxIcon checked={trail.permanent} />
               </span>
             </div>
               <div>
-                <span style="font-weight: bold">Last used:</span>{' '}{trail.lastUsed}
+                <span style="font-weight: bold">Last used:</span>{' '}{trail.lastSeasonTouched}
               </div>
             </li>
           {/each}

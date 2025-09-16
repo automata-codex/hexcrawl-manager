@@ -26,6 +26,10 @@ const BiomeEnum = z.enum([
   "Unknown",
 ]);
 
+export const HexId = z.string().toLowerCase().regex(/^[a-z]+[0-9]+$/, {
+  message: "Hex id must be like 'q12' (letters+digits, lowercase ok)",
+});
+
 export const HiddenSitesSchema = z.object({
   description: z.string(),
   treasure: z.array(TreasureSchema).optional(),

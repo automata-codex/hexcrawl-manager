@@ -4,6 +4,7 @@
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
+  import { isValidHexId } from '../../../lib/hexes';
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
@@ -21,7 +22,7 @@
   import type { KnownTag } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
-  import { isValidHexId, parseHexId } from '../../utils/hexes.ts';
+  import { parseHexId } from '../../utils/hexes.ts';
   import {
     DAGARIC_ICON_SIZE,
     FC_ICON_SIZE,

@@ -3,8 +3,8 @@
  */
 
 import { datesEqual } from './lib/date.ts';
-import { normalizeHex } from './lib/hex.ts';
 import type { CanonicalDate, Event, WeatherCommitted } from './types';
+import { normalizeHexId } from '../../../lib/hexes';
 
 // Sum ALL time segments (daylight + night) since the last day_start
 export function activeSegmentsSinceStart(events: Event[], startIdx: number) {
@@ -102,7 +102,7 @@ export function selectCurrentHex(events: Event[]): string | null {
     if (e.kind === 'move' && e.payload && typeof e.payload === 'object') {
       const to = (e.payload as any).to;
       if (typeof to === 'string') {
-        return normalizeHex(to);
+        return normalizeHexId(to);
       }
     }
   }
@@ -112,7 +112,7 @@ export function selectCurrentHex(events: Event[]): string | null {
     if (e.kind === 'session_start' && e.payload && typeof e.payload === 'object') {
       const hx = (e.payload as any).startHex;
       if (typeof hx === 'string') {
-        return normalizeHex(hx);
+        return normalizeHexId(hx);
       }
     }
   }
