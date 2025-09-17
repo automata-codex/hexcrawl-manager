@@ -3,16 +3,11 @@ import path from 'path';
 import yaml from 'yaml';
 import { deriveSeasonId, normalizeSeasonId, compareSeasonIds } from '../lib/season';
 import { hexSort, normalizeHexId } from '../../../../lib/hexes';
+import { loadMeta, resolveInputFile } from '../lib/input';
 import { getRepoPath } from '../../../../lib/repo';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import type { CanonicalDate, Event } from '../../scribe/types';
 import { info, error } from '../../scribe/lib/report';
-import prompts from 'prompts';
-
-const META_PATH = getRepoPath('data', 'meta.yaml');
-const SESSION_LOGS_DIR = getRepoPath('data', 'session-logs');
-const SESSIONS_DIR = path.join(SESSION_LOGS_DIR, 'sessions');
-const ROLLOVERS_DIR = path.join(SESSION_LOGS_DIR, 'rollovers');
 
 function canonicalEdgeKey(a: string, b: string): string {
   const [h1, h2] = [normalizeHexId(a), normalizeHexId(b)].sort(hexSort);
@@ -82,22 +77,6 @@ function isSessionFile(filePath: string): boolean {
   return dir === 'sessions' && /^session_\d+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
 }
 
-function listFilesIfDir(dir: string): string[] {
-  try {
-    return fs.readdirSync(dir).map(f => path.join(dir, f));
-  } catch {
-    return [];
-  }
-}
-
-function loadMeta() {
-  try {
-    return yaml.parse(fs.readFileSync(META_PATH, 'utf8')) as any;
-  } catch {
-    return { appliedSessions: [], rolledSeasons: [] };
-  }
-}
-
 function loadTrails(): Record<string, any> {
   const trailsPath = getRepoPath('data', 'trails.yml');
   try {
@@ -109,50 +88,8 @@ function loadTrails(): Record<string, any> {
 
 export async function plan(fileArg?: string) {
   const meta = loadMeta();
-  let file = fileArg;
-
-  // Detect --no-prompt flag
-  const noPrompt = process.argv.includes('--no-prompt');
-
-  if (!file) {
-    // List candidate session and rollover files
-    const sessionFiles = listFilesIfDir(SESSIONS_DIR).filter(f => f.endsWith('.jsonl'));
-    const rolloverFiles = listFilesIfDir(ROLLOVERS_DIR).filter(f => f.endsWith('.jsonl'));
-    const allCandidates = [...sessionFiles, ...rolloverFiles].filter(f => {
-      const id = path.basename(f);
-      return !meta.appliedSessions?.includes(id);
-    });
-    if (allCandidates.length === 0) {
-      info('No unapplied session or rollover files found.');
-      process.exit(5);
-    }
-
-    if (noPrompt) {
-      error('No file specified and --no-prompt is set.');
-      process.exit(4);
-    }
-
-    // Sort candidates by filename only (fast, assumes filenames are chronologically ordered)
-    allCandidates.sort((a, b) => a.localeCompare(b));
-
-    // Prompt user to select a file
-    const choices = allCandidates.map(f => ({
-      title: path.relative(process.cwd(), f),
-      value: f
-    }));
-    const response = await prompts({
-      type: 'select',
-      name: 'file',
-      message: 'Select a session or rollover file to plan:',
-      choices
-    });
-    if (!response.file) {
-      info('No file selected.');
-      process.exit(5);
-    }
-    file = response.file;
-    info(`Planning for: ${file}`);
-  }
+  // Use shared input helper for file selection
+  const file = await resolveInputFile(fileArg, meta);
 
   if (!file) {
     throw new Error('No file specified despite everything you did.');
