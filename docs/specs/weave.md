@@ -10,7 +10,7 @@ Apply finalized artifacts (session JSONL logs and standalone season rollovers) t
 * Subcommands are called individually (`plan`, `apply`, `status`, `doctor`).
 * If `<file>` is omitted for `plan` or `apply`, `weave` will:
   - Scan `sessions/` and `sessions/rollovers/` for unapplied files (not in `meta.appliedSessions`).
-  - Sort candidates chronologically by season and filename.
+  - Sort candidates by filename (assumes filenames are chronologically ordered).
   - Present a **selection prompt** (using Enquirer’s `select` or `autocomplete`) for the user to choose one.
   - On CI/automation (`--no-prompt`), omission of `<file>` causes an error instead of prompting.
 
