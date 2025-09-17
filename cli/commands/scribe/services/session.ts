@@ -5,18 +5,30 @@ import yaml from 'yaml';
 import { readEvents, writeEventsWithHeader, timeNowISO } from './event-log';
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { getRepoPath } from '../../../../lib/repo';
-import { sessionsDir } from '../lib/session-files';
 import { type CanonicalDate, type Context, type Event } from '../types';
 
-export const inProgressPathFor = (id: string, devMode?: boolean) => {
-  const prodDir = getRepoPath('data', 'session-logs', 'in-progress');
-  const devDir = getRepoPath('data', 'session-logs', '_dev');
-  const prodPath = path.join(prodDir, `${id}.jsonl`);
-  const devPath = path.join(devDir, `${id}.jsonl`);
-  if (devMode) return devPath;
-  return prodPath;
+// Discriminated union for prepareSessionStart return value
+export type SessionStartPrep =
+  | { ok: false; error: string }
+  | {
+  ok: true;
+  sessionId: string;
+  inProgressFile: string;
+  lockFile?: string;
+  seq?: number;
+  dev?: boolean;
 };
-export const sessionsDirPath = () => sessionsDir();
+
+function getFinalSessionId(basename: string, devMode: boolean, suffix: string) {
+  if (devMode) {
+    return `${basename}${suffix}`;
+  }
+  const sessionIdParts = basename.split('_');
+  if (sessionIdParts.length !== 3) {
+    throw new Error('Invalid sessionId format for production mode.');
+  }
+  return `${sessionIdParts[0]}_${sessionIdParts[1]}${suffix}_${sessionIdParts[2]}`;
+}
 
 /** Latest in-progress file by mtime, or null if none. */
 export function findLatestInProgress(): { id: string; path: string } | null {
@@ -43,17 +55,14 @@ export function findLatestInProgress(): { id: string; path: string } | null {
   return { id: top.id, path: top.path };
 }
 
-// Discriminated union for prepareSessionStart return value
-export type SessionStartPrep =
-  | { ok: false; error: string }
-  | {
-      ok: true;
-      sessionId: string;
-      inProgressFile: string;
-      lockFile?: string;
-      seq?: number;
-      dev?: boolean;
-    };
+export const inProgressPathFor = (id: string, devMode?: boolean) => {
+  const prodDir = getRepoPath('data', 'session-logs', 'in-progress');
+  const devDir = getRepoPath('data', 'session-logs', '_dev');
+  const prodPath = path.join(prodDir, `${id}.jsonl`);
+  const devPath = path.join(devDir, `${id}.jsonl`);
+  if (devMode) return devPath;
+  return prodPath;
+};
 
 /**
  * Prepares session start: generates sessionId, file paths, and handles
@@ -220,15 +229,18 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   fs.mkdirSync(rolloverDir, { recursive: true });
   let suffixChar = 'a'.charCodeAt(0);
   let baseName = devMode ? `dev_${events[0].ts?.replace(/[:.]/g, '-')}` : sessionId;
+
   for (let i = 0; i < blocks.length; ++i) {
     const block = blocks[i];
+    const suffix = blocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
+    const finalSessionId = getFinalSessionId(baseName, devMode, suffix);
 
     // Header
     const inWorldStart = block.events.find(e => e.kind === 'day_start')?.payload?.calendarDate || null;
     const inWorldEnd = block.events.slice().reverse().find(e => e.kind === 'day_start')?.payload?.calendarDate || null;
     const header = {
       kind: 'header',
-      id: baseName + (blocks.length > 1 ? String.fromCharCode(suffixChar + i) : ''),
+      id: finalSessionId,
       seasonId: block.seasonId,
       inWorldStart,
       inWorldEnd
@@ -242,9 +254,7 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
     });
 
     // Write session file
-    const sessionFile = devMode
-      ? path.join(sessionDir, `${baseName}.jsonl`)
-      : path.join(sessionDir, `${baseName}${blocks.length > 1 ? String.fromCharCode(suffixChar + i) : ''}.jsonl`);
+    const sessionFile = path.join(sessionDir, `${finalSessionId}.jsonl`);
     writeEventsWithHeader(sessionFile, header, blockEvents);
     outputs.push(sessionFile);
 
