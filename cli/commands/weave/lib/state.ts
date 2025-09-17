@@ -3,6 +3,15 @@ import yaml from 'yaml';
 import path from 'path';
 import { getRepoPath } from '../../../../lib/repo';
 
+export function appendToMetaAppliedSessions(meta: any, fileId: string) {
+  if (!meta.appliedSessions) {
+    meta.appliedSessions = [];
+  }
+  if (!meta.appliedSessions.includes(fileId)) {
+    meta.appliedSessions.push(fileId);
+  }
+}
+
 export function loadHavens(): string[] {
   const havensPath = getRepoPath('data', 'havens.yml');
   try {
@@ -44,4 +53,3 @@ export function writeYamlAtomic(filePath: string, data: any) {
   fs.writeFileSync(tmpPath, yamlStr, 'utf8');
   fs.renameSync(tmpPath, filePath);
 }
-

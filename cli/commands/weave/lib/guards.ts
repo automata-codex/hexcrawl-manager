@@ -1,15 +1,6 @@
 import { normalizeSeasonId } from './season.ts';
 import { getNextUnrolledSeason } from './files.ts';
 
-export function appendToMetaAppliedSessions(meta: any, fileId: string) {
-  if (!meta.appliedSessions) {
-    meta.appliedSessions = [];
-  }
-  if (!meta.appliedSessions.includes(fileId)) {
-    meta.appliedSessions.push(fileId);
-  }
-}
-
 export function isRolloverAlreadyApplied(meta: any, fileId: string): boolean {
   return meta.appliedSessions?.includes(fileId);
 }
@@ -47,3 +38,4 @@ export function isSessionFile(filePath: string): boolean {
   const base = path.basename(filePath);
   return dir === 'sessions' && /^session_\d+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
 }
+

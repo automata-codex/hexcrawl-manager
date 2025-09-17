@@ -9,15 +9,15 @@ import {
   resolveInputFile,
 } from '../lib/files';
 import {
-  appendToMetaAppliedSessions,
   isRolloverAlreadyApplied,
   isRolloverChronologyValid,
   isRolloverFile,
   isSessionAlreadyApplied,
   isSessionChronologyValid,
   isSessionFile,
-} from '../lib/input';
+} from '../lib/guards';
 import {
+  appendToMetaAppliedSessions,
   loadHavens,
   loadMeta,
   loadTrails,

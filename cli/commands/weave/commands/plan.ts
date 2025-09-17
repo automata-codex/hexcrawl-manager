@@ -12,7 +12,7 @@ import {
   isSessionAlreadyApplied,
   isSessionChronologyValid,
   isSessionFile,
-} from '../lib/input';
+} from '../lib/guards';
 import {
   loadHavens,
   loadMeta,
