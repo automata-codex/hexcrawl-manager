@@ -4,16 +4,18 @@ import {
   applySessionToTrails,
 } from '../lib/apply';
 import {
-  appendToMetaAppliedSessions,
   getMostRecentRolloverFootprint,
+  requireCleanGitOrAllowDirty,
+  resolveInputFile,
+} from '../lib/files';
+import {
+  appendToMetaAppliedSessions,
   isRolloverAlreadyApplied,
   isRolloverChronologyValid,
   isRolloverFile,
   isSessionAlreadyApplied,
   isSessionChronologyValid,
   isSessionFile,
-  requireCleanGitOrAllowDirty,
-  resolveInputFile
 } from '../lib/input';
 import {
   loadHavens,

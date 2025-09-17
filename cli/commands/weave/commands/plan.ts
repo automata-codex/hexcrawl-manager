@@ -5,11 +5,13 @@ import {
 } from '../lib/apply';
 import {
   getMostRecentRolloverFootprint,
+  resolveInputFile,
+} from '../lib/files';
+import {
   isRolloverFile,
   isSessionAlreadyApplied,
   isSessionChronologyValid,
   isSessionFile,
-  resolveInputFile,
 } from '../lib/input';
 import {
   loadHavens,
