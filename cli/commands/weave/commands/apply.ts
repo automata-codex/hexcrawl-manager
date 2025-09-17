@@ -2,7 +2,7 @@ import path from 'path';
 import {
   appendToMetaAppliedSessions,
   applyRolloverToTrails,
-  canonicalEdgeKey,
+  applySessionToTrails,
   getMostRecentRolloverFootprint,
   isRolloverAlreadyApplied,
   isRolloverChronologyValid,
@@ -133,59 +133,11 @@ export async function apply(fileArg?: string, opts?: any) {
     }
 
     // --- Session apply logic ---
-    let changed = false;
-    const created: string[] = [];
-    const usedFlags: Record<string, boolean> = {};
-    const rediscovered: string[] = [];
-    let currentHex: string | null = null;
-    let currentSeason = firstSeasonId;
-
-    // Find session_start
-    const sessionStart = events.find(e => e.kind === 'session_start');
-    if (sessionStart && sessionStart.payload.startHex) {
-      currentHex = sessionStart.payload.startHex as string;
-    }
-
     const mostRecentRoll = getMostRecentRolloverFootprint(firstSeasonId);
     const deletedTrails = mostRecentRoll?.effects?.rollover?.deletedTrails || [];
-    // Main event loop
-    for (const e of events) {
-      if (e.kind === 'day_start') {
-        const calDate = e.payload?.calendarDate as CanonicalDate;
-        currentSeason = deriveSeasonId(calDate);
-      }
-      if (e.kind === 'trail' && e.payload.marked) {
-        const edge = canonicalEdgeKey(e.payload.from as string, e.payload.to as string);
-        if (!trails[edge]) {
-          trails[edge] = { permanent: false, streak: 0 };
-          created.push(edge);
-          changed = true;
-        }
-        trails[edge].usedThisSeason = true;
-        trails[edge].lastSeasonTouched = currentSeason;
-        usedFlags[edge] = true;
-      }
-      if (e.kind === 'move') {
-        let from = e.payload.from as string | null;
-        let to = e.payload.to as string;
-        if (!from && currentHex) from = currentHex;
-        if (!from || !to) continue;
-        const edge = canonicalEdgeKey(from, to);
-        currentHex = to;
-        if (trails[edge]) {
-          trails[edge].usedThisSeason = true;
-          trails[edge].lastSeasonTouched = currentSeason;
-          usedFlags[edge] = true;
-        } else if (deletedTrails.includes(edge)) {
-          // Rediscovery/paradox
-          trails[edge] = { permanent: false, streak: 0, usedThisSeason: true, lastSeasonTouched: currentSeason };
-          rediscovered.push(edge);
-          usedFlags[edge] = true;
-          changed = true;
-        }
-      }
-    }
-    if (!changed && !created.length && !rediscovered.length && !Object.keys(usedFlags).length) {
+    const { effects, before, after } = applySessionToTrails(events, trails, firstSeasonId, deletedTrails, false);
+    const changed = effects.created.length > 0 || effects.rediscovered.length > 0 || Object.keys(effects.usedFlags).length > 0;
+    if (!changed) {
       info('No changes would be made.');
       process.exit(5);
     }
@@ -202,13 +154,8 @@ export async function apply(fileArg?: string, opts?: any) {
         seasonId: firstSeasonId,
         appliedAt: new Date().toISOString(),
         inputs: { sourceFile: file },
-        effects: {
-          session: {
-            created,
-            usedFlags,
-            rediscovered
-          }
-        }
+        effects: { session: effects },
+        touched: { before, after }
       };
       writeFootprint(footprint);
       info('Session applied.');

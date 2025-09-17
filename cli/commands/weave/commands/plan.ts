@@ -1,7 +1,7 @@
 import path from 'path';
 import {
   applyRolloverToTrails,
-  canonicalEdgeKey,
+  applySessionToTrails,
   getMostRecentRolloverFootprint,
   isRolloverFile,
   isSessionAlreadyApplied,
@@ -92,6 +92,7 @@ export async function plan(fileArg?: string) {
       error(`Validation error: Missing required rollover(s) for season ${firstSeasonId}: ${chrono.missing.join(', ')}`);
       process.exit(4);
     }
+
     // Already applied check
     const fileId = path.basename(file);
     if (isSessionAlreadyApplied(meta, fileId)) {
@@ -103,48 +104,20 @@ export async function plan(fileArg?: string) {
     const trails = loadTrails();
     const mostRecentRoll = getMostRecentRolloverFootprint(firstSeasonId);
     const deletedTrails = mostRecentRoll?.effects?.rollover?.deletedTrails || [];
-    const created: string[] = [];
-    const usedFlags: Record<string, boolean> = {};
-    const rediscovered: string[] = [];
-    let currentHex: string | null = null;
-    // Find session_start
-    const sessionStart = events.find(e => e.kind === 'session_start');
-    if (sessionStart && sessionStart.payload.startHex) {
-      currentHex = sessionStart.payload.startHex as string;
-    }
-    for (const e of events) {
-      if (e.kind === 'trail' && e.payload.marked) {
-        const edge = canonicalEdgeKey(e.payload.from as string, e.payload.to as string);
-        created.push(edge);
-        usedFlags[edge] = true;
-      }
-      if (e.kind === 'move') {
-        let from = e.payload.from as string | null;
-        let to = e.payload.to as string;
-        if (!from && currentHex) from = currentHex;
-        if (!from || !to) continue; // skip invalid
-        const edge = canonicalEdgeKey(from, to);
-        currentHex = to;
-        if (trails[edge]) {
-          usedFlags[edge] = true;
-        } else if (deletedTrails.includes(edge)) {
-          rediscovered.push(edge);
-          usedFlags[edge] = true;
-        }
-      }
-    }
+    const { effects } = applySessionToTrails(events, trails, firstSeasonId, deletedTrails, true);
+
     // Output summary
     info('Plan summary:');
-    if (created.length) {
-      info('  Edges to create: ' + JSON.stringify(created));
+    if (effects.created.length) {
+      info('  Edges to create: ' + JSON.stringify(effects.created));
     }
-    if (Object.keys(usedFlags).length) {
-      info('  Edges to set usedThisSeason: ' + JSON.stringify(Object.keys(usedFlags)));
+    if (Object.keys(effects.usedFlags).length) {
+      info('  Edges to set usedThisSeason: ' + JSON.stringify(Object.keys(effects.usedFlags)));
     }
-    if (rediscovered.length) {
-      info('  Rediscovered edges: ' + JSON.stringify(rediscovered));
+    if (effects.rediscovered.length) {
+      info('  Rediscovered edges: ' + JSON.stringify(effects.rediscovered));
     }
-    if (!created.length && !Object.keys(usedFlags).length && !rediscovered.length) {
+    if (!effects.created.length && !Object.keys(effects.usedFlags).length && !effects.rediscovered.length) {
       info('No changes would be made.');
       process.exit(5);
     }

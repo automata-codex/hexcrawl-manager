@@ -304,3 +304,106 @@ export function writeFootprint(footprint: any) {
   const filePath = path.join(footprintsDir, `${id}.yaml`);
   writeYamlAtomic(filePath, footprint);
 }
+
+/**
+ * Applies a session to trails, mutating the trails object and returning the effects.
+ * If dryRun=true, does not mutate trails, just simulates the effects.
+ *
+ * @param events Array of session events
+ * @param trails The trails object (edgeKey -> data)
+ * @param seasonId The session's seasonId
+ * @param deletedTrails Array of deleted edge keys from the most recent rollover
+ * @param dryRun If true, do not mutate trails, just simulate
+ * @returns { effects, before, after }
+ */
+export function applySessionToTrails(
+  events: any[],
+  trails: Record<string, any>,
+  seasonId: string,
+  deletedTrails: string[],
+  dryRun = false,
+) {
+  const created: string[] = [];
+  const usedFlags: Record<string, boolean> = {};
+  const rediscovered: string[] = [];
+  let currentHex: string | null = null;
+  let currentSeason = seasonId;
+  const before: Record<string, any> = {};
+  const after: Record<string, any> = {};
+  // Find session_start
+  const sessionStart = events.find(e => e.kind === 'session_start');
+  if (sessionStart && sessionStart.payload && sessionStart.payload.startHex) {
+    currentHex = sessionStart.payload.startHex as string;
+  }
+  // Build a set of all affected edges
+  const affected = new Set<string>();
+  for (const e of events) {
+    if (e.kind === 'day_start') {
+      if (e.payload && e.payload.calendarDate && e.payload.season) {
+        currentSeason = e.payload.seasonId || seasonId;
+      }
+    }
+    if (e.kind === 'trail' && e.payload && e.payload.marked) {
+      const edge = canonicalEdgeKey(e.payload.from as string, e.payload.to as string);
+      affected.add(edge);
+      if (!dryRun && !trails[edge]) {
+        trails[edge] = { permanent: false, streak: 0 };
+      }
+      if (!trails[edge] && dryRun) {
+        // Simulate creation
+        created.push(edge);
+        usedFlags[edge] = true;
+        after[edge] = { permanent: false, streak: 0, usedThisSeason: true, lastSeasonTouched: currentSeason };
+        continue;
+      }
+      if (!dryRun && !trails[edge]) {
+        created.push(edge);
+      }
+      if (!dryRun) {
+        trails[edge].usedThisSeason = true;
+        trails[edge].lastSeasonTouched = currentSeason;
+      }
+      usedFlags[edge] = true;
+      before[edge] = before[edge] || (trails[edge] ? { ...trails[edge] } : undefined);
+      after[edge] = { ...(trails[edge] || { permanent: false, streak: 0 }), usedThisSeason: true, lastSeasonTouched: currentSeason };
+    }
+    if (e.kind === 'move') {
+      let from = e.payload.from as string | null;
+      let to = e.payload.to as string;
+      if (!from && currentHex) from = currentHex;
+      if (!from || !to) continue;
+      const edge = canonicalEdgeKey(from, to);
+      currentHex = to;
+      affected.add(edge);
+      if (trails[edge]) {
+        if (!dryRun) {
+          trails[edge].usedThisSeason = true;
+          trails[edge].lastSeasonTouched = currentSeason;
+        }
+        usedFlags[edge] = true;
+        before[edge] = before[edge] || (trails[edge] ? { ...trails[edge] } : undefined);
+        after[edge] = { ...(trails[edge] || { permanent: false, streak: 0 }), usedThisSeason: true, lastSeasonTouched: currentSeason };
+      } else if (deletedTrails.includes(edge)) {
+        // Rediscovery/paradox
+        if (!dryRun) {
+          trails[edge] = { permanent: false, streak: 0, usedThisSeason: true, lastSeasonTouched: currentSeason };
+        }
+        rediscovered.push(edge);
+        usedFlags[edge] = true;
+        before[edge] = undefined;
+        after[edge] = { permanent: false, streak: 0, usedThisSeason: true, lastSeasonTouched: currentSeason };
+      }
+    }
+  }
+  // For dryRun, simulate before state from trails
+  if (dryRun) {
+    for (const edge of affected) {
+      if (!before[edge] && trails[edge]) before[edge] = { ...trails[edge] };
+    }
+  }
+  return {
+    effects: { created, usedFlags, rediscovered },
+    before,
+    after
+  };
+}
