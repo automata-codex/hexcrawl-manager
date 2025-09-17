@@ -6,6 +6,7 @@ import { hexSort, normalizeHexId } from '../../../../lib/hexes';
 import { getRepoPath } from '../../../../lib/repo';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import type { CanonicalDate, Event } from '../../scribe/types';
+import { info, error } from '../../scribe/lib/report';
 
 // TODO: Use Enquirer for prompts when candidates exist
 
@@ -120,12 +121,12 @@ export async function plan(fileArg?: string) {
       return !meta.appliedSessions?.includes(id);
     });
     if (allCandidates.length === 0) {
-      console.log('No unapplied session or rollover files found.');
+      info('No unapplied session or rollover files found.');
       process.exit(5);
     }
     // TODO: Prompt user to select a file (Enquirer)
     file = allCandidates[0]; // For now, just pick the first
-    console.log(`Planning for: ${file}`);
+    info(`Planning for: ${file}`);
   }
 
   // File type detection
@@ -134,16 +135,16 @@ export async function plan(fileArg?: string) {
     const events = readJsonl(file);
     const rollover = events.find(e => e.kind === 'season_rollover') as Event & { payload: { seasonId: string } } | undefined;
     if (!rollover || !rollover.payload.seasonId) {
-      console.error('Validation error: Rollover file missing season_rollover event or seasonId.');
+      error('Validation error: Rollover file missing season_rollover event or seasonId.');
       process.exit(4);
     }
     const seasonId = normalizeSeasonId(rollover.payload.seasonId);
-    console.log(`Rollover plan for season: ${seasonId}`);
+    info(`Rollover plan for season: ${seasonId}`);
 
     // Already applied check
     const fileId = path.basename(file);
     if (meta.appliedSessions?.includes(fileId)) {
-      console.log('Rollover already applied.');
+      info('Rollover already applied.');
       process.exit(3);
     }
 
@@ -157,8 +158,8 @@ export async function plan(fileArg?: string) {
       havens = [];
     }
     const nonPermanentEdges = Object.entries(trails).filter(([_, data]) => !data.permanent);
-    console.log(`Non-permanent edges: ${nonPermanentEdges.length}`);
-    console.log(`Haven hexes: ${havens.length}`);
+    info(`Non-permanent edges: ${nonPermanentEdges.length}`);
+    info(`Haven hexes: ${havens.length}`);
 
     // --- Classify edges as near or far ---
     let nearCount = 0;
@@ -185,31 +186,31 @@ export async function plan(fileArg?: string) {
     }
     // No-op check: if all lists are empty, exit 5
     if (maintained.length === 0 && persisted.length === 0 && deleted.length === 0) {
-      console.log('No changes would be made.');
+      info('No changes would be made.');
       process.exit(5);
     }
-    console.log(`Near-haven edges (≤3): ${nearCount}`);
-    console.log(`Far-haven edges (>3): ${farCount}`);
-    console.log(`Maintained (near): ${maintained.length}`);
-    console.log(`Persisted (far, used or lucky): ${persisted.length}`);
-    console.log(`Deleted (far, unused, unlucky): ${deleted.length}`);
+    info(`Near-haven edges (≤3): ${nearCount}`);
+    info(`Far-haven edges (>3): ${farCount}`);
+    info(`Maintained (near): ${maintained.length}`);
+    info(`Persisted (far, used or lucky): ${persisted.length}`);
+    info(`Deleted (far, unused, unlucky): ${deleted.length}`);
     // Always output sample lists for clarity
-    console.log('  Sample maintained:', maintained.slice(0, 5));
-    console.log('  Sample persisted:', persisted.slice(0, 5));
-    console.log('  Sample deleted:', deleted.slice(0, 5));
+    info('  Sample maintained: ' + JSON.stringify(maintained.slice(0, 5)));
+    info('  Sample persisted: ' + JSON.stringify(persisted.slice(0, 5)));
+    info('  Sample deleted: ' + JSON.stringify(deleted.slice(0, 5)));
 
     process.exit(0);
   } else if (isSessionFile(file)) {
     // --- Session planning logic ---
     const events = readJsonl(file);
     if (!events.length) {
-      console.error('Session file is empty or unreadable.');
+      error('Session file is empty or unreadable.');
       process.exit(4);
     }
 
     const dayStarts = events.filter(e => e.kind === 'day_start');
     if (!dayStarts.length) {
-      console.error('Validation error: No day_start event in session.');
+      error('Validation error: No day_start event in session.');
       process.exit(4);
     }
 
@@ -217,7 +218,7 @@ export async function plan(fileArg?: string) {
     const seasonIds = dayStarts.map(e => deriveSeasonId(e.payload.calendarDate as any));
     const firstSeasonId = seasonIds[0];
     if (!seasonIds.every(sid => normalizeSeasonId(sid) === normalizeSeasonId(firstSeasonId))) {
-      console.error('Validation error: Multi-season session detected. All events must share the same season.');
+      error('Validation error: Multi-season session detected. All events must share the same season.');
       process.exit(4);
     }
 
@@ -226,13 +227,13 @@ export async function plan(fileArg?: string) {
     // Find all seasons up to and including this one, and check meta.rolledSeasons
     // (For now, just check that this seasonId is in meta.rolledSeasons)
     if (!meta.rolledSeasons?.includes(firstSeasonId)) {
-      console.error(`Validation error: Missing required rollover for season ${firstSeasonId}.`);
+      error(`Validation error: Missing required rollover for season ${firstSeasonId}.`);
       process.exit(4);
     }
     // Already applied check
     const fileId = path.basename(file);
     if (meta.appliedSessions?.includes(fileId)) {
-      console.log('Session already applied.');
+      info('Session already applied.');
       process.exit(3);
     }
     // Simulate plan
@@ -270,23 +271,23 @@ export async function plan(fileArg?: string) {
       }
     }
     // Output summary
-    console.log('Plan summary:');
+    info('Plan summary:');
     if (created.length) {
-      console.log('  Edges to create:', created);
+      info('  Edges to create: ' + JSON.stringify(created));
     }
     if (Object.keys(usedFlags).length) {
-      console.log('  Edges to set usedThisSeason:', Object.keys(usedFlags));
+      info('  Edges to set usedThisSeason: ' + JSON.stringify(Object.keys(usedFlags)));
     }
     if (rediscovered.length) {
-      console.log('  Rediscovered edges:', rediscovered);
+      info('  Rediscovered edges: ' + JSON.stringify(rediscovered));
     }
     if (!created.length && !Object.keys(usedFlags).length && !rediscovered.length) {
-      console.log('No changes would be made.');
+      info('No changes would be made.');
       process.exit(5);
     }
     process.exit(0);
   } else {
-    console.error('Unrecognized file type for planning.');
+    error('Unrecognized file type for planning.');
     process.exit(4);
   }
 }
