@@ -1,13 +1,20 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
-import { compareSeasonIds, deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { hexSort, normalizeHexId } from '../../../../lib/hexes';
-import { isRolloverFile, isSessionFile, loadMeta, resolveInputFile } from '../lib/input';
+import {
+  isRolloverFile,
+  isSessionFile,
+  loadHavens,
+  loadMeta,
+  loadTrails,
+  resolveInputFile,
+} from '../lib/input';
 import { getRepoPath } from '../../../../lib/repo';
+import { compareSeasonIds, deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { readJsonl } from '../../scribe/lib/jsonl';
-import type { CanonicalDate, Event } from '../../scribe/types';
 import { info, error } from '../../scribe/lib/report';
+import type { CanonicalDate, Event } from '../../scribe/types';
 
 function canonicalEdgeKey(a: string, b: string): string {
   const [h1, h2] = [normalizeHexId(a), normalizeHexId(b)].sort(hexSort);
@@ -65,15 +72,6 @@ function isHexNearAnyHaven(hex: string, havens: string[], maxDist = 3): boolean 
   return havens.some(haven => hexDistance(hex, haven) <= maxDist);
 }
 
-function loadTrails(): Record<string, any> {
-  const trailsPath = getRepoPath('data', 'trails.yml');
-  try {
-    return yaml.parse(fs.readFileSync(trailsPath, 'utf8')) as Record<string, any>;
-  } catch {
-    return {};
-  }
-}
-
 export async function plan(fileArg?: string) {
   const meta = loadMeta();
   // Use shared input helper for file selection
@@ -103,14 +101,8 @@ export async function plan(fileArg?: string) {
     }
 
     // --- Load trails and havens ---
+    const havens = loadHavens();
     const trails = loadTrails();
-    const havensPath = getRepoPath('data', 'havens.yml');
-    let havens: string[] = [];
-    try {
-      havens = yaml.parse(fs.readFileSync(havensPath, 'utf8')) as string[];
-    } catch {
-      havens = [];
-    }
     const nonPermanentEdges = Object.entries(trails).filter(([_, data]) => !data.permanent);
     info(`Non-permanent edges: ${nonPermanentEdges.length}`);
     info(`Haven hexes: ${havens.length}`);

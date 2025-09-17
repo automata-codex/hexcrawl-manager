@@ -43,12 +43,30 @@ function listFilesIfDir(dir: string): string[] {
   }
 }
 
+export function loadHavens(): string[] {
+  const havensPath = getRepoPath('data', 'havens.yml');
+  try {
+    return yaml.parse(fs.readFileSync(havensPath, 'utf8')) as string[];
+  } catch {
+    return [];
+  }
+}
+
 export function loadMeta() {
   const META_PATH = getRepoPath('data', 'meta.yaml');
   try {
     return yaml.parse(fs.readFileSync(META_PATH, 'utf8')) as any;
   } catch {
     return { appliedSessions: [], rolledSeasons: [] };
+  }
+}
+
+export function loadTrails(): Record<string, any> {
+  const trailsPath = getRepoPath('data', 'trails.yml');
+  try {
+    return yaml.parse(fs.readFileSync(trailsPath, 'utf8')) as Record<string, any>;
+  } catch {
+    return {};
   }
 }
 

@@ -1,7 +1,16 @@
-import { isRolloverFile, isSessionFile, loadMeta, resolveInputFile } from '../lib/input';
+import {
+  isRolloverFile,
+  isSessionFile,
+  loadHavens,
+  loadMeta,
+  loadTrails,
+  resolveInputFile,
+} from '../lib/input';
 
 export async function apply(fileArg?: string, opts?: any) {
+  const trails = loadTrails();
   const meta = loadMeta();
+  const havens = loadHavens();
 
   // Use shared input helper for file selection
   const file = await resolveInputFile(fileArg, meta, opts);
