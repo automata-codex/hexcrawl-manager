@@ -2,6 +2,8 @@ import path from 'path';
 import {
   applyRolloverToTrails,
   applySessionToTrails,
+} from '../lib/apply';
+import {
   getMostRecentRolloverFootprint,
   isRolloverFile,
   isSessionAlreadyApplied,

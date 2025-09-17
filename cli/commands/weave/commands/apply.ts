@@ -1,8 +1,10 @@
 import path from 'path';
 import {
-  appendToMetaAppliedSessions,
   applyRolloverToTrails,
   applySessionToTrails,
+} from '../lib/apply';
+import {
+  appendToMetaAppliedSessions,
   getMostRecentRolloverFootprint,
   isRolloverAlreadyApplied,
   isRolloverChronologyValid,
