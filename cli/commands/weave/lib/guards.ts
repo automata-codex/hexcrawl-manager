@@ -1,5 +1,6 @@
-import { normalizeSeasonId } from './season.ts';
+import path from 'node:path';
 import { getNextUnrolledSeason } from './files.ts';
+import { normalizeSeasonId } from './season.ts';
 
 export function isRolloverAlreadyApplied(meta: any, fileId: string): boolean {
   return meta.appliedSessions?.includes(fileId);
@@ -13,7 +14,6 @@ export function isRolloverChronologyValid(meta: any, seasonId: string): { valid:
 }
 
 export function isRolloverFile(filePath: string): boolean {
-  const path = require('path');
   const dir = path.basename(path.dirname(filePath));
   const base = path.basename(filePath);
   return dir === 'rollovers' && /^rollover_[\w-]+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
@@ -33,9 +33,8 @@ export function isSessionChronologyValid(meta: any, seasonId: string): { valid: 
 }
 
 export function isSessionFile(filePath: string): boolean {
-  const path = require('path');
   const dir = path.basename(path.dirname(filePath));
   const base = path.basename(filePath);
-  return dir === 'sessions' && /^session_\d+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
+  return dir === 'sessions' && /^session_\d+[a-z]?_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
 }
 
