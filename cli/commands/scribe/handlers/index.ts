@@ -9,6 +9,7 @@ import current from './current';
 import date from './date.ts';
 import day from './day.ts';
 import deadReckoning from './deadReckoning.ts';
+import doctor from './doctor.ts';
 import exit from './exit';
 import finalize from './finalize';
 import help from './help';
@@ -39,6 +40,7 @@ export function buildHandlers(ctx: Context): HandlerMap {
     date: date(ctx),
     day: day(ctx),
     deadRec: deadReckoning(ctx), // Register as 'deadRec' (will be mapped to 'dead-rec')
+    doctor: doctor(ctx),
     exit: exit(),
     finalize: finalize(ctx),
     help: help(),
