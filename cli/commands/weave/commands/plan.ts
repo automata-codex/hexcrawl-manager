@@ -47,6 +47,38 @@ function canonicalEdgeKey(a: string, b: string): string {
   return `${h1.toLowerCase()}-${h2.toLowerCase()}`;
 }
 
+function getMostRecentRolloverFootprint(seasonId: string): any | null {
+  const footprintsDir = getRepoPath('data', 'session-logs', 'footprints');
+  let files: string[] = [];
+  try {
+    files = fs.readdirSync(footprintsDir)
+      .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'))
+      .map(f => path.join(footprintsDir, f));
+  } catch {
+    return null;
+  }
+  // Find the most recent rollover for this season or earlier
+  let best: { seasonId: string, file: string, data: any } | null = null;
+  for (const file of files) {
+    const data = yaml.parse(fs.readFileSync(file, 'utf8'));
+    if (data.kind === 'rollover' && data.seasonId) {
+      if (!best || compareSeasonIds(data.seasonId, best.seasonId) > 0 && compareSeasonIds(data.seasonId, seasonId) <= 0) {
+        best = { seasonId: data.seasonId, file, data };
+      }
+    }
+  }
+  return best ? best.data : null;
+}
+
+function loadTrails(): Record<string, any> {
+  const trailsPath = getRepoPath('data', 'trails.yml');
+  try {
+    return yaml.parse(fs.readFileSync(trailsPath, 'utf8')) as Record<string, any>;
+  } catch {
+    return {};
+  }
+}
+
 function getSessionSeasonId(events: Event[]): string | null {
   const dayStart = events.find(e => e.kind === 'day_start');
   if (!dayStart) return null;
@@ -116,18 +148,38 @@ export async function plan(fileArg?: string) {
       process.exit(3);
     }
     // Simulate plan
-    // TODO: Load trails.yaml and most recent rollover footprint for rediscovery logic
-    // For now, just collect created edges
+    const trails = loadTrails();
+    const mostRecentRoll = getMostRecentRolloverFootprint(firstSeasonId);
+    const deletedTrails = mostRecentRoll?.effects?.rollover?.deletedTrails || [];
     const created: string[] = [];
     const usedFlags: Record<string, boolean> = {};
     const rediscovered: string[] = [];
+    let currentHex: string | null = null;
+    // Find session_start
+    const sessionStart = events.find(e => e.kind === 'session_start');
+    if (sessionStart && sessionStart.payload.startHex) {
+      currentHex = sessionStart.payload.startHex as string;
+    }
     for (const e of events) {
       if (e.kind === 'trail' && e.payload.marked) {
         const edge = canonicalEdgeKey(e.payload.from as string, e.payload.to as string);
         created.push(edge);
         usedFlags[edge] = true;
       }
-      // TODO: handle move events and rediscovery
+      if (e.kind === 'move') {
+        let from = e.payload.from as string | null;
+        let to = e.payload.to as string;
+        if (!from && currentHex) from = currentHex;
+        if (!from || !to) continue; // skip invalid
+        const edge = canonicalEdgeKey(from, to);
+        currentHex = to;
+        if (trails[edge]) {
+          usedFlags[edge] = true;
+        } else if (deletedTrails.includes(edge)) {
+          rediscovered.push(edge);
+          usedFlags[edge] = true;
+        }
+      }
     }
     // Output summary
     console.log('Plan summary:');
