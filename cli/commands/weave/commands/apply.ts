@@ -1,9 +1,9 @@
-import fs from 'fs';
-import yaml from 'yaml';
 import path from 'path';
 import {
   appendToMetaAppliedSessions,
+  applyRolloverToTrails,
   canonicalEdgeKey,
+  getMostRecentRolloverFootprint,
   isRolloverAlreadyApplied,
   isRolloverChronologyValid,
   isRolloverFile,
@@ -18,37 +18,11 @@ import {
   writeFootprint,
   writeYamlAtomic,
 } from '../lib/input';
-import {
-  compareSeasonIds,
-  deriveSeasonId,
-  normalizeSeasonId
-} from '../lib/season';
+import { getRepoPath } from '../../../../lib/repo';
+import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { error, info } from '../../scribe/lib/report';
 import type { CanonicalDate } from '../../scribe/types.ts';
-
-// Find most recent ROLL footprint for rediscovery
-function getMostRecentRolloverFootprint(seasonId: string): any {
-  const footprintsDir = require('../../../../lib/repo').getRepoPath('data', 'session-logs', 'footprints');
-  let files: string[] = [];
-  try {
-    files = fs.readdirSync(footprintsDir)
-      .filter((f: string) => f.endsWith('.yaml') || f.endsWith('.yml'))
-      .map((f: string) => path.join(footprintsDir, f));
-  } catch {
-    return null;
-  }
-  let best: { seasonId: string, file: string, data: any } | null = null;
-  for (const file of files) {
-    const data = yaml.parse(fs.readFileSync(file, 'utf8'));
-    if (data.kind === 'rollover' && data.seasonId) {
-      if (!best || compareSeasonIds(data.seasonId, best.seasonId) > 0 && compareSeasonIds(data.seasonId, seasonId) <= 0) {
-        best = { seasonId: data.seasonId, file, data };
-      }
-    }
-  }
-  return best ? best.data : null;
-};
 
 export async function apply(fileArg?: string, opts?: any) {
   requireCleanGitOrAllowDirty(opts);
@@ -79,9 +53,54 @@ export async function apply(fileArg?: string, opts?: any) {
       error(`Validation error: Rollover is not for the next unapplied season. Expected: ${chrono.expected}`);
       process.exit(4);
     }
-    // TODO: implement rollover apply logic
-    // eslint-disable-next-line no-console
-    console.log('apply: detected rollover file', file);
+    // --- Rollover apply logic ---
+    const before: Record<string, string> = {};
+    for (const [edge, data] of Object.entries(trails)) {
+      if (!data.permanent) {
+        before[edge] = { ...data };
+      }
+    }
+    const effects = applyRolloverToTrails(trails, havens, false);
+    // If no changes (all lists empty), treat as no-op
+    if (
+      effects.maintained.length === 0 &&
+      effects.persisted.length === 0 &&
+      effects.deletedTrails.length === 0
+    ) {
+      info('No changes would be made.');
+      process.exit(5);
+    }
+    // Update meta
+    if (!meta.rolledSeasons) meta.rolledSeasons = [];
+    meta.rolledSeasons.push(seasonId);
+    appendToMetaAppliedSessions(meta, fileId);
+    // Write trails.yaml and meta.yaml
+    try {
+      writeYamlAtomic(getRepoPath('data', 'trails.yml'), trails);
+      writeYamlAtomic(getRepoPath('data', 'meta.yaml'), meta);
+      // Write footprint
+      const after: Record<string, string> = {};
+      for (const [edge, data] of Object.entries(trails)) {
+        if (!data.permanent) {
+          after[edge] = { ...data };
+        }
+      }
+      const footprint = {
+        id: `ROLL-${seasonId}`,
+        kind: 'rollover',
+        seasonId,
+        appliedAt: new Date().toISOString(),
+        inputs: { sourceFile: file },
+        effects: { rollover: effects },
+        touched: { before, after }
+      };
+      writeFootprint(footprint);
+      info('Rollover applied.');
+      process.exit(0);
+    } catch (e) {
+      error('I/O error during apply: ' + e);
+      process.exit(6);
+    }
   } else if (isSessionFile(file)) {
     const events = readJsonl(file);
     if (!events.length) {
@@ -172,10 +191,10 @@ export async function apply(fileArg?: string, opts?: any) {
     }
     // Write trails.yaml
     try {
-      writeYamlAtomic(require('../../../../lib/repo').getRepoPath('data', 'trails.yml'), trails);
-      // Update meta.yaml
+      writeYamlAtomic(getRepoPath('data', 'trails.yml'), trails);
       appendToMetaAppliedSessions(meta, fileId);
-      writeYamlAtomic(require('../../../../lib/repo').getRepoPath('data', 'meta.yaml'), meta);
+      writeYamlAtomic(getRepoPath('data', 'meta.yaml'), meta);
+
       // Write footprint
       const footprint = {
         id: `S-${fileId.replace(/\..*$/, '')}`,
@@ -199,8 +218,7 @@ export async function apply(fileArg?: string, opts?: any) {
       process.exit(6);
     }
   } else {
-    // eslint-disable-next-line no-console
-    console.error('Unrecognized file type for apply:', file);
+    error(`Unrecognized file type for apply: ${file}`);
     process.exit(4);
   }
 }

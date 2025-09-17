@@ -1,8 +1,8 @@
-import fs from 'fs';
 import path from 'path';
-import yaml from 'yaml';
-import { hexSort, normalizeHexId } from '../../../../lib/hexes';
 import {
+  applyRolloverToTrails,
+  canonicalEdgeKey,
+  getMostRecentRolloverFootprint,
   isRolloverFile,
   isSessionAlreadyApplied,
   isSessionChronologyValid,
@@ -12,66 +12,16 @@ import {
   loadTrails,
   resolveInputFile,
 } from '../lib/input';
-import { getRepoPath } from '../../../../lib/repo';
-import { compareSeasonIds, deriveSeasonId, normalizeSeasonId } from '../lib/season';
+import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { info, error } from '../../scribe/lib/report';
-import type { CanonicalDate, Event } from '../../scribe/types';
-
-function canonicalEdgeKey(a: string, b: string): string {
-  const [h1, h2] = [normalizeHexId(a), normalizeHexId(b)].sort(hexSort);
-  return `${h1.toLowerCase()}-${h2.toLowerCase()}`;
-}
-
-function getMostRecentRolloverFootprint(seasonId: string): any | null {
-  const footprintsDir = getRepoPath('data', 'session-logs', 'footprints');
-  let files: string[] = [];
-  try {
-    files = fs.readdirSync(footprintsDir)
-      .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'))
-      .map(f => path.join(footprintsDir, f));
-  } catch {
-    return null;
-  }
-  // Find the most recent rollover for this season or earlier
-  let best: { seasonId: string, file: string, data: any } | null = null;
-  for (const file of files) {
-    const data = yaml.parse(fs.readFileSync(file, 'utf8'));
-    if (data.kind === 'rollover' && data.seasonId) {
-      if (!best || compareSeasonIds(data.seasonId, best.seasonId) > 0 && compareSeasonIds(data.seasonId, seasonId) <= 0) {
-        best = { seasonId: data.seasonId, file, data };
-      }
-    }
-  }
-  return best ? best.data : null;
-}
-
-function hexDistance(a: string, b: string): number {
-  const ac = hexToCube(a);
-  const bc = hexToCube(b);
-  return Math.max(Math.abs(ac.x - bc.x), Math.abs(ac.y - bc.y), Math.abs(ac.z - bc.z));
-}
-
-function hexToCube(hex: string): { x: number, y: number, z: number } {
-  // Flat-top odd-q offset to cube
-  // Columns: letters A-Z, Rows: 1-27
-  const col = hex[0].toUpperCase().charCodeAt(0) - 'A'.charCodeAt(0);
-  const row = parseInt(hex.slice(1), 10) - 1;
-  const x = col;
-  const z = row - ((col - (col & 1)) >> 1);
-  const y = -x - z;
-  return { x, y, z };
-}
-
-function isHexNearAnyHaven(hex: string, havens: string[], maxDist = 3): boolean {
-  return havens.some(haven => hexDistance(hex, haven) <= maxDist);
-}
+import type { Event } from '../../scribe/types';
 
 export async function plan(fileArg?: string) {
   const meta = loadMeta();
+
   // Use shared input helper for file selection
   const file = await resolveInputFile(fileArg, meta);
-
   if (!file) {
     throw new Error('No file specified despite everything you did.');
   }
@@ -98,48 +48,21 @@ export async function plan(fileArg?: string) {
     // --- Load trails and havens ---
     const havens = loadHavens();
     const trails = loadTrails();
-    const nonPermanentEdges = Object.entries(trails).filter(([_, data]) => !data.permanent);
-    info(`Non-permanent edges: ${nonPermanentEdges.length}`);
-    info(`Haven hexes: ${havens.length}`);
 
-    // --- Classify edges as near or far ---
-    let nearCount = 0;
-    let farCount = 0;
-    const maintained: string[] = [];
-    const persisted: string[] = [];
-    const deleted: string[] = [];
-    for (const [edge, data] of nonPermanentEdges) {
-      const [a, b] = edge.split('-');
-      const isNear = isHexNearAnyHaven(a, havens) || isHexNearAnyHaven(b, havens);
-      if (isNear) {
-        nearCount++;
-        maintained.push(edge);
-      } else {
-        farCount++;
-        if (data.usedThisSeason) {
-          persisted.push(edge);
-        } else {
-          // For plan, show both possible d6 outcomes
-          deleted.push(`${edge} (if d6=1-3)`);
-          persisted.push(`${edge} (if d6=4-6)`);
-        }
-      }
-    }
+    // Use shared helper for dry-run plan
+    const effects = applyRolloverToTrails(trails, havens, true);
+
     // No-op check: if all lists are empty, exit 5
-    if (maintained.length === 0 && persisted.length === 0 && deleted.length === 0) {
+    if (effects.maintained.length === 0 && effects.persisted.length === 0 && effects.deletedTrails.length === 0) {
       info('No changes would be made.');
       process.exit(5);
     }
-    info(`Near-haven edges (≤3): ${nearCount}`);
-    info(`Far-haven edges (>3): ${farCount}`);
-    info(`Maintained (near): ${maintained.length}`);
-    info(`Persisted (far, used or lucky): ${persisted.length}`);
-    info(`Deleted (far, unused, unlucky): ${deleted.length}`);
-    // Always output sample lists for clarity
-    info('  Sample maintained: ' + JSON.stringify(maintained.slice(0, 5)));
-    info('  Sample persisted: ' + JSON.stringify(persisted.slice(0, 5)));
-    info('  Sample deleted: ' + JSON.stringify(deleted.slice(0, 5)));
-
+    info(`Near-haven edges (maintained): ${effects.maintained.length}`);
+    info(`Far-haven edges (persisted): ${effects.persisted.length}`);
+    info(`Far-haven edges (deleted): ${effects.deletedTrails.length}`);
+    info('  Sample maintained: ' + JSON.stringify(effects.maintained.slice(0, 5)));
+    info('  Sample persisted: ' + JSON.stringify(effects.persisted.slice(0, 5)));
+    info('  Sample deleted: ' + JSON.stringify(effects.deletedTrails.slice(0, 5)));
     process.exit(0);
   } else if (isSessionFile(file)) {
     // --- Session planning logic ---

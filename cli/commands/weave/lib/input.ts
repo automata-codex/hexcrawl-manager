@@ -6,20 +6,114 @@ import yaml from 'yaml';
 import { hexSort, normalizeHexId } from '../../../../lib/hexes';
 import { getRepoPath } from '../../../../lib/repo';
 import { info, error } from '../../scribe/lib/report';
-import { normalizeSeasonId } from './season.ts';
+import { compareSeasonIds, normalizeSeasonId } from './season.ts';
+import { rollDice } from '../../scribe/lib/math.ts';
 
 const SESSION_LOGS_DIR = getRepoPath('data', 'session-logs');
 const SESSIONS_DIR = path.join(SESSION_LOGS_DIR, 'sessions');
 const ROLLOVERS_DIR = path.join(SESSION_LOGS_DIR, 'rollovers');
 
 export function appendToMetaAppliedSessions(meta: any, fileId: string) {
-  if (!meta.appliedSessions) meta.appliedSessions = [];
-  if (!meta.appliedSessions.includes(fileId)) meta.appliedSessions.push(fileId);
+  if (!meta.appliedSessions) {
+    meta.appliedSessions = [];
+  }
+  if (!meta.appliedSessions.includes(fileId)) {
+    meta.appliedSessions.push(fileId);
+  }
+}
+
+/**
+ * Applies the rollover logic to trails, mutating the trails object and returning the effects.
+ * If dryRun=true, no mutation or real dice rolls (simulate both outcomes for plan).
+ *
+ * @param trails The trails object (edgeKey -> data)
+ * @param havens Array of haven hexes
+ * @param dryRun If true, simulate both outcomes for unused far edges
+ * @returns Effects object for footprint
+ */
+export function applyRolloverToTrails(trails: Record<string, any>, havens: string[], dryRun = false) {
+  const maintained: string[] = [];
+  const persisted: string[] = [];
+  const deletedTrails: string[] = [];
+  const farChecks: Record<string, any> = {};
+  // Classify and process each non-permanent edge
+  for (const [edge, data] of Object.entries(trails)) {
+    if (data.permanent) continue;
+    const [a, b] = edge.split('-');
+    const isNear = isHexNearAnyHaven(a, havens) || isHexNearAnyHaven(b, havens);
+    if (isNear) {
+      // Near: increment streak, possibly set permanent
+      data.streak = Math.min(3, (data.streak || 0) + 1);
+      if (data.streak === 3) data.permanent = true;
+      maintained.push(edge);
+    } else {
+      // Far
+      if (data.usedThisSeason) {
+        // Persist, increment streak
+        data.streak = Math.min(3, (data.streak || 0) + 1);
+        persisted.push(edge);
+        farChecks[edge] = { outcome: `persist-streak=${data.streak}` };
+      } else {
+        if (dryRun) {
+          // For plan: show both possible outcomes
+          deletedTrails.push(`${edge} (if d6=1-3)`);
+          persisted.push(`${edge} (if d6=4-6)`);
+          farChecks[edge] = { d6: '1-3/4-6', outcome: 'deleted/persist-streak=0' };
+        } else {
+          // Real roll
+          const d6 = rollDice('1d6');
+          if (d6 <= 3) {
+            // Delete
+            deletedTrails.push(edge);
+            farChecks[edge] = { d6, outcome: 'deleted' };
+            delete trails[edge];
+            continue;
+          } else {
+            // Persist, reset streak
+            data.streak = 0;
+            persisted.push(edge);
+            farChecks[edge] = { d6, outcome: 'persist-streak=0' };
+          }
+        }
+      }
+    }
+  }
+  // Reset usedThisSeason on all remaining edges
+  for (const data of Object.values(trails)) {
+    if (data.usedThisSeason) data.usedThisSeason = false;
+  }
+  return { maintained, persisted, deletedTrails, farChecks };
 }
 
 export function canonicalEdgeKey(a: string, b: string): string {
   const [h1, h2] = [normalizeHexId(a), normalizeHexId(b)].sort(hexSort);
   return `${h1.toLowerCase()}-${h2.toLowerCase()}`;
+}
+
+/**
+ * Find the most recent rollover footprint for a given seasonId (<= that season).
+ * Returns the parsed YAML data or null if not found.
+ */
+export function getMostRecentRolloverFootprint(seasonId: string): any | null {
+  const footprintsDir = getRepoPath('data', 'session-logs', 'footprints');
+  let files: string[] = [];
+  try {
+    files = fs.readdirSync(footprintsDir)
+      .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'))
+      .map(f => path.join(footprintsDir, f));
+  } catch {
+    return null;
+  }
+  let best: { seasonId: string, file: string, data: any } | null = null;
+  for (const file of files) {
+    const data = yaml.parse(fs.readFileSync(file, 'utf8'));
+    if (data.kind === 'rollover' && data.seasonId) {
+      if (!best || compareSeasonIds(data.seasonId, best.seasonId) > 0 && compareSeasonIds(data.seasonId, seasonId) <= 0) {
+        best = { seasonId: data.seasonId, file, data };
+      }
+    }
+  }
+  return best ? best.data : null;
 }
 
 export function getNextUnrolledSeason(meta: any): string | null {
@@ -37,6 +131,23 @@ export function getNextUnrolledSeason(meta: any): string | null {
   return `${nextYear}-${order[idx]}`;
 }
 
+export function hexDistance(a: string, b: string): number {
+  const ac = hexToCube(a);
+  const bc = hexToCube(b);
+  return Math.max(Math.abs(ac.x - bc.x), Math.abs(ac.y - bc.y), Math.abs(ac.z - bc.z));
+}
+
+export function hexToCube(hex: string): { x: number, y: number, z: number } {
+  // Flat-top odd-q offset to cube
+  // Columns: letters A-Z, Rows: 1-27
+  const col = hex[0].toUpperCase().charCodeAt(0) - 'A'.charCodeAt(0);
+  const row = parseInt(hex.slice(1), 10) - 1;
+  const x = col;
+  const z = row - ((col - (col & 1)) >> 1);
+  const y = -x - z;
+  return { x, y, z };
+}
+
 export function isGitDirty(): boolean {
   try {
     const output = execSync('git status --porcelain', { encoding: 'utf8' });
@@ -45,6 +156,10 @@ export function isGitDirty(): boolean {
     // If git is not available, treat as dirty to be safe
     return true;
   }
+}
+
+export function isHexNearAnyHaven(hex: string, havens: string[], maxDist = 3): boolean {
+  return havens.some(haven => hexDistance(hex, haven) <= maxDist);
 }
 
 export function isRolloverAlreadyApplied(meta: any, fileId: string): boolean {
