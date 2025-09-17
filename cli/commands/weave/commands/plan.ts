@@ -49,6 +49,27 @@ function getSessionSeasonId(events: Event[]): string | null {
   return deriveSeasonId(date);
 }
 
+function hexDistance(a: string, b: string): number {
+  const ac = hexToCube(a);
+  const bc = hexToCube(b);
+  return Math.max(Math.abs(ac.x - bc.x), Math.abs(ac.y - bc.y), Math.abs(ac.z - bc.z));
+}
+
+function hexToCube(hex: string): { x: number, y: number, z: number } {
+  // Flat-top odd-q offset to cube
+  // Columns: letters A-Z, Rows: 1-27
+  const col = hex[0].toUpperCase().charCodeAt(0) - 'A'.charCodeAt(0);
+  const row = parseInt(hex.slice(1), 10) - 1;
+  const x = col;
+  const z = row - ((col - (col & 1)) >> 1);
+  const y = -x - z;
+  return { x, y, z };
+}
+
+function isHexNearAnyHaven(hex: string, havens: string[], maxDist = 3): boolean {
+  return havens.some(haven => hexDistance(hex, haven) <= maxDist);
+}
+
 function isRolloverFile(filePath: string): boolean {
   const dir = path.basename(path.dirname(filePath));
   const base = path.basename(filePath);
@@ -109,7 +130,74 @@ export async function plan(fileArg?: string) {
 
   // File type detection
   if (isRolloverFile(file)) {
-    console.log('Rollover planning not yet implemented.');
+    // --- Rollover planning: detect and parse ---
+    const events = readJsonl(file);
+    const rollover = events.find(e => e.kind === 'season_rollover') as Event & { payload: { seasonId: string } } | undefined;
+    if (!rollover || !rollover.payload.seasonId) {
+      console.error('Validation error: Rollover file missing season_rollover event or seasonId.');
+      process.exit(4);
+    }
+    const seasonId = normalizeSeasonId(rollover.payload.seasonId);
+    console.log(`Rollover plan for season: ${seasonId}`);
+
+    // Already applied check
+    const fileId = path.basename(file);
+    if (meta.appliedSessions?.includes(fileId)) {
+      console.log('Rollover already applied.');
+      process.exit(3);
+    }
+
+    // --- Load trails and havens ---
+    const trails = loadTrails();
+    const havensPath = getRepoPath('data', 'havens.yml');
+    let havens: string[] = [];
+    try {
+      havens = yaml.parse(fs.readFileSync(havensPath, 'utf8')) as string[];
+    } catch {
+      havens = [];
+    }
+    const nonPermanentEdges = Object.entries(trails).filter(([_, data]) => !data.permanent);
+    console.log(`Non-permanent edges: ${nonPermanentEdges.length}`);
+    console.log(`Haven hexes: ${havens.length}`);
+
+    // --- Classify edges as near or far ---
+    let nearCount = 0;
+    let farCount = 0;
+    const maintained: string[] = [];
+    const persisted: string[] = [];
+    const deleted: string[] = [];
+    for (const [edge, data] of nonPermanentEdges) {
+      const [a, b] = edge.split('-');
+      const isNear = isHexNearAnyHaven(a, havens) || isHexNearAnyHaven(b, havens);
+      if (isNear) {
+        nearCount++;
+        maintained.push(edge);
+      } else {
+        farCount++;
+        if (data.usedThisSeason) {
+          persisted.push(edge);
+        } else {
+          // For plan, show both possible d6 outcomes
+          deleted.push(`${edge} (if d6=1-3)`);
+          persisted.push(`${edge} (if d6=4-6)`);
+        }
+      }
+    }
+    // No-op check: if all lists are empty, exit 5
+    if (maintained.length === 0 && persisted.length === 0 && deleted.length === 0) {
+      console.log('No changes would be made.');
+      process.exit(5);
+    }
+    console.log(`Near-haven edges (≤3): ${nearCount}`);
+    console.log(`Far-haven edges (>3): ${farCount}`);
+    console.log(`Maintained (near): ${maintained.length}`);
+    console.log(`Persisted (far, used or lucky): ${persisted.length}`);
+    console.log(`Deleted (far, unused, unlucky): ${deleted.length}`);
+    // Always output sample lists for clarity
+    console.log('  Sample maintained:', maintained.slice(0, 5));
+    console.log('  Sample persisted:', persisted.slice(0, 5));
+    console.log('  Sample deleted:', deleted.slice(0, 5));
+
     process.exit(0);
   } else if (isSessionFile(file)) {
     // --- Session planning logic ---

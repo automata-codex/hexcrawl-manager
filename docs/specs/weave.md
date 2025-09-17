@@ -24,7 +24,7 @@ Apply finalized artifacts (session JSONL logs and standalone season rollovers) t
   - `trail { from, to, marked:boolean }`
 
 * **Rollover file** (`sessions/rollovers/rollover_<seasonId>_<DATE>.jsonl`)
-  Minimal: `{ "kind": "season_rollover", "seasonId": "<id>" }`
+  Minimal: `{ "kind": "season_rollover", "payload": { "seasonId": "<id>" } }`
   (No dice/results inside; `weave` computes outcomes and writes them in a footprint.)
 
 ## State & Files
