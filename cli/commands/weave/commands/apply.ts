@@ -9,6 +9,7 @@ import {
   loadHavens,
   loadMeta,
   loadTrails,
+  requireCleanGitOrAllowDirty,
   resolveInputFile,
 } from '../lib/input';
 import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
@@ -17,6 +18,8 @@ import { error, info } from '../../scribe/lib/report';
 import type { CanonicalDate } from '../../scribe/types.ts';
 
 export async function apply(fileArg?: string, opts?: any) {
+  requireCleanGitOrAllowDirty(opts);
+
   const trails = loadTrails();
   const meta = loadMeta();
   const havens = loadHavens();

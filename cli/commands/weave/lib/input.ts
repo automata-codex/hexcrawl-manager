@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import prompts from 'prompts';
@@ -23,6 +24,16 @@ export function getNextUnrolledSeason(meta: any): string | null {
   idx = (idx + 1) % 4;
   const nextYear = idx === 0 ? year + 1 : year;
   return `${nextYear}-${order[idx]}`;
+}
+
+export function isGitDirty(): boolean {
+  try {
+    const output = execSync('git status --porcelain', { encoding: 'utf8' });
+    return output.trim().length > 0;
+  } catch (e) {
+    // If git is not available, treat as dirty to be safe
+    return true;
+  }
 }
 
 export function isRolloverAlreadyApplied(meta: any, fileId: string): boolean {
@@ -122,6 +133,14 @@ export async function promptSelectFile(candidates: string[]): Promise<string> {
     choices
   });
   return response.file;
+}
+
+export function requireCleanGitOrAllowDirty(opts?: { allowDirty?: boolean }) {
+  const allowDirty = opts?.allowDirty || process.argv.includes('--allow-dirty');
+  if (!allowDirty && isGitDirty()) {
+    error('Refusing to proceed: working tree is dirty (commit or stash changes, or use --allow-dirty).');
+    process.exit(2);
+  }
 }
 
 export async function resolveInputFile(fileArg: string | undefined, meta: any, opts?: { noPrompt?: boolean }): Promise<string> {
