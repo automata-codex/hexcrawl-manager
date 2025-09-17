@@ -7,8 +7,7 @@ import { getRepoPath } from '../../../../lib/repo';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import type { CanonicalDate, Event } from '../../scribe/types';
 import { info, error } from '../../scribe/lib/report';
-
-// TODO: Use Enquirer for prompts when candidates exist
+import prompts from 'prompts';
 
 const META_PATH = getRepoPath('data', 'meta.yaml');
 const SESSION_LOGS_DIR = getRepoPath('data', 'session-logs');
@@ -112,6 +111,9 @@ export async function plan(fileArg?: string) {
   const meta = loadMeta();
   let file = fileArg;
 
+  // Detect --no-prompt flag
+  const noPrompt = process.argv.includes('--no-prompt');
+
   if (!file) {
     // List candidate session and rollover files
     const sessionFiles = listFilesIfDir(SESSIONS_DIR).filter(f => f.endsWith('.jsonl'));
@@ -124,9 +126,36 @@ export async function plan(fileArg?: string) {
       info('No unapplied session or rollover files found.');
       process.exit(5);
     }
-    // TODO: Prompt user to select a file (Enquirer)
-    file = allCandidates[0]; // For now, just pick the first
+
+    if (noPrompt) {
+      error('No file specified and --no-prompt is set.');
+      process.exit(4);
+    }
+
+    // Sort candidates by filename only (fast, assumes filenames are chronologically ordered)
+    allCandidates.sort((a, b) => a.localeCompare(b));
+
+    // Prompt user to select a file
+    const choices = allCandidates.map(f => ({
+      title: path.relative(process.cwd(), f),
+      value: f
+    }));
+    const response = await prompts({
+      type: 'select',
+      name: 'file',
+      message: 'Select a session or rollover file to plan:',
+      choices
+    });
+    if (!response.file) {
+      info('No file selected.');
+      process.exit(5);
+    }
+    file = response.file;
     info(`Planning for: ${file}`);
+  }
+
+  if (!file) {
+    throw new Error('No file specified despite everything you did.');
   }
 
   // File type detection
