@@ -3,13 +3,24 @@ import fs from 'fs';
 import path from 'path';
 import prompts from 'prompts';
 import yaml from 'yaml';
+import { hexSort, normalizeHexId } from '../../../../lib/hexes';
 import { getRepoPath } from '../../../../lib/repo';
 import { info, error } from '../../scribe/lib/report';
-import { compareSeasonIds, normalizeSeasonId } from './season.ts';
+import { normalizeSeasonId } from './season.ts';
 
 const SESSION_LOGS_DIR = getRepoPath('data', 'session-logs');
 const SESSIONS_DIR = path.join(SESSION_LOGS_DIR, 'sessions');
 const ROLLOVERS_DIR = path.join(SESSION_LOGS_DIR, 'rollovers');
+
+export function appendToMetaAppliedSessions(meta: any, fileId: string) {
+  if (!meta.appliedSessions) meta.appliedSessions = [];
+  if (!meta.appliedSessions.includes(fileId)) meta.appliedSessions.push(fileId);
+}
+
+export function canonicalEdgeKey(a: string, b: string): string {
+  const [h1, h2] = [normalizeHexId(a), normalizeHexId(b)].sort(hexSort);
+  return `${h1.toLowerCase()}-${h2.toLowerCase()}`;
+}
 
 export function getNextUnrolledSeason(meta: any): string | null {
   // meta.rolledSeasons is sorted chronologically; find the next season after the last rolled
@@ -162,4 +173,19 @@ export async function resolveInputFile(fileArg: string | undefined, meta: any, o
   }
   info(`Selected file: ${selected}`);
   return selected;
+}
+
+export function writeYamlAtomic(filePath: string, data: any) {
+  const yamlStr = yaml.stringify(data);
+  const tmpPath = filePath + '.' + Math.random().toString(36).slice(2) + '.tmp';
+  fs.writeFileSync(tmpPath, yamlStr, 'utf8');
+  fs.renameSync(tmpPath, filePath);
+}
+
+export function writeFootprint(footprint: any) {
+  const footprintsDir = getRepoPath('data', 'session-logs', 'footprints');
+  if (!fs.existsSync(footprintsDir)) fs.mkdirSync(footprintsDir, { recursive: true });
+  const id = footprint.id || (footprint.kind === 'session' ? `S-${Date.now().toString(36)}` : `ROLL-${Date.now().toString(36)}`);
+  const filePath = path.join(footprintsDir, `${id}.yaml`);
+  writeYamlAtomic(filePath, footprint);
 }

@@ -1,5 +1,9 @@
+import fs from 'fs';
+import yaml from 'yaml';
 import path from 'path';
 import {
+  appendToMetaAppliedSessions,
+  canonicalEdgeKey,
   isRolloverAlreadyApplied,
   isRolloverChronologyValid,
   isRolloverFile,
@@ -11,11 +15,40 @@ import {
   loadTrails,
   requireCleanGitOrAllowDirty,
   resolveInputFile,
+  writeFootprint,
+  writeYamlAtomic,
 } from '../lib/input';
-import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
+import {
+  compareSeasonIds,
+  deriveSeasonId,
+  normalizeSeasonId
+} from '../lib/season';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { error, info } from '../../scribe/lib/report';
 import type { CanonicalDate } from '../../scribe/types.ts';
+
+// Find most recent ROLL footprint for rediscovery
+function getMostRecentRolloverFootprint(seasonId: string): any {
+  const footprintsDir = require('../../../../lib/repo').getRepoPath('data', 'session-logs', 'footprints');
+  let files: string[] = [];
+  try {
+    files = fs.readdirSync(footprintsDir)
+      .filter((f: string) => f.endsWith('.yaml') || f.endsWith('.yml'))
+      .map((f: string) => path.join(footprintsDir, f));
+  } catch {
+    return null;
+  }
+  let best: { seasonId: string, file: string, data: any } | null = null;
+  for (const file of files) {
+    const data = yaml.parse(fs.readFileSync(file, 'utf8'));
+    if (data.kind === 'rollover' && data.seasonId) {
+      if (!best || compareSeasonIds(data.seasonId, best.seasonId) > 0 && compareSeasonIds(data.seasonId, seasonId) <= 0) {
+        best = { seasonId: data.seasonId, file, data };
+      }
+    }
+  }
+  return best ? best.data : null;
+};
 
 export async function apply(fileArg?: string, opts?: any) {
   requireCleanGitOrAllowDirty(opts);
@@ -79,9 +112,92 @@ export async function apply(fileArg?: string, opts?: any) {
       info('Session already applied.');
       process.exit(3);
     }
-    // TODO: implement session apply logic
-    // eslint-disable-next-line no-console
-    console.log('apply: detected session file', file);
+
+    // --- Session apply logic ---
+    let changed = false;
+    const created: string[] = [];
+    const usedFlags: Record<string, boolean> = {};
+    const rediscovered: string[] = [];
+    let currentHex: string | null = null;
+    let currentSeason = firstSeasonId;
+
+    // Find session_start
+    const sessionStart = events.find(e => e.kind === 'session_start');
+    if (sessionStart && sessionStart.payload.startHex) {
+      currentHex = sessionStart.payload.startHex as string;
+    }
+
+    const mostRecentRoll = getMostRecentRolloverFootprint(firstSeasonId);
+    const deletedTrails = mostRecentRoll?.effects?.rollover?.deletedTrails || [];
+    // Main event loop
+    for (const e of events) {
+      if (e.kind === 'day_start') {
+        const calDate = e.payload?.calendarDate as CanonicalDate;
+        currentSeason = deriveSeasonId(calDate);
+      }
+      if (e.kind === 'trail' && e.payload.marked) {
+        const edge = canonicalEdgeKey(e.payload.from as string, e.payload.to as string);
+        if (!trails[edge]) {
+          trails[edge] = { permanent: false, streak: 0 };
+          created.push(edge);
+          changed = true;
+        }
+        trails[edge].usedThisSeason = true;
+        trails[edge].lastSeasonTouched = currentSeason;
+        usedFlags[edge] = true;
+      }
+      if (e.kind === 'move') {
+        let from = e.payload.from as string | null;
+        let to = e.payload.to as string;
+        if (!from && currentHex) from = currentHex;
+        if (!from || !to) continue;
+        const edge = canonicalEdgeKey(from, to);
+        currentHex = to;
+        if (trails[edge]) {
+          trails[edge].usedThisSeason = true;
+          trails[edge].lastSeasonTouched = currentSeason;
+          usedFlags[edge] = true;
+        } else if (deletedTrails.includes(edge)) {
+          // Rediscovery/paradox
+          trails[edge] = { permanent: false, streak: 0, usedThisSeason: true, lastSeasonTouched: currentSeason };
+          rediscovered.push(edge);
+          usedFlags[edge] = true;
+          changed = true;
+        }
+      }
+    }
+    if (!changed && !created.length && !rediscovered.length && !Object.keys(usedFlags).length) {
+      info('No changes would be made.');
+      process.exit(5);
+    }
+    // Write trails.yaml
+    try {
+      writeYamlAtomic(require('../../../../lib/repo').getRepoPath('data', 'trails.yml'), trails);
+      // Update meta.yaml
+      appendToMetaAppliedSessions(meta, fileId);
+      writeYamlAtomic(require('../../../../lib/repo').getRepoPath('data', 'meta.yaml'), meta);
+      // Write footprint
+      const footprint = {
+        id: `S-${fileId.replace(/\..*$/, '')}`,
+        kind: 'session',
+        seasonId: firstSeasonId,
+        appliedAt: new Date().toISOString(),
+        inputs: { sourceFile: file },
+        effects: {
+          session: {
+            created,
+            usedFlags,
+            rediscovered
+          }
+        }
+      };
+      writeFootprint(footprint);
+      info('Session applied.');
+      process.exit(0);
+    } catch (e) {
+      error('I/O error during apply: ' + e);
+      process.exit(6);
+    }
   } else {
     // eslint-disable-next-line no-console
     console.error('Unrecognized file type for apply:', file);
