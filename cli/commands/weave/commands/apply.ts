@@ -10,14 +10,16 @@ import {
   isSessionAlreadyApplied,
   isSessionChronologyValid,
   isSessionFile,
+  requireCleanGitOrAllowDirty,
+  resolveInputFile
+} from '../lib/input';
+import {
   loadHavens,
   loadMeta,
   loadTrails,
-  requireCleanGitOrAllowDirty,
-  resolveInputFile,
-  writeFootprint,
   writeYamlAtomic,
-} from '../lib/input';
+  writeFootprint
+} from '../lib/state';
 import { getRepoPath } from '../../../../lib/repo';
 import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { readJsonl } from '../../scribe/lib/jsonl';

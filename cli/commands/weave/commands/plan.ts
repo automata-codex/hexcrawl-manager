@@ -7,11 +7,13 @@ import {
   isSessionAlreadyApplied,
   isSessionChronologyValid,
   isSessionFile,
+  resolveInputFile,
+} from '../lib/input';
+import {
   loadHavens,
   loadMeta,
   loadTrails,
-  resolveInputFile,
-} from '../lib/input';
+} from '../lib/state';
 import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { info, error } from '../../scribe/lib/report';
