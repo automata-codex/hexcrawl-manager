@@ -26,6 +26,18 @@ function loadMeta() {
   }
 }
 
+function isSessionFile(filePath: string): boolean {
+  const dir = path.basename(path.dirname(filePath));
+  const base = path.basename(filePath);
+  return dir === 'sessions' && /^session_\d+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
+}
+
+function isRolloverFile(filePath: string): boolean {
+  const dir = path.basename(path.dirname(filePath));
+  const base = path.basename(filePath);
+  return dir === 'rollovers' && /^rollover_[\w-]+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
+}
+
 export async function plan(fileArg?: string) {
   const meta = loadMeta();
   let file = fileArg;
@@ -47,13 +59,15 @@ export async function plan(fileArg?: string) {
     console.log(`Planning for: ${file}`);
   }
 
-  // TODO: Detect file type (session or rollover) and plan accordingly
-  // For now, just print a stub
-  if (file.includes('rollover_')) {
+  // File type detection
+  if (isRolloverFile(file)) {
     console.log('Rollover planning not yet implemented.');
     process.exit(0);
-  } else {
+  } else if (isSessionFile(file)) {
     console.log('Session planning not yet implemented.');
     process.exit(0);
+  } else {
+    console.error('Unrecognized file type for planning.');
+    process.exit(4);
   }
 }
