@@ -1,19 +1,59 @@
 import fs from 'fs';
 import path from 'path';
 import prompts from 'prompts';
+import yaml from 'yaml';
 import { getRepoPath } from '../../../../lib/repo';
 import { info, error } from '../../scribe/lib/report';
-import yaml from 'yaml';
+import { compareSeasonIds, normalizeSeasonId } from './season.ts';
 
 const SESSION_LOGS_DIR = getRepoPath('data', 'session-logs');
 const SESSIONS_DIR = path.join(SESSION_LOGS_DIR, 'sessions');
 const ROLLOVERS_DIR = path.join(SESSION_LOGS_DIR, 'rollovers');
+
+export function getNextUnrolledSeason(meta: any): string | null {
+  // meta.rolledSeasons is sorted chronologically; find the next season after the last rolled
+  if (!meta.rolledSeasons || meta.rolledSeasons.length === 0) return null;
+  const last = meta.rolledSeasons[meta.rolledSeasons.length - 1];
+  // Next season: increment season (wrap to next year if autumn)
+  const [yearStr, season] = normalizeSeasonId(last).split('-');
+  const year = parseInt(yearStr, 10);
+  const order = ['winter', 'spring', 'summer', 'autumn'];
+  let idx = order.indexOf(season);
+  if (idx === -1) return null;
+  idx = (idx + 1) % 4;
+  const nextYear = idx === 0 ? year + 1 : year;
+  return `${nextYear}-${order[idx]}`;
+}
+
+export function isRolloverAlreadyApplied(meta: any, fileId: string): boolean {
+  return meta.appliedSessions?.includes(fileId);
+}
+
+export function isRolloverChronologyValid(meta: any, seasonId: string): { valid: boolean, expected: string } {
+  // Only allow rollover for the next unapplied season
+  const expected = getNextUnrolledSeason(meta);
+  const valid = expected && normalizeSeasonId(seasonId) === normalizeSeasonId(expected);
+  return { valid: !!valid, expected: expected || '' };
+}
 
 export function isRolloverFile(filePath: string): boolean {
   const path = require('path');
   const dir = path.basename(path.dirname(filePath));
   const base = path.basename(filePath);
   return dir === 'rollovers' && /^rollover_[\w-]+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
+}
+
+export function isSessionAlreadyApplied(meta: any, fileId: string): boolean {
+  return meta.appliedSessions?.includes(fileId);
+}
+
+export function isSessionChronologyValid(meta: any, seasonId: string): { valid: boolean, missing: string[] } {
+  // All seasons up to and including this one must be in meta.rolledSeasons
+  // For now, just check that this seasonId is in meta.rolledSeasons
+  const normalized = normalizeSeasonId(seasonId);
+  const rolled = (meta.rolledSeasons || []).map(normalizeSeasonId);
+  const valid = rolled.includes(normalized);
+  return { valid, missing: valid ? [] : [seasonId] };
 }
 
 export function isSessionFile(filePath: string): boolean {

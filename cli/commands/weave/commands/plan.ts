@@ -4,6 +4,8 @@ import yaml from 'yaml';
 import { hexSort, normalizeHexId } from '../../../../lib/hexes';
 import {
   isRolloverFile,
+  isSessionAlreadyApplied,
+  isSessionChronologyValid,
   isSessionFile,
   loadHavens,
   loadMeta,
@@ -42,13 +44,6 @@ function getMostRecentRolloverFootprint(seasonId: string): any | null {
     }
   }
   return best ? best.data : null;
-}
-
-function getSessionSeasonId(events: Event[]): string | null {
-  const dayStart = events.find(e => e.kind === 'day_start');
-  if (!dayStart) return null;
-  const date = dayStart.payload.calendarDate as CanonicalDate;
-  return deriveSeasonId(date);
 }
 
 function hexDistance(a: string, b: string): number {
@@ -169,19 +164,18 @@ export async function plan(fileArg?: string) {
     }
 
     // Chronology check: all required rollovers must be present
-    const requiredRollovers = [];
-    // Find all seasons up to and including this one, and check meta.rolledSeasons
-    // (For now, just check that this seasonId is in meta.rolledSeasons)
-    if (!meta.rolledSeasons?.includes(firstSeasonId)) {
-      error(`Validation error: Missing required rollover for season ${firstSeasonId}.`);
+    const chrono = isSessionChronologyValid(meta, firstSeasonId);
+    if (!chrono.valid) {
+      error(`Validation error: Missing required rollover(s) for season ${firstSeasonId}: ${chrono.missing.join(', ')}`);
       process.exit(4);
     }
     // Already applied check
     const fileId = path.basename(file);
-    if (meta.appliedSessions?.includes(fileId)) {
+    if (isSessionAlreadyApplied(meta, fileId)) {
       info('Session already applied.');
       process.exit(3);
     }
+
     // Simulate plan
     const trails = loadTrails();
     const mostRecentRoll = getMostRecentRolloverFootprint(firstSeasonId);
