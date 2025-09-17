@@ -1,13 +1,14 @@
 import { Command } from 'commander';
+import { apply } from './commands/apply';
+import { plan } from './commands/plan';
 
 export const weaveCommand = new Command('weave')
   .description('Apply session and rollover artifacts to campaign state')
   .command('apply [file]')
   .description('Apply a session or rollover file to campaign state')
   .option('--allow-dirty', 'Allow applying with dirty git state')
-  .action((file, opts) => {
-    console.log('weave apply', file, opts);
-    // TODO: implement apply logic
+  .action(async (file, opts) => {
+    await apply(file, opts);
   })
   .parent!
   .command('doctor')
@@ -19,9 +20,8 @@ export const weaveCommand = new Command('weave')
   .parent!
   .command('plan [file]')
   .description('Plan application of a session or rollover file')
-  .action((file) => {
-    console.log('weave plan', file);
-    // TODO: implement plan logic
+  .action(async (file) => {
+    await plan(file);
   })
   .parent!
   .command('status')
@@ -30,4 +30,3 @@ export const weaveCommand = new Command('weave')
     console.log('weave status');
     // TODO: implement status logic
   });
-
