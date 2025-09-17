@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import { scribeCommand } from './commands/scribe';
+import { weaveCommand } from './commands/weave';
 import pkg from '../package.json' assert { type: 'json' };
 
 const program = new Command();
@@ -13,6 +14,7 @@ program
 
 // Register commands
 program.addCommand(scribeCommand);
+program.addCommand(weaveCommand);
 
 // Parse the CLI args
 program.parse();

@@ -1,18 +1,28 @@
-# `weave` — Spec (v1)
+# `weave` — Spec (v1.1)
 
 ## Purpose
 
 Apply finalized artifacts (session JSONL logs and standalone season rollovers) to the campaign state with strict chronology, idempotency, and auditable footprints.
 
+## CLI Model
+
+* `weave` is a **pure CLI command suite** (not a REPL like `scribe`).
+* Subcommands are called individually (`plan`, `apply`, `status`, `doctor`).
+* If `<file>` is omitted for `plan` or `apply`, `weave` will:
+  - Scan `sessions/` and `sessions/rollovers/` for unapplied files (not in `meta.appliedSessions`).
+  - Sort candidates chronologically by season and filename.
+  - Present a **selection prompt** (using Enquirer’s `select` or `autocomplete`) for the user to choose one.
+  - On CI/automation (`--no-prompt`), omission of `<file>` causes an error instead of prompting.
+
 ## Inputs
 
 * **Session file** (`sessions/session_<SEQ>_<DATE>.jsonl`, or dev variants)
   Records of:
+  - `session_start { id, startHex }`
+  - `day_start { calendarDate, season }`
+  - `move { from|null, to, pace }`
+  - `trail { from, to, marked:boolean }`
 
-  * `session_start { id, startHex }`
-  * `day_start { calendarDate, season }`
-  * `move { from|null, to, pace }`
-  * `trail { from, to, marked:boolean }`
 * **Rollover file** (`sessions/rollovers/rollover_<seasonId>_<DATE>.jsonl`)
   Minimal: `{ "kind": "season_rollover", "seasonId": "<id>" }`
   (No dice/results inside; `weave` computes outcomes and writes them in a footprint.)
@@ -20,26 +30,8 @@ Apply finalized artifacts (session JSONL logs and standalone season rollovers) t
 ## State & Files
 
 * `data/trails.yaml` — **central map**
-
-  ```yaml
-  trails:
-    q12-q13:
-      permanent: false
-      streak: 1          # 0..3
-      usedThisSeason: true
-      lastSeasonTouched: "1511-autumn"  # lower-case seasonId
-  ```
 * `data/meta.yaml` — **small index**
-
-  ```yaml
-  meta:
-    appliedSessions: []      # file ids applied in order
-    rolledSeasons: []        # ["1511-autumn", ...] lower-case
-    havens: [p13, n12, ...]  # hex ids (lower/upper allowed; compare case-insensitive)
-  ```
-* `data/footprints/` — **one YAML per apply**
-  Filename: `<UTC-ISO>__<ID>.yaml`
-  Schema:
+* `data/session-logs/footprints/` — **one YAML per apply**
 
   ```yaml
   id: ROLL-1511-autumn | S-2025-09-15-023a  # any stable id you derive
@@ -126,15 +118,19 @@ Apply finalized artifacts (session JSONL logs and standalone season rollovers) t
 ### `weave plan <file>`
 
 * Validates chronology & prerequisites (missing ROLL → fail).
-* **Session plan:** list edges to create, edges flipping `usedThisSeason`, and any **rediscovered** edges (based on last ROLL footprint’s `deletedTrails`).
-* **Rollover plan:** show how many would be maintained / persisted / deleted; note that **d6 rolls occur at apply** (no RNG during plan).
+* If `<file>` omitted:
+  - Prompts user with Enquirer to select a candidate.
+* **Session plan:** list edges to create, edges flipping `usedThisSeason`, and rediscovered edges.
+* **Rollover plan:** show counts of maintained / persisted / deleted edges.
 * **Exit codes:** `0` (would change state), `5` (no-op), `3` (already applied), `4` (validation error).
 
 ### `weave apply <file> [--allow-dirty]`
 
 * Refuses if Git working tree is dirty (unless `--allow-dirty`).
-* Enforces **strict chronology** and **already-applied** guard.
-* Runs the corresponding algorithm (session or rollover), writes state + footprint, updates `meta`.
+* If `<file>` omitted:
+  - Prompts user with Enquirer to select a candidate.
+* Enforces chronology and already-applied guard.
+* Runs algorithm, writes state + footprint, updates `meta`.
 * **Exit codes:** `0` (applied ≥1 change), `5` (no-op), `3` (already applied), `2` (repo dirty), `4` (validation error), `6` (I/O error).
 
 ### `weave status`
@@ -144,7 +140,6 @@ Apply finalized artifacts (session JSONL logs and standalone season rollovers) t
 ### `weave doctor`
 
 * Reports:
-
   * Pending **required rollovers** before the next session.
   * Out-of-order or multi-season files (should have been split by `scribe finalize`).
   * Trail counts: permanent / non-permanent / currently `usedThisSeason:true`.
@@ -159,11 +154,6 @@ Apply finalized artifacts (session JSONL logs and standalone season rollovers) t
 
 ## Implementation Hints
 
-* Read/Write YAML atomically (temp file + rename).
-* Keep helpers:
-  * `normalizeSeasonId(s: string) -> string` (lower-case)
-  * `parseHexId(s: string) -> { col: string, row: number }`
-  * `edgeKey(a: hex, b: hex) -> string` (canonical order)
-  * `oddqToCube(hex) -> {x,y,z}` and `cubeDistance(a,b) -> int`
-  * `listLastRolloverDeletedEdges() -> Set<string>` (from latest ROLL footprint)
-* Keep **plan** and **apply** logic in one core function with `dryRun` flag so they never diverge.
+* Add helper: `listCandidateFiles(type) -> string[]`, scanning directories for unapplied session/rollover files.
+* Add helper: `promptSelectFile(candidates) -> string`, wraps Enquirer for file selection.
+* Respect `--no-prompt` to make behavior CI-friendly.
