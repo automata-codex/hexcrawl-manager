@@ -14,34 +14,6 @@ const SESSION_LOGS_DIR = getRepoPath('data', 'session-logs');
 const SESSIONS_DIR = path.join(SESSION_LOGS_DIR, 'sessions');
 const ROLLOVERS_DIR = path.join(SESSION_LOGS_DIR, 'rollovers');
 
-function listFilesIfDir(dir: string): string[] {
-  try {
-    return fs.readdirSync(dir).map(f => path.join(dir, f));
-  } catch {
-    return [];
-  }
-}
-
-function loadMeta() {
-  try {
-    return yaml.parse(fs.readFileSync(META_PATH, 'utf8')) as any;
-  } catch {
-    return { appliedSessions: [], rolledSeasons: [] };
-  }
-}
-
-function isSessionFile(filePath: string): boolean {
-  const dir = path.basename(path.dirname(filePath));
-  const base = path.basename(filePath);
-  return dir === 'sessions' && /^session_\d+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
-}
-
-function isRolloverFile(filePath: string): boolean {
-  const dir = path.basename(path.dirname(filePath));
-  const base = path.basename(filePath);
-  return dir === 'rollovers' && /^rollover_[\w-]+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
-}
-
 function canonicalEdgeKey(a: string, b: string): string {
   const [h1, h2] = [normalizeHexId(a), normalizeHexId(b)].sort(hexSort);
   return `${h1.toLowerCase()}-${h2.toLowerCase()}`;
@@ -70,6 +42,41 @@ function getMostRecentRolloverFootprint(seasonId: string): any | null {
   return best ? best.data : null;
 }
 
+function getSessionSeasonId(events: Event[]): string | null {
+  const dayStart = events.find(e => e.kind === 'day_start');
+  if (!dayStart) return null;
+  const date = dayStart.payload.calendarDate as CanonicalDate;
+  return deriveSeasonId(date);
+}
+
+function isRolloverFile(filePath: string): boolean {
+  const dir = path.basename(path.dirname(filePath));
+  const base = path.basename(filePath);
+  return dir === 'rollovers' && /^rollover_[\w-]+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
+}
+
+function isSessionFile(filePath: string): boolean {
+  const dir = path.basename(path.dirname(filePath));
+  const base = path.basename(filePath);
+  return dir === 'sessions' && /^session_\d+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
+}
+
+function listFilesIfDir(dir: string): string[] {
+  try {
+    return fs.readdirSync(dir).map(f => path.join(dir, f));
+  } catch {
+    return [];
+  }
+}
+
+function loadMeta() {
+  try {
+    return yaml.parse(fs.readFileSync(META_PATH, 'utf8')) as any;
+  } catch {
+    return { appliedSessions: [], rolledSeasons: [] };
+  }
+}
+
 function loadTrails(): Record<string, any> {
   const trailsPath = getRepoPath('data', 'trails.yml');
   try {
@@ -77,13 +84,6 @@ function loadTrails(): Record<string, any> {
   } catch {
     return {};
   }
-}
-
-function getSessionSeasonId(events: Event[]): string | null {
-  const dayStart = events.find(e => e.kind === 'day_start');
-  if (!dayStart) return null;
-  const date = dayStart.payload.calendarDate as CanonicalDate;
-  return deriveSeasonId(date);
 }
 
 export async function plan(fileArg?: string) {
