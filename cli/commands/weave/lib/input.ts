@@ -9,6 +9,20 @@ const SESSION_LOGS_DIR = getRepoPath('data', 'session-logs');
 const SESSIONS_DIR = path.join(SESSION_LOGS_DIR, 'sessions');
 const ROLLOVERS_DIR = path.join(SESSION_LOGS_DIR, 'rollovers');
 
+export function isRolloverFile(filePath: string): boolean {
+  const path = require('path');
+  const dir = path.basename(path.dirname(filePath));
+  const base = path.basename(filePath);
+  return dir === 'rollovers' && /^rollover_[\w-]+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
+}
+
+export function isSessionFile(filePath: string): boolean {
+  const path = require('path');
+  const dir = path.basename(path.dirname(filePath));
+  const base = path.basename(filePath);
+  return dir === 'sessions' && /^session_\d+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
+}
+
 export function listCandidateFiles(meta: any): string[] {
   const sessionFiles = listFilesIfDir(SESSIONS_DIR).filter(f => f.endsWith('.jsonl'));
   const rolloverFiles = listFilesIfDir(ROLLOVERS_DIR).filter(f => f.endsWith('.jsonl'));
@@ -72,4 +86,3 @@ export async function resolveInputFile(fileArg: string | undefined, meta: any, o
   info(`Selected file: ${selected}`);
   return selected;
 }
-

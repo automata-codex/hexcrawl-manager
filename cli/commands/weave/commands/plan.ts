@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
-import { deriveSeasonId, normalizeSeasonId, compareSeasonIds } from '../lib/season';
+import { compareSeasonIds, deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { hexSort, normalizeHexId } from '../../../../lib/hexes';
-import { loadMeta, resolveInputFile } from '../lib/input';
+import { isRolloverFile, isSessionFile, loadMeta, resolveInputFile } from '../lib/input';
 import { getRepoPath } from '../../../../lib/repo';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import type { CanonicalDate, Event } from '../../scribe/types';
@@ -63,18 +63,6 @@ function hexToCube(hex: string): { x: number, y: number, z: number } {
 
 function isHexNearAnyHaven(hex: string, havens: string[], maxDist = 3): boolean {
   return havens.some(haven => hexDistance(hex, haven) <= maxDist);
-}
-
-function isRolloverFile(filePath: string): boolean {
-  const dir = path.basename(path.dirname(filePath));
-  const base = path.basename(filePath);
-  return dir === 'rollovers' && /^rollover_[\w-]+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
-}
-
-function isSessionFile(filePath: string): boolean {
-  const dir = path.basename(path.dirname(filePath));
-  const base = path.basename(filePath);
-  return dir === 'sessions' && /^session_\d+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base);
 }
 
 function loadTrails(): Record<string, any> {
