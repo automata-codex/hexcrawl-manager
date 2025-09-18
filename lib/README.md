@@ -41,6 +41,9 @@ Helpers for working with the repository root and configuration.
   - Joins the repository root (from config) with additional path segments, returning an absolute path.
   - Uses the `repoRoot` property from `skyreach.config.json`.
 
+- `getRepoRoot(): string`
+  - Returns the repository root directory, using the `REPO_ROOT` environment variable if set, otherwise falling back to the config file.
+
 - `loadConfig(): SkyreachConfig`
   - Loads and validates the repository configuration from `skyreach.config.json`.
   - Returns a `SkyreachConfig` object with at least a `repoRoot` property.
