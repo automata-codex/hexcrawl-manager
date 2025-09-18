@@ -1,30 +1,25 @@
-import { info, warn, error } from '../lib/report.ts';
-import { detectDevMode } from '../lib/env.ts';
-import { readJsonl } from '../lib/jsonl.ts';
-import { getRepoPath } from '../../../../lib/repo';
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
+import { detectDevMode } from '../lib/env.ts';
+import { readJsonl } from '../lib/jsonl.ts';
+import { info, warn, error } from '../lib/report.ts';
+import { REPO_PATHS } from '../../shared-lib/constants/repo-paths.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export default function doctor(ctx: any) {
   return (args: string[]) => {
     const devMode = detectDevMode(args);
-    const logsRoot = getRepoPath('data', 'session-logs');
-    const metaPath = getRepoPath('data', 'meta.yaml');
     const inProgressDir = devMode
-      ? path.join(logsRoot, '_dev')
-      : path.join(logsRoot, 'in-progress');
-    const locksDir = path.join(logsRoot, '.locks');
-    const sessionsDir = path.join(logsRoot, 'sessions');
-    const devDir = path.join(logsRoot, '_dev');
+      ? REPO_PATHS.DEV_IN_PROGRESS
+      : REPO_PATHS.IN_PROGRESS;
 
     // 1. Meta (prod only)
     if (!devMode) {
-      if (fs.existsSync(metaPath)) {
+      if (fs.existsSync(REPO_PATHS.META)) {
         try {
-          const metaRaw = fs.readFileSync(metaPath, 'utf8');
+          const metaRaw = fs.readFileSync(REPO_PATHS.META, 'utf8');
           const meta = yaml.parse(metaRaw) || {};
           info(`Next session sequence: ${meta.nextSessionSeq ?? '(missing)'}`);
         } catch (e) {
@@ -38,8 +33,8 @@ export default function doctor(ctx: any) {
     // 2. Locks (prod only)
     let lockFiles: string[] = [];
     if (!devMode) {
-      if (fs.existsSync(locksDir)) {
-        lockFiles = fs.readdirSync(locksDir).filter(f => f.endsWith('.lock'));
+      if (fs.existsSync(REPO_PATHS.LOCKS)) {
+        lockFiles = fs.readdirSync(REPO_PATHS.LOCKS).filter(f => f.endsWith('.lock'));
         info(`Found ${lockFiles.length} lock(s).`);
       } else {
         warn('No .locks/ directory found.');
@@ -57,8 +52,8 @@ export default function doctor(ctx: any) {
 
     // 4. Sessions
     let sessionFiles: string[] = [];
-    if (fs.existsSync(sessionsDir)) {
-      sessionFiles = fs.readdirSync(sessionsDir).filter(f => f.endsWith('.jsonl'));
+    if (fs.existsSync(REPO_PATHS.SESSIONS)) {
+      sessionFiles = fs.readdirSync(REPO_PATHS.SESSIONS).filter(f => f.endsWith('.jsonl'));
       info(`Found ${sessionFiles.length} finalized session file(s).`);
     } else {
       warn('sessions/ directory not found.');
@@ -66,8 +61,8 @@ export default function doctor(ctx: any) {
 
     // 5. Dev files (always list for visibility)
     let devFiles: string[] = [];
-    if (fs.existsSync(devDir)) {
-      devFiles = fs.readdirSync(devDir).filter(f => f.endsWith('.jsonl'));
+    if (fs.existsSync(REPO_PATHS.DEV_IN_PROGRESS)) {
+      devFiles = fs.readdirSync(REPO_PATHS.DEV_IN_PROGRESS).filter(f => f.endsWith('.jsonl'));
       info(`Found ${devFiles.length} dev file(s) in _dev/.`);
     } else {
       if (!devMode) warn('_dev/ directory not found.');
@@ -77,7 +72,7 @@ export default function doctor(ctx: any) {
     let staleLocks = 0, orphanLocks = 0;
     if (!devMode && lockFiles.length) {
       for (const lock of lockFiles) {
-        const lockPath = path.join(locksDir, lock);
+        const lockPath = path.join(REPO_PATHS.LOCKS, lock);
         let mtime = 0;
         try {
           mtime = fs.statSync(lockPath).mtimeMs;
@@ -129,7 +124,7 @@ export default function doctor(ctx: any) {
     // 8. Session log checks (cross-season)
     let crossSeason = 0;
     for (const file of sessionFiles) {
-      const filePath = path.join(sessionsDir, file);
+      const filePath = path.join(REPO_PATHS.SESSIONS, file);
       let events: any[] = [];
       try {
         events = readJsonl(filePath);

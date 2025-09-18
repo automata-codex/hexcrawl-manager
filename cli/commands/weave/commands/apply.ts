@@ -24,11 +24,11 @@ import {
   writeYamlAtomic,
   writeFootprint
 } from '../lib/state';
-import { getRepoPath } from '../../../../lib/repo';
 import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { error, info } from '../../scribe/lib/report';
 import type { CanonicalDate } from '../../scribe/types.ts';
+import { REPO_PATHS } from '../../shared-lib/constants/repo-paths.ts';
 
 export async function apply(fileArg?: string, opts?: any) {
   requireCleanGitOrAllowDirty(opts);
@@ -82,8 +82,8 @@ export async function apply(fileArg?: string, opts?: any) {
     appendToMetaAppliedSessions(meta, fileId);
     // Write trails.yaml and meta.yaml
     try {
-      writeYamlAtomic(getRepoPath('data', 'trails.yml'), trails);
-      writeYamlAtomic(getRepoPath('data', 'meta.yaml'), meta);
+      writeYamlAtomic(REPO_PATHS.TRAILS, trails);
+      writeYamlAtomic(REPO_PATHS.META, meta);
       // Write footprint
       const after: Record<string, string> = {};
       for (const [edge, data] of Object.entries(trails)) {
@@ -149,9 +149,9 @@ export async function apply(fileArg?: string, opts?: any) {
     }
     // Write trails.yaml
     try {
-      writeYamlAtomic(getRepoPath('data', 'trails.yml'), trails);
+      writeYamlAtomic(REPO_PATHS.TRAILS, trails);
       appendToMetaAppliedSessions(meta, fileId);
-      writeYamlAtomic(getRepoPath('data', 'meta.yaml'), meta);
+      writeYamlAtomic(REPO_PATHS.META, meta);
 
       // Write footprint
       const footprint = {

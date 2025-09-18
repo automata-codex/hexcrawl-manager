@@ -160,16 +160,6 @@ This directory contains utility and helper modules used throughout the Scribe CL
   - `usage(message: string)` — Prints a usage/help message to stdout.
   - `warn(message: string)` — Prints a warning message to stdout.
 
-## session-files.ts
-- **Path:** `cli/commands/scribe/lib/session-files.ts`
-- **Exports:**
-  - `ensureLogs()` — Ensures the log directories exist.
-  - `inProgressDir()` — Returns the path to the in-progress session logs directory.
-  - `inProgressPath(sessionId: string)` — Returns the path to the in-progress file for a session.
-  - `logsRoot()` — Returns the root path for session logs.
-  - `sessionPath(sessionId: string)` — Returns the path to the finalized session file.
-  - `sessionsDir()` — Returns the path to the finalized sessions directory.
-
 Each file in this directory provides reusable logic for the Scribe CLI. See the source code for further details and type definitions.
 
 ---

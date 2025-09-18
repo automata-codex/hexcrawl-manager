@@ -1,6 +1,6 @@
 import path from 'path';
-import { loadConfig } from './load-config.ts';
+import { getRepoRoot } from './get-repo-root.ts';
 
 export function getRepoPath(...segments: string[]): string {
-  return path.join(loadConfig().repoRoot, ...segments);
+  return path.join(getRepoRoot(), ...segments);
 }

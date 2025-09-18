@@ -1,10 +1,9 @@
 import path from 'node:path';
-import { existsSync, readdirSync, statSync } from 'node:fs';
-import fs from 'node:fs';
+import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import yaml from 'yaml';
-import { readEvents, writeEventsWithHeader, timeNowISO } from './event-log';
+import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
 import { requireFile, requireSession } from '../lib/guards.ts';
-import { getRepoPath } from '../../../../lib/repo';
+import { REPO_PATHS } from '../../shared-lib/constants/repo-paths.ts';
 import { type CanonicalDate, type Context, type Event } from '../types';
 
 // Discriminated union for prepareSessionStart return value
@@ -32,8 +31,8 @@ function getFinalSessionId(basename: string, devMode: boolean, suffix: string) {
 
 /** Latest in-progress file by mtime, or null if none. */
 export function findLatestInProgress(): { id: string; path: string } | null {
-  const prodDir = getRepoPath('data', 'session-logs', 'in-progress');
-  const devDir = getRepoPath('data', 'session-logs', '_dev');
+  const prodDir = REPO_PATHS.IN_PROGRESS;
+  const devDir = REPO_PATHS.DEV_IN_PROGRESS;
   const candidates: { id: string; path: string; mtime: number }[] = [];
 
   for (const dir of [prodDir, devDir]) {
@@ -56,12 +55,10 @@ export function findLatestInProgress(): { id: string; path: string } | null {
 }
 
 export const inProgressPathFor = (id: string, devMode?: boolean) => {
-  const prodDir = getRepoPath('data', 'session-logs', 'in-progress');
-  const devDir = getRepoPath('data', 'session-logs', '_dev');
-  const prodPath = path.join(prodDir, `${id}.jsonl`);
-  const devPath = path.join(devDir, `${id}.jsonl`);
-  if (devMode) return devPath;
-  return prodPath;
+  if (devMode) {
+    return path.join(REPO_PATHS.DEV_IN_PROGRESS, `${id}.jsonl`);
+  }
+  return path.join(REPO_PATHS.IN_PROGRESS, `${id}.jsonl`);
 };
 
 /**
@@ -76,24 +73,20 @@ export function prepareSessionStart({
   devMode: boolean;
   date: Date;
 }): SessionStartPrep {
-  const metaPath = getRepoPath('data', 'meta.yaml');
-  const locksDir = getRepoPath('data', 'session-logs', '.locks');
-  const inProgressDirProd = getRepoPath('data', 'session-logs', 'in-progress');
-  const inProgressDirDev = getRepoPath('data', 'session-logs', '_dev');
   const pad = (n: number, len = 4) => n.toString().padStart(len, '0');
 
   if (devMode) {
     const iso = date.toISOString().replace(/[:.]/g, '-');
     const sessionId = `dev_${iso}`;
-    const inProgressFile = path.join(inProgressDirDev, `${sessionId}.jsonl`);
+    const inProgressFile = path.join(REPO_PATHS.DEV_IN_PROGRESS, `${sessionId}.jsonl`);
     return { ok: true, sessionId, inProgressFile, dev: true };
   }
 
   // Production mode
-  if (!fs.existsSync(metaPath)) {
-    return { ok: false, error: `❌ Missing meta file at ${metaPath}` };
+  if (!fs.existsSync(REPO_PATHS.META)) {
+    return { ok: false, error: `❌ Missing meta file at ${REPO_PATHS.META}` };
   }
-  const metaRaw = fs.readFileSync(metaPath, 'utf8');
+  const metaRaw = fs.readFileSync(REPO_PATHS.META, 'utf8');
   const meta = yaml.parse(metaRaw) || {};
   const seq = meta.nextSessionSeq;
   if (!seq || typeof seq !== 'number') {
@@ -101,10 +94,10 @@ export function prepareSessionStart({
   }
   const ymd = date.toISOString().slice(0, 10);
   const sessionId = `session_${pad(seq)}_${ymd}`;
-  const inProgressFile = path.join(inProgressDirProd, `${sessionId}.jsonl`);
-  const lockFile = path.join(locksDir, `session_${pad(seq)}.lock`);
+  const inProgressFile = path.join(REPO_PATHS.IN_PROGRESS, `${sessionId}.jsonl`);
 
   // Check for lock conflict
+  const lockFile = path.join(REPO_PATHS.LOCKS, `session_${pad(seq)}.lock`);
   if (fs.existsSync(lockFile)) {
     return { ok: false, error: `❌ Lock file exists for session sequence ${seq} (${lockFile}). Another session may be active.` };
   }
@@ -116,7 +109,6 @@ export function prepareSessionStart({
     createdAt: date.toISOString(),
     pid: process.pid,
   };
-  fs.mkdirSync(locksDir, { recursive: true });
   fs.writeFileSync(lockFile, yaml.stringify(lockData), { flag: 'wx' });
 
   return { ok: true, sessionId, inProgressFile, lockFile, seq };
@@ -136,8 +128,7 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   const inProgressFile = ctx.file!; // Checked by `requireFile`
 
   // Lock file check (prod only)
-  const locksDir = getRepoPath('data', 'session-logs', '.locks');
-  const lockFile = path.join(locksDir, `${sessionId.replace(/^(session_\d+)_.*$/, '$1')}.lock`);
+  const lockFile = path.join(REPO_PATHS.LOCKS, `${sessionId.replace(/^(session_\d+)_.*$/, '$1')}.lock`);
   if (!devMode && !existsSync(lockFile)) {
     return { outputs: [], rollovers: [], error: `❌ No lock file for session: ${lockFile}` };
   }
@@ -220,13 +211,11 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   const outputs: string[] = [];
   const rollovers: string[] = [];
   const sessionDir = devMode
-    ? getRepoPath('data', 'session-logs', '_dev')
-    : getRepoPath('data', 'session-logs');
+    ? REPO_PATHS.DEV_SESSIONS
+    : REPO_PATHS.SESSIONS;
   const rolloverDir = devMode
-    ? getRepoPath('data', 'session-logs', '_dev', 'rollovers')
-    : getRepoPath('data', 'session-logs', 'rollovers');
-  fs.mkdirSync(sessionDir, { recursive: true });
-  fs.mkdirSync(rolloverDir, { recursive: true });
+    ? REPO_PATHS.DEV_ROLLOVERS
+    : REPO_PATHS.ROLLOVERS;
   let suffixChar = 'a'.charCodeAt(0);
   let baseName = devMode ? `dev_${events[0].ts?.replace(/[:.]/g, '-')}` : sessionId;
 
@@ -284,13 +273,12 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
 
     // Update meta.yaml if outputs written
     if (outputs.length) {
-      const metaPath = getRepoPath('data', 'meta.yaml');
-      const metaRaw = fs.readFileSync(metaPath, 'utf8');
+      const metaRaw = fs.readFileSync(REPO_PATHS.META, 'utf8');
       const meta = yaml.parse(metaRaw) || {};
       const lockSeq = Number(sessionId.match(/session_(\d+)/)?.[1] || 0);
       if (meta.nextSessionSeq !== lockSeq + 1) {
         meta.nextSessionSeq = lockSeq + 1;
-        fs.writeFileSync(metaPath, yaml.stringify(meta));
+        fs.writeFileSync(REPO_PATHS.META, yaml.stringify(meta));
       }
     }
   } else {

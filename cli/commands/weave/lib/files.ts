@@ -1,26 +1,21 @@
 import fs from 'fs';
 import path from 'path';
 import prompts from 'prompts';
-import { getRepoPath } from '../../../../lib/repo';
-import { info, error } from '../../scribe/lib/report';
-import { compareSeasonIds, normalizeSeasonId } from './season.ts';
 import yaml from 'yaml';
-
-const SESSION_LOGS_DIR = getRepoPath('data', 'session-logs');
-const SESSIONS_DIR = path.join(SESSION_LOGS_DIR, 'sessions');
-const ROLLOVERS_DIR = path.join(SESSION_LOGS_DIR, 'rollovers');
+import { info, error } from '../../scribe/lib/report';
+import { REPO_PATHS } from '../../shared-lib/constants/repo-paths.ts';
+import { compareSeasonIds, normalizeSeasonId } from './season.ts';
 
 /**
  * Find the most recent rollover footprint for a given seasonId (<= that season).
  * Returns the parsed YAML data or null if not found.
  */
 export function getMostRecentRolloverFootprint(seasonId: string): any | null {
-  const footprintsDir = getRepoPath('data', 'session-logs', 'footprints');
   let files: string[] = [];
   try {
-    files = fs.readdirSync(footprintsDir)
+    files = fs.readdirSync(REPO_PATHS.FOOTPRINTS)
       .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'))
-      .map(f => path.join(footprintsDir, f));
+      .map(f => path.join(REPO_PATHS.FOOTPRINTS, f));
   } catch {
     return null;
   }
@@ -61,8 +56,8 @@ export function isGitDirty(): boolean {
 }
 
 export function listCandidateFiles(meta: any): string[] {
-  const sessionFiles = listFilesIfDir(SESSIONS_DIR).filter(f => f.endsWith('.jsonl'));
-  const rolloverFiles = listFilesIfDir(ROLLOVERS_DIR).filter(f => f.endsWith('.jsonl'));
+  const sessionFiles = listFilesIfDir(REPO_PATHS.SESSIONS).filter(f => f.endsWith('.jsonl'));
+  const rolloverFiles = listFilesIfDir(REPO_PATHS.ROLLOVERS).filter(f => f.endsWith('.jsonl'));
   const allCandidates = [...sessionFiles, ...rolloverFiles].filter(f => {
     const id = path.basename(f);
     return !meta.appliedSessions?.includes(id);
