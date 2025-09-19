@@ -141,6 +141,15 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   if (!events.some(e => e.kind === 'day_start')) {
     return { outputs: [], rollovers: [], error: '❌ No day_start event found in session.' };
   }
+  // Ensure the first event is session_start or session_continue
+  if (!(events[0].kind === 'session_start' || events[0].kind === 'session_continue')) {
+    return { outputs: [], rollovers: [], error: '❌ First event must be session_start or session_continue.' };
+  }
+  // Ensure session_pause only appears at the end (if at all)
+  const pauseIdx = events.findIndex(e => e.kind === 'session_pause');
+  if (pauseIdx !== -1 && pauseIdx !== events.length - 1) {
+    return { outputs: [], rollovers: [], error: '❌ session_pause may only appear at the end of the file.' };
+  }
 
   // Sort and check for impossible ordering
   const expandedEvents: (Event & { _origIdx: number })[] = events.map((e, i) => ({ ...e, _origIdx: i }));
@@ -172,10 +181,12 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
     }
   }
 
-  // Append session_end if missing
-  if (!events.find(e => e.kind === 'session_end')) {
+  // 3. Event Finalization: Ensure session_end or session_pause at end
+  const lastEvent = events[events.length - 1];
+  if (lastEvent.kind !== 'session_end' && lastEvent.kind !== 'session_pause') {
+    // Append session_end with { status: "final" } and incremented sequence
     events.push({
-      seq: (events.at(-1)?.seq ?? 0) + 1,
+      seq: (lastEvent.seq ?? 0) + 1,
       ts: timeNowISO(),
       kind: 'session_end',
       payload: { status: 'final' }
