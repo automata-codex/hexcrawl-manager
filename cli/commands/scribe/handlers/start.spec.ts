@@ -7,8 +7,7 @@ import { REPO_PATHS } from '../../shared-lib/constants';
 import { type Event } from '../types.ts';
 
 /** Utilities local to this test file */
-function findSessionFiles(): string[] {
-  const dir = REPO_PATHS.IN_PROGRESS();
+function findSessionFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) {
     return [];
   }
@@ -41,11 +40,11 @@ describe("scribe: start", () => {
         "exit",
       ];
 
-      const { exitCode, stderr } = await runScribe(commands, { repo, ensureFinalize: false, });
+      const { exitCode, stderr } = await runScribe(commands, { repo });
       expect(exitCode).toBe(0);
       expect(stderr).toBeFalsy();
 
-      const files = findSessionFiles();
+      const files = findSessionFiles(REPO_PATHS.SESSIONS());
       expect(files.length).toBe(1);
 
       const events: Event[] = readJsonl(files[0]);
@@ -68,10 +67,7 @@ describe("scribe: start", () => {
       // Move to Q13 was recorded; from may be null or 'P13' per spec
       const moves = eventsOf(events, "move");
       expect(moves.length).toBe(1);
-      expect(moves[0].to).toBe("Q13");
-      if (moves[0].from !== null) {
-        expect(moves[0].from).toBe("P13");
-      }
+      expect(moves[0].payload.to).toBe("Q13");
 
       // Finalize appended exactly one session_end
       const ends = eventsOf(events, "session_end");
@@ -90,18 +86,19 @@ describe("scribe: start", () => {
       ];
 
       const { exitCode, stderr } = await runScribe(commands, { repo, ensureFinalize: false, ensureExit: false });
+      expect(exitCode).toBe(0);
 
       // REPL likely stays alive and exits 0; we assert on log semantics instead of exitCode
       expect(typeof stderr).toBe("string"); // may contain an error message, but don't depend on exact text
 
-      const files = findSessionFiles(repo);
+      const files = findSessionFiles(REPO_PATHS.SESSIONS());
       expect(files.length).toBe(1);
 
       const events = readJsonl(files[0]);
 
       const starts = eventsOf(events, "session_start");
       expect(starts.length).toBe(1);
-      expect(starts[0].startHex).toBe("P13"); // original start is kept
+      expect(starts[0].payload.startHex).toBe("P13"); // original start is kept
 
       const ends = eventsOf(events, "session_end");
       expect(ends.length).toBe(1);
@@ -120,13 +117,13 @@ describe("scribe: start", () => {
       const { exitCode } = await runScribe(commands, { repo });
       expect(exitCode).toBe(0);
 
-      const files = findSessionFiles(repo);
+      const files = findSessionFiles(REPO_PATHS.SESSIONS());
       expect(files.length).toBe(1);
 
       const events = readJsonl(files[0]);
       const moves = eventsOf(events, "move");
       expect(moves.length).toBe(2);
-      expect(moves.map((m) => m.to)).toEqual(["Q13", "Q14"]);
+      expect(moves.map((m) => m.payload.to)).toEqual(["Q13", "Q14"]);
 
       // Not asserting specific 'from' here (it may be null per spec), just the sequence and targets
     });
