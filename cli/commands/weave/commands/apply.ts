@@ -82,8 +82,8 @@ export async function apply(fileArg?: string, opts?: any) {
     appendToMetaAppliedSessions(meta, fileId);
     // Write trails.yml and meta.yaml
     try {
-      writeYamlAtomic(REPO_PATHS.TRAILS, trails);
-      writeYamlAtomic(REPO_PATHS.META, meta);
+      writeYamlAtomic(REPO_PATHS.TRAILS(), trails);
+      writeYamlAtomic(REPO_PATHS.META(), meta);
       // Write footprint
       const after: Record<string, string> = {};
       for (const [edge, data] of Object.entries(trails)) {
@@ -149,9 +149,9 @@ export async function apply(fileArg?: string, opts?: any) {
     }
     // Write trails.yml
     try {
-      writeYamlAtomic(REPO_PATHS.TRAILS, trails);
+      writeYamlAtomic(REPO_PATHS.TRAILS(), trails);
       appendToMetaAppliedSessions(meta, fileId);
-      writeYamlAtomic(REPO_PATHS.META, meta);
+      writeYamlAtomic(REPO_PATHS.META(), meta);
 
       // Write footprint
       const footprint = {

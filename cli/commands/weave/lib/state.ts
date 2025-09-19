@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
-import { REPO_PATHS } from '../../shared-lib/constants/repo-paths.ts';
+import { REPO_PATHS } from '../../shared-lib/constants';
 
 export function appendToMetaAppliedSessions(meta: any, fileId: string) {
   if (!meta.appliedSessions) {
@@ -14,7 +14,7 @@ export function appendToMetaAppliedSessions(meta: any, fileId: string) {
 
 export function loadHavens(): string[] {
   try {
-    return yaml.parse(fs.readFileSync(REPO_PATHS.HAVENS, 'utf8')) as string[];
+    return yaml.parse(fs.readFileSync(REPO_PATHS.HAVENS(), 'utf8')) as string[];
   } catch {
     return [];
   }
@@ -22,7 +22,7 @@ export function loadHavens(): string[] {
 
 export function loadMeta() {
   try {
-    return yaml.parse(fs.readFileSync(REPO_PATHS.META, 'utf8')) as any;
+    return yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8')) as any;
   } catch {
     return { appliedSessions: [], rolledSeasons: [] };
   }
@@ -30,7 +30,7 @@ export function loadMeta() {
 
 export function loadTrails(): Record<string, any> {
   try {
-    return yaml.parse(fs.readFileSync(REPO_PATHS.TRAILS, 'utf8')) as Record<string, any>;
+    return yaml.parse(fs.readFileSync(REPO_PATHS.TRAILS(), 'utf8')) as Record<string, any>;
   } catch {
     return {};
   }
@@ -65,7 +65,7 @@ export function writeFootprint(footprint: any) {
     fileName = `footprint-${Date.now().toString(36)}.yaml`;
   }
 
-  const filePath = path.join(REPO_PATHS.FOOTPRINTS, fileName);
+  const filePath = path.join(REPO_PATHS.FOOTPRINTS(), fileName);
   writeYamlAtomic(filePath, footprint);
 }
 

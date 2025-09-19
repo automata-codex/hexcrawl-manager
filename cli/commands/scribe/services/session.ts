@@ -147,7 +147,9 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   expandedEvents.sort((a, b) => {
     if (a.ts && b.ts) {
       const tsCmp = a.ts.localeCompare(b.ts);
-      if (tsCmp !== 0) return tsCmp;
+      if (tsCmp !== 0) {
+        return tsCmp;
+      }
     } else if (a.ts && !b.ts) {
       return -1;
     } else if (!a.ts && b.ts) {
@@ -183,6 +185,7 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   // 3. Split by season (contiguous blocks of same seasonId)
   const blocks: { seasonId: string; events: Event[] }[] = [];
   let currentBlock: { seasonId: string; events: Event[] } | null = null;
+  let preSeasonEvents: Event[] = [];
   for (const ev of events) {
     if (ev.kind === 'day_start' && ev.payload && ev.payload.calendarDate && ev.payload.season) {
       const calDate: CanonicalDate = ev.payload.calendarDate as CanonicalDate;
@@ -192,10 +195,16 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
           blocks.push(currentBlock);
         }
         currentBlock = { seasonId, events: [] };
+        // If this is the first block and we have pre-season events, prepend them
+        if (blocks.length === 0 && preSeasonEvents.length > 0) {
+          currentBlock.events.push(...preSeasonEvents);
+          preSeasonEvents = [];
+        }
       }
     }
     if (!currentBlock) {
-      // If no day_start yet, skip until first block
+      // If no day_start yet, collect as pre-season events
+      preSeasonEvents.push(ev);
       continue;
     }
     currentBlock.events.push(ev);
