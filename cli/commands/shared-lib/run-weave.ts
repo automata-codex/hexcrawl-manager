@@ -30,7 +30,7 @@ export async function runWeave(
 
   try {
     const { stdout, stderr, exitCode } = await execa(entry.cmd, [...entry.args, ...args], {
-      cwd: opts.repo,
+      cwd: process.cwd(),
       env,
       reject: false,
       all: false,
