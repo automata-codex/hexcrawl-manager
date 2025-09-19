@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
-import { REPO_PATHS } from '../../shared-lib/constants/repo-paths.ts';
+import { REPO_PATHS } from '../../shared-lib/constants';
 
 export function loadCharacterIds(): string[] {
-  const files = fs.readdirSync(REPO_PATHS.CHARACTERS).filter(f => /\.ya?ml$/i.test(f));
+  const files = fs.readdirSync(REPO_PATHS.CHARACTERS()).filter(f => /\.ya?ml$/i.test(f));
   const ids: string[] = [];
   for (const f of files) {
-    const p = path.join(REPO_PATHS.CHARACTERS, f);
+    const p = path.join(REPO_PATHS.CHARACTERS(), f);
     try {
       const doc = yaml.parse(fs.readFileSync(p, 'utf8'));
       const id = doc?.id;

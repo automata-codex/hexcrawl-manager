@@ -80,7 +80,7 @@ export async function apply(fileArg?: string, opts?: any) {
     if (!meta.rolledSeasons) meta.rolledSeasons = [];
     meta.rolledSeasons.push(seasonId);
     appendToMetaAppliedSessions(meta, fileId);
-    // Write trails.yaml and meta.yaml
+    // Write trails.yml and meta.yaml
     try {
       writeYamlAtomic(REPO_PATHS.TRAILS, trails);
       writeYamlAtomic(REPO_PATHS.META, meta);
@@ -147,7 +147,7 @@ export async function apply(fileArg?: string, opts?: any) {
       info('No changes would be made.');
       process.exit(5);
     }
-    // Write trails.yaml
+    // Write trails.yml
     try {
       writeYamlAtomic(REPO_PATHS.TRAILS, trails);
       appendToMetaAppliedSessions(meta, fileId);
