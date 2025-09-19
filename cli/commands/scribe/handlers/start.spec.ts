@@ -3,10 +3,12 @@ import { describe, it, expect } from "vitest";
 import path from "node:path";
 import fs from "node:fs";
 import { runScribe, withTempRepo } from "../../shared-lib";
+import { REPO_PATHS } from '../../shared-lib/constants';
+import { type Event } from '../types.ts';
 
 /** Utilities local to this test file */
-function findSessionFiles(repo: string): string[] {
-  const dir = path.join(repo, "sessions");
+function findSessionFiles(): string[] {
+  const dir = REPO_PATHS.IN_PROGRESS();
   if (!fs.existsSync(dir)) {
     return [];
   }
@@ -25,7 +27,7 @@ function readJsonl(file: string): any[] {
     .map((l) => JSON.parse(l));
 }
 
-function eventsOf<T = any>(events: any[], kind: string): T[] {
+function eventsOf(events: Event[], kind: string): Event[] {
   return events.filter((e) => e.kind === kind);
 }
 
@@ -34,29 +36,34 @@ describe("scribe: start", () => {
     await withTempRepo("scribe-start-happy", { initGit: false }, async (repo) => {
       const commands = [
         "start p13",
-        "day 8 umb 1511",
+        "day start 8 umb 1511",
         "move q13 normal",
+        "exit",
       ];
 
-      const { exitCode, stderr } = await runScribe(commands, { repo });
+      const { exitCode, stderr } = await runScribe(commands, { repo, ensureFinalize: false, });
       expect(exitCode).toBe(0);
       expect(stderr).toBeFalsy();
 
-      const files = findSessionFiles(repo);
+      const files = findSessionFiles();
       expect(files.length).toBe(1);
 
-      const events = readJsonl(files[0]);
+      const events: Event[] = readJsonl(files[0]);
 
       // Exactly one session_start, with correct startHex
       const starts = eventsOf(events, "session_start");
       expect(starts.length).toBe(1);
-      expect(starts[0].startHex).toBe("P13");
+      expect(starts[0].payload.startHex).toBe("P13");
 
       // At least one day_start, normalized season
       const days = eventsOf(events, "day_start");
       expect(days.length).toBeGreaterThanOrEqual(1);
-      expect(days[0].calendarDate).toBe("1511-12-01");
-      expect(String(days[0].season).toLowerCase()).toBe("winter");
+      expect(days[0].payload.calendarDate).toEqual({
+        year: 1511,
+        month: 'Umbraeus',
+        day: 8,
+      });
+      expect(String(days[0].payload.season).toLowerCase()).toBe("autumn");
 
       // Move to Q13 was recorded; from may be null or 'P13' per spec
       const moves = eventsOf(events, "move");
