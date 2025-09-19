@@ -1,4 +1,4 @@
-# `weave` — Spec (v1.1)
+# `weave` — Spec (v1.2)
 
 ## Purpose
 
@@ -18,10 +18,16 @@ Apply finalized artifacts (session JSONL logs and standalone season rollovers) t
 
 * **Session file** (`sessions/session_<SEQ>_<DATE>.jsonl`, or dev variants)
   Records of:
-  - `session_start { id, startHex }`
-  - `day_start { calendarDate, season }`
-  - `move { from|null, to, pace }`
-  - `trail { from, to, marked:boolean }`
+
+  * `session_start { id, startHex }`
+  * `session_pause { id, status:"paused" }`
+  * `session_continue { id, status:"in-progress", currentHex, currentParty, currentDate }`
+  * `session_end { id, status:"final" }`
+  * `day_start { calendarDate, season }`
+  * `day_end`
+  * `move { from|null, to, pace }`
+  * `trail { from, to, marked:boolean }`
+  * party/admin events (optional)
 
 * **Rollover file** (`sessions/rollovers/rollover_<seasonId>_<DATE>.jsonl`)
   Minimal: `{ "kind": "season_rollover", "payload": { "seasonId": "<id>" } }`
@@ -77,23 +83,41 @@ Apply finalized artifacts (session JSONL logs and standalone season rollovers) t
 
 ## Session Apply — Algorithm
 
-1. **Parse** events; require at least one `day_start`. Maintain cursors:
+1. **Parse** events; require:
 
-  * `currentSeason` (updated on each `day_start`)
-  * `currentHex` (seeded by `session_start.startHex`; updated on each `move`)
-2. **Chronology check:** all events must share the same `seasonId`. If not, **fail** (sessions should be season-homogeneous; splitting happens in `scribe finalize`).
-3. **For each `trail {from,to,marked:true}`:**
+  * File begins with `session_start` or `session_continue`.
+  * File ends with `session_end` or `session_pause`.
+  * At least one `day_start` present (time-costing actions only valid inside days).
 
+2. **Maintain cursors:**
+
+  * `currentSeason`: updated on each `day_start`.
+  * `currentHex`:
+
+    * Seeded from `session_start.startHex`, **or** from `session_continue.currentHex`.
+    * Updated on each `move`.
+  * `currentParty` and `currentDate`: updated from `session_continue` if present.
+  * `inProgress`: toggled by session lifecycle events.
+
+3. **Chronology check:** all `day_start` events must share the same `seasonId`. If not, **fail** (multi-season sessions should have been split in `finalize`).
+
+4. **For each `trail {from,to,marked:true}`:**
   * `edge = normalize(from,to)`
   * Upsert `trails[edge]` with defaults `{ permanent:false, streak:0 }`
   * Set `usedThisSeason=true` and `lastSeasonTouched=currentSeason`; record in `effects.session`.
-4. **For each `move {from|null,to}`:**
 
+5. **For each `move {from|null,to}`:**
   * If `from` is null → use `currentHex`; set `currentHex=to`.
   * `edge = normalize(from,to)`.
   * If `trails[edge]` exists → set `usedThisSeason=true; lastSeasonTouched=currentSeason`.
   * If not exists **but** the **most recent ROLL footprint** lists `edge` under `deletedTrails` → **paradox resolution**: re-establish with `{ permanent:false, streak:0, usedThisSeason:true, lastSeasonTouched=currentSeason }`; add to `effects.session.rediscovered`.
-5. **Write** updated `trails.yaml`; append file id to `meta.appliedSessions`; emit footprint.
+
+6. **Other session-level events:**
+
+  * `session_pause`, `session_continue`, `session_end` are **preserved in the applied log** but have **no direct state effects** beyond cursor anchoring and validation.
+  * Party/admin events (if any) are no-ops for trails but are included in footprints for audit.
+
+7. **Write** updated `trails.yaml`; append file id to `meta.appliedSessions`; emit footprint.
 
 ## Rollover Apply — Algorithm
 
@@ -146,8 +170,10 @@ Apply finalized artifacts (session JSONL logs and standalone season rollovers) t
 
 ## Error Conditions (examples)
 
+* **File does not begin with `session_start` or `session_continue`** → validation error.
+* **File does not end with `session_end` or `session_pause`** → validation error.
 * **No `day_start` in session** → validation error.
-* **Multi-season session** → validation error (finalize should have split).
+* **Multi-season session** → validation error.
 * **Rollover applied twice** → already applied.
 * **Session requires unrolled season** → validation error with message:
   “Missing rollover(s): 1511-winter, 1512-spring.”
@@ -157,3 +183,7 @@ Apply finalized artifacts (session JSONL logs and standalone season rollovers) t
 * Add helper: `listCandidateFiles(type) -> string[]`, scanning directories for unapplied session/rollover files.
 * Add helper: `promptSelectFile(candidates) -> string`, wraps Enquirer for file selection.
 * Respect `--no-prompt` to make behavior CI-friendly.
+* Add helper: `validateSessionEnvelope(events)` to enforce start/pause/continue/end rules.
+* `session_continue` must always carry `{currentHex, currentParty, currentDate}` to anchor resumption.
+* Treat session lifecycle events as **bookends/anchors**, not as trail-affecting events.
+* For reporting (future `weave report`), stitch multiple session parts joined by `session_pause`/`session_continue` into a single logical session.
