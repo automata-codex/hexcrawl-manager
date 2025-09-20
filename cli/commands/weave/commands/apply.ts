@@ -25,10 +25,11 @@ import {
   writeFootprint
 } from '../lib/state';
 import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
+import { validateSessionEnvelope } from '../lib/validate';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { error, info } from '../../scribe/lib/report';
 import type { CanonicalDate } from '../../scribe/types.ts';
-import { REPO_PATHS } from '../../shared-lib/constants/repo-paths.ts';
+import { REPO_PATHS } from '../../shared-lib/constants';
 
 export async function apply(fileArg?: string, opts?: any) {
   requireCleanGitOrAllowDirty(opts);
@@ -39,6 +40,9 @@ export async function apply(fileArg?: string, opts?: any) {
 
   // Use shared input helper for file selection
   const file = await resolveInputFile(fileArg, meta, opts);
+  if (!file) {
+    throw new Error('No file specified despite everything you did.');
+  }
 
   // File type detection
   if (isRolloverFile(file)) {
@@ -109,6 +113,11 @@ export async function apply(fileArg?: string, opts?: any) {
     }
   } else if (isSessionFile(file)) {
     const events = readJsonl(file);
+    const validation = validateSessionEnvelope(events);
+    if (!validation.isValid) {
+      error(`Session envelope validation failed: ${validation.error}`);
+      process.exit(4);
+    }
     if (!events.length) {
       error('Session file is empty or unreadable.');
       process.exit(4);

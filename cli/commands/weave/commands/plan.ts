@@ -19,6 +19,7 @@ import {
   loadTrails,
 } from '../lib/state';
 import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
+import { validateSessionEnvelope } from '../lib/validate';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { info, error } from '../../scribe/lib/report';
 import type { Event } from '../../scribe/types';
@@ -71,8 +72,14 @@ export async function plan(fileArg?: string) {
     info('  Sample deleted: ' + JSON.stringify(effects.deletedTrails.slice(0, 5)));
     process.exit(0);
   } else if (isSessionFile(file)) {
-    // --- Session planning logic ---
     const events = readJsonl(file);
+    const validation = validateSessionEnvelope(events);
+    if (!validation.isValid) {
+      error(`Session envelope validation failed: ${validation.error}`);
+      process.exit(4);
+    }
+
+    // --- Session planning logic ---
     if (!events.length) {
       error('Session file is empty or unreadable.');
       process.exit(4);
