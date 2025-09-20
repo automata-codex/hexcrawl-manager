@@ -5,6 +5,7 @@ import fs from "node:fs";
 import { runScribe, withTempRepo } from "../../shared-lib";
 import { REPO_PATHS } from '../../shared-lib/constants';
 import { type Event } from '../types.ts';
+import yaml from 'yaml';
 
 /** Utilities local to this test file */
 function findSessionFiles(dir: string): string[] {
@@ -188,6 +189,81 @@ describe("scribe start", () => {
         ? fs.readdirSync(lockDir).filter((f) => f.endsWith(".lock"))
         : [];
       expect(lockFiles.length).toBe(0);
+    });
+  });
+
+  it.skip("aborts with error if lock file for next session sequence exists (production mode)", async () => {
+    await withTempRepo("scribe-start-lock-conflict", { initGit: false }, async (repo) => {
+      // Simulate meta.nextSessionSeq = 1 and create lock file for session_0001
+      const lockDir = REPO_PATHS.LOCKS();
+      fs.mkdirSync(lockDir, { recursive: true });
+      const lockFile = path.join(lockDir, "session_0001.lock");
+      fs.writeFileSync(lockFile, JSON.stringify({ seq: 1, filename: "session_0027_2025-09-20.jsonl", createdAt: new Date().toISOString(), pid: 12345 }));
+      const commands = [
+        "start P13",
+        "exit",
+      ];
+      const { exitCode, stdout } = await runScribe(commands, { repo });
+      expect(exitCode).toBe(0); // REPL exits normally
+      expect(stdout).toMatch(/resumed:/i);
+      const files = findSessionFiles(REPO_PATHS.SESSIONS());
+      expect(files.length).toBe(0);
+    });
+  });
+
+
+  it("resumes existing in-progress session file, prints resume message, and does not emit new session_start", async () => {
+    await withTempRepo("scribe-start-resume", { initGit: false }, async (repo) => {
+      // Simulate an in-progress session file with one session_start and one move
+      const inProgressDir = REPO_PATHS.IN_PROGRESS();
+
+      // Read the next session number from the meta file
+      const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), "utf8"));
+      const nextSessionNumber = String(meta.nextSessionSeq || 1).padStart(4, '0');
+      const sessionId = `session_${nextSessionNumber}_2025-09-20`;
+
+      fs.mkdirSync(inProgressDir, { recursive: true });
+      const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
+      const events = [
+        { kind: "session_start", status: "in-progress", id: sessionId, startHex: "P13" },
+        { kind: "move", payload: { from: "P13", to: "Q13", pace: "normal" } }
+      ];
+      fs.writeFileSync(sessionFile, events.map(e => JSON.stringify(e)).join("\n") + "\n");
+      const commands = [
+        "start P13",
+        "exit",
+      ];
+      const { exitCode, stdout } = await runScribe(commands, { repo });
+      expect(exitCode).toBe(0);
+      expect(stdout).toMatch(new RegExp(`resumed: ${sessionId} \\(2 events\\).*last hex Q13`, 'i'));      // Should not emit a new session_start event
+      const fileEvents = readJsonl(sessionFile);
+      const starts = eventsOf(fileEvents, "session_start");
+      expect(starts.length).toBe(1);
+    });
+  });
+
+  it.skip("prints error and does not create session or lock file if session log dir is unwritable", async () => {
+    await withTempRepo("scribe-start-fs-error", { initGit: false }, async (repo) => {
+      const sessionsDir = REPO_PATHS.SESSIONS();
+      fs.mkdirSync(sessionsDir, { recursive: true });
+      fs.chmodSync(sessionsDir, 0o400); // read-only
+      let errorCaught = false;
+      try {
+        const commands = [
+          "start P13",
+          "exit",
+        ];
+        const { exitCode, stdout } = await runScribe(commands, { repo });
+        expect(exitCode).toBe(0);
+        expect(stdout).toMatch(/error|fail|permission/i);
+        const files = findSessionFiles(REPO_PATHS.SESSIONS());
+        expect(files.length).toBe(0);
+      } catch (e) {
+        errorCaught = true;
+      } finally {
+        fs.chmodSync(sessionsDir, 0o700); // restore permissions
+      }
+      expect(errorCaught).toBe(false); // test should not throw
     });
   });
 });
