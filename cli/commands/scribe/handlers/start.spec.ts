@@ -128,4 +128,66 @@ describe("scribe start", () => {
       // Not asserting specific 'from' here (it may be null per spec), just the sequence and targets
     });
   });
+
+  it("prints usage and does not create a session file if no arguments are given", async () => {
+    await withTempRepo("scribe-start-no-args", { initGit: false }, async (repo) => {
+      const commands = [
+        "start", // no arguments
+        "exit",
+      ];
+      const { exitCode, stdout } = await runScribe(commands, { repo });
+      expect(exitCode).toBe(0); // Normal exit, code 0
+      expect(stdout).toMatch(/usage|hex/i);
+      const files = findSessionFiles(REPO_PATHS.SESSIONS());
+      expect(files.length).toBe(0);
+    });
+  });
+
+  it("prints error and does not create a session file if hex is invalid", async () => {
+    await withTempRepo("scribe-start-invalid-hex", { initGit: false }, async (repo) => {
+      const commands = [
+        "start ZZZ", // invalid hex
+        "exit",
+      ];
+      const { exitCode, stdout } = await runScribe(commands, { repo });
+      expect(exitCode).toBe(0); // Normal exit, code 0
+      expect(stdout).toMatch(/usage|hex/i);
+      const files = findSessionFiles(REPO_PATHS.SESSIONS());
+      expect(files.length).toBe(0);
+    });
+  });
+
+  it("creates a dev session file in _dev/ with dev-mode flag, no lock file, and sessionId matches filename stem", async () => {
+    await withTempRepo("scribe-start-dev-mode", { initGit: false }, async (repo) => {
+      const commands = [
+        "start P13",
+        "day start 8 umb 1511",
+        "exit",
+      ];
+      const { exitCode, stderr } = await runScribe(commands, { repo, env: { SKYREACH_DEV: 'true' } });
+      expect(exitCode).toBe(0);
+      expect(stderr).toBeFalsy();
+      const devSessionsDir = REPO_PATHS.DEV_SESSIONS();
+      const devFiles = fs.existsSync(devSessionsDir)
+        ? fs.readdirSync(devSessionsDir).filter((f) => /^dev_.*\.jsonl$/i.test(f))
+        : [];
+      expect(devFiles.length).toBe(1);
+      const devFile = path.join(devSessionsDir, devFiles[0]);
+      const events = readJsonl(devFile);
+      const starts = eventsOf(events, "session_start");
+      expect(starts.length).toBe(1);
+
+      // sessionId matches filename stem
+      const sessionId = starts[0].payload.id;
+      const stem = path.basename(devFile, ".jsonl");
+      expect(sessionId).toBe(stem);
+
+      // No lock file should exist
+      const lockDir = REPO_PATHS.LOCKS();
+      const lockFiles = fs.existsSync(lockDir)
+        ? fs.readdirSync(lockDir).filter((f) => f.endsWith(".lock"))
+        : [];
+      expect(lockFiles.length).toBe(0);
+    });
+  });
 });

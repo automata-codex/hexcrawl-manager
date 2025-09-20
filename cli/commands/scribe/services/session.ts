@@ -412,12 +412,11 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
     ? REPO_PATHS.DEV_ROLLOVERS()
     : REPO_PATHS.ROLLOVERS();
   let suffixChar = 'a'.charCodeAt(0);
-  let baseName = devMode ? `dev_${events[0].ts?.replace(/[:.]/g, '-')}` : sessionId;
 
   for (let i = 0; i < blocks.length; ++i) {
     const block = blocks[i];
     const suffix = blocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
-    const finalSessionId = getFinalSessionId(baseName, devMode, suffix);
+    const finalSessionId = getFinalSessionId(sessionId, devMode, suffix);
 
     // Header
     const inWorldStart = block.events.find(e => e.kind === 'day_start')?.payload?.calendarDate || null;
