@@ -3,8 +3,9 @@ import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import yaml from 'yaml';
 import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
 import { requireFile, requireSession } from '../lib/guards.ts';
+import { hexSort } from '../../../../lib/hexes';
 import { REPO_PATHS } from '../../shared-lib/constants';
-import { type CanonicalDate, type Context, type Event } from '../types';
+import { type Context, type Event } from '../types';
 
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =
@@ -359,7 +360,23 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
         });
       }
     }
-    // Sort and renumber seq
+
+    // --- Normalization: seasonId and trail edges ---
+    // Normalize seasonId
+    block.seasonId = block.seasonId.toLowerCase();
+    // Canonicalize trail edges: use hexSort on from/to if both present
+    blockEvents = blockEvents.map(ev => {
+      if (ev.kind === 'trail' && ev.payload && ev.payload.from && ev.payload.to) {
+        let { from, to } = ev.payload;
+        if (hexSort(from, to) > 0) {
+          // Swap so from < to by hexSort
+          return { ...ev, payload: { ...ev.payload, from: to, to: from } };
+        }
+      }
+      return ev;
+    });
+
+    // --- Sorting & seq ---
     blockEvents = blockEvents.sort((a, b) => {
       if (a.ts && b.ts) {
         const tsCmp = a.ts.localeCompare(b.ts);
