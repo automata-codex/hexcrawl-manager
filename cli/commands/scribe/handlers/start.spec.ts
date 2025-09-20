@@ -105,11 +105,11 @@ describe("scribe start", () => {
     });
   });
 
-  it.skip("allows a subsequent move (without 'from') after start and preserves ordering", async () => {
+  it("allows a subsequent move (without 'from') after start and preserves ordering", async () => {
     await withTempRepo("scribe-start-then-move", { initGit: false }, async (repo) => {
       const commands = [
         "start P13",
-        "day 1511-12-01 winter",
+        "day start 8 umb 1511",
         "move Q13 normal",
         "move Q14 slow", // no 'from' again; we care that both moves are present and ordered
       ];
