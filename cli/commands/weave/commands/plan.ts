@@ -8,6 +8,8 @@ import {
   resolveInputFile,
 } from '../lib/files';
 import {
+  isRolloverAlreadyApplied,
+  isRolloverChronologyValid,
   isRolloverFile,
   isSessionAlreadyApplied,
   isSessionChronologyValid,
