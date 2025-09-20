@@ -294,8 +294,10 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   const origSessionEnd = sortedEvents.find(e => e.kind === 'session_end');
   const sessionIdVal = sessionId;
 
-  // For each block, synthesize lifecycle events as needed
-  const finalizedBlocks: { seasonId: string, events: (Event & { _origIdx: number })[] }[] = blocks.map((block, bIdx) => {
+  // For each block, synthesize lifecycle events as needed (avoid referencing finalizedBlocks before initialization)
+  const finalizedBlocks: { seasonId: string, events: (Event & { _origIdx: number })[] }[] = [];
+  for (let bIdx = 0; bIdx < blocks.length; bIdx++) {
+    const block = blocks[bIdx];
     let blockEvents = [...block.events];
     const firstDayIdx = block.events.findIndex(e => e.kind === 'day_start');
     const firstDayEvent = block.events[firstDayIdx];
@@ -323,7 +325,7 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
       if (!hasCont) {
         // Insert synthetic session_continue with snapshot
         const prevBlock = finalizedBlocks[bIdx-1];
-        const prevLastIdx = sortedEvents.findIndex(e => e._origIdx === prevBlock.events[prevBlock.events.length-1]._origIdx);
+        const prevLastIdx = bIdx === 0 ? 0 : sortedEvents.findIndex(e => e._origIdx === prevBlock.events[prevBlock.events.length-1]._origIdx);
         const snap = getSnapshot(prevLastIdx);
         blockEvents.unshift({
           kind: 'session_continue',
@@ -398,8 +400,8 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
       if (aSeq !== bSeq) return aSeq - bSeq;
       return 0;
     }).map((e, idx) => ({ ...e, seq: idx + 1 }));
-    return { seasonId: block.seasonId, events: blockEvents };
-  });
+    finalizedBlocks.push({ seasonId: block.seasonId, events: blockEvents });
+  }
 
   // 4. Write finalized session files and rollovers
   const outputs: string[] = [];
@@ -412,8 +414,8 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
     : REPO_PATHS.ROLLOVERS();
   let suffixChar = 'a'.charCodeAt(0);
 
-  for (let i = 0; i < blocks.length; ++i) {
-    const block = blocks[i];
+  for (let i = 0; i < finalizedBlocks.length; i++) {
+    const block = finalizedBlocks[i];
     const suffix = blocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
     const finalSessionId = getFinalSessionId(sessionId, devMode, suffix);
 
@@ -441,8 +443,8 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
     outputs.push(sessionFile);
 
     // Write rollover if not last block
-    if (i < blocks.length - 1) {
-      const nextSeasonId = blocks[i+1].seasonId;
+    if (i < finalizedBlocks.length - 1) {
+      const nextSeasonId = finalizedBlocks[i+1].seasonId;
       const rolloverFile = devMode
         ? path.join(rolloverDir, `dev_rollover_${nextSeasonId}_${events[0].ts?.replace(/[:.]/g, '-')}.jsonl`)
         : path.join(rolloverDir, `rollover_${nextSeasonId}_${events[0].ts?.slice(0,10)}.jsonl`);

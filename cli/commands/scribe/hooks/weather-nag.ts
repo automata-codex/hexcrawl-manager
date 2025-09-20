@@ -1,4 +1,5 @@
 import { datesEqual } from '../lib/date.ts';
+import { warn } from '../lib/report.ts';
 import { lastCalendarDate, selectCurrentWeather } from '../projectors.ts';
 import { readEvents } from '../services/event-log.ts';
 import type { Context, CanonicalDate, WeatherCommitted } from '../types';
@@ -42,12 +43,12 @@ export default function weatherNag(ctx: Context, cmd: string) {
   const hasDraft = draft && datesEqual(draft.date, today);
 
   if (!hasCommitted && !hasDraft) {
-    console.warn("⚠️ No weather yet for today. Run `weather roll`.");
+    warn("⚠️ No weather yet for today. Run `weather roll`.");
     ctx.weatherNagPrintedForDates.add(key);
     return;
   }
   if (!hasCommitted && hasDraft) {
-    console.warn("⚠️ Weather draft exists. Run `weather commit` or `weather abandon`.");
+    warn("⚠️ Weather draft exists. Run `weather commit` or `weather abandon`.");
     ctx.weatherNagPrintedForDates.add(key);
     return;
   }
