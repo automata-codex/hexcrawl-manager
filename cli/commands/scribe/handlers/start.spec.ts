@@ -255,7 +255,7 @@ describe("scribe start", () => {
     });
   });
 
-  it.skip("prints error and does not create session or lock file if session log dir is unwritable", async () => {
+  it("prints error and does not create session or lock file if session log dir is unwritable", async () => {
     await withTempRepo("scribe-start-fs-error", { initGit: false }, async (repo) => {
       const sessionsDir = REPO_PATHS.SESSIONS();
       fs.mkdirSync(sessionsDir, { recursive: true });
