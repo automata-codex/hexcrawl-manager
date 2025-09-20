@@ -31,7 +31,7 @@ export default function start(ctx: Context) {
       devMode,
       date: now
     });
-    if ('error' in prep) {
+    if (!prep.ok) {
       error(prep.error);
       return;
     }

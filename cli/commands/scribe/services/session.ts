@@ -4,6 +4,7 @@ import yaml from 'yaml';
 import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { hexSort, normalizeHexId } from '../../../../lib/hexes';
+import { pad } from '../../shared-lib';
 import { REPO_PATHS } from '../../shared-lib/constants';
 import { type CanonicalDate, type Context, type Event } from '../types';
 
@@ -74,8 +75,6 @@ export function prepareSessionStart({
   devMode: boolean;
   date: Date;
 }): SessionStartPrep {
-  const pad = (n: number, len = 4) => n.toString().padStart(len, '0');
-
   if (devMode) {
     const iso = date.toISOString().replace(/[:.]/g, '-');
     const sessionId = `dev_${iso}`;

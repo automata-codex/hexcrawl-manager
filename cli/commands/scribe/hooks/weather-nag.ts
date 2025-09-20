@@ -1,5 +1,4 @@
 import { datesEqual } from '../lib/date.ts';
-import { requireFile } from '../lib/guards.ts';
 import { lastCalendarDate, selectCurrentWeather } from '../projectors.ts';
 import { readEvents } from '../services/event-log.ts';
 import type { Context, CanonicalDate, WeatherCommitted } from '../types';
@@ -9,11 +8,12 @@ export default function weatherNag(ctx: Context, cmd: string) {
   if (cmd === 'weather') {
     return; // Don't nag if the user just ran the weather command
   }
-  if (!requireFile(ctx)) {
+  if (!ctx.file) {
+    // Fail silently instead of printing the standard error message from the `requireFile` guard
     return;
   }
 
-  const events = readEvents(ctx.file!); // Checked by `requireFile`
+  const events = readEvents(ctx.file);
 
   // Get today's date
   const today: CanonicalDate | null = lastCalendarDate(events);
