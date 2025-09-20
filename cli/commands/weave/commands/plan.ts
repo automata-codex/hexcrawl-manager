@@ -47,9 +47,16 @@ export async function plan(fileArg?: string) {
 
     // Already applied check
     const fileId = path.basename(file);
-    if (meta.appliedSessions?.includes(fileId)) {
+    if (isRolloverAlreadyApplied(meta, fileId)) {
       info('Rollover already applied.');
       process.exit(3);
+    }
+
+    // Chronology check: only allow for next unapplied season
+    const chrono = isRolloverChronologyValid(meta, seasonId);
+    if (!chrono.valid) {
+      error(`Validation error: Rollover is not for the next unapplied season. Expected: ${chrono.expected}`);
+      process.exit(4);
     }
 
     // --- Load trails and havens ---
@@ -79,6 +86,13 @@ export async function plan(fileArg?: string) {
       process.exit(4);
     }
 
+    // Already applied check
+    const fileId = path.basename(file);
+    if (isSessionAlreadyApplied(meta, fileId)) {
+      info('Session already applied.');
+      process.exit(3);
+    }
+
     // --- Session planning logic ---
     if (!events.length) {
       error('Session file is empty or unreadable.');
@@ -104,13 +118,6 @@ export async function plan(fileArg?: string) {
     if (!chrono.valid) {
       error(`Validation error: Missing required rollover(s) for season ${firstSeasonId}: ${chrono.missing.join(', ')}`);
       process.exit(4);
-    }
-
-    // Already applied check
-    const fileId = path.basename(file);
-    if (isSessionAlreadyApplied(meta, fileId)) {
-      info('Session already applied.');
-      process.exit(3);
     }
 
     // Simulate plan
