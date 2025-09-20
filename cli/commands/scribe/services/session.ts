@@ -3,7 +3,8 @@ import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import yaml from 'yaml';
 import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
 import { requireFile, requireSession } from '../lib/guards.ts';
-import { REPO_PATHS } from '../../shared-lib/constants/repo-paths.ts';
+import { hexSort, normalizeHexId } from '../../../../lib/hexes';
+import { REPO_PATHS } from '../../shared-lib/constants';
 import { type CanonicalDate, type Context, type Event } from '../types';
 
 // Discriminated union for prepareSessionStart return value
@@ -31,8 +32,8 @@ function getFinalSessionId(basename: string, devMode: boolean, suffix: string) {
 
 /** Latest in-progress file by mtime, or null if none. */
 export function findLatestInProgress(): { id: string; path: string } | null {
-  const prodDir = REPO_PATHS.IN_PROGRESS;
-  const devDir = REPO_PATHS.DEV_IN_PROGRESS;
+  const prodDir = REPO_PATHS.IN_PROGRESS();
+  const devDir = REPO_PATHS.DEV_IN_PROGRESS();
   const candidates: { id: string; path: string; mtime: number }[] = [];
 
   for (const dir of [prodDir, devDir]) {
@@ -56,9 +57,9 @@ export function findLatestInProgress(): { id: string; path: string } | null {
 
 export const inProgressPathFor = (id: string, devMode?: boolean) => {
   if (devMode) {
-    return path.join(REPO_PATHS.DEV_IN_PROGRESS, `${id}.jsonl`);
+    return path.join(REPO_PATHS.DEV_IN_PROGRESS(), `${id}.jsonl`);
   }
-  return path.join(REPO_PATHS.IN_PROGRESS, `${id}.jsonl`);
+  return path.join(REPO_PATHS.IN_PROGRESS(), `${id}.jsonl`);
 };
 
 /**
@@ -78,15 +79,15 @@ export function prepareSessionStart({
   if (devMode) {
     const iso = date.toISOString().replace(/[:.]/g, '-');
     const sessionId = `dev_${iso}`;
-    const inProgressFile = path.join(REPO_PATHS.DEV_IN_PROGRESS, `${sessionId}.jsonl`);
+    const inProgressFile = path.join(REPO_PATHS.DEV_IN_PROGRESS(), `${sessionId}.jsonl`);
     return { ok: true, sessionId, inProgressFile, dev: true };
   }
 
   // Production mode
-  if (!fs.existsSync(REPO_PATHS.META)) {
-    return { ok: false, error: `❌ Missing meta file at ${REPO_PATHS.META}` };
+  if (!fs.existsSync(REPO_PATHS.META())) {
+    return { ok: false, error: `❌ Missing meta file at ${REPO_PATHS.META()}` };
   }
-  const metaRaw = fs.readFileSync(REPO_PATHS.META, 'utf8');
+  const metaRaw = fs.readFileSync(REPO_PATHS.META(), 'utf8');
   const meta = yaml.parse(metaRaw) || {};
   const seq = meta.nextSessionSeq;
   if (!seq || typeof seq !== 'number') {
@@ -94,10 +95,10 @@ export function prepareSessionStart({
   }
   const ymd = date.toISOString().slice(0, 10);
   const sessionId = `session_${pad(seq)}_${ymd}`;
-  const inProgressFile = path.join(REPO_PATHS.IN_PROGRESS, `${sessionId}.jsonl`);
+  const inProgressFile = path.join(REPO_PATHS.IN_PROGRESS(), `${sessionId}.jsonl`);
 
   // Check for lock conflict
-  const lockFile = path.join(REPO_PATHS.LOCKS, `session_${pad(seq)}.lock`);
+  const lockFile = path.join(REPO_PATHS.LOCKS(), `session_${pad(seq)}.lock`);
   if (fs.existsSync(lockFile)) {
     return { ok: false, error: `❌ Lock file exists for session sequence ${seq} (${lockFile}). Another session may be active.` };
   }
@@ -128,7 +129,7 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   const inProgressFile = ctx.file!; // Checked by `requireFile`
 
   // Lock file check (prod only)
-  const lockFile = path.join(REPO_PATHS.LOCKS, `${sessionId.replace(/^(session_\d+)_.*$/, '$1')}.lock`);
+  const lockFile = path.join(REPO_PATHS.LOCKS(), `${sessionId.replace(/^(session_\d+)_.*$/, '$1')}.lock`);
   if (!devMode && !existsSync(lockFile)) {
     return { outputs: [], rollovers: [], error: `❌ No lock file for session: ${lockFile}` };
   }
@@ -141,13 +142,24 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   if (!events.some(e => e.kind === 'day_start')) {
     return { outputs: [], rollovers: [], error: '❌ No day_start event found in session.' };
   }
+  // Ensure the first event is session_start or session_continue
+  if (!(events[0].kind === 'session_start' || events[0].kind === 'session_continue')) {
+    return { outputs: [], rollovers: [], error: '❌ First event must be session_start or session_continue.' };
+  }
+  // Ensure session_pause only appears at the end (if at all)
+  const pauseIdx = events.findIndex(e => e.kind === 'session_pause');
+  if (pauseIdx !== -1 && pauseIdx !== events.length - 1) {
+    return { outputs: [], rollovers: [], error: '❌ session_pause may only appear at the end of the file.' };
+  }
 
   // Sort and check for impossible ordering
   const expandedEvents: (Event & { _origIdx: number })[] = events.map((e, i) => ({ ...e, _origIdx: i }));
   expandedEvents.sort((a, b) => {
     if (a.ts && b.ts) {
       const tsCmp = a.ts.localeCompare(b.ts);
-      if (tsCmp !== 0) return tsCmp;
+      if (tsCmp !== 0) {
+        return tsCmp;
+      }
     } else if (a.ts && !b.ts) {
       return -1;
     } else if (!a.ts && b.ts) {
@@ -170,52 +182,235 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
     }
   }
 
-  // Append session_end if missing
-  if (!events.find(e => e.kind === 'session_end')) {
+  // 3. Event Finalization: Ensure session_end or session_pause at end
+  const lastEvent = events[events.length - 1];
+  if (lastEvent.kind !== 'session_end' && lastEvent.kind !== 'session_pause') {
+    // Append session_end with { status: "final" } and incremented sequence
     events.push({
-      seq: (events.at(-1)?.seq ?? 0) + 1,
+      seq: (lastEvent.seq ?? 0) + 1,
       ts: timeNowISO(),
       kind: 'session_end',
       payload: { status: 'final' }
     });
   }
 
-  // 3. Split by season (contiguous blocks of same seasonId)
-  const blocks: { seasonId: string; events: Event[] }[] = [];
-  let currentBlock: { seasonId: string; events: Event[] } | null = null;
-  for (const ev of events) {
-    if (ev.kind === 'day_start' && ev.payload && ev.payload.calendarDate && ev.payload.season) {
-      const calDate: CanonicalDate = ev.payload.calendarDate as CanonicalDate;
-      const seasonId = `${calDate.year}-${String(ev.payload.season).toLowerCase()}`;
-      if (!currentBlock || currentBlock.seasonId !== seasonId) {
-        if (currentBlock) {
-          blocks.push(currentBlock);
+  // --- Revised Block Construction by Season ---
+  // (a) Sort events and track original index
+  const sortedEvents = events.map((e, i) => ({ ...e, _origIdx: i }))
+    .sort((a, b) => {
+      if (a.ts && b.ts) {
+        const tsCmp = a.ts.localeCompare(b.ts);
+        if (tsCmp !== 0) {
+          return tsCmp;
         }
-        currentBlock = { seasonId, events: [] };
+      } else if (a.ts && !b.ts) {
+        return -1;
+      }
+      else if (!a.ts && b.ts) {
+        return 1;
+      }
+      const aSeq = typeof a.seq === 'number' ? a.seq : Number.POSITIVE_INFINITY;
+      const bSeq = typeof b.seq === 'number' ? b.seq : Number.POSITIVE_INFINITY;
+      if (aSeq !== bSeq) return aSeq - bSeq;
+      return a._origIdx - b._origIdx;
+    });
+
+  // (b) Identify all day_start events and their seasonId, build block windows
+  const dayStartIndices = sortedEvents
+    .map((e, i) => {
+      const calendarDate = e.payload?.calendarDate as CanonicalDate;
+      return e.kind === 'day_start'
+        ? { i, seasonId: `${calendarDate.year}-${String(e.payload?.season).toLowerCase()}` }
+        : null;
+    })
+    .filter(Boolean) as { i: number, seasonId: string }[];
+  if (!dayStartIndices.length) {
+    return { outputs: [], rollovers: [], error: '❌ No day_start event found in session.' };
+  }
+  const blockWindows: { start: number, end: number, seasonId: string }[] = [];
+  for (let b = 0; b < dayStartIndices.length; ++b) {
+    const start = dayStartIndices[b].i;
+    const seasonId = dayStartIndices[b].seasonId;
+    const end = (b + 1 < dayStartIndices.length) ? dayStartIndices[b + 1].i : sortedEvents.length;
+    blockWindows.push({ start, end, seasonId });
+  }
+
+  // (c) Assign events to blocks (no duplication)
+  // Track which block each event belongs to
+  const eventBlockAssignment = new Array(sortedEvents.length).fill(-1);
+  // Events before first day_start go in first block
+  for (let i = 0; i < blockWindows[0].start; ++i) {
+    eventBlockAssignment[i] = 0;
+  }
+  // Events after last day_start go in last block
+  for (let i = blockWindows[blockWindows.length-1].end; i < sortedEvents.length; ++i) {
+    eventBlockAssignment[i] = blockWindows.length-1;
+  }
+  // Events inside each window
+  for (let b = 0; b < blockWindows.length; ++b) {
+    for (let i = blockWindows[b].start; i < blockWindows[b].end; ++i) {
+      eventBlockAssignment[i] = b;
+    }
+  }
+
+  // (d) Build blocks with assigned events
+  const blocks: { seasonId: string, events: (Event & { _origIdx: number })[] }[] = blockWindows.map((win, b) => ({
+    seasonId: win.seasonId,
+    events: sortedEvents.filter((_, i) => eventBlockAssignment[i] === b)
+  }));
+
+  // --- Synthesize lifecycle events at block boundaries ---
+  // Helper: get last known cursor/party/date up to a given event index
+  function getSnapshot(upToIdx: number) {
+    let currentHex = null;
+    let currentParty = null;
+    let currentDate = null;
+    for (let i = 0; i <= upToIdx; ++i) {
+      const e = sortedEvents[i];
+      if (e.kind === 'move' && e.payload?.to) {
+        currentHex = e.payload.to;
+      }
+      if (e.kind === 'trail' && e.payload?.to) {
+        currentHex = e.payload.to;
+      }
+      if (e.kind.startsWith('party_') && e.payload?.party) {
+        currentParty = e.payload.party;
+      }
+      if (e.kind === 'day_start' && e.payload?.calendarDate) {
+        currentDate = e.payload.calendarDate;
+      }
+      if (e.kind === 'session_start' && e.payload?.startHex) {
+        currentHex = e.payload.startHex;
+      }
+      if (e.kind === 'session_start' && e.payload?.party) {
+        currentParty = e.payload.party;
       }
     }
-    if (!currentBlock) {
-      // If no day_start yet, skip until first block
-      continue;
+    return { currentHex, currentParty, currentDate };
+  }
+
+  // Find original session_start, session_continue, session_end
+  const origSessionStart = sortedEvents.find(e => e.kind === 'session_start');
+  const origSessionContinue = sortedEvents.find(e => e.kind === 'session_continue');
+  const origSessionEnd = sortedEvents.find(e => e.kind === 'session_end');
+  const sessionIdVal = sessionId;
+
+  // For each block, synthesize lifecycle events as needed
+  const finalizedBlocks: { seasonId: string, events: (Event & { _origIdx: number })[] }[] = blocks.map((block, bIdx) => {
+    let blockEvents = [...block.events];
+    const firstDayIdx = block.events.findIndex(e => e.kind === 'day_start');
+    const firstDayEvent = block.events[firstDayIdx];
+    // --- Block start ---
+    if (bIdx === 0) {
+      // Block 1: must begin with session_start or session_continue (if present before first day)
+      const preFirstDay = block.events.slice(0, firstDayIdx);
+      const hasStart = preFirstDay.find(e => e.kind === 'session_start');
+      const hasCont = preFirstDay.find(e => e.kind === 'session_continue');
+      if (!hasStart && !hasCont) {
+        // Insert synthetic session_start
+        const payload = origSessionStart?.payload || { status: 'in-progress', id: sessionIdVal };
+        blockEvents.unshift({
+          kind: 'session_start',
+          ts: firstDayEvent.ts,
+          seq: 0,
+          payload: { ...payload, status: 'in-progress', id: sessionIdVal },
+          _origIdx: -1,
+        });
+      }
+    } else {
+      // Block 2..N: must begin with session_continue (if present before first day)
+      const preFirstDay = block.events.slice(0, firstDayIdx);
+      const hasCont = preFirstDay.find(e => e.kind === 'session_continue');
+      if (!hasCont) {
+        // Insert synthetic session_continue with snapshot
+        const prevBlock = finalizedBlocks[bIdx-1];
+        const prevLastIdx = sortedEvents.findIndex(e => e._origIdx === prevBlock.events[prevBlock.events.length-1]._origIdx);
+        const snap = getSnapshot(prevLastIdx);
+        blockEvents.unshift({
+          kind: 'session_continue',
+          ts: firstDayEvent.ts,
+          seq: 0,
+          payload: {
+            status: 'in-progress',
+            id: sessionIdVal,
+            currentHex: snap.currentHex,
+            currentParty: snap.currentParty,
+            currentDate: firstDayEvent.payload?.calendarDate
+          },
+          _origIdx: -1,
+        });
+      }
     }
-    currentBlock.events.push(ev);
-  }
-  if (currentBlock) {
-    blocks.push(currentBlock);
-  }
-  if (!blocks.length) {
-    return { outputs: [], rollovers: [], error: '❌ Could not partition events by season.' };
-  }
+    // --- Block end ---
+    const lastDayIdx = block.events.map((e, i) => e.kind === 'day_start' ? i : -1).filter(i => i !== -1).pop() ?? (block.events.length-1);
+    const afterLastDay = block.events.slice(lastDayIdx+1);
+    if (bIdx < blocks.length-1) {
+      // Intermediate blocks: must end with session_pause after last day event
+      const hasPause = afterLastDay.find(e => e.kind === 'session_pause');
+      if (!hasPause) {
+        blockEvents.push({
+          kind: 'session_pause',
+          ts: block.events[lastDayIdx]?.ts || timeNowISO(),
+          seq: 0,
+          payload: { status: 'paused', id: sessionIdVal },
+          _origIdx: -1,
+        });
+      }
+    } else {
+      // Final block: must end with session_end
+      const hasEnd = afterLastDay.find(e => e.kind === 'session_end');
+      if (!hasEnd) {
+        blockEvents.push({
+          kind: 'session_end',
+          ts: block.events[block.events.length-1]?.ts || timeNowISO(),
+          seq: 0,
+          payload: { status: 'final', id: sessionIdVal },
+          _origIdx: -1,
+        });
+      }
+    }
+
+    // --- Normalization: seasonId and trail edges ---
+    // Normalize seasonId
+    block.seasonId = block.seasonId.toLowerCase();
+    // Canonicalize trail edges: use hexSort on from/to if both present
+    blockEvents = blockEvents.map(ev => {
+      if (ev.kind === 'trail' && ev.payload && ev.payload.from && ev.payload.to) {
+        let { from, to } = ev.payload as { from: string; to: string };
+        from = normalizeHexId(from);
+        to = normalizeHexId(to);
+        if (hexSort(from, to) > 0) {
+          // Swap so from < to by hexSort
+          return { ...ev, payload: { ...ev.payload, from: to, to: from } };
+        }
+      }
+      return ev;
+    });
+
+    // --- Sorting & seq ---
+    blockEvents = blockEvents.sort((a, b) => {
+      if (a.ts && b.ts) {
+        const tsCmp = a.ts.localeCompare(b.ts);
+        if (tsCmp !== 0) return tsCmp;
+      } else if (a.ts && !b.ts) return -1;
+      else if (!a.ts && b.ts) return 1;
+      const aSeq = typeof a.seq === 'number' ? a.seq : Number.POSITIVE_INFINITY;
+      const bSeq = typeof b.seq === 'number' ? b.seq : Number.POSITIVE_INFINITY;
+      if (aSeq !== bSeq) return aSeq - bSeq;
+      return 0;
+    }).map((e, idx) => ({ ...e, seq: idx + 1 }));
+    return { seasonId: block.seasonId, events: blockEvents };
+  });
 
   // 4. Write finalized session files and rollovers
   const outputs: string[] = [];
   const rollovers: string[] = [];
   const sessionDir = devMode
-    ? REPO_PATHS.DEV_SESSIONS
-    : REPO_PATHS.SESSIONS;
+    ? REPO_PATHS.DEV_SESSIONS()
+    : REPO_PATHS.SESSIONS();
   const rolloverDir = devMode
-    ? REPO_PATHS.DEV_ROLLOVERS
-    : REPO_PATHS.ROLLOVERS;
+    ? REPO_PATHS.DEV_ROLLOVERS()
+    : REPO_PATHS.ROLLOVERS();
   let suffixChar = 'a'.charCodeAt(0);
   let baseName = devMode ? `dev_${events[0].ts?.replace(/[:.]/g, '-')}` : sessionId;
 
@@ -273,12 +468,12 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
 
     // Update meta.yaml if outputs written
     if (outputs.length) {
-      const metaRaw = fs.readFileSync(REPO_PATHS.META, 'utf8');
+      const metaRaw = fs.readFileSync(REPO_PATHS.META(), 'utf8');
       const meta = yaml.parse(metaRaw) || {};
       const lockSeq = Number(sessionId.match(/session_(\d+)/)?.[1] || 0);
       if (meta.nextSessionSeq !== lockSeq + 1) {
         meta.nextSessionSeq = lockSeq + 1;
-        fs.writeFileSync(REPO_PATHS.META, yaml.stringify(meta));
+        fs.writeFileSync(REPO_PATHS.META(), yaml.stringify(meta));
       }
     }
   } else {

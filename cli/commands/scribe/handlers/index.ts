@@ -40,7 +40,7 @@ export function buildHandlers(ctx: Context): HandlerMap {
     date: date(ctx),
     day: day(ctx),
     deadRec: deadReckoning(ctx), // Register as 'deadRec' (will be mapped to 'dead-rec')
-    doctor: doctor(ctx),
+    doctor: doctor(),
     exit: exit(),
     finalize: finalize(ctx),
     help: help(),

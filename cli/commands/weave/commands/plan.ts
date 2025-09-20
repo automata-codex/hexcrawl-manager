@@ -8,6 +8,8 @@ import {
   resolveInputFile,
 } from '../lib/files';
 import {
+  isRolloverAlreadyApplied,
+  isRolloverChronologyValid,
   isRolloverFile,
   isSessionAlreadyApplied,
   isSessionChronologyValid,
@@ -19,6 +21,7 @@ import {
   loadTrails,
 } from '../lib/state';
 import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
+import { validateSessionEnvelope } from '../lib/validate';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { info, error } from '../../scribe/lib/report';
 import type { Event } from '../../scribe/types';
@@ -46,9 +49,16 @@ export async function plan(fileArg?: string) {
 
     // Already applied check
     const fileId = path.basename(file);
-    if (meta.appliedSessions?.includes(fileId)) {
+    if (isRolloverAlreadyApplied(meta, fileId)) {
       info('Rollover already applied.');
       process.exit(3);
+    }
+
+    // Chronology check: only allow for next unapplied season
+    const chrono = isRolloverChronologyValid(meta, seasonId);
+    if (!chrono.valid) {
+      error(`Validation error: Rollover is not for the next unapplied season. Expected: ${chrono.expected}`);
+      process.exit(4);
     }
 
     // --- Load trails and havens ---
@@ -71,8 +81,21 @@ export async function plan(fileArg?: string) {
     info('  Sample deleted: ' + JSON.stringify(effects.deletedTrails.slice(0, 5)));
     process.exit(0);
   } else if (isSessionFile(file)) {
-    // --- Session planning logic ---
     const events = readJsonl(file);
+    const validation = validateSessionEnvelope(events);
+    if (!validation.isValid) {
+      error(`Session envelope validation failed: ${validation.error}`);
+      process.exit(4);
+    }
+
+    // Already applied check
+    const fileId = path.basename(file);
+    if (isSessionAlreadyApplied(meta, fileId)) {
+      info('Session already applied.');
+      process.exit(3);
+    }
+
+    // --- Session planning logic ---
     if (!events.length) {
       error('Session file is empty or unreadable.');
       process.exit(4);
@@ -97,13 +120,6 @@ export async function plan(fileArg?: string) {
     if (!chrono.valid) {
       error(`Validation error: Missing required rollover(s) for season ${firstSeasonId}: ${chrono.missing.join(', ')}`);
       process.exit(4);
-    }
-
-    // Already applied check
-    const fileId = path.basename(file);
-    if (isSessionAlreadyApplied(meta, fileId)) {
-      info('Session already applied.');
-      process.exit(3);
     }
 
     // Simulate plan

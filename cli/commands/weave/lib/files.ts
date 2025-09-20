@@ -3,7 +3,8 @@ import path from 'path';
 import prompts from 'prompts';
 import yaml from 'yaml';
 import { info, error } from '../../scribe/lib/report';
-import { REPO_PATHS } from '../../shared-lib/constants/repo-paths.ts';
+import { REPO_PATHS } from '../../shared-lib/constants';
+import { isGitDirty } from './git';
 import { compareSeasonIds, normalizeSeasonId } from './season.ts';
 
 /**
@@ -13,9 +14,9 @@ import { compareSeasonIds, normalizeSeasonId } from './season.ts';
 export function getMostRecentRolloverFootprint(seasonId: string): any | null {
   let files: string[] = [];
   try {
-    files = fs.readdirSync(REPO_PATHS.FOOTPRINTS)
+    files = fs.readdirSync(REPO_PATHS.FOOTPRINTS())
       .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'))
-      .map(f => path.join(REPO_PATHS.FOOTPRINTS, f));
+      .map(f => path.join(REPO_PATHS.FOOTPRINTS(), f));
   } catch {
     return null;
   }
@@ -46,18 +47,9 @@ export function getNextUnrolledSeason(meta: any): string | null {
   return `${nextYear}-${order[idx]}`;
 }
 
-export function isGitDirty(): boolean {
-  try {
-    const output = require('child_process').execSync('git status --porcelain', { encoding: 'utf8' });
-    return output.trim().length > 0;
-  } catch (e) {
-    return true;
-  }
-}
-
 export function listCandidateFiles(meta: any): string[] {
-  const sessionFiles = listFilesIfDir(REPO_PATHS.SESSIONS).filter(f => f.endsWith('.jsonl'));
-  const rolloverFiles = listFilesIfDir(REPO_PATHS.ROLLOVERS).filter(f => f.endsWith('.jsonl'));
+  const sessionFiles = listFilesIfDir(REPO_PATHS.SESSIONS()).filter(f => f.endsWith('.jsonl'));
+  const rolloverFiles = listFilesIfDir(REPO_PATHS.ROLLOVERS()).filter(f => f.endsWith('.jsonl'));
   const allCandidates = [...sessionFiles, ...rolloverFiles].filter(f => {
     const id = path.basename(f);
     return !meta.appliedSessions?.includes(id);
@@ -116,4 +108,3 @@ export async function resolveInputFile(fileArg: string | undefined, meta: any, o
   info(`Selected file: ${selected}`);
   return selected;
 }
-

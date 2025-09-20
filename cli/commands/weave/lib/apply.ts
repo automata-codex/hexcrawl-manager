@@ -1,12 +1,15 @@
 import { hexSort, normalizeHexId } from '../../../../lib/hexes';
 import { rollDice } from '../../scribe/lib/math.ts';
+import { cloneDeep } from 'lodash-es';
 
 export function applyRolloverToTrails(trails: Record<string, any>, havens: string[], dryRun = false) {
+  // Work on a deep copy to ensure purity
+  const newTrails = cloneDeep(trails);
   const maintained: string[] = [];
   const persisted: string[] = [];
   const deletedTrails: string[] = [];
   const farChecks: Record<string, any> = {};
-  for (const [edge, data] of Object.entries(trails)) {
+  for (const [edge, data] of Object.entries(newTrails)) {
     if (data.permanent) continue;
     const [a, b] = edge.split('-');
     const isNear = isHexNearAnyHaven(a, havens) || isHexNearAnyHaven(b, havens);
@@ -29,7 +32,7 @@ export function applyRolloverToTrails(trails: Record<string, any>, havens: strin
           if (d6 <= 3) {
             deletedTrails.push(edge);
             farChecks[edge] = { d6, outcome: 'deleted' };
-            delete trails[edge];
+            delete newTrails[edge];
             continue;
           } else {
             data.streak = 0;
@@ -40,10 +43,13 @@ export function applyRolloverToTrails(trails: Record<string, any>, havens: strin
       }
     }
   }
-  for (const data of Object.values(trails)) {
-    if (data.usedThisSeason) data.usedThisSeason = false;
+  // After processing, reset usedThisSeason on all remaining (non-permanent) edges
+  for (const [edge, data] of Object.entries(newTrails)) {
+    if (!data.permanent) {
+      data.usedThisSeason = false;
+    }
   }
-  return { maintained, persisted, deletedTrails, farChecks };
+  return { trails: newTrails, maintained, persisted, deletedTrails, farChecks };
 }
 
 export function applySessionToTrails(
@@ -156,4 +162,3 @@ export function hexToCube(hex: string): { x: number, y: number, z: number } {
 export function isHexNearAnyHaven(hex: string, havens: string[], maxDist = 3): boolean {
   return havens.some(haven => hexDistance(hex, haven) <= maxDist);
 }
-

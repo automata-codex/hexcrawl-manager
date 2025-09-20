@@ -25,10 +25,11 @@ import {
   writeFootprint
 } from '../lib/state';
 import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
+import { validateSessionEnvelope } from '../lib/validate';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { error, info } from '../../scribe/lib/report';
 import type { CanonicalDate } from '../../scribe/types.ts';
-import { REPO_PATHS } from '../../shared-lib/constants/repo-paths.ts';
+import { REPO_PATHS } from '../../shared-lib/constants';
 
 export async function apply(fileArg?: string, opts?: any) {
   requireCleanGitOrAllowDirty(opts);
@@ -39,6 +40,9 @@ export async function apply(fileArg?: string, opts?: any) {
 
   // Use shared input helper for file selection
   const file = await resolveInputFile(fileArg, meta, opts);
+  if (!file) {
+    throw new Error('No file specified despite everything you did.');
+  }
 
   // File type detection
   if (isRolloverFile(file)) {
@@ -60,37 +64,29 @@ export async function apply(fileArg?: string, opts?: any) {
       process.exit(4);
     }
     // --- Rollover apply logic ---
-    const before: Record<string, string> = {};
-    for (const [edge, data] of Object.entries(trails)) {
-      if (!data.permanent) {
-        before[edge] = { ...data };
-      }
-    }
-    const effects = applyRolloverToTrails(trails, havens, false);
-    // If no changes (all lists empty), treat as no-op
-    if (
-      effects.maintained.length === 0 &&
-      effects.persisted.length === 0 &&
-      effects.deletedTrails.length === 0
-    ) {
-      info('No changes would be made.');
-      process.exit(5);
+    // Build set of affected edges
+    const { trails: trailsAfter, ...effects } = applyRolloverToTrails(trails, havens, false);
+    const affectedEdges = new Set([
+      ...effects.maintained,
+      ...effects.persisted,
+      ...effects.deletedTrails
+    ]);
+    // Build before/after for only affected edges
+    const before: Record<string, any> = {};
+    const after: Record<string, any> = {};
+    for (const edge of affectedEdges) {
+      before[edge] = trails[edge] ? { ...trails[edge] } : undefined;
+      after[edge] = trailsAfter[edge] ? { ...trailsAfter[edge] } : undefined;
     }
     // Update meta
     if (!meta.rolledSeasons) meta.rolledSeasons = [];
     meta.rolledSeasons.push(seasonId);
     appendToMetaAppliedSessions(meta, fileId);
-    // Write trails.yaml and meta.yaml
+    // Write trails.yml and meta.yaml
     try {
-      writeYamlAtomic(REPO_PATHS.TRAILS, trails);
-      writeYamlAtomic(REPO_PATHS.META, meta);
+      writeYamlAtomic(REPO_PATHS.TRAILS(), trailsAfter);
+      writeYamlAtomic(REPO_PATHS.META(), meta);
       // Write footprint
-      const after: Record<string, string> = {};
-      for (const [edge, data] of Object.entries(trails)) {
-        if (!data.permanent) {
-          after[edge] = { ...data };
-        }
-      }
       const footprint = {
         id: `ROLL-${seasonId}`,
         kind: 'rollover',
@@ -109,6 +105,11 @@ export async function apply(fileArg?: string, opts?: any) {
     }
   } else if (isSessionFile(file)) {
     const events = readJsonl(file);
+    const validation = validateSessionEnvelope(events);
+    if (!validation.isValid) {
+      error(`Session envelope validation failed: ${validation.error}`);
+      process.exit(4);
+    }
     if (!events.length) {
       error('Session file is empty or unreadable.');
       process.exit(4);
@@ -147,11 +148,11 @@ export async function apply(fileArg?: string, opts?: any) {
       info('No changes would be made.');
       process.exit(5);
     }
-    // Write trails.yaml
+    // Write trails.yml
     try {
-      writeYamlAtomic(REPO_PATHS.TRAILS, trails);
+      writeYamlAtomic(REPO_PATHS.TRAILS(), trails);
       appendToMetaAppliedSessions(meta, fileId);
-      writeYamlAtomic(REPO_PATHS.META, meta);
+      writeYamlAtomic(REPO_PATHS.META(), meta);
 
       // Write footprint
       const footprint = {
