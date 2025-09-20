@@ -56,13 +56,13 @@ export async function runScribe(
 
   try {
     const { stdout, stderr, exitCode } = await execa(entry.cmd, entry.args, {
-      cwd: opts.repo,
+      cwd: process.cwd(),
       env,
       input,
       reject: false,
       all: false,
     });
-    return { stdout, stderr, exitCode: exitCode ?? 0 };
+    return { stdout, stderr, exitCode: exitCode ?? -1 }; // Tests should fail if exitCode is missing
   } catch (err: any) {
     return {
       stdout: err.stdout || "",

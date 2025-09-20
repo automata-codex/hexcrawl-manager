@@ -7,6 +7,7 @@
     "build": "astro check && npm run gen-json-schema && npm run build:clue-links && astro build",
     "build:clue-links": "bash scripts/clue-linker/setup_virtualenv.sh && scripts/clue-linker/.venv-clue-linker/bin/python scripts/clue-linker/generate-clue-links.py",
     "changeset": "changeset",
+    "clean:tests": "rm -rf .test-repos",
     "cli": "tsx cli/skyreach.ts",
     "clue-linker:setup": "bash scripts/clue-linker/setup_virtualenv.sh",
     "check": "astro check",
@@ -15,7 +16,9 @@
     "elevation:run": "bash scripts/elevation-solver/setup_virtualenv.sh && scripts/elevation-solver/.venv-elevation-solver/bin/python scripts/elevation-solver/elevation_solver.py",
     "gen-json-schema": "node ./scripts/generate-json-schema.js",
     "preview": "astro preview",
-    "release:version": "changeset version"
+    "release:version": "changeset version",
+    "test:scribe": "vitest run ./cli/commands/scribe/**/*.spec.ts",
+    "test:scribe:watch": "vitest --watch ./cli/commands/scribe/**/*.spec.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -60,6 +63,7 @@
     "glob": "^11.0.2",
     "globby": "^14.1.0",
     "tsx": "^4.19.4",
+    "vitest": "^3.2.4",
     "yaml": "^2.7.1",
     "zod-to-json-schema": "^3.24.5"
   }
