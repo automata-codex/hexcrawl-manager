@@ -1,4 +1,5 @@
 import { readJsonl, appendJsonl, writeJsonl } from '../lib/jsonl';
+import { atomicWrite } from '../../shared-lib/atomic-write.ts';
 import type { Event } from '../types';
 
 const nowISO = () => new Date().toISOString();
@@ -8,7 +9,9 @@ export const readEvents  = (filePath: string) => readJsonl(filePath);
 export const writeEvents = (filePath: string, events: Event[]) => writeJsonl(filePath, events);
 
 export const writeEventsWithHeader = (filePath: string, header: Record<string, any>, events: Event[] = []) => {
-  writeJsonl(filePath, [header, ...events]);
+  // Write atomically
+  const content = [header, ...events].map(e => JSON.stringify(e)).join('\n') + '\n';
+  atomicWrite(filePath, content);
 };
 
 export const appendEvent = (filePath: string, kind: string, payload: Record<string, unknown>) => {

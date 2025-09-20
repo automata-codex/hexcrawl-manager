@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
+import { atomicWrite } from '../../shared-lib/atomic-write.ts';
 import { REPO_PATHS } from '../../shared-lib/constants';
 
 export function appendToMetaAppliedSessions(meta: any, fileId: string) {
@@ -71,7 +72,5 @@ export function writeFootprint(footprint: any) {
 
 export function writeYamlAtomic(filePath: string, data: any) {
   const yamlStr = yaml.stringify(data);
-  const tmpPath = filePath + '.' + Math.random().toString(36).slice(2) + '.tmp';
-  fs.writeFileSync(tmpPath, yamlStr, 'utf8');
-  fs.renameSync(tmpPath, filePath);
+  atomicWrite(filePath, yamlStr);
 }

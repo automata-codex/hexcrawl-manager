@@ -3,9 +3,9 @@ import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import yaml from 'yaml';
 import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
 import { requireFile, requireSession } from '../lib/guards.ts';
-import { hexSort } from '../../../../lib/hexes';
+import { hexSort, normalizeHexId } from '../../../../lib/hexes';
 import { REPO_PATHS } from '../../shared-lib/constants';
-import { type Context, type Event } from '../types';
+import { type CanonicalDate, type Context, type Event } from '../types';
 
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =
@@ -217,7 +217,12 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
 
   // (b) Identify all day_start events and their seasonId, build block windows
   const dayStartIndices = sortedEvents
-    .map((e, i) => e.kind === 'day_start' ? { i, seasonId: `${e.payload?.calendarDate?.year}-${String(e.payload?.season).toLowerCase()}` } : null)
+    .map((e, i) => {
+      const calendarDate = e.payload?.calendarDate as CanonicalDate;
+      return e.kind === 'day_start'
+        ? { i, seasonId: `${calendarDate.year}-${String(e.payload?.season).toLowerCase()}` }
+        : null;
+    })
     .filter(Boolean) as { i: number, seasonId: string }[];
   if (!dayStartIndices.length) {
     return { outputs: [], rollovers: [], error: '❌ No day_start event found in session.' };
@@ -291,7 +296,7 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   const sessionIdVal = sessionId;
 
   // For each block, synthesize lifecycle events as needed
-  const finalizedBlocks: { seasonId: string, events: Event[] }[] = blocks.map((block, bIdx) => {
+  const finalizedBlocks: { seasonId: string, events: (Event & { _origIdx: number })[] }[] = blocks.map((block, bIdx) => {
     let blockEvents = [...block.events];
     const firstDayIdx = block.events.findIndex(e => e.kind === 'day_start');
     const firstDayEvent = block.events[firstDayIdx];
@@ -308,7 +313,8 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
           kind: 'session_start',
           ts: firstDayEvent.ts,
           seq: 0,
-          payload: { ...payload, status: 'in-progress', id: sessionIdVal }
+          payload: { ...payload, status: 'in-progress', id: sessionIdVal },
+          _origIdx: -1,
         });
       }
     } else {
@@ -330,7 +336,8 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
             currentHex: snap.currentHex,
             currentParty: snap.currentParty,
             currentDate: firstDayEvent.payload?.calendarDate
-          }
+          },
+          _origIdx: -1,
         });
       }
     }
@@ -345,7 +352,8 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
           kind: 'session_pause',
           ts: block.events[lastDayIdx]?.ts || timeNowISO(),
           seq: 0,
-          payload: { status: 'paused', id: sessionIdVal }
+          payload: { status: 'paused', id: sessionIdVal },
+          _origIdx: -1,
         });
       }
     } else {
@@ -356,7 +364,8 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
           kind: 'session_end',
           ts: block.events[block.events.length-1]?.ts || timeNowISO(),
           seq: 0,
-          payload: { status: 'final', id: sessionIdVal }
+          payload: { status: 'final', id: sessionIdVal },
+          _origIdx: -1,
         });
       }
     }
@@ -367,7 +376,9 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
     // Canonicalize trail edges: use hexSort on from/to if both present
     blockEvents = blockEvents.map(ev => {
       if (ev.kind === 'trail' && ev.payload && ev.payload.from && ev.payload.to) {
-        let { from, to } = ev.payload;
+        let { from, to } = ev.payload as { from: string; to: string };
+        from = normalizeHexId(from);
+        to = normalizeHexId(to);
         if (hexSort(from, to) > 0) {
           // Swap so from < to by hexSort
           return { ...ev, payload: { ...ev.payload, from: to, to: from } };
