@@ -4,6 +4,7 @@ import prompts from 'prompts';
 import yaml from 'yaml';
 import { info, error } from '../../scribe/lib/report';
 import { REPO_PATHS } from '../../shared-lib/constants';
+import { isGitDirty } from './git';
 import { compareSeasonIds, normalizeSeasonId } from './season.ts';
 
 /**
@@ -44,15 +45,6 @@ export function getNextUnrolledSeason(meta: any): string | null {
   idx = (idx + 1) % 4;
   const nextYear = idx === 0 ? year + 1 : year;
   return `${nextYear}-${order[idx]}`;
-}
-
-export function isGitDirty(): boolean {
-  try {
-    const output = require('child_process').execSync('git status --porcelain', { encoding: 'utf8' });
-    return output.trim().length > 0;
-  } catch (e) {
-    return true;
-  }
 }
 
 export function listCandidateFiles(meta: any): string[] {
@@ -116,4 +108,3 @@ export async function resolveInputFile(fileArg: string | undefined, meta: any, o
   info(`Selected file: ${selected}`);
   return selected;
 }
-

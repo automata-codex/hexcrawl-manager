@@ -3,6 +3,7 @@ import path from 'path';
 import yaml from 'yaml';
 import { atomicWrite } from '../../shared-lib/atomic-write.ts';
 import { REPO_PATHS } from '../../shared-lib/constants';
+import { getGitHeadCommit } from './git';
 
 export function appendToMetaAppliedSessions(meta: any, fileId: string) {
   if (!meta.appliedSessions) {
@@ -64,6 +65,12 @@ export function writeFootprint(footprint: any) {
   } else {
     // fallback
     fileName = `footprint-${Date.now().toString(36)}.yaml`;
+  }
+
+  // Add optional git field if available
+  const gitHead = getGitHeadCommit();
+  if (gitHead) {
+    footprint.git = { headCommit: gitHead };
   }
 
   const filePath = path.join(REPO_PATHS.FOOTPRINTS(), fileName);
