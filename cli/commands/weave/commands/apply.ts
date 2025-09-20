@@ -64,21 +64,19 @@ export async function apply(fileArg?: string, opts?: any) {
       process.exit(4);
     }
     // --- Rollover apply logic ---
-    const before: Record<string, string> = {};
-    for (const [edge, data] of Object.entries(trails)) {
-      if (!data.permanent) {
-        before[edge] = { ...data };
-      }
-    }
-    const effects = applyRolloverToTrails(trails, havens, false);
-    // If no changes (all lists empty), treat as no-op
-    if (
-      effects.maintained.length === 0 &&
-      effects.persisted.length === 0 &&
-      effects.deletedTrails.length === 0
-    ) {
-      info('No changes would be made.');
-      process.exit(5);
+    // Build set of affected edges
+    const { trails: trailsAfter, ...effects } = applyRolloverToTrails(trails, havens, false);
+    const affectedEdges = new Set([
+      ...effects.maintained,
+      ...effects.persisted,
+      ...effects.deletedTrails
+    ]);
+    // Build before/after for only affected edges
+    const before: Record<string, any> = {};
+    const after: Record<string, any> = {};
+    for (const edge of affectedEdges) {
+      before[edge] = trails[edge] ? { ...trails[edge] } : undefined;
+      after[edge] = trailsAfter[edge] ? { ...trailsAfter[edge] } : undefined;
     }
     // Update meta
     if (!meta.rolledSeasons) meta.rolledSeasons = [];
@@ -86,15 +84,9 @@ export async function apply(fileArg?: string, opts?: any) {
     appendToMetaAppliedSessions(meta, fileId);
     // Write trails.yml and meta.yaml
     try {
-      writeYamlAtomic(REPO_PATHS.TRAILS(), trails);
+      writeYamlAtomic(REPO_PATHS.TRAILS(), trailsAfter);
       writeYamlAtomic(REPO_PATHS.META(), meta);
       // Write footprint
-      const after: Record<string, string> = {};
-      for (const [edge, data] of Object.entries(trails)) {
-        if (!data.permanent) {
-          after[edge] = { ...data };
-        }
-      }
       const footprint = {
         id: `ROLL-${seasonId}`,
         kind: 'rollover',
