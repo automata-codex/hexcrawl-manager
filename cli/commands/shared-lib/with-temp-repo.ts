@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { spawn } from 'child_process';
+import { getRepoRoot } from '../../../lib/repo';
 import { getTestRepoBase, TEST_REPO_SENTINEL } from './get-test-repo-base';
 import { ensureRepoDirs, REPO_PATHS } from './constants/repo-paths';
 
@@ -79,7 +80,7 @@ export async function withTempRepo<T = string>(
   const repoPath = path.join(base, suite, `${slug}-${ts}`);
 
   // Set REPO_ROOT to sandbox path for this test
-  const prevRepoRoot = process.env.REPO_ROOT;
+  const prevRepoRoot = process.env.REPO_ROOT ?? getRepoRoot();
   process.env.REPO_ROOT = repoPath;
 
   // Ensure required directories using getRepoPath/REPO_PATHS
