@@ -166,8 +166,22 @@ describe('scribe finalize', () => {
     });
   });
 
-  it.skip("errors if no lock file exists in production mode", async () => {
+  it("errors if no lock file exists in production mode", async () => {
     await withTempRepo("scribe-finalize-no-lock", { initGit: false }, async (repo) => {
+      const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
+      const nextSessionNumber = parseInt(meta.nextSessionSeq, 10) || 1;
+      const sessionId = `session_${pad(nextSessionNumber)}_2025-09-20`;
+
+      // Manually write an in-progress file
+      const inProgressDir = REPO_PATHS.IN_PROGRESS();
+      fs.mkdirSync(inProgressDir, { recursive: true });
+      const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
+      const events: Event[] = [
+        { seq: 1, kind: "session_start", ts: "2025-09-20T10:00:00.000Z", payload: { sessionId } },
+        { seq: 2, kind: "day_start", ts: "2025-09-20T11:00:00.000Z", payload: { calendarDate: { year: 1511, month: "Umbraeus", day: 8 }, season: "autumn" }, }
+      ];
+      fs.writeFileSync(sessionFile, events.map(e => JSON.stringify(e)).join("\n") + "\n");
+
       // Remove lock file if present
       const lockDir = REPO_PATHS.LOCKS();
       if (fs.existsSync(lockDir)) {
@@ -176,55 +190,68 @@ describe('scribe finalize', () => {
         }
       }
       const commands = [
-        "start p13",
-        "day start 8 umb 1511",
-        "move q13 normal",
+        "resume",
         "finalize"
       ];
-      const { exitCode, stderr } = await runScribe(commands, { repo });
-      expect(exitCode).not.toBe(0);
-      expect(stderr).toMatch(/no lock file/i);
+      const { exitCode, stderr, stdout } = await runScribe(commands, { repo });
+      expect(exitCode).toBe(0); // REPL exits normally
+      expect(stderr).toMatch(/No lock file/i);
       const files = findSessionFiles(REPO_PATHS.SESSIONS());
       expect(files.length).toBe(0);
     });
   });
 
-  it.skip("writes correct lifecycle events at block boundaries (synthesized events)", async () => {
+  it("writes correct lifecycle events at block boundaries (synthesized events)", async () => {
     await withTempRepo("scribe-finalize-lifecycle", { initGit: false }, async (repo) => {
       const commands = [
         "start p13",
         "day start 30 hib 1511",
         "move p14",
-        "day start 1 umb 1511",
-        "move p15",
-        "finalize"
+        "rest",
+        "day start",
+        "rest",
+        "day start",
+        "rest",
+        "day start",
+        "rest",
+        "finalize",
       ];
-      const { exitCode, stderr } = await runScribe(commands, { repo });
+      const { exitCode, stderr, stdout } = await runScribe(commands, { repo });
       expect(exitCode).toBe(0);
       expect(stderr).toBe("");
+
       const files = findSessionFiles(REPO_PATHS.SESSIONS());
       expect(files.length).toBe(2);
       const allEvents = files.flatMap(readJsonl);
+
       // Should have a session_continue at the start of the second block
       const sessionContinue = allEvents.find(e => e.kind === 'session_continue');
       expect(sessionContinue).toBeTruthy();
+
       // Should have session_pause at the end of the first block
       const sessionPause = allEvents.find(e => e.kind === 'session_pause');
       expect(sessionPause).toBeTruthy();
+
       // Should have session_end at the end of the last block
       const sessionEnd = allEvents.filter(e => e.kind === 'session_end');
       expect(sessionEnd.length).toBe(1);
     });
   });
 
-  it.skip("writes rollover files only at season boundaries", async () => {
+  it("writes rollover files only at season boundaries", async () => {
     await withTempRepo("scribe-finalize-rollover", { initGit: false }, async (repo) => {
       const commands = [
         "start p13",
         "day start 30 hib 1511",
         "move p14",
-        "day start 1 umb 1511",
+        "rest",
+        "day start",
         "move p15",
+        "rest",
+        "day start",
+        "rest",
+        "day start",
+        "rest",
         "finalize"
       ];
       const { exitCode, stderr } = await runScribe(commands, { repo });
