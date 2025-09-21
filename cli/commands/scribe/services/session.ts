@@ -164,6 +164,7 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
     } else if (!a.ts && b.ts) {
       return 1;
     }
+
     const aSeq = typeof a.seq === 'number' ? a.seq : Number.POSITIVE_INFINITY;
     const bSeq = typeof b.seq === 'number' ? b.seq : Number.POSITIVE_INFINITY;
 
@@ -172,7 +173,7 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
     }
     return (a._origIdx ?? 0) - (b._origIdx ?? 0);
   });
-  for (let i = 1; i < expandedEvents.length; ++i) {
+  for (let i = 1; i < expandedEvents.length; i++) {
     if (expandedEvents[i].ts && expandedEvents[i-1].ts && expandedEvents[i].ts < expandedEvents[i-1].ts) {
       return { outputs: [], rollovers: [], error: '❌ Non-monotonic timestamps in event log.' };
     }

@@ -1,15 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
+import yaml from 'yaml';
 import {
   eventsOf,
   findSessionFiles,
+  pad,
   readJsonl,
   runScribe,
   withTempRepo,
 } from '../../shared-lib';
 import { REPO_PATHS } from '../../shared-lib/constants';
-import type { CanonicalDate } from '../types.ts';
+import type { CanonicalDate, Event } from '../types.ts';
 
 describe('scribe finalize', () => {
   it('partitions session events correctly and writes output files', async () => {
@@ -106,6 +108,7 @@ describe('scribe finalize', () => {
     });
   });
 
+  // Silly Copilot, non-monotonic timestamps are impossible because we sort by timestamp before checking for monotonicity
   it.skip("errors if timestamps are non-monotonic", async () => {
     await withTempRepo("scribe-finalize-bad-ts", { initGit: false }, async (repo) => {
       // Manually write a bad in-progress file
@@ -127,22 +130,37 @@ describe('scribe finalize', () => {
     });
   });
 
-  it.skip("errors if sequence numbers are non-monotonic", async () => {
+  it("errors if sequence numbers are non-monotonic", async () => {
     await withTempRepo("scribe-finalize-bad-seq", { initGit: false }, async (repo) => {
+      const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
+      const nextSessionNumber = parseInt(meta.nextSessionSeq, 10) || 1;
+      const sessionId = `session_${pad(nextSessionNumber)}_2025-09-20`;
+
+      const lockDir = REPO_PATHS.LOCKS();
+      fs.mkdirSync(lockDir, { recursive: true });
+      const lockFile = path.join(lockDir, `session_${pad(nextSessionNumber)}.lock`);
+      fs.writeFileSync(lockFile, '');
+
       // Manually write a bad in-progress file
       const inProgressDir = REPO_PATHS.IN_PROGRESS();
       fs.mkdirSync(inProgressDir, { recursive: true });
-      const sessionId = `session_0027_2025-09-20`;
       const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
-      const events = [
-        { kind: "session_start", seq: 2 },
-        { kind: "day_start", payload: { calendarDate: { year: 1511, month: "Umbraeus", day: 8 }, season: "autumn" }, seq: 1 }
+      const events: Event[] = [
+        { seq: 1, kind: "session_start", ts: "2025-09-20T10:00:00.000Z", payload: { sessionId } },
+        { seq: 4, kind: "day_start", ts: "2025-09-20T09:00:00.000Z", payload: { calendarDate: { year: 1511, month: "Umbraeus", day: 8 }, season: "autumn" }, }
       ];
       fs.writeFileSync(sessionFile, events.map(e => JSON.stringify(e)).join("\n") + "\n");
-      const commands = ["finalize"];
-      const { exitCode, stderr } = await runScribe(commands, { repo });
-      expect(exitCode).not.toBe(0);
-      expect(stderr).toMatch(/non-monotonic sequence numbers/i);
+
+      const commands = [
+        "resume",
+        "move p14",
+        "rest",
+        "finalize",
+      ];
+      const { exitCode, stderr, stdout } = await runScribe(commands, { repo, ensureExit: false });
+
+      expect(exitCode).toBe(0); // REPL exits normally
+      expect(stderr).toMatch(/Non-monotonic sequence numbers/i);
       const files = findSessionFiles(REPO_PATHS.SESSIONS());
       expect(files.length).toBe(0);
     });
