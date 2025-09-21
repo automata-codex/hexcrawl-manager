@@ -8,6 +8,6 @@ export function getRepoRoot(): string {
   if (process.env.REPO_ROOT && process.env.REPO_ROOT.trim()) {
     return process.env.REPO_ROOT;
   }
-  return loadConfig().repoRoot;
+  return loadConfig()?.repoRoot ?? process.cwd();
 }
 
