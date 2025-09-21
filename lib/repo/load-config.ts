@@ -14,13 +14,14 @@ export type SkyreachConfig = z.infer<typeof ConfigSchema>;
 
 let cachedConfig: SkyreachConfig | null = null;
 
-export function loadConfig(): SkyreachConfig {
+export function loadConfig(): SkyreachConfig | null {
   if (cachedConfig) return cachedConfig;
 
   const configPath = path.resolve(__dirname, '../../skyreach.config.json');
 
   if (!fs.existsSync(configPath)) {
-    throw new Error(`Config file not found at ${configPath}`);
+    console.log(`Config file not found at ${configPath}`);
+    return null;
   }
 
   const parsed = ConfigSchema.safeParse(JSON.parse(fs.readFileSync(configPath, 'utf-8')));
