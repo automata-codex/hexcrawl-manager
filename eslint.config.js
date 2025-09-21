@@ -12,6 +12,21 @@ import svelte from "eslint-plugin-svelte";
 import importPlugin from "eslint-plugin-import";
 import prettier from "eslint-config-prettier";
 
+const importOrder = [
+  "error",
+  {
+    groups: [
+      "builtin",
+      "external",
+      "internal",
+      ["parent", "sibling", "index"],
+      "type",
+    ],
+    "newlines-between": "always",
+    alphabetize: { order: "asc", caseInsensitive: true },
+  },
+];
+
 export default defineConfig([
   // 1) Ignores
   {
@@ -69,7 +84,7 @@ export default defineConfig([
     },
     // example TypeScript rules for the CLI
     rules: {
-      // your CLI-specific rules here
+      "import/order": importOrder,
     },
   },
 
@@ -87,20 +102,7 @@ export default defineConfig([
     },
     // Import ordering across web files
     rules: {
-      "import/order": [
-        "error",
-        {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            ["parent", "sibling", "index"],
-            "type",
-          ],
-          "newlines-between": "always",
-          alphabetize: { order: "asc", caseInsensitive: true },
-        },
-      ],
+      "import/order": importOrder,
     },
   },
 
@@ -113,6 +115,9 @@ export default defineConfig([
         // this nests TS parser to handle frontmatter JS/TS.
         parser: tsParser,
       },
+    },
+    rules: {
+      "import/order": importOrder,
     },
   },
 
@@ -128,7 +133,7 @@ export default defineConfig([
     },
     // lightweight recommended TS rules (optional to expand)
     rules: {
-      // add TS rules here if desired
+      "import/order": importOrder,
     },
   },
 
