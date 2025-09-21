@@ -1,5 +1,6 @@
 export { getTestRepoBase } from './get-test-repo-base';
-export { pad } from './string';
 export { runScribe } from './run-scribe';
 export { runWeave } from './run-weave';
+export { pad } from './string';
+export { eventsOf, findSessionFiles, readJsonl } from './test-helpers';
 export { withTempRepo } from './with-temp-repo';
