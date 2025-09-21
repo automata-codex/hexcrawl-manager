@@ -1,8 +1,7 @@
 import { describe, it, expect } from "vitest";
 import path from "node:path";
 import fs from "node:fs";
-import { pad, runScribe, withTempRepo } from '../../shared-lib';
-import { type Event } from '../types.ts';
+import { runScribe, withTempRepo } from '../../shared-lib';
 import { REPO_PATHS } from '../../shared-lib/constants';
 
 function findSessionFiles(dir: string): string[] {
@@ -11,7 +10,7 @@ function findSessionFiles(dir: string): string[] {
   }
   return fs
     .readdirSync(dir)
-    .filter((f) => /^session_\d+_\d{4}-\d{2}-\d{2}\.jsonl$/i.test(f))
+    .filter((f) => /^session_\d+[a-z]?_\d{4}-\d{2}-\d{2}\.jsonl$/i.test(f))
     .map((f) => path.join(dir, f));
 }
 
@@ -24,16 +23,21 @@ function readJsonl(file: string): any[] {
     .map((l) => JSON.parse(l));
 }
 
-describe("scribe finalize (integration)", () => {
+describe("scribe finalize", () => {
   it("partitions session events correctly and writes output files", async () => {
     await withTempRepo("scribe-finalize-happy", { initGit: false }, async (repo) => {
       const commands = [
         "start p13",
-        "day start 31 hib 1511",
-        "move q13 normal",
+        "day start 30 hib 1511",
+        "move p14",
         "rest",
         "day start",
-        "move q14 fast",
+        "rest",
+        "day start",
+        "rest",
+        "day start",
+        "move p15",
+        "rest",
         "finalize"
       ];
       const { exitCode, stderr } = await runScribe(commands, { repo });
@@ -41,14 +45,21 @@ describe("scribe finalize (integration)", () => {
       expect(exitCode).toBe(0);
       expect(stderr).toBe("");
 
-      const files = findSessionFiles(REPO_PATHS.SESSIONS());
-      expect(files.length).toEqual(3); // Should be partitioned into 2 session files and 1 rollover file
+      console.log(`Session dir: ${REPO_PATHS.SESSIONS()}`);
 
+      const files = findSessionFiles(REPO_PATHS.SESSIONS());
+
+      // Gather all events from all session files
       const allEvents = files.flatMap(readJsonl);
 
-      // Should contain at least one day_start in each file
-      const dayStarts = allEvents.filter(e => e.kind === 'day_start');
-      expect(dayStarts.length).toBe(2);
+      // Find all unique season IDs from day_start events
+      const uniqueSeasons = new Set(
+        allEvents
+          .filter(e => e.kind === 'day_start')
+          .map(e => `${e.payload.calendarDate.year}-${String(e.payload.season).toLowerCase()}`)
+      );
+      console.log(`Unique seasons found: ${[...uniqueSeasons].join(', ')}`);
+      expect(files.length).toEqual(uniqueSeasons.size); // Should be one session file per unique season
 
       // Should contain all moves
       const moves = allEvents.filter(e => e.kind === 'move');
@@ -56,4 +67,3 @@ describe("scribe finalize (integration)", () => {
     });
   });
 });
-

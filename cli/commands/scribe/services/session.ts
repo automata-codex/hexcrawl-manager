@@ -214,7 +214,7 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
       return a._origIdx - b._origIdx;
     });
 
-  // (b) Identify all day_start events and their seasonId, build block windows
+  // (b) Identify all day_start events and their seasonId, build block windows by season
   const dayStartIndices = sortedEvents
     .map((e, i) => {
       const calendarDate = e.payload?.calendarDate as CanonicalDate;
@@ -226,13 +226,21 @@ export function finalizeSession(ctx: Context, devMode = false): { outputs: strin
   if (!dayStartIndices.length) {
     return { outputs: [], rollovers: [], error: '❌ No day_start event found in session.' };
   }
+
+  // Group consecutive day_starts with the same seasonId into a single block
   const blockWindows: { start: number, end: number, seasonId: string }[] = [];
-  for (let b = 0; b < dayStartIndices.length; ++b) {
-    const start = dayStartIndices[b].i;
-    const seasonId = dayStartIndices[b].seasonId;
-    const end = (b + 1 < dayStartIndices.length) ? dayStartIndices[b + 1].i : sortedEvents.length;
-    blockWindows.push({ start, end, seasonId });
+  let currentSeason = dayStartIndices[0].seasonId;
+  let blockStart = dayStartIndices[0].i;
+  for (let b = 1; b < dayStartIndices.length; ++b) {
+    if (dayStartIndices[b].seasonId !== currentSeason) {
+      blockWindows.push({ start: blockStart, end: dayStartIndices[b].i, seasonId: currentSeason });
+      currentSeason = dayStartIndices[b].seasonId;
+      blockStart = dayStartIndices[b].i;
+    }
   }
+
+  // Add the final block
+  blockWindows.push({ start: blockStart, end: sortedEvents.length, seasonId: currentSeason });
 
   // (c) Assign events to blocks (no duplication)
   // Track which block each event belongs to
