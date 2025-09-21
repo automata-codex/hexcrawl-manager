@@ -45,12 +45,15 @@
   async function exportSvgAsPng(
     svgElement: SVGSVGElement,
     fileName: string = 'map.png',
-    fullMap: boolean = false
+    fullMap: boolean = false,
   ) {
     // Clone the original SVG so we can modify it
     const clonedSvg = svgElement.cloneNode(true) as SVGSVGElement;
 
-    let width: number, height: number, offsetX = 0, offsetY = 0;
+    let width: number,
+      height: number,
+      offsetX = 0,
+      offsetY = 0;
 
     if (fullMap) {
       const inner = svgElement.querySelector('#map-content');
@@ -67,7 +70,10 @@
       // Set appropriate width/height on the clone
       clonedSvg.setAttribute('width', String(width));
       clonedSvg.setAttribute('height', String(height));
-      clonedSvg.setAttribute('viewBox', `${offsetX} ${offsetY} ${width} ${height}`);
+      clonedSvg.setAttribute(
+        'viewBox',
+        `${offsetX} ${offsetY} ${width} ${height}`,
+      );
     } else {
       width = svgElement.clientWidth;
       height = svgElement.clientHeight;
@@ -88,7 +94,7 @@
     await v.render();
 
     // Download as PNG
-    canvas.toBlob(blob => {
+    canvas.toBlob((blob) => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -104,14 +110,7 @@
       isOpen = false;
     }
   }
-
 </script>
-<style>
-    .open-panel-button {
-        height: 2.5rem;
-        width: 2.5rem;
-    }
-</style>
 
 {#if canAccess(role, [SCOPES.GM])}
   <div class="dropdown is-right is-active" bind:this={dropdownRef}>
@@ -146,3 +145,10 @@
     <FontAwesomeIcon icon={faArrowDownToBracket} />
   </button>
 {/if}
+
+<style>
+  .open-panel-button {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+</style>

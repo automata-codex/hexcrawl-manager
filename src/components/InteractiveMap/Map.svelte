@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { faLocationCrosshairs, faMagnifyingGlassArrowsRotate } from '@fortawesome/pro-light-svg-icons';
+  import {
+    faLocationCrosshairs,
+    faMagnifyingGlassArrowsRotate,
+  } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
@@ -68,7 +71,7 @@
       mapPaths = await mapPathResponse.json();
     })();
 
-    const resizeObserver = new ResizeObserver(entries => {
+    const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const width = entry.contentRect.width;
         const height = entry.contentRect.height;
@@ -84,7 +87,7 @@
   }
 
   function filterHexesByTag(tag: KnownTag | string) {
-    return hexes.filter(hex => {
+    return hexes.filter((hex) => {
       if (hex.tags) {
         return hex.tags.includes(tag.toString());
       }
@@ -148,7 +151,8 @@
     const clamped = Math.max(minElevation, Math.min(elevation, maxElevation));
 
     // Map elevation linearly across 360° hue wheel
-    const hue = ((clamped - minElevation) / (maxElevation - minElevation)) * 360;
+    const hue =
+      ((clamped - minElevation) / (maxElevation - minElevation)) * 360;
 
     // Optional: tweak these for visual clarity
     const saturation = 70;
@@ -200,7 +204,7 @@
       const { q, r } = parseHexId($selectedHex);
       const { x, y } = axialToPixel(q, r);
 
-      mapView.update(state => ({
+      mapView.update((state) => ({
         ...state,
         centerX: x,
         centerY: y,
@@ -254,7 +258,13 @@
     const svgMouseX = viewX + (mouseX / svgWidth) * (svgWidth / zoom);
     const svgMouseY = viewY + (mouseY / svgHeight) * (svgHeight / zoom);
 
-    updateZoomAtPoint(svgMouseX, svgMouseY, mouseX, mouseY, -Math.sign(e.deltaY));
+    updateZoomAtPoint(
+      svgMouseX,
+      svgMouseY,
+      mouseX,
+      mouseY,
+      -Math.sign(e.deltaY),
+    );
   }
 
   function handleZoomReset() {
@@ -266,52 +276,6 @@
     return `${colLabel}${row + 1}`;
   }
 </script>
-<style>
-    .map {
-        width: 100%;
-        height: 100%;
-    }
-
-    .map-container {
-        width: 100vw;
-        height: 100vh;
-    }
-
-    .main-controls {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        z-index: 100;
-        align-items: flex-end;
-    }
-
-    .zoom-controls {
-        position: absolute;
-        bottom: 1rem;
-        right: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        z-index: 100;
-        align-items: flex-end;
-    }
-
-    .zoom-controls button {
-        font-size: 1.25rem;
-        padding: 0.5rem;
-        height: 2.5rem;
-        width: 2.5rem;
-        border-radius: 0.25em;
-        cursor: pointer;
-    }
-
-    .zoom-controls button:hover {
-        background: #888;
-    }
-</style>
 
 <div class="zoom-controls">
   <button class="button" onclick={() => applyZoomDelta(1)}>+</button>
@@ -347,7 +311,7 @@
     onmouseup={handleMouseUp}
     onmouseleave={handleMouseLeave}
     onwheel={handleWheel}
-    viewBox={viewBox}
+    {viewBox}
     xmlns="http://www.w3.org/2000/svg"
     style="background: #fafafa;"
   >
@@ -416,12 +380,7 @@
           {#if isValidHexId(hex.id)}
             {@const { q, r } = parseHexId(hex.id)}
             {@const { x, y } = axialToPixel(q, r)}
-            <HexTile
-              fill="none"
-              hexWidth={HEX_WIDTH}
-              {x}
-              {y}
-            />
+            <HexTile fill="none" hexWidth={HEX_WIDTH} {x} {y} />
           {/if}
         {/each}
       </g>
@@ -504,20 +463,12 @@
         />
       </g>
       {#if !canAccess(role, [SCOPES.GM])}
-        <g
-          id="layer-player-mask"
-          style:display="true"
-        >
+        <g id="layer-player-mask" style:display="true">
           {#each hexes as hex (hex.id)}
             {#if isValidHexId(hex.id) && !hex.isVisited && !hex.isScouted}
               {@const { q, r } = parseHexId(hex.id)}
               {@const { x, y } = axialToPixel(q, r)}
-              <HexTile
-                fill="white"
-                hexWidth={HEX_WIDTH}
-                {x}
-                {y}
-              />
+              <HexTile fill="white" hexWidth={HEX_WIDTH} {x} {y} />
             {/if}
           {/each}
         </g>
@@ -531,8 +482,8 @@
             {@const { q, r } = parseHexId(hex.id)}
             {@const { x, y } = axialToPixel(q, r)}
             <text
-              x={x}
-              y={y + (HEX_HEIGHT / 2) - 4}
+              {x}
+              y={y + HEX_HEIGHT / 2 - 4}
               font-size="12"
               text-anchor="middle"
               fill="black"
@@ -551,8 +502,8 @@
               active={$selectedHex === hex.id}
               hexId={hex.id}
               hexWidth={HEX_WIDTH}
-              x={x}
-              y={y}
+              {x}
+              {y}
               onClick={handleHexClick}
             />
           {/if}
@@ -561,3 +512,50 @@
     </g>
   </svg>
 </div>
+
+<style>
+  .map {
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-container {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .main-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    z-index: 100;
+    align-items: flex-end;
+  }
+
+  .zoom-controls {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    z-index: 100;
+    align-items: flex-end;
+  }
+
+  .zoom-controls button {
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 0.25em;
+    cursor: pointer;
+  }
+
+  .zoom-controls button:hover {
+    background: #888;
+  }
+</style>

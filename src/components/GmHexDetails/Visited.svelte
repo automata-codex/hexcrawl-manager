@@ -12,6 +12,7 @@
 
   const icon = $derived(hex.isVisited ? faSquareCheck : faSquare);
 </script>
+
 <div class="data-bar-cell">
   Visited:{' '}<FontAwesomeIcon {icon} />
 </div>

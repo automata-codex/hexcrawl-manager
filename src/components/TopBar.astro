@@ -1,5 +1,10 @@
 ---
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/astro/components';
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from '@clerk/astro/components';
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faMountainSun } from '@fortawesome/pro-light-svg-icons';
 import { faBars } from '@fortawesome/pro-regular-svg-icons';
@@ -7,41 +12,42 @@ import { faBars } from '@fortawesome/pro-regular-svg-icons';
 const menuIcon = icon(faBars);
 const skyreachIcon = icon(faMountainSun);
 ---
+
 <style>
+  .clerk-icon {
+    padding-right: 0;
+  }
+
+  .sidebar-toggle {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    height: fit-content;
+    align-self: center;
+  }
+
+  .sidebar-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  @media screen and (min-width: 768px) and (max-width: 1023px) {
     .clerk-icon {
-        padding-right: 0;
+      padding-right: 0.75rem;
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    .navbar {
+      display: flex;
+      align-items: center;
     }
 
-    .sidebar-toggle {
-        margin-right: 0.5rem;
-        font-size: 1rem;
-        border-radius: 4px;
-        padding: 0.25rem 0.5rem;
-        height: fit-content;
-        align-self: center;
+    .navbar-end {
+      justify-content: flex-end;
+      margin-inline-start: auto;
     }
-
-    .sidebar-toggle:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-
-    @media screen and (min-width: 768px) and (max-width: 1023px) {
-        .clerk-icon {
-            padding-right: 0.75rem;
-        }
-    }
-
-    @media screen and (min-width: 768px) {
-        .navbar {
-            display: flex;
-            align-items: center;
-        }
-
-        .navbar-end {
-            justify-content: flex-end;
-            margin-inline-start: auto;
-        }
-    }
+  }
 </style>
 <div class="container is-max-desktop">
   <nav class="navbar" role="navigation">

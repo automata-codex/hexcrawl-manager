@@ -1,7 +1,11 @@
 <script lang="ts">
-  import { type CurrentPartyMember, encounterBuilderStore } from '../../stores/encounter-builder';
+  import {
+    type CurrentPartyMember,
+    encounterBuilderStore,
+  } from '../../stores/encounter-builder';
 
-  const { addCustomCharacter, addToParty, removeFromParty, setOverrideLevel } = encounterBuilderStore;
+  const { addCustomCharacter, addToParty, removeFromParty, setOverrideLevel } =
+    encounterBuilderStore;
 
   let customLevel = $state(1);
   let customName = $state('');
@@ -57,7 +61,7 @@
       </button>
     </div>
     <div class="control">
-      <button class="button" onclick={() => showQuickAdd = !showQuickAdd}>
+      <button class="button" onclick={() => (showQuickAdd = !showQuickAdd)}>
         {showQuickAdd ? 'Cancel' : 'Quick Add'}
       </button>
     </div>
@@ -69,14 +73,26 @@
       <div class="field">
         <label class="label" for="custom-name">Name</label>
         <div class="control">
-          <input id="custom-name" class="input" type="text" bind:value={customName} placeholder="Character Name" />
+          <input
+            id="custom-name"
+            class="input"
+            type="text"
+            bind:value={customName}
+            placeholder="Character Name"
+          />
         </div>
       </div>
 
       <div class="field">
         <label class="label" for="custom-level">Level</label>
         <div class="control">
-          <input id="custom-level" class="input" type="number" min="1" bind:value={customLevel} />
+          <input
+            id="custom-level"
+            class="input"
+            type="number"
+            min="1"
+            bind:value={customLevel}
+          />
         </div>
       </div>
 
@@ -87,7 +103,10 @@
           </button>
         </div>
         <div class="control">
-          <button class="button is-light" onclick={() => showQuickAdd = false}>
+          <button
+            class="button is-light"
+            onclick={() => (showQuickAdd = false)}
+          >
             Cancel
           </button>
         </div>
@@ -135,10 +154,8 @@
   <!-- Live APL -->
   <div class="notification is-info is-light">
     <strong>Average Party Level (APL):</strong>
-    {
-      $encounterBuilderStore.currentParty.length
-        ? calculateApl($encounterBuilderStore.currentParty).toFixed(2)
-        : 'N/A'
-    }
+    {$encounterBuilderStore.currentParty.length
+      ? calculateApl($encounterBuilderStore.currentParty).toFixed(2)
+      : 'N/A'}
   </div>
 </div>

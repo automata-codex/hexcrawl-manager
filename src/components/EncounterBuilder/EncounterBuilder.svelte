@@ -16,12 +16,12 @@
   <!-- Current Encounter List -->
   <div class="box">
     <h3 class="subtitle is-5">Encounter Composition</h3>
-     <EncounterList />
+    <EncounterList />
   </div>
 
   <!-- XP Calculation and Difficulty -->
   <div class="notification is-light">
     <h3 class="subtitle is-5">Encounter Difficulty</h3>
-     <XpCalculator />
+    <XpCalculator />
   </div>
 </div>

@@ -21,45 +21,48 @@
 {#if $encounterBuilderStore.encounterMonsters.length > 0}
   <table class="table is-fullwidth is-striped is-hoverable">
     <thead>
-    <tr>
-      <th>Monster</th>
-      <th>CR</th>
-      <th>XP Each</th>
-      <th>Quantity</th>
-      <th>Total XP</th>
-      <th></th>
-    </tr>
+      <tr>
+        <th>Monster</th>
+        <th>CR</th>
+        <th>XP Each</th>
+        <th>Quantity</th>
+        <th>Total XP</th>
+        <th></th>
+      </tr>
     </thead>
     <tbody>
-    {#each $encounterBuilderStore.encounterMonsters as encounterMonster}
-      {@const monster = getMonsterById(encounterMonster.id)}
-      {#if monster}
-        <tr>
-          <td>{monster.name}</td>
-          <td>{monster.challenge_rating}</td>
-          <td>{getXpForCr(monster.challenge_rating)}</td>
-          <td>
-            <input
-              class="input is-small"
-              type="number"
-              min="0"
-              value={encounterMonster.quantity}
-              oninput={(e) => handleQuantityChange(encounterMonster.id, e)}
-              style="width: 5rem;"
-            />
-          </td>
-          <td>{getXpForCr(monster.challenge_rating) * encounterMonster.quantity}</td>
-          <td>
-            <button
-              class="button is-small is-danger"
-              onclick={() => handleRemoveMonster(encounterMonster.id)}
+      {#each $encounterBuilderStore.encounterMonsters as encounterMonster}
+        {@const monster = getMonsterById(encounterMonster.id)}
+        {#if monster}
+          <tr>
+            <td>{monster.name}</td>
+            <td>{monster.challenge_rating}</td>
+            <td>{getXpForCr(monster.challenge_rating)}</td>
+            <td>
+              <input
+                class="input is-small"
+                type="number"
+                min="0"
+                value={encounterMonster.quantity}
+                oninput={(e) => handleQuantityChange(encounterMonster.id, e)}
+                style="width: 5rem;"
+              />
+            </td>
+            <td
+              >{getXpForCr(monster.challenge_rating) *
+                encounterMonster.quantity}</td
             >
-              Remove
-            </button>
-          </td>
-        </tr>
-      {/if}
-    {/each}
+            <td>
+              <button
+                class="button is-small is-danger"
+                onclick={() => handleRemoveMonster(encounterMonster.id)}
+              >
+                Remove
+              </button>
+            </td>
+          </tr>
+        {/if}
+      {/each}
     </tbody>
   </table>
 {:else}

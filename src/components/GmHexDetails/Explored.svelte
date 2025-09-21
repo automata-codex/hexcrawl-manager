@@ -12,6 +12,7 @@
 
   const icon = $derived(hex.isExplored ? faSquareCheck : faSquare);
 </script>
+
 <div class="data-bar-cell">
   Explored:{' '}<FontAwesomeIcon {icon} />
 </div>

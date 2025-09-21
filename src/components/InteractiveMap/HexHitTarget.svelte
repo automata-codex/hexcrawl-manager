@@ -10,14 +10,7 @@
     y: number;
   }
 
-  const {
-    active = false,
-    hexId,
-    hexWidth,
-    onClick,
-    x,
-    y,
-  }: Props = $props();
+  const { active = false, hexId, hexWidth, onClick, x, y }: Props = $props();
 
   function handleClick(event: Event) {
     event.stopPropagation();
@@ -30,16 +23,9 @@
     }
   }
 </script>
-<style>
-    polygon.active {
-        stroke: gold;
-        stroke-width: 3;
-        filter: drop-shadow(0 0 6px gold);
-        transition: stroke-width 0.1s ease, filter 0.2s ease;
-    }
-</style>
+
 <polygon
-  class:active={active}
+  class:active
   data-hexid={hexId}
   points={getHexSvgPath(x, y, hexWidth)}
   fill="transparent"
@@ -50,3 +36,14 @@
   onclick={handleClick}
   onkeydown={handleKeyDown}
 />
+
+<style>
+  polygon.active {
+    stroke: gold;
+    stroke-width: 3;
+    filter: drop-shadow(0 0 6px gold);
+    transition:
+      stroke-width 0.1s ease,
+      filter 0.2s ease;
+  }
+</style>

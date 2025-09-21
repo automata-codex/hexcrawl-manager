@@ -27,41 +27,46 @@ const articles = await getCollection('articles');
 const dungeons = await getCollection('dungeons');
 const hexData = await getCollection('hexes');
 const hexes = hexData
-  .filter(hex => hex.data.regionId === region.id)
-  .map(hex => hex.data.id.toUpperCase())
+  .filter((hex) => hex.data.regionId === region.id)
+  .map((hex) => hex.data.id.toUpperCase())
   .sort((a, b) => a.localeCompare(b));
 ---
+
 <style>
-    .description-container {
-        margin-top: 1rem;
+  .description-container {
+    margin-top: 1rem;
 
-        p:not(:first-child) {
-            text-indent: var(--skyreach-standard-indent);
-        }
+    p:not(:first-child) {
+      text-indent: var(--skyreach-standard-indent);
     }
+  }
 
-    .hex-list {
-        display: flex;
-        font-weight: bold;
+  .hex-list {
+    display: flex;
+    font-weight: bold;
 
-        div {
-            margin-right: 1rem;
-        }
+    div {
+      margin-right: 1rem;
     }
+  }
 </style>
 <SecretContent>
   <div>
     <div class="hex-list">
       <div><span class="inline-heading">Hexes:</span></div>
-      {hexes.map(hex => (
-        <div>
-          <a href={getHexPath(hex.toLowerCase())}>{hex}</a>
-        </div>
-      ))}
+      {
+        hexes.map((hex) => (
+          <div>
+            <a href={getHexPath(hex.toLowerCase())}>{hex}</a>
+          </div>
+        ))
+      }
       <div>|</div>
       <div><a href=`${getRegionPath(region.id)}/hexes`>View all</a></div>
     </div>
-    <div class="hanging-indent"><span class="inline-heading">Haven:</span>{' '}{region.haven}</div>
+    <div class="hanging-indent">
+      <span class="inline-heading">Haven:</span>{' '}{region.haven}
+    </div>
     <ContentDensity
       dungeons={dungeons}
       hexData={hexData}
@@ -81,8 +86,7 @@ const hexes = hexData
     <p class="hanging-indent">
       <span class="inline-heading">Chance of encounter:</span>
       {' '}
-      {region.encounterChance * 5}%
-      (&le;{region.encounterChance})
+      {region.encounterChance * 5}% (&le;{region.encounterChance})
     </p>
     <RandomEncounterTable data={region.encounters} />
   </div>

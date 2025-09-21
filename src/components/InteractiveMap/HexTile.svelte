@@ -9,17 +9,12 @@
     y: number;
   }
 
-  const {
-    fill = '#CCC',
-    hexWidth,
-    stroke = 'black',
-    x,
-    y,
-  }: Props = $props();
+  const { fill = '#CCC', hexWidth, stroke = 'black', x, y }: Props = $props();
 </script>
+
 <polygon
   points={getHexSvgPath(x, y, hexWidth)}
-  fill={fill}
-  stroke={stroke}
+  {fill}
+  {stroke}
   stroke-width={1}
 />

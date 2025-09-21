@@ -12,25 +12,32 @@ if (!specialAbilities || specialAbilities.length === 0) {
   return null;
 }
 ---
-<style>
-    h3 {
-        font-size: 1.25rem;
-        font-weight: bold;
-        page-break-after: avoid;
-    }
 
-    .trait-name {
-        font-style: italic;
-        font-weight: bold;
-    }
+<style>
+  h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    page-break-after: avoid;
+  }
+
+  .trait-name {
+    font-style: italic;
+    font-weight: bold;
+  }
 </style>
 <h3>Traits</h3>
-{specialAbilities.map((trait) => (
-<div>
-  <span class="trait-name">{trait.recharge ? `${trait.name} (Recharge ${trait.recharge})` : trait.name}.</span>
-  {' '}
-  <span class="trait-description">
-    <Fragment set:html={renderBulletMarkdown(trait.desc)} />
-  </span>
-</div>
-  ))}
+{
+  specialAbilities.map((trait) => (
+    <div>
+      <span class="trait-name">
+        {trait.recharge
+          ? `${trait.name} (Recharge ${trait.recharge})`
+          : trait.name}
+        .
+      </span>{' '}
+      <span class="trait-description">
+        <Fragment set:html={renderBulletMarkdown(trait.desc)} />
+      </span>
+    </div>
+  ))
+}

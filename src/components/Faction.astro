@@ -10,20 +10,21 @@ interface Props {
 
 const { faction } = Astro.props;
 ---
-<style is:global>
-    p {
-        text-indent: var(--skyreach-standard-indent);
-    }
 
-    p:first-child {
-        text-indent: 0;
-    }
+<style is:global>
+  p {
+    text-indent: var(--skyreach-standard-indent);
+  }
+
+  p:first-child {
+    text-indent: 0;
+  }
 </style>
 <style>
-    .ideology {
-        font-style: italic;
-        margin: 0 10% 1rem;
-    }
+  .ideology {
+    font-style: italic;
+    margin: 0 10% 1rem;
+  }
 </style>
 <section>
   <h2 class="title is-3">{formatText(faction.name)}</h2>
@@ -40,9 +41,7 @@ const { faction } = Astro.props;
   <h3 class="title is-5">Areas of Operation</h3>
   <div>
     <ul>
-      {faction.areaOfOperation.map((area) => (
-        <li>{formatText(area)}</li>
-      ))}
+      {faction.areaOfOperation.map((area) => <li>{formatText(area)}</li>)}
     </ul>
   </div>
 </section>

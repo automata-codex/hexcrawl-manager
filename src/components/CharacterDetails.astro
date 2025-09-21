@@ -28,34 +28,39 @@ const subheading = (text: string) => {
 };
 
 // Format text
-const backstoryTitle = character.backstoryTitle ? `Backstory: ${character.backstoryTitle}` : 'Backstory';
+const backstoryTitle = character.backstoryTitle
+  ? `Backstory: ${character.backstoryTitle}`
+  : 'Backstory';
 
 function getBackstoryText(markdown: string): Promise<string> {
-  return isSubcomponent ? renderSubArticleMarkdown(markdown) : renderMarkdown(markdown);
+  return isSubcomponent
+    ? renderSubArticleMarkdown(markdown)
+    : renderMarkdown(markdown);
 }
 ---
-<style is:global>
-    p {
-        text-indent: var(--skyreach-standard-indent);
-    }
 
-    p:first-child,
-    h2 + p,
-    h3 + p,
-    h4 + p,
-    h5 + p,
-    h6 + p {
-        text-indent: 0;
-    }
+<style is:global>
+  p {
+    text-indent: var(--skyreach-standard-indent);
+  }
+
+  p:first-child,
+  h2 + p,
+  h3 + p,
+  h4 + p,
+  h5 + p,
+  h6 + p {
+    text-indent: 0;
+  }
 </style>
 <style>
-    .data-container {
-        display: flex;
-    }
+  .data-container {
+    display: flex;
+  }
 
-    .data-container > div {
-        width: 50%;
-    }
+  .data-container > div {
+    width: 50%;
+  }
 </style>
 <div class="data-container">
   <div>
@@ -75,21 +80,27 @@ function getBackstoryText(markdown: string): Promise<string> {
     </ul>
   </div>
 </div>
-{character.backstory &&
-  <div>
-    <Fragment set:html={subheading(backstoryTitle)} />
-    <Fragment set:html={getBackstoryText(character.backstory)} />
-  </div>
+{
+  character.backstory && (
+    <div>
+      <Fragment set:html={subheading(backstoryTitle)} />
+      <Fragment set:html={getBackstoryText(character.backstory)} />
+    </div>
+  )
 }
-{character.goals &&
-  <div>
-    <Fragment set:html={subheading('Goals')} />
-    <Fragment set:html={renderMarkdown(character.goals)} />
-  </div>
+{
+  character.goals && (
+    <div>
+      <Fragment set:html={subheading('Goals')} />
+      <Fragment set:html={renderMarkdown(character.goals)} />
+    </div>
+  )
 }
-{character.notes &&
-  <div>
-    <Fragment set:html={subheading('Notes')} />
-    <Fragment set:html={renderMarkdown(character.notes)} />
-  </div>
+{
+  character.notes && (
+    <div>
+      <Fragment set:html={subheading('Notes')} />
+      <Fragment set:html={renderMarkdown(character.notes)} />
+    </div>
+  )
 }

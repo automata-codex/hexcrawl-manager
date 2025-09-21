@@ -11,7 +11,7 @@
     name: string;
     score: number;
     summary: string;
-  }
+  };
 
   // Build a lookup map: hexId -> [clues]
   const hexToClues: Record<string, ClueData[]> = {};
@@ -30,7 +30,9 @@
     }
   }
 
-  const cluesForThisHex = [...hexToClues[hexId] ?? []].sort((a, b) => b.score - a.score);
+  const cluesForThisHex = [...(hexToClues[hexId] ?? [])].sort(
+    (a, b) => b.score - a.score,
+  );
 </script>
 
 {#if cluesForThisHex.length > 0}

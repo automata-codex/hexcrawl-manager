@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { faChevronRight } from '@fortawesome/pro-light-svg-icons'
+  import { faChevronRight } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 
   import {
@@ -21,7 +21,7 @@
       case 'dungeon':
         return getDungeonPath(ref.id);
       case 'floating-clue':
-        return getFloatingCluePath(ref.id)
+        return getFloatingCluePath(ref.id);
       case 'hex':
         return getHexPath(ref.id);
       case 'hidden-site':
@@ -46,39 +46,7 @@
     }
   }
 </script>
-<style>
-    button {
-        background: none;
-        border: none;
-        font-size: 1em;
-        padding: 0;
-        cursor: pointer;
-        width: 1.5em;
-    }
 
-    span.rotated {
-        display: inline-block;
-        transform: rotate(90deg);
-        transition: transform 0.2s ease;
-    }
-
-    span.chevron {
-        display: inline-block;
-        transition: transform 0.2s ease;
-    }
-
-    .leaf-node-name {
-        font-weight: bold;
-    }
-
-    .parent-node-text {
-        color: var(--bulma-strong-color);
-    }
-
-    .unused {
-        color: var(--bulma-strong-color);
-    }
-</style>
 <div class:heading={node.children?.length}>
   <div style="display: flex">
     {#if node.children?.length}
@@ -91,7 +59,10 @@
     {#if !node.children?.length}
       <ul>
         <li>
-          <span class="leaf-node-name" class:unused={!placementMap[fullId]?.length}>{node.name}:{' '}</span>
+          <span
+            class="leaf-node-name"
+            class:unused={!placementMap[fullId]?.length}>{node.name}:{' '}</span
+          >
           <span class="node-description">{node.description}</span>
           {#if placementMap[fullId]?.length}
             <ul>
@@ -135,8 +106,46 @@
   {#if isExpanded && node.children?.length}
     <div style="margin-left: 1.5em;">
       {#each node.children as child}
-        <svelte:self node={child} fullId={`${fullId}.${child.id}`} {placementMap} />
+        <svelte:self
+          node={child}
+          fullId={`${fullId}.${child.id}`}
+          {placementMap}
+        />
       {/each}
     </div>
   {/if}
 </div>
+
+<style>
+  button {
+    background: none;
+    border: none;
+    font-size: 1em;
+    padding: 0;
+    cursor: pointer;
+    width: 1.5em;
+  }
+
+  span.rotated {
+    display: inline-block;
+    transform: rotate(90deg);
+    transition: transform 0.2s ease;
+  }
+
+  span.chevron {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  .leaf-node-name {
+    font-weight: bold;
+  }
+
+  .parent-node-text {
+    color: var(--bulma-strong-color);
+  }
+
+  .unused {
+    color: var(--bulma-strong-color);
+  }
+</style>

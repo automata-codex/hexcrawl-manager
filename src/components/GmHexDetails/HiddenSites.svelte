@@ -11,6 +11,7 @@
 
   const { hex, knowledgeTrees }: Props = $props();
 </script>
+
 {#if hex.renderedHiddenSites && hex.renderedHiddenSites.length > 0}
   {#if hex.renderedHiddenSites.length === 1}
     <div>
@@ -20,7 +21,10 @@
       </p>
       <div style="margin-left: 1rem">
         {#if hex.renderedHiddenSites[0].unlocks}
-          <Unlocks knowledgeTrees={knowledgeTrees} unlocks={hex.renderedHiddenSites[0].unlocks} />
+          <Unlocks
+            {knowledgeTrees}
+            unlocks={hex.renderedHiddenSites[0].unlocks}
+          />
         {/if}
       </div>
       {#if hex.renderedHiddenSites[0].treasure}
@@ -37,7 +41,7 @@
           {@html site.description}
           <div>
             {#if site.unlocks}
-              <Unlocks knowledgeTrees={knowledgeTrees} unlocks={site.unlocks} />
+              <Unlocks {knowledgeTrees} unlocks={site.unlocks} />
             {/if}
           </div>
           {#if site.treasure}

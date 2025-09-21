@@ -23,6 +23,7 @@ const {
 
 const nameText = recharge ? `${name} (Recharge ${recharge})` : name;
 ---
+
 <style>
   .action-name {
     font-style: italic;
@@ -36,12 +37,14 @@ const nameText = recharge ? `${name} (Recharge ${recharge})` : name;
 <div>
   <span class="action-name">{nameText}.</span>
   {' '}
-  {use_desc && (
-    <span>
-      {' '}
-      <Fragment set:html={renderBulletMarkdown(action.desc ?? '')} />
-    </span>
-  )}
+  {
+    use_desc && (
+      <span>
+        {' '}
+        <Fragment set:html={renderBulletMarkdown(action.desc ?? '')} />
+      </span>
+    )
+  }
   <span class="attack-type">Ranged Weapon Attack:</span>
   {' '}
   <span>+{attack_bonus} to hit,</span>

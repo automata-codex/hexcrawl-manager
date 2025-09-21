@@ -8,4 +8,5 @@ import type { Scope } from '../../types.ts';
 
 const role = getCurrentUserRole(Astro.locals);
 ---
+
 {canAccess(role, [SCOPES.GM, SCOPES.PLAYER]) && <slot />}

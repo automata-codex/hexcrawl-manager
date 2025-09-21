@@ -19,7 +19,8 @@
 
   let filtered = $derived(() => {
     const matchesFilter = (e: Entry) =>
-      !typeFilter || (e.entry?.data.type ?? e.entries?.[0]?.data?.type) === typeFilter;
+      !typeFilter ||
+      (e.entry?.data.type ?? e.entries?.[0]?.data?.type) === typeFilter;
 
     const matchesSearch = (e: Entry) =>
       !search || e.label.toLowerCase().includes(search.toLowerCase());
@@ -28,23 +29,21 @@
   });
 
   function getSortedEntries(entries: any[]) {
-    return [ ...entries ].sort((a, b) => a.data.name.localeCompare(b.data.name));
+    return [...entries].sort((a, b) => a.data.name.localeCompare(b.data.name));
   }
 </script>
-<style>
-    .search-controls {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin: 1rem 0;
-    }
-</style>
+
 <div class="search-controls">
   <div class="field is-horizontal" style="width: 50%">
     <div class="field-label is-normal" style="margin-inline-end: 0.25rem">
-      <div class="label" >Search:</div>
+      <div class="label">Search:</div>
     </div>
-    <input class="input" type="text" bind:value={search} placeholder="Tarrasque" />
+    <input
+      class="input"
+      type="text"
+      bind:value={search}
+      placeholder="Tarrasque"
+    />
   </div>
   <div class="field is-horizontal">
     <div class="field-label is-normal" style="margin-inline-end: 0.25rem">
@@ -88,3 +87,12 @@
     {/if}
   {/each}
 </ul>
+
+<style>
+  .search-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1rem 0;
+  }
+</style>

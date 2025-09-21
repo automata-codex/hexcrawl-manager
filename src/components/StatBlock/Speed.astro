@@ -17,7 +17,8 @@ const data = Object.entries(speed)
       return 1;
     }
     return a[0].localeCompare(b[0]);
-  }).map(([key, value]) => {
+  })
+  .map(([key, value]) => {
     if (key === 'walk') {
       return `${value} ft.`;
     } else if (key === 'fly' && hover) {
@@ -26,7 +27,9 @@ const data = Object.entries(speed)
     return `${key} ${value} ft.`;
   });
 ---
+
 <div>
   <span class="inline-heading">Speed:</span>
   {' '}
-  {data.join(', ')}</div>
+  {data.join(', ')}
+</div>

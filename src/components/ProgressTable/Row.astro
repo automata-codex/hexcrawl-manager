@@ -10,37 +10,38 @@ interface Props {
 
 const { character } = Astro.props;
 ---
+
 <style is:global>
-    .subgrid {
-        display: grid;
-        gap: 0.25rem 0.5rem;
-        grid-template-rows: min-content;
-    }
+  .subgrid {
+    display: grid;
+    gap: 0.25rem 0.5rem;
+    grid-template-rows: min-content;
+  }
 
-    .subgrid.two-cols {
-        grid-template-columns: auto auto;
-    }
+  .subgrid.two-cols {
+    grid-template-columns: auto auto;
+  }
 
-    .subgrid.four-cols {
-        grid-template-columns: auto auto auto auto;
-    }
+  .subgrid.four-cols {
+    grid-template-columns: auto auto auto auto;
+  }
 
-    .subgrid.six-cols {
-        grid-template-columns: auto auto auto auto auto auto;
-    }
+  .subgrid.six-cols {
+    grid-template-columns: auto auto auto auto auto auto;
+  }
 </style>
 <style>
-    tr {
-        border-bottom: 1px solid var(--bulma-border);
-    }
+  tr {
+    border-bottom: 1px solid var(--bulma-border);
+  }
 
-    tr:first-child {
-        border-top: 1px solid var(--bulma-border);
-    }
+  tr:first-child {
+    border-top: 1px solid var(--bulma-border);
+  }
 
-    td {
-        padding: 0.5rem 0.25rem;
-    }
+  td {
+    padding: 0.5rem 0.25rem;
+  }
 </style>
 <tr>
   <td>

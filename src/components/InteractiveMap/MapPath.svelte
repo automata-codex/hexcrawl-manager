@@ -1,7 +1,13 @@
 <script lang="ts">
   import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import { parseHexId } from '../../utils/hexes.ts';
-  import { axialToPixel, DEG_TO_RAD, EDGE_OFFSET, HEX_HEIGHT, HEX_RADIUS } from '../../utils/interactive-map.ts';
+  import {
+    axialToPixel,
+    DEG_TO_RAD,
+    EDGE_OFFSET,
+    HEX_HEIGHT,
+    HEX_RADIUS,
+  } from '../../utils/interactive-map.ts';
 
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import type { SegmentMetadataData } from '../../types.ts';
@@ -94,7 +100,7 @@
   }
 
   function resolvePathPoint(point: string): { x: number; y: number } {
-    const [ hexId, anchor ] = point.split(':');
+    const [hexId, anchor] = point.split(':');
     const { q, r } = parseHexId(hexId);
 
     const { x: baseX, y: baseY } = axialToPixel(q, r);
@@ -132,6 +138,7 @@
       }),
   );
 </script>
+
 <g
   id={`layer-${type}`}
   style:display={!$layerVisibility[type] ? 'none' : undefined}

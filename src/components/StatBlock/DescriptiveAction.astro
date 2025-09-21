@@ -4,21 +4,24 @@ import { renderBulletMarkdown } from '../../utils/markdown';
 import type { DescriptiveActionData } from '../../types';
 
 interface Props {
-  action: DescriptiveActionData
+  action: DescriptiveActionData;
 }
 
 const { action } = Astro.props;
-const nameText = action.recharge ? `${action.name} (Recharge ${action.recharge})` : action.name;
+const nameText = action.recharge
+  ? `${action.name} (Recharge ${action.recharge})`
+  : action.name;
 ---
-<style>
-    .action-name {
-        font-style: italic;
-        font-weight: bold;
-    }
 
-    .attack-type {
-        font-style: italic;
-    }
+<style>
+  .action-name {
+    font-style: italic;
+    font-weight: bold;
+  }
+
+  .attack-type {
+    font-style: italic;
+  }
 </style>
 <div>
   <span class="action-name">{nameText}.</span>

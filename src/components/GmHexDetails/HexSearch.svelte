@@ -3,10 +3,14 @@
 
   import GmHexDetails from './GmHexDetails.svelte';
 
-  import type { DungeonEntry, ExtendedHexData, FlatKnowledgeTree } from '../../types';
+  import type {
+    DungeonEntry,
+    ExtendedHexData,
+    FlatKnowledgeTree,
+  } from '../../types';
 
   interface Props {
-    dungeons: DungeonEntry[]
+    dungeons: DungeonEntry[];
     hexes: ExtendedHexData[];
     knowledgeTrees: Record<string, FlatKnowledgeTree>;
   }
@@ -29,22 +33,25 @@
       results = hexes; // Show all
     } else if (isHexId(q)) {
       const id = normalizeHexId(q);
-      results = hexes.filter(hex => hex.id.toUpperCase() === id);
+      results = hexes.filter((hex) => hex.id.toUpperCase() === id);
     } else {
-      results = hexes.filter(hex =>
-        hex.name.toLowerCase().includes(q) ||
-        (typeof hex.landmark === 'string' && hex.landmark.toLowerCase().includes(q)) ||
-        (typeof hex.landmark !== 'string' && hex.landmark.description.toLowerCase().includes(q)) ||
-        hex.hiddenSites?.some((site) => {
-          if (typeof site === 'string') {
-            return site.toLowerCase().includes(q);
-          }
-          return site.description.toLowerCase().includes(q)
-        }) ||
-        hex.notes?.some((note) => {
-          return note.toLowerCase().includes(q);
-        }) ||
-        hex.secretSite?.toLowerCase().includes(q)
+      results = hexes.filter(
+        (hex) =>
+          hex.name.toLowerCase().includes(q) ||
+          (typeof hex.landmark === 'string' &&
+            hex.landmark.toLowerCase().includes(q)) ||
+          (typeof hex.landmark !== 'string' &&
+            hex.landmark.description.toLowerCase().includes(q)) ||
+          hex.hiddenSites?.some((site) => {
+            if (typeof site === 'string') {
+              return site.toLowerCase().includes(q);
+            }
+            return site.description.toLowerCase().includes(q);
+          }) ||
+          hex.notes?.some((note) => {
+            return note.toLowerCase().includes(q);
+          }) ||
+          hex.secretSite?.toLowerCase().includes(q),
       );
     }
   };
@@ -53,6 +60,7 @@
     results = hexes; // Show all by default
   });
 </script>
+
 <div class="hex-search">
   <input
     class="input"

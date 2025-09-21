@@ -22,7 +22,9 @@ function getCharacterName(characterId: string): string {
 function getPlayerName(characterId: string): string {
   const character = characterData.find((char) => char.id === characterId);
   if (!character) return 'Unknown Player';
-  const player = playerData.find((player) => player.id === character.data.playerId);
+  const player = playerData.find(
+    (player) => player.id === character.data.playerId,
+  );
   return player ? player.data.displayName : 'Unknown Player';
 }
 
@@ -36,4 +38,5 @@ if (typeof character === 'string') {
   playerName = character.playerName as string;
 }
 ---
+
 {characterName} ({playerName})

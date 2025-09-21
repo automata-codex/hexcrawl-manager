@@ -10,7 +10,8 @@ interface Props {
 }
 
 const { treasure } = Astro.props;
-const extendedTreasure: ExtendedTreasureData[] = await processTreasure(treasure);
+const extendedTreasure: ExtendedTreasureData[] =
+  await processTreasure(treasure);
 ---
 
 <TreasureTable treasure={extendedTreasure} />
