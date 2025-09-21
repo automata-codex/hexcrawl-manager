@@ -367,31 +367,25 @@ describe('scribe finalize', () => {
     expect(true).toBe(false); // Placeholder
   });
 
-  it.skip('errors if output directory is unwritable', async () => {
+  it('errors if output directory is unwritable', async () => {
     await withTempRepo('scribe-finalize-fs-error', { initGit: false }, async (repo) => {
       const sessionsDir = REPO_PATHS.SESSIONS();
       fs.mkdirSync(sessionsDir, { recursive: true });
       fs.chmodSync(sessionsDir, 0o400); // read-only
-      let errorCaught = false;
-      try {
-        const commands = [
-          'start p13',
-          'day start 8 umb 1511',
-          'finalize'
-        ];
-        const { exitCode, stderr } = await runScribe(commands, { repo });
-        expect(exitCode).not.toBe(0);
-        expect(stderr).toMatch(/error|fail|permission/i);
-      } catch (e) {
-        errorCaught = true;
-      } finally {
-        fs.chmodSync(sessionsDir, 0o700); // restore permissions
-      }
-      expect(errorCaught).toBe(false); // test should not throw
+      const commands = [
+        'start p13',
+        'day start 8 umb 1511',
+        'finalize'
+      ];
+      const { exitCode, stderr, stdout } = await runScribe(commands, { repo });
+      expect(exitCode).toBe(0); // REPL exits normally
+      expect(stderr).toMatch(/error|fail|permission/i);
+
+      fs.chmodSync(sessionsDir, 0o700); // restore permissions
     });
   });
 
-  it.skip('writes correct header in each output file', async () => {
+  it('writes correct header in each output file', async () => {
     await withTempRepo('scribe-finalize-header', { initGit: false }, async (repo) => {
       const commands = [
         'start p13',
@@ -417,7 +411,7 @@ describe('scribe finalize', () => {
     });
   });
 
-  it.skip('normalizes trail edges and season IDs in output', async () => {
+  it('normalizes trail edges and season IDs in output', async () => {
     await withTempRepo('scribe-finalize-normalization', { initGit: false }, async (repo) => {
       const commands = [
         'start p13',
