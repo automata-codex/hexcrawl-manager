@@ -1,9 +1,10 @@
 ---
 import { defaultEncounterTable } from '../../../data/encounters/default-encounter-table';
-import type { EncounterTableData } from '../../types';
 import { buildWeightedRanges } from '../../utils/encounters';
 
 import CategoryContainer from './CategoryContainer.astro';
+
+import type { EncounterTableData } from '../../types';
 
 interface Props {
   data?: EncounterTableData;

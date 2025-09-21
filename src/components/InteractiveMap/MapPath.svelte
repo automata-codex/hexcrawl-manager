@@ -1,8 +1,9 @@
 <script lang="ts">
-  import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import { axialToPixel, DEG_TO_RAD, EDGE_OFFSET, HEX_HEIGHT, HEX_RADIUS } from '../../utils/interactive-map.ts';
-  import { parseHexId } from '../../utils/hexes.ts';
   import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
+  import { parseHexId } from '../../utils/hexes.ts';
+  import { axialToPixel, DEG_TO_RAD, EDGE_OFFSET, HEX_HEIGHT, HEX_RADIUS } from '../../utils/interactive-map.ts';
+
+  import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import type { SegmentMetadataData } from '../../types.ts';
 
   interface Props {

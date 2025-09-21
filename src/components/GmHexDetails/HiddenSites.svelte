@@ -1,7 +1,8 @@
 <script lang="ts">
-  import type { ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
   import TreasureTable from '../TreasureTable/TreasureTable.svelte';
   import Unlocks from '../Unlocks.svelte';
+
+  import type { ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
 
   interface Props {
     hex: ExtendedHexData;

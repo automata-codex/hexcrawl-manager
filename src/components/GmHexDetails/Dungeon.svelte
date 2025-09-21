@@ -1,8 +1,10 @@
 <script lang="ts">
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-  import type { DungeonEntry, HexData } from '../../types.ts';
+
   import { getDungeonPath } from '../../config/routes.ts';
+
+  import type { DungeonEntry, HexData } from '../../types.ts';
 
   interface Props {
     dungeons: DungeonEntry[]

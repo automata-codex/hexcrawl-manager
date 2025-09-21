@@ -1,5 +1,5 @@
 ---
-import type { StatBlockData } from '../../types';
+import { formatText } from '../../utils/text';
 
 import Actions from './Actions.astro';
 import Attributes from './Attributes.astro';
@@ -9,7 +9,9 @@ import Skills from './Skills.astro';
 import Speed from './Speed.astro';
 import Subheading from './Subheading.astro';
 import Traits from './Traits.astro';
-import { formatText } from '../../utils/text';
+
+import type { StatBlockData } from '../../types';
+
 
 interface Props {
   data: StatBlockData;

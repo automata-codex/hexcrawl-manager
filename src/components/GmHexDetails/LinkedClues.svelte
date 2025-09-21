@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { ClueLink } from '../../types.ts';
   import { getFloatingCluePath } from '../../config/routes.ts';
+
+  import type { ClueLink } from '../../types.ts';
 
   export let hexId: string;
   export let clueLinks: ClueLink[];

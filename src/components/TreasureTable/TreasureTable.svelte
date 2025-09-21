@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { ExtendedTreasureData } from '../../types';
   import { formatRarity, formatType, formatValue } from '../../utils/treasure.ts';
+
+  import type { ExtendedTreasureData } from '../../types';
 
   interface Props {
     treasure: ExtendedTreasureData[];

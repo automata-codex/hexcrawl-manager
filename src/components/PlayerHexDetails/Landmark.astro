@@ -1,8 +1,9 @@
 ---
-import type { HexData } from '../../types';
 import { canAccess, getCurrentUserRole } from '../../utils/auth';
 import { SCOPES } from '../../utils/constants';
 import { renderBulletMarkdown } from '../../utils/markdown';
+
+import type { HexData } from '../../types';
 
 interface Props {
   hex: HexData;

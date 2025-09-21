@@ -1,9 +1,9 @@
 <script lang="ts">
   import { faChevronRight, faXmark } from '@fortawesome/pro-light-svg-icons'
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-
   import { onMount } from 'svelte';
   import { slide } from 'svelte/transition';
+
   import type { SidebarSection } from '../types.ts';
 
   interface Props {

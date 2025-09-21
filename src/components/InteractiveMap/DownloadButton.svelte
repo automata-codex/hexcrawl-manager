@@ -4,6 +4,7 @@
   import { Canvg } from 'canvg';
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
+
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
 

@@ -3,19 +3,25 @@
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { onMount } from 'svelte';
-  import Explored from '../GmHexDetails/Explored.svelte';
-  import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
-  import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
-  import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
+
+  import { parseTrailId } from '../../../lib/trails';
+  import { getDungeonPath, getHexPath, getRegionPath } from '../../config/routes.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
-  import type { TrailData, TrailEntry } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
   import { getFavoredTerrain, getTravelDifficulty } from '../../utils/interactive-map.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
-  import { getDungeonPath, getHexPath, getRegionPath } from '../../config/routes.ts';
+  import Explored from '../GmHexDetails/Explored.svelte';
+
   import CheckBoxIcon from './CheckBoxIcon.svelte';
-  import { parseTrailId } from '../../../lib/trails';
+
+  import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
+  import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
+  import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
+  import type { TrailData, TrailEntry } from '../../types.ts';
+
+
+
 
   interface Props {
     dungeons: DungeonEssentialData[];

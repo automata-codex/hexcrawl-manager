@@ -4,10 +4,8 @@
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
+
   import { isValidHexId } from '../../../lib/hexes';
-  import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
-  import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
-  import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import {
     applyZoomAtCenter,
@@ -19,7 +17,6 @@
     updateZoomAtPoint,
   } from '../../stores/interactive-map/map-view';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
-  import type { KnownTag } from '../../types.ts';
   import { canAccess } from '../../utils/auth.ts';
   import { SCOPES } from '../../utils/constants.ts';
   import { parseHexId } from '../../utils/hexes.ts';
@@ -31,12 +28,18 @@
     TERRAIN_ICON_SIZE,
     axialToPixel,
   } from '../../utils/interactive-map.ts';
+
   import DetailPanel from './DetailPanel.svelte';
   import DownloadButton from './DownloadButton.svelte';
   import HexHitTarget from './HexHitTarget.svelte';
   import HexTile from './HexTile.svelte';
   import LayersPanel from './LayersPanel.svelte';
   import MapPath from './MapPath.svelte';
+
+  import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
+  import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
+  import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
+  import type { KnownTag } from '../../types.ts';
 
   interface Props {
     role: string | null;
@@ -503,7 +506,7 @@
       {#if !canAccess(role, [SCOPES.GM])}
         <g
           id="layer-player-mask"
-          style:display={'true'}
+          style:display="true"
         >
           {#each hexes as hex (hex.id)}
             {#if isValidHexId(hex.id) && !hex.isVisited && !hex.isScouted}

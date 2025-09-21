@@ -1,9 +1,11 @@
 ---
 import { canAccess, getCurrentUserRole } from '../../utils/auth';
 import { SCOPES } from '../../utils/constants';
-import type { HexData } from '../../types';
-import HiddenSitesStringList from './HiddenSitesStringList.astro';
+
 import HiddenSitesDetailList from './HiddenSitesDetailList.astro';
+import HiddenSitesStringList from './HiddenSitesStringList.astro';
+
+import type { HexData } from '../../types';
 
 interface Props {
   hex: HexData;

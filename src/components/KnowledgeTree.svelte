@@ -2,12 +2,13 @@
   import { faChevronRight } from '@fortawesome/pro-light-svg-icons'
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 
-  import type { KnowledgeNodeData, PlacementRef } from '../types';
   import {
     getDungeonPath,
     getFloatingCluePath,
     getHexPath,
   } from '../config/routes.js';
+
+  import type { KnowledgeNodeData, PlacementRef } from '../types';
 
   export let node: KnowledgeNodeData;
   export let fullId: string = node.id;

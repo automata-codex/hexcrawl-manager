@@ -1,14 +1,16 @@
 <script lang="ts">
-  import type { ClueLink, DungeonEntry, ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
-  import { getRegionTitle } from '../../utils/regions.ts';
   import { getHexPath, getRegionPath } from '../../config/routes.ts';
-  import Explored from './Explored.svelte';
+  import { getRegionTitle } from '../../utils/regions.ts';
+
   import Dungeon from './Dungeon.svelte';
+  import Explored from './Explored.svelte';
   import HiddenSites from './HiddenSites.svelte';
   import Landmark from './Landmark.svelte';
   import LinkedClues from './LinkedClues.svelte';
   import Neighbors from './Neighbors.svelte';
   import Visited from './Visited.svelte';
+
+  import type { ClueLink, DungeonEntry, ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
 
   interface Props {
     clueLinks?: ClueLink[];

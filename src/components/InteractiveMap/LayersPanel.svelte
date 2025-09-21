@@ -1,6 +1,7 @@
 <script lang="ts">
   import { faLayerGroup, faXmark } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+
   import { layerList, layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import { canAccess } from '../../utils/auth.ts';
 

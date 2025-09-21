@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { DungeonEntry, ExtendedHexData, FlatKnowledgeTree } from '../../types';
+
   import GmHexDetails from './GmHexDetails.svelte';
+
+  import type { DungeonEntry, ExtendedHexData, FlatKnowledgeTree } from '../../types';
 
   interface Props {
     dungeons: DungeonEntry[]

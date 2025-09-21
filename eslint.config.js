@@ -16,10 +16,10 @@ const importOrder = [
   "error",
   {
     groups: [
-      "builtin",
-      "external",
-      "internal",
-      ["parent", "sibling", "index"],
+      ['builtin', 'external'],
+      'internal',
+      'parent',
+      ['index', 'sibling'],
       "type",
     ],
     "newlines-between": "always",
