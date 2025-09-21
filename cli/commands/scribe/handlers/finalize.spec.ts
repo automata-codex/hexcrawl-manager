@@ -265,7 +265,7 @@ describe('scribe finalize', () => {
     });
   });
 
-  it.skip("removes lock and in-progress files and updates meta.yaml in production mode", async () => {
+  it("removes lock and in-progress files and updates meta.yaml in production mode", async () => {
     await withTempRepo("scribe-finalize-meta-lock", { initGit: false }, async (repo) => {
       const commands = [
         "start p13",
@@ -290,7 +290,7 @@ describe('scribe finalize', () => {
     });
   });
 
-  it.skip("skips lock/meta handling and writes to dev dirs in dev mode", async () => {
+  it("skips lock/meta handling and writes to dev dirs in dev mode", async () => {
     await withTempRepo("scribe-finalize-dev-mode", { initGit: false }, async (repo) => {
       const commands = [
         "start p13",
