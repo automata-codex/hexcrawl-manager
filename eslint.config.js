@@ -121,7 +121,22 @@ export default defineConfig([
     },
   },
 
-  // 8) TypeScript files anywhere (shared TS rules if you want them)
+  // 8) Svelte: ensure <script> uses TS parser so import rules apply there too
+  {
+    files: ["**/*.svelte"],
+    languageOptions: {
+      parserOptions: {
+        parser: tsParser,               // <- inner <script> uses TS parser
+        sourceType: "module",
+        extraFileExtensions: [".svelte"]
+      },
+    },
+    rules: {
+      "import/order": importOrder,
+    },
+  },
+
+  // 9) TypeScript files anywhere (shared TS rules if you want them)
   {
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
