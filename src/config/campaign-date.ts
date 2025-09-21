@@ -5,8 +5,8 @@ const CURRENT_DATE = {
   currentDate: {
     day: 10,
     month: 'Lucidus',
-    year: 1511
-  }
+    year: 1511,
+  },
 } as const;
 
 // 🌙 Your custom month names
@@ -29,8 +29,8 @@ export const CampaignDateSchema = z.object({
   currentDate: z.object({
     day: z.number().int().min(1).max(31),
     month: z.enum(MONTH_NAMES),
-    year: z.number().int()
-  })
+    year: z.number().int(),
+  }),
 });
 
 // ✅ Validate the date at startup
