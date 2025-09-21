@@ -218,13 +218,13 @@ describe('scribe start', () => {
     });
   });
 
-
   it('resumes existing in-progress session file, prints resume message, and does not emit new session_start', async () => {
     await withTempRepo('scribe-start-resume', { initGit: false }, async (repo) => {
       // Read the next session number from the meta file
       const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
       const nextSessionNumber = String(meta.nextSessionSeq || 1).padStart(4, '0');
-      const sessionId = `session_${nextSessionNumber}_2025-09-20`;
+      const date = new Date().toISOString().slice(0, 10);
+      const sessionId = `session_${nextSessionNumber}_${date}`;
 
       // Simulate an in-progress session file with one session_start and one move
       const inProgressDir = REPO_PATHS.IN_PROGRESS();
@@ -245,7 +245,7 @@ describe('scribe start', () => {
         'start P13',
         'exit',
       ];
-      const { exitCode, stdout } = await runScribe(commands, { repo });
+      const { exitCode, stdout } = await runScribe(commands, { repo, ensureFinalize: false });
       expect(exitCode).toBe(0);
       expect(stdout).toMatch(new RegExp(`resumed: ${sessionId} \\(2 events\\).*last hex Q13`, 'i'));      // Should not emit a new session_start event
       const fileEvents = readJsonl(sessionFile);
