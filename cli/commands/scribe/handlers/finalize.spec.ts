@@ -53,7 +53,7 @@ describe('scribe finalize', () => {
     });
   });
 
-  it.skip("errors if there is no day_start event", async () => {
+  it("errors if there is no day_start event", async () => {
     await withTempRepo("scribe-finalize-no-daystart", { initGit: false }, async (repo) => {
       const commands = [
         "start p13",
@@ -61,14 +61,14 @@ describe('scribe finalize', () => {
         "finalize"
       ];
       const { exitCode, stderr } = await runScribe(commands, { repo });
-      expect(exitCode).not.toBe(0);
+      expect(exitCode).toBe(0); // REPL exits normally
       expect(stderr).toMatch(/no day_start/i);
       const files = findSessionFiles(REPO_PATHS.SESSIONS());
       expect(files.length).toBe(0);
     });
   });
 
-  it.skip("errors if first event is not session_start or session_continue", async () => {
+  it("errors if first event is not session_start or session_continue", async () => {
     await withTempRepo("scribe-finalize-bad-first-event", { initGit: false }, async (repo) => {
       // Manually write a bad in-progress file
       const inProgressDir = REPO_PATHS.IN_PROGRESS();
@@ -76,15 +76,18 @@ describe('scribe finalize', () => {
       const sessionId = `session_0027_2025-09-20`;
       const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
       fs.writeFileSync(sessionFile, JSON.stringify({ kind: "move", payload: { from: "P13", to: "Q13" } }) + "\n");
+
       const commands = ["finalize"];
-      const { exitCode, stderr } = await runScribe(commands, { repo });
-      expect(exitCode).not.toBe(0);
-      expect(stderr).toMatch(/first event must be session_start/i);
+      const { exitCode, stderr, stdout } = await runScribe(commands, { repo });
+
+      expect(exitCode).toBe(0); // REPL exits normally
+      expect(stdout).toMatch(/start or resume a session first/i);
       const files = findSessionFiles(REPO_PATHS.SESSIONS());
       expect(files.length).toBe(0);
     });
   });
 
+  // Silly Copilot, there is no `session` command
   it.skip("errors if session_pause appears before the end", async () => {
     await withTempRepo("scribe-finalize-pause-mid", { initGit: false }, async (repo) => {
       const commands = [
@@ -94,9 +97,10 @@ describe('scribe finalize', () => {
         "move q13 normal",
         "finalize"
       ];
-      const { exitCode, stderr } = await runScribe(commands, { repo });
-      expect(exitCode).not.toBe(0);
-      expect(stderr).toMatch(/session_pause may only appear at the end/i);
+      const { exitCode, stdout } = await runScribe(commands, { repo });
+
+      expect(exitCode).toBe(0); // REPL exits normally
+      expect(stdout).toMatch(/session_pause may only appear at the end/i);
       const files = findSessionFiles(REPO_PATHS.SESSIONS());
       expect(files.length).toBe(0);
     });

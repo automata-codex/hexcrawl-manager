@@ -119,7 +119,7 @@ describe('scribe start', () => {
         'exit',
       ];
       const { exitCode, stdout } = await runScribe(commands, { repo });
-      expect(exitCode).toBe(0); // Normal exit, code 0
+      expect(exitCode).toBe(0); // REPL exits normally
       expect(stdout).toMatch(/usage|hex/i);
       const files = findSessionFiles(REPO_PATHS.SESSIONS());
       expect(files.length).toBe(0);
@@ -133,7 +133,7 @@ describe('scribe start', () => {
         'exit',
       ];
       const { exitCode, stdout } = await runScribe(commands, { repo });
-      expect(exitCode).toBe(0); // Normal exit, code 0
+      expect(exitCode).toBe(0); // REPL exits normally
       expect(stdout).toMatch(/usage|hex/i);
       const files = findSessionFiles(REPO_PATHS.SESSIONS());
       expect(files.length).toBe(0);
