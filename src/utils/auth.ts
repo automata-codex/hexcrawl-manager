@@ -1,5 +1,3 @@
-import App from '@clerk/astro';
-
 import { SCOPES, SECURITY_ROLE } from './constants.ts';
 
 import type { Scope } from '../types.ts';
