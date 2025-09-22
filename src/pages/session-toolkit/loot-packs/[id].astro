@@ -1,5 +1,6 @@
 ---
 import { getEntry } from 'astro:content';
+
 import LootPackDetail from '../../../components/LootPacks/LootPackDetail.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 
@@ -8,7 +9,7 @@ const { id } = Astro.params;
 if (!id) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
@@ -19,12 +20,13 @@ const treasureData = await getEntry('loot-packs', id);
 if (treasureData === undefined) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
 const treasure = treasureData.data;
 ---
+
 <ComponentLayout title=`Loot Pack: ${treasure.name}`>
   <LootPackDetail treasure={treasure} />
 </ComponentLayout>

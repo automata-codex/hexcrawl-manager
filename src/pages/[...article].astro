@@ -1,5 +1,6 @@
 ---
 import { getEntry, render } from 'astro:content';
+
 import { ARTICLE_ROUTES } from '../config/routes';
 import ArticleLayout from '../layouts/ArticleLayout.astro';
 import SecretArticleLayout from '../layouts/SecretArticleLayout.astro';
@@ -9,7 +10,7 @@ const route = ARTICLE_ROUTES.find((r) => r.path === currentPath);
 if (!route) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
@@ -17,25 +18,27 @@ const article = await getEntry('articles', route.slug);
 if (article === undefined) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
 const { Content } = await render(article);
 const isSecure = article.data.secure ?? false;
 const title = article.data.title;
-const showToc = article.data.showToc ?? false;
 ---
-{isSecure ? (
-  <SecretArticleLayout title={title}>
-    <article>
-      <Content />
-    </article>
-  </SecretArticleLayout>
-) : (
-  <ArticleLayout title={title}>
-    <article>
-      <Content />
-    </article>
-  </ArticleLayout>
-)}
+
+{
+  isSecure ? (
+    <SecretArticleLayout title={title}>
+      <article>
+        <Content />
+      </article>
+    </SecretArticleLayout>
+  ) : (
+    <ArticleLayout title={title}>
+      <article>
+        <Content />
+      </article>
+    </ArticleLayout>
+  )
+}

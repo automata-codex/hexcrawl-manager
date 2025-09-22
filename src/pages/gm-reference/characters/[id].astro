@@ -1,5 +1,6 @@
 ---
 import { getEntry } from 'astro:content';
+
 import CharacterDetails from '../../../components/CharacterDetails.astro';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 
@@ -8,7 +9,7 @@ const { id } = Astro.params;
 if (!id) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
@@ -19,20 +20,21 @@ const characterData = await getEntry('characters', id);
 if (characterData === undefined) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
 const character = characterData.data;
 ---
-<style>
-    .data-container {
-        display: flex;
-    }
 
-    .data-container > div {
-        width: 50%;
-    }
+<style>
+  .data-container {
+    display: flex;
+  }
+
+  .data-container > div {
+    width: 50%;
+  }
 </style>
 <SecretLayout title={character.fullName}>
   <CharacterDetails character={character} />

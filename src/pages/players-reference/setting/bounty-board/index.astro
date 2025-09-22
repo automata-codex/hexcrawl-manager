@@ -1,15 +1,15 @@
 ---
 import { getCollection } from 'astro:content';
-import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
+
 import BountySummary from '../../../../components/Bounties/BountySummary.astro';
+import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
 
 const bountyData = await getCollection('bounties');
 const bounties = bountyData
   .map((bounty) => bounty.data)
   .sort((a, b) => a.id.localeCompare(b.id));
 ---
+
 <ComponentLayout title="Bounty Board">
-  {bounties.map((bounty) => (
-    <BountySummary bounty={bounty} />
-  ))}
+  {bounties.map((bounty) => <BountySummary bounty={bounty} />)}
 </ComponentLayout>

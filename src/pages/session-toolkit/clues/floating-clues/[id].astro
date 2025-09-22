@@ -1,5 +1,6 @@
 ---
 import { getEntry } from 'astro:content';
+
 import FloatingClue from '../../../../components/FloatingClue.astro';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
 
@@ -8,7 +9,7 @@ const { id } = Astro.params;
 if (!id) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
@@ -19,17 +20,18 @@ const clueData = await getEntry('floatingClues', id);
 if (clueData === undefined) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
 const clue = clueData.data;
 const title = `Floating Clue: ${clue.name}`;
 ---
+
 <style is:global>
-    h3.title.is-4 {
-        margin-bottom: 0.25rem;
-    }
+  h3.title.is-4 {
+    margin-bottom: 0.25rem;
+  }
 </style>
 <SecretLayout title={title}>
   <FloatingClue clue={clue} showDetail={true} showName={false} />

@@ -1,7 +1,9 @@
-import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
+
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE } from '../../utils/constants.ts';
+
+import type { APIRoute } from 'astro';
 
 export interface DungeonEssentialData {
   id: string;

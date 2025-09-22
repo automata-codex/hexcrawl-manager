@@ -1,17 +1,22 @@
 ---
 import { getCollection } from 'astro:content';
+
 import LootPackDetail from '../../../components/LootPacks/LootPackDetail.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 
 const treasuresData = await getCollection('loot-packs');
-const treasures = treasuresData
-  .sort((a, b) => a.data.name.localeCompare(b.data.name));
+const treasures = treasuresData.sort((a, b) =>
+  a.data.name.localeCompare(b.data.name),
+);
 ---
+
 <ComponentLayout title="All Treasure">
-  {treasures.map((treasure) => (
-    <article>
-      <h2 class="title is-3">{treasure.data.name}</h2>
-      <LootPackDetail treasure={treasure.data} />
-    </article>
-  ))}
+  {
+    treasures.map((treasure) => (
+      <article>
+        <h2 class="title is-3">{treasure.data.name}</h2>
+        <LootPackDetail treasure={treasure.data} />
+      </article>
+    ))
+  }
 </ComponentLayout>

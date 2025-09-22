@@ -1,5 +1,6 @@
 ---
 import { getEntry } from 'astro:content';
+
 import RegionDetails from '../../../../components/RegionDetails/RegionDetails.astro';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
 import { getRegionTitle } from '../../../../utils/regions';
@@ -9,23 +10,24 @@ const { id } = Astro.params;
 if (!id) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
 // Query for the entry directly using the request slug
-const region = await getEntry("regions", id);
+const region = await getEntry('regions', id);
 
 // Redirect if the entry does not exist
 if (region === undefined) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
 const title = `${getRegionTitle(region.id)}: ${region.data.name}`;
 ---
+
 <SecretLayout title={title}>
   <RegionDetails region={region.data} />
 </SecretLayout>

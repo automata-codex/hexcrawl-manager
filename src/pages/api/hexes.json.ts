@@ -1,9 +1,11 @@
-import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
-import type { ExtendedHexData } from '../../types.ts';
+
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE, UNKNOWN_CONTENT } from '../../utils/constants.ts';
 import { processHex } from '../../utils/hexes.ts';
+
+import type { ExtendedHexData } from '../../types.ts';
+import type { APIRoute } from 'astro';
 
 export type HexPlayerData = Pick<
   ExtendedHexData,
@@ -28,58 +30,63 @@ export const GET: APIRoute = async ({ locals }) => {
   const role = getCurrentUserRole(locals);
 
   const hexes: HexPlayerData[] = await Promise.all(
-    fullHexes
-      .map(async (hex) => {
-        const data = await processHex(hex);
-        if (role === SECURITY_ROLE.GM) {
-          return data;
-        }
+    fullHexes.map(async (hex) => {
+      const data = await processHex(hex);
+      if (role === SECURITY_ROLE.GM) {
+        return data;
+      }
 
-        // Redact fields for players
-        if (hex.isVisited) {
-          return {
-            id: data.id,
-            name: data.name,
-            landmark: data.landmark,
-            regionId: data.regionId,
-            terrain: data.terrain,
-            biome: data.biome,
-            elevation: data.elevation,
-            isVisited: data.isVisited,
-            isExplored: data.isExplored,
-            renderedLandmark: data.renderedLandmark,
-          };
-        }
-
-        if (hex.isScouted) {
-          return {
-            id: data.id,
-            name: data.tags?.includes('landmark-known') ? data.name : UNKNOWN_CONTENT,
-            landmark: data.tags?.includes('landmark-known') ? data.landmark : UNKNOWN_CONTENT,
-            regionId: data.regionId,
-            terrain: data.terrain,
-            biome: data.biome,
-            elevation: data.elevation,
-            isVisited: data.isVisited,
-            isExplored: data.isExplored,
-            isScouted: data.isScouted,
-            renderedLandmark: data.tags?.includes('landmark-known') ? data.renderedLandmark : UNKNOWN_CONTENT,
-          };
-        }
-
+      // Redact fields for players
+      if (hex.isVisited) {
         return {
           id: data.id,
-          name: UNKNOWN_CONTENT,
-          landmark: UNKNOWN_CONTENT,
+          name: data.name,
+          landmark: data.landmark,
           regionId: data.regionId,
-          terrain: UNKNOWN_CONTENT,
-          biome: UNKNOWN_CONTENT,
-          elevation: -1,
+          terrain: data.terrain,
+          biome: data.biome,
+          elevation: data.elevation,
           isVisited: data.isVisited,
           isExplored: data.isExplored,
-          renderedLandmark: UNKNOWN_CONTENT,
+          renderedLandmark: data.renderedLandmark,
         };
-      }),
+      }
+
+      if (hex.isScouted) {
+        return {
+          id: data.id,
+          name: data.tags?.includes('landmark-known')
+            ? data.name
+            : UNKNOWN_CONTENT,
+          landmark: data.tags?.includes('landmark-known')
+            ? data.landmark
+            : UNKNOWN_CONTENT,
+          regionId: data.regionId,
+          terrain: data.terrain,
+          biome: data.biome,
+          elevation: data.elevation,
+          isVisited: data.isVisited,
+          isExplored: data.isExplored,
+          isScouted: data.isScouted,
+          renderedLandmark: data.tags?.includes('landmark-known')
+            ? data.renderedLandmark
+            : UNKNOWN_CONTENT,
+        };
+      }
+
+      return {
+        id: data.id,
+        name: UNKNOWN_CONTENT,
+        landmark: UNKNOWN_CONTENT,
+        regionId: data.regionId,
+        terrain: UNKNOWN_CONTENT,
+        biome: UNKNOWN_CONTENT,
+        elevation: -1,
+        isVisited: data.isVisited,
+        isExplored: data.isExplored,
+        renderedLandmark: UNKNOWN_CONTENT,
+      };
+    }),
   );
 
   return new Response(JSON.stringify(hexes), {

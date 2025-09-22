@@ -1,7 +1,8 @@
 ---
 import { getEntry } from 'astro:content';
-import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
+
 import BountyDetails from '../../../../components/Bounties/BountyDetails.astro';
+import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
 import { renderBulletMarkdown } from '../../../../utils/markdown';
 
 // Get the ID from the incoming server request
@@ -9,7 +10,7 @@ const { id } = Astro.params;
 if (!id) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
@@ -20,13 +21,14 @@ const bountyData = await getEntry('bounties', id);
 if (bountyData === undefined) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
 const bounty = bountyData.data;
 const title = await renderBulletMarkdown(bounty.title);
 ---
+
 <ComponentLayout title={title}>
   <BountyDetails bounty={bounty} />
 </ComponentLayout>
