@@ -1,13 +1,14 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
-import * as yaml from "yaml";
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import * as yaml from 'yaml';
+
 import { getRepoPath } from '../../lib/repo';
 
 const INPUT_DIR = getRepoPath('data', 'trails');
 const OUTPUT_FILE = getRepoPath('data', 'trails.yml');
 
 // Hard-coded current season per spec
-const CURRENT_SEASON = "1511-autumn" as const;
+const CURRENT_SEASON = '1511-autumn' as const;
 
 // --- Types (old & new) ---
 
@@ -20,18 +21,18 @@ type OldTrail = {
 };
 
 type NewTrail = {
-  permanent: boolean;          // always false for this migration
-  streak: number;              // derived from hex ranges (a/b/c)
-  usedThisSeason: boolean;     // lastSeasonTouched === CURRENT_SEASON
-  lastSeasonTouched: string;   // "YYYY-season"
+  permanent: boolean; // always false for this migration
+  streak: number; // derived from hex ranges (a/b/c)
+  usedThisSeason: boolean; // lastSeasonTouched === CURRENT_SEASON
+  lastSeasonTouched: string; // "YYYY-season"
 };
 
 // --- Hex parsing & ordering helpers ---
 
 type Hex = {
-  raw: string;        // original (lowercased)
-  col: string;        // letters, lowercased (e.g., 'q')
-  row: number;        // integer (e.g., 12)
+  raw: string; // original (lowercased)
+  col: string; // letters, lowercased (e.g., 'q')
+  row: number; // integer (e.g., 12)
 };
 
 const HEX_RE = /^([a-zA-Z]+)(\d+)$/;
@@ -59,7 +60,10 @@ function compareHex(a: Hex, b: Hex): number {
 
 // Produce directionless canonical pair key "<hexA>-<hexB>"
 // where hexA sorts before hexB by compareHex
-function canonicalPair(aRaw: string, bRaw: string): { a: Hex; b: Hex; key: string } {
+function canonicalPair(
+  aRaw: string,
+  bRaw: string,
+): { a: Hex; b: Hex; key: string } {
   const a = parseHex(aRaw);
   const b = parseHex(bRaw);
   const first = compareHex(a, b) <= 0 ? a : b;
@@ -70,11 +74,11 @@ function canonicalPair(aRaw: string, bRaw: string): { a: Hex; b: Hex; key: strin
 // --- Classification rules (a)/(b)/(c) ---
 
 // Rule (a): column in N..S AND row >= 16 (for BOTH endpoints)
-const RULE_A_COLS = new Set(["n", "o", "p", "q", "r", "s"]);
+const RULE_A_COLS = new Set(['n', 'o', 'p', 'q', 'r', 's']);
 const RULE_A_MIN_ROW = 16;
 
 // Rule (b): column in {T,U,V} AND row >= 17 (for BOTH endpoints)
-const RULE_B_COLS = new Set(["t", "u", "v"]);
+const RULE_B_COLS = new Set(['t', 'u', 'v']);
 const RULE_B_MIN_ROW = 17;
 
 function matchesRuleA(h: Hex): boolean {
@@ -84,10 +88,13 @@ function matchesRuleB(h: Hex): boolean {
   return RULE_B_COLS.has(h.col) && h.row >= RULE_B_MIN_ROW;
 }
 
-function classifyPair(a: Hex, b: Hex): Pick<NewTrail, "streak" | "lastSeasonTouched" | "usedThisSeason"> {
+function classifyPair(
+  a: Hex,
+  b: Hex,
+): Pick<NewTrail, 'streak' | 'lastSeasonTouched' | 'usedThisSeason'> {
   // Apply rules to BOTH endpoints (conservative)
   if (matchesRuleA(a) && matchesRuleA(b)) {
-    const lastSeasonTouched = "1511-autumn";
+    const lastSeasonTouched = '1511-autumn';
     return {
       streak: 0,
       lastSeasonTouched,
@@ -95,7 +102,7 @@ function classifyPair(a: Hex, b: Hex): Pick<NewTrail, "streak" | "lastSeasonTouc
     };
   }
   if (matchesRuleB(a) && matchesRuleB(b)) {
-    const lastSeasonTouched = "1511-spring";
+    const lastSeasonTouched = '1511-spring';
     return {
       streak: 0,
       lastSeasonTouched,
@@ -105,7 +112,7 @@ function classifyPair(a: Hex, b: Hex): Pick<NewTrail, "streak" | "lastSeasonTouc
   }
   // Default rule (c)
   {
-    const lastSeasonTouched = "1511-autumn";
+    const lastSeasonTouched = '1511-autumn';
     return {
       streak: 1,
       lastSeasonTouched,
@@ -117,20 +124,20 @@ function classifyPair(a: Hex, b: Hex): Pick<NewTrail, "streak" | "lastSeasonTouc
 // --- IO helpers ---
 
 async function readYamlFile<T = unknown>(filePath: string): Promise<T> {
-  const raw = await fs.readFile(filePath, "utf8");
+  const raw = await fs.readFile(filePath, 'utf8');
   return yaml.parse(raw) as T;
 }
 
 async function writeYamlFile(filePath: string, data: unknown) {
   const doc = new yaml.Document(data);
   // stable stringification; yaml lib already keeps object key order we provide
-  await fs.writeFile(filePath, String(doc), "utf8");
+  await fs.writeFile(filePath, String(doc), 'utf8');
 }
 
 async function listYamlFiles(dir: string): Promise<string[]> {
   const ents = await fs.readdir(dir, { withFileTypes: true });
   return ents
-    .filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".yml"))
+    .filter((e) => e.isFile() && e.name.toLowerCase().endsWith('.yml'))
     .map((e) => path.join(dir, e.name));
 }
 
@@ -156,7 +163,9 @@ async function migrate() {
     const { a, b, key } = canonicalPair(data.from, data.to);
 
     if (outMap.has(key)) {
-      throw new Error(`Duplicate canonical trail key "${key}" derived from ${file}`);
+      throw new Error(
+        `Duplicate canonical trail key "${key}" derived from ${file}`,
+      );
     }
 
     const classified = classifyPair(a, b);

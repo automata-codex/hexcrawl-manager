@@ -35,9 +35,9 @@ function applyPatch(patchPath) {
       const doc = parseDocument(raw);
 
       const kebabBiome = kebabCase(entry.biome);
-      doc.set("biome", kebabBiome);
+      doc.set('biome', kebabBiome);
 
-      writeFileSync(filePath, doc.toString(), "utf8");
+      writeFileSync(filePath, doc.toString(), 'utf8');
       console.log(`Updated: ${filePath}`);
     } catch (err) {
       console.error(`Error processing ${filePath}:`, err.message);

@@ -1,7 +1,13 @@
 /**
  * Applies elevation data to hex files
  */
-import { readdirSync, statSync, existsSync, readFileSync, writeFileSync } from 'fs';
+import {
+  readdirSync,
+  statSync,
+  existsSync,
+  readFileSync,
+  writeFileSync,
+} from 'fs';
 import { join } from 'path';
 import { parse, stringify } from 'yaml';
 
@@ -22,7 +28,7 @@ function findHexFile(hexId) {
 
 let totalUpdated = 0;
 const patchFiles = readdirSync(patchDir)
-  .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'))
+  .filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'))
   .sort();
 
 for (const patchFile of patchFiles) {
@@ -38,9 +44,12 @@ for (const patchFile of patchFiles) {
     }
 
     const original = parse(readFileSync(filePath, 'utf8'));
-    if ('minElevation' in elevData) original.minElevation = elevData.minElevation;
-    if ('maxElevation' in elevData) original.maxElevation = elevData.maxElevation;
-    if ('avgElevation' in elevData) original.avgElevation = elevData.avgElevation;
+    if ('minElevation' in elevData)
+      original.minElevation = elevData.minElevation;
+    if ('maxElevation' in elevData)
+      original.maxElevation = elevData.maxElevation;
+    if ('avgElevation' in elevData)
+      original.avgElevation = elevData.avgElevation;
 
     writeFileSync(filePath, stringify(original));
     updated++;

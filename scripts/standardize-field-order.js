@@ -1,13 +1,15 @@
 import pkg from 'fs-extra';
-import { parse, stringify } from 'yaml';
 import { globby } from 'globby';
+import { parse, stringify } from 'yaml';
 
 const { readFile, writeFile, readJson } = pkg;
 
 async function main() {
   const configPath = process.argv[2];
   if (!configPath) {
-    console.error('❌ Usage: node standardize-field-order.js path/to/config.json');
+    console.error(
+      '❌ Usage: node standardize-field-order.js path/to/config.json',
+    );
     process.exit(1);
   }
 
@@ -16,7 +18,9 @@ async function main() {
   const { targetGlob, fieldOrder } = config;
 
   if (!targetGlob || !Array.isArray(fieldOrder)) {
-    console.error('❌ Config must include \'targetGlob\' and \'fieldOrder\' array.');
+    console.error(
+      "❌ Config must include 'targetGlob' and 'fieldOrder' array.",
+    );
     process.exit(1);
   }
 
@@ -40,7 +44,7 @@ async function main() {
     }
   }
 
-  console.log("✨ Done.");
+  console.log('✨ Done.');
 }
 
 // 🔁 Utility to reorder fields

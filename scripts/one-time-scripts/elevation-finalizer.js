@@ -30,11 +30,11 @@ const MIN_SPREAD_BY_TERRAIN = {
 };
 
 const SYNTHETIC_EDGES = {
-  'a0': 1000,
-  'b0': 1000,
-  't0': 11000,
-  'x26': 8000,
-  'x27': 2000,
+  a0: 1000,
+  b0: 1000,
+  t0: 11000,
+  x26: 8000,
+  x27: 2000,
 };
 
 function syntheticEdgeElevation(col, row) {
@@ -90,8 +90,22 @@ function getNeighborIds(hexId) {
   const colIdx = pos.col.charCodeAt(0) - 'a'.charCodeAt(0);
   const even = colIdx % 2 === 0;
   const offsets = even
-    ? [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]]
-    : [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]];
+    ? [
+        [-1, 0],
+        [-1, 1],
+        [0, -1],
+        [0, 1],
+        [1, 0],
+        [1, 1],
+      ]
+    : [
+        [-1, -1],
+        [-1, 0],
+        [0, -1],
+        [0, 1],
+        [1, -1],
+        [1, 0],
+      ];
 
   return offsets.map(([dc, dr]) => {
     const col = String.fromCharCode(colIdx + dc + 'a'.charCodeAt(0));
@@ -128,26 +142,40 @@ function runRefinement(hexes, state, maxStep = 100) {
     for (const [id, h] of state.entries()) {
       if (h.fixedMin && h.fixedMax) continue;
 
-      const neighbors = getNeighborIds(id).map(nid => {
-        const n = state.get(nid);
-        if (n) return n.avg;
-        const { col, row } = parseHexId(nid);
-        return syntheticEdgeElevation(col, row);
-      }).filter(n => n != null);
+      const neighbors = getNeighborIds(id)
+        .map((nid) => {
+          const n = state.get(nid);
+          if (n) return n.avg;
+          const { col, row } = parseHexId(nid);
+          return syntheticEdgeElevation(col, row);
+        })
+        .filter((n) => n != null);
 
-      const slope = Math.max(...neighbors.map(n => Math.abs(n - h.avg)), 0);
-      const spread = Math.max(MIN_SPREAD_BY_TERRAIN[h.terrain] || 300, slope * 0.8);
+      const slope = Math.max(...neighbors.map((n) => Math.abs(n - h.avg)), 0);
+      const spread = Math.max(
+        MIN_SPREAD_BY_TERRAIN[h.terrain] || 300,
+        slope * 0.8,
+      );
 
       let targetMin = h.fixedMin ? h.min : Math.round(h.avg - spread / 2);
       let targetMax = h.fixedMax ? h.max : Math.round(h.avg + spread / 2);
 
-      const lowestNeighborMax = Math.min(...neighbors.map(n => n + spread / 2));
-      const highestNeighborMin = Math.max(...neighbors.map(n => n - spread / 2));
-      if (!h.fixedMin) targetMin = Math.max(0, Math.min(targetMin, lowestNeighborMax));
+      const lowestNeighborMax = Math.min(
+        ...neighbors.map((n) => n + spread / 2),
+      );
+      const highestNeighborMin = Math.max(
+        ...neighbors.map((n) => n - spread / 2),
+      );
+      if (!h.fixedMin)
+        targetMin = Math.max(0, Math.min(targetMin, lowestNeighborMax));
       if (!h.fixedMax) targetMax = Math.max(targetMax, highestNeighborMin);
 
-      const deltaMin = h.fixedMin ? 0 : Math.max(-maxStep, Math.min(maxStep, targetMin - h.min));
-      const deltaMax = h.fixedMax ? 0 : Math.max(-maxStep, Math.min(maxStep, targetMax - h.max));
+      const deltaMin = h.fixedMin
+        ? 0
+        : Math.max(-maxStep, Math.min(maxStep, targetMin - h.min));
+      const deltaMax = h.fixedMax
+        ? 0
+        : Math.max(-maxStep, Math.min(maxStep, targetMax - h.max));
 
       const prevMin = h.min;
       h.min += deltaMin;

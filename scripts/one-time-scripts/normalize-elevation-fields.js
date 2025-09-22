@@ -41,7 +41,10 @@ function walkDirAndProcess(dirPath) {
 
     if (entry.isDirectory()) {
       walkDirAndProcess(fullPath);
-    } else if (entry.isFile() && (entry.name.endsWith('.yaml') || entry.name.endsWith('.yml'))) {
+    } else if (
+      entry.isFile() &&
+      (entry.name.endsWith('.yaml') || entry.name.endsWith('.yml'))
+    ) {
       processYamlFile(fullPath);
     }
   }
