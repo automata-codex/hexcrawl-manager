@@ -1,11 +1,12 @@
-import type { Season, WeatherCategory, CanonicalDate } from '../../types.ts';
 import { CALENDAR_CONFIG } from '../../config/calendar.config.ts';
-import { SEASONAL_BANDS } from '../../config/seasonal-bands.config.ts';
-import { DETAIL_TABLES } from '../../config/detail-tables.config.ts';
 import { DESCRIPTOR_LIBRARY } from '../../config/descriptor-library.config.ts';
+import { DETAIL_TABLES } from '../../config/detail-tables.config.ts';
 import { EFFECTS_TABLE } from '../../config/effects-table.config.ts';
 import { FORECAST_MODIFIER } from '../../config/forecast-modifier.config.ts';
+import { SEASONAL_BANDS } from '../../config/seasonal-bands.config.ts';
 import { clamp, rollDice } from '../../lib/math.ts';
+
+import type { Season, WeatherCategory, CanonicalDate } from '../../types.ts';
 
 export function bandForTotal(season: Season, total: number): WeatherCategory {
   const bands = SEASONAL_BANDS[season];
@@ -17,7 +18,10 @@ export function bandForTotal(season: Season, total: number): WeatherCategory {
   return bands[0].category;
 }
 
-export function descriptorsFor(season: Season, category: WeatherCategory): string[] {
+export function descriptorsFor(
+  season: Season,
+  category: WeatherCategory,
+): string[] {
   return DESCRIPTOR_LIBRARY[season][category];
 }
 
@@ -40,5 +44,5 @@ export function getSeasonForDate(date: CanonicalDate): Season {
 }
 
 export function isInclementPlus(category: WeatherCategory): boolean {
-  return ["inclement", "extreme", "catastrophic"].includes(category);
+  return ['inclement', 'extreme', 'catastrophic'].includes(category);
 }

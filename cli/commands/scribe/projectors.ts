@@ -2,9 +2,11 @@
  PROJECTORS: Derive current state from the event log (date, hex, party, weather, etc.)
  */
 
-import { datesEqual } from './lib/date.ts';
-import type { CanonicalDate, Event, WeatherCommitted } from './types';
 import { normalizeHexId } from '../../../lib/hexes';
+
+import { datesEqual } from './lib/date.ts';
+
+import type { CanonicalDate, Event, WeatherCommitted } from './types';
 
 // Sum ALL time segments (daylight + night) since the last day_start
 export function activeSegmentsSinceStart(events: Event[], startIdx: number) {
@@ -44,7 +46,8 @@ export function findOpenDay(events: Event[]) {
       break;
     }
   }
-  const open = lastStartIdx !== -1 && (lastEndIdx === -1 || lastStartIdx > lastEndIdx);
+  const open =
+    lastStartIdx !== -1 && (lastEndIdx === -1 || lastStartIdx > lastEndIdx);
   return { open, lastStartIdx };
 }
 
@@ -63,7 +66,9 @@ export function isDayOpen(events: Event[]) {
       break;
     }
   }
-  return lastStartIdx !== -1 && (lastEndIdx === -1 || lastStartIdx > lastEndIdx);
+  return (
+    lastStartIdx !== -1 && (lastEndIdx === -1 || lastStartIdx > lastEndIdx)
+  );
 }
 
 export function isPartyLost(events: Event[]): boolean {
@@ -109,7 +114,11 @@ export function selectCurrentHex(events: Event[]): string | null {
   // Fallback: starting hex (session_start)
   for (let i = 0; i < events.length; i++) {
     const e = events[i];
-    if (e.kind === 'session_start' && e.payload && typeof e.payload === 'object') {
+    if (
+      e.kind === 'session_start' &&
+      e.payload &&
+      typeof e.payload === 'object'
+    ) {
       const hx = (e.payload as any).startHex;
       if (typeof hx === 'string') {
         return normalizeHexId(hx);
@@ -126,7 +135,7 @@ export function selectParty(events: Event[]): string[] {
     const e = events[i];
     if (e.kind === 'party_set' && e.payload && typeof e.payload === 'object') {
       const ids = (e.payload as any).ids;
-      if (Array.isArray(ids) && ids.every(x => typeof x === 'string')) {
+      if (Array.isArray(ids) && ids.every((x) => typeof x === 'string')) {
         latest = [...ids];
       }
     }
@@ -150,7 +159,11 @@ export function selectCurrentForecast(events: Event[]): number {
   const today = lastCalendarDate(events);
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
-    if (e.kind === 'weather_committed' && e.payload && typeof e.payload === 'object') {
+    if (
+      e.kind === 'weather_committed' &&
+      e.payload &&
+      typeof e.payload === 'object'
+    ) {
       const eventDate = (e.payload as WeatherCommitted).date;
       if (datesEqual(today, eventDate)) {
         continue; // skip today's weather

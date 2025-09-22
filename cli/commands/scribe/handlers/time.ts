@@ -1,16 +1,14 @@
 import { EXHAUSTION_HOURS, STEP_HOURS } from '../constants.ts';
-import {
-  hoursToSegmentsCeil,
-  segmentsToHours
-} from '../lib/day.ts';
+import { hoursToSegmentsCeil, segmentsToHours } from '../lib/day.ts';
 import { requireFile } from '../lib/guards.ts';
+import { info, usage, warn } from '../lib/report';
 import {
   activeSegmentsSinceStart,
   daylightSegmentsSinceStart,
-  findOpenDay
+  findOpenDay,
 } from '../projectors.ts';
-import { info, usage, warn } from '../lib/report';
 import { appendEvent, readEvents } from '../services/event-log';
+
 import type { Context } from '../types';
 
 export default function time(ctx: Context) {
@@ -61,7 +59,8 @@ export default function time(ctx: Context) {
       nightSegments = segments;
     }
 
-    const phase = nightSegments > 0 && daylightSegments === 0 ? 'night' : 'daylight';
+    const phase =
+      nightSegments > 0 && daylightSegments === 0 ? 'night' : 'daylight';
     // Build event payload per spec -- Store segments + phase only (integers internally)
     const eventPayload: any = {
       segments: segments,

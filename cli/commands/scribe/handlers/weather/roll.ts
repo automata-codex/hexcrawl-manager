@@ -1,9 +1,8 @@
-import { rollDice, clamp } from '../../lib/math.ts';
 import { requireFile, requireSession } from '../../lib/guards.ts';
-import { lastCalendarDate, selectCurrentForecast } from '../../projectors.ts';
+import { rollDice, clamp } from '../../lib/math.ts';
 import { info } from '../../lib/report.ts';
+import { lastCalendarDate, selectCurrentForecast } from '../../projectors.ts';
 import { readEvents } from '../../services/event-log.ts';
-import type { CanonicalDate, Context, Season, WeatherCategory, WeatherDraft } from '../../types.ts';
 
 import {
   bandForTotal,
@@ -14,6 +13,14 @@ import {
   getSeasonForDate,
   isInclementPlus,
 } from './helpers.ts';
+
+import type {
+  CanonicalDate,
+  Context,
+  Season,
+  WeatherCategory,
+  WeatherDraft,
+} from '../../types.ts';
 
 export default function weatherRoll(ctx: Context) {
   if (!requireSession(ctx)) {
@@ -80,10 +87,10 @@ export default function weatherRoll(ctx: Context) {
 
   // 12. Print summary
   info(
-    `Weather draft (today): roll=${roll}, forecast=+${forecastBefore} → total=${total} → ${category} (×${effects.travelMultiplier} travel)`
+    `Weather draft (today): roll=${roll}, forecast=+${forecastBefore} → total=${total} → ${category} (×${effects.travelMultiplier} travel)`,
   );
   info(
-    `Descriptors: [1] ${suggestedDescriptors[0]} • [2] ${suggestedDescriptors[1]} • [3] ${suggestedDescriptors[2]}`
+    `Descriptors: [1] ${suggestedDescriptors[0]} • [2] ${suggestedDescriptors[1]} • [3] ${suggestedDescriptors[2]}`,
   );
   info(`Use 'weather use 1,3' or 'weather set ...', then 'weather commit'.`);
 }

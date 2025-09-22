@@ -3,6 +3,7 @@ import { requireFile, requireSession } from '../lib/guards.ts';
 import { info, usage, warn } from '../lib/report.ts';
 import { isPartyLost, selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+
 import type { Context, Pace } from '../types';
 
 /**
@@ -16,7 +17,7 @@ import type { Context, Pace } from '../types';
  *   - to: the hex the party will backtrack to (the previous hex)
  *   Returns null if there is no previous hex to backtrack to.
  */
-function findPreviousHex(events: any[]): { from: string, to: string } | null {
+function findPreviousHex(events: any[]): { from: string; to: string } | null {
   // Traverse backwards to find the most recent distinct move
   let lastMove = null;
   let currentHex = selectCurrentHex(events);
@@ -76,7 +77,9 @@ export default function backtrack(ctx: Context) {
 
     if (isLost) {
       appendEvent(ctx.file!, 'lost', { state: 'off', method: 'backtrack' }); // Checked by `requireFile`
-      info(`Backtracking (${pace} pace). Regained bearings. Moved to ${prev.to}.`);
+      info(
+        `Backtracking (${pace} pace). Regained bearings. Moved to ${prev.to}.`,
+      );
     } else {
       info(`Backtracking (${pace} pace). Moved to ${prev.to}.`);
     }

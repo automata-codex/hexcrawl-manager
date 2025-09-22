@@ -1,10 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
+
+import { REPO_PATHS } from '../../shared-lib/constants';
 import { detectDevMode } from '../lib/env.ts';
 import { readJsonl } from '../lib/jsonl.ts';
 import { info, warn, error } from '../lib/report.ts';
-import { REPO_PATHS } from '../../shared-lib/constants';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -34,7 +35,9 @@ export default function doctor() {
     let lockFiles: string[] = [];
     if (!devMode) {
       if (fs.existsSync(REPO_PATHS.LOCKS())) {
-        lockFiles = fs.readdirSync(REPO_PATHS.LOCKS()).filter(f => f.endsWith('.lock'));
+        lockFiles = fs
+          .readdirSync(REPO_PATHS.LOCKS())
+          .filter((f) => f.endsWith('.lock'));
         info(`Found ${lockFiles.length} lock(s).`);
       } else {
         warn('No .locks/ directory found.');
@@ -44,7 +47,9 @@ export default function doctor() {
     // 3. In-progress files
     let inProgressFiles: string[] = [];
     if (fs.existsSync(inProgressDir)) {
-      inProgressFiles = fs.readdirSync(inProgressDir).filter(f => f.endsWith('.jsonl'));
+      inProgressFiles = fs
+        .readdirSync(inProgressDir)
+        .filter((f) => f.endsWith('.jsonl'));
       info(`Found ${inProgressFiles.length} in-progress file(s).`);
     } else {
       warn(`${inProgressDir} not found.`);
@@ -53,7 +58,9 @@ export default function doctor() {
     // 4. Sessions
     let sessionFiles: string[] = [];
     if (fs.existsSync(REPO_PATHS.SESSIONS())) {
-      sessionFiles = fs.readdirSync(REPO_PATHS.SESSIONS()).filter(f => f.endsWith('.jsonl'));
+      sessionFiles = fs
+        .readdirSync(REPO_PATHS.SESSIONS())
+        .filter((f) => f.endsWith('.jsonl'));
       info(`Found ${sessionFiles.length} finalized session file(s).`);
     } else {
       warn('sessions/ directory not found.');
@@ -62,14 +69,17 @@ export default function doctor() {
     // 5. Dev files (always list for visibility)
     let devFiles: string[] = [];
     if (fs.existsSync(REPO_PATHS.DEV_IN_PROGRESS())) {
-      devFiles = fs.readdirSync(REPO_PATHS.DEV_IN_PROGRESS()).filter(f => f.endsWith('.jsonl'));
+      devFiles = fs
+        .readdirSync(REPO_PATHS.DEV_IN_PROGRESS())
+        .filter((f) => f.endsWith('.jsonl'));
       info(`Found ${devFiles.length} dev file(s) in _dev/.`);
     } else {
       if (!devMode) warn('_dev/ directory not found.');
     }
 
     // 6. Lock checks (prod)
-    let staleLocks = 0, orphanLocks = 0;
+    let staleLocks = 0,
+      orphanLocks = 0;
     if (!devMode && lockFiles.length) {
       for (const lock of lockFiles) {
         const lockPath = path.join(REPO_PATHS.LOCKS(), lock);
@@ -94,7 +104,8 @@ export default function doctor() {
     }
 
     // 7. In-progress checks
-    let orphanInProgress = 0, missingStart = 0;
+    let orphanInProgress = 0,
+      missingStart = 0;
     for (const file of inProgressFiles) {
       // In prod, check for matching lock
       if (!devMode) {
@@ -114,12 +125,14 @@ export default function doctor() {
         warn(`Failed to read ${file}: ${e}`);
         continue;
       }
-      if (!events.some(ev => ev.kind === 'session_start')) {
+      if (!events.some((ev) => ev.kind === 'session_start')) {
         warn(`In-progress file ${file} missing session_start event.`);
         missingStart++;
       }
     }
-    info(`Orphan in-progress: ${orphanInProgress}, Missing session_start: ${missingStart}`);
+    info(
+      `Orphan in-progress: ${orphanInProgress}, Missing session_start: ${missingStart}`,
+    );
 
     // 8. Session log checks (cross-season)
     let crossSeason = 0;
@@ -133,9 +146,15 @@ export default function doctor() {
         continue;
       }
       // Find all unique seasonIds in day_start events
-      const seasons = new Set(events.filter(ev => ev.kind === 'day_start' && ev.seasonId).map(ev => (ev.seasonId || '').toLowerCase()));
+      const seasons = new Set(
+        events
+          .filter((ev) => ev.kind === 'day_start' && ev.seasonId)
+          .map((ev) => (ev.seasonId || '').toLowerCase()),
+      );
       if (seasons.size > 1) {
-        warn(`Session file ${file} spans multiple seasons: ${Array.from(seasons).join(', ')}`);
+        warn(
+          `Session file ${file} spans multiple seasons: ${Array.from(seasons).join(', ')}`,
+        );
         crossSeason++;
       }
     }

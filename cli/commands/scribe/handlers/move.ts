@@ -1,9 +1,14 @@
+import {
+  getHexNeighbors,
+  isValidHexId,
+  normalizeHexId,
+} from '../../../../lib/hexes';
 import { PACES } from '../constants.ts';
 import { requireSession } from '../lib/guards.ts';
-import { getHexNeighbors, isValidHexId, normalizeHexId } from '../../../../lib/hexes';
 import { error, info, usage, warn } from '../lib/report.ts';
 import { selectCurrentHex, isPartyLost } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+
 import type { Context, Pace } from '../types';
 
 export default function move(ctx: Context) {

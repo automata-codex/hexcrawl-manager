@@ -1,6 +1,5 @@
 import { HELP_TEXT } from '../constants';
 import { info } from '../lib/report.ts';
-import type { Context } from '../types';
 
 import abort from './abort.ts';
 import ap from './ap';
@@ -27,6 +26,8 @@ import trail from './trail';
 import undo from './undo';
 import view from './view';
 import weather from './weather';
+
+import type { Context } from '../types';
 
 export type Handler = (args: string[]) => void | Promise<void>;
 export type HandlerMap = Record<string, Handler>;

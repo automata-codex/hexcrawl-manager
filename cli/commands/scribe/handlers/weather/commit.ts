@@ -2,6 +2,7 @@ import { requireFile } from '../../lib/guards.ts';
 import { clamp } from '../../lib/math.ts';
 import { info, error } from '../../lib/report.ts';
 import { appendEvent } from '../../services/event-log.ts';
+
 import type { Context, WeatherDraft } from '../../types.ts';
 
 export default function weatherCommit(ctx: Context) {
@@ -18,9 +19,10 @@ export default function weatherCommit(ctx: Context) {
   // Resolve presentation fields
   const finalCategory = draft.overrides.category ?? draft.proposed.category;
   const finalDetail = draft.overrides.detail ?? draft.proposed.detail ?? null;
-  const finalDescriptors = draft.overrides.descriptors && draft.overrides.descriptors.length > 0
-    ? draft.overrides.descriptors
-    : undefined;
+  const finalDescriptors =
+    draft.overrides.descriptors && draft.overrides.descriptors.length > 0
+      ? draft.overrides.descriptors
+      : undefined;
 
   // Clamp forecastAfter
   const forecastAfter = clamp(draft.proposed.forecastModifier, -1, 5);

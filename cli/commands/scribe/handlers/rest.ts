@@ -1,5 +1,6 @@
-import type { Context } from '../types';
 import day from './day';
+
+import type { Context } from '../types';
 
 export default function rest(ctx: Context) {
   const runDay = day(ctx);

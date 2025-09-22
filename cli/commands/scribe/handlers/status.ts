@@ -9,6 +9,7 @@ import {
   selectCurrentHex,
 } from '../projectors.ts';
 import { readEvents } from '../services/event-log';
+
 import type { Context } from '../types';
 
 export default function status(ctx: Context) {
@@ -22,17 +23,22 @@ export default function status(ctx: Context) {
     const { open, lastStartIdx } = findOpenDay(events);
 
     if (!open) {
-      return info([
-        `📍 Hex: ${hex}`,
-        `❌ No open day. Start one with: day start [date]`
-      ].join('\n'));
+      return info(
+        [
+          `📍 Hex: ${hex}`,
+          `❌ No open day. Start one with: day start [date]`,
+        ].join('\n'),
+      );
     }
 
     const dayStart = events[lastStartIdx] as any;
     const calendarDate = dayStart.payload?.calendarDate;
     const daylightCapH = Number(dayStart.payload?.daylightCap ?? 0);
 
-    const usedDaylightSegments = daylightSegmentsSinceStart(events, lastStartIdx);
+    const usedDaylightSegments = daylightSegmentsSinceStart(
+      events,
+      lastStartIdx,
+    );
     const usedActiveSegments = activeSegmentsSinceStart(events, lastStartIdx);
 
     const usedDaylightH = segmentsToHours(usedDaylightSegments);

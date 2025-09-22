@@ -1,14 +1,17 @@
 import * as fs from 'fs';
 import * as path from 'path';
+
 import { detectDevMode } from '../lib/env.ts';
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { info, error as printError, warn } from '../lib/report.ts';
+
 import type { Context } from '../types.ts';
 
 // Lock file helpers
 const lockDir = path.join('data', 'session-logs', '.locks');
 const lockFileName = (sessionId: string) => `session_${sessionId}.lock`;
-const lockFilePath = (sessionId: string) => path.join(lockDir, lockFileName(sessionId));
+const lockFilePath = (sessionId: string) =>
+  path.join(lockDir, lockFileName(sessionId));
 
 export default function abort(ctx: Context) {
   return (args: string[]) => {
@@ -51,4 +54,3 @@ export default function abort(ctx: Context) {
     }
   };
 }
-

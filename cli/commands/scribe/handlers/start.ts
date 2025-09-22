@@ -1,16 +1,18 @@
 import { existsSync } from 'node:fs';
-import { detectDevMode } from '../lib/env.ts';
+
 import { isValidHexId, normalizeHexId } from '../../../../lib/hexes';
+import { detectDevMode } from '../lib/env.ts';
 import { error, info, usage } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log.ts';
 import { prepareSessionStart } from '../services/session.ts';
+
 import type { Context } from '../types';
 
 export default function start(ctx: Context) {
   return (args: string[]) => {
     // Remove --dev if present
-    const filteredArgs = args.filter(a => a !== '--dev');
+    const filteredArgs = args.filter((a) => a !== '--dev');
     const devMode = detectDevMode(args);
     const now = new Date();
 
@@ -29,7 +31,7 @@ export default function start(ctx: Context) {
     // Prepare session (ID, file, lock, etc) -- always auto-generate sessionId
     const prep = prepareSessionStart({
       devMode,
-      date: now
+      date: now,
     });
     if (!prep.ok) {
       error(prep.error);
@@ -39,12 +41,18 @@ export default function start(ctx: Context) {
     ctx.file = prep.inProgressFile;
 
     if (!existsSync(ctx.file)) {
-      appendEvent(ctx.file, 'session_start', { status: 'in-progress', id: prep.sessionId, startHex: startHexNorm });
+      appendEvent(ctx.file, 'session_start', {
+        status: 'in-progress',
+        id: prep.sessionId,
+        startHex: startHexNorm,
+      });
       info(`started: ${prep.sessionId} @ ${startHexNorm}`);
     } else {
       const evs = readEvents(ctx.file);
       const lastHex = selectCurrentHex(evs) ?? startHexNorm;
-      info(`resumed: ${prep.sessionId} (${evs.length} events)${lastHex ? ` — last hex ${lastHex}` : ''}`);
+      info(
+        `resumed: ${prep.sessionId} (${evs.length} events)${lastHex ? ` — last hex ${lastHex}` : ''}`,
+      );
     }
   };
 }
