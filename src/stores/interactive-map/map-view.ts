@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+
 import { STORAGE_KEYS } from '../../utils/constants.ts';
 
 export interface MapViewState {
@@ -61,8 +62,17 @@ mapView.subscribe((value) => {
 });
 
 export function applyZoomAtCenter(delta: number) {
-  mapView.update(state => {
-    const { zoom, zoomFactor, minZoom, maxZoom, svgWidth, svgHeight, centerX, centerY } = state;
+  mapView.update((state) => {
+    const {
+      zoom,
+      zoomFactor,
+      minZoom,
+      maxZoom,
+      svgWidth,
+      svgHeight,
+      centerX,
+      centerY,
+    } = state;
     const screenX = svgWidth / 2;
     const screenY = svgHeight / 2;
 
@@ -78,8 +88,10 @@ export function applyZoomAtCenter(delta: number) {
     const newViewWidth = svgWidth / clampedZoom;
     const newViewHeight = svgHeight / clampedZoom;
 
-    const adjustedCenterX = svgX - (screenX / svgWidth) * newViewWidth + newViewWidth / 2;
-    const adjustedCenterY = svgY - (screenY / svgHeight) * newViewHeight + newViewHeight / 2;
+    const adjustedCenterX =
+      svgX - (screenX / svgWidth) * newViewWidth + newViewWidth / 2;
+    const adjustedCenterY =
+      svgY - (screenY / svgHeight) * newViewHeight + newViewHeight / 2;
 
     return {
       ...state,
@@ -90,14 +102,20 @@ export function applyZoomAtCenter(delta: number) {
   });
 }
 
-export function computeViewBox({ centerX, centerY, svgWidth, svgHeight, zoom }: MapViewState) {
+export function computeViewBox({
+  centerX,
+  centerY,
+  svgWidth,
+  svgHeight,
+  zoom,
+}: MapViewState) {
   const width = svgWidth / zoom;
   const height = svgHeight / zoom;
   return `${centerX - width / 2} ${centerY - height / 2} ${width} ${height}`;
 }
 
 export function panBy(deltaX: number, deltaY: number) {
-  mapView.update(state => ({
+  mapView.update((state) => ({
     ...state,
     centerX: state.centerX - deltaX / state.zoom,
     centerY: state.centerY - deltaY / state.zoom,
@@ -105,14 +123,17 @@ export function panBy(deltaX: number, deltaY: number) {
 }
 
 export function resetZoom() {
-  mapView.update(state => ({
+  mapView.update((state) => ({
     ...state,
     zoom: 1,
   }));
 }
 
-export function updateSvgSizeAndPreserveCenter(newWidth: number, newHeight: number) {
-  mapView.update(state => {
+export function updateSvgSizeAndPreserveCenter(
+  newWidth: number,
+  newHeight: number,
+) {
+  mapView.update((state) => {
     const { zoom, centerX, centerY, svgWidth, svgHeight } = state;
 
     const oldViewWidth = svgWidth / zoom;
@@ -143,7 +164,7 @@ export function updateZoomAtPoint(
   screenY: number,
   delta: number,
 ) {
-  mapView.update(state => {
+  mapView.update((state) => {
     const { zoom, zoomFactor, minZoom, maxZoom, svgWidth, svgHeight } = state;
     const newZoom = delta > 0 ? zoom * zoomFactor : zoom / zoomFactor;
     const clampedZoom = Math.min(maxZoom, Math.max(minZoom, newZoom));
@@ -151,8 +172,10 @@ export function updateZoomAtPoint(
     const newViewWidth = svgWidth / clampedZoom;
     const newViewHeight = svgHeight / clampedZoom;
 
-    const centerX = svgX - (screenX / svgWidth) * newViewWidth + newViewWidth / 2;
-    const centerY = svgY - (screenY / svgHeight) * newViewHeight + newViewHeight / 2;
+    const centerX =
+      svgX - (screenX / svgWidth) * newViewWidth + newViewWidth / 2;
+    const centerY =
+      svgY - (screenY / svgHeight) * newViewHeight + newViewHeight / 2;
 
     return {
       ...state,
