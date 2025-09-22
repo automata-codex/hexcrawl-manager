@@ -1,7 +1,7 @@
-import { unified } from 'unified';
-import retextSmartypants from 'retext-smartypants';
 import retextParse from 'retext-english';
+import retextSmartypants from 'retext-smartypants';
 import retextStringify from 'retext-stringify';
+import { unified } from 'unified';
 
 /**
  * @deprecated Use `renderBulletMarkdown` from `src/utils/markdown.ts` instead.

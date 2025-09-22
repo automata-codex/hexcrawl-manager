@@ -13,5 +13,5 @@ export type RarityCounts = Record<Rarity, number>;
 
 // Initialize with 0s to ensure all keys are present
 export const initialRarityCounts: RarityCounts = Object.fromEntries(
-  allRarities.map(r => [r, 0])
+  allRarities.map((r) => [r, 0]),
 ) as RarityCounts;

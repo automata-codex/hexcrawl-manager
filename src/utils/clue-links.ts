@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises';
-import { parse } from 'yaml';
 import path from 'path';
+import { parse } from 'yaml';
+
 import type { ClueLink } from '../types.ts';
 
 export async function loadClueLinks() {
