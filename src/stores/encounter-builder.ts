@@ -1,6 +1,8 @@
 import { writable } from 'svelte/store';
-import type { CharacterData, EncounterData, StatBlockData } from '../types.ts';
+
 import { STORAGE_KEYS } from '../utils/constants.ts';
+
+import type { CharacterData, EncounterData, StatBlockData } from '../types.ts';
 
 export interface CurrentPartyMember {
   id: string;
@@ -44,14 +46,14 @@ function createEncounterBuilderStore() {
     ...defaultState,
     ...saved,
   };
-  const { subscribe, set, update } = writable<EncounterBuilderState>(initialState);
+  const { subscribe, update } = writable<EncounterBuilderState>(initialState);
 
   subscribe((state) => {
     saveToLocalStorage(state);
   });
 
   function loadFromLocalStorage(): EncounterBuilderState | null {
-    if (typeof localStorage === "undefined") {
+    if (typeof localStorage === 'undefined') {
       return null;
     }
     try {
@@ -63,7 +65,7 @@ function createEncounterBuilderStore() {
   }
 
   function saveToLocalStorage(state: EncounterBuilderState) {
-    if (typeof localStorage === "undefined") {
+    if (typeof localStorage === 'undefined') {
       return;
     }
     const data: EncounterBuilderSaveData = {
@@ -101,7 +103,9 @@ function createEncounterBuilderStore() {
           return state;
         }
 
-        const alreadyInEncounter = state.encounterMonsters.find((em) => em.id === monsterId);
+        const alreadyInEncounter = state.encounterMonsters.find(
+          (em) => em.id === monsterId,
+        );
         if (alreadyInEncounter) {
           // If monster already added, maybe increase quantity later, but for now just ignore
           return state;
@@ -161,7 +165,9 @@ function createEncounterBuilderStore() {
     removeMonsterFromEncounter(monsterId: string) {
       update((state) => ({
         ...state,
-        encounterMonsters: state.encounterMonsters.filter((em) => em.id !== monsterId),
+        encounterMonsters: state.encounterMonsters.filter(
+          (em) => em.id !== monsterId,
+        ),
       }));
     },
 
@@ -169,7 +175,7 @@ function createEncounterBuilderStore() {
       update((state) => ({
         ...state,
         encounterMonsters: state.encounterMonsters.map((em) =>
-          em.id === monsterId ? { ...em, quantity: newQuantity } : em
+          em.id === monsterId ? { ...em, quantity: newQuantity } : em,
         ),
       }));
     },
@@ -177,7 +183,9 @@ function createEncounterBuilderStore() {
     setOverrideLevel(id: string, level: number) {
       update((state) => ({
         ...state,
-        currentParty: state.currentParty.map((c) => c.id === id ? { ...c, overrideLevel: level } : c),
+        currentParty: state.currentParty.map((c) =>
+          c.id === id ? { ...c, overrideLevel: level } : c,
+        ),
       }));
     },
   };

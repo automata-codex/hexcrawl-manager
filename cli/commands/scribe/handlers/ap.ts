@@ -3,6 +3,7 @@ import { requireSession } from '../lib/guards.ts';
 import { info, usage } from '../lib/report.ts';
 import { selectCurrentHex, selectParty } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+
 import type { Context } from '../types';
 
 export default function ap(ctx: Context) {
@@ -17,14 +18,18 @@ export default function ap(ctx: Context) {
 
     const pillars = PILLARS as readonly string[];
     if (!pillar || !pillars.includes(pillar)) {
-      usage(`usage: ap <pillar> <tier> <note...>\n  pillars: ${pillars.join(', ')}`);
+      usage(
+        `usage: ap <pillar> <tier> <note...>\n  pillars: ${pillars.join(', ')}`,
+      );
       return;
     }
 
     const tiers = TIERS as readonly number[];
     const tier = Number(tierStr);
     if (!tierStr || !Number.isInteger(tier) || !tiers.includes(tier)) {
-      usage(`usage: ap <pillar> <tier> <note...>\n  tiers: ${tiers.join(', ')}`);
+      usage(
+        `usage: ap <pillar> <tier> <note...>\n  tiers: ${tiers.join(', ')}`,
+      );
       return;
     }
 
@@ -43,7 +48,7 @@ export default function ap(ctx: Context) {
       at: {
         hex: hex ?? null,
         party,
-      }
+      },
     });
 
     info(`✓ ap: ${pillar} (${tier}) — ${note}${hex ? ` @ ${hex}` : ''}`);

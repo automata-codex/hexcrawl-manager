@@ -2,6 +2,7 @@ import { requireFile } from '../lib/guards.ts';
 import { info, usage, error } from '../lib/report';
 import { isDayOpen, lastCalendarDate } from '../projectors.ts';
 import { readEvents, appendEvent } from '../services/event-log';
+
 import type { Context } from '../types';
 
 export default function date(ctx: Context) {
@@ -28,7 +29,7 @@ export default function date(ctx: Context) {
       return error(`Invalid date. ${e?.message ?? ''}`);
     }
 
-    appendEvent(ctx.file!, 'date_set', {calendarDate}); // Checked by `requireFile`
+    appendEvent(ctx.file!, 'date_set', { calendarDate }); // Checked by `requireFile`
     return info(`📅 Date set to ${ctx.calendar.formatDate(calendarDate)}`);
   };
 }

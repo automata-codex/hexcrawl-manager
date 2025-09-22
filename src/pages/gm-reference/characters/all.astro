@@ -1,17 +1,22 @@
 ---
 import { getCollection } from 'astro:content';
-import SecretLayout from '../../../layouts/SecretLayout.astro';
+
 import CharacterDetails from '../../../components/CharacterDetails.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
 
 const charactersData = await getCollection('characters');
 const characters = charactersData
   .map((character) => character.data)
   .sort((a, b) => a.displayName.localeCompare(b.displayName));
-
 ---
+
 <SecretLayout title="All Characters">
-  {characters.map((character) => (
-    <h2 class="title is-3">{character.fullName}</h2>
-    <CharacterDetails character={character} isSubcomponent={true} />
-  ))}
+  {
+    characters.map((character) => (
+      <>
+        <h2 class="title is-3">{character.fullName}</h2>
+        <CharacterDetails character={character} isSubcomponent={true} />
+      </>
+    ))
+  }
 </SecretLayout>

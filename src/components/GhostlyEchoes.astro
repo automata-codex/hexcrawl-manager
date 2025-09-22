@@ -8,44 +8,153 @@ if (!isScarSite) {
   return null;
 }
 ---
+
 <style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    th, td {
-        border-bottom: 1px solid var(--bulma-border);
-        padding: 0.15rem 1rem;
-    }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th,
+  td {
+    border-bottom: 1px solid var(--bulma-border);
+    padding: 0.15rem 1rem;
+  }
 </style>
 <h3 class="title is-4">Ghostly Echoes</h3>
 <table>
   <thead>
-  <tr>
-    <th>d20</th>
-    <th>Ghostly Echo</th>
-  </tr>
+    <tr>
+      <th>d20</th>
+      <th>Ghostly Echo</th>
+    </tr>
   </thead>
   <tbody>
-  <tr><td>1</td><td>A Velari scholar hurriedly scribbles arcane symbols into the air—the runes hang glowing for a moment before she vanishes.</td></tr>
-  <tr><td>2</td><td>A council of Velari, robed and radiant, argue soundlessly over a crystalline device that shatters into fragments mid-discussion.</td></tr>
-  <tr><td>3</td><td>A young Velari child reaches up toward a drifting shard of light, laughing—until both child and light blink out of existence.</td></tr>
-  <tr><td>4</td><td>Workers and servitors scramble along glowing conduits, trying to stabilize them. A ripple of distorted time freezes them mid-motion.</td></tr>
-  <tr><td>5</td><td>A procession of Velari pilgrims, heads bowed, move through a field of luminous crystal flowers—the flowers wilt as the pilgrims fade.</td></tr>
-  <tr><td>6</td><td>A fragment of a great ritual: a group of Velari channel magic toward a massive crystal pylon, their faces straining with effort. Mid-ritual, they disintegrate like dust on the wind.</td></tr>
-  <tr><td>7</td><td>Velari defenders in crystalline armor rush into battle against a foe the party cannot see. Their weapons pass harmlessly through the air before both sides dissolve.</td></tr>
-  <tr><td>8</td><td>A marketplace scene: Velari merchants trade glittering artifacts and crystalline goods, chatting and smiling, oblivious to the slow crack forming in the sky overhead.</td></tr>
-  <tr><td>9</td><td>A Velari musician, floating just above the ground, plays an instrument of light and sound. As the melody crescendos, the musician flickers out like a dying star.</td></tr>
-  <tr><td>10</td><td>An entire Velari city vista appears—towers of light, flowing crystal roads, flying constructs—then breaks apart like shattered glass in a silent explosion.</td></tr>
-  <tr><td>11</td><td>A Velari family shares a meal at a floating table set with crystalline dishes. A child laughs, spilling a drink that never hits the floor.</td></tr>
-  <tr><td>12</td><td>Two Velari artisans gossip while weaving strands of glowing fiber into a garment. One pauses to whisper something scandalous.</td></tr>
-  <tr><td>13</td><td>An elderly Velari slowly tends a garden of softly pulsating flowers, carefully trimming a withered bloom.</td></tr>
-  <tr><td>14</td><td>Velari children chase one another around a shimmering fountain, their feet occasionally lifting from the ground as if forgetting gravity.</td></tr>
-  <tr><td>15</td><td>A pair of Velari lovers, seated on a balcony high above a shining city, lean close, their hands barely touching.</td></tr>
-  <tr><td>16</td><td>A group of Velari laborers push and guide translucent carts piled with faintly glowing stones, laughing at some shared joke.</td></tr>
-  <tr><td>17</td><td>A Velari musician quietly plucks at a strange, luminous harp while a few passersby pause to listen before moving on.</td></tr>
-  <tr><td>18</td><td>Vendors in a crystalline market call out noiselessly to customers, offering fruits that float gently above their stalls.</td></tr>
-  <tr><td>19</td><td>A Velari scribe balances stacks of blank tablets while muttering under their breath about being late. The top tablet slides off, freezes midair, and vanishes.</td></tr>
-  <tr><td>20</td><td>A group of friends play an intricate board game on a floating platform, laughing and shouting triumphantly—the board and pieces dissolve with them.</td></tr>
+    <tr
+      ><td>1</td><td
+        >A Velari scholar hurriedly scribbles arcane symbols into the air—the
+        runes hang glowing for a moment before she vanishes.</td
+      ></tr
+    >
+    <tr
+      ><td>2</td><td
+        >A council of Velari, robed and radiant, argue soundlessly over a
+        crystalline device that shatters into fragments mid-discussion.</td
+      ></tr
+    >
+    <tr
+      ><td>3</td><td
+        >A young Velari child reaches up toward a drifting shard of light,
+        laughing—until both child and light blink out of existence.</td
+      ></tr
+    >
+    <tr
+      ><td>4</td><td
+        >Workers and servitors scramble along glowing conduits, trying to
+        stabilize them. A ripple of distorted time freezes them mid-motion.</td
+      ></tr
+    >
+    <tr
+      ><td>5</td><td
+        >A procession of Velari pilgrims, heads bowed, move through a field of
+        luminous crystal flowers—the flowers wilt as the pilgrims fade.</td
+      ></tr
+    >
+    <tr
+      ><td>6</td><td
+        >A fragment of a great ritual: a group of Velari channel magic toward a
+        massive crystal pylon, their faces straining with effort. Mid-ritual,
+        they disintegrate like dust on the wind.</td
+      ></tr
+    >
+    <tr
+      ><td>7</td><td
+        >Velari defenders in crystalline armor rush into battle against a foe
+        the party cannot see. Their weapons pass harmlessly through the air
+        before both sides dissolve.</td
+      ></tr
+    >
+    <tr
+      ><td>8</td><td
+        >A marketplace scene: Velari merchants trade glittering artifacts and
+        crystalline goods, chatting and smiling, oblivious to the slow crack
+        forming in the sky overhead.</td
+      ></tr
+    >
+    <tr
+      ><td>9</td><td
+        >A Velari musician, floating just above the ground, plays an instrument
+        of light and sound. As the melody crescendos, the musician flickers out
+        like a dying star.</td
+      ></tr
+    >
+    <tr
+      ><td>10</td><td
+        >An entire Velari city vista appears—towers of light, flowing crystal
+        roads, flying constructs—then breaks apart like shattered glass in a
+        silent explosion.</td
+      ></tr
+    >
+    <tr
+      ><td>11</td><td
+        >A Velari family shares a meal at a floating table set with crystalline
+        dishes. A child laughs, spilling a drink that never hits the floor.</td
+      ></tr
+    >
+    <tr
+      ><td>12</td><td
+        >Two Velari artisans gossip while weaving strands of glowing fiber into
+        a garment. One pauses to whisper something scandalous.</td
+      ></tr
+    >
+    <tr
+      ><td>13</td><td
+        >An elderly Velari slowly tends a garden of softly pulsating flowers,
+        carefully trimming a withered bloom.</td
+      ></tr
+    >
+    <tr
+      ><td>14</td><td
+        >Velari children chase one another around a shimmering fountain, their
+        feet occasionally lifting from the ground as if forgetting gravity.</td
+      ></tr
+    >
+    <tr
+      ><td>15</td><td
+        >A pair of Velari lovers, seated on a balcony high above a shining city,
+        lean close, their hands barely touching.</td
+      ></tr
+    >
+    <tr
+      ><td>16</td><td
+        >A group of Velari laborers push and guide translucent carts piled with
+        faintly glowing stones, laughing at some shared joke.</td
+      ></tr
+    >
+    <tr
+      ><td>17</td><td
+        >A Velari musician quietly plucks at a strange, luminous harp while a
+        few passersby pause to listen before moving on.</td
+      ></tr
+    >
+    <tr
+      ><td>18</td><td
+        >Vendors in a crystalline market call out noiselessly to customers,
+        offering fruits that float gently above their stalls.</td
+      ></tr
+    >
+    <tr
+      ><td>19</td><td
+        >A Velari scribe balances stacks of blank tablets while muttering under
+        their breath about being late. The top tablet slides off, freezes
+        midair, and vanishes.</td
+      ></tr
+    >
+    <tr
+      ><td>20</td><td
+        >A group of friends play an intricate board game on a floating platform,
+        laughing and shouting triumphantly—the board and pieces dissolve with
+        them.</td
+      ></tr
+    >
   </tbody>
 </table>

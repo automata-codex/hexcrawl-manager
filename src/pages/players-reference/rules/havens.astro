@@ -1,15 +1,22 @@
 ---
 import { getEntry } from 'astro:content';
-import { renderMarkdown } from '../../../utils/markdown';
+
 import SecretContent from '../../../components/Content/SecretContent.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
+import { renderMarkdown } from '../../../utils/markdown';
 
-const existingHavenRulesArticle = await getEntry('articles', 'existing-haven-rules');
+const existingHavenRulesArticle = await getEntry(
+  'articles',
+  'existing-haven-rules',
+);
 if (!existingHavenRulesArticle) {
   throw new Error('Article not found');
 }
 
-const havenRequirementsArticle = await getEntry('articles', 'haven-requirements');
+const havenRequirementsArticle = await getEntry(
+  'articles',
+  'haven-requirements',
+);
 if (!havenRequirementsArticle) {
   throw new Error('Article not found');
 }
@@ -19,30 +26,36 @@ if (!newHavenRulesArticle) {
   throw new Error('Article not found');
 }
 ---
+
 <style is:global>
-    table {
-        border-spacing: 0;
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-    }
-    td, th {
-        border-bottom: 1px solid var(--bulma-border);
-        padding-right: 1rem;
-        padding-top: 0.25rem;
-        padding-bottom: 0.25rem;
-    }
-    th {
-        border-top: 1px solid var(--bulma-border);
-    }
+  table {
+    border-spacing: 0;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  td,
+  th {
+    border-bottom: 1px solid var(--bulma-border);
+    padding-right: 1rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+  th {
+    border-top: 1px solid var(--bulma-border);
+  }
 </style>
 <ComponentLayout title="Havens">
   <article>
     <div>
-      <Fragment set:html={renderMarkdown(existingHavenRulesArticle.body ?? '')} />
+      <Fragment
+        set:html={renderMarkdown(existingHavenRulesArticle.body ?? '')}
+      />
     </div>
     <SecretContent>
       <h2 class="title is-3">Haven Requirements</h2>
-      <Fragment set:html={renderMarkdown(havenRequirementsArticle.body ?? '')} />
+      <Fragment
+        set:html={renderMarkdown(havenRequirementsArticle.body ?? '')}
+      />
     </SecretContent>
     <div>
       <h2 class="title is-3">Founding a New Haven</h2>

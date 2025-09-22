@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { ClassEnum } from './class-enum.js';
 
 export const CharacterSchema = z.object({

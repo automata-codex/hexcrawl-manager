@@ -1,20 +1,25 @@
 ---
 import { startCase, toLower } from 'lodash-es';
+
 import type { StatBlockData } from '../../types';
 
 interface Props {
-  data: StatBlockData
+  data: StatBlockData;
 }
 
 const { data } = Astro.props;
 const size = startCase(toLower(data.size));
 const type = startCase(toLower(data.type));
 const subtype = data.subtype ? ` (${startCase(toLower(data.subtype))}),` : ',';
-const alignment = data.alignment === 'any' ? 'Any Alignment' : startCase(toLower(data.alignment));
+const alignment =
+  data.alignment === 'any'
+    ? 'Any Alignment'
+    : startCase(toLower(data.alignment));
 ---
+
 <style>
-    p {
-        font-style: italic;
-    }
+  p {
+    font-style: italic;
+  }
 </style>
 <p>{size} {type}{subtype} {alignment}</p>

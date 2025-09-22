@@ -1,37 +1,41 @@
-import type { CalendarService } from './services/calendar.ts';
 import { type PACES, WEATHER_CATEGORIES } from './constants.ts';
 
+import type { CalendarService } from './services/calendar.ts';
+
 export type CalendarConfig = {
-  daylightCaps: Record<Season, number>;              // { winter:6, spring:9, summer:12, autumn:9 }
-  displayFormat?: "D Month YYYY";                    // reserved for future; one format supported today
+  daylightCaps: Record<Season, number>; // { winter:6, spring:9, summer:12, autumn:9 }
+  displayFormat?: 'D Month YYYY'; // reserved for future; one format supported today
   leap?: LeapRule;
-  months: MonthDef[];                                // ordered list of months
-  seasonByMonth: Record<string, Season>;             // map month.name -> season
+  months: MonthDef[]; // ordered list of months
+  seasonByMonth: Record<string, Season>; // map month.name -> season
 };
 
 export class CalendarError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "CalendarError";
+    this.name = 'CalendarError';
   }
 }
 
 export type CanonicalDate = {
-  year: number;        // e.g., 1511
-  month: string;       // must match a configured month name
-  day: number;         // 1-based
+  year: number; // e.g., 1511
+  month: string; // must match a configured month name
+  day: number; // 1-based
 };
 
 export type Context = {
   sessionId: string | null;
-  file: string | null;      // in-progress file path
+  file: string | null; // in-progress file path
   calendar: CalendarService;
   weatherDraft?: WeatherDraft;
   weatherNagPrintedForDates?: Set<string>; // Use strings for easy Set membership
 };
 
 // Weather descriptors
-export type DescriptorLibrary = Record<Season, Record<WeatherCategory, string[]>>;
+export type DescriptorLibrary = Record<
+  Season,
+  Record<WeatherCategory, string[]>
+>;
 
 // Extreme weather details
 export type DetailTable = { die: string; entries: string[] };
@@ -41,9 +45,9 @@ export type DetailTables = Record<Season, DetailTable>;
 export type EffectsTable = Record<WeatherCategory, WeatherEffects>;
 
 export type Event = {
-  seq: number;              // 1..N within the file
-  ts: string;               // ISO timestamp
-  kind: string;             // "move" | "scout" | ...
+  seq: number; // 1..N within the file
+  ts: string; // ISO timestamp
+  kind: string; // "move" | "scout" | ...
   payload: Record<string, unknown>;
 };
 
@@ -66,23 +70,26 @@ export type LeapRule = {
 };
 
 export type MonthDef = {
-  name: string;        // canonical name, e.g., "Umbraeus"
-  days: number;        // length of the month
-  aliases?: string[];  // optional short forms or common misspellings
+  name: string; // canonical name, e.g., "Umbraeus"
+  days: number; // length of the month
+  aliases?: string[]; // optional short forms or common misspellings
 };
 
-export type Pace = typeof PACES[number];
+export type Pace = (typeof PACES)[number];
 
 export type Pillar = 'explore' | 'social' | 'combat';
 
-export type Season = "winter" | "spring" | "summer" | "autumn";
+export type Season = 'winter' | 'spring' | 'summer' | 'autumn';
 
-export type SeasonalBand = { range: [number, number]; category: WeatherCategory };
+export type SeasonalBand = {
+  range: [number, number];
+  category: WeatherCategory;
+};
 export type SeasonalBandsTable = Record<Season, SeasonalBand[]>;
 
 export type Tier = 1 | 2 | 3 | 4;
 
-export type WeatherCategory = typeof WEATHER_CATEGORIES[number];
+export type WeatherCategory = (typeof WEATHER_CATEGORIES)[number];
 
 export type WeatherCommitted = {
   category: WeatherCategory;
@@ -105,14 +112,14 @@ export type WeatherDraft = {
   };
   proposed: {
     category: WeatherCategory; // from seasonal bands
-    detail?: string;           // auto only if Inclement+
+    detail?: string; // auto only if Inclement+
     effects: WeatherEffects;
-    forecastBefore: number;    // from projector (default 0)
-    forecastModifier: number;  // mapping from category (−1..+5)
-    roll2d6: number;           // 2..12
+    forecastBefore: number; // from projector (default 0)
+    forecastModifier: number; // mapping from category (−1..+5)
+    roll2d6: number; // 2..12
     season: Season;
     suggestedDescriptors: string[]; // exactly 3 strings for (season,category)
-    total: number;             // clamp(roll2d6 + forecastBefore, 2..17)
+    total: number; // clamp(roll2d6 + forecastBefore, 2..17)
   };
 };
 

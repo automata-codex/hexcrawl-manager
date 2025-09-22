@@ -9,4 +9,3 @@ export function atomicWrite(filePath: string, content: string) {
   fs.writeFileSync(tmpPath, content, 'utf8');
   fs.renameSync(tmpPath, filePath);
 }
-

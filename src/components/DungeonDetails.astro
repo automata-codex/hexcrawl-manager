@@ -1,10 +1,13 @@
 ---
 import { getCollection, getEntry, render } from 'astro:content';
+
 import Unlocks from '../components/Unlocks.svelte';
-import type { DungeonEntry } from '../types';
-import { renderBulletMarkdown } from '../utils/markdown';
 import { flatKnowledgeTrees } from '../utils/knowledge-trees';
+import { renderBulletMarkdown } from '../utils/markdown';
+
 import StatBlock from './StatBlock/StatBlock.astro';
+
+import type { DungeonEntry } from '../types';
 
 interface Props {
   dungeon: DungeonEntry;
@@ -32,55 +35,65 @@ async function getStatBlocks(statBlockIds: string[]) {
   return Promise.all(output);
 }
 
-const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.statBlocks) : [];
+const statBlocks = dungeon.data.statBlocks
+  ? await getStatBlocks(dungeon.data.statBlocks)
+  : [];
 ---
+
 <style>
-    .description-header {
-        display: none;
-    }
+  .description-header {
+    display: none;
+  }
 
-    .dungeon-data-bar {
-        display: flex;
-    }
+  .dungeon-data-bar {
+    display: flex;
+  }
 
-    .dungeon-data-bar > div {
-        font-weight: bold;
-        margin-right: 1rem;
-    }
+  .dungeon-data-bar > div {
+    font-weight: bold;
+    margin-right: 1rem;
+  }
 
-    .dungeon-source {
-        font-weight: bold;
-    }
+  .dungeon-source {
+    font-weight: bold;
+  }
 
-    .maps {
-        font-weight: bold;
-    }
+  .maps {
+    font-weight: bold;
+  }
 
-    .spacer {
-        margin-bottom: 1rem;
-    }
+  .spacer {
+    margin-bottom: 1rem;
+  }
 </style>
 <div class="dungeon-data-bar">
   <div>
     Hex:
     <a href={`/session-toolkit/hexes/${hexData.id}`}>
-      {renderBulletMarkdown(`${hexData.data.id.toUpperCase()} "${hexData.data.name}"`)}
+      {
+        renderBulletMarkdown(
+          `${hexData.data.id.toUpperCase()} "${hexData.data.name}"`,
+        )
+      }
     </a>
   </div>
-  {isSubcomponent && (
-    <div>
-      <a href={`/gm-reference/dungeons/${dungeon.id}`}>
-        View Dungeon
-      </a>
-    </div>
-  )}
+  {
+    isSubcomponent && (
+      <div>
+        <a href={`/gm-reference/dungeons/${dungeon.id}`}>View Dungeon</a>
+      </div>
+    )
+  }
 </div>
-{dungeon.data.source && (
-  <div class="dungeon-source">
-    Source: <Fragment set:html={renderBulletMarkdown(dungeon.data.source)} />
-  </div>
-)}
-{dungeon.data.images && (
+{
+  dungeon.data.source && (
+    <div class="dungeon-source">
+      Source: <Fragment set:html={renderBulletMarkdown(dungeon.data.source)} />
+    </div>
+  )
+}
+{
+  dungeon.data.images && (
     <div>
       <p class="maps">Maps:</p>
       <ul>
@@ -97,33 +110,38 @@ const statBlocks = dungeon.data.statBlocks ? await getStatBlocks(dungeon.data.st
         ))}
       </ul>
     </div>
-  )}
-<Unlocks knowledgeTrees={flatKnowledgeTrees} unlocks={dungeon.data.unlocks ?? []} />
+  )
+}
+<Unlocks
+  knowledgeTrees={flatKnowledgeTrees}
+  unlocks={dungeon.data.unlocks ?? []}
+/>
 <div class="spacer"></div>
 <h2 class="description-header">Description</h2>
 <div class="dungeon-content">
   {isSubcomponent ? dungeon.data.summary : <Content />}
 </div>
-{!isSubcomponent && (statBlocks.length > 0) && (
-  <div>
-    <h2 class="title is-3">Stat Blocks</h2>
-    {statBlocks.map((statBlock) => (
-      <StatBlock data={statBlock} />
-    ))}
-  </div>
-)}
-{isSubcomponent && (
-  <script>
-    const container = document.querySelector('.dungeon-content');
-    const offset = 1; // shift down by 1 level
-
-    if (container) {
-      container.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+{
+  !isSubcomponent && statBlocks.length > 0 && (
+    <div>
+      <h2 class="title is-3">Stat Blocks</h2>
+      {statBlocks.map((statBlock) => (
+        <StatBlock data={statBlock} />
+      ))}
+    </div>
+  )
+}
+{
+  isSubcomponent && (
+    <script>
+      const container = document.querySelector('.dungeon-content');
+      const offset = 1; // shift down by 1 level if (container){' '}
+      {container!.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((el) => {
         const tagLevel = parseInt(el.tagName[1]);
         const visualLevel = Math.min(tagLevel + offset, 6);
         el.setAttribute('role', 'heading');
         el.setAttribute('aria-level', visualLevel.toString());
-      });
-    }
-  </script>
-)}
+      })}
+    </script>
+  )
+}

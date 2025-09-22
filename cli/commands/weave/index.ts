@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+
 import { apply } from './commands/apply';
 import { plan } from './commands/plan';
 
@@ -10,21 +11,18 @@ export const weaveCommand = new Command('weave')
   .action(async (file, opts) => {
     await apply(file, opts);
   })
-  .parent!
-  .command('doctor')
+  .parent!.command('doctor')
   .description('Diagnose campaign state and pending rollovers')
   .action(() => {
     console.log('weave doctor');
     // TODO: implement doctor logic
   })
-  .parent!
-  .command('plan [file]')
+  .parent!.command('plan [file]')
   .description('Plan application of a session or rollover file')
   .action(async (file) => {
     await plan(file);
   })
-  .parent!
-  .command('status')
+  .parent!.command('status')
   .description('Show weave status and unapplied items')
   .action(() => {
     console.log('weave status');

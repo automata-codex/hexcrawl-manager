@@ -1,9 +1,9 @@
 import { readdirSync, statSync, readFileSync, existsSync } from 'fs';
+import { get } from 'lodash-es';
 import { resolve, join, basename } from 'path';
+import { pathToFileURL } from 'url';
 import { parse } from 'yaml';
 import { z } from 'zod';
-import { pathToFileURL } from 'url';
-import { get } from 'lodash-es';
 
 /**
  * @typedef {import('zod').ZodTypeAny} ZodTypeAny
@@ -12,15 +12,16 @@ import { get } from 'lodash-es';
 
 // ---- Config ----
 
-const WARN_ON_UNMAPPED = process.argv.includes('-w') || process.argv.includes('--warn-unmapped');
+const WARN_ON_UNMAPPED =
+  process.argv.includes('-w') || process.argv.includes('--warn-unmapped');
 
 const SCHEMA_DIR = '../schemas';
 const DATA_ROOT = '../data';
 
 /** @type {Record<string, string>} */
 const manualSchemaMap = {
-  'dungeon': 'dungeons',
-  'hex': 'hexes',
+  dungeon: 'dungeons',
+  hex: 'hexes',
 };
 
 // ---- Utilities ----
@@ -32,9 +33,13 @@ const manualSchemaMap = {
  */
 function getAllSchemaFiles(dir) {
   const entries = readdirSync(dir, { withFileTypes: true });
-  return entries.flatMap(entry => {
+  return entries.flatMap((entry) => {
     const res = resolve(dir, entry.name);
-    return entry.isDirectory() ? getAllSchemaFiles(res) : (res.endsWith('.js') ? [res] : []);
+    return entry.isDirectory()
+      ? getAllSchemaFiles(res)
+      : res.endsWith('.js')
+        ? [res]
+        : [];
   });
 }
 
@@ -63,7 +68,10 @@ function getDeprecatedFields(schema, path = []) {
       }
     } else if (schema instanceof z.ZodArray) {
       visit(schema.element, [...path, '[*]']);
-    } else if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable) {
+    } else if (
+      schema instanceof z.ZodOptional ||
+      schema instanceof z.ZodNullable
+    ) {
       visit(schema.unwrap(), path);
     } else if (schema instanceof z.ZodDefault) {
       visit(schema.removeDefault(), path);
@@ -83,13 +91,13 @@ function getDeprecatedFields(schema, path = []) {
  * @returns {string[]}
  */
 function findDeprecatedFieldsInYaml(obj, deprecatedPaths) {
-  return deprecatedPaths.filter(path => {
+  return deprecatedPaths.filter((path) => {
     if (path.includes('[*]')) {
       const prefix = path.replace(/\.\[\*\].*$/, '');
       const items = get(obj, prefix);
       if (Array.isArray(items)) {
         const restPath = path.split('[*].')[1];
-        return items.some(item => get(item, restPath) !== undefined);
+        return items.some((item) => get(item, restPath) !== undefined);
       }
       return false;
     } else {
@@ -166,7 +174,9 @@ function walkAndCheck(dir, deprecatedPaths) {
     const contentSubdir = manualSchemaMap[baseName];
     if (!contentSubdir) {
       if (WARN_ON_UNMAPPED) {
-        console.warn(`⚠️ Skipping ${baseName} (no directory mapped in manualSchemaMap)`);
+        console.warn(
+          `⚠️ Skipping ${baseName} (no directory mapped in manualSchemaMap)`,
+        );
       }
       continue;
     }
@@ -174,11 +184,14 @@ function walkAndCheck(dir, deprecatedPaths) {
     const contentDir = join(DATA_ROOT, contentSubdir);
     const fileUrl = pathToFileURL(filePath).href;
     const mod = await import(fileUrl);
-    const schema = mod.default || Object.values(mod).find(v => v instanceof z.ZodObject);
+    const schema =
+      mod.default || Object.values(mod).find((v) => v instanceof z.ZodObject);
 
     if (!schema || !(schema instanceof z.ZodObject)) {
       if (WARN_ON_UNMAPPED) {
-        console.warn(`⚠️ Skipping ${baseName} (no directory mapped in manualSchemaMap)`);
+        console.warn(
+          `⚠️ Skipping ${baseName} (no directory mapped in manualSchemaMap)`,
+        );
       }
       continue;
     }
@@ -197,7 +210,7 @@ function walkAndCheck(dir, deprecatedPaths) {
       console.log(`✅ No deprecated fields found in "${contentSubdir}".`);
     } else {
       console.log(`⚠️ Deprecated fields found in "${contentSubdir}":`);
-      results.forEach(r => console.log(`- ${r}`));
+      results.forEach((r) => console.log(`- ${r}`));
     }
   }
 })();

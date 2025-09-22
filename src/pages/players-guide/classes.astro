@@ -1,13 +1,16 @@
 ---
-import ComponentLayout from '../../layouts/ComponentLayout.astro';
 import { getCollection } from 'astro:content';
+
+import ComponentLayout from '../../layouts/ComponentLayout.astro';
 
 const classesCollection = await getCollection('classes');
 const classes = classesCollection
   .map((playerClass) => playerClass.data)
   .map((playerClass) => ({
     name: playerClass.name,
-    subclasses: playerClass.subclasses.sort((a, b) => a.name.localeCompare(b.name)),
+    subclasses: playerClass.subclasses.sort((a, b) =>
+      a.name.localeCompare(b.name),
+    ),
   }))
   .sort((a, b) => a.name.localeCompare(b.name));
 const column1 = classes.slice(0, Math.ceil(classes.length / 2));
@@ -28,96 +31,102 @@ function formatSource(source: string) {
 
 const title = 'Playable Classes & Subclasses';
 ---
+
 <style is:global>
-    abbr {
-        cursor: default;
-    }
+  abbr {
+    cursor: default;
+  }
 </style>
 <style>
-    table {
-        margin: 0 auto;
-    }
+  table {
+    margin: 0 auto;
+  }
 
-    td, th {
-        padding: 0.125rem 0.25rem;
-    }
+  td,
+  th {
+    padding: 0.125rem 0.25rem;
+  }
 
-    tr {
-        border-bottom: 1px solid var(--bulma-border);
-    }
+  tr {
+    border-bottom: 1px solid var(--bulma-border);
+  }
 
-    tr:first-child {
-        border-top: 1px solid var(--bulma-border);
-    }
+  tr:first-child {
+    border-top: 1px solid var(--bulma-border);
+  }
 
-    .center-column {
-        text-align: center;
-    }
+  .center-column {
+    text-align: center;
+  }
 
-    .class {
-        font-weight: bold;
-        font-style: italic;
-    }
+  .class {
+    font-weight: bold;
+    font-style: italic;
+  }
 
-    .name-column {
-        min-width: 230px;
-    }
+  .name-column {
+    min-width: 230px;
+  }
 </style>
 <ComponentLayout title={title}>
   <div class="columns">
-  <div class="column is-half">
-    <table>
-      <thead>
-      <tr>
-        <th class="name-column">Class & Subclass</th>
-        <th class="center-column">Source</th>
-        <th class="center-column">Page</th>
-      </tr>
-      {column1.map((playerClass) => (
-        <tbody>
-        <tr class="class">
-          <td class="name-column">{playerClass.name}</td>
-        </tr>
-        {playerClass.subclasses.map((subclass) => (
-          <tr class="subclass">
-            <td class="name-column">{subclass.name}</td>
-            <td class="center-column">
-              <Fragment set:html={formatSource(subclass.source)} />
-            </td>
-            <td class="center-column">{subclass.page}</td>
+    <div class="column is-half">
+      <table>
+        <thead>
+          <tr>
+            <th class="name-column">Class & Subclass</th>
+            <th class="center-column">Source</th>
+            <th class="center-column">Page</th>
           </tr>
-        ))}
-        </tbody>
-      ))}
-      </thead>
-    </table>
-  </div>
-  <div class="column is-half">
-    <table>
-      <thead>
-      <tr>
-        <th class="name-column">Class & Subclass</th>
-        <th class="center-column">Source</th>
-        <th class="center-column">Page</th>
-      </tr>
-      {column2.map((playerClass) => (
-        <tbody>
-        <tr class="class">
-          <td>{playerClass.name}</td>
-        </tr>
-        {playerClass.subclasses.map((subclass) => (
-          <tr class="subclass">
-            <td class="name-column">{subclass.name}</td>
-            <td class="center-column">
-              <Fragment set:html={formatSource(subclass.source)} />
-            </td>
-            <td class="center-column">{subclass.page}</td>
+          {
+            column1.map((playerClass) => (
+              <tbody>
+                <tr class="class">
+                  <td class="name-column">{playerClass.name}</td>
+                </tr>
+                {playerClass.subclasses.map((subclass) => (
+                  <tr class="subclass">
+                    <td class="name-column">{subclass.name}</td>
+                    <td class="center-column">
+                      <Fragment set:html={formatSource(subclass.source)} />
+                    </td>
+                    <td class="center-column">{subclass.page}</td>
+                  </tr>
+                ))}
+              </tbody>
+            ))
+          }
+        </thead>
+      </table>
+    </div>
+    <div class="column is-half">
+      <table>
+        <thead>
+          <tr>
+            <th class="name-column">Class & Subclass</th>
+            <th class="center-column">Source</th>
+            <th class="center-column">Page</th>
           </tr>
-        ))}
-        </tbody>
-      ))}
-      </thead>
-    </table>
-  </div>
+          {
+            column2.map((playerClass) => (
+              <tbody>
+                <tr class="class">
+                  <td>{playerClass.name}</td>
+                </tr>
+                {playerClass.subclasses.map((subclass) => (
+                  <tr class="subclass">
+                    <td class="name-column">{subclass.name}</td>
+                    <td class="center-column">
+                      <Fragment set:html={formatSource(subclass.source)} />
+                    </td>
+                    <td class="center-column">{subclass.page}</td>
+                  </tr>
+                ))}
+              </tbody>
+            ))
+          }
+        </thead>
+      </table>
+    </div>
   </div>
 </ComponentLayout>

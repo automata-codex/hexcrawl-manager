@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const TrailSchema = z.object({
   from: z.string().regex(/^[a-z]\d+$/), // e.g., "T15"

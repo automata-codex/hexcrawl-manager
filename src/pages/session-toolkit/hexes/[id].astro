@@ -1,22 +1,23 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 
+import OpenContent from '../../../components/Content/OpenContent.astro';
+import SecretContent from '../../../components/Content/SecretContent.astro';
+import GhostlyEchoes from '../../../components/GhostlyEchoes.astro';
 import GmHexDetails from '../../../components/GmHexDetails/GmHexDetails.svelte';
 import PlayerHexDetails from '../../../components/PlayerHexDetails/PlayerHexDetails.astro';
 import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
-import OpenContent from '../../../components/Content/OpenContent.astro';
-import SecretContent from '../../../components/Content/SecretContent.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
+import { loadClueLinks } from '../../../utils/clue-links';
+import { processHex } from '../../../utils/hexes';
+import { flatKnowledgeTrees } from '../../../utils/knowledge-trees';
+
 import type {
   CategoryTableData,
   EncounterOverrideData,
   EncounterTableData,
   HexData,
 } from '../../../types';
-import { processHex } from '../../../utils/hexes';
-import { flatKnowledgeTrees } from '../../../utils/knowledge-trees';
-import { loadClueLinks } from '../../../utils/clue-links';
-import GhostlyEchoes from '../../../components/GhostlyEchoes.astro';
 
 const clueLinks = await loadClueLinks();
 
@@ -25,7 +26,7 @@ const { id } = Astro.params;
 if (!id) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
@@ -36,7 +37,7 @@ const hexEntry = await getEntry('hexes', id);
 if (hexEntry === undefined) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
@@ -48,7 +49,7 @@ const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
 let encounters: EncounterTableData | undefined = undefined;
 let encounterChance = 8;
 const regions = await getCollection('regions');
-const region = regions.find(region => region.id === hex.regionId);
+const region = regions.find((region) => region.id === hex.regionId);
 if (region) {
   encounters = region.data.encounters;
   encounterChance = region.data.encounterChance;
@@ -57,20 +58,26 @@ encounterChance = hex.encounterChance ?? encounterChance;
 
 export function mergeHexOverrides(
   base: EncounterTableData,
-  overrides?: EncounterOverrideData
+  overrides?: EncounterOverrideData,
 ): EncounterTableData {
   if (!overrides) return base;
 
   // Use the override mainTable if provided, otherwise keep base
   const mainTable = overrides.mainTable ?? base.mainTable;
 
-  const categoryTables: CategoryTableData = structuredClone(base.categoryTables);
+  const categoryTables: CategoryTableData = structuredClone(
+    base.categoryTables,
+  );
 
   if (overrides.categoryTables) {
-    for (const [category, tierOverrides] of Object.entries(overrides.categoryTables)) {
+    for (const [category, tierOverrides] of Object.entries(
+      overrides.categoryTables,
+    )) {
       categoryTables[category] = categoryTables[category] || {};
 
-      for (const [tier, overrideEntries] of Object.entries(tierOverrides ?? {})) {
+      for (const [tier, overrideEntries] of Object.entries(
+        tierOverrides ?? {},
+      )) {
         categoryTables[category][tier] = overrideEntries;
       }
     }
@@ -88,6 +95,7 @@ if (encounters && hex.encounterOverrides) {
 
 const extendedHexData = await processHex(hex);
 ---
+
 <ComponentLayout title={title}>
   <OpenContent>
     <PlayerHexDetails hex={hex} />
@@ -105,8 +113,7 @@ const extendedHexData = await processHex(hex);
     <p>
       <span class="inline-heading">Chance of encounter:</span>
       {' '}
-      {encounterChance * 5}%
-      (&le;{encounterChance})
+      {encounterChance * 5}% (&le;{encounterChance})
     </p>
     <RandomEncounterTable data={encounters} />
     <GhostlyEchoes isScarSite={hex.tags?.includes('scar-site')} />

@@ -1,4 +1,3 @@
-import type { Context } from '../types';
 import { usage } from '../lib/report.ts';
 
 import weatherAbandon from './weather/abandon.ts';
@@ -8,6 +7,8 @@ import weatherRoll from './weather/roll';
 import weatherSet from './weather/set.ts';
 import weatherShow from './weather/show.ts';
 import weatherUse from './weather/use.ts';
+
+import type { Context } from '../types';
 
 export default function weather(ctx: Context) {
   return async (args: string[]) => {
@@ -25,7 +26,7 @@ export default function weather(ctx: Context) {
         weatherCommit(ctx);
         return;
       case 'propose':
-        // fall thru
+      // fall thru
       case 'roll':
         weatherRoll(ctx);
         return;
@@ -39,7 +40,9 @@ export default function weather(ctx: Context) {
         weatherUse(ctx, args);
         return;
       default:
-        return usage('weather <abandon|clear|commit|propose|roll|set|show|use>');
+        return usage(
+          'weather <abandon|clear|commit|propose|roll|set|show|use>',
+        );
     }
   };
 }

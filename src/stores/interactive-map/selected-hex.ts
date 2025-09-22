@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+
 import { STORAGE_KEYS } from '../../utils/constants.ts';
 
 // Try to load from localStorage (only in browser)

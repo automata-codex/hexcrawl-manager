@@ -19,16 +19,19 @@ function createBasePipeline(additionalPlugins: AdditionalPlugin[] = []) {
     { plugin: remarkRehype, options: { allowDangerousHtml: true } }, // 1
     { plugin: rehypeRaw }, // 2
     { plugin: remarkSmartypants, options: { dashes: 'oldschool' } }, // 3
-    { plugin: rehypeAddClasses, options: {
-      h1: 'title is-2',
-      h2: 'title is-3',
-      h3: 'title is-4',
-      h4: 'title is-5',
-      h5: 'title is-6',
-      h6: 'title is-7',
-      strong: 'inline-heading',
-    }}, // 4
-    { plugin: rehypeStringify, options: { allowDangerousHtml: true } } // 5
+    {
+      plugin: rehypeAddClasses,
+      options: {
+        h1: 'title is-2',
+        h2: 'title is-3',
+        h3: 'title is-4',
+        h4: 'title is-5',
+        h5: 'title is-6',
+        h6: 'title is-7',
+        strong: 'inline-heading',
+      },
+    }, // 4
+    { plugin: rehypeStringify, options: { allowDangerousHtml: true } }, // 5
   ];
 
   additionalPlugins.forEach(({ plugin, options, position }) => {
@@ -55,7 +58,10 @@ export async function renderMarkdown(markdown: string) {
   return result.toString();
 }
 
-export async function renderMarkdownWithAdditionalPlugin(markdown: string, additionalPlugins: AdditionalPlugin[]) {
+export async function renderMarkdownWithAdditionalPlugin(
+  markdown: string,
+  additionalPlugins: AdditionalPlugin[],
+) {
   const pipeline = createBasePipeline(additionalPlugins);
   const result = await pipeline.process(markdown);
   return result.toString();
@@ -67,7 +73,7 @@ export async function renderSubArticleMarkdown(markdown: string, depth = 1) {
     options: { depth },
     position: 0,
   };
-  return renderMarkdownWithAdditionalPlugin(markdown, [ behead ]);
+  return renderMarkdownWithAdditionalPlugin(markdown, [behead]);
 }
 
 function stripParagraphTags(html: string): string {

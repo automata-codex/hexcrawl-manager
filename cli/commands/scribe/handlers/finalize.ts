@@ -1,7 +1,8 @@
+import { detectDevMode } from '../lib/env.ts';
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { info, error as printError } from '../lib/report.ts';
 import { finalizeSession } from '../services/session.ts';
-import { detectDevMode } from '../lib/env.ts';
+
 import type { Context } from '../types';
 
 export default function finalize(ctx: Context) {

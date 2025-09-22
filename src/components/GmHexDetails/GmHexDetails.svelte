@@ -1,14 +1,21 @@
 <script lang="ts">
-  import type { ClueLink, DungeonEntry, ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
-  import { getRegionTitle } from '../../utils/regions.ts';
   import { getHexPath, getRegionPath } from '../../config/routes.ts';
-  import Explored from './Explored.svelte';
+  import { getRegionTitle } from '../../utils/regions.ts';
+
   import Dungeon from './Dungeon.svelte';
+  import Explored from './Explored.svelte';
   import HiddenSites from './HiddenSites.svelte';
   import Landmark from './Landmark.svelte';
   import LinkedClues from './LinkedClues.svelte';
   import Neighbors from './Neighbors.svelte';
   import Visited from './Visited.svelte';
+
+  import type {
+    ClueLink,
+    DungeonEntry,
+    ExtendedHexData,
+    FlatKnowledgeTree,
+  } from '../../types.ts';
 
   interface Props {
     clueLinks?: ClueLink[];
@@ -26,34 +33,7 @@
     showSelfLink = true,
   }: Props = $props();
 </script>
-<style>
-    .data-bar {
-        display: flex;
-        font-weight: bold;
-    }
 
-    :global(.data-bar-cell) {
-        margin-right: 1rem;
-    }
-
-    .updates {
-        padding: 1rem;
-        margin: 1rem 0;
-    }
-
-    .updates ul {
-        padding-left: 1rem;
-    }
-
-    .warning {
-        background-color: var(--bulma-danger);
-        color: var(--bulma-white);
-        font-weight: bold;
-        padding: 1rem;
-        text-align: center;
-        margin: 0 0 1rem;
-    }
-</style>
 {#if hex.updates}
   <div class="box updates">
     <p class="warning">⚠️ Updates ⚠️</p>
@@ -93,11 +73,40 @@
     <span class="inline-heading">GM&rsquo;s Notes:</span>
   </p>
   <ul>
-  {#each hex.renderedNotes as note}
-    <li>{@html note}</li>
-  {/each}
+    {#each hex.renderedNotes as note}
+      <li>{@html note}</li>
+    {/each}
   </ul>
 {/if}
 {#if clueLinks}
   <LinkedClues {clueLinks} hexId={hex.id} />
 {/if}
+
+<style>
+  .data-bar {
+    display: flex;
+    font-weight: bold;
+  }
+
+  :global(.data-bar-cell) {
+    margin-right: 1rem;
+  }
+
+  .updates {
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+
+  .updates ul {
+    padding-left: 1rem;
+  }
+
+  .warning {
+    background-color: var(--bulma-danger);
+    color: var(--bulma-white);
+    font-weight: bold;
+    padding: 1rem;
+    text-align: center;
+    margin: 0 0 1rem;
+  }
+</style>

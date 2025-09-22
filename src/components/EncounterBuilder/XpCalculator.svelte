@@ -14,13 +14,16 @@
       if (!monster) {
         return sum;
       }
-      return sum + (getXpForCr(monster.challenge_rating) * em.quantity);
+      return sum + getXpForCr(monster.challenge_rating) * em.quantity;
     }, 0),
   );
 
   // Calculate number of monsters
   let numberOfMonsters = $derived(
-    $encounterBuilderStore.encounterMonsters.reduce((sum, em) => sum + em.quantity, 0)
+    $encounterBuilderStore.encounterMonsters.reduce(
+      (sum, em) => sum + em.quantity,
+      0,
+    ),
   );
 
   // Determine XP multiplier based on number of monsters
@@ -40,8 +43,14 @@
   let adjustedXp = $derived(baseXp * xpMultiplier);
 
   // Calculate Party Thresholds
-  function getThreshold(level: number, difficulty: "easy" | "medium" | "hard" | "deadly"): number {
-    const thresholds: Record<number, { easy: number; medium: number; hard: number; deadly: number }> = {
+  function getThreshold(
+    level: number,
+    difficulty: 'easy' | 'medium' | 'hard' | 'deadly',
+  ): number {
+    const thresholds: Record<
+      number,
+      { easy: number; medium: number; hard: number; deadly: number }
+    > = {
       1: { easy: 25, medium: 50, hard: 75, deadly: 100 },
       2: { easy: 50, medium: 100, hard: 150, deadly: 200 },
       3: { easy: 75, medium: 150, hard: 225, deadly: 400 },
@@ -69,23 +78,35 @@
 
   // Party Levels
   let partyLevels = $derived(
-    $encounterBuilderStore.currentParty
-      .map((member) => member.overrideLevel ?? member.level)
+    $encounterBuilderStore.currentParty.map(
+      (member) => member.overrideLevel ?? member.level,
+    ),
   );
 
   // Thresholds
-  let easyThreshold = $derived(partyLevels.reduce((sum, lvl) => sum + getThreshold(lvl, "easy"), 0));
-  let mediumThreshold = $derived(partyLevels.reduce((sum, lvl) => sum + getThreshold(lvl, "medium"), 0));
-  let hardThreshold = $derived(partyLevels.reduce((sum, lvl) => sum + getThreshold(lvl, "hard"), 0));
-  let deadlyThreshold = $derived(partyLevels.reduce((sum, lvl) => sum + getThreshold(lvl, "deadly"), 0));
+  let easyThreshold = $derived(
+    partyLevels.reduce((sum, lvl) => sum + getThreshold(lvl, 'easy'), 0),
+  );
+  let mediumThreshold = $derived(
+    partyLevels.reduce((sum, lvl) => sum + getThreshold(lvl, 'medium'), 0),
+  );
+  let hardThreshold = $derived(
+    partyLevels.reduce((sum, lvl) => sum + getThreshold(lvl, 'hard'), 0),
+  );
+  let deadlyThreshold = $derived(
+    partyLevels.reduce((sum, lvl) => sum + getThreshold(lvl, 'deadly'), 0),
+  );
 
   // Determine Difficulty
-  function determineDifficulty(adjustedXp: number, thresholds: { easy: number; medium: number; hard: number; deadly: number }): string {
-    if (adjustedXp < thresholds.easy) return "Trivial";
-    if (adjustedXp < thresholds.medium) return "Easy";
-    if (adjustedXp < thresholds.hard) return "Medium";
-    if (adjustedXp < thresholds.deadly) return "Hard";
-    return "Deadly";
+  function determineDifficulty(
+    adjustedXp: number,
+    thresholds: { easy: number; medium: number; hard: number; deadly: number },
+  ): string {
+    if (adjustedXp < thresholds.easy) return 'Trivial';
+    if (adjustedXp < thresholds.medium) return 'Easy';
+    if (adjustedXp < thresholds.hard) return 'Medium';
+    if (adjustedXp < thresholds.deadly) return 'Hard';
+    return 'Deadly';
   }
   let encounterDifficulty = $derived(
     determineDifficulty(adjustedXp, {
@@ -115,6 +136,7 @@
   <br />
 
   <div class="notification is-primary">
-    <strong>Encounter Difficulty:</strong> {encounterDifficulty}
+    <strong>Encounter Difficulty:</strong>
+    {encounterDifficulty}
   </div>
 </div>

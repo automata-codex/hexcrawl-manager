@@ -1,8 +1,14 @@
 <script lang="ts">
   import { encounterBuilderStore } from '../../stores/encounter-builder.ts';
-  import type { CharacterData, EncounterData, StatBlockData } from '../../types.ts';
-  import PartyBuilder from './PartyBuilder.svelte';
+
   import EncounterBuilder from './EncounterBuilder.svelte';
+  import PartyBuilder from './PartyBuilder.svelte';
+
+  import type {
+    CharacterData,
+    EncounterData,
+    StatBlockData,
+  } from '../../types.ts';
 
   interface Props {
     characters: CharacterData[];

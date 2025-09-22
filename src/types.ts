@@ -1,12 +1,9 @@
-import type { CollectionEntry } from 'astro:content';
 import { z } from 'zod';
-import { CampaignDateSchema } from './config/campaign-date.ts';
+
 import { BountySchema } from '../schemas/bounty';
 import { CharacterSchema } from '../schemas/character';
 import { ClassSchema } from '../schemas/class';
 import { DungeonDataSchema } from '../schemas/dungeon';
-import { FactionSchema } from '../schemas/faction';
-import { FloatingClueSchema } from '../schemas/floating-clue';
 import { EncounterSchema } from '../schemas/encounter';
 import { EncounterOverrideSchema } from '../schemas/encounter-override.js';
 import {
@@ -15,10 +12,11 @@ import {
   EncounterTableSchema,
   TieredSubtableSchema,
 } from '../schemas/encounter-table';
+import { FactionSchema } from '../schemas/faction';
+import { FloatingClueSchema } from '../schemas/floating-clue';
 import { HexSchema, HiddenSitesSchema, KnownTagEnum } from '../schemas/hex.js';
 import { KnowledgeNodeSchema } from '../schemas/knowledge-node';
 import { LootPackSchema } from '../schemas/loot-pack';
-import type { SegmentMetadataSchema } from '../schemas/map-path';
 import { NpcSchema } from '../schemas/npc';
 import { PlayerSchema } from '../schemas/player';
 import { RegionSchema } from '../schemas/region';
@@ -31,11 +29,16 @@ import {
   RangedWeaponAttackSchema,
   SkillsSchema,
   SpecialActionSchema,
-  StatBlockSchema
+  StatBlockSchema,
 } from '../schemas/stat-block.js';
 import { SupplementSchema } from '../schemas/supplement-list';
 import { TrailEntrySchema, TrailSchema } from '../schemas/trails';
 import { TreasureSchema } from '../schemas/treasure';
+
+import { CampaignDateSchema } from './config/campaign-date.ts';
+
+import type { SegmentMetadataSchema } from '../schemas/map-path';
+import type { CollectionEntry } from 'astro:content';
 
 export type BountyData = z.infer<typeof BountySchema>;
 export type CategoryTableData = z.infer<typeof CategoryTable>;
@@ -67,7 +70,7 @@ export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;
 export type SupplementData = z.infer<typeof SupplementSchema>;
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
-export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>
+export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>;
 export type TrailData = z.infer<typeof TrailSchema>;
 export type TrailEntry = z.infer<typeof TrailEntrySchema>;
 export type TreasureData = z.infer<typeof TreasureSchema>;
@@ -80,14 +83,14 @@ export type ExtendedHexData = HexData & {
   renderedLandmark: string;
   renderedSecretSite: string;
   renderedUpdates: string[];
-}
+};
 export type ExtendedHiddenSites = HiddenSitesData & {
   description: string;
   treasure?: ExtendedTreasureData[];
-}
+};
 export type ExtendedTreasureData = TreasureData & {
   renderedNotes: string;
-}
+};
 
 export type ArticleEntry = CollectionEntry<'articles'>;
 export type DungeonEntry = CollectionEntry<'dungeons'>;
@@ -103,9 +106,12 @@ export type ClueLink = {
     hexId: string;
     score: number;
   }[];
-}
+};
 
-export type EncounterCategoryTables = Record<string, Record<string, EncounterEntryData[]>>;
+export type EncounterCategoryTables = Record<
+  string,
+  Record<string, EncounterEntryData[]>
+>;
 
 export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
 

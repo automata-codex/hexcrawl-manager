@@ -1,8 +1,9 @@
 ---
 import { toLower } from 'lodash-es';
 
-import type { MeleeWeaponAttackData } from '../../types';
 import { renderBulletMarkdown } from '../../utils/markdown';
+
+import type { MeleeWeaponAttackData } from '../../types';
 
 interface Props {
   action: MeleeWeaponAttackData;
@@ -25,7 +26,11 @@ const {
 } = action;
 
 let additionalText = '.';
-if (additional_default_damage && additional_damage_dice && additional_damage_type) {
+if (
+  additional_default_damage &&
+  additional_damage_dice &&
+  additional_damage_type
+) {
   additionalText = ` plus ${additional_default_damage} (${additional_damage_dice}) ${toLower(additional_damage_type)} damage.`;
 } else if (additional_text) {
   additionalText = additional_text;
@@ -33,6 +38,7 @@ if (additional_default_damage && additional_damage_dice && additional_damage_typ
 
 const nameText = recharge ? `${name} (Recharge ${recharge})` : name;
 ---
+
 <style>
   .action-name {
     font-style: italic;
@@ -46,12 +52,14 @@ const nameText = recharge ? `${name} (Recharge ${recharge})` : name;
 <div>
   <span class="action-name">{nameText}.</span>
   {' '}
-  {use_desc && (
-    <span>
-      {' '}
-      <Fragment set:html={renderBulletMarkdown(action.desc ?? '')} />
-    </span>
-  )}
+  {
+    use_desc && (
+      <span>
+        {' '}
+        <Fragment set:html={renderBulletMarkdown(action.desc ?? '')} />
+      </span>
+    )
+  }
   <span class="attack-type">Melee Weapon Attack:</span>
   {' '}
   <span>+{attack_bonus} to hit,</span>
@@ -59,6 +67,14 @@ const nameText = recharge ? `${name} (Recharge ${recharge})` : name;
   reach {action.reach}, one target.
   {' '}
   <span class="attack-type">Hit:</span>&nbsp;{default_damage}
-  ({damage_bonus ? <>{damage_dice}+{damage_bonus}</> : <>{damage_dice}</>})
+  ({
+    damage_bonus ? (
+      <>
+        {damage_dice}+{damage_bonus}
+      </>
+    ) : (
+      <>{damage_dice}</>
+    )
+  })
   {toLower(damage_type)} damage{additionalText}
 </div>

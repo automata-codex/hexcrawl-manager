@@ -19,14 +19,18 @@ export const ROUTES = {
     },
     firstCivilization: {
       airships: '/gm-reference/first-civilization/airships',
-      catastropheAndAftermath: '/gm-reference/first-civilization/catastrophe-and-aftermath',
+      catastropheAndAftermath:
+        '/gm-reference/first-civilization/catastrophe-and-aftermath',
       crystals: '/gm-reference/first-civilization/crystals',
       crystalReference: '/gm-reference/first-civilization/crystal-reference',
       demographics: '/gm-reference/first-civilization/demographics',
       skyspire: '/gm-reference/first-civilization/the-skyspire',
-      skyspireMaterialsAndZones: '/gm-reference/first-civilization/skyspire-materials-and-zones',
-      skyspireOccupations: '/gm-reference/first-civilization/skyspire-occupations',
-      skyspireOriginalZones: '/gm-reference/first-civilization/skyspire-original-zones',
+      skyspireMaterialsAndZones:
+        '/gm-reference/first-civilization/skyspire-materials-and-zones',
+      skyspireOccupations:
+        '/gm-reference/first-civilization/skyspire-occupations',
+      skyspireOriginalZones:
+        '/gm-reference/first-civilization/skyspire-original-zones',
       skyspireTerrain: '/gm-reference/first-civilization/skyspire-terrain',
       velari: '/gm-reference/first-civilization/the-velari',
     },
@@ -318,19 +322,27 @@ export function getDungeonPath(dungeonId: string): string {
 }
 
 export function getEncounterPath(encounterId: string): string {
-  return interpolateRoute(ROUTES.gmReference.encounters.id, { id: encounterId });
+  return interpolateRoute(ROUTES.gmReference.encounters.id, {
+    id: encounterId,
+  });
 }
 
 export function getFloatingCluePath(floatingClueId: string): string {
-  return interpolateRoute(ROUTES.sessionToolkit.clues.floatingClues.id, { id: floatingClueId });
+  return interpolateRoute(ROUTES.sessionToolkit.clues.floatingClues.id, {
+    id: floatingClueId,
+  });
 }
 
 export function getHexPath(hexId: string): string {
-  return interpolateRoute(ROUTES.sessionToolkit.hexes.id, { id: hexId }).toLowerCase();
+  return interpolateRoute(ROUTES.sessionToolkit.hexes.id, {
+    id: hexId,
+  }).toLowerCase();
 }
 
 export function getLootPackPath(lootPackId: string): string {
-  return interpolateRoute(ROUTES.sessionToolkit.lootPacks.id, { id: lootPackId });
+  return interpolateRoute(ROUTES.sessionToolkit.lootPacks.id, {
+    id: lootPackId,
+  });
 }
 
 export function getRegionPath(regionId: string): string {
@@ -338,12 +350,17 @@ export function getRegionPath(regionId: string): string {
 }
 
 export function getStatBlockPath(statBlockId: string): string {
-  return interpolateRoute(ROUTES.gmReference.statBlocks.id, { id: statBlockId });
+  return interpolateRoute(ROUTES.gmReference.statBlocks.id, {
+    id: statBlockId,
+  });
 }
 
-export function interpolateRoute(route: string, params: Record<string, string>): string {
+export function interpolateRoute(
+  route: string,
+  params: Record<string, string>,
+): string {
   return Object.entries(params).reduce(
     (acc, [key, value]) => acc.replace(`[${key}]`, value),
-    route
+    route,
   );
 }

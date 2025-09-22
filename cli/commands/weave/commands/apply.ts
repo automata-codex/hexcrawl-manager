@@ -1,8 +1,9 @@
 import path from 'path';
-import {
-  applyRolloverToTrails,
-  applySessionToTrails,
-} from '../lib/apply';
+
+import { readJsonl } from '../../scribe/lib/jsonl';
+import { error, info } from '../../scribe/lib/report';
+import { REPO_PATHS } from '../../shared-lib/constants';
+import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
 import {
   getMostRecentRolloverFootprint,
   requireCleanGitOrAllowDirty,
@@ -16,20 +17,18 @@ import {
   isSessionChronologyValid,
   isSessionFile,
 } from '../lib/guards';
+import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import {
   appendToMetaAppliedSessions,
   loadHavens,
   loadMeta,
   loadTrails,
   writeYamlAtomic,
-  writeFootprint
+  writeFootprint,
 } from '../lib/state';
-import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { validateSessionEnvelope } from '../lib/validate';
-import { readJsonl } from '../../scribe/lib/jsonl';
-import { error, info } from '../../scribe/lib/report';
+
 import type { CanonicalDate } from '../../scribe/types.ts';
-import { REPO_PATHS } from '../../shared-lib/constants';
 
 export async function apply(fileArg?: string, opts?: any) {
   requireCleanGitOrAllowDirty(opts);
@@ -47,9 +46,11 @@ export async function apply(fileArg?: string, opts?: any) {
   // File type detection
   if (isRolloverFile(file)) {
     const events = readJsonl(file);
-    const rollover = events.find(e => e.kind === 'season_rollover');
+    const rollover = events.find((e) => e.kind === 'season_rollover');
     if (!rollover || !rollover.payload?.seasonId) {
-      error('Validation error: Rollover file missing season_rollover event or seasonId.');
+      error(
+        'Validation error: Rollover file missing season_rollover event or seasonId.',
+      );
       process.exit(4);
     }
     const seasonId = normalizeSeasonId(rollover.payload.seasonId as string);
@@ -60,16 +61,22 @@ export async function apply(fileArg?: string, opts?: any) {
     }
     const chrono = isRolloverChronologyValid(meta, seasonId);
     if (!chrono.valid) {
-      error(`Validation error: Rollover is not for the next unapplied season. Expected: ${chrono.expected}`);
+      error(
+        `Validation error: Rollover is not for the next unapplied season. Expected: ${chrono.expected}`,
+      );
       process.exit(4);
     }
     // --- Rollover apply logic ---
     // Build set of affected edges
-    const { trails: trailsAfter, ...effects } = applyRolloverToTrails(trails, havens, false);
+    const { trails: trailsAfter, ...effects } = applyRolloverToTrails(
+      trails,
+      havens,
+      false,
+    );
     const affectedEdges = new Set([
       ...effects.maintained,
       ...effects.persisted,
-      ...effects.deletedTrails
+      ...effects.deletedTrails,
     ]);
     // Build before/after for only affected edges
     const before: Record<string, any> = {};
@@ -94,7 +101,7 @@ export async function apply(fileArg?: string, opts?: any) {
         appliedAt: new Date().toISOString(),
         inputs: { sourceFile: file },
         effects: { rollover: effects },
-        touched: { before, after }
+        touched: { before, after },
       };
       writeFootprint(footprint);
       info('Rollover applied.');
@@ -114,23 +121,31 @@ export async function apply(fileArg?: string, opts?: any) {
       error('Session file is empty or unreadable.');
       process.exit(4);
     }
-    const dayStarts = events.filter(e => e.kind === 'day_start');
+    const dayStarts = events.filter((e) => e.kind === 'day_start');
     if (!dayStarts.length) {
       error('Validation error: No day_start event in session.');
       process.exit(4);
     }
-    const seasonIds = dayStarts.map(e => {
+    const seasonIds = dayStarts.map((e) => {
       const calDate = e.payload?.calendarDate as CanonicalDate;
       return deriveSeasonId(calDate);
     });
     const firstSeasonId = seasonIds[0];
-    if (!seasonIds.every(sid => normalizeSeasonId(sid) === normalizeSeasonId(firstSeasonId))) {
-      error('Validation error: Multi-season session detected. All events must share the same season.');
+    if (
+      !seasonIds.every(
+        (sid) => normalizeSeasonId(sid) === normalizeSeasonId(firstSeasonId),
+      )
+    ) {
+      error(
+        'Validation error: Multi-season session detected. All events must share the same season.',
+      );
       process.exit(4);
     }
     const chrono = isSessionChronologyValid(meta, firstSeasonId);
     if (!chrono.valid) {
-      error(`Validation error: Missing required rollover(s) for season ${firstSeasonId}: ${chrono.missing.join(', ')}`);
+      error(
+        `Validation error: Missing required rollover(s) for season ${firstSeasonId}: ${chrono.missing.join(', ')}`,
+      );
       process.exit(4);
     }
     const fileId = path.basename(file);
@@ -141,9 +156,19 @@ export async function apply(fileArg?: string, opts?: any) {
 
     // --- Session apply logic ---
     const mostRecentRoll = getMostRecentRolloverFootprint(firstSeasonId);
-    const deletedTrails = mostRecentRoll?.effects?.rollover?.deletedTrails || [];
-    const { effects, before, after } = applySessionToTrails(events, trails, firstSeasonId, deletedTrails, false);
-    const changed = effects.created.length > 0 || effects.rediscovered.length > 0 || Object.keys(effects.usedFlags).length > 0;
+    const deletedTrails =
+      mostRecentRoll?.effects?.rollover?.deletedTrails || [];
+    const { effects, before, after } = applySessionToTrails(
+      events,
+      trails,
+      firstSeasonId,
+      deletedTrails,
+      false,
+    );
+    const changed =
+      effects.created.length > 0 ||
+      effects.rediscovered.length > 0 ||
+      Object.keys(effects.usedFlags).length > 0;
     if (!changed) {
       info('No changes would be made.');
       process.exit(5);
@@ -162,7 +187,7 @@ export async function apply(fileArg?: string, opts?: any) {
         appliedAt: new Date().toISOString(),
         inputs: { sourceFile: file },
         effects: { session: effects },
-        touched: { before, after }
+        touched: { before, after },
       };
       writeFootprint(footprint);
       info('Session applied.');

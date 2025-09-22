@@ -4,6 +4,7 @@ import { requireFile, requireSession } from '../lib/guards.ts';
 import { info, warn, usage, error } from '../lib/report';
 import { findOpenDay, lastCalendarDate } from '../projectors.ts';
 import { readEvents, appendEvent } from '../services/event-log';
+
 import type { CanonicalDate, Context } from '../types';
 
 export default function day(ctx: Context) {
@@ -25,7 +26,9 @@ export default function day(ctx: Context) {
 
     if (sub === 'start') {
       if (open) {
-        return warn('A day is already open. Use `day end` (or `rest`) before starting a new day.');
+        return warn(
+          'A day is already open. Use `day end` (or `rest`) before starting a new day.',
+        );
       }
 
       // Parse/resolve date
@@ -58,7 +61,9 @@ export default function day(ctx: Context) {
         daylightCap,
       });
 
-      return info(`📅 Day started: ${ctx.calendar.formatDate(calendarDate!)} (daylight cap ${daylightCap}h)`);
+      return info(
+        `📅 Day started: ${ctx.calendar.formatDate(calendarDate!)} (daylight cap ${daylightCap}h)`,
+      );
     }
 
     if (sub === 'end') {
@@ -93,7 +98,8 @@ export default function day(ctx: Context) {
       const daylightH = segmentsToHours(daylightSegments);
       const nightH = segmentsToHours(nightSegments);
 
-      appendEvent(ctx.file!, 'day_end', { // Checked by `requireFile`
+      appendEvent(ctx.file!, 'day_end', {
+        // Checked by `requireFile`
         summary: { active: activeH, daylight: daylightH, night: nightH },
       });
 

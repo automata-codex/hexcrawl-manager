@@ -12,12 +12,12 @@ export default function svgSymbolsPlugin() {
       if (id === 'virtual:svg-symbols') {
         const iconDir = resolve('src/components/InteractiveMap/icons');
         const symbols = readdirSync(iconDir)
-          .filter(file => file.endsWith('.svg'))
-          .map(file => readFileSync(resolve(iconDir, file), 'utf-8'))
+          .filter((file) => file.endsWith('.svg'))
+          .map((file) => readFileSync(resolve(iconDir, file), 'utf-8'))
           .join('\\n');
 
         return `export default \`<defs>${symbols}</defs>\`;`;
       }
-    }
+    },
   };
 }

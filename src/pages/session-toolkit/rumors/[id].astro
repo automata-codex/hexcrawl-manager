@@ -1,5 +1,6 @@
 ---
 import { getEntry } from 'astro:content';
+
 import RumorDetail from '../../../components/RumorDetail.astro';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 
@@ -8,7 +9,7 @@ const { id } = Astro.params;
 if (!id) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
@@ -19,17 +20,18 @@ const rumorData = await getEntry('rumors', id);
 if (rumorData === undefined) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
 const rumor = rumorData.data;
 const title = `Rumor: ${rumor.title}`;
 ---
+
 <style is:global>
-    h3.title.is-4 {
-        margin-bottom: 0.25rem;
-    }
+  h3.title.is-4 {
+    margin-bottom: 0.25rem;
+  }
 </style>
 <SecretLayout title={title}>
   <RumorDetail rumor={rumor} />

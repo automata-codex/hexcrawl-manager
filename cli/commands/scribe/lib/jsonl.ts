@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+
 import type { Event } from '../types';
 
 export function readJsonl(p: string): Event[] {

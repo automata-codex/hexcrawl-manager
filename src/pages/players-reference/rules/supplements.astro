@@ -1,14 +1,15 @@
 ---
 import { getCollection } from 'astro:content';
-import PublicContent from '../../../components/Content/PublicContent.astro';
+
 import HiddenContent from '../../../components/Content/HiddenContent.astro';
+import PublicContent from '../../../components/Content/PublicContent.astro';
 import { ROUTES } from '../../../config/routes';
 import ArticleLayout from '../../../layouts/ArticleLayout.astro';
 import { renderBulletMarkdown, renderMarkdown } from '../../../utils/markdown';
 
 const supplementsCollection = await getCollection('supplements');
 const supplements = supplementsCollection
-  .map(supplement => supplement.data)
+  .map((supplement) => supplement.data)
   .sort((a, b) => a.name.localeCompare(b.name));
 
 const hiddenText = `Below is a list of supplements that we are using as the basis for 
@@ -30,6 +31,7 @@ so they can setup your account.
 
 const title = 'Third-party Supplements';
 ---
+
 <style is:global>
   .warning {
     background-color: var(--bulma-danger);
@@ -37,29 +39,44 @@ const title = 'Third-party Supplements';
     font-weight: bold;
     padding: 1rem;
     text-align: center;
-      margin: 1rem 0;
+    margin: 1rem 0;
   }
 </style>
 <ArticleLayout title={title}>
   <PublicContent>
     <Fragment set:html={renderMarkdown(publicText)} />
     <ul style="margin-top: 1rem;">
-      {supplements.map(supplement => (
-        <li>
-          <a href={supplement.purchaseUrl} target="_blank" rel="noopener noreferrer">{renderBulletMarkdown(supplement.name)}</a>
-        </li>
-      ))}
+      {
+        supplements.map((supplement) => (
+          <li>
+            <a
+              href={supplement.purchaseUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {renderBulletMarkdown(supplement.name)}
+            </a>
+          </li>
+        ))
+      }
     </ul>
   </PublicContent>
   <HiddenContent>
     <Fragment set:html={renderMarkdown(hiddenText)} />
     <ul style="margin-top: 1rem;">
-      {supplements.map(supplement => (
-        <li>
-          <a href={supplement.pdfUrl} target="_blank" rel="noopener noreferrer">{renderBulletMarkdown(supplement.name)}</a>
-        </li>
-      ))}
+      {
+        supplements.map((supplement) => (
+          <li>
+            <a
+              href={supplement.pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {renderBulletMarkdown(supplement.name)}
+            </a>
+          </li>
+        ))
+      }
     </ul>
-
   </HiddenContent>
 </ArticleLayout>

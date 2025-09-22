@@ -3,6 +3,7 @@ import { error, info, usage, warn } from '../lib/report.ts';
 import { selectParty } from '../projectors.ts';
 import { getAllCharacterIds } from '../services/character';
 import { appendEvent, readEvents } from '../services/event-log';
+
 import type { Context } from '../types';
 
 export default function party(ctx: Context) {
@@ -15,19 +16,25 @@ export default function party(ctx: Context) {
       }
       const id = args[1];
       if (!id) {
-        return usage('usage: party add <id>   (TIP: type a letter then press TAB)');
+        return usage(
+          'usage: party add <id>   (TIP: type a letter then press TAB)',
+        );
       }
-      const exists = getAllCharacterIds().some(c => c.toLowerCase() === id.toLowerCase());
+      const exists = getAllCharacterIds().some(
+        (c) => c.toLowerCase() === id.toLowerCase(),
+      );
       if (!exists) {
         return error(`❌ unknown id '${id}'. Try TAB for suggestions.`);
       }
       const evs = readEvents(ctx.file!);
       const current = selectParty(evs);
-      if (!current.find(p => p.toLowerCase() === id.toLowerCase())) {
+      if (!current.find((p) => p.toLowerCase() === id.toLowerCase())) {
         const next = [...current, id];
         appendEvent(ctx.file!, 'party_set', { ids: next });
       }
-      info(`✓ party: ${[...new Set((selectParty(readEvents(ctx.file!))).map(x=>x))].join(', ') || '∅'}`);
+      info(
+        `✓ party: ${[...new Set(selectParty(readEvents(ctx.file!)).map((x) => x))].join(', ') || '∅'}`,
+      );
       return;
     }
 
@@ -53,11 +60,13 @@ export default function party(ctx: Context) {
       }
       const id = args[1];
       if (!id) {
-        return usage('usage: party remove <id>   (TIP: type a letter then press TAB)');
+        return usage(
+          'usage: party remove <id>   (TIP: type a letter then press TAB)',
+        );
       }
       const evs = readEvents(ctx.file!);
       const current = selectParty(evs);
-      const next = current.filter(p => p.toLowerCase() !== id.toLowerCase());
+      const next = current.filter((p) => p.toLowerCase() !== id.toLowerCase());
       if (next.length === current.length) {
         return info(`∅ '${id}' not in party`);
       }

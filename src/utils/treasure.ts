@@ -1,5 +1,7 @@
 import { startCase, toLower } from 'lodash-es';
+
 import { renderBulletMarkdown } from './markdown.ts';
+
 import type { ExtendedTreasureData, TreasureData } from '../types.ts';
 
 export function formatValue(value?: number): string {
@@ -19,7 +21,7 @@ export async function formatNotes(notes?: string): Promise<string> {
 }
 
 export async function processTreasure(
-  treasures?: TreasureData[]
+  treasures?: TreasureData[],
 ): Promise<ExtendedTreasureData[]> {
   if (!treasures) {
     return [];
@@ -28,6 +30,6 @@ export async function processTreasure(
     treasures.map(async (treasure) => ({
       ...treasure,
       renderedNotes: await formatNotes(treasure.notes),
-    }))
+    })),
   );
 }

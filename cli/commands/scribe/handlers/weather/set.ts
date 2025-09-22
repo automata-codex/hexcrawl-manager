@@ -1,13 +1,15 @@
 import { WEATHER_CATEGORIES } from '../../constants.ts';
 import { clamp } from '../../lib/math.ts';
 import { info, error } from '../../lib/report.ts';
-import type { Context, WeatherDraft, Season } from '../../types.ts';
 
 import {
   bandForTotal,
   descriptorsFor,
-  effectsForCategory, isInclementPlus,
+  effectsForCategory,
+  isInclementPlus,
 } from './helpers.ts';
+
+import type { Context, WeatherDraft, Season } from '../../types.ts';
 
 export default function weatherSet(ctx: Context, args: string[]) {
   const draft: WeatherDraft | undefined = ctx.weatherDraft;
@@ -26,9 +28,13 @@ export default function weatherSet(ctx: Context, args: string[]) {
     // Presentation fields: update only overrides
     case 'category': {
       const normalized = value.trim().toLowerCase();
-      const matched = WEATHER_CATEGORIES.find(cat => cat.toLowerCase() === normalized);
+      const matched = WEATHER_CATEGORIES.find(
+        (cat) => cat.toLowerCase() === normalized,
+      );
       if (!matched) {
-        error(`Invalid category '${value}'. Allowed: ${WEATHER_CATEGORIES.join(', ')}`);
+        error(
+          `Invalid category '${value}'. Allowed: ${WEATHER_CATEGORIES.join(', ')}`,
+        );
         return;
       }
       draft.overrides.category = matched;
@@ -61,11 +67,17 @@ export default function weatherSet(ctx: Context, args: string[]) {
       }
       draft.proposed.forecastBefore = forecast;
       draft.proposed.total = clamp(draft.proposed.roll2d6 + forecast, 2, 17);
-      draft.proposed.category = bandForTotal(draft.proposed.season, draft.proposed.total);
+      draft.proposed.category = bandForTotal(
+        draft.proposed.season,
+        draft.proposed.total,
+      );
       draft.proposed.detail = isInclementPlus(draft.proposed.category)
         ? draft.proposed.detail
         : undefined;
-      draft.proposed.suggestedDescriptors = descriptorsFor(draft.proposed.season, draft.proposed.category);
+      draft.proposed.suggestedDescriptors = descriptorsFor(
+        draft.proposed.season,
+        draft.proposed.category,
+      );
       draft.proposed.effects = effectsForCategory(draft.proposed.category);
       info(`Proposed forecast set to ${forecast}.`);
       break;
@@ -78,11 +90,17 @@ export default function weatherSet(ctx: Context, args: string[]) {
       }
       draft.proposed.roll2d6 = roll;
       draft.proposed.total = clamp(roll + draft.proposed.forecastBefore, 2, 17);
-      draft.proposed.category = bandForTotal(draft.proposed.season, draft.proposed.total);
+      draft.proposed.category = bandForTotal(
+        draft.proposed.season,
+        draft.proposed.total,
+      );
       draft.proposed.detail = isInclementPlus(draft.proposed.category)
         ? draft.proposed.detail
         : undefined;
-      draft.proposed.suggestedDescriptors = descriptorsFor(draft.proposed.season, draft.proposed.category);
+      draft.proposed.suggestedDescriptors = descriptorsFor(
+        draft.proposed.season,
+        draft.proposed.category,
+      );
       draft.proposed.effects = effectsForCategory(draft.proposed.category);
       info(`Proposed roll set to ${roll}.`);
       break;
@@ -90,18 +108,27 @@ export default function weatherSet(ctx: Context, args: string[]) {
     case 'season': {
       const season = value as Season;
       draft.proposed.season = season;
-      draft.proposed.total = clamp(draft.proposed.roll2d6 + draft.proposed.forecastBefore, 2, 17);
+      draft.proposed.total = clamp(
+        draft.proposed.roll2d6 + draft.proposed.forecastBefore,
+        2,
+        17,
+      );
       draft.proposed.category = bandForTotal(season, draft.proposed.total);
       draft.proposed.detail = isInclementPlus(draft.proposed.category)
         ? draft.proposed.detail
         : undefined;
-      draft.proposed.suggestedDescriptors = descriptorsFor(season, draft.proposed.category);
+      draft.proposed.suggestedDescriptors = descriptorsFor(
+        season,
+        draft.proposed.category,
+      );
       draft.proposed.effects = effectsForCategory(draft.proposed.category);
       info(`Proposed season set to '${season}'.`);
       break;
     }
     default:
-      error(`Unknown field '${field}'. Allowed fields: season, roll, forecast, category, detail, desc.`);
+      error(
+        `Unknown field '${field}'. Allowed fields: season, roll, forecast, category, detail, desc.`,
+      );
       return;
   }
 }

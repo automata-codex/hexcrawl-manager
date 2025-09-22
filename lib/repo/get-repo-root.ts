@@ -10,4 +10,3 @@ export function getRepoRoot(): string {
   }
   return loadConfig()?.repoRoot ?? process.cwd();
 }
-

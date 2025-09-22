@@ -11,7 +11,7 @@ export const SECURITY_ROLE = {
   PUBLIC: 'public',
 } as const;
 
-export type SecurityRole = typeof SECURITY_ROLE[keyof typeof SECURITY_ROLE];
+export type SecurityRole = (typeof SECURITY_ROLE)[keyof typeof SECURITY_ROLE];
 
 export const STORAGE_KEYS = {
   ENCOUNTER_BUILDER: 'encounter-builder-state',

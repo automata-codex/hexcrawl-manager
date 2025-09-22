@@ -3,10 +3,14 @@ import { requireFile } from '../../lib/guards.ts';
 import { info } from '../../lib/report.ts';
 import { selectCurrentWeather } from '../../projectors.ts';
 import { readEvents } from '../../services/event-log.ts';
+
 import type { CalendarService } from '../../services/calendar.ts';
 import type { Context, WeatherDraft, WeatherCommitted } from '../../types.ts';
 
-function printCommitted(committed: WeatherCommitted, calendar: CalendarService) {
+function printCommitted(
+  committed: WeatherCommitted,
+  calendar: CalendarService,
+) {
   info(`Committed Weather:`);
   info(`  Date: ${calendar.formatDate(committed.date)}`);
   info(`  Season: ${committed.season}`);
@@ -17,9 +21,13 @@ function printCommitted(committed: WeatherCommitted, calendar: CalendarService) 
   if (committed.descriptors && committed.descriptors.length) {
     printDescriptors(committed.descriptors, '  Descriptors');
   }
-  info(`  Travel time multiplier: ×${EFFECTS_TABLE[committed.category].travelMultiplier}`);
+  info(
+    `  Travel time multiplier: ×${EFFECTS_TABLE[committed.category].travelMultiplier}`,
+  );
   info(`  Navigation check: ${EFFECTS_TABLE[committed.category].navCheck}`);
-  info(`  Exhaustion on travel: ${EFFECTS_TABLE[committed.category].exhaustionOnTravel ? 'yes' : 'no'}`);
+  info(
+    `  Exhaustion on travel: ${EFFECTS_TABLE[committed.category].exhaustionOnTravel ? 'yes' : 'no'}`,
+  );
 }
 
 function printDescriptors(descriptors: string[], label: string) {
@@ -58,7 +66,9 @@ function printDraft(draft: WeatherDraft) {
 }
 
 function printEffects(effects: WeatherDraft['proposed']['effects']) {
-  info(`Effects: travel ×${effects.travelMultiplier}, nav: ${effects.navCheck}, exhaustion: ${effects.exhaustionOnTravel ? 'yes' : 'no'}`);
+  info(
+    `Effects: travel ×${effects.travelMultiplier}, nav: ${effects.navCheck}, exhaustion: ${effects.exhaustionOnTravel ? 'yes' : 'no'}`,
+  );
 }
 
 export default function weatherShow(ctx: Context) {
@@ -78,7 +88,9 @@ export default function weatherShow(ctx: Context) {
   if (draft) {
     printDraft(draft);
     if (!committed) {
-      info(`⚠️ Weather draft exists. Run 'weather commit' or 'weather abandon'.`);
+      info(
+        `⚠️ Weather draft exists. Run 'weather commit' or 'weather abandon'.`,
+      );
     }
   }
 

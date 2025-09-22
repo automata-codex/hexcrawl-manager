@@ -2,10 +2,10 @@
 import type { DungeonEntry, HexEntry, RegionData } from '../../types';
 
 interface Props {
-  dungeons: DungeonEntry[],
-  hexData: HexEntry[],
-  hexCount: number,
-  region: RegionData,
+  dungeons: DungeonEntry[];
+  hexData: HexEntry[];
+  hexCount: number;
+  region: RegionData;
 }
 
 const { dungeons, hexData, hexCount, region } = Astro.props;
@@ -18,21 +18,23 @@ const contentDensityDescriptions = {
   5: 'Very High (0.7–1.0+ hidden sites/hex, 3–5 dungeons)',
 } as const;
 
-const dungeonCount = dungeons.filter(dungeon => {
-  const hex = hexData.find(hex => hex.data.id === dungeon.data.hexId);
+const dungeonCount = dungeons.filter((dungeon) => {
+  const hex = hexData.find((hex) => hex.data.id === dungeon.data.hexId);
   return hex && hex.data.regionId === region.id;
 }).length;
 
 const hiddenSiteCount = hexData
-  .filter(hex => hex.data.regionId === region.id)
+  .filter((hex) => hex.data.regionId === region.id)
   .reduce((acc, hex) => acc + (hex.data.hiddenSites?.length || 0), 0);
 
 const hiddenSiteDensity = (hiddenSiteCount / hexCount).toFixed(2);
-
 ---
+
 <p class="hanging-indent">
   <span class="inline-heading">Content Density:</span>{' '}
-  {region.contentDensity} – {contentDensityDescriptions[region.contentDensity as 1 | 2 | 3 | 4 | 5]}
+  {region.contentDensity} – {
+    contentDensityDescriptions[region.contentDensity as 1 | 2 | 3 | 4 | 5]
+  }
 </p>
 <p class="hanging-indent">
   <span class="inline-heading">Hidden site density:{' '}</span>

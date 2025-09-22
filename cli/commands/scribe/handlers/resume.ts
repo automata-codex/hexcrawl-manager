@@ -1,9 +1,14 @@
 import { existsSync } from 'node:fs';
-import { selectCurrentHex } from '../projectors.ts';
+
 import { detectDevMode } from '../lib/env.ts';
 import { error, info, warn } from '../lib/report.ts';
+import { selectCurrentHex } from '../projectors.ts';
 import { readEvents } from '../services/event-log.ts';
-import { findLatestInProgress, inProgressPathFor } from '../services/session.ts';
+import {
+  findLatestInProgress,
+  inProgressPathFor,
+} from '../services/session.ts';
+
 import type { Context } from '../types';
 
 export default function resume(ctx: Context) {
@@ -11,7 +16,7 @@ export default function resume(ctx: Context) {
     let sessionId: string | undefined;
     let filePath: string | undefined;
     const devMode = detectDevMode(args);
-    const filteredArgs = args.filter(a => a !== '--dev'); // Remove --dev if present
+    const filteredArgs = args.filter((a) => a !== '--dev'); // Remove --dev if present
     if (filteredArgs[0]) {
       sessionId = filteredArgs[0];
       filePath = inProgressPathFor(sessionId, devMode);
@@ -32,6 +37,8 @@ export default function resume(ctx: Context) {
     ctx.file = filePath;
     const evs = readEvents(filePath);
     const lastHex = selectCurrentHex(evs);
-    info(`resumed: ${sessionId} (${evs.length} events)${lastHex ? ` — last hex ${lastHex}` : ''}`);
+    info(
+      `resumed: ${sessionId} (${evs.length} events)${lastHex ? ` — last hex ${lastHex}` : ''}`,
+    );
   };
 }

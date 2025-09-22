@@ -1,6 +1,8 @@
 ---
-import ProgressIcons from './ProgressIcons.astro';
 import { getPointsPerLevel } from '../../utils/advancement';
+
+import ProgressIcons from './ProgressIcons.astro';
+
 import type { CharacterData } from '../../types';
 
 interface Props {
@@ -14,64 +16,65 @@ const labelLevelPlus1 = {
   'two-cols': getPointsPerLevel(character.level + 1) === 2,
   'four-cols': getPointsPerLevel(character.level + 1) === 4,
   'six-cols': getPointsPerLevel(character.level + 1) === 6,
-}
+};
 const labelLevelPlus2 = {
   'level-label': true,
   'two-cols': getPointsPerLevel(character.level + 2) === 2,
   'four-cols': getPointsPerLevel(character.level + 2) === 4,
   'six-cols': getPointsPerLevel(character.level + 2) === 6,
-}
+};
 ---
+
 <style is:global>
-    .interlevel-border {
-        //border-right: 1px solid var(--skyreach-table-inactive);
-        border-right: 1px solid var(--bulma-border);
-        height: 35px;
-    }
+  .interlevel-border {
+    //border-right: 1px solid var(--skyreach-table-inactive);
+    border-right: 1px solid var(--bulma-border);
+    height: 35px;
+  }
 
-    .level-label {
-        color: var(--skyreach-table-inactive);
-        font-size: small;
-        font-weight: bold;
-        text-align: center;
-        text-transform: uppercase;
-        margin-bottom: 0.125rem;
-    }
+  .level-label {
+    color: var(--skyreach-table-inactive);
+    font-size: small;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 0.125rem;
+  }
 
-    .pillar-points {
-        min-width: 1rem;
-    }
+  .pillar-points {
+    min-width: 1rem;
+  }
 
-    .row {
-        display: flex;
-        align-items: center;
-    }
+  .row {
+    display: flex;
+    align-items: center;
+  }
 
-    .row > div {
-        margin-right: 0.5rem;
-    }
+  .row > div {
+    margin-right: 0.5rem;
+  }
 
-    .row > div.pillar-name {
-        min-width: 100px;
-        text-align: right;
-        margin-right: 0.125rem;
-    }
+  .row > div.pillar-name {
+    min-width: 100px;
+    text-align: right;
+    margin-right: 0.125rem;
+  }
 
-    .two-cols {
-        width: 4.5rem;
-    }
+  .two-cols {
+    width: 4.5rem;
+  }
 
-    .four-cols {
-        width: 9.5rem;
-    }
+  .four-cols {
+    width: 9.5rem;
+  }
 
-    .six-cols {
-        width: 14.5rem;
-    }
+  .six-cols {
+    width: 14.5rem;
+  }
 </style>
 <div class="row">
-  <div class="pillar-name" />
-  <div class="pillar-points"/>
+  <div class="pillar-name"></div>
+  <div class="pillar-points"></div>
   <div class:list={labelLevelPlus1}>Level {character.level + 1}</div>
   <div class="interlevel-border"></div>
   <div class:list={labelLevelPlus2}>Level {character.level + 2}</div>
@@ -79,21 +82,45 @@ const labelLevelPlus2 = {
 <div class="row">
   <div class="pillar-name">Combat:</div>
   <div class="pillar-points">{character.advancementPoints.combat}</div>
-  <ProgressIcons character={character} level={character.level + 1} pillar="combat" />
+  <ProgressIcons
+    character={character}
+    level={character.level + 1}
+    pillar="combat"
+  />
   <div class="interlevel-border"></div>
-  <ProgressIcons character={character} level={character.level + 2} pillar="combat" />
+  <ProgressIcons
+    character={character}
+    level={character.level + 2}
+    pillar="combat"
+  />
 </div>
 <div class="row">
   <div class="pillar-name">Exploration:</div>
   <div class="pillar-points">{character.advancementPoints.exploration}</div>
-  <ProgressIcons character={character} level={character.level + 1} pillar="exploration" />
+  <ProgressIcons
+    character={character}
+    level={character.level + 1}
+    pillar="exploration"
+  />
   <div class="interlevel-border"></div>
-  <ProgressIcons character={character} level={character.level + 2} pillar="exploration" />
+  <ProgressIcons
+    character={character}
+    level={character.level + 2}
+    pillar="exploration"
+  />
 </div>
 <div class="row">
   <div class="pillar-name">Social:</div>
   <div class="pillar-points">{character.advancementPoints.social}</div>
-  <ProgressIcons character={character} level={character.level + 1} pillar="social" />
+  <ProgressIcons
+    character={character}
+    level={character.level + 1}
+    pillar="social"
+  />
   <div class="interlevel-border"></div>
-  <ProgressIcons character={character} level={character.level + 2} pillar="social" />
+  <ProgressIcons
+    character={character}
+    level={character.level + 2}
+    pillar="social"
+  />
 </div>

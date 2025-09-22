@@ -1,9 +1,10 @@
 ---
 import { defaultEncounterTable } from '../../../data/encounters/default-encounter-table';
-import type { EncounterTableData } from '../../types';
 import { buildWeightedRanges } from '../../utils/encounters';
 
 import CategoryContainer from './CategoryContainer.astro';
+
+import type { EncounterTableData } from '../../types';
 
 interface Props {
   data?: EncounterTableData;
@@ -13,65 +14,73 @@ const { data = defaultEncounterTable } = Astro.props;
 
 const mainRolls = buildWeightedRanges(data.mainTable, (e) => e.weight ?? 1);
 ---
-<style is:global>
-    table {
-        border-spacing: 0;
-        margin-top: 1rem;
-    }
-    td, th {
-        border-bottom: 1px solid var(--bulma-border);
-        padding-top: 0.25rem;
-        padding-bottom: 0.25rem;
-    }
-    th {
-        border-top: 1px solid var(--bulma-border);
-    }
 
-    .col-1 {
-        padding-right: 1rem;
-        padding-left: 1rem;
-        text-align: center !important;
-    }
-    .col-2 {
-        padding-right: 1rem;
-        text-align: left !important;
-    }
-    .col-3 {
-        padding-right: 1rem;
-        text-align: center !important;
-    }
+<style is:global>
+  table {
+    border-spacing: 0;
+    margin-top: 1rem;
+  }
+  td,
+  th {
+    border-bottom: 1px solid var(--bulma-border);
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+  th {
+    border-top: 1px solid var(--bulma-border);
+  }
+
+  .col-1 {
+    padding-right: 1rem;
+    padding-left: 1rem;
+    text-align: center !important;
+  }
+  .col-2 {
+    padding-right: 1rem;
+    text-align: left !important;
+  }
+  .col-3 {
+    padding-right: 1rem;
+    text-align: center !important;
+  }
 </style>
 
 <table class="encounter-table">
   <thead>
-  <tr>
-    <th class="col-1">Roll</th>
-    <th class="col-2">Category</th>
-    <th class="col-3">Probability</th>
-  </tr>
+    <tr>
+      <th class="col-1">Roll</th>
+      <th class="col-2">Category</th>
+      <th class="col-3">Probability</th>
+    </tr>
   </thead>
   <tbody>
-  {mainRolls.map(({ range, entry }) => (
-    <tr>
-      <td class="col-1">{range}</td>
-      <td class="col-2">{entry.label}</td>
-      <td class="col-3">{((entry.weight ?? 1) / 20 * 100).toFixed(1)}%</td>
-    </tr>
-  ))}
+    {
+      mainRolls.map(({ range, entry }) => (
+        <tr>
+          <td class="col-1">{range}</td>
+          <td class="col-2">{entry.label}</td>
+          <td class="col-3">
+            {(((entry.weight ?? 1) / 20) * 100).toFixed(1)}%
+          </td>
+        </tr>
+      ))
+    }
   </tbody>
 </table>
-{Object.entries(structuredClone(data.categoryTables))
-  .sort(([a], [b]) => a.localeCompare(b))
-  .map(
-  ([category, table]) => {
-    const categoryData = data.mainTable.find(c => c.category === category);
-    if (!categoryData) {
-      return null;
-    }
-    return <CategoryContainer
-      label={categoryData.label}
-      table={table}
-      weight={categoryData.weight ?? 1}
-    />
-  }
-)}
+{
+  Object.entries(structuredClone(data.categoryTables))
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([category, table]) => {
+      const categoryData = data.mainTable.find((c) => c.category === category);
+      if (!categoryData) {
+        return null;
+      }
+      return (
+        <CategoryContainer
+          label={categoryData.label}
+          table={table}
+          weight={categoryData.weight ?? 1}
+        />
+      );
+    })
+}

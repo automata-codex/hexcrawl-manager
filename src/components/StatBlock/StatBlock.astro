@@ -1,5 +1,5 @@
 ---
-import type { StatBlockData } from '../../types';
+import { formatText } from '../../utils/text';
 
 import Actions from './Actions.astro';
 import Attributes from './Attributes.astro';
@@ -9,7 +9,8 @@ import Skills from './Skills.astro';
 import Speed from './Speed.astro';
 import Subheading from './Subheading.astro';
 import Traits from './Traits.astro';
-import { formatText } from '../../utils/text';
+
+import type { StatBlockData } from '../../types';
 
 interface Props {
   data: StatBlockData;
@@ -17,27 +18,30 @@ interface Props {
 
 const { data } = Astro.props;
 ---
+
 <style>
-    h2 {
-        margin-top: 0;
-    }
+  h2 {
+    margin-top: 0;
+  }
 
+  section {
+    margin-top: 1rem;
+  }
+
+  .stat-group {
+    page-break-inside: avoid;
+  }
+
+  @media (min-width: 769px) {
     section {
-        margin-top: 1rem;
+      columns: 2;
     }
-
-    .stat-group {
-        page-break-inside: avoid;
-    }
-
-    @media (min-width: 769px) {
-        section {
-            columns: 2;
-        }
-    }
+  }
 </style>
 <section>
-  <h2 class="title is-4" style="margin-bottom: 0.25rem">{formatText(data.name)}</h2>
+  <h2 class="title is-4" style="margin-bottom: 0.25rem">
+    {formatText(data.name)}
+  </h2>
   <Subheading data={data} />
   <div>
     <div>

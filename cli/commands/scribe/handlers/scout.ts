@@ -1,12 +1,13 @@
-import { requireFile, requireSession } from '../lib/guards.ts';
 import {
   getHexNeighbors,
   isValidHexId,
-  normalizeHexId
+  normalizeHexId,
 } from '../../../../lib/hexes';
+import { requireFile, requireSession } from '../lib/guards.ts';
 import { error, info, usage } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+
 import type { Context } from '../types';
 
 export default function scout(ctx: Context) {
@@ -23,7 +24,8 @@ export default function scout(ctx: Context) {
 
     // Parse and normalize arguments
     const hexRaw = args[0];
-    const landmarkFlag = args.length === 2 && args[1].toLowerCase() === 'landmark';
+    const landmarkFlag =
+      args.length === 2 && args[1].toLowerCase() === 'landmark';
     if (args.length > 2 || (args.length === 2 && !landmarkFlag)) {
       return usage('usage: scout <HEX_ID> [landmark]');
     }

@@ -1,7 +1,12 @@
 ---
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faDiceD20 } from '@fortawesome/pro-light-svg-icons';
-import { getPointsPerLevel, getPointsToReachLevel } from '../../utils/advancement.ts';
+
+import {
+  getPointsPerLevel,
+  getPointsToReachLevel,
+} from '../../utils/advancement.ts';
+
 import type { CharacterData, Pillar } from '../../types';
 
 interface Props {
@@ -10,32 +15,36 @@ interface Props {
   pillar: Pillar;
 }
 
-const { character, level, pillar} = Astro.props;
+const { character, level, pillar } = Astro.props;
 
 // Handle the icon
 const progressIcon = icon(faDiceD20, { classes: ['fa-lg'] });
 
 // Subtract points for levels already completed
-const points = character.advancementPoints[pillar] - getPointsToReachLevel(level - 1);
+const points =
+  character.advancementPoints[pillar] - getPointsToReachLevel(level - 1);
 
 // Create an array for iterating over the points
 const pointsList = Array.from({ length: getPointsPerLevel(level) });
 ---
+
 <style is:global>
-    .fa-lg {
-        height: 2rem;
-    }
+  .fa-lg {
+    height: 2rem;
+  }
 
-    .ap-earned {
-        color: hotpink;
-    }
+  .ap-earned {
+    color: hotpink;
+  }
 
-    .ap-needed {
-        color: var(--skyreach-table-inactive);
-    }
+  .ap-needed {
+    color: var(--skyreach-table-inactive);
+  }
 </style>
-{pointsList.map((_, index) => (
-  <div class:list={index <= points-1 ? 'ap-earned' : 'ap-needed'}>
-    <Fragment set:html={progressIcon.html} />
-  </div>
-))}
+{
+  pointsList.map((_, index) => (
+    <div class:list={index <= points - 1 ? 'ap-earned' : 'ap-needed'}>
+      <Fragment set:html={progressIcon.html} />
+    </div>
+  ))
+}

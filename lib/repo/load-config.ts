@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const ConfigSchema = z.object({
-  repoRoot: z.string().min(1)
+  repoRoot: z.string().min(1),
 });
 
 export type SkyreachConfig = z.infer<typeof ConfigSchema>;
@@ -24,7 +24,9 @@ export function loadConfig(): SkyreachConfig | null {
     return null;
   }
 
-  const parsed = ConfigSchema.safeParse(JSON.parse(fs.readFileSync(configPath, 'utf-8')));
+  const parsed = ConfigSchema.safeParse(
+    JSON.parse(fs.readFileSync(configPath, 'utf-8')),
+  );
 
   if (!parsed.success) {
     console.error('❌ Invalid skyreach.config.json:', parsed.error.format());

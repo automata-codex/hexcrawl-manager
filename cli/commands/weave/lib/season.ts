@@ -1,4 +1,5 @@
 import { CALENDAR_CONFIG } from '../../scribe/config/calendar.config';
+
 import type { CanonicalDate } from '../../scribe/types';
 
 const SEASON_ORDER = ['winter', 'spring', 'summer', 'autumn'];

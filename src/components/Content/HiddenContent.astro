@@ -1,10 +1,12 @@
 ---
 import { canAccess, getCurrentUserRole } from '../../utils/auth';
 import { SCOPES } from '../../utils/constants';
+
 import type { Scope } from '../../types.ts';
 
 // Restricts content to users with the "gm" or "player" roles.
 
 const role = getCurrentUserRole(Astro.locals);
 ---
+
 {canAccess(role, [SCOPES.GM, SCOPES.PLAYER]) && <slot />}

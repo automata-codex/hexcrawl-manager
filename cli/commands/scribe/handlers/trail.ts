@@ -1,8 +1,9 @@
-import { requireFile, requireSession } from '../lib/guards.ts';
 import { isValidHexId, normalizeHexId } from '../../../../lib/hexes';
+import { requireFile, requireSession } from '../lib/guards.ts';
 import { error, info, usage, warn } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+
 import type { Context } from '../types';
 
 export default function trail(ctx: Context) {
@@ -27,7 +28,9 @@ export default function trail(ctx: Context) {
     const events = readEvents(ctx.file!); // Checked by `requireFile`
     const current = selectCurrentHex(events);
     if (!current) {
-      return warn('⚠ no current hex known—make a move or start with a starting hex first');
+      return warn(
+        '⚠ no current hex known—make a move or start with a starting hex first',
+      );
     }
     const from = normalizeHexId(current);
     if (from === other) {

@@ -1,7 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
-import { buildWeightedRanges, validateWeightTotal } from '../../utils/encounters';
+
 import { getEncounterPath } from '../../config/routes';
+import {
+  buildWeightedRanges,
+  validateWeightTotal,
+} from '../../utils/encounters';
 
 interface Props {
   entries: {
@@ -18,32 +22,35 @@ const encounters = await getCollection('encounters');
 const warning = validateWeightTotal(entries, (e) => e.weight ?? 1);
 const subRolls = buildWeightedRanges(entries, (e) => e.weight ?? 1);
 ---
+
 <h4 class="title is-5">Tier {tier}</h4>
 {warning && <p style="color: red;">{warning}</p>}
 <table class="encounter-table">
   <thead>
-  <tr>
-    <th class="col-1">Roll</th>
-    <th class="col-2">Encounter</th>
-    <th class="col-3">Probability</th>
-  </tr>
+    <tr>
+      <th class="col-1">Roll</th>
+      <th class="col-2">Encounter</th>
+      <th class="col-3">Probability</th>
+    </tr>
   </thead>
   <tbody>
-  {subRolls.map(({ range, entry }) => {
-    const encounter = encounters.find((e) => e.id === entry.encounterId);
-    return (
-      <tr>
-        <td class="col-1">{range}</td>
-        <td class="col-2">
-          <a href={getEncounterPath(entry.encounterId)}>
-            {encounter?.data.name ?? entry.encounterId}
-          </a>
-        </td>
-        <td class="col-3">
-          {(((entry.weight ?? 1) / 20) * (weight / 20) * 100).toFixed(1)}%
-        </td>
-      </tr>
-    );
-  })}
+    {
+      subRolls.map(({ range, entry }) => {
+        const encounter = encounters.find((e) => e.id === entry.encounterId);
+        return (
+          <tr>
+            <td class="col-1">{range}</td>
+            <td class="col-2">
+              <a href={getEncounterPath(entry.encounterId)}>
+                {encounter?.data.name ?? entry.encounterId}
+              </a>
+            </td>
+            <td class="col-3">
+              {(((entry.weight ?? 1) / 20) * (weight / 20) * 100).toFixed(1)}%
+            </td>
+          </tr>
+        );
+      })
+    }
   </tbody>
 </table>

@@ -1,6 +1,7 @@
 ---
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
+
 import type { HexData } from '../../types';
 
 interface Props {
@@ -13,6 +14,7 @@ const squareIcon = icon(faSquare);
 const squareCheckIcon = icon(faSquareCheck);
 const visitedIcon = hex.isVisited ? squareCheckIcon : squareIcon;
 ---
+
 <div>
   Visited:{' '}<Fragment set:html={visitedIcon.html} />
 </div>

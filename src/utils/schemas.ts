@@ -30,11 +30,15 @@ export function flattenJsonSchema(
   options: FlattenOptions = {},
   prefix = '',
   depth = 0,
-  parentRequired = true
+  parentRequired = true,
 ): FlattenedField[] {
   const flat: FlattenedField[] = [];
 
-  function resolveRef(ref: string, rootSchema: JsonSchema, fileName: string): JsonSchema | 'SELF' {
+  function resolveRef(
+    ref: string,
+    rootSchema: JsonSchema,
+    fileName: string,
+  ): JsonSchema | 'SELF' {
     if (ref === '#' || ref === '#/') {
       return 'SELF';
     }
@@ -48,7 +52,9 @@ export function flattenJsonSchema(
 
     for (const segment of path) {
       if (!(segment in current)) {
-        throw new Error(`Missing $ref target: ${ref} (segment ${segment}) in file ${fileName}`);
+        throw new Error(
+          `Missing $ref target: ${ref} (segment ${segment}) in file ${fileName}`,
+        );
       }
       current = current[segment];
     }
@@ -56,10 +62,15 @@ export function flattenJsonSchema(
     return current;
   }
 
-  const currentType = schema.type || (schema.anyOf || schema.oneOf ? 'union' : 'unknown');
+  const currentType =
+    schema.type || (schema.anyOf || schema.oneOf ? 'union' : 'unknown');
 
   if (schema.$ref) {
-    const resolved = resolveRef(schema.$ref, options.rootSchema ?? {}, options.filename ?? '[unknown file]');
+    const resolved = resolveRef(
+      schema.$ref,
+      options.rootSchema ?? {},
+      options.filename ?? '[unknown file]',
+    );
 
     if (resolved === 'SELF') {
       flat.push({
@@ -79,7 +90,8 @@ export function flattenJsonSchema(
     for (const [key, prop] of Object.entries(schema.properties)) {
       const fullKey = prefix ? `${prefix}.${key}` : key;
       const isRequired = schema.required?.includes(key) ?? false;
-      const propType = prop.type || (prop.anyOf || prop.oneOf ? 'union' : 'unknown');
+      const propType =
+        prop.type || (prop.anyOf || prop.oneOf ? 'union' : 'unknown');
 
       flat.push({
         key: fullKey,
@@ -89,13 +101,22 @@ export function flattenJsonSchema(
         depth,
       });
 
-      flat.push(...flattenJsonSchema(prop, options, fullKey, depth + 1, parentRequired && isRequired));
+      flat.push(
+        ...flattenJsonSchema(
+          prop,
+          options,
+          fullKey,
+          depth + 1,
+          parentRequired && isRequired,
+        ),
+      );
     }
   }
 
   if (currentType === 'array' && schema.items && !Array.isArray(schema.items)) {
     const item = schema.items;
-    const itemType = item.type || (item.anyOf || item.oneOf ? 'union' : 'unknown');
+    const itemType =
+      item.type || (item.anyOf || item.oneOf ? 'union' : 'unknown');
 
     flat.push({
       key: prefix ? `${prefix}.[item]` : '[item]',
@@ -105,12 +126,26 @@ export function flattenJsonSchema(
       depth: depth + 1,
     });
 
-    flat.push(...flattenJsonSchema(item, options, prefix ? `${prefix}.[item]` : '[item]', depth + 2, parentRequired));
+    flat.push(
+      ...flattenJsonSchema(
+        item,
+        options,
+        prefix ? `${prefix}.[item]` : '[item]',
+        depth + 2,
+        parentRequired,
+      ),
+    );
   }
 
-  if (currentType === 'object' && schema.additionalProperties && typeof schema.additionalProperties === 'object') {
+  if (
+    currentType === 'object' &&
+    schema.additionalProperties &&
+    typeof schema.additionalProperties === 'object'
+  ) {
     const additional = schema.additionalProperties;
-    const additionalType = additional.type || (additional.anyOf || additional.oneOf ? 'union' : 'unknown');
+    const additionalType =
+      additional.type ||
+      (additional.anyOf || additional.oneOf ? 'union' : 'unknown');
 
     flat.push({
       key: prefix ? `${prefix}.[key]` : '[key]',
@@ -120,14 +155,22 @@ export function flattenJsonSchema(
       depth: depth + 1,
     });
 
-    flat.push(...flattenJsonSchema(additional, options, prefix ? `${prefix}.[key]` : '[key]', depth + 2, parentRequired));
+    flat.push(
+      ...flattenJsonSchema(
+        additional,
+        options,
+        prefix ? `${prefix}.[key]` : '[key]',
+        depth + 2,
+        parentRequired,
+      ),
+    );
   }
 
   if (schema.anyOf || schema.oneOf) {
     const optionsList = schema.anyOf || schema.oneOf || [];
     flat.push({
       key: prefix,
-      type: optionsList.map(opt => opt.type || 'unknown').join(' | '),
+      type: optionsList.map((opt) => opt.type || 'unknown').join(' | '),
       required: parentRequired,
       description: schema.description || '',
       depth,

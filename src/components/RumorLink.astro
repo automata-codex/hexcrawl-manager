@@ -12,13 +12,14 @@ if (!rumorEntry) {
   throw new Error(`Rumor with ID ${rumorId} not found`);
 }
 ---
+
 <style>
   .unavailable {
     text-decoration: line-through;
   }
 </style>
 <a
-  class:list={{unavailable: !(rumorEntry.data.isAvailable ?? true)}}
+  class:list={{ unavailable: !(rumorEntry.data.isAvailable ?? true) }}
   href={`/session-toolkit/rumors/${rumorId}`}
 >
   {rumorEntry.data.title}

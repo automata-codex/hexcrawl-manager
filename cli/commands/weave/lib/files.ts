@@ -2,8 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import prompts from 'prompts';
 import yaml from 'yaml';
+
 import { info, error } from '../../scribe/lib/report';
 import { REPO_PATHS } from '../../shared-lib/constants';
+
 import { isGitDirty } from './git';
 import { compareSeasonIds, normalizeSeasonId } from './season.ts';
 
@@ -14,17 +16,22 @@ import { compareSeasonIds, normalizeSeasonId } from './season.ts';
 export function getMostRecentRolloverFootprint(seasonId: string): any | null {
   let files: string[] = [];
   try {
-    files = fs.readdirSync(REPO_PATHS.FOOTPRINTS())
-      .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'))
-      .map(f => path.join(REPO_PATHS.FOOTPRINTS(), f));
+    files = fs
+      .readdirSync(REPO_PATHS.FOOTPRINTS())
+      .filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'))
+      .map((f) => path.join(REPO_PATHS.FOOTPRINTS(), f));
   } catch {
     return null;
   }
-  let best: { seasonId: string, file: string, data: any } | null = null;
+  let best: { seasonId: string; file: string; data: any } | null = null;
   for (const file of files) {
     const data = yaml.parse(fs.readFileSync(file, 'utf8'));
     if (data.kind === 'rollover' && data.seasonId) {
-      if (!best || compareSeasonIds(data.seasonId, best.seasonId) > 0 && compareSeasonIds(data.seasonId, seasonId) <= 0) {
+      if (
+        !best ||
+        (compareSeasonIds(data.seasonId, best.seasonId) > 0 &&
+          compareSeasonIds(data.seasonId, seasonId) <= 0)
+      ) {
         best = { seasonId: data.seasonId, file, data };
       }
     }
@@ -48,9 +55,13 @@ export function getNextUnrolledSeason(meta: any): string | null {
 }
 
 export function listCandidateFiles(meta: any): string[] {
-  const sessionFiles = listFilesIfDir(REPO_PATHS.SESSIONS()).filter(f => f.endsWith('.jsonl'));
-  const rolloverFiles = listFilesIfDir(REPO_PATHS.ROLLOVERS()).filter(f => f.endsWith('.jsonl'));
-  const allCandidates = [...sessionFiles, ...rolloverFiles].filter(f => {
+  const sessionFiles = listFilesIfDir(REPO_PATHS.SESSIONS()).filter((f) =>
+    f.endsWith('.jsonl'),
+  );
+  const rolloverFiles = listFilesIfDir(REPO_PATHS.ROLLOVERS()).filter((f) =>
+    f.endsWith('.jsonl'),
+  );
+  const allCandidates = [...sessionFiles, ...rolloverFiles].filter((f) => {
     const id = path.basename(f);
     return !meta.appliedSessions?.includes(id);
   });
@@ -60,22 +71,22 @@ export function listCandidateFiles(meta: any): string[] {
 
 function listFilesIfDir(dir: string): string[] {
   try {
-    return fs.readdirSync(dir).map(f => path.join(dir, f));
+    return fs.readdirSync(dir).map((f) => path.join(dir, f));
   } catch {
     return [];
   }
 }
 
 export async function promptSelectFile(candidates: string[]): Promise<string> {
-  const choices = candidates.map(f => ({
+  const choices = candidates.map((f) => ({
     title: path.relative(process.cwd(), f),
-    value: f
+    value: f,
   }));
   const response = await prompts({
     type: 'select',
     name: 'file',
     message: 'Select a session or rollover file:',
-    choices
+    choices,
   });
   return response.file;
 }
@@ -83,12 +94,18 @@ export async function promptSelectFile(candidates: string[]): Promise<string> {
 export function requireCleanGitOrAllowDirty(opts?: { allowDirty?: boolean }) {
   const allowDirty = opts?.allowDirty || process.argv.includes('--allow-dirty');
   if (!allowDirty && isGitDirty()) {
-    error('Refusing to proceed: working tree is dirty (commit or stash changes, or use --allow-dirty).');
+    error(
+      'Refusing to proceed: working tree is dirty (commit or stash changes, or use --allow-dirty).',
+    );
     process.exit(2);
   }
 }
 
-export async function resolveInputFile(fileArg: string | undefined, meta: any, opts?: { noPrompt?: boolean }): Promise<string> {
+export async function resolveInputFile(
+  fileArg: string | undefined,
+  meta: any,
+  opts?: { noPrompt?: boolean },
+): Promise<string> {
   const noPrompt = opts?.noPrompt || process.argv.includes('--no-prompt');
   if (fileArg) return fileArg;
   const candidates = listCandidateFiles(meta);

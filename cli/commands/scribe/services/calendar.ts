@@ -8,7 +8,7 @@ import {
 export class CalendarService {
   constructor(private readonly config: CalendarConfig) {
     if (!config.months.length) {
-      throw new CalendarError("Calendar has no months.");
+      throw new CalendarError('Calendar has no months.');
     }
     for (const m of config.months) {
       if (!m.name || m.days <= 0) {
@@ -18,18 +18,20 @@ export class CalendarService {
         throw new CalendarError(`Missing season mapping for "${m.name}".`);
       }
     }
-    (["winter","spring","summer","autumn"] as const).forEach(s => {
-      if (typeof config.daylightCaps[s] !== "number") {
+    (['winter', 'spring', 'summer', 'autumn'] as const).forEach((s) => {
+      if (typeof config.daylightCaps[s] !== 'number') {
         throw new CalendarError(`Missing daylight cap for season "${s}".`);
       }
     });
     if (config.leap) {
       const { month, every, addDays } = config.leap;
-      if (!this.config.months.find(m => m.name === month)) {
+      if (!this.config.months.find((m) => m.name === month)) {
         throw new CalendarError(`Leap month "${month}" is not in months[].`);
       }
       if (every <= 0 || addDays <= 0) {
-        throw new CalendarError("Leap rule must have positive 'every' and 'addDays'.");
+        throw new CalendarError(
+          "Leap rule must have positive 'every' and 'addDays'.",
+        );
       }
     }
   }
@@ -38,7 +40,8 @@ export class CalendarService {
     if (a.year !== b.year) {
       return a.year < b.year ? -1 : 1;
     }
-    const ai = this.monthIndex(a.month), bi = this.monthIndex(b.month);
+    const ai = this.monthIndex(a.month),
+      bi = this.monthIndex(b.month);
     if (ai !== bi) {
       return ai < bi ? -1 : 1;
     }
@@ -54,7 +57,7 @@ export class CalendarService {
 
   daylightCapForSeason(season: Season): number {
     const cap = this.config.daylightCaps[season];
-    if (typeof cap !== "number") {
+    if (typeof cap !== 'number') {
       throw new CalendarError(`No cap for season "${season}".`);
     }
     return cap;
@@ -69,7 +72,11 @@ export class CalendarService {
     let base = this.config.months[i].days;
 
     const leap = this.config.leap;
-    if (leap && name === leap.month && this.isLeapYear(year, leap.every, leap.anchor)) {
+    if (
+      leap &&
+      name === leap.month &&
+      this.isLeapYear(year, leap.every, leap.anchor)
+    ) {
       base += leap.addDays;
     }
     return base;
@@ -94,8 +101,9 @@ export class CalendarService {
           if (nm === null) {
             year += 1;
             month = this.firstMonthName();
+          } else {
+            month = nm;
           }
-          else { month = nm; }
           day = 1;
         }
         remaining -= 1;
@@ -107,8 +115,9 @@ export class CalendarService {
           if (pm === null) {
             year -= 1;
             month = this.lastMonthName();
+          } else {
+            month = pm;
           }
-          else { month = pm; }
           day = this.daysInMonth(month, year);
         }
         remaining += 1;
@@ -120,14 +129,14 @@ export class CalendarService {
   }
 
   parseDate(input: string, base?: CanonicalDate | null): CanonicalDate {
-    const raw = (input ?? "").trim();
+    const raw = (input ?? '').trim();
     if (!raw) {
-      throw new CalendarError("Empty date string.");
+      throw new CalendarError('Empty date string.');
     }
 
     if (/^[+-]\d+$/.test(raw)) {
       if (!base) {
-        throw new CalendarError("Relative date but no base date.");
+        throw new CalendarError('Relative date but no base date.');
       }
       return this.incrementDate(base, parseInt(raw, 10));
     }
@@ -137,18 +146,20 @@ export class CalendarService {
       throw new CalendarError(`Unrecognized date: "${input}"`);
     }
 
-    const monthIdx = parts.findIndex(p => this.tryResolveMonth(p) !== null);
+    const monthIdx = parts.findIndex((p) => this.tryResolveMonth(p) !== null);
     if (monthIdx === -1) {
       throw new CalendarError(`No recognizable month in "${input}".`);
     }
     const month = this.resolveMonth(parts[monthIdx]!);
 
     const others = parts.filter((_, i) => i !== monthIdx);
-    const dayTok = others.find(t => /^\d+$/.test(t));
+    const dayTok = others.find((t) => /^\d+$/.test(t));
     const day = dayTok ? parseInt(dayTok, 10) : NaN;
 
-    const numericAll = parts.filter(t => /^\d+$/.test(t)).map(Number);
-    let year: number | undefined = numericAll.length ? numericAll[numericAll.length - 1] : undefined;
+    const numericAll = parts.filter((t) => /^\d+$/.test(t)).map(Number);
+    let year: number | undefined = numericAll.length
+      ? numericAll[numericAll.length - 1]
+      : undefined;
     if (!Number.isFinite(year) || year === day) {
       year = base?.year;
     }
@@ -172,24 +183,28 @@ export class CalendarService {
 
   // REPL helper
   suggestMonths(prefix: string, limit = 5): string[] {
-    const p = (prefix ?? "").toLowerCase();
+    const p = (prefix ?? '').toLowerCase();
     if (!p) {
-      return this.config.months.slice(0, limit).map(m => m.name);
+      return this.config.months.slice(0, limit).map((m) => m.name);
     }
     const coll: { name: string; score: number }[] = [];
     for (const m of this.config.months) {
       if (m.name.toLowerCase().startsWith(p)) {
         coll.push({ name: m.name, score: 1 });
       }
-      if (m.aliases?.some(a => a.toLowerCase().startsWith(p))) {
+      if (m.aliases?.some((a) => a.toLowerCase().startsWith(p))) {
         coll.push({ name: m.name, score: 2 });
       }
     }
     const seen = new Set<string>();
     return coll
-      .sort((a, b) => a.score - b.score || this.monthIndex(a.name) - this.monthIndex(b.name))
-      .map(x => x.name)
-      .filter(n => (seen.has(n) ? false : (seen.add(n), true)))
+      .sort(
+        (a, b) =>
+          a.score - b.score ||
+          this.monthIndex(a.name) - this.monthIndex(b.name),
+      )
+      .map((x) => x.name)
+      .filter((n) => (seen.has(n) ? false : (seen.add(n), true)))
       .slice(0, limit);
   }
 
@@ -202,7 +217,9 @@ export class CalendarService {
     }
     const mdays = this.daysInMonth(d.month, d.year);
     if (d.day < 1 || d.day > mdays) {
-      throw new CalendarError(`${d.month} ${d.year} has ${mdays} days; got ${d.day}.`);
+      throw new CalendarError(
+        `${d.month} ${d.year} has ${mdays} days; got ${d.day}.`,
+      );
     }
   }
 
@@ -212,7 +229,7 @@ export class CalendarService {
 
   private isLeapYear(year: number, every: number, anchor = 0): boolean {
     // Simple “every N years” rule; no century exceptions unless you add them.
-    return ((year - anchor) % every) === 0;
+    return (year - anchor) % every === 0;
   }
 
   private lastMonthName(): string {
@@ -220,7 +237,7 @@ export class CalendarService {
   }
 
   private monthIndex(name: string): number {
-    return this.config.months.findIndex(m => m.name === name);
+    return this.config.months.findIndex((m) => m.name === name);
   }
 
   private nextMonthName(name: string): string | null {
@@ -228,7 +245,9 @@ export class CalendarService {
     if (i === -1) {
       throw new CalendarError(`Unknown month "${name}".`);
     }
-    return i + 1 < this.config.months.length ? this.config.months[i + 1].name : null;
+    return i + 1 < this.config.months.length
+      ? this.config.months[i + 1].name
+      : null;
   }
 
   private prevMonthName(name: string): string | null {
@@ -245,7 +264,9 @@ export class CalendarService {
       return r;
     }
     const suggestions = this.suggestMonths(token, 3);
-    const hint = suggestions.length ? ` Did you mean: ${suggestions.join(", ")}?` : "";
+    const hint = suggestions.length
+      ? ` Did you mean: ${suggestions.join(', ')}?`
+      : '';
     throw new CalendarError(`Unknown month "${token}".${hint}`);
   }
 
@@ -255,7 +276,7 @@ export class CalendarService {
       if (m.name.toLowerCase() === t) {
         return m.name;
       }
-      if (m.aliases?.some(a => a.toLowerCase() === t)) {
+      if (m.aliases?.some((a) => a.toLowerCase() === t)) {
         return m.name;
       }
     }

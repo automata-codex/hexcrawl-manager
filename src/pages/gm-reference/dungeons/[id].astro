@@ -1,7 +1,9 @@
 ---
 import { getEntry } from 'astro:content';
-import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+
 import DungeonDetails from '../../../components/DungeonDetails.astro';
+import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+
 import type { DungeonEntry } from '../../../types';
 
 // Get the ID from the incoming server request
@@ -9,7 +11,7 @@ const { id } = Astro.params;
 if (!id) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
@@ -20,16 +22,18 @@ const dungeon = await getEntry('dungeons', id);
 if (dungeon === undefined) {
   return new Response(null, {
     status: 404,
-    statusText: 'Not found'
+    statusText: 'Not found',
   });
 }
 
 const title = `Dungeon: ${dungeon.data.name}`;
 
-function getImageFileName(dungeon: DungeonEntry): string|null {
+function getImageFileName(dungeon: DungeonEntry): string | null {
   if (dungeon.data.images) {
     // Otherwise, find the first entry in the dungeon.data.images array with `display` set to true. If there isn't one, just return the first element in the array.
-    const firstImage = dungeon.data.images.find((image) => image.display === true) || dungeon.data.images[0];
+    const firstImage =
+      dungeon.data.images.find((image) => image.display === true) ||
+      dungeon.data.images[0];
     return firstImage.filename;
   }
 
@@ -38,6 +42,7 @@ function getImageFileName(dungeon: DungeonEntry): string|null {
 
 const image = getImageFileName(dungeon);
 ---
+
 <SecretArticleLayout title={title}>
   <div style="text-align: center; margin-bottom: 1rem;">
     {image && <img src={`/images/maps/dungeons/${image}`} alt={title} />}

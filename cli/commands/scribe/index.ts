@@ -51,7 +51,7 @@ export const scribeCommand = new Command('scribe')
       if (h) {
         try {
           await h(args);
-        } catch (e:any) {
+        } catch (e: any) {
           error(`Error: ${e?.message ?? e}`);
         }
       } else {

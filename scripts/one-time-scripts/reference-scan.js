@@ -2,10 +2,10 @@
  * Scans for places where I may have used Astro's cross-reference functionality
  */
 
-import { readdir, readFile } from 'fs/promises';
-import { join } from 'path';
 import { parse } from '@babel/parser';
 import babelTraverse from '@babel/traverse';
+import { readdir, readFile } from 'fs/promises';
+import { join } from 'path';
 const traverse = babelTraverse.default;
 
 async function findReferenceLikeUsages(dir) {
@@ -44,7 +44,9 @@ async function findReferenceLikeUsages(dir) {
         if (isDataAccess) {
           const field = node.property.name;
           if (field.endsWith('Id') || field.endsWith('Slug')) {
-            console.log(`[${fullPath}] Possible manual reference: entry.data.${field}`);
+            console.log(
+              `[${fullPath}] Possible manual reference: entry.data.${field}`,
+            );
           }
         }
       },

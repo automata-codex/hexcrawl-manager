@@ -1,8 +1,9 @@
 import { selectCurrentHex } from '../projectors.ts';
 import { readEvents } from '../services/event-log.ts';
-import type {Context} from '../types.ts';
 
 import { warn } from './report.ts';
+
+import type { Context } from '../types.ts';
 
 export function requireCurrentHex(ctx: Context): boolean {
   if (!ctx.file) {
@@ -11,7 +12,9 @@ export function requireCurrentHex(ctx: Context): boolean {
   }
   const hex = selectCurrentHex(readEvents(ctx.file));
   if (!hex) {
-    warn('⚠ no current hex known—make a move or start with a starting hex first');
+    warn(
+      '⚠ no current hex known—make a move or start with a starting hex first',
+    );
     return false;
   }
   return true;

@@ -8,6 +8,7 @@
 
   const { checked }: Props = $props();
 </script>
+
 {#if checked}
   <FontAwesomeIcon icon={faSquareCheck} />
 {:else}

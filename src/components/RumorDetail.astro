@@ -2,7 +2,9 @@
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
 import { startCase, toLower } from 'lodash-es';
+
 import { renderBulletMarkdown } from '../utils/markdown';
+
 import type { RumorData } from '../types';
 
 interface Props {
@@ -15,31 +17,45 @@ const { rumor, isSubcomponent = false } = Astro.props;
 const squareIcon = icon(faSquare);
 const squareCheckIcon = icon(faSquareCheck);
 const knownIcon = rumor.isKnown ? squareCheckIcon : squareIcon;
-const availableIcon = (rumor.isAvailable ?? true) ? squareCheckIcon : squareIcon;
+const availableIcon =
+  (rumor.isAvailable ?? true) ? squareCheckIcon : squareIcon;
 ---
+
 <div>
   <p>
-    This rumor is known by the heroes:{' '}<Fragment set:html={knownIcon.html} />
+    This rumor is known by the heroes:{' '}<Fragment
+      set:html={knownIcon.html}
+    />
   </p>
   <p>
-    This rumor is available to be known by the heroes:{' '}<Fragment set:html={availableIcon.html} />
+    This rumor is available to be known by the heroes:{' '}<Fragment
+      set:html={availableIcon.html}
+    />
   </p>
-  <p class="hanging-indent"><span class="inline-heading">Description:</span>
+  <p class="hanging-indent">
+    <span class="inline-heading">Description:</span>
     {' '}
     <Fragment set:html={renderBulletMarkdown(rumor.description)} />
   </p>
-  <p class="hanging-indent"><span class="inline-heading">Status:</span>
+  <p class="hanging-indent">
+    <span class="inline-heading">Status:</span>
     {' '}
     <Fragment set:html={startCase(toLower(rumor.status))} />
   </p>
-  {rumor.notes && (
-    <p class="hanging-indent"><span class="inline-heading">Notes:</span></p>
-    <ul>
-      {rumor.notes.map((note) => (
-        <li>
-          <Fragment set:html={renderBulletMarkdown(note)} />
-        </li>
-      ))}
-    </ul>
-  )}
+  {
+    rumor.notes && (
+      <>
+        <p class="hanging-indent">
+          <span class="inline-heading">Notes:</span>
+        </p>
+        <ul>
+          {rumor.notes.map((note) => (
+            <li>
+              <Fragment set:html={renderBulletMarkdown(note)} />
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
 </div>

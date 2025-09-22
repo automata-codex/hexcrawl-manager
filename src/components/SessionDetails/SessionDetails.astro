@@ -1,8 +1,10 @@
 ---
-import type { SessionData } from '../../types';
 import { renderBulletMarkdown } from '../../utils/markdown';
 import SecretContent from '../Content/SecretContent.astro';
+
 import Character from './Character.astro';
+
+import type { SessionData } from '../../types';
 
 interface Props {
   session: SessionData;
@@ -16,6 +18,7 @@ function getSessionNameFromId(sessionId: string): string {
 
 const { session } = Astro.props;
 ---
+
 <style>
   td.row-label {
     text-align: right;
@@ -28,51 +31,75 @@ const { session } = Astro.props;
 <section>
   <h2 class="title is-3">{getSessionNameFromId(session.id)}</h2>
   <div>Session Date: {session.sessionDate}</div>
-  <div>In-game Dates: <Fragment set:html={renderBulletMarkdown(session.gameDates)} /></div>
-  {session.agenda && (
-    <SecretContent>
-      <div>
-        <p>Agenda:</p>
-        <ul>
-          {session.agenda.map((item) => (
-            <li><Fragment set:html={renderBulletMarkdown(item)} /></li>
-          ))}
-        </ul>
-      </div>
-    </SecretContent>
-  )}
+  <div>
+    In-game Dates: <Fragment
+      set:html={renderBulletMarkdown(session.gameDates)}
+    />
+  </div>
+  {
+    session.agenda && (
+      <SecretContent>
+        <div>
+          <p>Agenda:</p>
+          <ul>
+            {session.agenda.map((item) => (
+              <li>
+                <Fragment set:html={renderBulletMarkdown(item)} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </SecretContent>
+    )
+  }
   <div>
     <p>Characters:</p>
     <ul>
-      {session.characterIds.map((characterId) => (
-        <li><Character character={characterId} /></li>
-      ))}
+      {
+        session.characterIds.map((characterId) => (
+          <li>
+            <Character character={characterId} />
+          </li>
+        ))
+      }
     </ul>
   </div>
   <div>
     <p>Advancement Points</p>
     <table class="table">
       <thead>
-      <tr>
-        <th />
-        <th>Combat</th>
-        <th>Exploration</th>
-        <th>Social</th>
-      </tr>
+        <tr>
+          <th></th>
+          <th>Combat</th>
+          <th>Exploration</th>
+          <th>Social</th>
+        </tr>
       </thead>
       <tbody>
-      <tr>
-        <td class="row-label">Number awarded</td>
-        <td class="table-content">{session.advancementPoints.combat.number}</td>
-        <td class="table-content">{session.advancementPoints.exploration.number}</td>
-        <td class="table-content">{session.advancementPoints.social.number}</td>
-      </tr>
-      <tr>
-        <td class="row-label">Maximum tier</td>
-        <td class="table-content">{session.advancementPoints.combat.maxTier}</td>
-        <td class="table-content">{session.advancementPoints.exploration.maxTier}</td>
-        <td class="table-content">{session.advancementPoints.social.maxTier}</td>
-      </tr>
+        <tr>
+          <td class="row-label">Number awarded</td>
+          <td class="table-content"
+            >{session.advancementPoints.combat.number}</td
+          >
+          <td class="table-content"
+            >{session.advancementPoints.exploration.number}</td
+          >
+          <td class="table-content"
+            >{session.advancementPoints.social.number}</td
+          >
+        </tr>
+        <tr>
+          <td class="row-label">Maximum tier</td>
+          <td class="table-content"
+            >{session.advancementPoints.combat.maxTier}</td
+          >
+          <td class="table-content"
+            >{session.advancementPoints.exploration.maxTier}</td
+          >
+          <td class="table-content"
+            >{session.advancementPoints.social.maxTier}</td
+          >
+        </tr>
       </tbody>
     </table>
   </div>

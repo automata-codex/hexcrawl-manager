@@ -1,4 +1,5 @@
 import { info, error, usage } from '../../lib/report.ts';
+
 import type { Context } from '../../types.ts';
 
 export default function weatherUse(ctx: Context, args: string[]) {
@@ -11,7 +12,10 @@ export default function weatherUse(ctx: Context, args: string[]) {
     usage('Usage: weather use <idx[,idx,...]>');
     return;
   }
-  const indices = args[1].split(',').map(s => parseInt(s.trim(), 10)).filter(n => n >= 1 && n <= 3);
+  const indices = args[1]
+    .split(',')
+    .map((s) => parseInt(s.trim(), 10))
+    .filter((n) => n >= 1 && n <= 3);
   if (indices.length === 0) {
     error('Descriptor indices must be 1, 2, or 3.');
     return;
@@ -34,4 +38,3 @@ export default function weatherUse(ctx: Context, args: string[]) {
     info('No new descriptors added.');
   }
 }
-

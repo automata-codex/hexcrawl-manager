@@ -1,8 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
+
 import { renderMarkdown } from '../../utils/markdown';
 import SecretContent from '../Content/SecretContent.astro';
 import StatBlock from '../StatBlock/StatBlock.astro';
+
 import type { BountyData } from '../../types';
 
 interface Props {
@@ -26,6 +28,7 @@ async function getStatBlocks(statBlockIds: string[]) {
 
 const statBlocks = await getStatBlocks(bounty.statBlocks);
 ---
+
 <style>
   .bounty-poster {
     font-style: italic;
@@ -36,18 +39,22 @@ const statBlocks = await getStatBlocks(bounty.statBlocks);
   <Fragment set:html={renderMarkdown(bounty.text)} />
 </div>
 <SecretContent>
-  {bounty.notes && (
-    <div>
-      <h2 class="title is-3">GM&rsquo;s Notes</h2>
-      <Fragment set:html={renderMarkdown(bounty.notes)} />
-    </div>
-  )}
-  {statBlocks.length > 0 && (
-    <div>
-      <h2 class="title is-3">Stat Blocks</h2>
-      {statBlocks.map((statBlock) => (
-        <StatBlock data={statBlock} />
-      ))}
-    </div>
-  )}
+  {
+    bounty.notes && (
+      <div>
+        <h2 class="title is-3">GM&rsquo;s Notes</h2>
+        <Fragment set:html={renderMarkdown(bounty.notes)} />
+      </div>
+    )
+  }
+  {
+    statBlocks.length > 0 && (
+      <div>
+        <h2 class="title is-3">Stat Blocks</h2>
+        {statBlocks.map((statBlock) => (
+          <StatBlock data={statBlock} />
+        ))}
+      </div>
+    )
+  }
 </SecretContent>

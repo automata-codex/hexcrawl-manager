@@ -35,26 +35,29 @@
   {#if filteredMonsters.length > 0}
     <table class="table is-fullwidth is-striped is-hoverable">
       <thead>
-      <tr>
-        <th>Name</th>
-        <th>CR</th>
-        <th>XP</th>
-        <th></th>
-      </tr>
+        <tr>
+          <th>Name</th>
+          <th>CR</th>
+          <th>XP</th>
+          <th></th>
+        </tr>
       </thead>
       <tbody>
-      {#each filteredMonsters as monster}
-        <tr>
-          <td>{monster.name}</td>
-          <td>{monster.challenge_rating}</td>
-          <td>{getXpForCr(monster.challenge_rating)}</td>
-          <td>
-            <button class="button is-small is-link" onclick={() => handleAddMonster(monster.id)}>
-              Add
-            </button>
-          </td>
-        </tr>
-      {/each}
+        {#each filteredMonsters as monster}
+          <tr>
+            <td>{monster.name}</td>
+            <td>{monster.challenge_rating}</td>
+            <td>{getXpForCr(monster.challenge_rating)}</td>
+            <td>
+              <button
+                class="button is-small is-link"
+                onclick={() => handleAddMonster(monster.id)}
+              >
+                Add
+              </button>
+            </td>
+          </tr>
+        {/each}
       </tbody>
     </table>
   {:else}

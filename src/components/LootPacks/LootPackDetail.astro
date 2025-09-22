@@ -1,5 +1,6 @@
 ---
 import { renderMarkdown } from '../../utils/markdown';
+
 import type { LootPackData } from '../../types';
 
 interface Props {
@@ -8,5 +9,6 @@ interface Props {
 
 const { treasure } = Astro.props;
 ---
+
 <div><Fragment set:html={renderMarkdown(treasure.description)} /></div>
 <div><Fragment set:html={renderMarkdown(treasure.treasure)} /></div>

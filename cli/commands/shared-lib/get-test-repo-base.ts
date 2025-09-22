@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+
 import { getRepoPath } from '../../../lib/repo';
 
 const SENTINEL = '.skyreach-test-root';
@@ -15,10 +16,12 @@ export function getTestRepoBase(): string {
   }
   const sentinelPath = path.join(base, SENTINEL);
   if (!fs.existsSync(sentinelPath)) {
-    fs.writeFileSync(sentinelPath, 'This is a sentinel file for Skyreach test sandboxes.');
+    fs.writeFileSync(
+      sentinelPath,
+      'This is a sentinel file for Skyreach test sandboxes.',
+    );
   }
   return base;
 }
 
 export { SENTINEL as TEST_REPO_SENTINEL };
-
