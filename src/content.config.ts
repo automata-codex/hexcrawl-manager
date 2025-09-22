@@ -1,8 +1,9 @@
-import { defineCollection, z } from 'astro:content';
 import { file, glob } from 'astro/loaders';
+import { defineCollection, z } from 'astro:content';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
+
 import { BountySchema } from '../schemas/bounty';
 import { CharacterSchema } from '../schemas/character';
 import { ClassSchema } from '../schemas/class';
@@ -22,6 +23,7 @@ import { StatBlockSchema } from '../schemas/stat-block';
 import { SupplementSchema } from '../schemas/supplement-list';
 import { TrailEntrySchema, TrailsFile } from '../schemas/trails';
 import { TreasureSchema } from '../schemas/treasure';
+
 import type {
   BountyData,
   ClassData,
@@ -63,7 +65,7 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
   return () => {
     const DIRECTORY = path.join(process.cwd(), directory);
     const files = fs.readdirSync(DIRECTORY);
-    const data = files.map(file => {
+    const data = files.map((file) => {
       if (path.extname(file) !== '.yml' && path.extname(file) !== '.yaml') {
         return [];
       }
@@ -77,7 +79,9 @@ function getDirectoryYamlLoader<T>(directory: string): () => T[] {
 
 export function trailsMapToEntries(input: unknown): TrailEntry[] {
   const obj = TrailsFile.parse(input);
-  return Object.entries(obj).map(([id, data]) => TrailEntrySchema.parse({ id, ...data }));
+  return Object.entries(obj).map(([id, data]) =>
+    TrailEntrySchema.parse({ id, ...data }),
+  );
 }
 
 const articles = defineCollection({
@@ -104,7 +108,7 @@ const characters = defineCollection({
 
 const classes = defineCollection({
   loader: getDirectoryYamlLoader<ClassData>(DIRS.CLASSES),
-  schema: ClassSchema
+  schema: ClassSchema,
 });
 
 const dungeons = defineCollection({
@@ -114,17 +118,17 @@ const dungeons = defineCollection({
 
 const encounters = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.ENCOUNTERS }),
-  schema: EncounterSchema
+  schema: EncounterSchema,
 });
 
 const factions = defineCollection({
   loader: getDirectoryYamlLoader<FactionData>(DIRS.FACTIONS),
-  schema: FactionSchema
+  schema: FactionSchema,
 });
 
 const floatingClues = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.FLOATING_CLUES }),
-  schema: FloatingClueSchema
+  schema: FloatingClueSchema,
 });
 
 const hexes = defineCollection({
@@ -134,51 +138,51 @@ const hexes = defineCollection({
 
 const lootPacks = defineCollection({
   loader: getDirectoryYamlLoader<LootPackData>(DIRS.LOOT_PACKS),
-  schema: LootPackSchema
+  schema: LootPackSchema,
 });
 
 const mapPaths = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.MAP_PATHS }),
-  schema: MapPathSchema
+  schema: MapPathSchema,
 });
 
 const npcs = defineCollection({
   loader: getDirectoryYamlLoader<NpcData>(DIRS.NPCS),
-  schema: NpcSchema
+  schema: NpcSchema,
 });
 
 const players = defineCollection({
   loader: getDirectoryYamlLoader<PlayerData>(DIRS.PLAYERS),
-  schema: PlayerSchema
+  schema: PlayerSchema,
 });
 
 const regions = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.REGIONS }),
-  schema: RegionSchema
+  schema: RegionSchema,
 });
 
 const rumors = defineCollection({
   loader: getDirectoryYamlLoader<RumorData>(DIRS.RUMORS),
-  schema: RumorSchema
+  schema: RumorSchema,
 });
 
 const sessions = defineCollection({
   loader: glob({ pattern: '**/*.yml', base: DIRS.SESSIONS }),
-  schema: SessionSchema
+  schema: SessionSchema,
 });
 
 const statBlocks = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.STAT_BLOCKS }),
-  schema: StatBlockSchema
+  schema: StatBlockSchema,
 });
 
 const supplements = defineCollection({
   loader: getDirectoryYamlLoader<SupplementData>(DIRS.SUPPLEMENTS),
-  schema: SupplementSchema
+  schema: SupplementSchema,
 });
 
 const trails = defineCollection({
-  loader: file("data/trails.yml", {
+  loader: file('data/trails.yml', {
     parser: (raw) => {
       const obj = yaml.parse(raw);
       return trailsMapToEntries(obj);
