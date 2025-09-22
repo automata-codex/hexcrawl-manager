@@ -99,14 +99,7 @@ export const StatBlockSchema = z.object({
   slug: z.string().optional(),
   desc: z.string().optional(),
   name: z.string(),
-  size: z.enum([
-    'tiny',
-    'small',
-    'medium',
-    'large',
-    'huge',
-    'gargantuan',
-  ]),
+  size: z.enum(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan']),
   type: z.enum([
     'aberration',
     'beast',
@@ -178,32 +171,43 @@ export const StatBlockSchema = z.object({
   cr: z.number(),
   actions: z.array(ActionSchema),
   bonus_actions: z.array(z.string()).nullable().optional(),
-  reactions: z.array(z.object({
-    name: z.string(),
-    desc: z.string(),
-  })).nullable().optional(),
+  reactions: z
+    .array(
+      z.object({
+        name: z.string(),
+        desc: z.string(),
+      }),
+    )
+    .nullable()
+    .optional(),
   legendary_desc: z.string().optional(),
   legendary_actions: z.array(z.string()).nullable().optional(),
-  special_abilities: z.array(z.object({
-    name: z.string(),
-    desc: z.string(),
-    recharge: z.string().optional(),
-  })).nullable(),
+  special_abilities: z
+    .array(
+      z.object({
+        name: z.string(),
+        desc: z.string(),
+        recharge: z.string().optional(),
+      }),
+    )
+    .nullable(),
   spell_list: z.array(z.string()),
   page_no: z.number().nullable(),
-  environments: z.array(z.enum([
-    'arctic',
-    'coastal',
-    'desert',
-    'forest',
-    'grassland',
-    'hill',
-    'mountain',
-    'swamp',
-    'underdark',
-    'underwater',
-    'urban',
-  ])),
+  environments: z.array(
+    z.enum([
+      'arctic',
+      'coastal',
+      'desert',
+      'forest',
+      'grassland',
+      'hill',
+      'mountain',
+      'swamp',
+      'underdark',
+      'underwater',
+      'urban',
+    ]),
+  ),
   img_main: z.string().nullable().optional(),
   document__slug: z.string().optional(),
   document__title: z.string().optional(),

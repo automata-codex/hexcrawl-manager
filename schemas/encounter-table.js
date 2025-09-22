@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const EncounterEntrySchema = z.object({
   encounterId: z.string(),
@@ -22,7 +22,9 @@ export const CategoryTable = z.record(
   TieredSubtableSchema.describe('Category name'),
 );
 
-export const EncounterTableSchema = z.object({
-  mainTable: WeightedCategoryTable,
-  categoryTables: CategoryTable,
-}).describe("EncounterTableSchema");
+export const EncounterTableSchema = z
+  .object({
+    mainTable: WeightedCategoryTable,
+    categoryTables: CategoryTable,
+  })
+  .describe('EncounterTableSchema');
