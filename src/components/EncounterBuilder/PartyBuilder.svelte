@@ -126,7 +126,8 @@
           {member.name}
         </div>
         <div class="column is-narrow">
-          <label for={`level-${member.id}`} class="label is-small">Level:</label>
+          <label for={`level-${member.id}`} class="label is-small">Level:</label
+          >
           <div class="control">
             <input
               id={`level-${member.id}`}

@@ -9,22 +9,29 @@ interface Props {
 
 const { sites } = Astro.props;
 ---
-{sites.length === 1 ? sites.map((site) => (
-  <div>
-    <div class="hanging-indent">
-      <span class="inline-heading">Hidden Site:</span>{' '}
-      <Fragment set:html={renderBulletMarkdown(site.description)} />
-    </div>
-  </div>
-)) : (
-  <div>
-    <span class="inline-heading">Hidden Sites:</span>
-  </div>
-  <ul>
-    {sites.map((site) => (
-        <li>
+
+{
+  sites.length === 1 ? (
+    sites.map((site) => (
+      <div>
+        <div class="hanging-indent">
+          <span class="inline-heading">Hidden Site:</span>{' '}
           <Fragment set:html={renderBulletMarkdown(site.description)} />
-        </li>
-    ))}
-  </ul>
-)}
+        </div>
+      </div>
+    ))
+  ) : (
+    <>
+      <div>
+        <span class="inline-heading">Hidden Sites:</span>
+      </div>
+      <ul>
+        {sites.map((site) => (
+          <li>
+            <Fragment set:html={renderBulletMarkdown(site.description)} />
+          </li>
+        ))}
+      </ul>
+    </>
+  )
+}
