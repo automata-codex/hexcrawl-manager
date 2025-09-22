@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
+
 import { atomicWrite } from '../../shared-lib/atomic-write.ts';
 import { REPO_PATHS } from '../../shared-lib/constants';
+
 import { getGitHeadCommit } from './git';
 
 export function appendToMetaAppliedSessions(meta: any, fileId: string) {
@@ -32,7 +34,10 @@ export function loadMeta() {
 
 export function loadTrails(): Record<string, any> {
   try {
-    return yaml.parse(fs.readFileSync(REPO_PATHS.TRAILS(), 'utf8')) as Record<string, any>;
+    return yaml.parse(fs.readFileSync(REPO_PATHS.TRAILS(), 'utf8')) as Record<
+      string,
+      any
+    >;
   } catch {
     return {};
   }
@@ -47,7 +52,9 @@ export function writeFootprint(footprint: any) {
     let sequence = 'unknown';
     let suffix = '';
     if (typeof footprint.id === 'string') {
-      const match = footprint.id.match(/^session_(\d+)([a-z]*)_(\d{4}-\d{2}-\d{2})$/);
+      const match = footprint.id.match(
+        /^session_(\d+)([a-z]*)_(\d{4}-\d{2}-\d{2})$/,
+      );
       if (match) {
         sequence = match[1];
         suffix = match[2] || '';

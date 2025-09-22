@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+
+import pkg from '../package.json' assert { type: 'json' };
+
 import { scribeCommand } from './commands/scribe';
 import { weaveCommand } from './commands/weave';
-import pkg from '../package.json' assert { type: 'json' };
 
 const program = new Command();
 

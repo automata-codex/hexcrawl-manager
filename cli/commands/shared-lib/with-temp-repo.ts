@@ -1,9 +1,11 @@
+import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
-import { spawn } from 'child_process';
+
 import { getRepoRoot } from '../../../lib/repo';
-import { getTestRepoBase, TEST_REPO_SENTINEL } from './get-test-repo-base';
+
 import { ensureRepoDirs, REPO_PATHS } from './constants/repo-paths';
+import { getTestRepoBase, TEST_REPO_SENTINEL } from './get-test-repo-base';
 
 async function fileExists(p: string) {
   try {
@@ -33,22 +35,36 @@ function getCallerFile(depth = 2): string | undefined {
 async function runGitInit(repoPath: string) {
   await new Promise((resolve, reject) => {
     const proc = spawn('git', ['init'], { cwd: repoPath });
-    proc.on('exit', code => (code === 0 ? resolve(null) : reject(new Error('git init failed'))));
+    proc.on('exit', (code) =>
+      code === 0 ? resolve(null) : reject(new Error('git init failed')),
+    );
     proc.on('error', reject);
   });
   await fs.writeFile(path.join(repoPath, '.gitignore'), '');
   await new Promise((resolve, reject) => {
     const proc = spawn('git', ['add', '.'], { cwd: repoPath });
-    proc.on('exit', code => (code === 0 ? resolve(null) : reject(new Error('git add failed'))));
+    proc.on('exit', (code) =>
+      code === 0 ? resolve(null) : reject(new Error('git add failed')),
+    );
     proc.on('error', reject);
   });
   await new Promise((resolve, reject) => {
-    const proc = spawn('git', [
-      '-c', 'user.name=Test User',
-      '-c', 'user.email=test@example.com',
-      'commit', '-m', 'seed sandbox'
-    ], { cwd: repoPath });
-    proc.on('exit', code => (code === 0 ? resolve(null) : reject(new Error('git commit failed'))));
+    const proc = spawn(
+      'git',
+      [
+        '-c',
+        'user.name=Test User',
+        '-c',
+        'user.email=test@example.com',
+        'commit',
+        '-m',
+        'seed sandbox',
+      ],
+      { cwd: repoPath },
+    );
+    proc.on('exit', (code) =>
+      code === 0 ? resolve(null) : reject(new Error('git commit failed')),
+    );
     proc.on('error', reject);
   });
 }
@@ -64,7 +80,7 @@ function slugify(str: string): string {
 export async function withTempRepo<T = string>(
   title?: string,
   opts?: { initGit?: boolean; keepOnFailEnv?: string },
-  fn?: (repoPath: string) => Promise<T>
+  fn?: (repoPath: string) => Promise<T>,
 ): Promise<T | string> {
   const base = getTestRepoBase();
   const sentinel = path.join(base, TEST_REPO_SENTINEL);
@@ -87,16 +103,22 @@ export async function withTempRepo<T = string>(
   ensureRepoDirs();
 
   // Seed required files
-  await fs.writeFile(REPO_PATHS.META(),
-    JSON.stringify({
-      appliedSessions: [],
-      nextSessionSeq: 27,
-      rolledSeasons: [],
-      havens: [],
-    }, null, 2)
+  await fs.writeFile(
+    REPO_PATHS.META(),
+    JSON.stringify(
+      {
+        appliedSessions: [],
+        nextSessionSeq: 27,
+        rolledSeasons: [],
+        havens: [],
+      },
+      null,
+      2,
+    ),
   );
-  await fs.writeFile(REPO_PATHS.TRAILS(),
-    JSON.stringify({ trails: {} }, null, 2)
+  await fs.writeFile(
+    REPO_PATHS.TRAILS(),
+    JSON.stringify({ trails: {} }, null, 2),
   );
 
   // Initialize git repo if needed
@@ -115,7 +137,7 @@ export async function withTempRepo<T = string>(
     }
   } catch (err) {
     keep = true;
-    // eslint-disable-next-line no-console
+
     console.error(`Sandbox preserved at ${repoPath}`);
     throw err;
   } finally {

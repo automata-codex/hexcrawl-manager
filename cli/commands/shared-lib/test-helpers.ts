@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+
 import { type Event } from '../scribe/types';
 
 export function eventsOf(events: Event[], kind: string): Event[] {
@@ -17,11 +18,10 @@ export function findSessionFiles(dir: string): string[] {
 }
 
 export function readJsonl(file: string): any[] {
-  const raw = fs.readFileSync(file, "utf8");
+  const raw = fs.readFileSync(file, 'utf8');
   return raw
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean)
     .map((l) => JSON.parse(l));
 }
-

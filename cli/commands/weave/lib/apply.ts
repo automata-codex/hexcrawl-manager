@@ -1,8 +1,13 @@
-import { hexSort, normalizeHexId } from '../../../../lib/hexes';
-import { rollDice } from '../../scribe/lib/math.ts';
 import { cloneDeep } from 'lodash-es';
 
-export function applyRolloverToTrails(trails: Record<string, any>, havens: string[], dryRun = false) {
+import { hexSort, normalizeHexId } from '../../../../lib/hexes';
+import { rollDice } from '../../scribe/lib/math.ts';
+
+export function applyRolloverToTrails(
+  trails: Record<string, any>,
+  havens: string[],
+  dryRun = false,
+) {
   // Work on a deep copy to ensure purity
   const newTrails = cloneDeep(trails);
   const maintained: string[] = [];
@@ -26,7 +31,10 @@ export function applyRolloverToTrails(trails: Record<string, any>, havens: strin
         if (dryRun) {
           deletedTrails.push(`${edge} (if d6=1-3)`);
           persisted.push(`${edge} (if d6=4-6)`);
-          farChecks[edge] = { d6: '1-3/4-6', outcome: 'deleted/persist-streak=0' };
+          farChecks[edge] = {
+            d6: '1-3/4-6',
+            outcome: 'deleted/persist-streak=0',
+          };
         } else {
           const d6 = rollDice('1d6');
           if (d6 <= 3) {
@@ -66,7 +74,7 @@ export function applySessionToTrails(
   let currentSeason = seasonId;
   const before: Record<string, any> = {};
   const after: Record<string, any> = {};
-  const sessionStart = events.find(e => e.kind === 'session_start');
+  const sessionStart = events.find((e) => e.kind === 'session_start');
   if (sessionStart && sessionStart.payload && sessionStart.payload.startHex) {
     currentHex = sessionStart.payload.startHex as string;
   }
@@ -78,7 +86,10 @@ export function applySessionToTrails(
       }
     }
     if (e.kind === 'trail' && e.payload && e.payload.marked) {
-      const edge = canonicalEdgeKey(e.payload.from as string, e.payload.to as string);
+      const edge = canonicalEdgeKey(
+        e.payload.from as string,
+        e.payload.to as string,
+      );
       affected.add(edge);
       if (!dryRun && !trails[edge]) {
         trails[edge] = { permanent: false, streak: 0 };
@@ -86,7 +97,12 @@ export function applySessionToTrails(
       if (!trails[edge] && dryRun) {
         created.push(edge);
         usedFlags[edge] = true;
-        after[edge] = { permanent: false, streak: 0, usedThisSeason: true, lastSeasonTouched: currentSeason };
+        after[edge] = {
+          permanent: false,
+          streak: 0,
+          usedThisSeason: true,
+          lastSeasonTouched: currentSeason,
+        };
         continue;
       }
       if (!dryRun && !trails[edge]) {
@@ -97,8 +113,13 @@ export function applySessionToTrails(
         trails[edge].lastSeasonTouched = currentSeason;
       }
       usedFlags[edge] = true;
-      before[edge] = before[edge] || (trails[edge] ? { ...trails[edge] } : undefined);
-      after[edge] = { ...(trails[edge] || { permanent: false, streak: 0 }), usedThisSeason: true, lastSeasonTouched: currentSeason };
+      before[edge] =
+        before[edge] || (trails[edge] ? { ...trails[edge] } : undefined);
+      after[edge] = {
+        ...(trails[edge] || { permanent: false, streak: 0 }),
+        usedThisSeason: true,
+        lastSeasonTouched: currentSeason,
+      };
     }
     if (e.kind === 'move') {
       let from = e.payload.from as string | null;
@@ -114,16 +135,31 @@ export function applySessionToTrails(
           trails[edge].lastSeasonTouched = currentSeason;
         }
         usedFlags[edge] = true;
-        before[edge] = before[edge] || (trails[edge] ? { ...trails[edge] } : undefined);
-        after[edge] = { ...(trails[edge] || { permanent: false, streak: 0 }), usedThisSeason: true, lastSeasonTouched: currentSeason };
+        before[edge] =
+          before[edge] || (trails[edge] ? { ...trails[edge] } : undefined);
+        after[edge] = {
+          ...(trails[edge] || { permanent: false, streak: 0 }),
+          usedThisSeason: true,
+          lastSeasonTouched: currentSeason,
+        };
       } else if (deletedTrails.includes(edge)) {
         if (!dryRun) {
-          trails[edge] = { permanent: false, streak: 0, usedThisSeason: true, lastSeasonTouched: currentSeason };
+          trails[edge] = {
+            permanent: false,
+            streak: 0,
+            usedThisSeason: true,
+            lastSeasonTouched: currentSeason,
+          };
         }
         rediscovered.push(edge);
         usedFlags[edge] = true;
         before[edge] = undefined;
-        after[edge] = { permanent: false, streak: 0, usedThisSeason: true, lastSeasonTouched: currentSeason };
+        after[edge] = {
+          permanent: false,
+          streak: 0,
+          usedThisSeason: true,
+          lastSeasonTouched: currentSeason,
+        };
       }
     }
   }
@@ -135,7 +171,7 @@ export function applySessionToTrails(
   return {
     effects: { created, usedFlags, rediscovered },
     before,
-    after
+    after,
   };
 }
 
@@ -147,10 +183,14 @@ export function canonicalEdgeKey(a: string, b: string): string {
 export function hexDistance(a: string, b: string): number {
   const ac = hexToCube(a);
   const bc = hexToCube(b);
-  return Math.max(Math.abs(ac.x - bc.x), Math.abs(ac.y - bc.y), Math.abs(ac.z - bc.z));
+  return Math.max(
+    Math.abs(ac.x - bc.x),
+    Math.abs(ac.y - bc.y),
+    Math.abs(ac.z - bc.z),
+  );
 }
 
-export function hexToCube(hex: string): { x: number, y: number, z: number } {
+export function hexToCube(hex: string): { x: number; y: number; z: number } {
   const col = hex[0].toUpperCase().charCodeAt(0) - 'A'.charCodeAt(0);
   const row = parseInt(hex.slice(1), 10) - 1;
   const x = col;
@@ -159,6 +199,10 @@ export function hexToCube(hex: string): { x: number, y: number, z: number } {
   return { x, y, z };
 }
 
-export function isHexNearAnyHaven(hex: string, havens: string[], maxDist = 3): boolean {
-  return havens.some(haven => hexDistance(hex, haven) <= maxDist);
+export function isHexNearAnyHaven(
+  hex: string,
+  havens: string[],
+  maxDist = 3,
+): boolean {
+  return havens.some((haven) => hexDistance(hex, haven) <= maxDist);
 }

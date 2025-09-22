@@ -1,12 +1,9 @@
 import path from 'path';
-import {
-  applyRolloverToTrails,
-  applySessionToTrails,
-} from '../lib/apply';
-import {
-  getMostRecentRolloverFootprint,
-  resolveInputFile,
-} from '../lib/files';
+
+import { readJsonl } from '../../scribe/lib/jsonl';
+import { info, error } from '../../scribe/lib/report';
+import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
+import { getMostRecentRolloverFootprint, resolveInputFile } from '../lib/files';
 import {
   isRolloverAlreadyApplied,
   isRolloverChronologyValid,
@@ -15,15 +12,10 @@ import {
   isSessionChronologyValid,
   isSessionFile,
 } from '../lib/guards';
-import {
-  loadHavens,
-  loadMeta,
-  loadTrails,
-} from '../lib/state';
 import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
+import { loadHavens, loadMeta, loadTrails } from '../lib/state';
 import { validateSessionEnvelope } from '../lib/validate';
-import { readJsonl } from '../../scribe/lib/jsonl';
-import { info, error } from '../../scribe/lib/report';
+
 import type { Event } from '../../scribe/types';
 
 export async function plan(fileArg?: string) {
@@ -39,9 +31,13 @@ export async function plan(fileArg?: string) {
   if (isRolloverFile(file)) {
     // --- Rollover planning: detect and parse ---
     const events = readJsonl(file);
-    const rollover = events.find(e => e.kind === 'season_rollover') as Event & { payload: { seasonId: string } } | undefined;
+    const rollover = events.find((e) => e.kind === 'season_rollover') as
+      | (Event & { payload: { seasonId: string } })
+      | undefined;
     if (!rollover || !rollover.payload.seasonId) {
-      error('Validation error: Rollover file missing season_rollover event or seasonId.');
+      error(
+        'Validation error: Rollover file missing season_rollover event or seasonId.',
+      );
       process.exit(4);
     }
     const seasonId = normalizeSeasonId(rollover.payload.seasonId);
@@ -57,7 +53,9 @@ export async function plan(fileArg?: string) {
     // Chronology check: only allow for next unapplied season
     const chrono = isRolloverChronologyValid(meta, seasonId);
     if (!chrono.valid) {
-      error(`Validation error: Rollover is not for the next unapplied season. Expected: ${chrono.expected}`);
+      error(
+        `Validation error: Rollover is not for the next unapplied season. Expected: ${chrono.expected}`,
+      );
       process.exit(4);
     }
 
@@ -69,16 +67,26 @@ export async function plan(fileArg?: string) {
     const effects = applyRolloverToTrails(trails, havens, true);
 
     // No-op check: if all lists are empty, exit 5
-    if (effects.maintained.length === 0 && effects.persisted.length === 0 && effects.deletedTrails.length === 0) {
+    if (
+      effects.maintained.length === 0 &&
+      effects.persisted.length === 0 &&
+      effects.deletedTrails.length === 0
+    ) {
       info('No changes would be made.');
       process.exit(5);
     }
     info(`Near-haven edges (maintained): ${effects.maintained.length}`);
     info(`Far-haven edges (persisted): ${effects.persisted.length}`);
     info(`Far-haven edges (deleted): ${effects.deletedTrails.length}`);
-    info('  Sample maintained: ' + JSON.stringify(effects.maintained.slice(0, 5)));
-    info('  Sample persisted: ' + JSON.stringify(effects.persisted.slice(0, 5)));
-    info('  Sample deleted: ' + JSON.stringify(effects.deletedTrails.slice(0, 5)));
+    info(
+      '  Sample maintained: ' + JSON.stringify(effects.maintained.slice(0, 5)),
+    );
+    info(
+      '  Sample persisted: ' + JSON.stringify(effects.persisted.slice(0, 5)),
+    );
+    info(
+      '  Sample deleted: ' + JSON.stringify(effects.deletedTrails.slice(0, 5)),
+    );
     process.exit(0);
   } else if (isSessionFile(file)) {
     const events = readJsonl(file);
@@ -101,32 +109,49 @@ export async function plan(fileArg?: string) {
       process.exit(4);
     }
 
-    const dayStarts = events.filter(e => e.kind === 'day_start');
+    const dayStarts = events.filter((e) => e.kind === 'day_start');
     if (!dayStarts.length) {
       error('Validation error: No day_start event in session.');
       process.exit(4);
     }
 
     // All day_start events must have the same seasonId
-    const seasonIds = dayStarts.map(e => deriveSeasonId(e.payload.calendarDate as any));
+    const seasonIds = dayStarts.map((e) =>
+      deriveSeasonId(e.payload.calendarDate as any),
+    );
     const firstSeasonId = seasonIds[0];
-    if (!seasonIds.every(sid => normalizeSeasonId(sid) === normalizeSeasonId(firstSeasonId))) {
-      error('Validation error: Multi-season session detected. All events must share the same season.');
+    if (
+      !seasonIds.every(
+        (sid) => normalizeSeasonId(sid) === normalizeSeasonId(firstSeasonId),
+      )
+    ) {
+      error(
+        'Validation error: Multi-season session detected. All events must share the same season.',
+      );
       process.exit(4);
     }
 
     // Chronology check: all required rollovers must be present
     const chrono = isSessionChronologyValid(meta, firstSeasonId);
     if (!chrono.valid) {
-      error(`Validation error: Missing required rollover(s) for season ${firstSeasonId}: ${chrono.missing.join(', ')}`);
+      error(
+        `Validation error: Missing required rollover(s) for season ${firstSeasonId}: ${chrono.missing.join(', ')}`,
+      );
       process.exit(4);
     }
 
     // Simulate plan
     const trails = loadTrails();
     const mostRecentRoll = getMostRecentRolloverFootprint(firstSeasonId);
-    const deletedTrails = mostRecentRoll?.effects?.rollover?.deletedTrails || [];
-    const { effects } = applySessionToTrails(events, trails, firstSeasonId, deletedTrails, true);
+    const deletedTrails =
+      mostRecentRoll?.effects?.rollover?.deletedTrails || [];
+    const { effects } = applySessionToTrails(
+      events,
+      trails,
+      firstSeasonId,
+      deletedTrails,
+      true,
+    );
 
     // Output summary
     info('Plan summary:');
@@ -134,12 +159,19 @@ export async function plan(fileArg?: string) {
       info('  Edges to create: ' + JSON.stringify(effects.created));
     }
     if (Object.keys(effects.usedFlags).length) {
-      info('  Edges to set usedThisSeason: ' + JSON.stringify(Object.keys(effects.usedFlags)));
+      info(
+        '  Edges to set usedThisSeason: ' +
+          JSON.stringify(Object.keys(effects.usedFlags)),
+      );
     }
     if (effects.rediscovered.length) {
       info('  Rediscovered edges: ' + JSON.stringify(effects.rediscovered));
     }
-    if (!effects.created.length && !Object.keys(effects.usedFlags).length && !effects.rediscovered.length) {
+    if (
+      !effects.created.length &&
+      !Object.keys(effects.usedFlags).length &&
+      !effects.rediscovered.length
+    ) {
       info('No changes would be made.');
       process.exit(5);
     }
