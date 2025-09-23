@@ -13,9 +13,13 @@ This index tracks **rules text that needs updating** to match current or upcomin
 
 ## Table of Pending Changes
 
-|  ID | Title                          | Affects (Doc §)                                                                                                                           | Source (Spec/PR) | Status   | Owner | Link                     |
-|----:|--------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|------------------|----------|-------|--------------------------|
-| 001 | Trail Longevity and Permanence | `Hexcrawl Rules §Trail Formation and Use`; `docs/dev/session-lifecycle.md` (Finalize / season rollovers); Trail bookkeeping in data files | design notes     | Proposed | —     | ./001-trail-longevity.md |
+|  ID | Title                          | Affects (Doc §)                                                                                                                           | Source (Spec/PR) | Status   | Owner | Link                                         |
+|----:|--------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|------------------|----------|-------|----------------------------------------------|
+| 001 | Trail Longevity and Permanence | `Hexcrawl Rules §Trail Formation and Use`; `docs/dev/session-lifecycle.md` (Finalize / season rollovers); Trail bookkeeping in data files | design notes     | Approved | —     | ./001-trail-longevity.md                     |
+| 002 | AP Ledger Canonicalization     | `Character Advancement`; `Characters.yaml` (AP tracking)                                                                                  | convo notes      | Approved | —     | ./002-weave-processing-of-session-reports.md |
+| 003 | Absence Credits and Allocation | `Character Advancement §Downtime Activities`; `SessionSchema` (absence handling)                                                          | convo notes      | Approved | —     | ./003-canonical-ap-ledger.md                 |
+| 004 | Tier-Cap on Absence AP         | `Character Advancement §Downtime Activities`; AP awards in session/absence rules                                                          | convo notes      | Approved | —     | ./004-session-schema-add-ons.md              |
+| 005 | Grandfathering Early AP Awards | `Character Advancement`; campaign ledger notes (Sessions 1–19)                                                                            | convo notes      | Approved | —     | ./005-backfill-of-ap-ledger.md               |
 
 > Add rows at the end. Keep IDs zero-padded (e.g., 004, 005).
 
