@@ -13,11 +13,9 @@ This index tracks **rules text that needs updating** to match current or upcomin
 
 ## Table of Pending Changes
 
-|  ID | Title                                                  | Affects (Doc §)                             | Source (Spec/PR)            | Status   | Owner | Link                                  |
-|----:|--------------------------------------------------------|---------------------------------------------|-----------------------------|----------|-------|---------------------------------------|
-| 001 | Partition boundaries include `session_pause`           | Hexcrawl Rules §Time/Session; Dev: Finalize | finalize spec; design notes | Proposed | —     | ./changes/001-partition-boundaries.md |
-| 002 | Pause/Continue event semantics                         | Dev: Events; Hexcrawl Rules §Session Flow   | events.md; design notes     | Proposed | —     | ./changes/002-pause-continue.md       |
-| 003 | Season/day rollover is documented-only (no automation) | Hexcrawl Rules §Day/Season Boundaries       | lifecycle doc               | Approved | —     | ./changes/003-season-day-boundary.md  |
+|  ID | Title                          | Affects (Doc §)                                                                                                                           | Source (Spec/PR) | Status   | Owner | Link                     |
+|----:|--------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|------------------|----------|-------|--------------------------|
+| 001 | Trail Longevity and Permanence | `Hexcrawl Rules §Trail Formation and Use`; `docs/dev/session-lifecycle.md` (Finalize / season rollovers); Trail bookkeeping in data files | design notes     | Proposed | —     | ./001-trail-longevity.md |
 
 > Add rows at the end. Keep IDs zero-padded (e.g., 004, 005).
 
