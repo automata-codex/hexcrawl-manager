@@ -1,6 +1,7 @@
 import { writeFileSync } from 'fs';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
+import { ApLedgerEntrySchema } from '../schemas/ap-ledger.js';
 import { BountyListSchema } from '../schemas/bounty.js';
 import { CharacterSchema } from '../schemas/character.js';
 import { ClassSchema } from '../schemas/class.js';
@@ -16,6 +17,7 @@ import { NpcSchema } from '../schemas/npc.js';
 import { PlayerListSchema } from '../schemas/player.js';
 import { RegionSchema } from '../schemas/region.js';
 import { RumorListSchema } from '../schemas/rumor.js';
+import { SessionReportSchema } from '../schemas/session-report.js';
 import { SessionSchema } from '../schemas/session.js';
 import { StatBlockSchema } from '../schemas/stat-block.js';
 import { SupplementListSchema } from '../schemas/supplement-list.js';
@@ -23,6 +25,12 @@ import { TrailSchema } from '../schemas/trails.js';
 import { TreasureSchema } from '../schemas/treasure.js';
 import { UnusedHiddenSiteListSchema } from '../schemas/unused-hidden-site.js';
 import { ZoneSchema } from '../schemas/zone.js';
+
+const apLedgerFile = new URL('../schemas/ap-ledge.json', import.meta.url);
+writeFileSync(
+  apLedgerFile,
+  JSON.stringify(zodToJsonSchema(ApLedgerEntrySchema), null, 2),
+);
 
 const bountyFile = new URL('../schemas/bounty.json', import.meta.url);
 writeFileSync(
@@ -118,6 +126,15 @@ const sessionFile = new URL('../schemas/session.json', import.meta.url);
 writeFileSync(
   sessionFile,
   JSON.stringify(zodToJsonSchema(SessionSchema), null, 2),
+);
+
+const sessionReportFile = new URL(
+  '../schemas/session-report.json',
+  import.meta.url,
+);
+writeFileSync(
+  sessionReportFile,
+  JSON.stringify(zodToJsonSchema(SessionReportSchema), null, 2),
 );
 
 const statBlockFile = new URL('../schemas/stat-block.json', import.meta.url);
