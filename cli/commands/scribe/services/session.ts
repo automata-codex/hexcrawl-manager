@@ -5,6 +5,7 @@ import yaml from 'yaml';
 import { hexSort, normalizeHexId } from '../../../../lib/hexes';
 import { pad } from '../../shared-lib';
 import { REPO_PATHS } from '../../shared-lib/constants';
+import { loadMeta, saveMeta } from '../../shared-lib/meta.ts';
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { type CanonicalDate, type Context, type Event } from '../types';
 
@@ -392,10 +393,6 @@ export function finalizeSession(
 
   // Find original session_start, session_continue, session_end
   const origSessionStart = sortedEvents.find((e) => e.kind === 'session_start');
-  const origSessionContinue = sortedEvents.find(
-    (e) => e.kind === 'session_continue',
-  );
-  const origSessionEnd = sortedEvents.find((e) => e.kind === 'session_end');
   const sessionIdVal = sessionId;
 
   // For each block, synthesize lifecycle events as needed (avoid referencing finalizedBlocks before initialization)
@@ -610,12 +607,10 @@ export function finalizeSession(
 
     // Update meta.yaml if outputs written
     if (outputs.length) {
-      const metaRaw = fs.readFileSync(REPO_PATHS.META(), 'utf8');
-      const meta = yaml.parse(metaRaw) || {};
       const lockSeq = Number(sessionId.match(/session_(\d+)/)?.[1] || 0);
+      const meta = loadMeta();
       if (meta.nextSessionSeq !== lockSeq + 1) {
-        meta.nextSessionSeq = lockSeq + 1;
-        fs.writeFileSync(REPO_PATHS.META(), yaml.stringify(meta));
+        saveMeta({ nextSessionSeq: lockSeq + 1 });
       }
     }
   } else {

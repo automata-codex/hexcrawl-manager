@@ -24,14 +24,6 @@ export function loadHavens(): string[] {
   }
 }
 
-export function loadMeta() {
-  try {
-    return yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8')) as any;
-  } catch {
-    return { appliedSessions: [], rolledSeasons: [] };
-  }
-}
-
 export function loadTrails(): Record<string, any> {
   try {
     return yaml.parse(fs.readFileSync(REPO_PATHS.TRAILS(), 'utf8')) as Record<

@@ -6,24 +6,18 @@ import yaml from 'yaml';
 import { getRepoPath } from '../../../lib/repo';
 import { SessionReportSchema } from '../../../schemas/session-report.js';
 import { pad, writeYamlAtomic } from '../shared-lib';
-import { REPO_PATHS } from '../shared-lib/constants';
+import { loadMeta } from '../shared-lib/meta.ts';
 
 export const sessionCommand = new Command('session')
   .description('Bootstrap a new planned session report')
   .option('--force', 'Overwrite if the session file already exists')
   .action((opts) => {
     // Step 1: Read meta.yaml
-    const metaPath = REPO_PATHS.META();
-    if (!fs.existsSync(metaPath)) {
-      console.error(`❌ meta.yaml not found at ${metaPath}`);
-      process.exit(1);
-    }
-    const metaRaw = fs.readFileSync(metaPath, 'utf8');
     let meta;
     try {
-      meta = yaml.parse(metaRaw);
+      meta = loadMeta();
     } catch (e) {
-      console.error(`❌ Failed to parse meta.yaml:`, e);
+      console.error(e);
       process.exit(1);
     }
     const nextSessionSeq = meta.nextSessionSeq;
