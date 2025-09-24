@@ -167,6 +167,67 @@ npm run cli -- weave ap status
 
 ---
 
+You’re right — the spec I gave you doesn’t currently include migration, but we **did** cover it in detail earlier in this thread. Here’s what we had agreed on for migration (pulled together into one place so you can drop it into the spec’s “Migration” section):
+
+---
+
+## Migration (one-time scripts)
+
+### Goals
+
+* Convert all existing session files to the new **session report v2** format.
+* Generate a canonical **AP ledger** (`data/ap-ledger.jsonl`) from past sessions.
+* Preserve “grandfathered” behavior for sessions ≤ 19.
+* Backfill absence allocations as derived.
+
+### Steps
+
+1. **Upgrade existing reports**
+
+  * Input: `data/sessions/` (old YAMLs).
+  * Output: `data/session-reports/session-####.yaml` (v2).
+  * For each session:
+
+    * Assign new `id` (`session-####`) with zero-padding.
+    * Populate `scribeIds[]` by grouping `session_####_YYYY-MM-DD.jsonl` logs.
+    * Map old fields (`agenda`, `events`, `advancementPoints`, `characterIds`).
+    * Insert `status: completed` (all existing sessions are completed).
+    * Add `grandfathered` flag up through session 19.
+    * Ensure `downtime: []`, `absenceAllocations: []` are present.
+
+2. **Populate session dates**
+
+  * Set `sessionDate` to earliest real-world timestamp in logs.
+  * Set `gameStartDate` to earliest in-world date; `gameEndDate` to latest (if available).
+  * If dates missing, leave blank for manual fill.
+
+3. **Backfill absence allocations**
+
+  * Compare `characterIds` (attendees) to full character roster.
+  * Each absent PC: +1 unallocated credit, capped at Tier 1.
+  * Record in report’s `absenceAllocations: []`.
+
+4. **Generate AP ledger**
+
+  * For each session report:
+
+    * Group AP by character.
+    * Write one **session\_ap** entry per (session, character) with all three pillars included:
+
+      * `{ delta, reason }` per pillar.
+      * Use `reason: "grandfathered"` for sessions ≤ 19.
+      * Use `reason: "cap"` for capped pillars at 20+.
+      * If no log entry for a pillar, record `{ delta: 0, reason: "cap" }`.
+  * Append entries to `data/ap-ledger.jsonl`.
+
+5. **Manual review**
+
+  * Fill in any gaps where AP totals or in-world dates are ambiguous.
+  * Validate ledger totals against character sheets.
+  * Mark any discrepancies for correction entries if needed.
+
+---
+
 ## Open Issues
 
 * No `--json` output (human readable only).
