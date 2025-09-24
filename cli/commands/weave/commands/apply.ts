@@ -23,12 +23,12 @@ import {
   loadHavens,
   loadMeta,
   loadTrails,
-  writeYamlAtomic,
   writeFootprint,
 } from '../lib/state';
 import { validateSessionEnvelope } from '../lib/validate';
 
 import type { CanonicalDate } from '../../scribe/types.ts';
+import { writeYamlAtomic } from '../../shared-lib/atomic-write.ts';
 
 export async function apply(fileArg?: string, opts?: any) {
   requireCleanGitOrAllowDirty(opts);

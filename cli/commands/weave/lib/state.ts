@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 
-import { atomicWrite } from '../../shared-lib/atomic-write.ts';
+import { writeYamlAtomic } from '../../shared-lib';
 import { REPO_PATHS } from '../../shared-lib/constants';
 
 import { getGitHeadCommit } from './git';
@@ -82,9 +82,4 @@ export function writeFootprint(footprint: any) {
 
   const filePath = path.join(REPO_PATHS.FOOTPRINTS(), fileName);
   writeYamlAtomic(filePath, footprint);
-}
-
-export function writeYamlAtomic(filePath: string, data: any) {
-  const yamlStr = yaml.stringify(data);
-  atomicWrite(filePath, yamlStr);
 }

@@ -4,7 +4,8 @@ import path from 'path';
 import yaml from 'yaml';
 
 import { getRepoPath } from '../../../lib/repo';
-import { pad } from '../shared-lib';
+import { SessionReportSchema } from '../../../schemas/session-report.js';
+import { pad, writeYamlAtomic } from '../shared-lib';
 import { REPO_PATHS } from '../shared-lib/constants';
 
 export const sessionCommand = new Command('session')
@@ -44,6 +45,32 @@ export const sessionCommand = new Command('session')
       process.exit(1);
     }
 
-    // Placeholder for next steps
-    console.log(`[session] Would create: ${outPath} (id: ${sessionId})`);
+    // Step 5: Create Planned Session Report Object
+    const nowIso = new Date().toISOString();
+    const plannedReport = {
+      id: sessionId,
+      status: 'planned',
+      scribeIds: [],
+      sessionDate: '',
+      gameStartDate: '',
+      agenda: [],
+      downtime: [],
+      absenceAllocations: [],
+      schemaVersion: 2,
+      source: 'scribe',
+      createdAt: nowIso,
+    };
+
+    // Step 6: Validate with Zod
+    const parsed = SessionReportSchema.safeParse(plannedReport);
+    if (!parsed.success) {
+      console.error('❌ Session report validation failed:', parsed.error.format());
+      process.exit(1);
+    }
+
+    // Step 7: Write YAML File
+    writeYamlAtomic(outPath, plannedReport);
+
+    // Step 8: Output Success Message
+    console.log(`✅ Created planned session report: ${outPath}`);
   });
