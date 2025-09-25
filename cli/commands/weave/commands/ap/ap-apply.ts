@@ -29,6 +29,14 @@ type ApPayload = {
   note: string,
 }
 
+function getFingerprint(sessionId: string, scribeIds: string[]): string {
+  const fingerprintObj = { sessionId, scribeIds };
+  return crypto
+    .createHash('sha256')
+    .update(JSON.stringify(fingerprintObj))
+    .digest('hex');
+}
+
 export async function apApply(sessionId?: string) {
   // --- Get a Valid Session ID ---
   if (sessionId) {
@@ -54,8 +62,7 @@ export async function apApply(sessionId?: string) {
     const scribeIds = sortScribeIds(unsortedScribeIds);
 
     // Compute Fingerprint as hash
-    const fingerprintObj = { sessionId, scribeIds };
-    const fingerprint = crypto.createHash('sha256').update(JSON.stringify(fingerprintObj)).digest('hex');
+    const fingerprint = getFingerprint(sessionId, scribeIds);
 
     const reportPath = path.join(REPO_PATHS.REPORTS(), `session-${sessionNum}.yaml`);
     if (fs.existsSync(reportPath)) {
@@ -207,7 +214,7 @@ export async function apApply(sessionId?: string) {
 
   // --- Write Outputs ---
   // Write completed session report
-  const fingerprint = crypto.createHash('sha256').update(JSON.stringify({ sessionId, scribeIds })).digest('hex');
+  const fingerprint = getFingerprint(sessionId, scribeIds);
   const now = new Date().toISOString();
   const reportOut = {
     id: sessionId,
