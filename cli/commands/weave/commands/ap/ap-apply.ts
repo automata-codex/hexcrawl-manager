@@ -4,16 +4,18 @@ import { glob } from 'glob';
 import path from 'path';
 import yaml from 'yaml';
 
+import { PILLARS } from '../../../../../lib/constants.ts';
+import { getRepoPath } from '../../../../../lib/repo';
+import pkg from '../../../../../package.json' assert { type: 'json' };
 import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
 import { eventsOf } from '../../../shared-lib';
 import { REPO_PATHS } from '../../../shared-lib/constants';
 import { isGitDirty } from '../../../shared-lib/git.ts';
 import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
 import { sortScribeIds } from '../../../shared-lib/sort-scribe-ids';
+import { tierFromLevel } from '../../../shared-lib/tier-from-level.ts';
 
 import type { Pillar } from '../../../../../src/types.ts';
-import { tierFromLevel } from '../../../shared-lib/tier-from-level.ts';
-import { PILLARS } from '../../../../../lib/constants.ts';
 
 type ApResult = {
   delta: number;
@@ -28,16 +30,16 @@ type ApPayload = {
 }
 
 export async function apApply(sessionId?: string) {
-  // --- I. Get a valid sessionId ---
+  // --- Get a Valid Session ID ---
   if (sessionId) {
-    // 1. Validate Session ID Format
+    // Validate Session ID Format
     if (!/^session-\d{4}$/.test(sessionId)) {
       throw new Error(`Invalid sessionId format: ${sessionId}. Expected format is session-####.`);
     }
     const sessionNum = sessionId.split('-')[1];
     const sessionsDir = REPO_PATHS.SESSIONS();
 
-    // 2. Discover Finalized Scribe Logs
+    // Discover Finalized Scribe Logs
     const pattern1 = path.join(sessionsDir, `session_${sessionNum}_*.jsonl`);
     const pattern2 = path.join(sessionsDir, `session_${sessionNum}[a-z]_*.jsonl`);
     const files1 = glob.sync(pattern1);
@@ -47,11 +49,11 @@ export async function apApply(sessionId?: string) {
       throw new Error(`No finalized logs for ${sessionId}.`);
     }
 
-    // 3. Sort Scribe IDs
+    // Sort Scribe IDs
     const unsortedScribeIds = allFiles.map(f => path.basename(f, '.jsonl'));
     const scribeIds = sortScribeIds(unsortedScribeIds);
 
-    // 4. Compute Fingerprint as hash
+    // Compute Fingerprint as hash
     const fingerprintObj = { sessionId, scribeIds };
     const fingerprint = crypto.createHash('sha256').update(JSON.stringify(fingerprintObj)).digest('hex');
 
@@ -65,13 +67,13 @@ export async function apApply(sessionId?: string) {
         throw new Error(`Failed to parse report for ${sessionId}: ${err}`);
       }
 
-      // 5. Check for Planned Report and Dirty Git
+      // Check for Planned Report and Dirty Git
       if (reportYaml?.status === 'planned') {
         if (isGitDirty()) {
           throw new Error(`Planned report exists for ${sessionId}, but the working tree is dirty. Commit or stash changes, then re-run.`);
         }
       }
-      // 6. Check for Existing Completed Report
+      // Check for Existing Completed Report (idempotency Check)
       const reportFingerprint = reportYaml?.fingerprint;
       if (typeof reportFingerprint === 'string' && reportFingerprint === fingerprint) {
         console.log(`Completed report for ${sessionId} already matches fingerprint. No-op.`);
@@ -81,7 +83,7 @@ export async function apApply(sessionId?: string) {
       }
     }
   } else {
-    // Step 1: Discover finalized session logs
+    // Discover finalized session logs
     const logFiles = fs.readdirSync(REPO_PATHS.SESSIONS()).filter(f => f.match(/^session_\d{4}[a-z]?_\d{4}-\d{2}-\d{2}\.jsonl$/));
     const sessionNumbers = logFiles.map(f => {
       const matches = f.match(/^session_(\d{4})/);
@@ -91,7 +93,7 @@ export async function apApply(sessionId?: string) {
       return parseInt(matches[1], 10);
     });
 
-    // Step 2: Identify pending sessions
+    // Identify pending sessions
     const reportFiles = fs.existsSync(REPO_PATHS.REPORTS()) ? fs.readdirSync(REPO_PATHS.REPORTS()) : [];
     const completedSessions = reportFiles
       .filter(f => f.match(/^session-\d{4}\.yaml$/))
@@ -99,7 +101,7 @@ export async function apApply(sessionId?: string) {
       .map(f => parseInt(f, 10));
     const pendingSessions = sessionNumbers.filter(num => !completedSessions.includes(num));
 
-    // Step 3: Pick the next session to apply
+    // Pick the next session to apply
     if (pendingSessions.length === 0) {
       throw new Error('No pending sessions with finalized logs found.');
     }
@@ -108,7 +110,7 @@ export async function apApply(sessionId?: string) {
 
   const sessionNum = parseInt(sessionId.split('-')[1], 10);
 
-  // --- II: Discover Scribe IDs (finalized logs) ---
+  // --- Discover Scribe IDs (Finalized Logs) ---
   const pattern1 = path.join(REPO_PATHS.SESSIONS(), `session_${sessionNum}_*.jsonl`);
   const pattern2 = path.join(REPO_PATHS.SESSIONS(), `session_${sessionNum}[a-z]_*.jsonl`);
   const files1 = fs.existsSync(REPO_PATHS.SESSIONS()) ? glob.sync(pattern1) : [];
@@ -122,7 +124,7 @@ export async function apApply(sessionId?: string) {
   const unsortedScribeIds = allFiles.map(f => path.basename(f, '.jsonl'));
   const scribeIds = sortScribeIds(unsortedScribeIds);
 
-  // --- III: Parse All Parts ---
+  // --- Parse All Parts ---
   let events = [];
   for (const file of allFiles) {
     const lines = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean);
@@ -136,17 +138,17 @@ export async function apApply(sessionId?: string) {
     }
   }
 
-  // --- IV: Derive Session Fields ---
+  // --- Derive Session Fields ---
   const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
 
   const gameStartDate = firstCalendarDate(events);
   const gameEndDate = lastCalendarDate(events);
 
-  // --- V: Derive Attendance ---
+  // --- Derive Attendance ---
   const party = selectParty(events);
   // We don't currently have any way to record guests in the session log, so we don't need to worry about that here.
 
-  // --- VI: Aggregate Raw AP Events
+  // --- Aggregate Raw AP Events
   const apEvents = eventsOf(events, 'advancement_point');
 
   const apResult: Record<Pillar, ApResult> = {
@@ -162,7 +164,7 @@ export async function apApply(sessionId?: string) {
     apResult[pillar].maxTier = Math.max(apResult[pillar].maxTier, payload.tier);
   }
 
-  // --- VII: Apply Tier Gating ---
+  // --- Apply Tier Gating ---
   const characterAp: Record<string, Record<Pillar, ApResult>> = {};
   for (const characterId of party) {
     characterAp[characterId] = apResult;
@@ -203,6 +205,57 @@ export async function apApply(sessionId?: string) {
     }
   }
 
-  // --- VIII: Write Report and Ledger ---
-  // (omitted for brevity)
+  // --- Write Outputs ---
+  // Write completed session report
+  const fingerprint = crypto.createHash('sha256').update(JSON.stringify({ sessionId, scribeIds })).digest('hex');
+  const now = new Date().toISOString();
+  const reportOut = {
+    id: sessionId,
+    advancementPoints: {
+      combat: { number: apResult.combat.delta, maxTier: apResult.combat.maxTier },
+      exploration: { number: apResult.exploration.delta, maxTier: apResult.exploration.maxTier },
+      social: { number: apResult.social.delta, maxTier: apResult.social.maxTier },
+    },
+    characterIds: party, // Eventually we'll want to include guests here
+    fingerprint,
+    gameEndDate,
+    gameStartDate,
+    notes: [], // TODO
+    schemaVersion: 2,
+    scribeIds,
+    sessionDate,
+    source: 'scribe',
+    status: 'completed',
+    weave: {
+      appliedAt: now,
+      version: pkg.version,
+    },
+    createdAt: now, // TODO Read from existing plan, if available
+    updatedAt: now,
+  };
+  const reportPath = path.join(REPO_PATHS.REPORTS(), `session-${sessionNum.toString().padStart(4, '0')}.yaml`);
+  fs.writeFileSync(reportPath, yaml.stringify(reportOut), 'utf8');
+
+  // Append per-character session_ap entries to the ledger
+  const ledgerPath = getRepoPath('data', 'ap-ledger.yaml');
+  let ledger = [];
+  if (fs.existsSync(ledgerPath)) {
+    ledger = yaml.parse(fs.readFileSync(ledgerPath, 'utf8')) || [];
+  }
+  for (const characterId of Object.keys(characterAp)) {
+    const ap = characterAp[characterId];
+    ledger.push({
+      kind: 'session_ap',
+      advancementPoints: {
+        combat: { delta: ap.combat.delta, reason: ap.combat.reason },
+        exploration: { delta: ap.exploration.delta, reason: ap.exploration.reason },
+        social: { delta: ap.social.delta, reason: ap.social.reason },
+      },
+      appliedAt: now,
+      characterId,
+      sessionId,
+      source: fingerprint,
+    });
+  }
+  fs.writeFileSync(ledgerPath, yaml.stringify(ledger), 'utf8'); // TODO Use atomic write
 }

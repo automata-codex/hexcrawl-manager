@@ -26,7 +26,7 @@ import { TreasureSchema } from '../schemas/treasure.js';
 import { UnusedHiddenSiteListSchema } from '../schemas/unused-hidden-site.js';
 import { ZoneSchema } from '../schemas/zone.js';
 
-const apLedgerFile = new URL('../schemas/ap-ledge.json', import.meta.url);
+const apLedgerFile = new URL('../schemas/ap-ledger.json', import.meta.url);
 writeFileSync(
   apLedgerFile,
   JSON.stringify(zodToJsonSchema(ApLedgerEntrySchema), null, 2),

@@ -61,6 +61,7 @@ const CompletedSessionReport = SessionHeader.extend({
     social: ApSchema,
   }),
   characterIds: z.array(z.union([ z.string(), GuestCharacter ])), // PCs are strings; guests are objects. Only string IDs count for attendance/AP.
+  fingerprint: z.string(),
   gameEndDate: z.string().default(''),
   notes: z.array(z.string()).default([]),
   todo: z.array(z.string()).default([]),
