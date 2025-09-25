@@ -10,6 +10,7 @@ import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
 import { sortScribeIds } from '../../../shared-lib/sort-scribe-ids';
 
 export async function apApply(sessionId?: string) {
+  // --- I. Get a valid sessionId ---
   if (sessionId) {
     // 1. Validate Session ID Format
     if (!/^session-\d{4}$/.test(sessionId)) {
@@ -86,5 +87,37 @@ export async function apApply(sessionId?: string) {
     }
     sessionId = pickNextSessionId(completedSessions, pendingSessions);
   }
+
+  const sessionNum = parseInt(sessionId.split('-')[1], 10);
+
+  // --- II: Discover Scribe IDs (finalized logs) ---
+  const pattern1 = path.join(REPO_PATHS.SESSIONS(), `session_${sessionNum}_*.jsonl`);
+  const pattern2 = path.join(REPO_PATHS.SESSIONS(), `session_${sessionNum}[a-z]_*.jsonl`);
+  const files1 = fs.existsSync(REPO_PATHS.SESSIONS()) ? glob.sync(pattern1) : [];
+  const files2 = fs.existsSync(REPO_PATHS.SESSIONS()) ? glob.sync(pattern2) : [];
+  const allFiles = Array.from(new Set([...files1, ...files2]));
+  if (allFiles.length === 0) {
+    throw new Error(`No finalized logs for ${sessionId}.`);
+  }
+
+  // Scribe IDs sorted
+  const unsortedScribeIds = allFiles.map(f => path.basename(f, '.jsonl'));
+  const scribeIds = sortScribeIds(unsortedScribeIds);
+
+  // --- III: Parse All Parts ---
+  let allLogEvents = [];
+  for (const file of allFiles) {
+    const lines = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean);
+    for (const line of lines) {
+      try {
+        const event = JSON.parse(line);
+        allLogEvents.push(event);
+      } catch (err) {
+        throw new Error(`Failed to parse JSONL in ${file}: ${err}`);
+      }
+    }
+  }
+
+  // ...proceed with session field derivation, attendance, AP aggregation, etc...
 
 }
