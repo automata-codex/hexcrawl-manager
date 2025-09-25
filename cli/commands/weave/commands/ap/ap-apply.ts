@@ -9,7 +9,7 @@ import { getRepoPath } from '../../../../../lib/repo';
 import pkg from '../../../../../package.json' assert { type: 'json' };
 import { SessionReportSchema } from '../../../../../schemas/session-report.js';
 import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
-import { eventsOf } from '../../../shared-lib';
+import { eventsOf, writeYamlAtomic } from '../../../shared-lib';
 import { REPO_PATHS } from '../../../shared-lib/constants';
 import { isGitDirty } from '../../../shared-lib/git.ts';
 import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
@@ -247,7 +247,7 @@ export async function apApply(sessionId?: string) {
     updatedAt: now,
   };
   const reportPath = path.join(REPO_PATHS.REPORTS(), `session-${sessionNum.toString().padStart(4, '0')}.yaml`);
-  fs.writeFileSync(reportPath, yaml.stringify(reportOut), 'utf8');
+  writeYamlAtomic(reportPath, reportOut);
 
   // Append per-character session_ap entries to the ledger
   const ledgerPath = getRepoPath('data', 'ap-ledger.yaml');
@@ -270,5 +270,5 @@ export async function apApply(sessionId?: string) {
       source: fingerprint,
     });
   }
-  fs.writeFileSync(ledgerPath, yaml.stringify(ledger), 'utf8'); // TODO Use atomic write
+  writeYamlAtomic(ledgerPath, ledger);
 }
