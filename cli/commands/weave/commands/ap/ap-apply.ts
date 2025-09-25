@@ -5,10 +5,25 @@ import path from 'path';
 import yaml from 'yaml';
 
 import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
+import { eventsOf } from '../../../shared-lib';
 import { REPO_PATHS } from '../../../shared-lib/constants';
 import { isGitDirty } from '../../../shared-lib/git.ts';
 import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
 import { sortScribeIds } from '../../../shared-lib/sort-scribe-ids';
+
+import type { Pillar } from '../../../../../src/types.ts';
+
+type ApResult = {
+  delta: number;
+  maxTier: number;
+  reason: string;
+};
+
+type ApPayload = {
+  pillar: Pillar,
+  tier: 1|2|3|4,
+  note: string,
+}
 
 export async function apApply(sessionId?: string) {
   // --- I. Get a valid sessionId ---
@@ -130,4 +145,20 @@ export async function apApply(sessionId?: string) {
   // We don't currently have any way to record guests in the session log, so we don't need to worry about that here.
 
   // --- VI: Aggregate Raw AP Events
+  const apEvents = eventsOf(events, 'advancement_point');
+
+  const apResult: Record<Pillar, ApResult> = {
+    combat: { delta: 0, maxTier: 1, reason: 'normal' },
+    exploration: { delta: 0, maxTier: 1, reason: 'normal' },
+    social: { delta: 0, maxTier: 1, reason: 'normal' },
+  };
+
+  for (const event of apEvents) {
+    const payload = event.payload as ApPayload;
+    const pillar: Pillar = payload.pillar;
+    apResult[pillar].delta = 1;
+    apResult[pillar].maxTier = Math.max(apResult[pillar].maxTier, payload.tier);
+  }
+
+  // --- VII: Apply Tier Gating ---
 }
