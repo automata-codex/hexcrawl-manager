@@ -210,7 +210,7 @@ export async function apApply(sessionId?: string) {
         // Cap: only award AP if eligible
         if (ap.maxTier > tier) {
           ap.delta = 0;
-          ap.reason = 'normal';
+          ap.reason = 'cap';
         } else {
           ap.reason = 'normal';
         }

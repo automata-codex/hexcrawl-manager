@@ -95,11 +95,10 @@ Result:
 5) **Derive attendance:** collect `characterId`s from participation/attendance events in logs.
    - If logs include non-character participants, persist `attendance.guests[] = [{ name, note? }]`.
    - Attendance is **strictly log-derived**; no roster lookups.
-6) **Aggregate raw AP events per character and pillar:**
-   - Sum AP events per pillar `{ combat, exploration, social }`.
+6) **Aggregate raw AP events per pillar:**
+   - If a pillar has AP events, set `delta = 1`; otherwise `delta = 0`.
    - Each AP event carries `{ number, maxTier }`; if `maxTier` is missing, **treat as 1**.
-   - If an attending character has **no AP** events → set `{ delta: 0, reason: "normal" }`.
-   - If a log AP event includes a short label/justification, propagate it to `note`.
+   - (Optional/future) If a log AP event includes a short label/justification, propagate it to `note`.
 7) **Apply tier gating per character (tier derived from level):**
    - Derive the character’s **tier T** from **level**: 1–4→T1, 5–10→T2, 11–16→T3, 17–20→T4. If level missing, use **T1**.
    - For each pillar, partition its events by whether **T ≤ event.maxTier**:
