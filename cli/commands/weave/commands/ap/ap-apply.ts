@@ -152,10 +152,10 @@ export async function apApply(sessionId?: string) {
   }
 
   // --- Derive Session Fields ---
-  const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
-
   const gameStartDate = firstCalendarDate(events);
   const gameEndDate = lastCalendarDate(events);
+  const notes = eventsOf(events, 'note').map(e => e.payload.text);
+  const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
 
   // --- Derive Attendance ---
   const party = selectParty(events);
@@ -233,7 +233,7 @@ export async function apApply(sessionId?: string) {
     fingerprint,
     gameEndDate,
     gameStartDate,
-    notes: [], // TODO
+    notes,
     schemaVersion: 2,
     scribeIds,
     sessionDate,
