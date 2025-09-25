@@ -7,6 +7,7 @@ import yaml from 'yaml';
 import { PILLARS } from '../../../../../lib/constants.ts';
 import { getRepoPath } from '../../../../../lib/repo';
 import pkg from '../../../../../package.json' assert { type: 'json' };
+import { SessionReportSchema } from '../../../../../schemas/session-report.js';
 import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
 import { eventsOf } from '../../../shared-lib';
 import { REPO_PATHS } from '../../../shared-lib/constants';
@@ -38,6 +39,8 @@ function getFingerprint(sessionId: string, scribeIds: string[]): string {
 }
 
 export async function apApply(sessionId?: string) {
+  let createdAt: string = '';
+
   // --- Get a Valid Session ID ---
   if (sessionId) {
     // Validate Session ID Format
@@ -69,10 +72,12 @@ export async function apApply(sessionId?: string) {
       const reportContent = fs.readFileSync(reportPath, 'utf8');
       let reportYaml;
       try {
-        reportYaml = yaml.parse(reportContent);
+        const reportYamlRaw = yaml.parse(reportContent);
+        reportYaml = SessionReportSchema.parse(reportYamlRaw);
       } catch (err) {
         throw new Error(`Failed to parse report for ${sessionId}: ${err}`);
       }
+      createdAt = reportYaml.createdAt ?? '';
 
       // Check for Planned Report and Dirty Git
       if (reportYaml?.status === 'planned') {
@@ -80,8 +85,9 @@ export async function apApply(sessionId?: string) {
           throw new Error(`Planned report exists for ${sessionId}, but the working tree is dirty. Commit or stash changes, then re-run.`);
         }
       }
+
       // Check for Existing Completed Report (idempotency Check)
-      const reportFingerprint = reportYaml?.fingerprint;
+      const reportFingerprint = reportYaml.status === 'completed' ? reportYaml.fingerprint : undefined;
       if (typeof reportFingerprint === 'string' && reportFingerprint === fingerprint) {
         console.log(`Completed report for ${sessionId} already matches fingerprint. No-op.`);
         return;
@@ -237,7 +243,7 @@ export async function apApply(sessionId?: string) {
       appliedAt: now,
       version: pkg.version,
     },
-    createdAt: now, // TODO Read from existing plan, if available
+    createdAt: createdAt.length === 0 ? now : createdAt,
     updatedAt: now,
   };
   const reportPath = path.join(REPO_PATHS.REPORTS(), `session-${sessionNum.toString().padStart(4, '0')}.yaml`);
