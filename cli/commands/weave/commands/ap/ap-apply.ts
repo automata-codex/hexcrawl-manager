@@ -1,5 +1,8 @@
+import crypto from 'crypto';
+import fs from 'fs';
 import { glob } from 'glob';
 import path from 'path';
+import yaml from 'yaml';
 
 import { REPO_PATHS } from '../../../shared-lib/constants';
 import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
@@ -29,7 +32,31 @@ export async function apApply(sessionId?: string) {
     // 3. Sort Scribe IDs
     const unsortedScribeIds = allFiles.map(f => path.basename(f, '.jsonl'));
     const scribeIds = sortScribeIds(unsortedScribeIds);
-    // Fingerprint = `{ sessionId, sorted scribeIds }` (basenames only).
+
+    // 4. Compute Fingerprint as hash
+    const fingerprintObj = { sessionId, scribeIds };
+    const fingerprint = crypto.createHash('sha256').update(JSON.stringify(fingerprintObj)).digest('hex');
+
+    // 5. Check for Existing Completed Report
+    const reportPath = path.join(REPO_PATHS.REPORTS(), `session-${sessionNum}.yaml`);
+    if (fs.existsSync(reportPath)) {
+      const reportContent = fs.readFileSync(reportPath, 'utf8');
+      let reportYaml;
+      try {
+        reportYaml = yaml.parse(reportContent);
+      } catch (err) {
+        throw new Error(`Failed to parse completed report for ${sessionId}: ${err}`);
+      }
+
+      // Assume fingerprint is stored under 'fingerprint' key in the YAML
+      const reportFingerprint = reportYaml?.fingerprint;
+      if (typeof reportFingerprint === 'string' && reportFingerprint === fingerprint) {
+        console.log(`Completed report for ${sessionId} already matches fingerprint. No-op.`);
+        return;
+      } else {
+        throw new Error(`Completed report for ${sessionId} has a different fingerprint. Revert the prior apply or use a new session.`);
+      }
+    }
 
   } else {
     // Read completed session reports and collect their numbers
