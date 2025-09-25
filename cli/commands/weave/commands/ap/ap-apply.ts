@@ -5,12 +5,11 @@ import path from 'path';
 import yaml from 'yaml';
 
 import { REPO_PATHS } from '../../../shared-lib/constants';
+import { isGitDirty } from '../../../shared-lib/git.ts';
 import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
 import { sortScribeIds } from '../../../shared-lib/sort-scribe-ids';
 
 export async function apApply(sessionId?: string) {
-  console.log('weave ap apply', sessionId);
-
   if (sessionId) {
     // 1. Validate Session ID Format
     if (!/^session-\d{4}$/.test(sessionId)) {
@@ -37,7 +36,6 @@ export async function apApply(sessionId?: string) {
     const fingerprintObj = { sessionId, scribeIds };
     const fingerprint = crypto.createHash('sha256').update(JSON.stringify(fingerprintObj)).digest('hex');
 
-    // 5. Check for Existing Completed Report
     const reportPath = path.join(REPO_PATHS.REPORTS(), `session-${sessionNum}.yaml`);
     if (fs.existsSync(reportPath)) {
       const reportContent = fs.readFileSync(reportPath, 'utf8');
@@ -45,27 +43,48 @@ export async function apApply(sessionId?: string) {
       try {
         reportYaml = yaml.parse(reportContent);
       } catch (err) {
-        throw new Error(`Failed to parse completed report for ${sessionId}: ${err}`);
+        throw new Error(`Failed to parse report for ${sessionId}: ${err}`);
       }
 
-      // Assume fingerprint is stored under 'fingerprint' key in the YAML
+      // 5. Check for Planned Report and Dirty Git
+      if (reportYaml?.status === 'planned') {
+        if (isGitDirty()) {
+          throw new Error(`Planned report exists for ${sessionId}, but the working tree is dirty. Commit or stash changes, then re-run.`);
+        }
+      }
+      // 6. Check for Existing Completed Report
       const reportFingerprint = reportYaml?.fingerprint;
       if (typeof reportFingerprint === 'string' && reportFingerprint === fingerprint) {
         console.log(`Completed report for ${sessionId} already matches fingerprint. No-op.`);
         return;
-      } else {
+      } else if (reportYaml?.status !== 'planned') {
         throw new Error(`Completed report for ${sessionId} has a different fingerprint. Revert the prior apply or use a new session.`);
       }
     }
-
   } else {
-    // Read completed session reports and collect their numbers
-    // Look for finalized logs in `REPO_PATHS/SESSIONS()` and collect their numbers
-    // Use `pickNextSessionId` to determine which session to apply
-  }
+    // Step 1: Discover finalized session logs
+    const logFiles = fs.readdirSync(REPO_PATHS.SESSIONS()).filter(f => f.match(/^session_\d{4}[a-z]?_\d{4}-\d{2}-\d{2}\.jsonl$/));
+    const sessionNumbers = logFiles.map(f => {
+      const matches = f.match(/^session_(\d{4})/);
+      if (!matches) {
+        throw new Error(`Unexpected filename format: ${f}`);
+      }
+      return parseInt(matches[1], 10);
+    });
 
-// Glob both patterns for the chosen session; union the sets; ensure non-empty.
-// Sort basenames using `sortScribeIds` (by date, then suffix: none < a < b < …).
-// Fingerprint = `{ sessionId, sorted scribeIds }` (basenames only).
+    // Step 2: Identify pending sessions
+    const reportFiles = fs.existsSync(REPO_PATHS.REPORTS()) ? fs.readdirSync(REPO_PATHS.REPORTS()) : [];
+    const completedSessions = reportFiles
+      .filter(f => f.match(/^session-\d{4}\.yaml$/))
+      .map(f => f.match(/^session-(\d{4})\.yaml$/)![1])
+      .map(f => parseInt(f, 10));
+    const pendingSessions = sessionNumbers.filter(num => !completedSessions.includes(num));
+
+    // Step 3: Pick the next session to apply
+    if (pendingSessions.length === 0) {
+      throw new Error('No pending sessions with finalized logs found.');
+    }
+    sessionId = pickNextSessionId(completedSessions, pendingSessions);
+  }
 
 }
