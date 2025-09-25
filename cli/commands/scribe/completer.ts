@@ -1,4 +1,6 @@
-import { PILLARS, TIERS } from './constants';
+import { PILLARS } from '../../../lib/constants.ts';
+
+import { TIERS } from './constants';
 import { getAllCharacterIds } from './services/character';
 
 export function scribeCompleter(line: string): [string[], string] {

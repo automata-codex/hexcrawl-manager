@@ -1,4 +1,5 @@
-import { PILLARS, TIERS } from '../constants';
+import { PILLARS } from '../../../../lib/constants.ts';
+import { TIERS } from '../constants';
 import { requireSession } from '../lib/guards.ts';
 import { info, usage } from '../lib/report.ts';
 import { selectCurrentHex, selectParty } from '../projectors.ts';
