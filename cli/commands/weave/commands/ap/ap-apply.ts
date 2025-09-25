@@ -12,6 +12,8 @@ import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
 import { sortScribeIds } from '../../../shared-lib/sort-scribe-ids';
 
 import type { Pillar } from '../../../../../src/types.ts';
+import { tierFromLevel } from '../../../shared-lib/tier-from-level.ts';
+import { PILLARS } from '../../../../../lib/constants.ts';
 
 type ApResult = {
   delta: number;
@@ -161,4 +163,46 @@ export async function apApply(sessionId?: string) {
   }
 
   // --- VII: Apply Tier Gating ---
+  const characterAp: Record<string, Record<Pillar, ApResult>> = {};
+  for (const characterId of party) {
+    characterAp[characterId] = apResult;
+
+    // Read character file to get level
+    let level = 1;
+    try {
+      const charPath = path.join(REPO_PATHS.CHARACTERS(), `${characterId}.yml`);
+      if (fs.existsSync(charPath)) {
+        const charYaml = yaml.parse(fs.readFileSync(charPath, 'utf8'));
+        if (typeof charYaml.level === 'number') level = charYaml.level;
+      }
+    // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      // Default to level 1 if missing or error
+      level = 1;
+    }
+
+    const tier = tierFromLevel(level);
+    for (const pillar of PILLARS as Pillar[]) {
+      const ap = characterAp[characterId][pillar];
+      if (sessionNum <= 19) {
+        // Grandfather: award AP even if over-tier, but mark reason
+        if (ap.maxTier > tier) {
+          ap.reason = 'grandfathered';
+        } else {
+          ap.reason = 'normal';
+        }
+      } else {
+        // Cap: only award AP if eligible
+        if (ap.maxTier > tier) {
+          ap.delta = 0;
+          ap.reason = 'normal';
+        } else {
+          ap.reason = 'normal';
+        }
+      }
+    }
+  }
+
+  // --- VIII: Write Report and Ledger ---
+  // (omitted for brevity)
 }
