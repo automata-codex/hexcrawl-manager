@@ -4,6 +4,7 @@ import { glob } from 'glob';
 import path from 'path';
 import yaml from 'yaml';
 
+import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
 import { REPO_PATHS } from '../../../shared-lib/constants';
 import { isGitDirty } from '../../../shared-lib/git.ts';
 import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
@@ -105,19 +106,28 @@ export async function apApply(sessionId?: string) {
   const scribeIds = sortScribeIds(unsortedScribeIds);
 
   // --- III: Parse All Parts ---
-  let allLogEvents = [];
+  let events = [];
   for (const file of allFiles) {
     const lines = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean);
     for (const line of lines) {
       try {
         const event = JSON.parse(line);
-        allLogEvents.push(event);
+        events.push(event);
       } catch (err) {
         throw new Error(`Failed to parse JSONL in ${file}: ${err}`);
       }
     }
   }
 
-  // ...proceed with session field derivation, attendance, AP aggregation, etc...
+  // --- IV: Derive Session Fields ---
+  const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
 
+  const gameStartDate = firstCalendarDate(events);
+  const gameEndDate = lastCalendarDate(events);
+
+  // --- V: Derive Attendance ---
+  const party = selectParty(events);
+  // We don't currently have any way to record guests in the session log, so we don't need to worry about that here.
+
+  // --- VI: Aggregate Raw AP Events
 }

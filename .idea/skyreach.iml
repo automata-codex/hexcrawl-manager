@@ -10,7 +10,6 @@
       <excludeFolder url="file://$MODULE_DIR$/scripts/clue-linker" />
       <excludeFolder url="file://$MODULE_DIR$/scripts/clue-linker/.venv-clue-linker" />
       <excludeFolder url="file://$MODULE_DIR$/scripts/elevation-solver" />
-      <excludeFolder url="file://$MODULE_DIR$/data/session-logs/in-progress" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
