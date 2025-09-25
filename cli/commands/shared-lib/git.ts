@@ -6,6 +6,7 @@ import { execSync } from 'child_process';
 export function getGitHeadCommit(): string | null {
   try {
     return execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+  // eslint-disable-next-line no-unused-vars
   } catch (e) {
     return null;
   }
@@ -18,6 +19,7 @@ export function isGitDirty(): boolean {
   try {
     const output = execSync('git status --porcelain', { encoding: 'utf8' });
     return output.trim().length > 0;
+  // eslint-disable-next-line no-unused-vars
   } catch (e) {
     return true;
   }

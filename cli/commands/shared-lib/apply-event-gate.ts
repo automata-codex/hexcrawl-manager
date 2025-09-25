@@ -1,3 +1,5 @@
+import { PILLARS } from '../../../lib/constants.ts';
+
 import type { Pillar } from '../../../src/types';
 
 export interface ApEvent {
@@ -18,12 +20,11 @@ export function applyEventGate(
   characterTier: 1|2|3|4,
   sessionNumber: number
 ): GateResult {
-  const pillars: Pillar[] = ['combat', 'exploration', 'social'];
   const deltas: Record<Pillar, number> = { combat: 0, exploration: 0, social: 0 };
   const reasons: Record<Pillar, 'normal'|'grandfathered'|'cap'> = { combat: 'normal', exploration: 'normal', social: 'normal' };
   const notes: Partial<Record<Pillar, string>> = {};
 
-  for (const pillar of pillars) {
+  for (const pillar of PILLARS as Pillar[]) {
     const eventsForPillar = events.filter(e => e.pillar === pillar);
     let eligible = 0;
     let overTier = 0;

@@ -4,8 +4,7 @@ import yaml from 'yaml';
 
 import { writeYamlAtomic } from '../../shared-lib';
 import { REPO_PATHS } from '../../shared-lib/constants';
-
-import { getGitHeadCommit } from './git';
+import { getGitHeadCommit } from '../../shared-lib/git.ts';
 
 export function appendToMetaAppliedSessions(meta: any, fileId: string) {
   if (!meta.appliedSessions) {
