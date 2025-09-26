@@ -176,6 +176,7 @@ describe('Command `weave ap apply`', () => {
           );
 
           // Run weave ap apply explicitly for session-0001
+          // eslint-disable-next-line no-unused-vars
           const { exitCode, stderr, stdout } = await runWeave(
             ['ap', 'apply', 'session-0001'],
             { repo },
@@ -274,7 +275,111 @@ describe('Command `weave ap apply`', () => {
       );
     });
 
-    it.todo('auto-selects the next pending session in Option R mode');
+    it('auto-selects the next pending session in Option R mode', async () => {
+      await withTempRepo(
+        'ap-apply-auto-mode',
+        { initGit: false },
+        async (repo) => {
+          writeCharacterFiles();
+
+          // Simulate finalized scribe logs for two sessions: session-0001 and session-0002
+          // session-0001 (already completed)
+          const logPath1 = path.join(REPO_PATHS.SESSIONS(), 'session_0001_2025-09-25.jsonl');
+          fs.writeFileSync(logPath1, events.map(e => JSON.stringify(e)).join('\n'));
+          // session-0002 (pending)
+          const logPath2 = path.join(REPO_PATHS.SESSIONS(), 'session_0002_2025-09-26.jsonl');
+          fs.writeFileSync(logPath2, events.map(e => JSON.stringify(e)).join('\n'));
+
+          // Simulate completed report for session-0001
+          const reportPath1 = path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml');
+          fs.writeFileSync(reportPath1, yaml.stringify({
+            characterIds: ['alistar', 'daemaris', 'istavan'],
+            status: 'completed',
+            fingerprint: 'existing-fingerprint',
+            sessionId: 'session-0001',
+            advancementPoints: [
+              { pillar: 'exploration', number: 2, maxTier: 1 }
+            ]
+          }));
+
+          // Run weave ap apply in auto-mode (Option R)
+          // eslint-disable-next-line no-unused-vars
+          const { exitCode, stderr, stdout } = await runWeave(
+            ['ap', 'apply'],
+            { repo },
+          );
+
+          expect(exitCode).toBe(0);
+          expect(stderr).toBeFalsy();
+
+          // Verify session report output for session-0002
+          const reportPath2 = path.join(REPO_PATHS.REPORTS(), 'session-0002.yaml');
+          expect(fs.existsSync(reportPath2)).toBe(true);
+          const report2 = yaml.parse(fs.readFileSync(reportPath2, 'utf8'));
+          expect(report2.characterIds).toEqual(['alistar', 'daemaris', 'istavan']);
+
+          // Verify AP ledger output for session-0002
+          const ledgerPath = path.join(repo, 'data', 'ap-ledger.yaml');
+          expect(fs.existsSync(ledgerPath)).toBe(true);
+          const ledger = yaml.parse(fs.readFileSync(ledgerPath, 'utf8'));
+
+          const alistarEntry = ledger.find(
+            (e: any) =>
+              e.sessionId === 'session-0002' && e.characterId === 'alistar',
+          );
+          expect(alistarEntry).toBeDefined();
+          expect(alistarEntry.advancementPoints.combat).toEqual({
+            delta: 1,
+            reason: 'grandfathered',
+          });
+          expect(alistarEntry.advancementPoints.exploration).toEqual({
+            delta: 1,
+            reason: 'normal',
+          });
+          expect(alistarEntry.advancementPoints.social).toEqual({
+            delta: 1,
+            reason: 'grandfathered',
+          });
+
+          const daemarisEntry = ledger.find(
+            (e: any) =>
+              e.sessionId === 'session-0002' && e.characterId === 'daemaris',
+          );
+          expect(daemarisEntry).toBeDefined();
+          expect(daemarisEntry.advancementPoints.combat).toEqual({
+            delta: 1,
+            reason: 'grandfathered',
+          });
+          expect(daemarisEntry.advancementPoints.exploration).toEqual({
+            delta: 1,
+            reason: 'normal',
+          });
+          expect(daemarisEntry.advancementPoints.social).toEqual({
+            delta: 1,
+            reason: 'grandfathered',
+          });
+
+          const istavanEntry = ledger.find(
+            (e: any) =>
+              e.sessionId === 'session-0002' && e.characterId === 'istavan',
+          );
+          expect(istavanEntry).toBeDefined();
+          expect(istavanEntry.advancementPoints.combat).toEqual({
+            delta: 1,
+            reason: 'normal',
+          });
+          expect(istavanEntry.advancementPoints.exploration).toEqual({
+            delta: 1,
+            reason: 'normal',
+          });
+          expect(istavanEntry.advancementPoints.social).toEqual({
+            delta: 1,
+            reason: 'normal',
+          });
+        },
+      );
+    });
+
     it.todo(
       'fails with a clear message if no pending sessions are found in "Option R" mode',
     );
