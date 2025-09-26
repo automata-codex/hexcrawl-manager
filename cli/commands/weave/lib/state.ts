@@ -2,10 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 
-import { atomicWrite } from '../../shared-lib/atomic-write.ts';
+import { writeYamlAtomic } from '../../shared-lib';
 import { REPO_PATHS } from '../../shared-lib/constants';
-
-import { getGitHeadCommit } from './git';
+import { getGitHeadCommit } from '../../shared-lib/git.ts';
 
 export function appendToMetaAppliedSessions(meta: any, fileId: string) {
   if (!meta.appliedSessions) {
@@ -21,14 +20,6 @@ export function loadHavens(): string[] {
     return yaml.parse(fs.readFileSync(REPO_PATHS.HAVENS(), 'utf8')) as string[];
   } catch {
     return [];
-  }
-}
-
-export function loadMeta() {
-  try {
-    return yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8')) as any;
-  } catch {
-    return { appliedSessions: [], rolledSeasons: [] };
   }
 }
 
@@ -82,9 +73,4 @@ export function writeFootprint(footprint: any) {
 
   const filePath = path.join(REPO_PATHS.FOOTPRINTS(), fileName);
   writeYamlAtomic(filePath, footprint);
-}
-
-export function writeYamlAtomic(filePath: string, data: any) {
-  const yamlStr = yaml.stringify(data);
-  atomicWrite(filePath, yamlStr);
 }

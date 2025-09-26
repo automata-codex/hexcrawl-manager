@@ -51,6 +51,19 @@ export function findOpenDay(events: Event[]) {
   return { open, lastStartIdx };
 }
 
+export function firstCalendarDate(events: Event[]): CanonicalDate | null {
+  for (let i = 0; i < events.length; i++) {
+    const e = events[i];
+    if (e.kind === 'day_start' && (e as any).payload?.calendarDate) {
+      return (e as any).payload.calendarDate as CanonicalDate;
+    }
+    if (e.kind === 'date_set' && (e as any).payload?.calendarDate) {
+      return (e as any).payload.calendarDate as CanonicalDate;
+    }
+  }
+  return null;
+}
+
 export function isDayOpen(events: Event[]) {
   let lastStartIdx = -1;
   let lastEndIdx = -1;

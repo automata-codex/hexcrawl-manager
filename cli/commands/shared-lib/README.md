@@ -14,6 +14,15 @@ Common repository paths and directory utilities.
 - `ensureRepoDirs(): void`
   - Ensures all directories in `REPO_PATHS` exist, creating them if needed.
 
+## atomic-write.ts
+
+Helpers for atomic file writing.
+
+### Exports:
+
+- `atomicWrite(filePath: string, content: string): void`
+  - Writes a file atomically by writing to a temporary file and then renaming it. Ensures the file is either fully written or not present.
+
 ## get-test-repo-base.ts
 
 Helpers for managing the base directory for test repositories.
@@ -55,6 +64,30 @@ Helpers for running the Weave CLI programmatically.
 
 - `RunWeaveResult`
   - Result object for `runWeave`. Includes `stdout`, `stderr`, and `exitCode`.
+
+## string.ts
+
+String utility helpers.
+
+### Exports:
+
+- `pad(n: number, len = 4): string`
+  - Pads the number `n` with leading zeros to the specified length (default 4).
+
+## test-helpers.ts
+
+Helpers for working with test data and session files.
+
+### Exports:
+
+- `eventsOf(events: Event[], kind: string): Event[]`
+  - Filters an array of `Event` objects, returning only those of the specified kind.
+
+- `findSessionFiles(dir: string): string[]`
+  - Finds all session JSONL files in the given directory matching the pattern `session_<id>_<date>.jsonl`.
+
+- `readJsonl(file: string): any[]`
+  - Reads a `.jsonl` file and parses each line as JSON, returning an array of objects.
 
 ## with-temp-repo.ts
 

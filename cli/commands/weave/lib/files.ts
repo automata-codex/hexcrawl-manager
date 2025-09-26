@@ -5,8 +5,8 @@ import yaml from 'yaml';
 
 import { info, error } from '../../scribe/lib/report';
 import { REPO_PATHS } from '../../shared-lib/constants';
+import { isGitDirty } from '../../shared-lib/git.ts';
 
-import { isGitDirty } from './git';
 import { compareSeasonIds, normalizeSeasonId } from './season.ts';
 
 /**

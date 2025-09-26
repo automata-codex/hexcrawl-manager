@@ -38,6 +38,7 @@ import { TreasureSchema } from '../schemas/treasure';
 import { CampaignDateSchema } from './config/campaign-date.ts';
 
 import type { SegmentMetadataSchema } from '../schemas/map-path';
+import type { MetaSchema } from '../schemas/meta';
 import type { CollectionEntry } from 'astro:content';
 
 export type BountyData = z.infer<typeof BountySchema>;
@@ -58,6 +59,7 @@ export type HiddenSitesData = z.infer<typeof HiddenSitesSchema>;
 export type KnowledgeNodeData = z.infer<typeof KnowledgeNodeSchema>;
 export type LootPackData = z.infer<typeof LootPackSchema>;
 export type MeleeWeaponAttackData = z.infer<typeof MeleeWeaponAttackSchema>;
+export type MetaData = z.infer<typeof MetaSchema>;
 export type NpcData = z.infer<typeof NpcSchema>;
 export type PlayerData = z.infer<typeof PlayerSchema>;
 export type RangedWeaponAttackData = z.infer<typeof RangedWeaponAttackSchema>;

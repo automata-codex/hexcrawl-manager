@@ -16,6 +16,7 @@ export const REPO_PATHS = {
   LOCKS: () => getRepoPath('data', 'session-logs', '.locks'), // Lock files for sessions
   LOGS_ROOT: () => getRepoPath('data', 'session-logs'), // Root for all session logs
   META: () => getRepoPath('data', 'meta.yaml'), // Meta file for session state
+  REPORTS: () => getRepoPath('data', 'session-reports'), // Generated reports
   ROLLOVERS: () => getRepoPath('data', 'session-logs', 'rollovers'), // Root for all session logs
   SESSIONS: () => getRepoPath('data', 'session-logs', 'sessions'), // Finalized session files
   TRAILS: () => getRepoPath('data', 'trails.yml'),

@@ -2,7 +2,9 @@ import path from 'path';
 
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { error, info } from '../../scribe/lib/report';
+import { writeYamlAtomic } from '../../shared-lib';
 import { REPO_PATHS } from '../../shared-lib/constants';
+import { loadMeta, saveMeta } from '../../shared-lib/meta.ts';
 import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
 import {
   getMostRecentRolloverFootprint,
@@ -21,9 +23,7 @@ import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import {
   appendToMetaAppliedSessions,
   loadHavens,
-  loadMeta,
   loadTrails,
-  writeYamlAtomic,
   writeFootprint,
 } from '../lib/state';
 import { validateSessionEnvelope } from '../lib/validate';
@@ -86,13 +86,15 @@ export async function apply(fileArg?: string, opts?: any) {
       after[edge] = trailsAfter[edge] ? { ...trailsAfter[edge] } : undefined;
     }
     // Update meta
-    if (!meta.rolledSeasons) meta.rolledSeasons = [];
+    if (!meta.rolledSeasons) {
+      meta.rolledSeasons = [];
+    }
     meta.rolledSeasons.push(seasonId);
     appendToMetaAppliedSessions(meta, fileId);
     // Write trails.yml and meta.yaml
     try {
       writeYamlAtomic(REPO_PATHS.TRAILS(), trailsAfter);
-      writeYamlAtomic(REPO_PATHS.META(), meta);
+      saveMeta(meta);
       // Write footprint
       const footprint = {
         id: `ROLL-${seasonId}`,
@@ -177,7 +179,7 @@ export async function apply(fileArg?: string, opts?: any) {
     try {
       writeYamlAtomic(REPO_PATHS.TRAILS(), trails);
       appendToMetaAppliedSessions(meta, fileId);
-      writeYamlAtomic(REPO_PATHS.META(), meta);
+      saveMeta(meta);
 
       // Write footprint
       const footprint = {

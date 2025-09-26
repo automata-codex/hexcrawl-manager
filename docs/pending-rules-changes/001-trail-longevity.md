@@ -7,6 +7,8 @@
 **Source:** Conversation notes; Hexcrawl Rules (Trails section)
 **Affects:** `Hexcrawl Rules §Trail Formation and Use`; `docs/dev/session-lifecycle.md` (Finalize / season rollovers); Trail bookkeeping in data files
 
+See also `./trail-rules.md`
+
 ## Summary of Software Behavior
 Proposed update to how trails evolve and persist across seasons:
 - Trails have a seasonal survival mechanic.

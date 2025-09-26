@@ -77,8 +77,6 @@ export type MonthDef = {
 
 export type Pace = (typeof PACES)[number];
 
-export type Pillar = 'explore' | 'social' | 'combat';
-
 export type Season = 'winter' | 'spring' | 'summer' | 'autumn';
 
 export type SeasonalBand = {

@@ -1,4 +1,4 @@
-import { atomicWrite } from '../../shared-lib/atomic-write.ts';
+import { atomicWrite } from '../../shared-lib';
 import { readJsonl, appendJsonl, writeJsonl } from '../lib/jsonl';
 
 import type { Event } from '../types';

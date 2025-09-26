@@ -6,6 +6,7 @@ import { REPO_PATHS } from '../../shared-lib/constants';
 import { detectDevMode } from '../lib/env.ts';
 import { readJsonl } from '../lib/jsonl.ts';
 import { info, warn, error } from '../lib/report.ts';
+import { loadMeta } from '../../shared-lib/meta.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -18,16 +19,11 @@ export default function doctor() {
 
     // 1. Meta (prod only)
     if (!devMode) {
-      if (fs.existsSync(REPO_PATHS.META())) {
-        try {
-          const metaRaw = fs.readFileSync(REPO_PATHS.META(), 'utf8');
-          const meta = yaml.parse(metaRaw) || {};
-          info(`Next session sequence: ${meta.nextSessionSeq ?? '(missing)'}`);
-        } catch (e) {
-          error(`Failed to read meta.yaml: ${e}`);
-        }
-      } else {
-        warn('meta.yaml not found.');
+      try {
+        const meta = loadMeta();
+        info(`Next session sequence: ${meta.nextSessionSeq ?? '(missing)'}`);
+      } catch (e) {
+        error(`Failed to read meta.yaml: ${e}`);
       }
     }
 

@@ -2,6 +2,7 @@ import path from 'path';
 
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { info, error } from '../../scribe/lib/report';
+import { loadMeta } from '../../shared-lib/meta.ts';
 import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
 import { getMostRecentRolloverFootprint, resolveInputFile } from '../lib/files';
 import {
@@ -13,7 +14,7 @@ import {
   isSessionFile,
 } from '../lib/guards';
 import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
-import { loadHavens, loadMeta, loadTrails } from '../lib/state';
+import { loadHavens, loadTrails } from '../lib/state';
 import { validateSessionEnvelope } from '../lib/validate';
 
 import type { Event } from '../../scribe/types';
