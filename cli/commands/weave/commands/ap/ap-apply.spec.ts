@@ -10,6 +10,16 @@ import type { Event } from '../../../scribe/types.ts';
 
 const events: Event[] = [
   {
+    seq: 3,
+    ts: '2024-01-01T18:40:00Z',
+    kind: 'day_start',
+    payload: {
+      calendarDate: { year: 1511, month: 'Umbraeus', day: 17 },
+      season: 'autumn',
+      daylightCap: 12,
+    },
+  },
+  {
     seq: 4,
     ts: '2024-01-01T18:50:00Z',
     kind: 'party_set',
@@ -91,6 +101,12 @@ const events: Event[] = [
       note: 'Chatted with village elder',
       at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
     },
+  },
+  {
+    seq: 21,
+    ts: '2024-01-01T19:20:00Z',
+    kind: 'day_end',
+    payload: { summary: { active: 13, daylight: 13, night: 0 } },
   },
 ];
 
@@ -284,23 +300,41 @@ describe('Command `weave ap apply`', () => {
 
           // Simulate finalized scribe logs for two sessions: session-0001 and session-0002
           // session-0001 (already completed)
-          const logPath1 = path.join(REPO_PATHS.SESSIONS(), 'session_0001_2025-09-25.jsonl');
-          fs.writeFileSync(logPath1, events.map(e => JSON.stringify(e)).join('\n'));
+          const logPath1 = path.join(
+            REPO_PATHS.SESSIONS(),
+            'session_0001_2025-09-25.jsonl',
+          );
+          fs.writeFileSync(
+            logPath1,
+            events.map((e) => JSON.stringify(e)).join('\n'),
+          );
           // session-0002 (pending)
-          const logPath2 = path.join(REPO_PATHS.SESSIONS(), 'session_0002_2025-09-26.jsonl');
-          fs.writeFileSync(logPath2, events.map(e => JSON.stringify(e)).join('\n'));
+          const logPath2 = path.join(
+            REPO_PATHS.SESSIONS(),
+            'session_0002_2025-09-26.jsonl',
+          );
+          fs.writeFileSync(
+            logPath2,
+            events.map((e) => JSON.stringify(e)).join('\n'),
+          );
 
           // Simulate completed report for session-0001
-          const reportPath1 = path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml');
-          fs.writeFileSync(reportPath1, yaml.stringify({
-            characterIds: ['alistar', 'daemaris', 'istavan'],
-            status: 'completed',
-            fingerprint: 'existing-fingerprint',
-            sessionId: 'session-0001',
-            advancementPoints: [
-              { pillar: 'exploration', number: 2, maxTier: 1 }
-            ]
-          }));
+          const reportPath1 = path.join(
+            REPO_PATHS.REPORTS(),
+            'session-0001.yaml',
+          );
+          fs.writeFileSync(
+            reportPath1,
+            yaml.stringify({
+              characterIds: ['alistar', 'daemaris', 'istavan'],
+              status: 'completed',
+              fingerprint: 'existing-fingerprint',
+              sessionId: 'session-0001',
+              advancementPoints: [
+                { pillar: 'exploration', number: 2, maxTier: 1 },
+              ],
+            }),
+          );
 
           // Run weave ap apply in auto-mode (Option R)
           // eslint-disable-next-line no-unused-vars
@@ -313,10 +347,17 @@ describe('Command `weave ap apply`', () => {
           expect(stderr).toBeFalsy();
 
           // Verify session report output for session-0002
-          const reportPath2 = path.join(REPO_PATHS.REPORTS(), 'session-0002.yaml');
+          const reportPath2 = path.join(
+            REPO_PATHS.REPORTS(),
+            'session-0002.yaml',
+          );
           expect(fs.existsSync(reportPath2)).toBe(true);
           const report2 = yaml.parse(fs.readFileSync(reportPath2, 'utf8'));
-          expect(report2.characterIds).toEqual(['alistar', 'daemaris', 'istavan']);
+          expect(report2.characterIds).toEqual([
+            'alistar',
+            'daemaris',
+            'istavan',
+          ]);
 
           // Verify AP ledger output for session-0002
           const ledgerPath = path.join(repo, 'data', 'ap-ledger.yaml');
@@ -388,21 +429,30 @@ describe('Command `weave ap apply`', () => {
           writeCharacterFiles();
 
           // Simulate finalized scribe logs for session-0001 (already completed)
-          const logPath = path.join(REPO_PATHS.SESSIONS(), 'session_0001_2025-09-25.jsonl');
-          fs.writeFileSync(logPath, events.map(e => JSON.stringify(e)).join('\n'));
+          const logPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            'session_0001_2025-09-25.jsonl',
+          );
+          fs.writeFileSync(
+            logPath,
+            events.map((e) => JSON.stringify(e)).join('\n'),
+          );
 
           // Simulate completed report for session-0001
           const reportsDir = REPO_PATHS.REPORTS();
           const reportPath = path.join(reportsDir, 'session-0001.yaml');
-          fs.writeFileSync(reportPath, yaml.stringify({
-            characterIds: ['alistar', 'daemaris', 'istavan'],
-            sessionId: 'session-0001',
-            advancementPoints: {
-              combat: { number: 1, maxTier: 1 },
-              exploration: { number: 1, maxTier: 2 },
-              social: { number: 1, maxTier: 1 }
-            }
-          }));
+          fs.writeFileSync(
+            reportPath,
+            yaml.stringify({
+              characterIds: ['alistar', 'daemaris', 'istavan'],
+              sessionId: 'session-0001',
+              advancementPoints: {
+                combat: { number: 1, maxTier: 1 },
+                exploration: { number: 1, maxTier: 2 },
+                social: { number: 1, maxTier: 1 },
+              },
+            }),
+          );
 
           // Run weave ap apply in auto-mode (Option R) with no pending sessions
           const { exitCode, stderr, stdout } = await runWeave(
@@ -446,7 +496,65 @@ describe('Command `weave ap apply`', () => {
   });
 
   describe('Idempotency', () => {
-    it.todo('is idempotent: repeat runs with same fingerprint make no changes');
+    it('is idempotent: repeat runs with same fingerprint make no changes', async () => {
+      await withTempRepo(
+        'ap-apply-idempotent',
+        { initGit: false },
+        async (repo) => {
+          writeCharacterFiles();
+
+          // Simulate finalized scribe logs for session-0001
+          const logPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            'session_0001_2025-09-25.jsonl',
+          );
+          fs.writeFileSync(
+            logPath,
+            events.map((e) => JSON.stringify(e)).join('\n'),
+          );
+
+          // First run: apply AP for session-0001
+          const resultFirst = await runWeave(
+            ['ap', 'apply', 'session-0001'],
+            { repo },
+          );
+          console.log('STDERR1:', resultFirst.stderr);
+          console.log('STDOUT1:', resultFirst.stdout);
+          expect(resultFirst.exitCode).toBe(0);
+          expect(resultFirst.stderr).toBeFalsy();
+
+          // Capture outputs after first run
+          const reportPath = path.join(
+            REPO_PATHS.REPORTS(),
+            'session-0001.yaml',
+          );
+          const ledgerPath = path.join(repo, 'data', 'ap-ledger.yaml');
+          expect(fs.existsSync(reportPath)).toBe(true);
+          expect(fs.existsSync(ledgerPath)).toBe(true);
+          const reportFirst = fs.readFileSync(reportPath, 'utf8');
+          const ledgerFirst = fs.readFileSync(ledgerPath, 'utf8');
+
+          // Second run: re-apply AP for session-0001 (should be a no-op)
+          const resultSecond = await runWeave(
+            ['ap', 'apply', 'session-0001'],
+            { repo },
+          );
+          console.log('STDERR2:', resultSecond.stderr);
+          console.log('STDOUT2:', resultSecond.stdout);
+          expect(resultSecond.exitCode).toBe(0);
+          expect(resultSecond.stderr).toBeFalsy();
+          expect(resultSecond.stdout).toMatch(/no-op/i);
+
+          // Capture outputs after second run
+          const reportSecond = fs.readFileSync(reportPath, 'utf8');
+          const ledgerSecond = fs.readFileSync(ledgerPath, 'utf8');
+
+          // Assert that outputs are unchanged (idempotency)
+          expect(reportSecond).toEqual(reportFirst);
+          expect(ledgerSecond).toEqual(ledgerFirst);
+        },
+      );
+    });
   });
 
   describe('Error handling', () => {

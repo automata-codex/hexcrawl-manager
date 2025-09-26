@@ -15,6 +15,15 @@ import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
 import { sortScribeIds } from '../../../shared-lib/sort-scribe-ids';
 import { computeApForSession } from '../../lib/compute-ap-for-session.ts';
 
+import type { CanonicalDate } from '../../../scribe/types.ts';
+
+function formatDate(d: CanonicalDate | null): string {
+  if (!d) {
+    return 'unknown';
+  }
+  return `${d.day} ${d.month} ${d.year}`;
+}
+
 function getFingerprint(sessionId: string, scribeIds: string[]): string {
   const fingerprintObj = { sessionId, scribeIds };
   return crypto
@@ -137,8 +146,8 @@ export async function apApply(sessionId?: string) {
   }
 
   // --- Derive Session Fields ---
-  const gameStartDate = firstCalendarDate(events);
-  const gameEndDate = lastCalendarDate(events);
+  const gameStartDate = formatDate(firstCalendarDate(events));
+  const gameEndDate = formatDate(lastCalendarDate(events));
   const notes = eventsOf(events, 'note').map(e => e.payload.text);
   const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
 

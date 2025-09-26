@@ -67,7 +67,7 @@ const CompletedSessionReport = SessionHeader.extend({
   todo: z.array(z.string()).default([]),
   weave: z.object({
     appliedAt: z.string().datetime(),
-    weaveVersion: z.string(),
+    version: z.string(),
     notes: z.string().optional(),
   }),
 });
