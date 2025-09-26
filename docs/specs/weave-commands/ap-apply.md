@@ -11,9 +11,9 @@
 ## 1) Purpose
 
 - Discover finalized scribe log part(s) for a session.
-- Derive **attendance** and **per-pillar AP deltas** (with optional `note`) from logs.
-- Record **guest players** (if present in logs) in `attendance.guests[]` (informational only).
-- Apply **event-level gating** vs **tier derived from level**: sessions ≤0019 grandfather; ≥0020 cap (exclude). Missing `event.maxTier` ⇒ 1; missing character level ⇒ Tier 1.
+- Derive **per-pillar AP deltas** per attendee for the **ledger**.
+- The **session report** records a single session-level `advancementPoints` block (not per character): for each pillar `{ number, maxTier }`.
+- Apply **event-level gating** vs **tier derived from level**: sessions ≤0019 grandfather; ≥0020 cap (exclude). Missing `event.tier` ⇒ 1; missing character level ⇒ Tier 1.
 - Write a **completed** session report (immutable) and **append** per-character `session_ap` entries to the ledger.
 - Be **idempotent**: repeat runs with the same `{ sessionId, sorted scribeIds }` make no changes.
 
@@ -93,44 +93,35 @@ Result:
    - `sessionDate` := **earliest** real-world timestamp across parts.
    - `gameStartDate` / `gameEndDate` := from in-world log events (if present).
 5) **Derive attendance:** collect `characterId`s from participation/attendance events in logs.
-   - If logs include non-character participants, persist `attendance.guests[] = [{ name, note? }]`.
-   - Attendance is **strictly log-derived**; no roster lookups.
 6) **Aggregate raw AP events per pillar:**
-   - If a pillar has AP events, set `delta = 1`; otherwise `delta = 0`.
-   - Each AP event carries `{ number, maxTier }`; if `maxTier` is missing, **treat as 1**.
-   - (Optional/future) If a log AP event includes a short label/justification, propagate it to `note`.
+   - If a pillar has AP events, mark that this pillar has ≥1 raw AP event.
+   - Each AP event carries `{ tier }`; if `tier` is missing, **treat as 1**.
+   - Event `number` magnitudes are ignored.
 7) **Pillar award (binary)** — single session
-   For each character and each pillar (`combat`, `exploration`, `social`):
-   - **Era gating**
-     - **Sessions ≤ 0019 (grandfather era)**
-       - Treat **all** events as eligible (even over-tier).
-       - **delta = 1** if there is **any** event for that pillar; otherwise **0**.
-       - **reason**:
-         - `"grandfathered"` if **any** over-tier event exists for that pillar,
-         - otherwise `"normal"`.
+   - **Eligibility test:** `characterTier ≤ event.tier`.
+   - Define:
+     - `hadAny` = at least one AP event for that pillar this session.
+     - `hadEligible` = at least one AP event for that pillar with `characterTier ≤ event.tier`.
+   - **Sessions ≤ 0019 (grandfather era)**
+     - `delta = 1` if `hadAny`; else `0`.
+     - `reason = "grandfathered"` if `hadAny && !hadEligible`; else `"normal"`.
    - **Sessions ≥ 0020 (cap era)**
-     - Consider **only** events where `characterTier ≤ event.maxTier` (default `maxTier = 1` if missing).
-     - **delta = 1** if there is **any eligible** event; otherwise **0**.
-     - **reason**:
-       - `"cap"` if **any** events existed for that pillar but were **excluded** for tier (i.e., there was at least one over-tier event),
-       - otherwise `"normal"`.
-   - **Tier source**: derive from **level** (1–4→T1, 5–10→T2, 11–16→T3, 17–20→T4; missing level ⇒ T1).
-   - **Multiple events in one pillar**: still **at most 1 AP**. Ignore `ap.number` magnitudes or sum; the award is binary. (You may still log event numbers for auditing, but they don’t affect `delta`.)
-   - **Note selection (optional)**: if you keep a `note`, take the **last applicable** event’s note for that pillar:
-     - ≥0020: last **eligible** event’s note; if no eligible events (delta=0), no note.
-     - ≤0019: last event’s note; if any over-tier existed and set reason to `"grandfathered"`, it’s fine if the note comes from an over-tier event.
-   - **Attendance scope**: evaluate awards for **all session attendees**, regardless of whether they were present at the exact timestamp of the event.
-   - **No events at all for a pillar**: `{ delta: 0, reason: "normal" }`.
+     - `delta = 1` if `hadEligible`; else `0`.
+     - `reason = "cap"` if `hadAny && !hadEligible`; else `"normal"`.
+   - **Report block calculation:**
+     - ≤0019: `number = 1` if `hadAny`; else `0`.
+     - ≥0020: `number = 1` if any attendee has `delta = 1`; else `0`.
+     - `maxTier` = maximum `event.tier` seen for that pillar (default 1 if none).
 8) **Idempotency check:** if a completed report already exists with identical `{ sessionId, sorted scribeIds }` → **no-op** success.
 9) **Write outputs:**
    - **Completed session report** (`data/session-reports/session-####.yaml`)
      - Create if no report exists; if a **planned** report exists and git is **clean**, replace with **completed** (immutable).
-     - Persist: `id`, `status: "completed"`, `sessionDate`, `gameStartDate`, `gameEndDate`, `scribeIds[]`, attendance, and per-character pillar results.
+     - Persist: `id`, `status: "completed"`, `sessionDate`, `gameStartDate`, `gameEndDate`, `scribeIds[]`, attendance, and `advancementPoints` block.
    - **Ledger entries**
      - Append one `session_ap` per (session, character) with:
        - `sessionId`, `characterId`
-       - `pillars.{combat|exploration|social}: { delta, reason, note? }` (reason chosen as above)
-       - (Optional) `source` metadata incl. `scribeIds[]`, if supported.
+       - `pillars.{combat|exploration|social}: { delta, reason }`
+       - (Optional) `source` metadata incl. `scribeIds[]`.
 
 ---
 
@@ -152,12 +143,18 @@ Result:
   - `scribeIds[]`: **all** finalized log part basenames for the session (sorted).
   - `sessionDate`: earliest real-world timestamp across parts.
   - `gameStartDate`/`gameEndDate`: from in-world events (if present).
-  - `attendance.characterIds[]`: log-derived; `attendance.guests[]` optional.
+  - `advancementPoints`:
+    ```yaml
+    advancementPoints:
+      combat:      { number: 0|1, maxTier: 1|2|3|4 }
+      exploration: { number: 0|1, maxTier: 1|2|3|4 }
+      social:      { number: 0|1, maxTier: 1|2|3|4 }
+    ```
 - **Ledger**
   - `session_ap`:
-    - `pillars.{combat|exploration|social}` → `{ delta: number, reason: "normal"|"grandfathered"|"cap", note?: string }`.
+    - `pillars.{combat|exploration|social}` → `{ delta: number, reason: "normal"|"grandfathered"|"cap" }`.
   - **Tier source:** character **tier is derived from level** at apply-time (missing level ⇒ Tier 1).
-  - **Event gate:** AP events use `{ number, maxTier }` (missing ⇒ 1).
+  - **Event gate:** AP events use `{ tier }` (missing ⇒ 1).
 
 ---
 
