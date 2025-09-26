@@ -380,9 +380,42 @@ describe('Command `weave ap apply`', () => {
       );
     });
 
-    it.todo(
-      'fails with a clear message if no pending sessions are found in "Option R" mode',
-    );
+    it('fails with a clear message if no pending sessions are found in "Option R" mode', async () => {
+      await withTempRepo(
+        'ap-apply-no-pending',
+        { initGit: false },
+        async (repo) => {
+          writeCharacterFiles();
+
+          // Simulate finalized scribe logs for session-0001 (already completed)
+          const logPath = path.join(REPO_PATHS.SESSIONS(), 'session_0001_2025-09-25.jsonl');
+          fs.writeFileSync(logPath, events.map(e => JSON.stringify(e)).join('\n'));
+
+          // Simulate completed report for session-0001
+          const reportsDir = REPO_PATHS.REPORTS();
+          const reportPath = path.join(reportsDir, 'session-0001.yaml');
+          fs.writeFileSync(reportPath, yaml.stringify({
+            characterIds: ['alistar', 'daemaris', 'istavan'],
+            sessionId: 'session-0001',
+            advancementPoints: {
+              combat: { number: 1, maxTier: 1 },
+              exploration: { number: 1, maxTier: 2 },
+              social: { number: 1, maxTier: 1 }
+            }
+          }));
+
+          // Run weave ap apply in auto-mode (Option R) with no pending sessions
+          const { exitCode, stderr, stdout } = await runWeave(
+            ['ap', 'apply'],
+            { repo },
+          );
+
+          // Should fail (non-zero exit code) and print a clear message
+          expect(exitCode).not.toBe(0);
+          expect(stderr || stdout).toMatch(/no pending sessions/i);
+        },
+      );
+    });
   });
 
   describe('Session resolution', () => {
