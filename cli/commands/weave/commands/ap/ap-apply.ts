@@ -4,7 +4,6 @@ import { glob } from 'glob';
 import path from 'path';
 import yaml from 'yaml';
 
-import { PILLARS } from '../../../../../lib/constants.ts';
 import { getRepoPath } from '../../../../../lib/repo';
 import pkg from '../../../../../package.json' assert { type: 'json' };
 import { SessionReportSchema } from '../../../../../schemas/session-report.js';
@@ -14,21 +13,7 @@ import { REPO_PATHS } from '../../../shared-lib/constants';
 import { isGitDirty } from '../../../shared-lib/git.ts';
 import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
 import { sortScribeIds } from '../../../shared-lib/sort-scribe-ids';
-import { tierFromLevel } from '../../../shared-lib/tier-from-level.ts';
-
-import type { Pillar } from '../../../../../src/types.ts';
-
-type ApResult = {
-  delta: number;
-  maxTier: number;
-  reason: string;
-};
-
-type ApPayload = {
-  pillar: Pillar,
-  tier: 1|2|3|4,
-  note: string,
-}
+import { computeApForSession } from '../../lib/compute-ap-for-session.ts';
 
 function getFingerprint(sessionId: string, scribeIds: string[]): string {
   const fingerprintObj = { sessionId, scribeIds };
@@ -161,28 +146,9 @@ export async function apApply(sessionId?: string) {
   const party = selectParty(events);
   // We don't currently have any way to record guests in the session log, so we don't need to worry about that here.
 
-  // --- Aggregate Raw AP Events
-  const apEvents = eventsOf(events, 'advancement_point');
-
-  const apResult: Record<Pillar, ApResult> = {
-    combat: { delta: 0, maxTier: 1, reason: 'normal' },
-    exploration: { delta: 0, maxTier: 1, reason: 'normal' },
-    social: { delta: 0, maxTier: 1, reason: 'normal' },
-  };
-
-  for (const event of apEvents) {
-    const payload = event.payload as ApPayload;
-    const pillar: Pillar = payload.pillar;
-    apResult[pillar].delta = 1;
-    apResult[pillar].maxTier = Math.max(apResult[pillar].maxTier, payload.tier);
-  }
-
-  // --- Apply Tier Gating ---
-  const characterAp: Record<string, Record<Pillar, ApResult>> = {};
+  // --- Build characterLevels map ---
+  const characterLevels: Record<string, number> = {};
   for (const characterId of party) {
-    characterAp[characterId] = apResult;
-
-    // Read character file to get level
     let level = 1;
     try {
       const charPath = path.join(REPO_PATHS.CHARACTERS(), `${characterId}.yml`);
@@ -190,33 +156,18 @@ export async function apApply(sessionId?: string) {
         const charYaml = yaml.parse(fs.readFileSync(charPath, 'utf8'));
         if (typeof charYaml.level === 'number') level = charYaml.level;
       }
-    // eslint-disable-next-line no-unused-vars
-    } catch (err) {
-      // Default to level 1 if missing or error
+    } catch {
       level = 1;
     }
-
-    const tier = tierFromLevel(level);
-    for (const pillar of PILLARS as Pillar[]) {
-      const ap = characterAp[characterId][pillar];
-      if (sessionNum <= 19) {
-        // Grandfather: award AP even if over-tier, but mark reason
-        if (ap.maxTier > tier) {
-          ap.reason = 'grandfathered';
-        } else {
-          ap.reason = 'normal';
-        }
-      } else {
-        // Cap: only award AP if eligible
-        if (ap.maxTier > tier) {
-          ap.delta = 0;
-          ap.reason = 'cap';
-        } else {
-          ap.reason = 'normal';
-        }
-      }
-    }
+    characterLevels[characterId] = level;
   }
+
+  // --- Compute AP results ---
+  const { reportAdvancementPoints, ledgerResults } = computeApForSession(
+    eventsOf(events, 'advancement_point'),
+    characterLevels,
+    sessionNum
+  );
 
   // --- Write Outputs ---
   // Write completed session report
@@ -224,11 +175,7 @@ export async function apApply(sessionId?: string) {
   const now = new Date().toISOString();
   const reportOut = {
     id: sessionId,
-    advancementPoints: {
-      combat: { number: apResult.combat.delta, maxTier: apResult.combat.maxTier },
-      exploration: { number: apResult.exploration.delta, maxTier: apResult.exploration.maxTier },
-      social: { number: apResult.social.delta, maxTier: apResult.social.maxTier },
-    },
+    advancementPoints: reportAdvancementPoints,
     characterIds: party, // Eventually we'll want to include guests here
     fingerprint,
     gameEndDate,
@@ -255,8 +202,8 @@ export async function apApply(sessionId?: string) {
   if (fs.existsSync(ledgerPath)) {
     ledger = yaml.parse(fs.readFileSync(ledgerPath, 'utf8')) || [];
   }
-  for (const characterId of Object.keys(characterAp)) {
-    const ap = characterAp[characterId];
+  for (const characterId of Object.keys(ledgerResults)) {
+    const ap = ledgerResults[characterId];
     ledger.push({
       kind: 'session_ap',
       advancementPoints: {
