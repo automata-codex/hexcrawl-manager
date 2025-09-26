@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/core" },
+    { "path": "packages/data" },
+    { "path": "packages/cli-kit" }
+  ],
+  "compilerOptions": {
+    "composite": false,
+    "skipLibCheck": true,
+    "strict": true
+  }
+}

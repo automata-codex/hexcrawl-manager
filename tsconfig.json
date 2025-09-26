@@ -4,11 +4,26 @@
     "plugins": [
       {
         "name": "@astrojs/ts-plugin"
-      },
+      }
     ],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true
   },
-  "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"]
+  "include": [
+    ".astro/types.d.ts",
+    "src",
+    "schemas",
+    "lib",
+    "cli",
+    "scripts",
+    "data",
+    "astro.config.mjs",
+    "svelte.config.js"
+  ],
+  "exclude": [
+    "dist",
+    "packages/**/dist"
+  ]
 }
