@@ -8,7 +8,7 @@ import { getRepoPath } from '../../../../../lib/repo';
 import pkg from '../../../../../package.json' assert { type: 'json' };
 import { SessionReportSchema } from '../../../../../schemas/session-report.js';
 import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
-import { eventsOf, writeYamlAtomic } from '../../../shared-lib';
+import { eventsOf, pad, writeYamlAtomic } from '../../../shared-lib';
 import { REPO_PATHS } from '../../../shared-lib/constants';
 import { isGitDirty } from '../../../shared-lib/git.ts';
 import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
@@ -109,8 +109,8 @@ export async function apApply(sessionId?: string) {
   const sessionNum = parseInt(sessionId.split('-')[1], 10);
 
   // --- Discover Scribe IDs (Finalized Logs) ---
-  const pattern1 = path.join(REPO_PATHS.SESSIONS(), `session_${sessionNum}_*.jsonl`);
-  const pattern2 = path.join(REPO_PATHS.SESSIONS(), `session_${sessionNum}[a-z]_*.jsonl`);
+  const pattern1 = path.join(REPO_PATHS.SESSIONS(), `session_${pad(sessionNum)}_*.jsonl`);
+  const pattern2 = path.join(REPO_PATHS.SESSIONS(), `session_${pad(sessionNum)}[a-z]_*.jsonl`);
   const files1 = fs.existsSync(REPO_PATHS.SESSIONS()) ? glob.sync(pattern1) : [];
   const files2 = fs.existsSync(REPO_PATHS.SESSIONS()) ? glob.sync(pattern2) : [];
   const allFiles = Array.from(new Set([...files1, ...files2]));
@@ -151,7 +151,9 @@ export async function apApply(sessionId?: string) {
   for (const characterId of party) {
     let level = 1;
     try {
-      const charPath = path.join(REPO_PATHS.CHARACTERS(), `${characterId}.yml`);
+      const charPathYaml = path.join(REPO_PATHS.CHARACTERS(), `${characterId}.yaml`);
+      const charPathYml = path.join(REPO_PATHS.CHARACTERS(), `${characterId}.yml`);
+      const charPath = fs.existsSync(charPathYaml) ? charPathYaml : charPathYml;
       if (fs.existsSync(charPath)) {
         const charYaml = yaml.parse(fs.readFileSync(charPath, 'utf8'));
         if (typeof charYaml.level === 'number') level = charYaml.level;
