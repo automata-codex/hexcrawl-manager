@@ -99,16 +99,28 @@ Result:
    - If a pillar has AP events, set `delta = 1`; otherwise `delta = 0`.
    - Each AP event carries `{ number, maxTier }`; if `maxTier` is missing, **treat as 1**.
    - (Optional/future) If a log AP event includes a short label/justification, propagate it to `note`.
-7) **Apply tier gating per character (tier derived from level):**
-   - Derive the character’s **tier T** from **level**: 1–4→T1, 5–10→T2, 11–16→T3, 17–20→T4. If level missing, use **T1**.
-   - For each pillar, partition its events by whether **T ≤ event.maxTier**:
-     - **Eligible events** (T ≤ maxTier): contribute their `number` to the pillar sum.
-     - **Over-tier events** (T > maxTier):
-       - **Sessions ≤ 0019:** include them in the sum and mark pillar `reason = "grandfathered"`.
-       - **Sessions ≥ 0020:** **exclude** them from the sum.
-   - **Reason selection:**
-     - ≤0019: if any over-tier event contributed ⇒ `"grandfathered"`, else `"normal"`.
-     - ≥0020: if any over-tier event was excluded ⇒ `"cap"`, else `"normal"`.
+7) **Pillar award (binary)** — single session
+   For each character and each pillar (`combat`, `exploration`, `social`):
+   - **Era gating**
+     - **Sessions ≤ 0019 (grandfather era)**
+       - Treat **all** events as eligible (even over-tier).
+       - **delta = 1** if there is **any** event for that pillar; otherwise **0**.
+       - **reason**:
+         - `"grandfathered"` if **any** over-tier event exists for that pillar,
+         - otherwise `"normal"`.
+   - **Sessions ≥ 0020 (cap era)**
+     - Consider **only** events where `characterTier ≤ event.maxTier` (default `maxTier = 1` if missing).
+     - **delta = 1** if there is **any eligible** event; otherwise **0**.
+     - **reason**:
+       - `"cap"` if **any** events existed for that pillar but were **excluded** for tier (i.e., there was at least one over-tier event),
+       - otherwise `"normal"`.
+   - **Tier source**: derive from **level** (1–4→T1, 5–10→T2, 11–16→T3, 17–20→T4; missing level ⇒ T1).
+   - **Multiple events in one pillar**: still **at most 1 AP**. Ignore `ap.number` magnitudes or sum; the award is binary. (You may still log event numbers for auditing, but they don’t affect `delta`.)
+   - **Note selection (optional)**: if you keep a `note`, take the **last applicable** event’s note for that pillar:
+     - ≥0020: last **eligible** event’s note; if no eligible events (delta=0), no note.
+     - ≤0019: last event’s note; if any over-tier existed and set reason to `"grandfathered"`, it’s fine if the note comes from an over-tier event.
+   - **Attendance scope**: evaluate awards for **all session attendees**, regardless of whether they were present at the exact timestamp of the event.
+   - **No events at all for a pillar**: `{ delta: 0, reason: "normal" }`.
 8) **Idempotency check:** if a completed report already exists with identical `{ sessionId, sorted scribeIds }` → **no-op** success.
 9) **Write outputs:**
    - **Completed session report** (`data/session-reports/session-####.yaml`)
