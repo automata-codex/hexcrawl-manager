@@ -1,23 +1,18 @@
+import { tierFromLevel } from '../../shared-lib/tier-from-level.ts';
+
+import type { ApReason, Pillar, Tier } from '../../../../lib/types.ts';
 import type { Event } from '../../scribe/types.ts';
 
-type Pillar = "combat" | "exploration" | "social";
-type LedgerReason = "normal" | "grandfathered" | "cap";
-
-type LedgerPerPillar = { delta: 0 | 1; reason: LedgerReason };
+type LedgerPerPillar = { delta: 0 | 1; reason: ApReason };
 type LedgerResults = Record<string, Record<Pillar, LedgerPerPillar>>;
 
 type ReportAdvancementPoints = {
-  combat: { number: 0 | 1; maxTier: 1 | 2 | 3 | 4 };
-  exploration: { number: 0 | 1; maxTier: 1 | 2 | 3 | 4 };
-  social: { number: 0 | 1; maxTier: 1 | 2 | 3 | 4 };
+  combat: { number: 0 | 1; maxTier: Tier };
+  exploration: { number: 0 | 1; maxTier: Tier };
+  social: { number: 0 | 1; maxTier: Tier };
 };
 
-function tierFromLevel(level: number): 1 | 2 | 3 | 4 {
-  if (level >= 17) return 4;
-  if (level >= 11) return 3;
-  if (level >= 5) return 2;
-  return 1;
-}
+type Work = { hadEligible: boolean; hadAny: boolean; hadOverTier: boolean };
 
 export function computeApForSession(
   events: Event[],
@@ -35,14 +30,13 @@ export function computeApForSession(
     exploration: false,
     social: false,
   };
-  const maxSeenTierByPillar: Record<Pillar, 1 | 2 | 3 | 4> = {
+  const maxSeenTierByPillar: Record<Pillar, Tier> = {
     combat: 1,
     exploration: 1,
     social: 1,
   };
 
   // Per-character, per-pillar state for eligibility/reasons (for the ledger)
-  type Work = { hadEligible: boolean; hadAny: boolean; hadOverTier: boolean };
   const initWork = (): Work => ({ hadEligible: false, hadAny: false, hadOverTier: false });
 
   const work: Record<string, Record<Pillar, Work>> = {};
@@ -57,7 +51,7 @@ export function computeApForSession(
   // Accumulate
   for (const e of events) {
     const pillar = e.payload.pillar as Pillar;
-    const maxTier = (e.payload.tier ?? 1) as 1 | 2 | 3 | 4;
+    const maxTier = (e.payload.tier ?? 1) as Tier;
 
     hadAnyByPillar[pillar] = true;
     if (maxTier > maxSeenTierByPillar[pillar]) {
