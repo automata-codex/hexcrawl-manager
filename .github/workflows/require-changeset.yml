@@ -27,7 +27,13 @@ jobs:
       - name: Skip if only non-code paths changed (adjust as needed)
         id: scope
         run: |
-          echo "${{ steps.diff.outputs.files }}" | grep -E '^(apps/|cli/|data/|lib/|packages/|schemas/|scripts/|src/)' >/dev/null && echo "check=true" || echo "check=false"
+          if echo "${{ steps.diff.outputs.files }}" | grep -E '^(apps/|cli/|data/|lib/|packages/|schemas/|scripts/|src/)' >/dev/null; then
+            echo "check=true" >> "$GITHUB_OUTPUT"
+            echo "Detected code-path changes -> check=true"
+          else
+            echo "check=false" >> "$GITHUB_OUTPUT"
+            echo "No code-path changes -> check=false"
+          fi
         shell: bash
         continue-on-error: true
 
@@ -35,6 +41,7 @@ jobs:
         if: steps.scope.outcome == 'success' && steps.scope.outputs.check != ''
         run: |
           # Count new/modified changeset markdown files in this PR
+          git fetch origin ${{ github.base_ref }} --depth=1
           COUNT="$(git diff --name-only --diff-filter=AMR origin/${{ github.base_ref }}...HEAD -- .changeset/*.md 2>/dev/null | wc -l | xargs)"
           if [ "$COUNT" -eq 0 ]; then
             echo "::error title=Missing changeset::This PR changes code but adds no .changeset/*.md file."
