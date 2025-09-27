@@ -14,6 +14,11 @@ export type SkyreachConfig = z.infer<typeof ConfigSchema>;
 
 let cachedConfig: SkyreachConfig | null = null;
 
+/**
+ * Load and validate the skyreach.config.json file. Caches the result after the
+ * first load.
+ * @returns The parsed config or null if not found/invalid.
+ */
 export function loadConfig(): SkyreachConfig | null {
   if (cachedConfig) return cachedConfig;
 
