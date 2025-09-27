@@ -1,13 +1,19 @@
 {
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
+    "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@skyreach/cli-kit": ["packages/cli-kit/src/index.ts"],
+      "@skyreach/core":    ["packages/core/src/index.ts"],
+      "@skyreach/data":    ["packages/data/src/index.ts"]
+    },
     "plugins": [
       {
         "name": "@astrojs/ts-plugin"
       }
     ],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
     "strict": true,
     "skipLibCheck": true
   },

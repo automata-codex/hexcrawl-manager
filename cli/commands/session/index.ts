@@ -1,9 +1,8 @@
+import { getRepoPath } from '@skyreach/cli-kit';
 import { Command } from 'commander';
 import fs from 'fs';
 import path from 'path';
-import yaml from 'yaml';
 
-import { getRepoPath } from '../../../lib/repo';
 import { SessionReportSchema } from '../../../schemas/session-report.js';
 import { pad, writeYamlAtomic } from '../shared-lib';
 import { loadMeta } from '../shared-lib/meta.ts';

@@ -8,11 +8,11 @@
     "astro": "astro",
     "build": "npm run -ws build",
     "build:clue-links": "bash scripts/clue-linker/setup_virtualenv.sh && scripts/clue-linker/.venv-clue-linker/bin/python scripts/clue-linker/generate-clue-links.py",
-    "build:packages": "tsc -p tsconfig.workspace.json -b",
+    "build:packages": "tsc -b tsconfig.workspace.json",
     "build:web": "astro check && npm run gen-json-schema && npm run build:clue-links && astro build",
     "changeset": "changeset",
     "check": "astro check",
-    "clean:packages": "tsc -p tsconfig.workspace.json --clean",
+    "clean:packages": "tsc -b tsconfig.workspace.json --clean",
     "clean:tests": "rm -rf .test-repos",
     "cli": "tsx cli/skyreach.ts",
     "clue-linker:setup": "bash scripts/clue-linker/setup_virtualenv.sh",
@@ -30,7 +30,7 @@
     "test": "npm run -ws test",
     "test:scribe": "vitest run ./cli/commands/scribe/**/*.spec.ts",
     "test:scribe:watch": "vitest --watch ./cli/commands/scribe/**/*.spec.ts",
-    "typecheck": "tsc -p tsconfig.workspace.json -b"
+    "typecheck": "tsc -b tsconfig.workspace.json"
   },
   "type": "module",
   "volta": {
