@@ -1,0 +1,10 @@
+{
+  "entryPoints": [
+    "packages/core/src/index.ts",
+    "packages/data/src/index.ts",
+    "packages/cli-kit/src/index.ts"
+  ],
+  "out": "_reports/typedoc/site",
+  "json": "_reports/typedoc/typedoc.json",
+  "excludeExternals": true
+}

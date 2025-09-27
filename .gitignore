@@ -32,3 +32,4 @@ pnpm-debug.log*
 /scripts/elevation-solver/.venv-elevation-solver/
 /data/session-logs/_dev
 /.test-repos/
+/_reports/

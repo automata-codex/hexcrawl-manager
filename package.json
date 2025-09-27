@@ -17,6 +17,8 @@
     "cli": "tsx cli/skyreach.ts",
     "clue-linker:setup": "bash scripts/clue-linker/setup_virtualenv.sh",
     "dev": "astro dev --host",
+    "docs": "typedoc --options typedoc.json",
+    "docs:json": "typedoc --options typedoc.json --json _reports/typedoc/typedoc.json",
     "elevation:run": "bash scripts/elevation-solver/setup_virtualenv.sh && scripts/elevation-solver/.venv-elevation-solver/bin/python scripts/elevation-solver/elevation_solver.py",
     "elevation:setup": "bash scripts/elevation-solver/setup_virtualenv.sh",
     "format": "prettier --check .",
@@ -93,6 +95,7 @@
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-svelte": "^3.4.0",
     "tsx": "^4.19.4",
+    "typedoc": "^0.28.13",
     "vitest": "^3.2.4",
     "yaml": "^2.7.1",
     "zod-to-json-schema": "^3.24.5"
