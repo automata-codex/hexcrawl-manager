@@ -4,6 +4,7 @@
   "description": "Campaign manager and data for _Beyond the Skyreach Mountains_",
   "private": true,
   "scripts": {
+    "arch:check": "depcruise \"cli/**/*.ts\" \"packages/**/*.ts\" \"src/**/*.ts\" --config .dependency-cruiser.cjs",
     "astro": "astro",
     "build": "npm run -ws build",
     "build:clue-links": "bash scripts/clue-linker/setup_virtualenv.sh && scripts/clue-linker/.venv-clue-linker/bin/python scripts/clue-linker/generate-clue-links.py",
@@ -32,6 +33,10 @@
     "typecheck": "tsc -p tsconfig.workspace.json -b"
   },
   "type": "module",
+  "volta": {
+    "node": "22.20.0",
+    "npm": "11.6.1"
+  },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/mdx": "^4.2.6",
@@ -73,6 +78,7 @@
     "@types/prompts": "^2.4.9",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
+    "dependency-cruiser": "^17.0.1",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^1.3.1",
