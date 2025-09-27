@@ -1,4 +1,4 @@
-import { getRepoPath } from '@skyreach/cli-kit';
+import { resolveDataPath } from '@skyreach/data';
 import { Command } from 'commander';
 import fs from 'fs';
 import path from 'path';
@@ -29,7 +29,7 @@ export const sessionCommand = new Command('session')
     const sessionId = `session-${pad(nextSessionSeq)}`;
 
     // Step 3: Determine Output Path
-    const sessionReportsDir = getRepoPath('data', 'session-reports');
+    const sessionReportsDir = resolveDataPath('session-reports'); // TODO This should use REPO_PATHS
     const outPath = path.join(sessionReportsDir, `${sessionId}.yaml`);
 
     // Step 4: Check for Existing File

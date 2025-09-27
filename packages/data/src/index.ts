@@ -1,1 +1,1 @@
-// public API for IO + validation (fill in later)
+export { resolveDataPath } from "./paths";
