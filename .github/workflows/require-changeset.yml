@@ -27,7 +27,7 @@ jobs:
       - name: Skip if only non-code paths changed (adjust as needed)
         id: scope
         run: |
-          echo "${{ steps.diff.outputs.files }}" | grep -E '^(packages/|apps/|src/|lib/)' >/dev/null && echo "check=true" || echo "check=false"
+          echo "${{ steps.diff.outputs.files }}" | grep -E '^(apps/|cli/|data/|lib/|packages/|schemas/|scripts/|src/)' >/dev/null && echo "check=true" || echo "check=false"
         shell: bash
         continue-on-error: true
 
