@@ -1,12 +1,12 @@
+import { getRepoPath } from '@skyreach/cli-kit';
+import { SessionReportSchema } from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
 import { glob } from 'glob';
 import path from 'path';
 import yaml from 'yaml';
 
-import { getRepoPath } from '../../../../../lib/repo';
 import pkg from '../../../../../package.json' assert { type: 'json' };
-import { SessionReportSchema } from '../../../../../schemas/session-report.js';
 import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
 import { eventsOf, pad, writeYamlAtomic } from '../../../shared-lib';
 import { REPO_PATHS } from '../../../shared-lib/constants';

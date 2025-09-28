@@ -1,0 +1,5 @@
+# Variable: MapPathSchema
+
+> `const` **MapPathSchema**: `ZodObject`\<\{ `id`: `ZodString`; `label`: `ZodOptional`\<`ZodString`\>; `points`: `ZodArray`\<`ZodString`, `"many"`\>; `segmentMetadata`: `ZodOptional`\<`ZodRecord`\<`ZodString`, `ZodObject`\<\{ `impedesTravel`: `ZodOptional`\<`ZodBoolean`\>; \}, `"strip"`, `ZodTypeAny`, \{ `impedesTravel?`: `boolean`; \}, \{ `impedesTravel?`: `boolean`; \}\>\>\>; `type`: `ZodEnum`\<\[`"river"`, `"unused-river"`, `"conduit"`, `"trail"`\]\>; \}, `"strip"`, `ZodTypeAny`, \{ `id`: `string`; `label?`: `string`; `points`: `string`[]; `segmentMetadata?`: `Record`\<`string`, \{ `impedesTravel?`: `boolean`; \}\>; `type`: `"river"` \| `"unused-river"` \| `"conduit"` \| `"trail"`; \}, \{ `id`: `string`; `label?`: `string`; `points`: `string`[]; `segmentMetadata?`: `Record`\<`string`, \{ `impedesTravel?`: `boolean`; \}\>; `type`: `"river"` \| `"unused-river"` \| `"conduit"` \| `"trail"`; \}\>
+
+Defined in: [packages/schemas/src/schemas/map-path.ts:35](https://github.com/alexgs/skyreach/blob/develop/packages/schemas/src/schemas/map-path.ts#L35)

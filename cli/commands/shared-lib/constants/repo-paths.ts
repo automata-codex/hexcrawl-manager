@@ -1,7 +1,6 @@
+import { getRepoPath } from '@skyreach/cli-kit';
 import fs from 'fs';
 import path from 'path';
-
-import { getRepoPath } from '../../../../lib/repo';
 
 export const REPO_PATHS = {
   CHARACTERS: () => getRepoPath('data', 'characters'),

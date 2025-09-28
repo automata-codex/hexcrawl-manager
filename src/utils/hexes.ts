@@ -1,14 +1,10 @@
-import { hexSort as hexIdSort } from '../../lib/hexes/hex-sort.ts';
+import { hexSort as hexIdSort } from '@skyreach/core';
 
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
 
-import type {
-  ExtendedHexData,
-  ExtendedTreasureData,
-  HexData,
-  HiddenSitesData,
-} from '../types.ts';
+import type { ExtendedHexData, ExtendedTreasureData } from '../types.ts';
+import type { HexData, HiddenSitesData } from '@skyreach/schemas';
 
 export function getHexSvgPath(x: number, y: number, hexWidth: number): string {
   const size = hexWidth / 2;

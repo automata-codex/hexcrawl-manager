@@ -1,8 +1,7 @@
+import { getRepoRoot } from '@skyreach/cli-kit';
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
-
-import { getRepoRoot } from '../../../lib/repo';
 
 import { ensureRepoDirs, REPO_PATHS } from './constants/repo-paths';
 import { getTestRepoBase, TEST_REPO_SENTINEL } from './get-test-repo-base';

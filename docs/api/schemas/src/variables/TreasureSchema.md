@@ -1,0 +1,5 @@
+# Variable: TreasureSchema
+
+> `const` **TreasureSchema**: `ZodObject`\<\{ `name`: `ZodString`; `notes`: `ZodOptional`\<`ZodString`\>; `rarity`: `ZodOptional`\<`ZodEnum`\<\[`"common"`, `"uncommon"`, `"rare"`, `"very rare"`, `"legendary"`, `"artifact"`\]\>\>; `type`: `ZodEnum`\<\[`"art"`, `"currency"`, `"magic-item"`, `"relic"`, `"salvage"`\]\>; `value`: `ZodOptional`\<`ZodNumber`\>; \}, `"strip"`, `ZodTypeAny`, \{ `name`: `string`; `notes?`: `string`; `rarity?`: `"common"` \| `"uncommon"` \| `"rare"` \| `"very rare"` \| `"legendary"` \| `"artifact"`; `type`: `"art"` \| `"currency"` \| `"magic-item"` \| `"relic"` \| `"salvage"`; `value?`: `number`; \}, \{ `name`: `string`; `notes?`: `string`; `rarity?`: `"common"` \| `"uncommon"` \| `"rare"` \| `"very rare"` \| `"legendary"` \| `"artifact"`; `type`: `"art"` \| `"currency"` \| `"magic-item"` \| `"relic"` \| `"salvage"`; `value?`: `number`; \}\>
+
+Defined in: [packages/schemas/src/schemas/treasure.ts:3](https://github.com/alexgs/skyreach/blob/develop/packages/schemas/src/schemas/treasure.ts#L3)

@@ -10,7 +10,8 @@ import {
   getRegionTitle,
 } from '../../../../utils/regions';
 
-import type { ExtendedHexData, HexData, HexEntry } from '../../../../types';
+import type { ExtendedHexData, HexEntry } from '../../../../types';
+import type { HexData } from '@skyreach/schemas';
 
 const { id: regionId } = Astro.params;
 if (!regionId) {

@@ -2,9 +2,9 @@
   import { faSidebar, faXmark } from '@fortawesome/pro-light-svg-icons';
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+  import { parseTrailId } from '@skyreach/core';
   import { onMount } from 'svelte';
 
-  import { parseTrailId } from '../../../lib/trails';
   import {
     getDungeonPath,
     getHexPath,
@@ -25,7 +25,7 @@
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { TrailData, TrailEntry } from '../../types.ts';
+  import type { TrailEntry } from '@skyreach/schemas';
 
   interface Props {
     dungeons: DungeonEssentialData[];
@@ -40,7 +40,7 @@
     lastSeasonTouched: string;
   }
 
-  const { dungeons, hexes, mapPaths, role }: Props = $props();
+  const { dungeons, hexes, role }: Props = $props();
 
   let isOpen = $state(!!$selectedHex);
   let trails: TrailEntry[] = $state([]);
@@ -94,6 +94,8 @@
       lastSeasonTouched: trail.lastSeasonTouched,
     };
   }
+
+  /* eslint-disable svelte/no-useless-mustaches */
 </script>
 
 <!-- Toggle Button -->

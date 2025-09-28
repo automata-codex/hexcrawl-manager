@@ -8,7 +8,7 @@
     CharacterData,
     EncounterData,
     StatBlockData,
-  } from '../../types.ts';
+  } from '@skyreach/schemas';
 
   interface Props {
     characters: CharacterData[];

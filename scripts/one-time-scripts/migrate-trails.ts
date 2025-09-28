@@ -1,8 +1,8 @@
+import { getRepoPath } from '@skyreach/cli-kit';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import * as yaml from 'yaml';
 
-import { getRepoPath } from '../../lib/repo';
 
 const INPUT_DIR = getRepoPath('data', 'trails');
 const OUTPUT_FILE = getRepoPath('data', 'trails.yml');

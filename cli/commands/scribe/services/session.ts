@@ -1,8 +1,8 @@
+import { hexSort, normalizeHexId } from '@skyreach/core';
 import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
 
-import { hexSort, normalizeHexId } from '../../../../lib/hexes';
 import { pad } from '../../shared-lib';
 import { REPO_PATHS } from '../../shared-lib/constants';
 import { loadMeta, saveMeta } from '../../shared-lib/meta.ts';

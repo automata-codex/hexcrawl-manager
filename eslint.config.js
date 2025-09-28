@@ -34,8 +34,11 @@ export default defineConfig([
       '.astro/**',
       '.build/**',
       '.svelte-kit/**',
+      '.vercel/**',
+      '_reports/**',
       'coverage/**',
       'dist/**',
+      'packages/**/dist/**',
       'node_modules/**',
       'scripts/clue-linker/.venv-clue-linker/**',
       'scripts/elevation-solver/.venv-clue-linker/**',
@@ -64,13 +67,14 @@ export default defineConfig([
     },
   },
 
-  // 5) CLI & Scripts (Node) — give Node globals like `process`, `__dirname`, etc.
+  // 5) CLI, packages, & Scripts (Node) — give Node globals like `console`, `process`, `__dirname`
   {
     files: [
       'cli/**/*.{js,ts}',
       'scripts/**/*.{js,ts}',
       'schemas/**/*.{js,ts}',
       'lib/**/*.{js,ts}',
+      'packages/**/src/**/*.{js,ts}',
     ],
     languageOptions: {
       globals: {
@@ -82,9 +86,10 @@ export default defineConfig([
         // project: ["cli/tsconfig.json"],
       },
     },
-    // example TypeScript rules for the CLI
     rules: {
       'import/order': importOrder,
+      // Allow console usage in Node code (CLIs, scripts, packages)
+      'no-console': 'off',
     },
   },
 
@@ -103,6 +108,8 @@ export default defineConfig([
     // Import ordering across web files
     rules: {
       'import/order': importOrder,
+      // Keep console mostly clean on the web; change to 'off' if you prefer
+      'no-console': 'warn',
     },
   },
 
@@ -133,6 +140,8 @@ export default defineConfig([
     },
     rules: {
       'import/order': importOrder,
+      'svelte/no-at-html-tags': 'off',
+      'svelte/no-navigation-without-resolve': 'off',
     },
   },
 
@@ -152,6 +161,6 @@ export default defineConfig([
     },
   },
 
-  // 9) Put Prettier last to disable conflicting stylistic rules
+  // 10) Put Prettier last to disable conflicting stylistic rules
   prettier,
 ]);

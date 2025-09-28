@@ -4,7 +4,8 @@ import yaml from 'yaml';
 import { REPO_PATHS } from './constants';
 import { writeYamlAtomic } from './index';
 
-import type { MetaData } from '../../../src/types';
+
+import type { MetaData } from '@skyreach/schemas';
 
 /**
  * Loads the meta.yaml file and returns its contents as MetaData.

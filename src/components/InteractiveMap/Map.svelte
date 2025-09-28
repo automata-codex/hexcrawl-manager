@@ -4,11 +4,11 @@
     faMagnifyingGlassArrowsRotate,
   } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+  import { isValidHexId } from '@skyreach/core';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
 
-  import { isValidHexId } from '../../../lib/hexes';
   import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import {
     applyZoomAtCenter,
@@ -42,7 +42,7 @@
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { KnownTag } from '../../types.ts';
+  import type { KnownTag } from '@skyreach/schemas';
 
   interface Props {
     role: string | null;

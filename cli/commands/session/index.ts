@@ -1,10 +1,9 @@
+import { resolveDataPath } from '@skyreach/data';
+import { SessionReportSchema } from '@skyreach/schemas';
 import { Command } from 'commander';
 import fs from 'fs';
 import path from 'path';
-import yaml from 'yaml';
 
-import { getRepoPath } from '../../../lib/repo';
-import { SessionReportSchema } from '../../../schemas/session-report.js';
 import { pad, writeYamlAtomic } from '../shared-lib';
 import { loadMeta } from '../shared-lib/meta.ts';
 
@@ -30,7 +29,7 @@ export const sessionCommand = new Command('session')
     const sessionId = `session-${pad(nextSessionSeq)}`;
 
     // Step 3: Determine Output Path
-    const sessionReportsDir = getRepoPath('data', 'session-reports');
+    const sessionReportsDir = resolveDataPath('session-reports'); // TODO This should use REPO_PATHS
     const outPath = path.join(sessionReportsDir, `${sessionId}.yaml`);
 
     // Step 4: Check for Existing File

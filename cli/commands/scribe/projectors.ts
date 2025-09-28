@@ -2,7 +2,7 @@
  PROJECTORS: Derive current state from the event log (date, hex, party, weather, etc.)
  */
 
-import { normalizeHexId } from '../../../lib/hexes';
+import { normalizeHexId } from '@skyreach/core';
 
 import { datesEqual } from './lib/date.ts';
 

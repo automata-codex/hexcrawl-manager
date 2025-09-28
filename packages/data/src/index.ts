@@ -1,0 +1,1 @@
+export { resolveDataPath } from './paths';
