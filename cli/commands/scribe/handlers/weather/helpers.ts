@@ -1,5 +1,6 @@
 import { clamp } from '@skyreach/cli-kit';
-import { CALENDAR_CONFIG, rollDice } from '@skyreach/core';
+import { CALENDAR_CONFIG } from '@skyreach/core';
+import { rollDice } from '@skyreach/data';
 
 import { DESCRIPTOR_LIBRARY } from '../../config/descriptor-library.config.ts';
 import { DETAIL_TABLES } from '../../config/detail-tables.config.ts';

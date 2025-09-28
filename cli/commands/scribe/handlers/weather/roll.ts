@@ -1,6 +1,5 @@
-import { info } from '@skyreach/cli-kit';
-import { clamp } from '@skyreach/cli-kit';
-import { rollDice } from '@skyreach/core';
+import { clamp, info } from '@skyreach/cli-kit';
+import { rollDice } from '@skyreach/data';
 
 import { lastCalendarDate, selectCurrentForecast } from '../../projectors.ts';
 import { readEvents } from '../../services/event-log.ts';

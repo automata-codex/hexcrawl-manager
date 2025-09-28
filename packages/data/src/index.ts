@@ -7,4 +7,5 @@ export { loadConfig } from './load-config';
 export * from './meta';
 export { resolveDataPath } from './paths';
 export { REPO_PATHS, ensureRepoDirs } from './repo-paths';
+export { rollDice } from './roll-dice';
 export { writeYamlAtomic } from './write-yaml-atomic';
