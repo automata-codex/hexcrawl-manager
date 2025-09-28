@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { pickNextSessionId } from './pick-next-session-id.ts';
+import { pickNextSessionId } from './pick-next-session-id';
 
 describe('pickNextSessionIdAuto', () => {
   it('picks the smallest available > max completed', () => {

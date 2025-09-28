@@ -6,7 +6,8 @@ import { normalizeHexId } from '@skyreach/core';
 
 import { datesEqual } from './lib/date.ts';
 
-import type { CanonicalDate, Event, WeatherCommitted } from './types';
+import type { CanonicalDate, WeatherCommitted } from './types';
+import type { Event } from '@skyreach/cli-kit';
 
 // Sum ALL time segments (daylight + night) since the last day_start
 export function activeSegmentsSinceStart(events: Event[], startIdx: number) {

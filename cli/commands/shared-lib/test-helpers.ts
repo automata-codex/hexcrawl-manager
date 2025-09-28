@@ -1,12 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { type Event } from '../scribe/types';
-
-export function eventsOf(events: Event[], kind: string): Event[] {
-  return events.filter((e) => e.kind === kind);
-}
-
 export function findSessionFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) {
     return [];

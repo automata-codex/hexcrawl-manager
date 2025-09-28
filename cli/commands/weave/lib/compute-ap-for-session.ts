@@ -1,7 +1,7 @@
 import { tierFromLevel } from '../../shared-lib/tier-from-level.ts';
 
-import type { Event } from '../../scribe/types.ts';
 import type { ApReason, Pillar, Tier } from '@skyreach/schemas';
+import type { Event } from '@skyreach/cli-kit';
 
 type LedgerPerPillar = { delta: 0 | 1; reason: ApReason };
 type LedgerResults = Record<string, Record<Pillar, LedgerPerPillar>>;

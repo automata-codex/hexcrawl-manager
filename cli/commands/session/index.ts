@@ -4,8 +4,8 @@ import { Command } from 'commander';
 import fs from 'fs';
 import path from 'path';
 
-import { pad } from '../shared-lib';
 import { loadMeta } from '../shared-lib/meta.ts';
+import { pad } from '@skyreach/cli-kit';
 
 export const sessionCommand = new Command('session')
   .description('Bootstrap a new planned session report')

@@ -1,5 +1,5 @@
 // Pick next session id (Option R)
-import { pad } from './string.ts';
+import { pad } from './pad';
 
 export function pickNextSessionId(completed: number[], availableWithLogs: number[]): string {
   const maxCompleted = completed.length ? Math.max(...completed) : 0;

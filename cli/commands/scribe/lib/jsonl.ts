@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import type { Event } from '../types';
+
+import type { Event } from '@skyreach/cli-kit';
 
 export function readJsonl(p: string): Event[] {
   if (!fs.existsSync(p)) return [];

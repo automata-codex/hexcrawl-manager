@@ -17,7 +17,8 @@ import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { loadHavens, loadTrails } from '../lib/state';
 import { validateSessionEnvelope } from '../lib/validate';
 
-import type { Event } from '../../scribe/types';
+
+import type { Event } from '@skyreach/cli-kit';
 
 export async function plan(fileArg?: string) {
   const meta = loadMeta();

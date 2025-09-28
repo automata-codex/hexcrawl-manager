@@ -1,4 +1,4 @@
-import { getRepoPath } from '@skyreach/cli-kit';
+import { eventsOf, getRepoPath } from '@skyreach/cli-kit';
 import { SessionReportSchema } from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -8,10 +8,9 @@ import yaml from 'yaml';
 
 import pkg from '../../../../../package.json' assert { type: 'json' };
 import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
-import { eventsOf, pad } from '../../../shared-lib';
 import { REPO_PATHS } from '@skyreach/data';
 import { isGitDirty } from '@skyreach/data';
-import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
+import { pad, pickNextSessionId } from '@skyreach/cli-kit';
 import { sortScribeIds } from '../../../shared-lib/sort-scribe-ids';
 import { computeApForSession } from '../../lib/compute-ap-for-session.ts';
 

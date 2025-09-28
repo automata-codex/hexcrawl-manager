@@ -44,13 +44,6 @@ export type DetailTables = Record<Season, DetailTable>;
 // Weather effects
 export type EffectsTable = Record<WeatherCategory, WeatherEffects>;
 
-export type Event = {
-  seq: number; // 1..N within the file
-  ts: string; // ISO timestamp
-  kind: string; // "move" | "scout" | ...
-  payload: Record<string, unknown>;
-};
-
 export type ForecastModifierTable = Record<WeatherCategory, number>;
 
 export type LeapRule = {

@@ -3,13 +3,13 @@ import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
 
-import { pad } from '../../shared-lib';
 import { REPO_PATHS } from '@skyreach/data';
 import { loadMeta, saveMeta } from '../../shared-lib/meta.ts';
 import { requireFile, requireSession } from '../lib/guards.ts';
-import { type CanonicalDate, type Context, type Event } from '../types';
+import { type CanonicalDate, type Context } from '../types';
 
 import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
+import type { Event, pad } from '@skyreach/cli-kit';
 
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =
