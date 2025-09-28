@@ -1,4 +1,4 @@
-import { getRepoPath } from '@skyreach/cli-kit';
+import { getRepoPath } from '@skyreach/data';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import * as yaml from 'yaml';
