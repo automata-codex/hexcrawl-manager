@@ -1,6 +1,6 @@
+import { parseTrailId } from '@skyreach/core';
 import { getCollection } from 'astro:content';
 
-import { parseTrailId } from '../../../lib/trails';
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE } from '../../utils/constants.ts';
 
