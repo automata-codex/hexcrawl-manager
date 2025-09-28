@@ -47,3 +47,5 @@ export const ApLedgerEntrySchema = z.discriminatedUnion('kind', [
   AbsenceSpendEntrySchema,
   SessionApEntrySchema,
 ]);
+
+export type ApReason = z.infer<typeof ApReasonSchema>;

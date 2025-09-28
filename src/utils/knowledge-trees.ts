@@ -1,8 +1,7 @@
+import { KnowledgeNodeSchema } from '@skyreach/schemas';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
-
-import { KnowledgeNodeSchema } from '../../schemas/knowledge-node';
 
 import type {
   FlatKnowledgeTree,
