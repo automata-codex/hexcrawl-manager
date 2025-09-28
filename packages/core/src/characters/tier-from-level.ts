@@ -1,5 +1,10 @@
-// Derive AP tier from character level
-export function tierFromLevel(level?: number): 1|2|3|4 {
+import { Tier } from '@skyreach/schemas';
+
+/**
+ * Derive character tier from character level
+ * @param level
+ */
+export function tierFromLevel(level?: number): Tier {
   if (level === undefined) return 1;
   if (level >= 1 && level <= 4) return 1;
   if (level >= 5 && level <= 10) return 2;

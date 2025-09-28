@@ -1,12 +1,12 @@
 import { error, info, usage, warn } from '@skyreach/cli-kit';
 import { getHexNeighbors, isValidHexId, normalizeHexId } from '@skyreach/core';
-import { PACES } from '@skyreach/schemas';
+import { PACES, type Pace } from '@skyreach/schemas';
 
 import { selectCurrentHex, isPartyLost } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
 import { requireSession } from '../services/general.ts';
 
-import type { Context, Pace } from '../types';
+import type { Context } from '../types';
 
 export default function move(ctx: Context) {
   return (args: string[]) => {
@@ -23,7 +23,7 @@ export default function move(ctx: Context) {
     let pace: Pace = 'normal';
 
     for (let i = 1; i < args.length; i++) {
-      const arg = args[i].toLowerCase();
+      const arg = args[i].toLowerCase() as Pace | 'lost';
       if (arg === 'lost') {
         lostFlag = true;
       } else if (PACES.includes(arg)) {
