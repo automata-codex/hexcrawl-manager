@@ -1,9 +1,8 @@
-import { getRepoRoot } from '@skyreach/data';
+import { REPO_PATHS, ensureRepoDirs, getRepoRoot } from '@skyreach/data';
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
 
-import { ensureRepoDirs, REPO_PATHS } from '@skyreach/data';
 import { getTestRepoBase, TEST_REPO_SENTINEL } from './get-test-repo-base';
 
 async function fileExists(p: string) {

@@ -1,8 +1,9 @@
 import { info, warn } from '@skyreach/cli-kit';
+
 import { readEvents } from '../services/event-log.ts';
+import { requireFile } from '../services/general.ts';
 
 import type { Context } from '../types';
-import { requireFile } from '../services/general.ts';
 
 export default function view(ctx: Context) {
   return (args: string[]) => {

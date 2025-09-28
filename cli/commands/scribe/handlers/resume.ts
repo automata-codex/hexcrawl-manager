@@ -1,15 +1,15 @@
+import { error, info, warn } from '@skyreach/cli-kit';
 import { existsSync } from 'node:fs';
 
-import { error, info, warn } from '@skyreach/cli-kit';
 import { selectCurrentHex } from '../projectors.ts';
 import { readEvents } from '../services/event-log.ts';
+import { detectDevMode } from '../services/general.ts';
 import {
   findLatestInProgress,
   inProgressPathFor,
 } from '../services/session.ts';
 
 import type { Context } from '../types';
-import { detectDevMode } from '../services/general.ts';
 
 export default function resume(ctx: Context) {
   return (args: string[]) => {

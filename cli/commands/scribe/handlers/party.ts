@@ -1,10 +1,11 @@
 import { error, info, usage, warn } from '@skyreach/cli-kit';
+
 import { selectParty } from '../projectors.ts';
 import { getAllCharacterIds } from '../services/character';
 import { appendEvent, readEvents } from '../services/event-log';
+import { requireSession } from '../services/general.ts';
 
 import type { Context } from '../types';
-import { requireSession } from '../services/general.ts';
 
 export default function party(ctx: Context) {
   return async (args: string[]) => {

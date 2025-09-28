@@ -1,8 +1,11 @@
 
-import { rollDice } from '@skyreach/core';
 import { info } from '@skyreach/cli-kit';
+import { clamp } from '@skyreach/cli-kit';
+import { rollDice } from '@skyreach/core';
+
 import { lastCalendarDate, selectCurrentForecast } from '../../projectors.ts';
 import { readEvents } from '../../services/event-log.ts';
+import { requireFile, requireSession } from '../../services/general.ts';
 
 import {
   bandForTotal,
@@ -15,10 +18,8 @@ import {
 } from './helpers.ts';
 
 import type { Context } from '../../types.ts';
-import type { CampaignDate } from '@skyreach/schemas';
 import type { Season, WeatherCategory, WeatherDraft } from '@skyreach/core';
-import { clamp } from '@skyreach/cli-kit';
-import { requireFile, requireSession } from '../../services/general.ts';
+import type { CampaignDate } from '@skyreach/schemas';
 
 export default function weatherRoll(ctx: Context) {
   if (!requireSession(ctx)) {

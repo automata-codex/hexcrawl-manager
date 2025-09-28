@@ -1,8 +1,9 @@
 import { info } from '@skyreach/cli-kit';
+
 import { readEvents, writeEvents } from '../services/event-log.ts';
+import { requireFile } from '../services/general.ts';
 
 import type { Context } from '../types';
-import { requireFile } from '../services/general.ts';
 
 export default function undo(ctx: Context) {
   return (args: string[]) => {

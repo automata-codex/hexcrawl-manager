@@ -1,9 +1,3 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { describe, it, expect } from 'vitest';
-import yaml from 'yaml';
-
-import { readJsonl, REPO_PATHS } from '@skyreach/data';
 import {
   type Event,
   eventsOf,
@@ -12,6 +6,12 @@ import {
   runScribe,
   withTempRepo,
 } from '@skyreach/cli-kit';
+import { readJsonl, REPO_PATHS } from '@skyreach/data';
+import fs from 'node:fs';
+import path from 'node:path';
+import { describe, it, expect } from 'vitest';
+import yaml from 'yaml';
+
 
 describe('scribe start', () => {
   it('emits exactly one session_start with the requested startHex and writes a minimal valid log', async () => {

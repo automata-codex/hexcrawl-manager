@@ -1,5 +1,6 @@
-import { segmentsToHours } from '@skyreach/core';
 import { info } from '@skyreach/cli-kit';
+import { segmentsToHours } from '@skyreach/core';
+
 import {
   activeSegmentsSinceStart,
   daylightSegmentsSinceStart,
@@ -8,9 +9,9 @@ import {
   selectCurrentHex,
 } from '../projectors.ts';
 import { readEvents } from '../services/event-log';
+import { requireFile } from '../services/general.ts';
 
 import type { Context } from '../types';
-import { requireFile } from '../services/general.ts';
 
 export default function status(ctx: Context) {
   return (_args: string[]) => {

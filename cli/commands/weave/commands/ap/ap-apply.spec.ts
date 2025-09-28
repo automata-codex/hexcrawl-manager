@@ -1,9 +1,9 @@
+import { type Event, runWeave, withTempRepo } from '@skyreach/cli-kit';
+import { REPO_PATHS } from '@skyreach/data';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
-import { REPO_PATHS } from '@skyreach/data';
-import { type Event, runWeave, withTempRepo } from '@skyreach/cli-kit';
 
 const events: Event[] = [
   {

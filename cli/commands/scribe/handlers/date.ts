@@ -1,9 +1,10 @@
 import { info, usage, error } from '@skyreach/cli-kit';
+
 import { isDayOpen, lastCalendarDate } from '../projectors.ts';
 import { readEvents, appendEvent } from '../services/event-log';
+import { requireFile } from '../services/general.ts';
 
 import type { Context } from '../types';
-import { requireFile } from '../services/general.ts';
 
 export default function date(ctx: Context) {
   return (args: string[]) => {

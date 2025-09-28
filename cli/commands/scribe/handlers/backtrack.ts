@@ -1,11 +1,12 @@
 
 import { info, usage, warn } from '@skyreach/cli-kit';
+import { PACES } from '@skyreach/schemas';
+
 import { isPartyLost, selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+import { requireFile, requireSession } from '../services/general.ts';
 
 import type { Context, Pace } from '../types';
-import { PACES } from '@skyreach/schemas';
-import { requireFile, requireSession } from '../services/general.ts';
 
 /**
  * Finds the previous hex the party occupied before the current one.

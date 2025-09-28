@@ -1,5 +1,4 @@
 import { atomicWrite } from '@skyreach/data';
-
 import { readJsonl, appendJsonl, writeJsonl } from '@skyreach/data';
 
 import type { Event } from '@skyreach/cli-kit';

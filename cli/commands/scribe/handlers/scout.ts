@@ -1,15 +1,15 @@
+import { error, info, usage } from '@skyreach/cli-kit';
 import {
   getHexNeighbors,
   isValidHexId,
   normalizeHexId,
 } from '@skyreach/core';
 
-import { error, info, usage } from '@skyreach/cli-kit';
 import { selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+import { requireFile, requireSession } from '../services/general.ts';
 
 import type { Context } from '../types';
-import { requireFile, requireSession } from '../services/general.ts';
 
 export default function scout(ctx: Context) {
   return (args: string[]) => {

@@ -1,11 +1,11 @@
+import { info, usage } from '@skyreach/cli-kit';
 import { PILLARS, TIERS } from '@skyreach/schemas';
 
-import { info, usage } from '@skyreach/cli-kit';
 import { selectCurrentHex, selectParty } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+import { requireSession } from '../services/general.ts';
 
 import type { Context } from '../types';
-import { requireSession } from '../services/general.ts';
 
 export default function ap(ctx: Context) {
   return (args: string[]) => {

@@ -1,12 +1,13 @@
-import { EFFECTS_TABLE } from '../../config/effects-table.config.ts';
 import { info } from '@skyreach/cli-kit';
+
+import { EFFECTS_TABLE } from '../../config/effects-table.config.ts';
 import { selectCurrentWeather } from '../../projectors.ts';
 import { readEvents } from '../../services/event-log.ts';
+import { requireFile } from '../../services/general.ts';
 
 import type { CalendarService } from '../../services/calendar.ts';
 import type { Context } from '../../types.ts';
 import type { WeatherCommitted, WeatherDraft } from '@skyreach/core';
-import { requireFile } from '../../services/general.ts';
 
 function printCommitted(
   committed: WeatherCommitted,

@@ -1,11 +1,12 @@
-import { datesEqual } from '@skyreach/core';
 import { warn } from '@skyreach/cli-kit';
+import { datesEqual } from '@skyreach/core';
+
 import { lastCalendarDate, selectCurrentWeather } from '../projectors.ts';
 import { readEvents } from '../services/event-log.ts';
 
 import type { Context } from '../types';
-import type { CampaignDate } from '@skyreach/schemas';
 import type { WeatherCommitted } from '@skyreach/core';
+import type { CampaignDate } from '@skyreach/schemas';
 
 /** Prints the weather nag if needed, once per in-game day. */
 export default function weatherNag(ctx: Context, cmd: string) {

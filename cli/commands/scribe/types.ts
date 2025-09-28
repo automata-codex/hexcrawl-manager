@@ -1,6 +1,7 @@
+import { PACES } from '@skyreach/schemas';
+
 import type { CalendarService } from './services/calendar.ts';
 import type { WeatherDraft } from '@skyreach/core';
-import { PACES } from '@skyreach/schemas';
 
 export class CalendarError extends Error {
   constructor(message: string) {

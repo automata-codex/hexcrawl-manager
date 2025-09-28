@@ -1,3 +1,4 @@
+import { error, warn } from '@skyreach/cli-kit';
 import { CALENDAR_CONFIG } from '@skyreach/core';
 import { ensureRepoDirs } from '@skyreach/data';
 import { Command } from 'commander';
@@ -6,10 +7,9 @@ import readline from 'node:readline';
 import { scribeCompleter } from './completer';
 import { buildHandlers, showHelp } from './handlers';
 import weatherNag from './hooks/weather-nag';
-import { error, warn } from '@skyreach/cli-kit';
 import { CalendarService } from './services/calendar.ts';
-import { type Context } from './types';
 import { tokenize } from './services/general.ts';
+import { type Context } from './types';
 
 export const scribeCommand = new Command('scribe')
   .description('Open the in-session logging shell')

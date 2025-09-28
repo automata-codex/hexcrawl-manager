@@ -1,5 +1,7 @@
 
 import { info, error } from '@skyreach/cli-kit';
+import { clamp } from '@skyreach/cli-kit';
+import { WEATHER_CATEGORIES } from '@skyreach/schemas';
 
 import {
   bandForTotal,
@@ -10,8 +12,7 @@ import {
 
 import type { Context } from '../../types.ts';
 import type { Season, WeatherDraft } from '@skyreach/core';
-import { WEATHER_CATEGORIES } from '@skyreach/schemas';
-import { clamp } from '@skyreach/cli-kit';
+
 
 export default function weatherSet(ctx: Context, args: string[]) {
   const draft: WeatherDraft | undefined = ctx.weatherDraft;

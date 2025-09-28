@@ -1,8 +1,9 @@
 import { info, usage } from '@skyreach/cli-kit';
+
 import { appendEvent } from '../services/event-log';
+import { requireSession } from '../services/general.ts';
 
 import type { Context } from '../types';
-import { requireSession } from '../services/general.ts';
 
 export default function note(ctx: Context) {
   return (args: string[]) => {

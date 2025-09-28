@@ -1,15 +1,14 @@
-import { CALENDAR_CONFIG } from '@skyreach/core';
+import { clamp } from '@skyreach/cli-kit';
+import { CALENDAR_CONFIG, rollDice } from '@skyreach/core';
 
 import { DESCRIPTOR_LIBRARY } from '../../config/descriptor-library.config.ts';
 import { DETAIL_TABLES } from '../../config/detail-tables.config.ts';
 import { EFFECTS_TABLE } from '../../config/effects-table.config.ts';
 import { FORECAST_MODIFIER } from '../../config/forecast-modifier.config.ts';
 import { SEASONAL_BANDS } from '../../config/seasonal-bands.config.ts';
-import { rollDice } from '@skyreach/core';
 
 import type { Season, WeatherCategory } from '@skyreach/core';
 import type { CampaignDate } from '@skyreach/schemas';
-import { clamp } from '@skyreach/cli-kit';
 
 export function bandForTotal(season: Season, total: number): WeatherCategory {
   const bands = SEASONAL_BANDS[season];

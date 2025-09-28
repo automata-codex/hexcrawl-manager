@@ -1,16 +1,16 @@
+import { error, info, usage, warn } from '@skyreach/cli-kit';
 import {
   getHexNeighbors,
   isValidHexId,
   normalizeHexId,
 } from '@skyreach/core';
+import { PACES } from '@skyreach/schemas';
 
-import { error, info, usage, warn } from '@skyreach/cli-kit';
 import { selectCurrentHex, isPartyLost } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+import { requireSession } from '../services/general.ts';
 
 import type { Context, Pace } from '../types';
-import { PACES } from '@skyreach/schemas';
-import { requireSession } from '../services/general.ts';
 
 export default function move(ctx: Context) {
   return (args: string[]) => {

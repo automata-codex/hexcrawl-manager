@@ -1,11 +1,10 @@
+import { info, error } from '@skyreach/cli-kit';
+import { REPO_PATHS, isGitDirty } from '@skyreach/data';
 import fs from 'fs';
 import path from 'path';
 import prompts from 'prompts';
 import yaml from 'yaml';
 
-import { info, error } from '@skyreach/cli-kit';
-import { REPO_PATHS } from '@skyreach/data';
-import { isGitDirty } from '@skyreach/data';
 
 import { compareSeasonIds, normalizeSeasonId } from './season.ts';
 
