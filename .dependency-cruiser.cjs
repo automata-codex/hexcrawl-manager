@@ -15,21 +15,28 @@ module.exports = {
       name: "no-core-to-others-internals",
       severity: "error",
       from: { path: "^packages/core/" },
-      to:   { path: "^packages/(cli-kit|data)/src/(?!index\\.(ts|js)$).+" }
+      to:   { path: "^packages/(cli-kit|data|schemas)/src/(?!index\\.(ts|js)$).+" }
     },
     // data -> other packages' internals
     {
       name: "no-data-to-others-internals",
       severity: "error",
       from: { path: "^packages/data/" },
-      to:   { path: "^packages/(cli-kit|core)/src/(?!index\\.(ts|js)$).+" }
+      to:   { path: "^packages/(cli-kit|core|schemas)/src/(?!index\\.(ts|js)$).+" }
     },
     // cli-kit -> other packages' internals
     {
       name: "no-cli-kit-to-others-internals",
       severity: "error",
       from: { path: "^packages/cli-kit/" },
-      to:   { path: "^packages/(core|data)/src/(?!index\\.(ts|js)$).+" }
+      to:   { path: "^packages/(core|data|schemas)/src/(?!index\\.(ts|js)$).+" }
+    },
+    // schemas -> other packages' internals
+    {
+      name: "no-schemas-to-others-internals",
+      severity: "error",
+      from: { path: "^packages/schemas/" },
+      to:   { path: "^packages/(cli-kit|core|data)/src/(?!index\\.(ts|js)$).+" }
     },
 
     // C) Optional: prevent cross-command imports inside the CLI
