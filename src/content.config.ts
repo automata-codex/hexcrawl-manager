@@ -6,12 +6,16 @@ import {
   ClassSchema,
   DungeonDataSchema,
   EncounterSchema,
+  type FactionData,
   FactionSchema,
   FloatingClueSchema,
   HexSchema,
+  type LootPackData,
   LootPackSchema,
   MapPathSchema,
+  type NpcData,
   NpcSchema,
+  type PlayerData,
   PlayerSchema,
   RegionSchema,
   type RumorData,
@@ -30,14 +34,6 @@ import { defineCollection, z } from 'astro:content';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
-
-import type {
-  FactionData,
-  LootPackData,
-  NpcData,
-  PlayerData,
-
-} from './types.ts';
 
 const DATA_DIR = 'data';
 

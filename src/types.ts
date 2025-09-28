@@ -1,39 +1,17 @@
 import { z } from 'zod';
-import { FactionSchema } from '../schemas/faction';
-import { FloatingClueSchema } from '../schemas/floating-clue';
-import { HexSchema, HiddenSitesSchema } from '../schemas/hex.js';
-import { KnowledgeNodeSchema } from '../schemas/knowledge-node';
-import { LootPackSchema } from '../schemas/loot-pack';
-import { NpcSchema } from '../schemas/npc';
-import { PlayerSchema } from '../schemas/player';
-import {
-  MeleeWeaponAttackSchema,
-  RangedWeaponAttackSchema,
-} from '../schemas/stat-block.js';
 
 import { CampaignDateSchema } from './config/campaign-date.ts';
-
-import type { MetaSchema } from '../schemas/meta';
 import type {
   CharacterData,
   EncounterEntryData,
+  HexData,
+  HiddenSitesData,
+  KnowledgeNodeData,
   TreasureData,
 } from '@skyreach/schemas';
 import type { CollectionEntry } from 'astro:content';
 
 export type CampaignDate = z.infer<typeof CampaignDateSchema>;
-
-export type FactionData = z.infer<typeof FactionSchema>;
-export type FloatingClueData = z.infer<typeof FloatingClueSchema>;
-export type HexData = z.infer<typeof HexSchema>;
-export type HiddenSitesData = z.infer<typeof HiddenSitesSchema>;
-export type KnowledgeNodeData = z.infer<typeof KnowledgeNodeSchema>;
-export type LootPackData = z.infer<typeof LootPackSchema>;
-export type MeleeWeaponAttackData = z.infer<typeof MeleeWeaponAttackSchema>;
-export type MetaData = z.infer<typeof MetaSchema>;
-export type NpcData = z.infer<typeof NpcSchema>;
-export type PlayerData = z.infer<typeof PlayerSchema>;
-export type RangedWeaponAttackData = z.infer<typeof RangedWeaponAttackSchema>;
 
 export type ExtendedHexData = HexData & {
   renderedHiddenSites: ExtendedHiddenSites[];

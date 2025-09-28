@@ -8,3 +8,5 @@ export const LootPackSchema = z.object({
 });
 
 export const LootPackListSchema = z.array(LootPackSchema);
+
+export type LootPackData = z.infer<typeof LootPackSchema>;

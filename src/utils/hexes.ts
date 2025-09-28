@@ -6,9 +6,9 @@ import { processTreasure } from './treasure.ts';
 import type {
   ExtendedHexData,
   ExtendedTreasureData,
-  HexData,
-  HiddenSitesData,
+
 } from '../types.ts';
+import type { HexData, HiddenSitesData } from '@skyreach/schemas';
 
 export function getHexSvgPath(x: number, y: number, hexWidth: number): string {
   const size = hexWidth / 2;

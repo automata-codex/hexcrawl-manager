@@ -33,3 +33,5 @@ export const FloatingClueSchema = z.object({
     .optional()
     .describe('Encounters that may be use to reveal this clue'),
 });
+
+export type FloatingClueData = z.infer<typeof FloatingClueSchema>;

@@ -3,7 +3,8 @@
 
   import { getHexPath } from '../../config/routes.ts';
 
-  import type { HexData } from '../../types.ts';
+
+  import type { HexData } from '@skyreach/schemas';
 
   interface Props {
     hex: HexData;

@@ -6,13 +6,15 @@ import { KnowledgeNodeSchema } from '../../schemas/knowledge-node';
 
 import type {
   FlatKnowledgeTree,
-  FloatingClueData,
-  HexData,
-  KnowledgeNodeData,
   PlacementMap,
   PlacementType,
 } from '../types.ts';
-import type { DungeonData } from '@skyreach/schemas';
+import type {
+  DungeonData,
+  FloatingClueData,
+  HexData,
+  KnowledgeNodeData,
+} from '@skyreach/schemas';
 
 export function buildPlacementMap(
   hexes: HexData[],

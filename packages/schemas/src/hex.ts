@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { EncounterOverrideSchema } from './encounter-override.js';
-import { TreasureSchema } from './treasure.js';
+import { EncounterOverrideSchema } from './encounter-override';
+import { TreasureSchema } from './treasure';
 
 const BiomeEnum = z.enum([
   'alpine-tundra',
@@ -105,3 +105,7 @@ export const HexSchema = z
     elevation: z.number().int().describe('Weighted average elevation in feet'),
   })
   .describe('HexSchema');
+
+export type HexData = z.infer<typeof HexSchema>;
+export type HiddenSitesData = z.infer<typeof HiddenSitesSchema>;
+export type KnownTag = keyof z.infer<typeof KnownTagEnum>;

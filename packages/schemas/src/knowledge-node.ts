@@ -13,3 +13,5 @@ export const KnowledgeNodeSchema = z.object({
     .optional()
     .describe('Further details about the clue; extended information'),
 });
+
+export type KnowledgeNodeData = z.infer<typeof KnowledgeNodeSchema>;

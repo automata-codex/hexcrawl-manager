@@ -8,3 +8,5 @@ export const PlayerSchema = z.object({
 });
 
 export const PlayerListSchema = z.array(PlayerSchema);
+
+export type PlayerData = z.infer<typeof PlayerSchema>;

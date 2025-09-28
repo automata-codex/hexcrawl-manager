@@ -5,3 +5,5 @@ export const MetaSchema = z.object({
   nextSessionSeq: z.number(),
   rolledSeasons: z.array(z.string()),
 });
+
+export type MetaData = z.infer<typeof MetaSchema>;

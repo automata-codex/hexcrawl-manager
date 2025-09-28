@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ClassEnum } from './class-enum.js';
+import { ClassEnum } from './class-enum';
 
 export const NpcSchema = z.object({
   id: z.string(),
@@ -16,3 +16,5 @@ export const NpcSchema = z.object({
   image: z.string().optional(),
   notes: z.array(z.string()).optional(),
 });
+
+export type NpcData = z.infer<typeof NpcSchema>;

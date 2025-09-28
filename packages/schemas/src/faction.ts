@@ -10,3 +10,5 @@ export const FactionSchema = z.object({
 });
 
 export const FactionListSchema = z.array(FactionSchema);
+
+export type FactionData = z.infer<typeof FactionSchema>;
