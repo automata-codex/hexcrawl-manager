@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 
 import { computeApForSession } from './compute-ap-for-session.ts';
 
-
 import type { Event } from '@skyreach/cli-kit';
 
 describe('Function `computeApForSession`', () => {
@@ -90,7 +89,7 @@ describe('Function `computeApForSession`', () => {
     alistar: 5,
     istavan: 3,
     daemaris: 2,
-  }
+  };
   describe('for session 19 or earlier', () => {
     it('correctly computes AP for a session', () => {
       const { reportAdvancementPoints, ledgerResults } = computeApForSession(

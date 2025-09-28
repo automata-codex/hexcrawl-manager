@@ -5,14 +5,12 @@ import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
 
-
 import { type Context } from '../types';
 
 import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
 import { requireFile, requireSession } from './general.ts';
 
 import type { CampaignDate } from '@skyreach/schemas';
-
 
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =

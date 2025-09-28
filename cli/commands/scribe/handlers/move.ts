@@ -1,9 +1,5 @@
 import { error, info, usage, warn } from '@skyreach/cli-kit';
-import {
-  getHexNeighbors,
-  isValidHexId,
-  normalizeHexId,
-} from '@skyreach/core';
+import { getHexNeighbors, isValidHexId, normalizeHexId } from '@skyreach/core';
 import { PACES } from '@skyreach/schemas';
 
 import { selectCurrentHex, isPartyLost } from '../projectors.ts';

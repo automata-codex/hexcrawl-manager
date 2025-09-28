@@ -12,9 +12,7 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-
 import type { CampaignDate } from '@skyreach/schemas';
-
 
 describe('scribe finalize', () => {
   it('partitions session events correctly and writes output files', async () => {

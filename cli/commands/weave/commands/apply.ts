@@ -1,5 +1,11 @@
 import { error, info } from '@skyreach/cli-kit';
-import { REPO_PATHS, loadMeta, readJsonl, saveMeta, writeYamlAtomic } from '@skyreach/data';
+import {
+  REPO_PATHS,
+  loadMeta,
+  readJsonl,
+  saveMeta,
+  writeYamlAtomic,
+} from '@skyreach/data';
 import path from 'path';
 
 import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
@@ -24,7 +30,6 @@ import {
   writeFootprint,
 } from '../lib/state';
 import { validateSessionEnvelope } from '../lib/validate';
-
 
 import type { CampaignDate } from '@skyreach/schemas';
 

@@ -2,7 +2,6 @@ import { info, error as printError, warn } from '@skyreach/cli-kit';
 import * as fs from 'fs';
 import * as path from 'path';
 
-
 import {
   detectDevMode,
   requireFile,

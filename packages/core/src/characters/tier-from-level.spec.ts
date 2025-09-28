@@ -31,4 +31,3 @@ describe('tierFromLevel', () => {
     expect(tierFromLevel(21)).toBe(1);
   });
 });
-

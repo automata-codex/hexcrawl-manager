@@ -1,4 +1,3 @@
-
 import { info } from '@skyreach/cli-kit';
 import { clamp } from '@skyreach/cli-kit';
 import { rollDice } from '@skyreach/core';

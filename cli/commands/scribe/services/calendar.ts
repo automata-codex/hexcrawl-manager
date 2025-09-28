@@ -244,7 +244,7 @@ export class CalendarService {
       throw new CalendarError(`Unknown month "${name}".`);
     }
     return i + 1 < this.config.months.length
-      ? this.config.months[i + 1].name as Month
+      ? (this.config.months[i + 1].name as Month)
       : null;
   }
 
@@ -253,7 +253,7 @@ export class CalendarService {
     if (i === -1) {
       throw new CalendarError(`Unknown month "${name}".`);
     }
-    return i - 1 >= 0 ? this.config.months[i - 1].name as Month : null;
+    return i - 1 >= 0 ? (this.config.months[i - 1].name as Month) : null;
   }
 
   private resolveMonth(token: string): Month {

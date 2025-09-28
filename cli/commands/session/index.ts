@@ -5,7 +5,6 @@ import { Command } from 'commander';
 import fs from 'fs';
 import path from 'path';
 
-
 export const sessionCommand = new Command('session')
   .description('Bootstrap a new planned session report')
   .option('--force', 'Overwrite if the session file already exists')
@@ -19,7 +18,10 @@ export const sessionCommand = new Command('session')
       process.exit(1);
     }
     const nextSessionSeq = meta.nextSessionSeq;
-    if (typeof nextSessionSeq !== 'number' || !Number.isInteger(nextSessionSeq)) {
+    if (
+      typeof nextSessionSeq !== 'number' ||
+      !Number.isInteger(nextSessionSeq)
+    ) {
       console.error(`❌ Invalid or missing nextSessionSeq in meta.yaml`);
       process.exit(1);
     }
@@ -33,7 +35,9 @@ export const sessionCommand = new Command('session')
 
     // Step 4: Check for Existing File
     if (fs.existsSync(outPath) && !opts.force) {
-      console.error(`❌ Session report already exists at ${outPath}. Use --force to overwrite.`);
+      console.error(
+        `❌ Session report already exists at ${outPath}. Use --force to overwrite.`,
+      );
       process.exit(1);
     }
 
@@ -56,7 +60,10 @@ export const sessionCommand = new Command('session')
     // Step 6: Validate with Zod
     const parsed = SessionReportSchema.safeParse(plannedReport);
     if (!parsed.success) {
-      console.error('❌ Session report validation failed:', parsed.error.format());
+      console.error(
+        '❌ Session report validation failed:',
+        parsed.error.format(),
+      );
       process.exit(1);
     }
 

@@ -6,7 +6,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
 
-
 import { detectDevMode } from '../services/general.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;

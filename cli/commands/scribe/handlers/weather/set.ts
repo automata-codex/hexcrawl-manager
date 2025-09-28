@@ -1,4 +1,3 @@
-
 import { info, error } from '@skyreach/cli-kit';
 import { clamp } from '@skyreach/cli-kit';
 import { WEATHER_CATEGORIES } from '@skyreach/schemas';
@@ -12,7 +11,6 @@ import {
 
 import type { Context } from '../../types.ts';
 import type { Season, WeatherDraft } from '@skyreach/core';
-
 
 export default function weatherSet(ctx: Context, args: string[]) {
   const draft: WeatherDraft | undefined = ctx.weatherDraft;

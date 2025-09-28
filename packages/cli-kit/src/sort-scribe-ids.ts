@@ -11,7 +11,7 @@ export function sortScribeIds(ids: string[]): string[] {
       num: parseInt(match[1], 10),
       suffix: match[2] || '',
       date: match[3],
-      orig: id
+      orig: id,
     };
   }
 
@@ -26,4 +26,3 @@ export function sortScribeIds(ids: string[]): string[] {
     return 0;
   });
 }
-

@@ -14,4 +14,3 @@ describe('pickNextSessionIdAuto', () => {
     expect(pickNextSessionId([], [1, 2, 3])).toBe('session-0001');
   });
 });
-

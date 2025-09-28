@@ -2,7 +2,11 @@
  PROJECTORS: Derive current state from the event log (date, hex, party, weather, etc.)
  */
 
-import { type WeatherCommitted, datesEqual, normalizeHexId } from '@skyreach/core';
+import {
+  type WeatherCommitted,
+  datesEqual,
+  normalizeHexId,
+} from '@skyreach/core';
 
 import type { Event } from '@skyreach/cli-kit';
 import type { CampaignDate } from '@skyreach/schemas';

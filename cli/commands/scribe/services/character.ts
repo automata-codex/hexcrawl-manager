@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
 
-
 export function loadCharacterIds(): string[] {
   const files = fs
     .readdirSync(REPO_PATHS.CHARACTERS())

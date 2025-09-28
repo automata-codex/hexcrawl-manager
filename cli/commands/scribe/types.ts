@@ -21,4 +21,3 @@ export type Context = {
 export type Pace = (typeof PACES)[number];
 
 export type Tier = 1 | 2 | 3 | 4;
-

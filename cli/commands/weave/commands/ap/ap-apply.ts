@@ -1,5 +1,15 @@
-import { eventsOf, pad, pickNextSessionId, sortScribeIds } from '@skyreach/cli-kit';
-import { REPO_PATHS, isGitDirty, resolveDataPath, writeYamlAtomic } from '@skyreach/data';
+import {
+  eventsOf,
+  pad,
+  pickNextSessionId,
+  sortScribeIds,
+} from '@skyreach/cli-kit';
+import {
+  REPO_PATHS,
+  isGitDirty,
+  resolveDataPath,
+  writeYamlAtomic,
+} from '@skyreach/data';
 import { SessionReportSchema } from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -8,7 +18,11 @@ import path from 'path';
 import yaml from 'yaml';
 
 import pkg from '../../../../../package.json' assert { type: 'json' };
-import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
+import {
+  firstCalendarDate,
+  lastCalendarDate,
+  selectParty,
+} from '../../../scribe/projectors.ts';
 import { computeApForSession } from '../../lib/compute-ap-for-session.ts';
 
 import type { CampaignDate } from '@skyreach/schemas';
@@ -35,14 +49,19 @@ export async function apApply(sessionId?: string) {
   if (sessionId) {
     // Validate Session ID Format
     if (!/^session-\d{4}$/.test(sessionId)) {
-      throw new Error(`Invalid sessionId format: ${sessionId}. Expected format is session-####.`);
+      throw new Error(
+        `Invalid sessionId format: ${sessionId}. Expected format is session-####.`,
+      );
     }
     const sessionNum = sessionId.split('-')[1];
     const sessionsDir = REPO_PATHS.SESSIONS();
 
     // Discover Finalized Scribe Logs
     const pattern1 = path.join(sessionsDir, `session_${sessionNum}_*.jsonl`);
-    const pattern2 = path.join(sessionsDir, `session_${sessionNum}[a-z]_*.jsonl`);
+    const pattern2 = path.join(
+      sessionsDir,
+      `session_${sessionNum}[a-z]_*.jsonl`,
+    );
     const files1 = glob.sync(pattern1);
     const files2 = glob.sync(pattern2);
     const allFiles = Array.from(new Set([...files1, ...files2]));
@@ -51,13 +70,16 @@ export async function apApply(sessionId?: string) {
     }
 
     // Sort Scribe IDs
-    const unsortedScribeIds = allFiles.map(f => path.basename(f, '.jsonl'));
+    const unsortedScribeIds = allFiles.map((f) => path.basename(f, '.jsonl'));
     const scribeIds = sortScribeIds(unsortedScribeIds);
 
     // Compute Fingerprint as hash
     const fingerprint = getFingerprint(sessionId, scribeIds);
 
-    const reportPath = path.join(REPO_PATHS.REPORTS(), `session-${sessionNum}.yaml`);
+    const reportPath = path.join(
+      REPO_PATHS.REPORTS(),
+      `session-${sessionNum}.yaml`,
+    );
     if (fs.existsSync(reportPath)) {
       const reportContent = fs.readFileSync(reportPath, 'utf8');
       let reportYaml;
@@ -72,23 +94,35 @@ export async function apApply(sessionId?: string) {
       // Check for Planned Report and Dirty Git
       if (reportYaml?.status === 'planned') {
         if (isGitDirty()) {
-          throw new Error(`Planned report exists for ${sessionId}, but the working tree is dirty. Commit or stash changes, then re-run.`);
+          throw new Error(
+            `Planned report exists for ${sessionId}, but the working tree is dirty. Commit or stash changes, then re-run.`,
+          );
         }
       }
 
       // Check for Existing Completed Report (idempotency Check)
-      const reportFingerprint = reportYaml.status === 'completed' ? reportYaml.fingerprint : undefined;
-      if (typeof reportFingerprint === 'string' && reportFingerprint === fingerprint) {
-        console.log(`Completed report for ${sessionId} already matches fingerprint. No-op.`);
+      const reportFingerprint =
+        reportYaml.status === 'completed' ? reportYaml.fingerprint : undefined;
+      if (
+        typeof reportFingerprint === 'string' &&
+        reportFingerprint === fingerprint
+      ) {
+        console.log(
+          `Completed report for ${sessionId} already matches fingerprint. No-op.`,
+        );
         return;
       } else if (reportYaml?.status !== 'planned') {
-        throw new Error(`Completed report for ${sessionId} has a different fingerprint. Revert the prior apply or use a new session.`);
+        throw new Error(
+          `Completed report for ${sessionId} has a different fingerprint. Revert the prior apply or use a new session.`,
+        );
       }
     }
   } else {
     // Discover finalized session logs
-    const logFiles = fs.readdirSync(REPO_PATHS.SESSIONS()).filter(f => f.match(/^session_\d{4}[a-z]?_\d{4}-\d{2}-\d{2}\.jsonl$/));
-    const sessionNumbers = logFiles.map(f => {
+    const logFiles = fs
+      .readdirSync(REPO_PATHS.SESSIONS())
+      .filter((f) => f.match(/^session_\d{4}[a-z]?_\d{4}-\d{2}-\d{2}\.jsonl$/));
+    const sessionNumbers = logFiles.map((f) => {
       const matches = f.match(/^session_(\d{4})/);
       if (!matches) {
         throw new Error(`Unexpected filename format: ${f}`);
@@ -97,12 +131,16 @@ export async function apApply(sessionId?: string) {
     });
 
     // Identify pending sessions
-    const reportFiles = fs.existsSync(REPO_PATHS.REPORTS()) ? fs.readdirSync(REPO_PATHS.REPORTS()) : [];
+    const reportFiles = fs.existsSync(REPO_PATHS.REPORTS())
+      ? fs.readdirSync(REPO_PATHS.REPORTS())
+      : [];
     const completedSessions = reportFiles
-      .filter(f => f.match(/^session-\d{4}\.yaml$/))
-      .map(f => f.match(/^session-(\d{4})\.yaml$/)![1])
-      .map(f => parseInt(f, 10));
-    const pendingSessions = sessionNumbers.filter(num => !completedSessions.includes(num));
+      .filter((f) => f.match(/^session-\d{4}\.yaml$/))
+      .map((f) => f.match(/^session-(\d{4})\.yaml$/)![1])
+      .map((f) => parseInt(f, 10));
+    const pendingSessions = sessionNumbers.filter(
+      (num) => !completedSessions.includes(num),
+    );
 
     // Pick the next session to apply
     if (pendingSessions.length === 0) {
@@ -114,17 +152,27 @@ export async function apApply(sessionId?: string) {
   const sessionNum = parseInt(sessionId.split('-')[1], 10);
 
   // --- Discover Scribe IDs (Finalized Logs) ---
-  const pattern1 = path.join(REPO_PATHS.SESSIONS(), `session_${pad(sessionNum)}_*.jsonl`);
-  const pattern2 = path.join(REPO_PATHS.SESSIONS(), `session_${pad(sessionNum)}[a-z]_*.jsonl`);
-  const files1 = fs.existsSync(REPO_PATHS.SESSIONS()) ? glob.sync(pattern1) : [];
-  const files2 = fs.existsSync(REPO_PATHS.SESSIONS()) ? glob.sync(pattern2) : [];
+  const pattern1 = path.join(
+    REPO_PATHS.SESSIONS(),
+    `session_${pad(sessionNum)}_*.jsonl`,
+  );
+  const pattern2 = path.join(
+    REPO_PATHS.SESSIONS(),
+    `session_${pad(sessionNum)}[a-z]_*.jsonl`,
+  );
+  const files1 = fs.existsSync(REPO_PATHS.SESSIONS())
+    ? glob.sync(pattern1)
+    : [];
+  const files2 = fs.existsSync(REPO_PATHS.SESSIONS())
+    ? glob.sync(pattern2)
+    : [];
   const allFiles = Array.from(new Set([...files1, ...files2]));
   if (allFiles.length === 0) {
     throw new Error(`No finalized logs for ${sessionId}.`);
   }
 
   // Scribe IDs sorted
-  const unsortedScribeIds = allFiles.map(f => path.basename(f, '.jsonl'));
+  const unsortedScribeIds = allFiles.map((f) => path.basename(f, '.jsonl'));
   const scribeIds = sortScribeIds(unsortedScribeIds);
 
   // --- Parse All Parts ---
@@ -144,7 +192,7 @@ export async function apApply(sessionId?: string) {
   // --- Derive Session Fields ---
   const gameStartDate = formatDate(firstCalendarDate(events));
   const gameEndDate = formatDate(lastCalendarDate(events));
-  const notes = eventsOf(events, 'note').map(e => e.payload.text);
+  const notes = eventsOf(events, 'note').map((e) => e.payload.text);
   const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
 
   // --- Derive Attendance ---
@@ -156,8 +204,14 @@ export async function apApply(sessionId?: string) {
   for (const characterId of party) {
     let level = 1;
     try {
-      const charPathYaml = path.join(REPO_PATHS.CHARACTERS(), `${characterId}.yaml`);
-      const charPathYml = path.join(REPO_PATHS.CHARACTERS(), `${characterId}.yml`);
+      const charPathYaml = path.join(
+        REPO_PATHS.CHARACTERS(),
+        `${characterId}.yaml`,
+      );
+      const charPathYml = path.join(
+        REPO_PATHS.CHARACTERS(),
+        `${characterId}.yml`,
+      );
       const charPath = fs.existsSync(charPathYaml) ? charPathYaml : charPathYml;
       if (fs.existsSync(charPath)) {
         const charYaml = yaml.parse(fs.readFileSync(charPath, 'utf8'));
@@ -173,7 +227,7 @@ export async function apApply(sessionId?: string) {
   const { reportAdvancementPoints, ledgerResults } = computeApForSession(
     eventsOf(events, 'advancement_point'),
     characterLevels,
-    sessionNum
+    sessionNum,
   );
 
   // --- Write Outputs ---
@@ -200,7 +254,10 @@ export async function apApply(sessionId?: string) {
     createdAt: createdAt.length === 0 ? now : createdAt,
     updatedAt: now,
   };
-  const reportPath = path.join(REPO_PATHS.REPORTS(), `session-${sessionNum.toString().padStart(4, '0')}.yaml`);
+  const reportPath = path.join(
+    REPO_PATHS.REPORTS(),
+    `session-${sessionNum.toString().padStart(4, '0')}.yaml`,
+  );
   writeYamlAtomic(reportPath, reportOut);
 
   // Append per-character session_ap entries to the ledger
@@ -215,7 +272,10 @@ export async function apApply(sessionId?: string) {
       kind: 'session_ap',
       advancementPoints: {
         combat: { delta: ap.combat.delta, reason: ap.combat.reason },
-        exploration: { delta: ap.exploration.delta, reason: ap.exploration.reason },
+        exploration: {
+          delta: ap.exploration.delta,
+          reason: ap.exploration.reason,
+        },
         social: { delta: ap.social.delta, reason: ap.social.reason },
       },
       appliedAt: now,

@@ -1,84 +1,89 @@
 :root {
-    --skyreach-heading-margin-bottom: 0.25rem;
-    --skyreach-standard-indent: 1rem;
+  --skyreach-heading-margin-bottom: 0.25rem;
+  --skyreach-standard-indent: 1rem;
 }
 
 /* --- CUSTOM STYLES --- */
 
 html {
-    text-wrap: pretty;
-    orphans: 2;
-    widows: 2;
+  text-wrap: pretty;
+  orphans: 2;
+  widows: 2;
 }
 
 blockquote {
-    font-style: italic;
-    border-left: 4px solid var(--bulma-text);
-    padding-left: 1rem;
-    margin: 1rem 0;
+  font-style: italic;
+  border-left: 4px solid var(--bulma-text);
+  padding-left: 1rem;
+  margin: 1rem 0;
 }
 
 blockquote p {
-    margin-bottom: 1rem;
-    text-indent: 0;
+  margin-bottom: 1rem;
+  text-indent: 0;
 }
 
 blockquote p:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 blockquote.dramatic {
-    font-style: italic;
-    margin: 0 10% 1rem;
+  font-style: italic;
+  margin: 0 10% 1rem;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: "Souvenir", serif;
-    margin-top: 1rem;
-    margin-bottom: 0.125rem;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Souvenir', serif;
+  margin-top: 1rem;
+  margin-bottom: 0.125rem;
 }
 
 h1 {
-    margin-top: 0;
-    text-align: center;
+  margin-top: 0;
+  text-align: center;
 }
 
 ol {
-    padding-inline-start: 2rem;
+  padding-inline-start: 2rem;
 }
 
 ul {
-    padding-inline-start: 2rem;
+  padding-inline-start: 2rem;
 
-    li {
-        padding-left: 0;
-        text-indent: 0;
-    }
+  li {
+    padding-left: 0;
+    text-indent: 0;
+  }
 }
 
-.callout { /* intended to be used with the "box" CSS class */
-    border: 1px solid var(--bulma-text);
-    margin: 1rem 0;
-    padding: 1rem;
+.callout {
+  /* intended to be used with the "box" CSS class */
+  border: 1px solid var(--bulma-text);
+  margin: 1rem 0;
+  padding: 1rem;
 }
 
 .inline-heading {
-    color: inherit;
-    font-weight: bold;
+  color: inherit;
+  font-weight: bold;
 }
 
 .hanging-indent {
-    margin-left: var(--skyreach-standard-indent);
-    text-indent: calc(-1 * var(--skyreach-standard-indent));
+  margin-left: var(--skyreach-standard-indent);
+  text-indent: calc(-1 * var(--skyreach-standard-indent));
 }
 
 /* Nav Bar */
 
 .navbar-brand {
-    font-family: "Souvenir", serif;
-    font-size: 1.5rem;
+  font-family: 'Souvenir', serif;
+  font-size: 1.5rem;
 }
-
 
 /* --- BULMA OVERRIDES --- */
 
@@ -87,99 +92,104 @@ ul {
 .title.is-5,
 .title.is-6,
 .title.is-7 {
-    margin-bottom: var(--skyreach-heading-margin-bottom);
+  margin-bottom: var(--skyreach-heading-margin-bottom);
 }
 
 ul {
-    list-style-type: disc;
+  list-style-type: disc;
 }
 
 .box {
-    border: 1px solid var(--bulma-box-color);
+  border: 1px solid var(--bulma-box-color);
 }
 
 /* --- FONT AWESOME --- */
 
 /* Declare a custom CSS class to make the icon look right */
 .svg-inline--fa {
-    overflow: visible;
-    box-sizing: content-box;
-    display: inline-block;
-    height: 1em;
-    vertical-align: -0.125em;
+  overflow: visible;
+  box-sizing: content-box;
+  display: inline-block;
+  height: 1em;
+  vertical-align: -0.125em;
 }
 
 /* --- PRINT STYLES --- */
 
 @media print {
-    /* BULMA TWEAKS */
+  /* BULMA TWEAKS */
 
-    /* Hide non-printable elements */
-    .navbar, .hero, .footer, .no-print {
-        display: none !important;
-    }
+  /* Hide non-printable elements */
+  .navbar,
+  .hero,
+  .footer,
+  .no-print {
+    display: none !important;
+  }
 
-    /* Adjust the layout for print */
-    .container {
-        width: 100%;
-        padding: 0;
-    }
+  /* Adjust the layout for print */
+  .container {
+    width: 100%;
+    padding: 0;
+  }
 
-    .columns {
-        display: block;
-    }
+  .columns {
+    display: block;
+  }
 
-    .column {
-        width: 100%;
-        margin-bottom: 1rem;
-    }
+  .column {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
 
-    /* Typography adjustments for print */
-    body {
-        font-size: 12pt;
-        line-height: 1.5;
-        color: #000;
-        background: #fff !important;
-    }
+  /* Typography adjustments for print */
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+    color: #000;
+    background: #fff !important;
+  }
 
-    h1, h2, h3, h4 {
-        color: #000;
-    }
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: #000;
+  }
 
-    /* Remove Bulma's box shadows and background colors for print */
-    .box {
-        box-shadow: none;
-        background: none;
-        border: 1px solid #000;
-    }
+  /* Remove Bulma's box shadows and background colors for print */
+  .box {
+    box-shadow: none;
+    background: none;
+    border: 1px solid #000;
+  }
 
-    /* STYLES */
+  /* STYLES */
 
-    @page {
-        size: letter portrait;
-        margin: 0.5in;
-    }
+  @page {
+    size: letter portrait;
+    margin: 0.5in;
+  }
 
-    body {
-        font-size: 12pt;
-        hyphens: auto;
-        line-height: 1.15;
-    }
+  body {
+    font-size: 12pt;
+    hyphens: auto;
+    line-height: 1.15;
+  }
 
-    h1 {
-        font-size: 36pt;
-        margin-bottom: 12pt;
-    }
+  h1 {
+    font-size: 36pt;
+    margin-bottom: 12pt;
+  }
 
-    h2 {
-        font-size: 15pt;
-        margin-bottom: 6pt;
-        page-break-after: avoid;
-    }
+  h2 {
+    font-size: 15pt;
+    margin-bottom: 6pt;
+    page-break-after: avoid;
+  }
 
-    .keep-with-next {
-        /* This doesn't work as expected */
-        page-break-after: avoid;
-    }
-
+  .keep-with-next {
+    /* This doesn't work as expected */
+    page-break-after: avoid;
+  }
 }
