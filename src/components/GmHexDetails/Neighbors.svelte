@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { getHexNeighbors } from '../../../lib/hexes/get-hex-neighbors.ts';
+  import { getHexNeighbors } from '@skyreach/core';
+
   import { getHexPath } from '../../config/routes.ts';
 
   import type { HexData } from '../../types.ts';

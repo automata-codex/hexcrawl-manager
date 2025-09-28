@@ -2,7 +2,8 @@ import {
   getHexNeighbors,
   isValidHexId,
   normalizeHexId,
-} from '../../../../lib/hexes';
+} from '@skyreach/core';
+
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { error, info, usage } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';

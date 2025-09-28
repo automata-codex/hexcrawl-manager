@@ -1,4 +1,4 @@
-import { hexSort as hexIdSort } from '../../lib/hexes/hex-sort.ts';
+import { hexSort as hexIdSort } from '@skyreach/core';
 
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';

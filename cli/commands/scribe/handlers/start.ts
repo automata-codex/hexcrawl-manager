@@ -1,6 +1,6 @@
+import { isValidHexId, normalizeHexId } from '@skyreach/core';
 import { existsSync } from 'node:fs';
 
-import { isValidHexId, normalizeHexId } from '../../../../lib/hexes';
 import { detectDevMode } from '../lib/env.ts';
 import { error, info, usage } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';

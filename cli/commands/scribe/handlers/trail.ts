@@ -1,4 +1,5 @@
-import { isValidHexId, normalizeHexId } from '../../../../lib/hexes';
+import { isValidHexId, normalizeHexId } from '@skyreach/core';
+
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { error, info, usage, warn } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';

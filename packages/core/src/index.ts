@@ -1,2 +1,2 @@
-export * as hexes from "./hexes";
-export * as trails from "./trails";
+export * from './hexes';
+export * from './trails';

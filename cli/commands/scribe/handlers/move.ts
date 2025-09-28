@@ -2,7 +2,8 @@ import {
   getHexNeighbors,
   isValidHexId,
   normalizeHexId,
-} from '../../../../lib/hexes';
+} from '@skyreach/core';
+
 import { PACES } from '../constants.ts';
 import { requireSession } from '../lib/guards.ts';
 import { error, info, usage, warn } from '../lib/report.ts';
