@@ -15,7 +15,7 @@ const AbsenceSpendEntrySchema = z.object({
   sessionId: SessionId.optional(), // when allocate happens outside a session, you’ll attach it to "most recent completed" and set this
 });
 
-export const ApReason = z.enum([
+export const ApReasonSchema = z.enum([
   'normal',
   'cap',
   'absence_spend',
@@ -27,7 +27,7 @@ export const ApReason = z.enum([
 const ApSchema = z.object({
   delta: z.number().int().nonnegative(), // use a separate correction entry if you ever need negatives
   note: z.string().optional(),
-  reason: ApReason.optional(),
+  reason: ApReasonSchema.optional(),
 });
 
 const SessionApEntrySchema = z.object({

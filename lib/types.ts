@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { PILLARS } from './constants.ts';
+import { PILLARS } from '@skyreach/core';
 
 import type { ApReason as ZodApReason } from '../schemas/ap-ledger';
 

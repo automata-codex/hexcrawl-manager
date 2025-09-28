@@ -1,4 +1,4 @@
-import { PILLARS } from '../../../../lib/constants.ts';
+import { PILLARS } from '@skyreach/core';
 import { TIERS } from '../constants';
 import { requireSession } from '../lib/guards.ts';
 import { info, usage } from '../lib/report.ts';

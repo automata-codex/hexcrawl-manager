@@ -1,4 +1,4 @@
-import { PILLARS } from '../../../lib/constants.ts';
+import { PILLARS } from '@skyreach/core';
 
 import { TIERS } from './constants';
 import { getAllCharacterIds } from './services/character';
