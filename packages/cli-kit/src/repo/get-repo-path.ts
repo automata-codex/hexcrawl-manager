@@ -1,6 +1,6 @@
 import path from 'path';
 
-import { getRepoRoot } from './get-repo-root.ts';
+import { getRepoRoot } from './get-repo-root';
 
 /**
  * Get an absolute path within the repository.

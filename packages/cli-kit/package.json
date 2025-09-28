@@ -1,7 +1,12 @@
 {
   "name": "@skyreach/cli-kit",
   "version": "2.3.0",
-  "exports": { ".": "./dist/index.js" },
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "main": "dist/index.js",
   "private": true,
   "scripts": {

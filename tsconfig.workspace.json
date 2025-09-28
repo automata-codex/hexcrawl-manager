@@ -1,13 +1,28 @@
 {
-  "files": [],
-  "references": [
-    { "path": "packages/core" },
-    { "path": "packages/data" },
-    { "path": "packages/cli-kit" }
-  ],
   "compilerOptions": {
+    "baseUrl": ".",
     "composite": false,
+    "moduleResolution": "bundler",
+    "paths": {
+      "@skyreach/*": [
+        "packages/*/src", // for typecheck against sources,
+        "packages/*/dist", // for d.ts after build,
+        "packages/*" // optional, helps node-style resolution
+      ]
+    },
     "skipLibCheck": true,
     "strict": true
-  }
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "packages/core"
+    },
+    {
+      "path": "packages/data"
+    },
+    {
+      "path": "packages/cli-kit"
+    }
+  ]
 }

@@ -1,4 +1,4 @@
-import { loadConfig } from './load-config.ts';
+import { loadConfig } from './load-config';
 
 /**
  * Returns the repository root directory, respecting the REPO_ROOT env override.

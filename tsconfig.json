@@ -6,8 +6,8 @@
     "moduleResolution": "Bundler",
     "paths": {
       "@skyreach/cli-kit": ["packages/cli-kit/src/index.ts"],
-      "@skyreach/core":    ["packages/core/src/index.ts"],
-      "@skyreach/data":    ["packages/data/src/index.ts"]
+      "@skyreach/core": ["packages/core/src/index.ts"],
+      "@skyreach/data": ["packages/data/src/index.ts"]
     },
     "plugins": [
       {
