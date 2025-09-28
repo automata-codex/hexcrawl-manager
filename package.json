@@ -12,6 +12,7 @@
     "build:web": "astro check && npm run gen-json-schema && npm run build:clue-links && astro build",
     "changeset": "changeset",
     "check": "astro check",
+    "check:docs-clean": "git diff --quiet -- docs/api || (echo \"Docs are stale. Run 'npm run docs'.\" && exit 1)",
     "clean:packages": "tsc -b tsconfig.workspace.json --clean",
     "clean:tests": "rm -rf .test-repos",
     "cli": "tsx cli/skyreach.ts",
@@ -39,7 +40,9 @@
     "node": "22.20.0",
     "npm": "11.6.1"
   },
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/mdx": "^4.2.6",
@@ -97,6 +100,7 @@
     "prettier-plugin-svelte": "^3.4.0",
     "tsx": "^4.19.4",
     "typedoc": "^0.28.13",
+    "typedoc-plugin-markdown": "^4.9.0",
     "vitest": "^3.2.4",
     "yaml": "^2.7.1",
     "zod-to-json-schema": "^3.24.5"

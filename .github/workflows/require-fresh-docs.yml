@@ -1,0 +1,15 @@
+name: require-fresh-docs.yaml
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+    require-fresh-docs:
+      # Optional bypass label for docs/chore PRs
+      if: ${{ !contains(join(github.event.pull_request.labels.*.name, ' '), 'skip-docs') }}
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Fail if docs changed
+          run: npm run check:docs-clean
