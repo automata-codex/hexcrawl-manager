@@ -1,6 +1,6 @@
 {
   "name": "@skyreach/schemas",
-  "version": "0.0.0",
+  "version": "2.3.0",
   "exports": {
     ".": {
       "default": "./dist/index.js",

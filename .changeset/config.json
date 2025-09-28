@@ -4,8 +4,10 @@
   "baseBranch": "main",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "fixed": [["@skyreach/*"]],
   "ignore": [],
-  "linked": [],
+  "linked": [
+    ["@skyreach/schemas", "@skyreach/core", "@skyreach/data", "@skyreach/cli-kit"]
+  ],
+  "packages": ["packages/*", "cli", "."],
   "updateInternalDependencies": "patch"
 }

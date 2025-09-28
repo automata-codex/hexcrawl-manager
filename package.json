@@ -41,6 +41,7 @@
     "npm": "11.6.1"
   },
   "workspaces": [
+    "cli",
     "packages/*"
   ],
   "dependencies": {

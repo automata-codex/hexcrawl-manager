@@ -1,0 +1,15 @@
+{
+  "name": "@skyreach/cli",
+  "version": "2.3.0",
+  "private": true,
+  "scripts": {
+    "start": "tsx skyreach.ts"
+  },
+  "type": "module",
+  "dependencies": {
+    "@skyreach/cli-kit": "^2.3.0",
+    "@skyreach/core": "^2.3.0",
+    "@skyreach/data": "^2.3.0",
+    "@skyreach/schemas": "^2.3.0"
+  }
+}
