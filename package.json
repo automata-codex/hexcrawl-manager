@@ -6,10 +6,10 @@
   "scripts": {
     "arch:check": "depcruise \"cli/**/*.ts\" \"packages/**/*.ts\" \"src/**/*.ts\" --config .dependency-cruiser.cjs",
     "astro": "astro",
-    "build": "npm run -ws build",
+    "build": "npm run build:packages && npm run build:web",
     "build:clue-links": "bash scripts/clue-linker/setup_virtualenv.sh && scripts/clue-linker/.venv-clue-linker/bin/python scripts/clue-linker/generate-clue-links.py",
     "build:packages": "tsc -b tsconfig.workspace.json",
-    "build:web": "astro check && npm run gen-json-schema && npm run build:clue-links && astro build",
+    "build:web": "astro check && npm run build:clue-links && astro build",
     "changeset": "changeset",
     "check": "astro check",
     "check:docs-clean": "git diff --quiet -- docs/api || (echo \"Docs are stale. Run 'npm run docs'.\" && exit 1)",
