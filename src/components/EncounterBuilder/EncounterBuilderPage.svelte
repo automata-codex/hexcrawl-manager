@@ -7,7 +7,7 @@
   import type {
     CharacterData,
     EncounterData,
-    StatBlockData
+    StatBlockData,
   } from '@skyreach/schemas';
 
   interface Props {

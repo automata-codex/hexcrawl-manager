@@ -3,11 +3,12 @@ import { getCollection } from 'astro:content';
 
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 
+import type { EncounterCategoryTables } from '../../../types';
 import type {
-  EncounterCategoryTables,
-
-} from '../../../types';
-import type { EncounterOverrideData, EncounterTableData, HexData } from '@skyreach/schemas';
+  EncounterOverrideData,
+  EncounterTableData,
+  HexData,
+} from '@skyreach/schemas';
 
 const encounterData = await getCollection('encounters');
 const encounters = encounterData.sort((a, b) =>

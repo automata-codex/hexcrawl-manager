@@ -2,7 +2,6 @@ import { writable } from 'svelte/store';
 
 import { SCOPES, STORAGE_KEYS } from '../../utils/constants.ts';
 
-
 import type { Scope } from '@skyreach/schemas';
 
 export interface LayerMetadata {

@@ -39,7 +39,7 @@ const SessionApEntrySchema = z.object({
   }),
   appliedAt: z.string().datetime(),
   characterId: z.string(),
-  sessionId: SessionId,      // ties back to the report id
+  sessionId: SessionId, // ties back to the report id
   source: z.object({ fileHash: z.string() }).optional(), // optional idempotency/audit
 });
 

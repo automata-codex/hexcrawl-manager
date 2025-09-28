@@ -2,7 +2,6 @@
   import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 
-
   import type { HexData } from '@skyreach/schemas';
 
   interface Props {
