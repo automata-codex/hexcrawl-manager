@@ -2,7 +2,8 @@ import { writable } from 'svelte/store';
 
 import { STORAGE_KEYS } from '../utils/constants.ts';
 
-import type { CharacterData, EncounterData, StatBlockData } from '../types.ts';
+import type { CharacterData, EncounterData } from '../types.ts';
+import type { StatBlockData } from '@skyreach/schemas';
 
 export interface CurrentPartyMember {
   id: string;

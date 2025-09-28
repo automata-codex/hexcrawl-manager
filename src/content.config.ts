@@ -12,9 +12,11 @@ import {
   NpcSchema,
   PlayerSchema,
   RegionSchema,
+  type RumorData,
   RumorSchema,
   SessionSchema,
   StatBlockSchema,
+  type SupplementData,
   SupplementSchema,
   TrailEntrySchema,
   TrailsFile,
@@ -33,8 +35,6 @@ import type {
   LootPackData,
   NpcData,
   PlayerData,
-  RumorData,
-  SupplementData,
   TrailEntry,
 } from './types.ts';
 

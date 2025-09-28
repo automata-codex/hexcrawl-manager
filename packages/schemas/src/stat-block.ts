@@ -215,3 +215,9 @@ export const StatBlockSchema = z.object({
   document__url: z.string().optional(),
   v2_converted_path: z.string().optional(),
 });
+
+export type DescriptiveActionData = z.infer<typeof DescriptiveActionSchema>;
+export type MeleeWeaponAttackData = z.infer<typeof MeleeWeaponAttackSchema>;
+export type RangedWeaponAttackData = z.infer<typeof RangedWeaponAttackSchema>;
+export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
+export type StatBlockData = z.infer<typeof StatBlockSchema>;

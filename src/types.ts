@@ -19,25 +19,16 @@ import { KnowledgeNodeSchema } from '../schemas/knowledge-node';
 import { LootPackSchema } from '../schemas/loot-pack';
 import { NpcSchema } from '../schemas/npc';
 import { PlayerSchema } from '../schemas/player';
-import { RegionSchema } from '../schemas/region';
-import { RumorSchema } from '../schemas/rumor';
-import { ScopeSchema } from '../schemas/scopes';
-import { SessionSchema } from '../schemas/session';
 import {
   DescriptiveActionSchema,
   MeleeWeaponAttackSchema,
   RangedWeaponAttackSchema,
   SkillsSchema,
-  SpecialActionSchema,
-  StatBlockSchema,
 } from '../schemas/stat-block.js';
-import { SupplementSchema } from '../schemas/supplement-list';
 import { TrailEntrySchema, TrailSchema } from '../schemas/trails';
 import { TreasureSchema } from '../schemas/treasure';
 
 import { CampaignDateSchema } from './config/campaign-date.ts';
-
-import type { SegmentMetadataSchema } from '../schemas/map-path';
 import type { MetaSchema } from '../schemas/meta';
 import type { CollectionEntry } from 'astro:content';
 
@@ -63,14 +54,7 @@ export type MetaData = z.infer<typeof MetaSchema>;
 export type NpcData = z.infer<typeof NpcSchema>;
 export type PlayerData = z.infer<typeof PlayerSchema>;
 export type RangedWeaponAttackData = z.infer<typeof RangedWeaponAttackSchema>;
-export type RegionData = z.infer<typeof RegionSchema>;
-export type RumorData = z.infer<typeof RumorSchema>;
-export type Scope = z.infer<typeof ScopeSchema>;
-export type SegmentMetadataData = z.infer<typeof SegmentMetadataSchema>;
-export type SessionData = z.infer<typeof SessionSchema>;
-export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
-export type StatBlockData = z.infer<typeof StatBlockSchema>;
-export type SupplementData = z.infer<typeof SupplementSchema>;
+
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
 export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>;
 export type TrailData = z.infer<typeof TrailSchema>;

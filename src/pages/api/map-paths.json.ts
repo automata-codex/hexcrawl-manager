@@ -4,8 +4,9 @@ import { getCollection } from 'astro:content';
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE } from '../../utils/constants.ts';
 
-import type { SegmentMetadataData, TrailEntry } from '../../types.ts';
+import type { TrailEntry } from '../../types.ts';
 import type { APIRoute } from 'astro';
+import type { SegmentMetadataData } from '@skyreach/schemas';
 
 const ALLOWED_PLAYER_TYPES = ['river', 'trail'];
 

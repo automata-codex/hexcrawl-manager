@@ -21,3 +21,5 @@ export const RegionSchema = z
     treasureRating: z.number().int().min(1).max(5),
   })
   .describe('Data for a region on a hex map');
+
+export type RegionData = z.infer<typeof RegionSchema>;

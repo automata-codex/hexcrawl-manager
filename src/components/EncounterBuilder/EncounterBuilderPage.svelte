@@ -7,8 +7,9 @@
   import type {
     CharacterData,
     EncounterData,
-    StatBlockData,
+
   } from '../../types.ts';
+  import type { StatBlockData } from '@skyreach/schemas';
 
   interface Props {
     characters: CharacterData[];

@@ -23,3 +23,5 @@ export const SessionSchema = z.object({
   }),
   events: z.array(z.string()).optional(), // What happened in this session
 });
+
+export type SessionData = z.infer<typeof SessionSchema>;

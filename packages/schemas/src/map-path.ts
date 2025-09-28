@@ -46,3 +46,5 @@ export const MapPathSchema = z.object({
       'Segment metadata with keys like "0", "1", etc. to indicate the segment',
     ),
 });
+
+export type SegmentMetadataData = z.infer<typeof SegmentMetadataSchema>;

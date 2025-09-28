@@ -8,3 +8,5 @@ export const SupplementSchema = z.object({
 });
 
 export const SupplementListSchema = z.array(SupplementSchema);
+
+export type SupplementData = z.infer<typeof SupplementSchema>;

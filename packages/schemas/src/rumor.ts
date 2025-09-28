@@ -11,3 +11,5 @@ export const RumorSchema = z.object({
 });
 
 export const RumorListSchema = z.array(RumorSchema);
+
+export type RumorData = z.infer<typeof RumorSchema>;
