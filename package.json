@@ -2,7 +2,6 @@
   "name": "skyreach",
   "version": "2.3.0",
   "description": "Campaign manager and data for _Beyond the Skyreach Mountains_",
-  "workspaces": ["packages/*"],
   "private": true,
   "scripts": {
     "arch:check": "depcruise \"cli/**/*.ts\" \"packages/**/*.ts\" \"src/**/*.ts\" --config .dependency-cruiser.cjs",
@@ -24,9 +23,9 @@
     "elevation:setup": "bash scripts/elevation-solver/setup_virtualenv.sh",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
-    "gen-json-schema": "node ./scripts/generate-json-schema.js",
-    "lint": "npm run -ws lint",
-    "lint:all": "eslint . --ext .js,.ts,.jsx,.tsx,.astro,.svelte",
+    "gen-json-schema": "npm run -w @skyreach/schemas build",
+    "lint": "eslint . --ext .js,.ts,.jsx,.tsx,.astro,.svelte",
+    "lint:deprecated": "npm run -ws lint",
     "lint:fix": "eslint . --ext .js,.ts,.jsx,.tsx,.astro,.svelte --fix",
     "preview": "astro preview",
     "release:version": "changeset version",
@@ -40,6 +39,7 @@
     "node": "22.20.0",
     "npm": "11.6.1"
   },
+  "workspaces": ["packages/*"],
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/mdx": "^4.2.6",

@@ -4,7 +4,8 @@
 
   import { getDungeonPath } from '../../config/routes.ts';
 
-  import type { DungeonEntry, HexData } from '../../types.ts';
+  import type { DungeonEntry } from '../../types.ts';
+  import type { HexData } from '@skyreach/schemas';
 
   interface Props {
     dungeons: DungeonEntry[];

@@ -8,7 +8,8 @@
     getHexPath,
   } from '../config/routes.js';
 
-  import type { KnowledgeNodeData, PlacementRef } from '../types';
+  import type { PlacementRef } from '../types';
+  import type { KnowledgeNodeData } from '@skyreach/schemas';
 
   export let node: KnowledgeNodeData;
   export let fullId: string = node.id;

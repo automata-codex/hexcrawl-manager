@@ -1,9 +1,9 @@
 import { resolveDataPath } from '@skyreach/data';
+import { SessionReportSchema } from '@skyreach/schemas';
 import { Command } from 'commander';
 import fs from 'fs';
 import path from 'path';
 
-import { SessionReportSchema } from '../../../schemas/session-report.js';
 import { pad, writeYamlAtomic } from '../shared-lib';
 import { loadMeta } from '../shared-lib/meta.ts';
 

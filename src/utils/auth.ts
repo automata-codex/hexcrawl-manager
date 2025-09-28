@@ -1,6 +1,6 @@
 import { SCOPES, SECURITY_ROLE } from './constants.ts';
 
-import type { Scope } from '../types.ts';
+import type { Scope } from '@skyreach/schemas';
 
 const DEFAULT_SCOPE = SCOPES.PUBLIC;
 

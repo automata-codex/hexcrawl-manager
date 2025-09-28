@@ -2,7 +2,8 @@ import { startCase, toLower } from 'lodash-es';
 
 import { renderBulletMarkdown } from './markdown.ts';
 
-import type { ExtendedTreasureData, TreasureData } from '../types.ts';
+import type { ExtendedTreasureData } from '../types.ts';
+import type { TreasureData } from '@skyreach/schemas';
 
 export function formatValue(value?: number): string {
   return value != null ? `${value} gp` : '—';

@@ -1,4 +1,4 @@
-import { PILLARS } from '@skyreach/core';
+import { PILLARS } from '@skyreach/schemas';
 
 import { TIERS } from './constants';
 import { getAllCharacterIds } from './services/character';
