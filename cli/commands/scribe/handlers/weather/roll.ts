@@ -1,6 +1,6 @@
-import { requireFile, requireSession } from '../../lib/guards.ts';
-import { rollDice, clamp } from '../../lib/math.ts';
-import { info } from '../../lib/report.ts';
+
+import { rollDice } from '@skyreach/core';
+import { info } from '@skyreach/cli-kit';
 import { lastCalendarDate, selectCurrentForecast } from '../../projectors.ts';
 import { readEvents } from '../../services/event-log.ts';
 
@@ -17,6 +17,8 @@ import {
 import type { Context } from '../../types.ts';
 import type { CampaignDate } from '@skyreach/schemas';
 import type { Season, WeatherCategory, WeatherDraft } from '@skyreach/core';
+import { clamp } from '@skyreach/cli-kit';
+import { requireFile, requireSession } from '../../services/general.ts';
 
 export default function weatherRoll(ctx: Context) {
   if (!requireSession(ctx)) {

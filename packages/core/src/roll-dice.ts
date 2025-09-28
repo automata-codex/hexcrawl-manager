@@ -1,9 +1,5 @@
 import { randomBytes } from 'crypto';
 
-export function clamp(val: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, val));
-}
-
 /**
  * Parses dice notation (e.g., "2d6+1") and rolls the dice. Uses secure RNG for
  * true randomness only (no seed support).

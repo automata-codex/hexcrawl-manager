@@ -6,10 +6,10 @@ import readline from 'node:readline';
 import { scribeCompleter } from './completer';
 import { buildHandlers, showHelp } from './handlers';
 import weatherNag from './hooks/weather-nag';
-import { error, warn } from './lib/report.ts';
-import { tokenize } from './lib/tokenize.ts';
+import { error, warn } from '@skyreach/cli-kit';
 import { CalendarService } from './services/calendar.ts';
 import { type Context } from './types';
+import { tokenize } from './services/general.ts';
 
 export const scribeCommand = new Command('scribe')
   .description('Open the in-session logging shell')

@@ -5,12 +5,12 @@ import yaml from 'yaml';
 
 import { REPO_PATHS } from '@skyreach/data';
 import { loadMeta, saveMeta } from '@skyreach/data';
-import { requireFile, requireSession } from '../lib/guards.ts';
 import { type Context } from '../types';
 
 import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
 import { type Event, pad } from '@skyreach/cli-kit';
 import type { CampaignDate } from '@skyreach/schemas';
+import { requireFile, requireSession } from './general.ts';
 
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =

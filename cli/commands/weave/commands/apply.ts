@@ -1,7 +1,7 @@
 import path from 'path';
 
 import { readJsonl } from '@skyreach/data';
-import { error, info } from '../../scribe/lib/report';
+import { error, info } from '@skyreach/cli-kit';
 import { REPO_PATHS } from '@skyreach/data';
 import { loadMeta, saveMeta } from '@skyreach/data';
 import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';

@@ -1,11 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { detectDevMode } from '../lib/env.ts';
-import { requireFile, requireSession } from '../lib/guards.ts';
-import { info, error as printError, warn } from '../lib/report.ts';
+import { info, error as printError, warn } from '@skyreach/cli-kit';
 
 import type { Context } from '../types.ts';
+import {
+  detectDevMode,
+  requireFile,
+  requireSession,
+} from '../services/general.ts';
 
 // Lock file helpers
 const lockDir = path.join('data', 'session-logs', '.locks');

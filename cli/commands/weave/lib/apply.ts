@@ -1,7 +1,7 @@
 import { hexSort, normalizeHexId } from '@skyreach/core';
 import { cloneDeep } from 'lodash-es';
 
-import { rollDice } from '../../scribe/lib/math.ts';
+import { rollDice } from '@skyreach/core';
 
 export function applyRolloverToTrails(
   trails: Record<string, any>,

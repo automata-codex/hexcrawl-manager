@@ -1,10 +1,9 @@
-import { CALENDAR_CONFIG } from '@skyreach/core';
+import { info, warn, usage, error } from '@skyreach/cli-kit';
+import { CALENDAR_CONFIG, segmentsToHours } from '@skyreach/core';
 
-import { segmentsToHours } from '../lib/day.ts';
-import { requireFile, requireSession } from '../lib/guards.ts';
-import { info, warn, usage, error } from '../lib/report';
 import { findOpenDay, lastCalendarDate } from '../projectors.ts';
 import { readEvents, appendEvent } from '../services/event-log';
+import { requireFile, requireSession } from '../services/general.ts';
 
 import type { Context } from '../types';
 import type { CampaignDate } from '@skyreach/schemas';

@@ -42,6 +42,7 @@ export function getAllCharacterIds(): string[] {
   memo = loadCharacterIds();
   return memo;
 }
+
 export function reloadCharacterIds(): string[] {
   memo = loadCharacterIds();
   return memo;

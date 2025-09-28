@@ -1,6 +1,5 @@
-import { segmentsToHours } from '../lib/day.ts';
-import { requireFile } from '../lib/guards.ts';
-import { info } from '../lib/report';
+import { segmentsToHours } from '@skyreach/core';
+import { info } from '@skyreach/cli-kit';
 import {
   activeSegmentsSinceStart,
   daylightSegmentsSinceStart,
@@ -11,6 +10,7 @@ import {
 import { readEvents } from '../services/event-log';
 
 import type { Context } from '../types';
+import { requireFile } from '../services/general.ts';
 
 export default function status(ctx: Context) {
   return (_args: string[]) => {

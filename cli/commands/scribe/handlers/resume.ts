@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
 
-import { detectDevMode } from '../lib/env.ts';
-import { error, info, warn } from '../lib/report.ts';
+import { error, info, warn } from '@skyreach/cli-kit';
 import { selectCurrentHex } from '../projectors.ts';
 import { readEvents } from '../services/event-log.ts';
 import {
@@ -10,6 +9,7 @@ import {
 } from '../services/session.ts';
 
 import type { Context } from '../types';
+import { detectDevMode } from '../services/general.ts';
 
 export default function resume(ctx: Context) {
   return (args: string[]) => {

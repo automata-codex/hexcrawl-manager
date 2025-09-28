@@ -1,7 +1,5 @@
-
-import { hoursToSegmentsCeil, segmentsToHours } from '../lib/day.ts';
-import { requireFile } from '../lib/guards.ts';
-import { info, usage, warn } from '../lib/report';
+import { hoursToSegmentsCeil, segmentsToHours } from '@skyreach/core';
+import { info, usage, warn } from '@skyreach/cli-kit';
 import {
   activeSegmentsSinceStart,
   daylightSegmentsSinceStart,
@@ -11,6 +9,7 @@ import { appendEvent, readEvents } from '../services/event-log';
 
 import type { Context } from '../types';
 import { EXHAUSTION_HOURS, STEP_HOURS } from '@skyreach/schemas';
+import { requireFile } from '../services/general.ts';
 
 export default function time(ctx: Context) {
   return (args: string[]) => {

@@ -1,13 +1,13 @@
 import { isValidHexId, normalizeHexId } from '@skyreach/core';
 import { existsSync } from 'node:fs';
 
-import { detectDevMode } from '../lib/env.ts';
-import { error, info, usage } from '../lib/report.ts';
+import { error, info, usage } from '@skyreach/cli-kit';
 import { selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log.ts';
 import { prepareSessionStart } from '../services/session.ts';
 
 import type { Context } from '../types';
+import { detectDevMode } from '../services/general.ts';
 
 export default function start(ctx: Context) {
   return (args: string[]) => {

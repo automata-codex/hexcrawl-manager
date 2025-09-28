@@ -1,9 +1,14 @@
-import { selectCurrentHex } from '../projectors.ts';
-import { readEvents } from '../services/event-log.ts';
+import { warn } from '@skyreach/cli-kit';
 
-import { warn } from './report.ts';
+import { selectCurrentHex } from '../projectors.ts';
+
+import { readEvents } from './event-log.ts';
 
 import type { Context } from '../types.ts';
+
+export function detectDevMode(args: string[]): boolean {
+  return process.env.SKYREACH_DEV === 'true' || args.includes('--dev');
+}
 
 export function requireCurrentHex(ctx: Context): boolean {
   if (!ctx.file) {
@@ -34,4 +39,27 @@ export function requireSession(ctx: Context): boolean {
     return false;
   }
   return true;
+}
+
+// Allow quoted args: note "party rests here"
+export function tokenize(s: string): string[] {
+  const out: string[] = [];
+  let cur = '',
+    q: '"' | "'" | null = null;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (q) {
+      if (c === q) q = null;
+      else cur += c;
+    } else if (c === '"' || c === "'") {
+      q = c as any;
+    } else if (/\s/.test(c)) {
+      if (cur) {
+        out.push(cur);
+        cur = '';
+      }
+    } else cur += c;
+  }
+  if (cur) out.push(cur);
+  return out;
 }

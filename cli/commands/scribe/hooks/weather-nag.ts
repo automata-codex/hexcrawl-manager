@@ -1,5 +1,5 @@
-import { datesEqual } from '../lib/date.ts';
-import { warn } from '../lib/report.ts';
+import { datesEqual } from '@skyreach/core';
+import { warn } from '@skyreach/cli-kit';
 import { lastCalendarDate, selectCurrentWeather } from '../projectors.ts';
 import { readEvents } from '../services/event-log.ts';
 
