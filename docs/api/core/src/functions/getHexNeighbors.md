@@ -2,7 +2,7 @@
 
 > **getHexNeighbors**(`hex`): `string`[]
 
-Defined in: [packages/core/src/hexes/get-hex-neighbors.ts:5](https://github.com/alexgs/skyreach/blob/404c4c007a794e5a320a26b0aac063d937e09ea9/packages/core/src/hexes/get-hex-neighbors.ts#L5)
+Defined in: [packages/core/src/hexes/get-hex-neighbors.ts:5](https://github.com/alexgs/skyreach/blob/develop/packages/core/src/hexes/get-hex-neighbors.ts#L5)
 
 Get neighboring hexes for a given hex in an odd-q flat-topped hex grid.
 

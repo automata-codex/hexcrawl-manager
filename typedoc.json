@@ -11,6 +11,10 @@
   "out": "docs/api",
   "json": "docs/api/typedoc.json",
 
+  "gitRemote": "origin",
+  "gitRevision": "develop",
+  "sourceLinkTemplate": "https://github.com/alexgs/skyreach/blob/{gitRevision}/{path}#L{line}",
+
   "readme": "none",
   "hideBreadcrumbs": true,
   "hidePageHeader": true,

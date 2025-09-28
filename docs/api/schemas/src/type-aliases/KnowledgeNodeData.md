@@ -2,7 +2,7 @@
 
 > **KnowledgeNodeData** = `object`
 
-Defined in: [packages/schemas/src/schemas/knowledge-node.ts:3](https://github.com/alexgs/skyreach/blob/404c4c007a794e5a320a26b0aac063d937e09ea9/packages/schemas/src/schemas/knowledge-node.ts#L3)
+Defined in: [packages/schemas/src/schemas/knowledge-node.ts:3](https://github.com/alexgs/skyreach/blob/develop/packages/schemas/src/schemas/knowledge-node.ts#L3)
 
 ## Properties
 
@@ -10,7 +10,7 @@ Defined in: [packages/schemas/src/schemas/knowledge-node.ts:3](https://github.co
 
 > `optional` **children**: `KnowledgeNodeData`[]
 
-Defined in: [packages/schemas/src/schemas/knowledge-node.ts:5](https://github.com/alexgs/skyreach/blob/404c4c007a794e5a320a26b0aac063d937e09ea9/packages/schemas/src/schemas/knowledge-node.ts#L5)
+Defined in: [packages/schemas/src/schemas/knowledge-node.ts:5](https://github.com/alexgs/skyreach/blob/develop/packages/schemas/src/schemas/knowledge-node.ts#L5)
 
 ***
 
@@ -18,7 +18,7 @@ Defined in: [packages/schemas/src/schemas/knowledge-node.ts:5](https://github.co
 
 > **description**: `string`
 
-Defined in: [packages/schemas/src/schemas/knowledge-node.ts:6](https://github.com/alexgs/skyreach/blob/404c4c007a794e5a320a26b0aac063d937e09ea9/packages/schemas/src/schemas/knowledge-node.ts#L6)
+Defined in: [packages/schemas/src/schemas/knowledge-node.ts:6](https://github.com/alexgs/skyreach/blob/develop/packages/schemas/src/schemas/knowledge-node.ts#L6)
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: [packages/schemas/src/schemas/knowledge-node.ts:6](https://github.co
 
 > `optional` **details**: `string`
 
-Defined in: [packages/schemas/src/schemas/knowledge-node.ts:9](https://github.com/alexgs/skyreach/blob/404c4c007a794e5a320a26b0aac063d937e09ea9/packages/schemas/src/schemas/knowledge-node.ts#L9)
+Defined in: [packages/schemas/src/schemas/knowledge-node.ts:9](https://github.com/alexgs/skyreach/blob/develop/packages/schemas/src/schemas/knowledge-node.ts#L9)
 
 ***
 
@@ -34,7 +34,7 @@ Defined in: [packages/schemas/src/schemas/knowledge-node.ts:9](https://github.co
 
 > **id**: `string`
 
-Defined in: [packages/schemas/src/schemas/knowledge-node.ts:4](https://github.com/alexgs/skyreach/blob/404c4c007a794e5a320a26b0aac063d937e09ea9/packages/schemas/src/schemas/knowledge-node.ts#L4)
+Defined in: [packages/schemas/src/schemas/knowledge-node.ts:4](https://github.com/alexgs/skyreach/blob/develop/packages/schemas/src/schemas/knowledge-node.ts#L4)
 
 ***
 
@@ -42,7 +42,7 @@ Defined in: [packages/schemas/src/schemas/knowledge-node.ts:4](https://github.co
 
 > `optional` **isKnown**: `boolean`
 
-Defined in: [packages/schemas/src/schemas/knowledge-node.ts:7](https://github.com/alexgs/skyreach/blob/404c4c007a794e5a320a26b0aac063d937e09ea9/packages/schemas/src/schemas/knowledge-node.ts#L7)
+Defined in: [packages/schemas/src/schemas/knowledge-node.ts:7](https://github.com/alexgs/skyreach/blob/develop/packages/schemas/src/schemas/knowledge-node.ts#L7)
 
 ***
 
@@ -50,4 +50,4 @@ Defined in: [packages/schemas/src/schemas/knowledge-node.ts:7](https://github.co
 
 > **name**: `string`
 
-Defined in: [packages/schemas/src/schemas/knowledge-node.ts:8](https://github.com/alexgs/skyreach/blob/404c4c007a794e5a320a26b0aac063d937e09ea9/packages/schemas/src/schemas/knowledge-node.ts#L8)
+Defined in: [packages/schemas/src/schemas/knowledge-node.ts:8](https://github.com/alexgs/skyreach/blob/develop/packages/schemas/src/schemas/knowledge-node.ts#L8)

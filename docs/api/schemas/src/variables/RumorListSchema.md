@@ -2,4 +2,4 @@
 
 > `const` **RumorListSchema**: `ZodArray`\<`ZodObject`\<\{ `description`: `ZodString`; `id`: `ZodString`; `isAvailable`: `ZodOptional`\<`ZodBoolean`\>; `isKnown`: `ZodOptional`\<`ZodBoolean`\>; `notes`: `ZodOptional`\<`ZodArray`\<`ZodString`, `"many"`\>\>; `status`: `ZodEnum`\<\[`"true"`, `"false"`, `"misleading"`\]\>; `title`: `ZodString`; \}, `"strip"`, `ZodTypeAny`, \{ `description`: `string`; `id`: `string`; `isAvailable?`: `boolean`; `isKnown?`: `boolean`; `notes?`: `string`[]; `status`: `"true"` \| `"false"` \| `"misleading"`; `title`: `string`; \}, \{ `description`: `string`; `id`: `string`; `isAvailable?`: `boolean`; `isKnown?`: `boolean`; `notes?`: `string`[]; `status`: `"true"` \| `"false"` \| `"misleading"`; `title`: `string`; \}\>, `"many"`\>
 
-Defined in: [packages/schemas/src/schemas/rumor.ts:13](https://github.com/alexgs/skyreach/blob/404c4c007a794e5a320a26b0aac063d937e09ea9/packages/schemas/src/schemas/rumor.ts#L13)
+Defined in: [packages/schemas/src/schemas/rumor.ts:13](https://github.com/alexgs/skyreach/blob/develop/packages/schemas/src/schemas/rumor.ts#L13)
