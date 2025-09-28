@@ -5,7 +5,7 @@ import yaml from 'yaml';
 import { REPO_PATHS } from '@skyreach/data';
 import { loadMeta } from '@skyreach/data';
 import { detectDevMode } from '../lib/env.ts';
-import { readJsonl } from '../lib/jsonl.ts';
+import { readJsonl } from '@skyreach/data';
 import { info, warn, error } from '../lib/report.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;

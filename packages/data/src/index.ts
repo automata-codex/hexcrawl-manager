@@ -2,6 +2,7 @@ export { atomicWrite } from './atomic-write';
 export { getRepoPath } from './get-repo-path';
 export { getRepoRoot } from './get-repo-root';
 export { getGitHeadCommit, isGitDirty } from './git';
+export * from './jsonl';
 export { loadConfig } from './load-config';
 export * from './meta';
 export { resolveDataPath } from './paths';

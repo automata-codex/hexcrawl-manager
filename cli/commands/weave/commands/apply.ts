@@ -1,6 +1,6 @@
 import path from 'path';
 
-import { readJsonl } from '../../scribe/lib/jsonl';
+import { readJsonl } from '@skyreach/data';
 import { error, info } from '../../scribe/lib/report';
 import { REPO_PATHS } from '@skyreach/data';
 import { loadMeta, saveMeta } from '@skyreach/data';
