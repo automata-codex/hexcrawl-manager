@@ -1,4 +1,4 @@
-import { eventsOf, getRepoPath } from '@skyreach/cli-kit';
+import { eventsOf } from '@skyreach/cli-kit';
 import { SessionReportSchema } from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -8,16 +8,16 @@ import yaml from 'yaml';
 
 import pkg from '../../../../../package.json' assert { type: 'json' };
 import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
-import { REPO_PATHS } from '@skyreach/data';
+import { REPO_PATHS, resolveDataPath } from '@skyreach/data';
 import { isGitDirty } from '@skyreach/data';
 import { pad, pickNextSessionId } from '@skyreach/cli-kit';
 import { sortScribeIds } from '@skyreach/cli-kit';
 import { computeApForSession } from '../../lib/compute-ap-for-session.ts';
 
-import type { CanonicalDate } from '../../../scribe/types.ts';
+import type { CampaignDate } from '@skyreach/schemas';
 import { writeYamlAtomic } from '@skyreach/data';
 
-function formatDate(d: CanonicalDate | null): string {
+function formatDate(d: CampaignDate | null): string {
   if (!d) {
     return 'unknown';
   }
@@ -208,7 +208,7 @@ export async function apApply(sessionId?: string) {
   writeYamlAtomic(reportPath, reportOut);
 
   // Append per-character session_ap entries to the ledger
-  const ledgerPath = getRepoPath('data', 'ap-ledger.yaml');
+  const ledgerPath = resolveDataPath('ap-ledger.yaml');
   let ledger = [];
   if (fs.existsSync(ledgerPath)) {
     ledger = yaml.parse(fs.readFileSync(ledgerPath, 'utf8')) || [];

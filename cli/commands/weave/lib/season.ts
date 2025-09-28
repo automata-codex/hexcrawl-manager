@@ -1,6 +1,6 @@
 import { CALENDAR_CONFIG } from '../../scribe/config/calendar.config';
 
-import type { CanonicalDate } from '../../scribe/types';
+import type { CampaignDate } from '@skyreach/schemas';
 
 const SEASON_ORDER = ['winter', 'spring', 'summer', 'autumn'];
 
@@ -29,7 +29,7 @@ export function compareSeasonIds(a: string, b: string): number {
  * Derive a season ID (e.g., '1511-autumn') from a CanonicalDate.
  * Always returns lower-case.
  */
-export function deriveSeasonId(date: CanonicalDate): string {
+export function deriveSeasonId(date: CampaignDate): string {
   const season = CALENDAR_CONFIG.seasonByMonth[date.month];
   if (!season) {
     throw new Error(`Unknown month: ${date.month}`);

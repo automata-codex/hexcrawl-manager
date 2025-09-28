@@ -11,7 +11,7 @@ import {
 } from '../../shared-lib';
 import { REPO_PATHS } from '@skyreach/data';
 
-import type { CanonicalDate } from '../types.ts';
+import type { CampaignDate } from '@skyreach/schemas';
 import { type Event, eventsOf, pad } from '@skyreach/cli-kit';
 
 describe('scribe finalize', () => {
@@ -46,7 +46,7 @@ describe('scribe finalize', () => {
         // Find all unique season IDs from day_start events
         const uniqueSeasons = new Set(
           eventsOf(allEvents, 'day_start').map((e) => {
-            const calendarDate = e.payload.calendarDate as CanonicalDate;
+            const calendarDate = e.payload.calendarDate as CampaignDate;
             return `${calendarDate.year}-${String(e.payload.season).toLowerCase()}`;
           }),
         );
@@ -93,6 +93,7 @@ describe('scribe finalize', () => {
         );
 
         const commands = ['finalize'];
+        // eslint-disable-next-line no-unused-vars
         const { exitCode, stderr, stdout } = await runScribe(commands, {
           repo,
         });
@@ -208,6 +209,7 @@ describe('scribe finalize', () => {
         );
 
         const commands = ['resume', 'move p14', 'rest', 'finalize'];
+        // eslint-disable-next-line no-unused-vars
         const { exitCode, stderr, stdout } = await runScribe(commands, {
           repo,
           ensureExit: false,
@@ -264,6 +266,7 @@ describe('scribe finalize', () => {
           }
         }
         const commands = ['resume', 'finalize'];
+        // eslint-disable-next-line no-unused-vars
         const { exitCode, stderr, stdout } = await runScribe(commands, {
           repo,
         });
@@ -293,6 +296,7 @@ describe('scribe finalize', () => {
           'rest',
           'finalize',
         ];
+        // eslint-disable-next-line no-unused-vars
         const { exitCode, stderr, stdout } = await runScribe(commands, {
           repo,
         });
@@ -435,6 +439,7 @@ describe('scribe finalize', () => {
         fs.mkdirSync(sessionsDir, { recursive: true });
         fs.chmodSync(sessionsDir, 0o400); // read-only
         const commands = ['start p13', 'day start 8 umb 1511', 'finalize'];
+        // eslint-disable-next-line no-unused-vars
         const { exitCode, stderr, stdout } = await runScribe(commands, {
           repo,
         });

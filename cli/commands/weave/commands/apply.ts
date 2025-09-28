@@ -27,8 +27,8 @@ import {
 } from '../lib/state';
 import { validateSessionEnvelope } from '../lib/validate';
 
-import type { CanonicalDate } from '../../scribe/types.ts';
 import { writeYamlAtomic } from '@skyreach/data';
+import type { CampaignDate } from '@skyreach/schemas';
 
 export async function apply(fileArg?: string, opts?: any) {
   requireCleanGitOrAllowDirty(opts);
@@ -129,7 +129,7 @@ export async function apply(fileArg?: string, opts?: any) {
       process.exit(4);
     }
     const seasonIds = dayStarts.map((e) => {
-      const calDate = e.payload?.calendarDate as CanonicalDate;
+      const calDate = e.payload?.calendarDate as CampaignDate;
       return deriveSeasonId(calDate);
     });
     const firstSeasonId = seasonIds[0];

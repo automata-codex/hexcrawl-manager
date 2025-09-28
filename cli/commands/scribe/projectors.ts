@@ -6,8 +6,9 @@ import { normalizeHexId } from '@skyreach/core';
 
 import { datesEqual } from './lib/date.ts';
 
-import type { CanonicalDate, WeatherCommitted } from './types';
+import type { WeatherCommitted } from './types';
 import type { Event } from '@skyreach/cli-kit';
+import type { CampaignDate } from '@skyreach/schemas';
 
 // Sum ALL time segments (daylight + night) since the last day_start
 export function activeSegmentsSinceStart(events: Event[], startIdx: number) {
@@ -52,14 +53,14 @@ export function findOpenDay(events: Event[]) {
   return { open, lastStartIdx };
 }
 
-export function firstCalendarDate(events: Event[]): CanonicalDate | null {
+export function firstCalendarDate(events: Event[]): CampaignDate | null {
   for (let i = 0; i < events.length; i++) {
     const e = events[i];
     if (e.kind === 'day_start' && (e as any).payload?.calendarDate) {
-      return (e as any).payload.calendarDate as CanonicalDate;
+      return (e as any).payload.calendarDate as CampaignDate;
     }
     if (e.kind === 'date_set' && (e as any).payload?.calendarDate) {
-      return (e as any).payload.calendarDate as CanonicalDate;
+      return (e as any).payload.calendarDate as CampaignDate;
     }
   }
   return null;
@@ -100,14 +101,14 @@ export function isPartyLost(events: Event[]): boolean {
   return false;
 }
 
-export function lastCalendarDate(events: Event[]): CanonicalDate | null {
+export function lastCalendarDate(events: Event[]): CampaignDate | null {
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
     if (e.kind === 'day_start' && (e as any).payload?.calendarDate) {
-      return (e as any).payload.calendarDate as CanonicalDate;
+      return (e as any).payload.calendarDate as CampaignDate;
     }
     if (e.kind === 'date_set' && (e as any).payload?.calendarDate) {
-      return (e as any).payload.calendarDate as CanonicalDate;
+      return (e as any).payload.calendarDate as CampaignDate;
     }
   }
   return null;

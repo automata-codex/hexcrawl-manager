@@ -15,12 +15,12 @@ import {
 } from './helpers.ts';
 
 import type {
-  CanonicalDate,
   Context,
   Season,
   WeatherCategory,
   WeatherDraft,
 } from '../../types.ts';
+import type { CampaignDate } from '@skyreach/schemas';
 
 export default function weatherRoll(ctx: Context) {
   if (!requireSession(ctx)) {
@@ -32,7 +32,7 @@ export default function weatherRoll(ctx: Context) {
   const events = readEvents(ctx.file!); // Checked by `requireFile`
 
   // 1. Get today's date
-  const date: CanonicalDate | null = lastCalendarDate(events);
+  const date: CampaignDate | null = lastCalendarDate(events);
   if (!date) {
     info('No current date found. Start a day first.');
     return;

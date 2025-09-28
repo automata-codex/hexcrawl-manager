@@ -5,7 +5,8 @@ import { info, warn, usage, error } from '../lib/report';
 import { findOpenDay, lastCalendarDate } from '../projectors.ts';
 import { readEvents, appendEvent } from '../services/event-log';
 
-import type { CanonicalDate, Context } from '../types';
+import type { Context } from '../types';
+import type { CampaignDate } from '@skyreach/schemas';
 
 export default function day(ctx: Context) {
   return (args: string[]) => {
@@ -33,7 +34,7 @@ export default function day(ctx: Context) {
 
       // Parse/resolve date
       const dateArg = args.slice(1).join(' ').trim(); // may be empty
-      let calendarDate: CanonicalDate | null = null;
+      let calendarDate: CampaignDate | null = null;
 
       try {
         if (dateArg) {

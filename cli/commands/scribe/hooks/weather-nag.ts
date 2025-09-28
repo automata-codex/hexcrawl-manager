@@ -3,7 +3,8 @@ import { warn } from '../lib/report.ts';
 import { lastCalendarDate, selectCurrentWeather } from '../projectors.ts';
 import { readEvents } from '../services/event-log.ts';
 
-import type { Context, CanonicalDate, WeatherCommitted } from '../types';
+import type { Context, WeatherCommitted } from '../types';
+import type { CampaignDate } from '@skyreach/schemas';
 
 /** Prints the weather nag if needed, once per in-game day. */
 export default function weatherNag(ctx: Context, cmd: string) {
@@ -18,7 +19,7 @@ export default function weatherNag(ctx: Context, cmd: string) {
   const events = readEvents(ctx.file);
 
   // Get today's date
-  const today: CanonicalDate | null = lastCalendarDate(events);
+  const today: CampaignDate | null = lastCalendarDate(events);
   if (!today) {
     return;
   }

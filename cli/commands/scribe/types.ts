@@ -1,6 +1,7 @@
 import { type PACES, WEATHER_CATEGORIES } from './constants.ts';
 
 import type { CalendarService } from './services/calendar.ts';
+import type { CampaignDate } from '@skyreach/schemas';
 
 export type CalendarConfig = {
   daylightCaps: Record<Season, number>; // { winter:6, spring:9, summer:12, autumn:9 }
@@ -16,12 +17,6 @@ export class CalendarError extends Error {
     this.name = 'CalendarError';
   }
 }
-
-export type CanonicalDate = {
-  year: number; // e.g., 1511
-  month: string; // must match a configured month name
-  day: number; // 1-based
-};
 
 export type Context = {
   sessionId: string | null;
@@ -84,7 +79,7 @@ export type WeatherCategory = (typeof WEATHER_CATEGORIES)[number];
 
 export type WeatherCommitted = {
   category: WeatherCategory;
-  date: CanonicalDate;
+  date: CampaignDate;
   descriptors?: string[];
   detail?: string;
   forecastAfter: number;
@@ -95,7 +90,7 @@ export type WeatherCommitted = {
 };
 
 export type WeatherDraft = {
-  date: CanonicalDate;
+  date: CampaignDate;
   overrides: {
     category?: WeatherCategory;
     descriptors?: string[];
