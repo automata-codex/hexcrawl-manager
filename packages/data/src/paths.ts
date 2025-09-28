@@ -1,4 +1,4 @@
-import { getRepoPath } from '@skyreach/cli-kit';
+import { getRepoPath } from './get-repo-path';
 
 /**
  * Resolve a path relative to the repo's `data/` directory.
