@@ -1,10 +1,9 @@
+import { CALENDAR_CONFIG } from '@skyreach/core';
+import { ensureRepoDirs } from '@skyreach/data';
 import { Command } from 'commander';
 import readline from 'node:readline';
 
-import { ensureRepoDirs } from '@skyreach/data';
-
 import { scribeCompleter } from './completer';
-import { CALENDAR_CONFIG } from './config/calendar.config.ts';
 import { buildHandlers, showHelp } from './handlers';
 import weatherNag from './hooks/weather-nag';
 import { error, warn } from './lib/report.ts';

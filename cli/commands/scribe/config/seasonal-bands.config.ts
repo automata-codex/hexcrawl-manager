@@ -1,4 +1,4 @@
-import type { SeasonalBandsTable } from '../types';
+import type { SeasonalBandsTable } from '@skyreach/core';
 
 export const SEASONAL_BANDS: SeasonalBandsTable = {
   spring: [

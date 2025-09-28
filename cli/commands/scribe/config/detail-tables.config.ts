@@ -1,4 +1,4 @@
-import type { DetailTables } from '../types';
+import type { DetailTables } from '@skyreach/core';
 
 // Detail Tables for Inclement+ weather
 export const DETAIL_TABLES: DetailTables = {

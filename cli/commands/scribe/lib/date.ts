@@ -1,7 +1,7 @@
-import { CALENDAR_CONFIG } from '../config/calendar.config.ts';
+import { CALENDAR_CONFIG } from '@skyreach/core';
 
-import type { Season } from '../types.ts';
 import type { CampaignDate } from '@skyreach/schemas';
+import type { Season } from '@skyreach/core';
 
 export function datesEqual(
   a: CampaignDate | null,

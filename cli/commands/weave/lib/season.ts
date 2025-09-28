@@ -1,4 +1,4 @@
-import { CALENDAR_CONFIG } from '../../scribe/config/calendar.config';
+import { CALENDAR_CONFIG } from '@skyreach/core';
 
 import type { CampaignDate } from '@skyreach/schemas';
 

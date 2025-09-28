@@ -1,4 +1,4 @@
-import type { ForecastModifierTable } from '../types';
+import type { ForecastModifierTable } from '@skyreach/core';
 
 // Forecast Mapping for weather categories
 export const FORECAST_MODIFIER: ForecastModifierTable = {

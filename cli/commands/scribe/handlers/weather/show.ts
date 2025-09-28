@@ -5,7 +5,8 @@ import { selectCurrentWeather } from '../../projectors.ts';
 import { readEvents } from '../../services/event-log.ts';
 
 import type { CalendarService } from '../../services/calendar.ts';
-import type { Context, WeatherDraft, WeatherCommitted } from '../../types.ts';
+import type { Context } from '../../types.ts';
+import type { WeatherCommitted, WeatherDraft } from '@skyreach/core';
 
 function printCommitted(
   committed: WeatherCommitted,

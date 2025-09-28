@@ -1,4 +1,5 @@
-import { CALENDAR_CONFIG } from '../config/calendar.config.ts';
+import { CALENDAR_CONFIG } from '@skyreach/core';
+
 import { segmentsToHours } from '../lib/day.ts';
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { info, warn, usage, error } from '../lib/report';

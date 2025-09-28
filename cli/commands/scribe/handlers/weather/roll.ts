@@ -14,13 +14,9 @@ import {
   isInclementPlus,
 } from './helpers.ts';
 
-import type {
-  Context,
-  Season,
-  WeatherCategory,
-  WeatherDraft,
-} from '../../types.ts';
+import type { Context } from '../../types.ts';
 import type { CampaignDate } from '@skyreach/schemas';
+import type { Season, WeatherCategory, WeatherDraft } from '@skyreach/core';
 
 export default function weatherRoll(ctx: Context) {
   if (!requireSession(ctx)) {

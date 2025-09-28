@@ -50,12 +50,3 @@ export const STEP_HOURS = 0.5;
 
 export const TIERS: readonly Tier[] = [1, 2, 3, 4] as const;
 
-export const WEATHER_CATEGORIES: readonly string[] = [
-  'agreeable',
-  'catastrophic',
-  'extreme',
-  'ideal',
-  'inclement',
-  'nice',
-  'unpleasant',
-] as const;

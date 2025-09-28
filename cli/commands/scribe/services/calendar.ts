@@ -1,10 +1,7 @@
-import {
-  type CalendarConfig,
-  CalendarError,
-  type Season,
-} from '../types.ts';
+import { CalendarError } from '../types.ts';
 
 import type { CampaignDate, Month } from '@skyreach/schemas';
+import type { CalendarConfig, Season } from '@skyreach/core';
 
 export class CalendarService {
   constructor(private readonly config: CalendarConfig) {

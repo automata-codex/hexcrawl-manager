@@ -3,7 +3,8 @@ import { clamp } from '../../lib/math.ts';
 import { info, error } from '../../lib/report.ts';
 import { appendEvent } from '../../services/event-log.ts';
 
-import type { Context, WeatherDraft } from '../../types.ts';
+import type { Context } from '../../types.ts';
+import type { WeatherDraft } from '@skyreach/core';
 
 export default function weatherCommit(ctx: Context) {
   if (!requireFile(ctx)) {
