@@ -3,10 +3,10 @@ import path from 'node:path';
 import yaml from 'yaml';
 
 import { REPO_PATHS } from '../../shared-lib/constants';
+import { loadMeta } from '../../shared-lib/meta.ts';
 import { detectDevMode } from '../lib/env.ts';
 import { readJsonl } from '../lib/jsonl.ts';
 import { info, warn, error } from '../lib/report.ts';
-import { loadMeta } from '../../shared-lib/meta.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

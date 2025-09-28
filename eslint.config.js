@@ -34,6 +34,8 @@ export default defineConfig([
       '.astro/**',
       '.build/**',
       '.svelte-kit/**',
+      '.vercel/**',
+      '_reports/**',
       'coverage/**',
       'dist/**',
       'packages/**/dist/**',
