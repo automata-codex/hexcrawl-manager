@@ -1,8 +1,4 @@
-import { z } from 'zod';
-
-import { CampaignDateSchema } from './config/campaign-date.ts';
 import type {
-  CharacterData,
   EncounterEntryData,
   HexData,
   HiddenSitesData,
@@ -10,8 +6,6 @@ import type {
   TreasureData,
 } from '@skyreach/schemas';
 import type { CollectionEntry } from 'astro:content';
-
-export type CampaignDate = z.infer<typeof CampaignDateSchema>;
 
 export type ExtendedHexData = HexData & {
   renderedHiddenSites: ExtendedHiddenSites[];
@@ -50,8 +44,6 @@ export type EncounterCategoryTables = Record<
 >;
 
 export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
-
-export type Pillar = keyof CharacterData['advancementPoints'];
 
 export type PlacementMap = Record<string, PlacementRef[]>;
 

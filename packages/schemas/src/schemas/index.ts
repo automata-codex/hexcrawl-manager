@@ -1,5 +1,6 @@
 export * from './ap-ledger';
 export * from './bounty';
+export * from './campaign-date';
 export * from './character';
 export * from './class';
 export * from './class-enum';
