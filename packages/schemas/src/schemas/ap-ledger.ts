@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { SessionId } from './session-report.js';
+import { SessionId } from './session-report';
 
 const AbsenceSpendEntrySchema = z.object({
   kind: z.literal('absence_spend'),

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import {
   EncounterEntrySchema,
   WeightedCategoryTable,
-} from './encounter-table.js';
+} from './encounter-table';
 
 export const EncounterOverrideSchema = z.object({
   mainTable: WeightedCategoryTable.optional(),
