@@ -1,9 +1,9 @@
+import { error, info, usage, warn } from '@skyreach/cli-kit';
 import { isValidHexId, normalizeHexId } from '@skyreach/core';
 
-import { requireFile, requireSession } from '../lib/guards.ts';
-import { error, info, usage, warn } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+import { requireFile, requireSession } from '../services/general.ts';
 
 import type { Context } from '../types';
 

@@ -1,8 +1,9 @@
-import { requireFile, requireSession } from '../../lib/guards.ts';
-import { rollDice, clamp } from '../../lib/math.ts';
-import { info } from '../../lib/report.ts';
+import { clamp, info } from '@skyreach/cli-kit';
+import { rollDice } from '@skyreach/data';
+
 import { lastCalendarDate, selectCurrentForecast } from '../../projectors.ts';
 import { readEvents } from '../../services/event-log.ts';
+import { requireFile, requireSession } from '../../services/general.ts';
 
 import {
   bandForTotal,
@@ -14,13 +15,9 @@ import {
   isInclementPlus,
 } from './helpers.ts';
 
-import type {
-  CanonicalDate,
-  Context,
-  Season,
-  WeatherCategory,
-  WeatherDraft,
-} from '../../types.ts';
+import type { Context } from '../../types.ts';
+import type { Season, WeatherCategory, WeatherDraft } from '@skyreach/core';
+import type { CampaignDate } from '@skyreach/schemas';
 
 export default function weatherRoll(ctx: Context) {
   if (!requireSession(ctx)) {
@@ -32,7 +29,7 @@ export default function weatherRoll(ctx: Context) {
   const events = readEvents(ctx.file!); // Checked by `requireFile`
 
   // 1. Get today's date
-  const date: CanonicalDate | null = lastCalendarDate(events);
+  const date: CampaignDate | null = lastCalendarDate(events);
   if (!date) {
     info('No current date found. Start a day first.');
     return;

@@ -1,7 +1,8 @@
-import { requireFile } from '../lib/guards.ts';
-import { info, usage, error } from '../lib/report';
+import { info, usage, error } from '@skyreach/cli-kit';
+
 import { isDayOpen, lastCalendarDate } from '../projectors.ts';
 import { readEvents, appendEvent } from '../services/event-log';
+import { requireFile } from '../services/general.ts';
 
 import type { Context } from '../types';
 

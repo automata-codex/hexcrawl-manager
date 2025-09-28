@@ -1,15 +1,16 @@
+import { type Event, pad } from '@skyreach/cli-kit';
 import { hexSort, normalizeHexId } from '@skyreach/core';
+import { REPO_PATHS, loadMeta, saveMeta } from '@skyreach/data';
 import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
 
-import { pad } from '../../shared-lib';
-import { REPO_PATHS } from '../../shared-lib/constants';
-import { loadMeta, saveMeta } from '../../shared-lib/meta.ts';
-import { requireFile, requireSession } from '../lib/guards.ts';
-import { type CanonicalDate, type Context, type Event } from '../types';
+import { type Context } from '../types';
 
 import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
+import { requireFile, requireSession } from './general.ts';
+
+import type { CampaignDate } from '@skyreach/schemas';
 
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =
@@ -290,7 +291,7 @@ export function finalizeSession(
   // (b) Identify all day_start events and their seasonId, build block windows by season
   const dayStartIndices = sortedEvents
     .map((e, i) => {
-      const calendarDate = e.payload?.calendarDate as CanonicalDate;
+      const calendarDate = e.payload?.calendarDate as CampaignDate;
       return e.kind === 'day_start'
         ? {
             i,

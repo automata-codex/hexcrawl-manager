@@ -1,10 +1,11 @@
-import { PACES } from '../constants.ts';
-import { requireFile, requireSession } from '../lib/guards.ts';
-import { info, usage, warn } from '../lib/report.ts';
+import { info, usage, warn } from '@skyreach/cli-kit';
+import { PACES, type Pace } from '@skyreach/schemas';
+
 import { isPartyLost, selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+import { requireFile, requireSession } from '../services/general.ts';
 
-import type { Context, Pace } from '../types';
+import type { Context } from '../types';
 
 /**
  * Finds the previous hex the party occupied before the current one.
@@ -56,7 +57,7 @@ export default function backtrack(ctx: Context) {
       return usage('usage: backtrack [slow|normal]');
     }
     if (args[0]) {
-      const arg = args[0].toLowerCase();
+      const arg = args[0].toLowerCase() as Pace;
       if (!PACES.includes(arg) || arg === 'fast') {
         return usage('usage: backtrack [slow|normal]');
       }

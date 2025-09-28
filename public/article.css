@@ -1,22 +1,23 @@
 p {
-    text-indent: var(--skyreach-standard-indent);
+  text-indent: var(--skyreach-standard-indent);
 }
 
 .container table {
-    border-spacing: 0;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+  border-spacing: 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
-.container td, .container th {
-    border-bottom: 1px solid var(--bulma-border);
-    padding-right: 1rem;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
+.container td,
+.container th {
+  border-bottom: 1px solid var(--bulma-border);
+  padding-right: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
 .container th {
-    border-top: 1px solid var(--bulma-border);
+  border-top: 1px solid var(--bulma-border);
 }
 
 p.first-child,
@@ -26,22 +27,22 @@ h3 + p,
 h4 + p,
 h5 + p,
 h6 + p {
-    text-indent: 0;
+  text-indent: 0;
 }
 
 /* --- STYLES FOR SPECIFIC ARTICLES --- */
 
 img.ancestry-image {
-    float: right;
-    margin: 1rem 0 1rem 1rem;
+  float: right;
+  margin: 1rem 0 1rem 1rem;
 }
 
 #giff-1 {
-       display: block;
-       float: none;
-       margin: 0 auto 2rem;
-   }
+  display: block;
+  float: none;
+  margin: 0 auto 2rem;
+}
 
 #giff-2 {
-    height: 250px;
+  height: 250px;
 }

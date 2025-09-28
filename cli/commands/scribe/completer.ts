@@ -1,6 +1,5 @@
-import { PILLARS } from '@skyreach/schemas';
+import { PILLARS, TIERS } from '@skyreach/schemas';
 
-import { TIERS } from './constants';
 import { getAllCharacterIds } from './services/character';
 
 export function scribeCompleter(line: string): [string[], string] {

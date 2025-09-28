@@ -1,9 +1,12 @@
-import {
-  type CalendarConfig,
-  CalendarError,
-  type CanonicalDate,
-  type Season,
-} from '../types.ts';
+import type { CalendarConfig, Season } from '@skyreach/core';
+import type { CampaignDate, Month } from '@skyreach/schemas';
+
+export class CalendarError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CalendarError';
+  }
+}
 
 export class CalendarService {
   constructor(private readonly config: CalendarConfig) {
@@ -36,7 +39,7 @@ export class CalendarService {
     }
   }
 
-  compare(a: CanonicalDate, b: CanonicalDate): number {
+  compare(a: CampaignDate, b: CampaignDate): number {
     if (a.year !== b.year) {
       return a.year < b.year ? -1 : 1;
     }
@@ -51,7 +54,7 @@ export class CalendarService {
     return 0;
   }
 
-  daylightCapForDate(date: CanonicalDate): number {
+  daylightCapForDate(date: CampaignDate): number {
     return this.daylightCapForSeason(this.seasonFor(date));
   }
 
@@ -82,11 +85,11 @@ export class CalendarService {
     return base;
   }
 
-  formatDate(d: CanonicalDate): string {
+  formatDate(d: CampaignDate): string {
     return `${d.day} ${d.month} ${d.year}`;
   }
 
-  incrementDate(d: CanonicalDate, byDays = 1): CanonicalDate {
+  incrementDate(d: CampaignDate, byDays = 1): CampaignDate {
     this.assertValid(d);
     let { year, month, day } = d;
     let remaining = byDays;
@@ -123,12 +126,12 @@ export class CalendarService {
         remaining += 1;
       }
     }
-    const out: CanonicalDate = { year, month, day };
+    const out: CampaignDate = { year, month, day };
     this.assertValid(out);
     return out;
   }
 
-  parseDate(input: string, base?: CanonicalDate | null): CanonicalDate {
+  parseDate(input: string, base?: CampaignDate | null): CampaignDate {
     const raw = (input ?? '').trim();
     if (!raw) {
       throw new CalendarError('Empty date string.');
@@ -171,12 +174,12 @@ export class CalendarService {
       throw new CalendarError(`Missing year in "${input}" and no base.year.`);
     }
 
-    const result: CanonicalDate = { year: year!, month, day: day! };
+    const result: CampaignDate = { year: year!, month, day: day! };
     this.assertValid(result);
     return result;
   }
 
-  seasonFor(date: CanonicalDate) {
+  seasonFor(date: CampaignDate) {
     this.assertValid(date);
     return this.config.seasonByMonth[date.month];
   }
@@ -210,7 +213,7 @@ export class CalendarService {
 
   // ---------- internals ----------
 
-  private assertValid(d: CanonicalDate): void {
+  private assertValid(d: CampaignDate): void {
     const idx = this.monthIndex(d.month);
     if (idx === -1) {
       throw new CalendarError(`Unknown month "${d.month}".`);
@@ -223,8 +226,8 @@ export class CalendarService {
     }
   }
 
-  private firstMonthName(): string {
-    return this.config.months[0].name;
+  private firstMonthName(): Month {
+    return this.config.months[0].name as Month;
   }
 
   private isLeapYear(year: number, every: number, anchor = 0): boolean {
@@ -232,33 +235,33 @@ export class CalendarService {
     return (year - anchor) % every === 0;
   }
 
-  private lastMonthName(): string {
-    return this.config.months[this.config.months.length - 1].name;
+  private lastMonthName(): Month {
+    return this.config.months[this.config.months.length - 1].name as Month;
   }
 
   private monthIndex(name: string): number {
     return this.config.months.findIndex((m) => m.name === name);
   }
 
-  private nextMonthName(name: string): string | null {
+  private nextMonthName(name: string): Month | null {
     const i = this.monthIndex(name);
     if (i === -1) {
       throw new CalendarError(`Unknown month "${name}".`);
     }
     return i + 1 < this.config.months.length
-      ? this.config.months[i + 1].name
+      ? (this.config.months[i + 1].name as Month)
       : null;
   }
 
-  private prevMonthName(name: string): string | null {
+  private prevMonthName(name: string): Month | null {
     const i = this.monthIndex(name);
     if (i === -1) {
       throw new CalendarError(`Unknown month "${name}".`);
     }
-    return i - 1 >= 0 ? this.config.months[i - 1].name : null;
+    return i - 1 >= 0 ? (this.config.months[i - 1].name as Month) : null;
   }
 
-  private resolveMonth(token: string): string {
+  private resolveMonth(token: string): Month {
     const r = this.tryResolveMonth(token);
     if (r) {
       return r;
@@ -270,14 +273,14 @@ export class CalendarService {
     throw new CalendarError(`Unknown month "${token}".${hint}`);
   }
 
-  private tryResolveMonth(token: string): string | null {
+  private tryResolveMonth(token: string): Month | null {
     const t = token.toLowerCase();
     for (const m of this.config.months) {
       if (m.name.toLowerCase() === t) {
-        return m.name;
+        return m.name as Month;
       }
       if (m.aliases?.some((a) => a.toLowerCase() === t)) {
-        return m.name;
+        return m.name as Month;
       }
     }
     return null;

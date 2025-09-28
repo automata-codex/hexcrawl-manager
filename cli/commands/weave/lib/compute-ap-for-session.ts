@@ -1,6 +1,6 @@
-import { tierFromLevel } from '../../shared-lib/tier-from-level.ts';
+import { tierFromLevel } from '@skyreach/core';
 
-import type { Event } from '../../scribe/types.ts';
+import type { Event } from '@skyreach/cli-kit';
 import type { ApReason, Pillar, Tier } from '@skyreach/schemas';
 
 type LedgerPerPillar = { delta: 0 | 1; reason: ApReason };
@@ -17,7 +17,7 @@ type Work = { hadEligible: boolean; hadAny: boolean; hadOverTier: boolean };
 export function computeApForSession(
   events: Event[],
   characterLevels: Record<string, number>, // attendees only
-  sessionNum: number
+  sessionNum: number,
 ): {
   reportAdvancementPoints: ReportAdvancementPoints;
   ledgerResults: LedgerResults;
@@ -37,7 +37,11 @@ export function computeApForSession(
   };
 
   // Per-character, per-pillar state for eligibility/reasons (for the ledger)
-  const initWork = (): Work => ({ hadEligible: false, hadAny: false, hadOverTier: false });
+  const initWork = (): Work => ({
+    hadEligible: false,
+    hadAny: false,
+    hadOverTier: false,
+  });
 
   const work: Record<string, Record<Pillar, Work>> = {};
   for (const cid of attendees) {
@@ -74,21 +78,25 @@ export function computeApForSession(
   // Build ledger outputs
   const ledgerResults: LedgerResults = {};
   for (const cid of attendees) {
-    ledgerResults[cid] = { combat: { delta: 0, reason: "normal" }, exploration: { delta: 0, reason: "normal" }, social: { delta: 0, reason: "normal" } };
+    ledgerResults[cid] = {
+      combat: { delta: 0, reason: 'normal' },
+      exploration: { delta: 0, reason: 'normal' },
+      social: { delta: 0, reason: 'normal' },
+    };
 
-    (["combat", "exploration", "social"] as Pillar[]).forEach((pillar) => {
+    (['combat', 'exploration', 'social'] as Pillar[]).forEach((pillar) => {
       const w = work[cid][pillar];
       if (sessionNum <= 19) {
         const delta: 0 | 1 = w.hadAny ? 1 : 0;
         ledgerResults[cid][pillar] = {
           delta,
-          reason: w.hadAny && !w.hadEligible ? "grandfathered" : "normal",
+          reason: w.hadAny && !w.hadEligible ? 'grandfathered' : 'normal',
         };
       } else {
         const delta: 0 | 1 = w.hadEligible ? 1 : 0;
         ledgerResults[cid][pillar] = {
           delta,
-          reason: !w.hadEligible && w.hadAny ? "cap" : "normal",
+          reason: !w.hadEligible && w.hadAny ? 'cap' : 'normal',
         };
       }
     });
@@ -103,12 +111,16 @@ export function computeApForSession(
 
   if (sessionNum <= 19) {
     reportAdvancementPoints.combat.number = hadAnyByPillar.combat ? 1 : 0;
-    reportAdvancementPoints.exploration.number = hadAnyByPillar.exploration ? 1 : 0;
+    reportAdvancementPoints.exploration.number = hadAnyByPillar.exploration
+      ? 1
+      : 0;
     reportAdvancementPoints.social.number = hadAnyByPillar.social ? 1 : 0;
   } else {
     // number = 1 iff *any* attendee earned AP in that pillar
-    (["combat", "exploration", "social"] as Pillar[]).forEach((pillar) => {
-      const anyAwarded = attendees.some((cid) => ledgerResults[cid][pillar].delta === 1);
+    (['combat', 'exploration', 'social'] as Pillar[]).forEach((pillar) => {
+      const anyAwarded = attendees.some(
+        (cid) => ledgerResults[cid][pillar].delta === 1,
+      );
       (reportAdvancementPoints as any)[pillar].number = anyAwarded ? 1 : 0;
     });
   }

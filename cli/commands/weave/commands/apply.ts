@@ -1,10 +1,13 @@
+import { error, info } from '@skyreach/cli-kit';
+import {
+  REPO_PATHS,
+  loadMeta,
+  readJsonl,
+  saveMeta,
+  writeYamlAtomic,
+} from '@skyreach/data';
 import path from 'path';
 
-import { readJsonl } from '../../scribe/lib/jsonl';
-import { error, info } from '../../scribe/lib/report';
-import { writeYamlAtomic } from '../../shared-lib';
-import { REPO_PATHS } from '../../shared-lib/constants';
-import { loadMeta, saveMeta } from '../../shared-lib/meta.ts';
 import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
 import {
   getMostRecentRolloverFootprint,
@@ -28,7 +31,7 @@ import {
 } from '../lib/state';
 import { validateSessionEnvelope } from '../lib/validate';
 
-import type { CanonicalDate } from '../../scribe/types.ts';
+import type { CampaignDate } from '@skyreach/schemas';
 
 export async function apply(fileArg?: string, opts?: any) {
   requireCleanGitOrAllowDirty(opts);
@@ -129,7 +132,7 @@ export async function apply(fileArg?: string, opts?: any) {
       process.exit(4);
     }
     const seasonIds = dayStarts.map((e) => {
-      const calDate = e.payload?.calendarDate as CanonicalDate;
+      const calDate = e.payload?.calendarDate as CampaignDate;
       return deriveSeasonId(calDate);
     });
     const firstSeasonId = seasonIds[0];

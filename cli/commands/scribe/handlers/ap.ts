@@ -1,10 +1,9 @@
-import { PILLARS } from '@skyreach/schemas';
+import { info, usage } from '@skyreach/cli-kit';
+import { PILLARS, TIERS } from '@skyreach/schemas';
 
-import { TIERS } from '../constants';
-import { requireSession } from '../lib/guards.ts';
-import { info, usage } from '../lib/report.ts';
 import { selectCurrentHex, selectParty } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log';
+import { requireSession } from '../services/general.ts';
 
 import type { Context } from '../types';
 

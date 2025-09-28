@@ -1,12 +1,15 @@
-import { CALENDAR_CONFIG } from '../../config/calendar.config.ts';
+import { clamp } from '@skyreach/cli-kit';
+import { CALENDAR_CONFIG } from '@skyreach/core';
+import { rollDice } from '@skyreach/data';
+
 import { DESCRIPTOR_LIBRARY } from '../../config/descriptor-library.config.ts';
 import { DETAIL_TABLES } from '../../config/detail-tables.config.ts';
 import { EFFECTS_TABLE } from '../../config/effects-table.config.ts';
 import { FORECAST_MODIFIER } from '../../config/forecast-modifier.config.ts';
 import { SEASONAL_BANDS } from '../../config/seasonal-bands.config.ts';
-import { clamp, rollDice } from '../../lib/math.ts';
 
-import type { Season, WeatherCategory, CanonicalDate } from '../../types.ts';
+import type { Season, WeatherCategory } from '@skyreach/core';
+import type { CampaignDate } from '@skyreach/schemas';
 
 export function bandForTotal(season: Season, total: number): WeatherCategory {
   const bands = SEASONAL_BANDS[season];
@@ -39,7 +42,7 @@ export function forecastAfterForCategory(category: WeatherCategory): number {
   return clamp(FORECAST_MODIFIER[category], -1, 5);
 }
 
-export function getSeasonForDate(date: CanonicalDate): Season {
+export function getSeasonForDate(date: CampaignDate): Season {
   return CALENDAR_CONFIG.seasonByMonth[date.month] as Season;
 }
 

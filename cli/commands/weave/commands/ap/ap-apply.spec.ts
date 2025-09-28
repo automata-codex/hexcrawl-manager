@@ -1,12 +1,10 @@
+import { type Event } from '@skyreach/cli-kit';
+import { REPO_PATHS } from '@skyreach/data';
+import { runWeave, withTempRepo } from '@skyreach/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
-
-import { withTempRepo, runWeave } from '../../../shared-lib';
-import { REPO_PATHS } from '../../../shared-lib/constants';
-
-import type { Event } from '../../../scribe/types.ts';
 
 const events: Event[] = [
   {

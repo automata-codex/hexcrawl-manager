@@ -1,8 +1,7 @@
+import { REPO_PATHS } from '@skyreach/data';
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
-
-import { REPO_PATHS } from '../../shared-lib/constants';
 
 export function loadCharacterIds(): string[] {
   const files = fs
@@ -42,6 +41,7 @@ export function getAllCharacterIds(): string[] {
   memo = loadCharacterIds();
   return memo;
 }
+
 export function reloadCharacterIds(): string[] {
   memo = loadCharacterIds();
   return memo;

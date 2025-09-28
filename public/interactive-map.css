@@ -1,10 +1,9 @@
 polygon:focus {
-    outline: none;
+  outline: none;
 }
 
 polygon:focus-visible {
-    /* Customize the keyboard focus box */
-    /* outline: 2px solid #444; */
-    outline: none
+  /* Customize the keyboard focus box */
+  /* outline: 2px solid #444; */
+  outline: none;
 }
-

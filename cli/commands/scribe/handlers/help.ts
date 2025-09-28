@@ -1,5 +1,6 @@
-import { HELP_TEXT } from '../constants';
-import { info } from '../lib/report.ts';
+import { info } from '@skyreach/cli-kit';
+
+import { HELP_TEXT } from '../help-text.ts';
 
 export default function help() {
   return () => {

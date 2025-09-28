@@ -1,6 +1,10 @@
-import { detectDevMode } from '../lib/env.ts';
-import { requireFile, requireSession } from '../lib/guards.ts';
-import { info, error as printError } from '../lib/report.ts';
+import { info, error as printError } from '@skyreach/cli-kit';
+
+import {
+  detectDevMode,
+  requireFile,
+  requireSession,
+} from '../services/general.ts';
 import { finalizeSession } from '../services/session.ts';
 
 import type { Context } from '../types';

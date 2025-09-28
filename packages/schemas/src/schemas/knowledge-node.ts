@@ -22,5 +22,5 @@ export const KnowledgeNodeSchema: z.ZodType<KnowledgeNodeData> = z.lazy(() =>
       .string()
       .optional()
       .describe('Further details about the clue; extended information'),
-  })
+  }),
 );

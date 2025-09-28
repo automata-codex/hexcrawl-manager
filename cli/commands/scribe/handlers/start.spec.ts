@@ -1,18 +1,14 @@
+import { type Event, eventsOf, pad } from '@skyreach/cli-kit';
+import { readJsonl, REPO_PATHS } from '@skyreach/data';
+import {
+  findSessionFiles,
+  runScribe,
+  withTempRepo,
+} from '@skyreach/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
-
-import {
-  eventsOf,
-  findSessionFiles,
-  pad,
-  readJsonl,
-  runScribe,
-  withTempRepo,
-} from '../../shared-lib';
-import { REPO_PATHS } from '../../shared-lib/constants';
-import { type Event } from '../types.ts';
 
 describe('scribe start', () => {
   it('emits exactly one session_start with the requested startHex and writes a minimal valid log', async () => {
@@ -243,7 +239,7 @@ describe('scribe start', () => {
         expect(exitCode).toBe(0); // REPL exits normally
         expect(stderr).toMatch(
           new RegExp(
-            `Lock file exists for session sequence 27 \(.*\)\. Another session may be active\.`,
+            `Lock file exists for session sequence 27 (.*). Another session may be active.`,
             'i',
           ),
         );
@@ -317,6 +313,7 @@ describe('scribe start', () => {
           expect(stdout).toMatch(/error|fail|permission/i);
           const files = findSessionFiles(REPO_PATHS.SESSIONS());
           expect(files.length).toBe(0);
+          // eslint-disable-next-line no-unused-vars
         } catch (e) {
           errorCaught = true;
         } finally {

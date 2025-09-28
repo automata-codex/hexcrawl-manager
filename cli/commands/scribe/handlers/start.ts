@@ -1,10 +1,10 @@
+import { error, info, usage } from '@skyreach/cli-kit';
 import { isValidHexId, normalizeHexId } from '@skyreach/core';
 import { existsSync } from 'node:fs';
 
-import { detectDevMode } from '../lib/env.ts';
-import { error, info, usage } from '../lib/report.ts';
 import { selectCurrentHex } from '../projectors.ts';
 import { appendEvent, readEvents } from '../services/event-log.ts';
+import { detectDevMode } from '../services/general.ts';
 import { prepareSessionStart } from '../services/session.ts';
 
 import type { Context } from '../types';

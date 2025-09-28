@@ -1,4 +1,4 @@
-import { usage } from '../lib/report.ts';
+import { usage } from '@skyreach/cli-kit';
 
 import weatherAbandon from './weather/abandon.ts';
 import weatherClear from './weather/clear.ts';

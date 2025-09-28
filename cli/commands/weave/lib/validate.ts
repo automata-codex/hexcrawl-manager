@@ -1,4 +1,4 @@
-import { type Event } from '../../scribe/types.ts';
+import type { Event } from '@skyreach/cli-kit';
 
 //
 /**

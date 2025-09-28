@@ -1,4 +1,4 @@
-import { info, error, usage } from '../../lib/report.ts';
+import { info, error, usage } from '@skyreach/cli-kit';
 
 import type { Context } from '../../types.ts';
 
