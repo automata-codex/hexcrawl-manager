@@ -1,7 +1,3 @@
-import type { Tier } from './types.ts';
-
-export const EXHAUSTION_HOURS = 12;
-
 export const HELP_TEXT = `
 Commands:
   abort                          abandon the current session (deletes in-progress file)
@@ -40,13 +36,3 @@ Commands:
   weather show                   display today's weather draft and committed weather
   weather use <idx[,idx,...]>    add suggested descriptor(s) by index to the draft
 `;
-
-export const HEX_RE = /^[A-Za-z][0-9]+$/;
-
-export const PACES: readonly string[] = ['fast', 'normal', 'slow'] as const;
-
-// 1 segment = 0.5 hours (integer math internally)
-export const STEP_HOURS = 0.5;
-
-export const TIERS: readonly Tier[] = [1, 2, 3, 4] as const;
-

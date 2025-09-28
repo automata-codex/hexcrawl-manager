@@ -1,4 +1,4 @@
-import { EXHAUSTION_HOURS, STEP_HOURS } from '../constants.ts';
+
 import { hoursToSegmentsCeil, segmentsToHours } from '../lib/day.ts';
 import { requireFile } from '../lib/guards.ts';
 import { info, usage, warn } from '../lib/report';
@@ -10,6 +10,7 @@ import {
 import { appendEvent, readEvents } from '../services/event-log';
 
 import type { Context } from '../types';
+import { EXHAUSTION_HOURS, STEP_HOURS } from '@skyreach/schemas';
 
 export default function time(ctx: Context) {
   return (args: string[]) => {

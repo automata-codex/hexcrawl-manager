@@ -1,4 +1,4 @@
-import { HELP_TEXT } from '../constants';
+import { HELP_TEXT } from '../help-text.ts';
 import { info } from '../lib/report.ts';
 
 import abort from './abort.ts';

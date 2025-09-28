@@ -12,3 +12,6 @@ export const MONTH_NAMES = [
   'Umbraeus',
   'Aridus',
 ] as const;
+
+// 1 segment = 0.5 hours (integer math internally)
+export const STEP_HOURS = 0.5;

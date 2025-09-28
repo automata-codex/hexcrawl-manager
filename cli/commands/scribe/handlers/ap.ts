@@ -1,6 +1,5 @@
-import { PILLARS } from '@skyreach/schemas';
+import { PILLARS, TIERS } from '@skyreach/schemas';
 
-import { TIERS } from '../constants';
 import { requireSession } from '../lib/guards.ts';
 import { info, usage } from '../lib/report.ts';
 import { selectCurrentHex, selectParty } from '../projectors.ts';

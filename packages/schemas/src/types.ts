@@ -1,5 +1,5 @@
-import { PILLARS } from './constants';
+import { PILLARS, TIERS } from './constants';
 
 export type Pillar = (typeof PILLARS)[number];
 
-export type Tier = 1 | 2 | 3 | 4;
+export type Tier = (typeof TIERS)[number];
