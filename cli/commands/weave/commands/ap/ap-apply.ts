@@ -10,7 +10,7 @@ import pkg from '../../../../../package.json' assert { type: 'json' };
 import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
 import { eventsOf, pad } from '../../../shared-lib';
 import { REPO_PATHS } from '@skyreach/data';
-import { isGitDirty } from '../../../shared-lib/git.ts';
+import { isGitDirty } from '@skyreach/data';
 import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
 import { sortScribeIds } from '../../../shared-lib/sort-scribe-ids';
 import { computeApForSession } from '../../lib/compute-ap-for-session.ts';

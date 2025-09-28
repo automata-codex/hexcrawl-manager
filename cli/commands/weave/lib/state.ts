@@ -1,10 +1,7 @@
+import { REPO_PATHS, getGitHeadCommit, writeYamlAtomic } from '@skyreach/data';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
-
-import { REPO_PATHS } from '@skyreach/data';
-import { getGitHeadCommit } from '../../shared-lib/git.ts';
-import { writeYamlAtomic } from '@skyreach/data';
 
 export function appendToMetaAppliedSessions(meta: any, fileId: string) {
   if (!meta.appliedSessions) {

@@ -5,7 +5,7 @@ import yaml from 'yaml';
 
 import { info, error } from '../../scribe/lib/report';
 import { REPO_PATHS } from '@skyreach/data';
-import { isGitDirty } from '../../shared-lib/git.ts';
+import { isGitDirty } from '@skyreach/data';
 
 import { compareSeasonIds, normalizeSeasonId } from './season.ts';
 
