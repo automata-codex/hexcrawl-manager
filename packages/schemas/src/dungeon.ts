@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { TreasureSchema } from './treasure.js';
+import { TreasureSchema } from './treasure';
 
 export const DungeonDataSchema = z
   .object({
@@ -39,3 +39,5 @@ export const DungeonDataSchema = z
       .describe('IDs of knowledge nodes that are unlocked by this site'),
   })
   .describe('Data for a dungeon on a hex map');
+
+export type DungeonData = z.infer<typeof DungeonDataSchema>;

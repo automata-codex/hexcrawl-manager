@@ -19,3 +19,5 @@ export const EncounterOverrideSchema = z.object({
     )
     .optional(),
 });
+
+export type EncounterOverrideData = z.infer<typeof EncounterOverrideSchema>;

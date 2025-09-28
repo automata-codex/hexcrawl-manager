@@ -3,7 +3,8 @@ import { getEntry } from 'astro:content';
 
 import { renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
 
-import type { CharacterData, PlayerData } from '../types';
+import type { PlayerData } from '../types';
+import type { CharacterData } from '@skyreach/schemas';
 
 interface Props {
   character: CharacterData;

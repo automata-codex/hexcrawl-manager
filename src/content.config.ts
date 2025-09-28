@@ -1,6 +1,8 @@
 import {
+  type BountyData,
   BountySchema,
   CharacterSchema,
+  type ClassData,
   ClassSchema,
   DungeonDataSchema,
   EncounterSchema,
@@ -30,8 +32,6 @@ import path from 'path';
 import yaml from 'yaml';
 
 import type {
-  BountyData,
-  ClassData,
   FactionData,
   LootPackData,
   NpcData,

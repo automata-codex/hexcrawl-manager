@@ -11,3 +11,5 @@ export const ClassSchema = z.object({
   name: z.string(),
   subclasses: z.array(SubclassSchema),
 });
+
+export type ClassData = z.infer<typeof ClassSchema>;

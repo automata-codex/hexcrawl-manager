@@ -28,3 +28,8 @@ export const EncounterTableSchema = z
     categoryTables: CategoryTable,
   })
   .describe('EncounterTableSchema');
+
+export type CategoryTableData = z.infer<typeof CategoryTable>;
+export type EncounterEntryData = z.infer<typeof EncounterEntrySchema>;
+export type EncounterTableData = z.infer<typeof EncounterTableSchema>;
+export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>;

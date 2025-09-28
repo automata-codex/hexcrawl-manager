@@ -9,3 +9,5 @@ export const EncounterSchema = z
     weight: z.number().default(1),
   })
   .describe('EncounterSchema');
+
+export type EncounterData = z.infer<typeof EncounterSchema>;

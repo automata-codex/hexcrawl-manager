@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ClassEnum } from './class-enum.js';
+import { ClassEnum } from './class-enum';
 
 export const CharacterSchema = z.object({
   id: z.string(),
@@ -24,3 +24,5 @@ export const CharacterSchema = z.object({
   goals: z.string().optional(), // GM-only goals in Markdown
   notes: z.string().optional(), // GM-only notes in Markdown
 });
+
+export type CharacterData = z.infer<typeof CharacterSchema>;

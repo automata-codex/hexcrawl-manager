@@ -16,3 +16,5 @@ export const BountySchema = z
 export const BountyListSchema = z
   .array(BountySchema)
   .describe('BountyListSchema');
+
+export type BountyData = z.infer<typeof BountySchema>;
