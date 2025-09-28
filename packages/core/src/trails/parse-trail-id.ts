@@ -1,5 +1,9 @@
 import { isValidHexId } from '../hexes';
 
+/**
+ * Parses a trail ID into its constituent hex IDs.
+ * @param trailId
+ */
 export function parseTrailId(trailId: string): {
   from: string;
   to: string;

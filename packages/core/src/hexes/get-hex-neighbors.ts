@@ -1,3 +1,7 @@
+/**
+ * Get neighboring hexes for a given hex in an odd-q flat-topped hex grid.
+ * @param hex
+ */
 export function getHexNeighbors(hex: string): string[] {
   // Extract column (letter) and row (number) from the input hex string
   const match = hex.toUpperCase().match(/^([A-Z])(\d+)$/);

@@ -2,6 +2,7 @@
   "name": "skyreach",
   "version": "2.3.0",
   "description": "Campaign manager and data for _Beyond the Skyreach Mountains_",
+  "workspaces": ["packages/*"],
   "private": true,
   "scripts": {
     "arch:check": "depcruise \"cli/**/*.ts\" \"packages/**/*.ts\" \"src/**/*.ts\" --config .dependency-cruiser.cjs",

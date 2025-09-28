@@ -6,6 +6,11 @@ export function getHexRow(hexId: string): number {
   return parseInt(hexId.substring(1), 10);
 }
 
+/**
+ * Sorts two hex IDs first by column (alphabetically) and then by row (numerically).
+ * @param hexIdA
+ * @param hexIdB
+ */
 export function hexSort(hexIdA: string, hexIdB: string): number {
   const aCol = getHexColumn(hexIdA);
   const aRow = getHexRow(hexIdA);
