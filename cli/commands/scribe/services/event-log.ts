@@ -1,6 +1,6 @@
-import { atomicWrite } from '../../shared-lib';
-import { readJsonl, appendJsonl, writeJsonl } from '../lib/jsonl';
+import { atomicWrite } from '@skyreach/data';
 
+import { readJsonl, appendJsonl, writeJsonl } from '../lib/jsonl';
 
 import type { Event } from '@skyreach/cli-kit';
 

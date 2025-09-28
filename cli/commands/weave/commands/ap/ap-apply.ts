@@ -11,7 +11,7 @@ import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scrib
 import { REPO_PATHS } from '@skyreach/data';
 import { isGitDirty } from '@skyreach/data';
 import { pad, pickNextSessionId } from '@skyreach/cli-kit';
-import { sortScribeIds } from '../../../shared-lib/sort-scribe-ids';
+import { sortScribeIds } from '@skyreach/cli-kit';
 import { computeApForSession } from '../../lib/compute-ap-for-session.ts';
 
 import type { CanonicalDate } from '../../../scribe/types.ts';

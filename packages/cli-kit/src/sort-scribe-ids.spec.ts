@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { sortScribeIds } from './sort-scribe-ids.ts';
+import { sortScribeIds } from './sort-scribe-ids';
 
 describe('sortScribeIds', () => {
   it('sorts by date ascending, then suffix', () => {

@@ -1,4 +1,3 @@
-export { atomicWrite } from '@skyreach/data';
 export { getTestRepoBase } from './get-test-repo-base';
 export { runScribe } from './run-scribe';
 export { runWeave } from './run-weave';
