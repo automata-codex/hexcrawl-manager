@@ -221,3 +221,4 @@ export type MeleeWeaponAttackData = z.infer<typeof MeleeWeaponAttackSchema>;
 export type RangedWeaponAttackData = z.infer<typeof RangedWeaponAttackSchema>;
 export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;
+export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;

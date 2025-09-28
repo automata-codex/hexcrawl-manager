@@ -9,3 +9,5 @@ export const TreasureSchema = z.object({
     .optional(), // only for magic items
   notes: z.string().optional(),
 });
+
+export type TreasureData = z.infer<typeof TreasureSchema>;

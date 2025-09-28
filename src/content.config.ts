@@ -18,6 +18,7 @@ import {
   StatBlockSchema,
   type SupplementData,
   SupplementSchema,
+  type TrailEntry,
   TrailEntrySchema,
   TrailsFile,
   TreasureSchema,
@@ -35,7 +36,7 @@ import type {
   LootPackData,
   NpcData,
   PlayerData,
-  TrailEntry,
+
 } from './types.ts';
 
 const DATA_DIR = 'data';

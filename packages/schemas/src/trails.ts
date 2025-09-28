@@ -25,3 +25,6 @@ export const TrailsFile = z.record(EdgeId, TrailSchema);
 export const TrailEntrySchema = TrailSchema.extend({
   id: EdgeId,
 });
+
+export type TrailData = z.infer<typeof TrailSchema>;
+export type TrailEntry = z.infer<typeof TrailEntrySchema>;

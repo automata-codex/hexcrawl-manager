@@ -10,11 +10,10 @@ import {
   CategoryTable,
   EncounterEntrySchema,
   EncounterTableSchema,
-  TieredSubtableSchema,
 } from '../schemas/encounter-table';
 import { FactionSchema } from '../schemas/faction';
 import { FloatingClueSchema } from '../schemas/floating-clue';
-import { HexSchema, HiddenSitesSchema, KnownTagEnum } from '../schemas/hex.js';
+import { HexSchema, HiddenSitesSchema } from '../schemas/hex.js';
 import { KnowledgeNodeSchema } from '../schemas/knowledge-node';
 import { LootPackSchema } from '../schemas/loot-pack';
 import { NpcSchema } from '../schemas/npc';
@@ -23,13 +22,11 @@ import {
   DescriptiveActionSchema,
   MeleeWeaponAttackSchema,
   RangedWeaponAttackSchema,
-  SkillsSchema,
 } from '../schemas/stat-block.js';
-import { TrailEntrySchema, TrailSchema } from '../schemas/trails';
-import { TreasureSchema } from '../schemas/treasure';
 
 import { CampaignDateSchema } from './config/campaign-date.ts';
 import type { MetaSchema } from '../schemas/meta';
+import type { TreasureData } from '@skyreach/schemas';
 import type { CollectionEntry } from 'astro:content';
 
 export type BountyData = z.infer<typeof BountySchema>;
@@ -54,14 +51,6 @@ export type MetaData = z.infer<typeof MetaSchema>;
 export type NpcData = z.infer<typeof NpcSchema>;
 export type PlayerData = z.infer<typeof PlayerSchema>;
 export type RangedWeaponAttackData = z.infer<typeof RangedWeaponAttackSchema>;
-
-export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
-export type TieredSubtableData = z.infer<typeof TieredSubtableSchema>;
-export type TrailData = z.infer<typeof TrailSchema>;
-export type TrailEntry = z.infer<typeof TrailEntrySchema>;
-export type TreasureData = z.infer<typeof TreasureSchema>;
-
-export type KnownTag = keyof z.infer<typeof KnownTagEnum>;
 
 export type ExtendedHexData = HexData & {
   renderedHiddenSites: ExtendedHiddenSites[];

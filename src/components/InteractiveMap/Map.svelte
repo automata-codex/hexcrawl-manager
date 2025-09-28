@@ -42,7 +42,8 @@
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { KnownTag } from '../../types.ts';
+
+  import type { KnownTag } from '@skyreach/schemas';
 
   interface Props {
     role: string | null;
