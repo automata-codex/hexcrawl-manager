@@ -1,4 +1,4 @@
-import { getRepoPath } from '@skyreach/cli-kit';
+import { getRepoPath } from '@skyreach/data';
 import fs from 'fs';
 import path from 'path';
 

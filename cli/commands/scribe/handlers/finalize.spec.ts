@@ -4,7 +4,6 @@ import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
 import {
-  findSessionFiles,
   readJsonl,
   runScribe,
   withTempRepo,
@@ -12,7 +11,7 @@ import {
 import { REPO_PATHS } from '@skyreach/data';
 
 import type { CampaignDate } from '@skyreach/schemas';
-import { type Event, eventsOf, pad } from '@skyreach/cli-kit';
+import { type Event, eventsOf, findSessionFiles, pad } from '@skyreach/cli-kit';
 
 describe('scribe finalize', () => {
   it('partitions session events correctly and writes output files', async () => {

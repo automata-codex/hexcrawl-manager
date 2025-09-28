@@ -1,4 +1,4 @@
-import { getRepoRoot } from '@skyreach/cli-kit';
+import { getRepoRoot } from '@skyreach/data';
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';

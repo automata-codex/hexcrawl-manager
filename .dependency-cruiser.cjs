@@ -45,7 +45,19 @@ module.exports = {
       severity: "error",
       from: { path: "^cli/commands/([^/]+)/" },
       to:   { path: "^cli/commands/(?!\\1)/" }
-    }
+    },
+
+    // D) Limits on `cli-kit`
+    {
+      name: 'no-cli-kit-to-core-or-data',
+      from: { path: '^packages/cli-kit/src' },
+      to: { path: '^packages/(core|data)/src' }
+    },
+    {
+      name: 'no-core-io',
+      from: { path: '^packages/core/src' },
+      to: { path: '^(fs|path|yaml|child_process|simple-git)' , dependencyTypes: ['core','npm'] }
+    },
   ],
   options: {
     tsConfig: { fileName: "tsconfig.json" },

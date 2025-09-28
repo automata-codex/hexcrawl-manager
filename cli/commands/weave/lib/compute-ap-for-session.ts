@@ -1,4 +1,4 @@
-import { tierFromLevel } from '../../shared-lib/tier-from-level.ts';
+import { tierFromLevel } from '@skyreach/core';
 
 import type { ApReason, Pillar, Tier } from '@skyreach/schemas';
 import type { Event } from '@skyreach/cli-kit';

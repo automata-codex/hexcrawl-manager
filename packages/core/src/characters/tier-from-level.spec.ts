@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { tierFromLevel } from './tier-from-level.ts';
+import { tierFromLevel } from './tier-from-level';
 
 describe('tierFromLevel', () => {
   it('returns 1 for undefined', () => {

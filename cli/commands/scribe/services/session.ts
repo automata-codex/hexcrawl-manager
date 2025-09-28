@@ -4,7 +4,7 @@ import path from 'node:path';
 import yaml from 'yaml';
 
 import { REPO_PATHS } from '@skyreach/data';
-import { loadMeta, saveMeta } from '../../shared-lib/meta.ts';
+import { loadMeta, saveMeta } from '@skyreach/data';
 import { requireFile, requireSession } from '../lib/guards.ts';
 import { type Context } from '../types';
 

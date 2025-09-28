@@ -4,13 +4,12 @@ import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
 import {
-  findSessionFiles,
   readJsonl,
   runScribe,
   withTempRepo,
 } from '../../shared-lib';
 import { REPO_PATHS } from '@skyreach/data';
-import { type Event, eventsOf, pad } from '@skyreach/cli-kit';
+import { type Event, eventsOf, findSessionFiles, pad } from '@skyreach/cli-kit';
 
 describe('scribe start', () => {
   it('emits exactly one session_start with the requested startHex and writes a minimal valid log', async () => {

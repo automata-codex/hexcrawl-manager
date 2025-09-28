@@ -3,7 +3,7 @@ import path from 'path';
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { error, info } from '../../scribe/lib/report';
 import { REPO_PATHS } from '@skyreach/data';
-import { loadMeta, saveMeta } from '../../shared-lib/meta.ts';
+import { loadMeta, saveMeta } from '@skyreach/data';
 import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
 import {
   getMostRecentRolloverFootprint,

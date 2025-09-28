@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import fs from 'fs';
 import path from 'path';
 
-import { loadMeta } from '../shared-lib/meta.ts';
+import { loadMeta } from '@skyreach/data';
 import { pad } from '@skyreach/cli-kit';
 
 export const sessionCommand = new Command('session')

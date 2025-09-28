@@ -1,11 +1,10 @@
 import fs from 'fs';
 import yaml from 'yaml';
 
-import { REPO_PATHS } from '@skyreach/data';
-
+import { REPO_PATHS } from './repo-paths';
+import { writeYamlAtomic } from './write-yaml-atomic';
 
 import type { MetaData } from '@skyreach/schemas';
-import { writeYamlAtomic } from '@skyreach/data';
 
 /**
  * Loads the meta.yaml file and returns its contents as MetaData.
