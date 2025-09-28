@@ -15,14 +15,9 @@
   },
   "files": [],
   "references": [
-    {
-      "path": "packages/core"
-    },
-    {
-      "path": "packages/data"
-    },
-    {
-      "path": "packages/cli-kit"
-    }
+    {"path": "packages/cli-kit"},
+    {"path": "packages/core"},
+    {"path": "packages/data"},
+    {"path": "packages/schemas"}
   ]
 }

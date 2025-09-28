@@ -1,28 +1,30 @@
+import {
+  BountySchema,
+  CharacterSchema,
+  ClassSchema,
+  DungeonDataSchema,
+  EncounterSchema,
+  FactionSchema,
+  FloatingClueSchema,
+  HexSchema,
+  LootPackSchema,
+  MapPathSchema,
+  NpcSchema,
+  PlayerSchema,
+  RegionSchema,
+  RumorSchema,
+  SessionSchema,
+  StatBlockSchema,
+  SupplementSchema,
+  TrailEntrySchema,
+  TrailsFile,
+  TreasureSchema,
+} from '@skyreach/schemas';
 import { file, glob } from 'astro/loaders';
 import { defineCollection, z } from 'astro:content';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
-
-import { BountySchema } from '../schemas/bounty';
-import { CharacterSchema } from '../schemas/character';
-import { ClassSchema } from '../schemas/class';
-import { DungeonDataSchema } from '../schemas/dungeon';
-import { EncounterSchema } from '../schemas/encounter';
-import { FactionSchema } from '../schemas/faction';
-import { FloatingClueSchema } from '../schemas/floating-clue';
-import { HexSchema } from '../schemas/hex';
-import { LootPackSchema } from '../schemas/loot-pack';
-import { MapPathSchema } from '../schemas/map-path';
-import { NpcSchema } from '../schemas/npc';
-import { PlayerSchema } from '../schemas/player';
-import { RegionSchema } from '../schemas/region';
-import { RumorSchema } from '../schemas/rumor';
-import { SessionSchema } from '../schemas/session';
-import { StatBlockSchema } from '../schemas/stat-block';
-import { SupplementSchema } from '../schemas/supplement-list';
-import { TrailEntrySchema, TrailsFile } from '../schemas/trails';
-import { TreasureSchema } from '../schemas/treasure';
 
 import type {
   BountyData,

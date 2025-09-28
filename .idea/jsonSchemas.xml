@@ -8,7 +8,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="bounty" />
-              <option name="relativePathToSchema" value="schemas/bounty.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/bounty.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -26,7 +26,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="character" />
-              <option name="relativePathToSchema" value="schemas/character.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/character.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -44,7 +44,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="class" />
-              <option name="relativePathToSchema" value="schemas/class.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/class.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -62,7 +62,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="encounter" />
-              <option name="relativePathToSchema" value="schemas/encounter.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/encounter.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -83,7 +83,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="faction" />
-              <option name="relativePathToSchema" value="schemas/faction.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/faction.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -119,7 +119,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="hex" />
-              <option name="relativePathToSchema" value="schemas/hex.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/hex.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -191,7 +191,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="npc" />
-              <option name="relativePathToSchema" value="schemas/npc.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/npc.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -209,7 +209,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="player" />
-              <option name="relativePathToSchema" value="schemas/player.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/player.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -227,7 +227,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="region" />
-              <option name="relativePathToSchema" value="schemas/region.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/region.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -245,7 +245,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="rumor" />
-              <option name="relativePathToSchema" value="schemas/rumor.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/rumor.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -263,7 +263,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="session" />
-              <option name="relativePathToSchema" value="schemas/session.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/session.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -317,7 +317,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="trail" />
-              <option name="relativePathToSchema" value="schemas/trail.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/trail.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -335,7 +335,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="treasure" />
-              <option name="relativePathToSchema" value="schemas/treasure.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/treasure.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -369,7 +369,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="zone" />
-              <option name="relativePathToSchema" value="schemas/zone.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/zone.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>

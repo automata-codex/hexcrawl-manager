@@ -11,7 +11,7 @@
   "files": ["dist"],
   "private": true,
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && node ./scripts/build-json-schemas.mjs",
+    "build": "tsx src/build-json-schemas.ts",
     "clean": "rimraf dist"
   },
   "type": "module",
