@@ -2,8 +2,7 @@ import path from 'path';
 
 import { readJsonl } from '../../scribe/lib/jsonl';
 import { error, info } from '../../scribe/lib/report';
-import { writeYamlAtomic } from '../../shared-lib';
-import { REPO_PATHS } from '../../shared-lib/constants';
+import { REPO_PATHS } from '@skyreach/data';
 import { loadMeta, saveMeta } from '../../shared-lib/meta.ts';
 import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
 import {
@@ -29,6 +28,7 @@ import {
 import { validateSessionEnvelope } from '../lib/validate';
 
 import type { CanonicalDate } from '../../scribe/types.ts';
+import { writeYamlAtomic } from '@skyreach/data';
 
 export async function apply(fileArg?: string, opts?: any) {
   requireCleanGitOrAllowDirty(opts);

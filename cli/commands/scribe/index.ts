@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import readline from 'node:readline';
 
-import { ensureRepoDirs } from '../shared-lib/constants/repo-paths.ts';
+import { ensureRepoDirs } from '@skyreach/data';
 
 import { scribeCompleter } from './completer';
 import { CALENDAR_CONFIG } from './config/calendar.config.ts';

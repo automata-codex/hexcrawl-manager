@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
 
-import { REPO_PATHS } from '../../shared-lib/constants';
+import { REPO_PATHS } from '@skyreach/data';
 import { loadMeta } from '../../shared-lib/meta.ts';
 import { detectDevMode } from '../lib/env.ts';
 import { readJsonl } from '../lib/jsonl.ts';

@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 
-import { writeYamlAtomic } from '../../shared-lib';
-import { REPO_PATHS } from '../../shared-lib/constants';
+import { REPO_PATHS } from '@skyreach/data';
 import { getGitHeadCommit } from '../../shared-lib/git.ts';
+import { writeYamlAtomic } from '@skyreach/data';
 
 export function appendToMetaAppliedSessions(meta: any, fileId: string) {
   if (!meta.appliedSessions) {

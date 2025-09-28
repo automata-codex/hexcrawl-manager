@@ -11,7 +11,7 @@ import {
   runScribe,
   withTempRepo,
 } from '../../shared-lib';
-import { REPO_PATHS } from '../../shared-lib/constants';
+import { REPO_PATHS } from '@skyreach/data';
 
 import type { CanonicalDate, Event } from '../types.ts';
 

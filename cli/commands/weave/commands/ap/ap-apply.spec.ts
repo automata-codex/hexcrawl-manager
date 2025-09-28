@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
 import { withTempRepo, runWeave } from '../../../shared-lib';
-import { REPO_PATHS } from '../../../shared-lib/constants';
+import { REPO_PATHS } from '@skyreach/data';
 
 import type { Event } from '../../../scribe/types.ts';
 

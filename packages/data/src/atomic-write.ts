@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import yaml from 'yaml';
 
 /**
  * Write a file atomically: write to a temp file, then rename.
@@ -11,7 +10,3 @@ export function atomicWrite(filePath: string, content: string) {
   fs.renameSync(tmpPath, filePath);
 }
 
-export function writeYamlAtomic(filePath: string, data: any) {
-  const yamlStr = yaml.stringify(data);
-  atomicWrite(filePath, yamlStr);
-}

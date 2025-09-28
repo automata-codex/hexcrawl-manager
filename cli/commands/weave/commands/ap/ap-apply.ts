@@ -8,14 +8,15 @@ import yaml from 'yaml';
 
 import pkg from '../../../../../package.json' assert { type: 'json' };
 import { firstCalendarDate, lastCalendarDate, selectParty } from '../../../scribe/projectors.ts';
-import { eventsOf, pad, writeYamlAtomic } from '../../../shared-lib';
-import { REPO_PATHS } from '../../../shared-lib/constants';
+import { eventsOf, pad } from '../../../shared-lib';
+import { REPO_PATHS } from '@skyreach/data';
 import { isGitDirty } from '../../../shared-lib/git.ts';
 import { pickNextSessionId } from '../../../shared-lib/pick-next-session-id';
 import { sortScribeIds } from '../../../shared-lib/sort-scribe-ids';
 import { computeApForSession } from '../../lib/compute-ap-for-session.ts';
 
 import type { CanonicalDate } from '../../../scribe/types.ts';
+import { writeYamlAtomic } from '@skyreach/data';
 
 function formatDate(d: CanonicalDate | null): string {
   if (!d) {
