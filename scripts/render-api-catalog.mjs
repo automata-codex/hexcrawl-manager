@@ -17,14 +17,33 @@ import path from "node:path";
 const INPUT_JSON = process.env.TYPEDOC_JSON || "docs/api/typedoc.json";
 const OUTPUT_MD  = process.env.API_CATALOG || "docs/api/CATALOG.md";
 
+// TypeDoc ReflectionKind numbers we care about
+const KIND = {
+  Enum: 16,
+  Variable: 32,
+  Function: 64,
+  Class: 128,
+  Interface: 256,
+  TypeAlias: 2097152,
+};
+
+const KIND_NAME = new Map([
+  [KIND.Enum, "Enum"],
+  [KIND.Variable, "Variable"],
+  [KIND.Function, "Function"],
+  [KIND.Class, "Class"],
+  [KIND.Interface, "Interface"],
+  [KIND.TypeAlias, "Type alias"],
+]);
+
 // Which kinds to include at top-level (others are ignored or summarized)
 const INCLUDE_KINDS = new Set([
-  "Function",
-  "Type alias",
-  "Variable",
-  "Enum",
-  "Class",
-  "Interface",
+  KIND.Function,
+  KIND.TypeAlias,
+  KIND.Variable,
+  KIND.Enum,
+  KIND.Class,
+  KIND.Interface,
 ]);
 
 /* ------------------------------ Helper: reading ------------------------------- */
@@ -192,38 +211,39 @@ function eachTopLevelExport(entry) {
 /* --------------------------------- Rendering -------------------------------- */
 
 function renderNodeLine(n) {
-  const kind = n.kindString;
   let code;
-  switch (kind) {
-    case "Function": code = renderFunctionSignature(n); break;
-    case "Type alias": code = renderTypeAliasSignature(n); break;
-    case "Variable": code = renderVariableSignature(n); break;
-    case "Enum": code = renderEnumSignature(n); break;
-    case "Interface": code = renderInterfaceHeader(n); break;
-    case "Class": code = renderClassHeader(n); break;
+  switch (n.kind) {
+    case KIND.Function:   code = renderFunctionSignature(n); break;
+    case KIND.TypeAlias:  code = renderTypeAliasSignature(n); break;
+    case KIND.Variable:   code = renderVariableSignature(n); break;
+    case KIND.Enum:       code = renderEnumSignature(n); break;
+    case KIND.Interface:  code = renderInterfaceHeader(n); break;
+    case KIND.Class:      code = renderClassHeader(n); break;
     default: return null;
   }
   const summary = textFromComment(n.comment);
-  const line = `- \`${mdEscape(code)}\`${summary ? ` — ${summary}` : ""}`;
-  return line;
+  return `- \`${mdEscape(code)}\`${summary ? ` — ${summary}` : ""}`;
 }
 
-function renderEntrySection(entry) {
+function renderEntrySection(entry, byId) {
   const lines = [];
-  const entryName = entry.name || "Entry";
-  lines.push(`\n## ${entryName}\n`);
-  const exportsList = eachTopLevelExport(entry);
+  lines.push(`\n## ${entry.name}\n`);
 
-  if (exportsList.length === 0) {
+  const ids = entry.groups?.flatMap(g => g.children ?? []) ?? [];
+  const nodes = (ids.length ? ids.map(id => byId.get(id)) : (entry.children ?? []))
+    .filter(Boolean)
+    .filter(n => INCLUDE_KINDS.has(n.kind))                 // <— use numeric kind
+    .sort((a, b) => a.name.localeCompare(b.name, "en", { numeric: true }));
+
+  if (!nodes.length) {
     lines.push("_(no exported symbols found)_");
     return lines;
   }
 
-  for (const ex of exportsList) {
-    const line = renderNodeLine(ex);
+  for (const n of nodes) {
+    const line = renderNodeLine(n);
     if (line) lines.push(line);
   }
-
   return lines;
 }
 
@@ -235,15 +255,18 @@ function main() {
     process.exit(1);
   }
   const project = readTypedocJson(INPUT_JSON);
+  const byId = indexById(project);
+
   const lines = [];
-  const title = "# Skyreach API Catalog\n";
-  lines.push(title);
+  lines.push("# Skyreach API Catalog\n");
   lines.push("_Single-file catalog generated from TypeDoc JSON. Edits will be overwritten._\n");
 
-  // In TypeDoc JSON, top-level children are entry points (one per package)
   const entries = project.children ?? [project];
   for (const entry of entries) {
-    lines.push(...renderEntrySection(entry));
+    console.error("ENTRY:", entry.name,
+      "groups:", entry.groups?.length ?? 0,
+      "children:", entry.children?.length ?? 0);
+    lines.push(...renderEntrySection(entry, byId));
   }
 
   fs.mkdirSync(path.dirname(OUTPUT_MD), { recursive: true });

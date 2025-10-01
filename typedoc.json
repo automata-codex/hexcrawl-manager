@@ -12,6 +12,7 @@
   "json": "docs/api/typedoc.json",
   "readme": "none",
   "plugin": [],
+  "entryPointStrategy": "resolve",
 
   "gitRemote": "origin",
   "gitRevision": "develop",
