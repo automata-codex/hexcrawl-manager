@@ -26,20 +26,20 @@ _Single-file catalog generated from TypeDoc JSON. Edits will be overwritten._
 - `type DetailTables = Record&lt;Season, DetailTable&gt;;`
 - `type EffectsTable = Record&lt;WeatherCategory, WeatherEffects&gt;;`
 - `type ForecastModifierTable = Record&lt;WeatherCategory, number&gt;;`
-- `function getHexNeighbors(hex: string): string[]`
+- `function getHexNeighbors(hex: string): string[]` — Get neighboring hexes for a given hex in an odd-q flat-topped hex grid.
 - `function getSeasonForDate(date: { day: number; month: "Primaris" | "Gelidus" | "Hibernis" | "Vernalis" | "Pluvoris" | "Florara" | "Solinus" | "Aestara" | "Lucidus" | "Fructara" | "Umbraeus" | "Aridus"; year: number }): Season`
-- `function hexSort(hexIdA: string, hexIdB: string): number`
+- `function hexSort(hexIdA: string, hexIdB: string): number` — Sorts two hex IDs first by column (alphabetically) and then by row (numerically).
 - `function hoursToSegmentsCeil(hours: number): number`
-- `function isValidHexId(hexId: string): boolean`
+- `function isValidHexId(hexId: string): boolean` — Checks if a given string is a valid hex ID.
 - `type LeapRule = any;`
 - `type MonthDef = any;`
-- `function normalizeHexId(h: string): string`
-- `function parseTrailId(trailId: string): null | { from: string; to: string }`
+- `function normalizeHexId(h: string): string` — Normalizes a hex ID by trimming whitespace and converting to uppercase.
+- `function parseTrailId(trailId: string): null | { from: string; to: string }` — Parses a trail ID into its constituent hex IDs.
 - `type Season = "winter" | "spring" | "summer" | "autumn";`
 - `type SeasonalBand = any;`
 - `type SeasonalBandsTable = Record&lt;Season, SeasonalBand[]&gt;;`
 - `function segmentsToHours(segments: number): number`
-- `function tierFromLevel(level?: number): 1 | 2 | 3 | 4`
+- `function tierFromLevel(level?: number): 1 | 2 | 3 | 4` — Derive character tier from character level
 - `type WeatherCategory = WEATHER_CATEGORIES[number];`
 - `type WeatherCommitted = any;`
 - `type WeatherDraft = any;`
@@ -48,21 +48,25 @@ _Single-file catalog generated from TypeDoc JSON. Edits will be overwritten._
 ## data/src
 
 - `function appendJsonl(p: string, record: Event): void`
-- `function atomicWrite(filePath: string, content: string): void`
+- `function atomicWrite(filePath: string, content: string): void` — Write a file atomically: write to a temp file, then rename.
+Ensures that the file is either fully written or not present.
 - `function ensureRepoDirs(): void`
-- `function getGitHeadCommit(): null | string`
-- `function getRepoPath(...segments: string[]): string`
-- `function getRepoRoot(): string`
-- `function isGitDirty(): boolean`
-- `function loadConfig(): null | { repoRoot: string }`
-- `function loadMeta(): { appliedSessions: string[]; nextSessionSeq: number; rolledSeasons: string[] }`
+- `function getGitHeadCommit(): null | string` — Returns the current git HEAD commit SHA, or null if not in a git repo.
+- `function getRepoPath(...segments: string[]): string` — Get an absolute path within the repository.
+- `function getRepoRoot(): string` — Returns the repository root directory, respecting the REPO_ROOT env override.
+Falls back to config if not set.
+- `function isGitDirty(): boolean` — Returns true if the git working directory is dirty (has uncommitted changes).
+- `function loadConfig(): null | { repoRoot: string }` — Load and validate the skyreach.config.json file. Caches the result after the
+first load.
+- `function loadMeta(): { appliedSessions: string[]; nextSessionSeq: number; rolledSeasons: string[] }` — Loads the meta.yaml file and returns its contents as MetaData.
 - `function readJsonl(p: string): Event[]`
 - `const REPO_PATHS: { CHARACTERS: () =&gt; string; DEV: () =&gt; string; DEV_IN_PROGRESS: () =&gt; string; DEV_ROLLOVERS: () =&gt; string; DEV_SESSIONS: () =&gt; string; FOOTPRINTS: () =&gt; string; HAVENS: () =&gt; string; IN_PROGRESS: () =&gt; string; LOCKS: () =&gt; string; LOGS_ROOT: () =&gt; string; META: () =&gt; string; REPORTS: () =&gt; string; ROLLOVERS: () =&gt; string; SESSIONS: () =&gt; string; TRAILS: () =&gt; string };`
-- `function resolveDataPath(rel: string): string`
-- `function rollDice(notation: string): number`
-- `function saveMeta(partialMeta: Partial&lt;MetaData&gt;): void`
+- `function resolveDataPath(rel: string): string` — Resolve a path relative to the repo's `data/` directory.
+- `function rollDice(notation: string): number` — Parses dice notation (e.g., "2d6+1") and rolls the dice. Uses secure RNG for
+true randomness only (no seed support).
+- `function saveMeta(partialMeta: Partial&lt;MetaData&gt;): void` — Saves a partial MetaData object to meta.yaml, merging with the existing data.
 - `function writeJsonl(p: string, records: Record&lt;string, any&gt;[]): void`
-- `function writeYamlAtomic(filePath: string, data: any): void`
+- `function writeYamlAtomic(filePath: string, data: any): void` — Write a YAML file atomically.
 
 ## schemas/src
 
@@ -180,7 +184,8 @@ _Single-file catalog generated from TypeDoc JSON. Edits will be overwritten._
 ## test-helpers/src
 
 - `function findSessionFiles(dir: string): string[]`
-- `function getTestRepoBase(): string`
+- `function getTestRepoBase(): string` — Returns the absolute path to the test repo base directory, creating it and the sentinel file if needed.
+Uses TEST_REPO_BASE env or defaults to ./.test-repos relative to project root.
 - `function runScribe(commands: string[], opts: RunScribeOptions): Promise&lt;RunScribeResult&gt;`
 - `function runWeave(args: string[], opts: RunWeaveOptions): Promise&lt;RunWeaveResult&gt;`
 - `function withTempRepo(title?: string, opts?: { initGit?: boolean; keepOnFailEnv?: string }, fn?: (repoPath: string) =&gt; Promise&lt;T&gt;): Promise&lt;string | T&gt;`

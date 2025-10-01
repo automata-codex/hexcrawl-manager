@@ -87,6 +87,20 @@ function mdEscape(s) {
   return s.replace(/[<>]/g, c => ({ "<": "&lt;", ">": "&gt;" }[c]));
 }
 
+function getNodeComment(node) {
+  // Prefer node.comment (e.g., variables, type aliases)
+  if (node?.comment) return node.comment;
+
+  // Functions: the docs usually live on the first signature
+  const sig = (node?.signatures ?? [])[0];
+  if (sig?.comment) return sig.comment;
+
+  // Some variables/types can carry docs inside a reflection type declaration
+  if (node?.type?.declaration?.comment) return node.type.declaration.comment;
+
+  return undefined;
+}
+
 /* --------------------------- Type rendering (pretty) -------------------------- */
 
 function renderType(t) {
@@ -221,7 +235,8 @@ function renderNodeLine(n) {
     case KIND.Class:      code = renderClassHeader(n); break;
     default: return null;
   }
-  const summary = textFromComment(n.comment);
+
+  const summary = textFromComment(getNodeComment(n));
   return `- \`${mdEscape(code)}\`${summary ? ` — ${summary}` : ""}`;
 }
 
