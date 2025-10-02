@@ -2,8 +2,10 @@ import fs from 'fs';
 import path from 'path';
 
 import { getRepoPath } from './get-repo-path';
+import { resolveDataPath } from './paths';
 
 export const REPO_PATHS = {
+  AP_LEDGER: () => resolveDataPath('ap-ledger.jsonl'),
   CHARACTERS: () => getRepoPath('data', 'characters'),
   DEV: () => getRepoPath('data', 'session-logs', '_dev'), // Dev-mode root
   DEV_IN_PROGRESS: () =>

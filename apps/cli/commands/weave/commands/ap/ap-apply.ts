@@ -17,13 +17,13 @@ import { glob } from 'glob';
 import path from 'path';
 import yaml from 'yaml';
 
-import pkg from '../../../../package.json' assert { type: 'json' };
+import pkg from '../../../../../../package.json' assert { type: 'json' };
 import {
   firstCalendarDate,
   lastCalendarDate,
   selectParty,
-} from '../../../scribe/projectors.ts';
-import { computeApForSession } from '../../lib/compute-ap-for-session.ts';
+} from '../../../scribe/projectors';
+import { computeApForSession } from '../../lib/compute-ap-for-session';
 
 import type { CampaignDate } from '@skyreach/schemas';
 
@@ -261,10 +261,9 @@ export async function apApply(sessionId?: string) {
   writeYamlAtomic(reportPath, reportOut);
 
   // Append per-character session_ap entries to the ledger
-  const ledgerPath = resolveDataPath('ap-ledger.yaml');
   let ledger = [];
-  if (fs.existsSync(ledgerPath)) {
-    ledger = yaml.parse(fs.readFileSync(ledgerPath, 'utf8')) || [];
+  if (fs.existsSync(REPO_PATHS.AP_LEDGER())) {
+    ledger = yaml.parse(fs.readFileSync(REPO_PATHS.AP_LEDGER(), 'utf8')) || [];
   }
   for (const characterId of Object.keys(ledgerResults)) {
     const ap = ledgerResults[characterId];
@@ -284,5 +283,5 @@ export async function apApply(sessionId?: string) {
       source: fingerprint,
     });
   }
-  writeYamlAtomic(ledgerPath, ledger);
+  writeYamlAtomic(REPO_PATHS.AP_LEDGER(), ledger);
 }
