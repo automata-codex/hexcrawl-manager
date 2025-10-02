@@ -3,7 +3,7 @@
   "version": "2.3.0",
   "private": true,
   "scripts": {
-    "start": "tsx skyreach.ts"
+    "start": "tsx src/skyreach.ts"
   },
   "type": "module",
   "dependencies": {
