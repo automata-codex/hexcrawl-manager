@@ -6,7 +6,7 @@
   "scripts": {
     "arch:check": "depcruise \"apps/cli/**/*.ts\" \"packages/**/*.ts\" \"src/**/*.ts\" --config .dependency-cruiser.cjs",
     "astro": "npm run -w @skyreach/web astro",
-    "build": "npm run build:packages && npm run build:clue-links && npm run build:web",
+    "build": "npm run build:web",
     "build:clue-links": "bash scripts/clue-linker/setup_virtualenv.sh && scripts/clue-linker/.venv-clue-linker/bin/python scripts/clue-linker/generate-clue-links.py",
     "build:packages": "tsc -b tsconfig.workspace.json",
     "build:web": "npm run -w @skyreach/web build",

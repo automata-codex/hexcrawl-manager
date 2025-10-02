@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "astro": "astro",
-    "build": "npm run -w skyreach build:packages && astro check && astro build",
+    "build": "npm run --prefix ../.. build:packages && npm run --prefix ../.. build:clue-links && astro check && astro build",
     "check": "astro check",
     "dev": "astro dev --host",
     "preview": "astro preview"
@@ -40,5 +40,9 @@
   "devDependencies": {
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-svelte": "^3.4.0"
+  },
+  "volta": {
+    "node": "22.20.0",
+    "npm": "11.6.1"
   }
 }
