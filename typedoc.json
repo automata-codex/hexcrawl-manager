@@ -1,28 +1,26 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "plugin": ["typedoc-plugin-markdown"],
   "entryPoints": [
     "packages/cli-kit/src/index.ts",
     "packages/core/src/index.ts",
     "packages/data/src/index.ts",
-    "packages/schemas/src/index.ts"
+    "packages/schemas/src/index.ts",
+    "packages/test-helpers/src/index.ts"
   ],
   "tsconfig": "tsconfig.workspace.json",
-  "out": "docs/api",
+
   "json": "docs/api/typedoc.json",
+  "readme": "none",
+  "plugin": [],
+  "entryPointStrategy": "resolve",
 
   "gitRemote": "origin",
   "gitRevision": "develop",
   "sourceLinkTemplate": "https://github.com/alexgs/skyreach/blob/{gitRevision}/{path}#L{line}",
 
-  "readme": "none",
-  "hideBreadcrumbs": true,
-  "hidePageHeader": true,
   "categorizeByGroup": false,
-
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeExternals": true,
-
   "skipErrorChecking": true
 }

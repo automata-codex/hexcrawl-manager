@@ -1,5 +1,0 @@
-# Variable: ZoneSchema
-
-> `const` **ZoneSchema**: `ZodObject`\<\{ `clues`: `ZodOptional`\<`ZodArray`\<`ZodString`, `"many"`\>\>; `id`: `ZodString`; `narrative`: `ZodOptional`\<`ZodArray`\<`ZodString`, `"many"`\>\>; `notes`: `ZodOptional`\<`ZodArray`\<`ZodString`, `"many"`\>\>; `primaryType`: `ZodString`; `secondaryTypes`: `ZodOptional`\<`ZodArray`\<`ZodString`, `"many"`\>\>; `squares`: `ZodArray`\<`ZodString`, `"many"`\>; `title`: `ZodString`; `zoneCrawlId`: `ZodString`; \}, `"strip"`, `ZodTypeAny`, \{ `clues?`: `string`[]; `id`: `string`; `narrative?`: `string`[]; `notes?`: `string`[]; `primaryType`: `string`; `secondaryTypes?`: `string`[]; `squares`: `string`[]; `title`: `string`; `zoneCrawlId`: `string`; \}, \{ `clues?`: `string`[]; `id`: `string`; `narrative?`: `string`[]; `notes?`: `string`[]; `primaryType`: `string`; `secondaryTypes?`: `string`[]; `squares`: `string`[]; `title`: `string`; `zoneCrawlId`: `string`; \}\>
-
-Defined in: [packages/schemas/src/schemas/zone.ts:3](https://github.com/alexgs/skyreach/blob/develop/packages/schemas/src/schemas/zone.ts#L3)
