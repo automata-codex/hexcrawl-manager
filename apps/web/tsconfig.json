@@ -4,12 +4,6 @@
     "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "paths": {
-      "@skyreach/cli-kit": ["packages/cli-kit/src/index.ts"],
-      "@skyreach/core": ["packages/core/src/index.ts"],
-      "@skyreach/data": ["packages/data/src/index.ts"],
-      "@skyreach/schemas": ["packages/schemas/src/index.ts"]
-    },
     "plugins": [
       {
         "name": "@astrojs/ts-plugin"
@@ -21,14 +15,10 @@
   "include": [
     ".astro/types.d.ts",
     "src",
-    "schemas",
-    "scripts",
-    "data",
     "astro.config.mjs",
     "svelte.config.js"
   ],
   "exclude": [
     "dist",
-    "packages/**/dist"
   ]
 }

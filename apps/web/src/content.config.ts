@@ -35,7 +35,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 
-const DATA_DIR = 'data';
+const DATA_DIR = '../../data';
 
 const DIRS = {
   ARTICLES: `${DATA_DIR}/articles`,
@@ -181,7 +181,7 @@ const supplements = defineCollection({
 });
 
 const trails = defineCollection({
-  loader: file('data/trails.yml', {
+  loader: file(`${DATA_DIR}/trails.yml`, {
     parser: (raw) => {
       const obj = yaml.parse(raw);
       return trailsMapToEntries(obj);

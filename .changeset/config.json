@@ -6,8 +6,17 @@
   "commit": false,
   "ignore": [],
   "linked": [
-    ["@skyreach/schemas", "@skyreach/core", "@skyreach/data", "@skyreach/cli-kit"]
+    [
+      "@skyreach/schemas",
+      "@skyreach/core",
+      "@skyreach/data",
+      "@skyreach/cli-kit",
+      "@skyreach/test-helpers"
+    ]
   ],
-  "packages": ["packages/*", "cli", "."],
+  "packages": [
+    "packages/*",
+    "apps/*"
+  ],
   "updateInternalDependencies": "patch"
 }
