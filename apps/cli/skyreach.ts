@@ -2,11 +2,10 @@
 
 import { Command } from 'commander';
 
-import pkg from '../package.json' assert { type: 'json' };
-
 import { scribeCommand } from './commands/scribe';
 import { sessionCommand } from './commands/session';
 import { weaveCommand } from './commands/weave';
+import pkg from './package.json' assert { type: 'json' };
 
 const program = new Command();
 

@@ -22,8 +22,6 @@
     ".astro/types.d.ts",
     "src",
     "schemas",
-    "lib",
-    "cli",
     "scripts",
     "data",
     "astro.config.mjs",

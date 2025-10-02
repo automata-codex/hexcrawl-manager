@@ -17,7 +17,7 @@ import { glob } from 'glob';
 import path from 'path';
 import yaml from 'yaml';
 
-import pkg from '../../../../../package.json' assert { type: 'json' };
+import pkg from '../../../../package.json' assert { type: 'json' };
 import {
   firstCalendarDate,
   lastCalendarDate,
