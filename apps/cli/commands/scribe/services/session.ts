@@ -7,7 +7,7 @@ import yaml from 'yaml';
 
 import { type Context } from '../types';
 
-import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
+import { readEvents, timeNowISO, writeEventsWithHeader } from '../../../src/services/event-log';
 import { requireFile, requireSession } from './general';
 
 import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';

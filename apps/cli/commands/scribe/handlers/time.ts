@@ -7,7 +7,7 @@ import {
   daylightSegmentsSinceStart,
   findOpenDay,
 } from '../projectors.ts';
-import { appendEvent, readEvents } from '../services/event-log';
+import { appendEvent, readEvents } from '../../../src/services/event-log';
 import { requireFile } from '../services/general.ts';
 
 import type { Context } from '../types';

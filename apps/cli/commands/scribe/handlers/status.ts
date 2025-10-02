@@ -8,7 +8,7 @@ import {
   isPartyLost,
   selectCurrentHex,
 } from '../projectors.ts';
-import { readEvents } from '../services/event-log';
+import { readEvents } from '../../../src/services/event-log';
 import { requireFile } from '../services/general.ts';
 
 import type { Context } from '../types';

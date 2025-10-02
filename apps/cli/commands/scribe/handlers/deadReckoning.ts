@@ -1,7 +1,7 @@
 import { usage, info } from '@skyreach/cli-kit';
 
 import { isPartyLost } from '../projectors.ts';
-import { readEvents, appendEvent } from '../services/event-log';
+import { readEvents, appendEvent } from '../../../src/services/event-log';
 import { requireFile } from '../services/general.ts';
 
 import type { Context } from '../types';

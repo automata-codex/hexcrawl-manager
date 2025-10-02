@@ -2,7 +2,7 @@ import { info, warn, usage, error } from '@skyreach/cli-kit';
 import { CALENDAR_CONFIG, segmentsToHours } from '@skyreach/core';
 
 import { findOpenDay, lastCalendarDate } from '../projectors.ts';
-import { readEvents, appendEvent } from '../services/event-log';
+import { readEvents, appendEvent } from '../../../src/services/event-log';
 import { requireFile, requireSession } from '../services/general.ts';
 
 import type { Context } from '../types';

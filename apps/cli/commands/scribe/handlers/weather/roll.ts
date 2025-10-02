@@ -2,7 +2,7 @@ import { clamp, info } from '@skyreach/cli-kit';
 import { rollDice } from '@skyreach/data';
 
 import { lastCalendarDate, selectCurrentForecast } from '../../projectors.ts';
-import { readEvents } from '../../services/event-log.ts';
+import { readEvents } from '../../../../src/services/event-log.ts';
 import { requireFile, requireSession } from '../../services/general.ts';
 
 import {

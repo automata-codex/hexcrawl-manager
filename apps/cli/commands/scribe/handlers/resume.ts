@@ -2,7 +2,7 @@ import { error, info, warn } from '@skyreach/cli-kit';
 import { existsSync } from 'node:fs';
 
 import { selectCurrentHex } from '../projectors.ts';
-import { readEvents } from '../services/event-log.ts';
+import { readEvents } from '../../../src/services/event-log.ts';
 import { detectDevMode } from '../services/general.ts';
 import {
   findLatestInProgress,

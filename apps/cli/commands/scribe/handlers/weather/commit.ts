@@ -1,7 +1,7 @@
 import { info, error } from '@skyreach/cli-kit';
 import { clamp } from '@skyreach/cli-kit';
 
-import { appendEvent } from '../../services/event-log.ts';
+import { appendEvent } from '../../../../src/services/event-log.ts';
 import { requireFile } from '../../services/general.ts';
 
 import type { Context } from '../../types.ts';
