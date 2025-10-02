@@ -8,18 +8,12 @@
     "strict": true
   },
   "files": [],
-  "include": [
-    "packages/cli-kit/src/**/*.ts",
-    "packages/core/src/**/*.ts",
-    "packages/data/src/**/*.ts",
-    "packages/schemas/src/**/*.ts",
-    "packages/test-helpers/src/**/*.ts"
-  ],
   "references": [
     // Order is important here, as some packages depend on others
     { "path": "packages/schemas/tsconfig.build.json" },
     { "path": "packages/core/tsconfig.build.json" },
     { "path": "packages/data/tsconfig.build.json" },
-    { "path": "packages/cli-kit/tsconfig.build.json" }
+    { "path": "packages/cli-kit/tsconfig.build.json" },
+    { "path": "packages/test-helpers/tsconfig.build.json" }
   ]
 }

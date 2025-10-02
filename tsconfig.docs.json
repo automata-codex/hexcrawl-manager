@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true
+  },
+  "include": [
+    "packages/cli-kit/src/**/*.ts",
+    "packages/core/src/**/*.ts",
+    "packages/data/src/**/*.ts",
+    "packages/schemas/src/**/*.ts",
+    "packages/test-helpers/src/**/*.ts"
+  ]
+}
