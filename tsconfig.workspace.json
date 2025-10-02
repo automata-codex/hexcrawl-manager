@@ -15,10 +15,9 @@
   },
   "files": [],
   "references": [
-    {"path": "packages/cli-kit"},
-    {"path": "packages/core"},
-    {"path": "packages/data"},
-    {"path": "packages/schemas"},
-    {"path": "packages/test-helpers"}
+    { "path": "packages/cli-kit/tsconfig.build.json" },
+    { "path": "packages/core/tsconfig.build.json" },
+    { "path": "packages/data/tsconfig.build.json" },
+    { "path": "packages/schemas/tsconfig.build.json" }
   ]
 }
