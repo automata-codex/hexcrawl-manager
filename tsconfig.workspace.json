@@ -3,18 +3,12 @@
     "baseUrl": ".",
     "composite": false,
     "moduleResolution": "bundler",
-//    "paths": {
-//      "@skyreach/*": [
-//        "packages/*/src", // for typecheck against sources,
-//        "packages/*/dist", // for d.ts after build,
-//        "packages/*" // optional, helps node-style resolution
-//      ]
-//    },
     "skipLibCheck": true,
     "strict": true
   },
   "files": [],
   "references": [
+    // Order is important here, as some packages depend on others
     { "path": "packages/schemas/tsconfig.build.json" },
     { "path": "packages/core/tsconfig.build.json" },
     { "path": "packages/data/tsconfig.build.json" },
