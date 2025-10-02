@@ -8,4 +8,5 @@ export * from './meta';
 export { resolveDataPath } from './paths';
 export { REPO_PATHS, ensureRepoDirs } from './repo-paths';
 export { rollDice } from './roll-dice';
+export * from './scribe-event-log';
 export { writeYamlAtomic } from './write-yaml-atomic';

@@ -1,7 +1,7 @@
 import { info, warn, error } from '@skyreach/cli-kit';
 import { REPO_PATHS } from '@skyreach/data';
 import { loadMeta } from '@skyreach/data';
-import { readJsonl } from '@skyreach/data';
+import { readEventLog } from '@skyreach/data';
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
@@ -116,7 +116,7 @@ export default function doctor() {
       const filePath = path.join(inProgressDir, file);
       let events: any[] = [];
       try {
-        events = readJsonl(filePath);
+        events = readEventLog(filePath);
       } catch (e) {
         warn(`Failed to read ${file}: ${e}`);
         continue;
@@ -136,7 +136,7 @@ export default function doctor() {
       const filePath = path.join(REPO_PATHS.SESSIONS(), file);
       let events: any[] = [];
       try {
-        events = readJsonl(filePath);
+        events = readEventLog(filePath);
       } catch (e) {
         warn(`Failed to read session file ${file}: ${e}`);
         continue;

@@ -3,19 +3,19 @@ import path from 'node:path';
 
 import type { ScribeEvent } from '@skyreach/schemas';
 
-export function readJsonl(p: string): ScribeEvent[] {
+export function readEventLog(p: string): ScribeEvent[] {
   if (!fs.existsSync(p)) return [];
   const lines = fs.readFileSync(p, 'utf8').split(/\r?\n/).filter(Boolean);
   return lines.map((l) => JSON.parse(l));
 }
 
-export function writeJsonl(p: string, records: Array<Record<string, any>>) {
+export function writeEventLog(p: string, records: Array<Record<string, any>>) {
   fs.mkdirSync(path.dirname(p), { recursive: true });
   const body = records.map((r) => JSON.stringify(r)).join('\n') + '\n';
   fs.writeFileSync(p, body, 'utf8');
 }
 
-export function appendJsonl(p: string, record: ScribeEvent) {
+export function appendEventLog(p: string, record: ScribeEvent) {
   fs.mkdirSync(path.dirname(p), { recursive: true });
   fs.appendFileSync(p, JSON.stringify(record) + '\n', 'utf8');
 }

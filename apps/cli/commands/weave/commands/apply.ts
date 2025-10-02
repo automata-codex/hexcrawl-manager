@@ -2,7 +2,7 @@ import { error, info } from '@skyreach/cli-kit';
 import {
   REPO_PATHS,
   loadMeta,
-  readJsonl,
+  readEventLog,
   saveMeta,
   writeYamlAtomic,
 } from '@skyreach/data';
@@ -48,7 +48,7 @@ export async function apply(fileArg?: string, opts?: any) {
 
   // File type detection
   if (isRolloverFile(file)) {
-    const events = readJsonl(file);
+    const events = readEventLog(file);
     const rollover = events.find((e) => e.kind === 'season_rollover');
     if (!rollover || !rollover.payload?.seasonId) {
       error(
@@ -116,7 +116,7 @@ export async function apply(fileArg?: string, opts?: any) {
       process.exit(6);
     }
   } else if (isSessionFile(file)) {
-    const events = readJsonl(file);
+    const events = readEventLog(file);
     const validation = validateSessionEnvelope(events);
     if (!validation.isValid) {
       error(`Session envelope validation failed: ${validation.error}`);

@@ -1,5 +1,5 @@
 import { info, error } from '@skyreach/cli-kit';
-import { loadMeta, readJsonl } from '@skyreach/data';
+import { loadMeta, readEventLog } from '@skyreach/data';
 import path from 'path';
 
 import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
@@ -30,7 +30,7 @@ export async function plan(fileArg?: string) {
   // File type detection
   if (isRolloverFile(file)) {
     // --- Rollover planning: detect and parse ---
-    const events = readJsonl(file);
+    const events = readEventLog(file);
     const rollover = events.find((e) => e.kind === 'season_rollover') as
       | (ScribeEvent & { payload: { seasonId: string } })
       | undefined;
@@ -89,7 +89,7 @@ export async function plan(fileArg?: string) {
     );
     process.exit(0);
   } else if (isSessionFile(file)) {
-    const events = readJsonl(file);
+    const events = readEventLog(file);
     const validation = validateSessionEnvelope(events);
     if (!validation.isValid) {
       error(`Session envelope validation failed: ${validation.error}`);
