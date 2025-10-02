@@ -1,19 +1,19 @@
-import { atomicWrite } from '@skyreach/data';
-import { readEventLog, appendEventLog, writeEventLog } from '@skyreach/data';
-
-import type { ScribeEvent } from '@skyreach/schemas';
+import { readJsonl, writeJsonl, appendJsonl, atomicWrite } from '@skyreach/data';
+import { type ScribeEvent, ScribeEventSchema } from '@skyreach/schemas';
 
 const nowISO = () => new Date().toISOString();
-const nextSeq = (evs: ScribeEvent[]) =>
-  evs.length ? Math.max(...evs.map((e) => e.seq)) + 1 : 1;
 
-export const readEvents = (filePath: string) => readEventLog(filePath);
+const nextSeq = (evs: ScribeEvent[]) => (evs.length ? Math.max(...evs.map(e => e.seq)) + 1 : 1);
+
+export const readEvents = (filePath: string) =>
+  readJsonl<ScribeEvent>(filePath, { schema: ScribeEventSchema });
+
 export const writeEvents = (filePath: string, events: ScribeEvent[]) =>
-  writeEventLog(filePath, events);
+  writeJsonl<ScribeEvent>(filePath, events);
 
 export const writeEventsWithHeader = (
   filePath: string,
-  header: Record<string, any>,
+  header: Record<string, unknown>,
   events: ScribeEvent[] = [],
 ) => {
   // Write atomically
@@ -29,7 +29,7 @@ export const appendEvent = (
 ) => {
   const evs = readEvents(filePath);
   const rec: ScribeEvent = { seq: nextSeq(evs), ts: nowISO(), kind, payload };
-  appendEventLog(filePath, rec);
+  appendJsonl<ScribeEvent>(filePath, rec);
   return rec;
 };
 
