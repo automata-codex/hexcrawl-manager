@@ -1,4 +1,4 @@
-import { type Event, pad } from '@skyreach/cli-kit';
+import { pad } from '@skyreach/cli-kit';
 import { hexSort, normalizeHexId } from '@skyreach/core';
 import { REPO_PATHS, loadMeta, saveMeta } from '@skyreach/data';
 import fs, { existsSync, readdirSync, statSync } from 'node:fs';
@@ -8,9 +8,9 @@ import yaml from 'yaml';
 import { type Context } from '../types';
 
 import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
-import { requireFile, requireSession } from './general.ts';
+import { requireFile, requireSession } from './general';
 
-import type { CampaignDate } from '@skyreach/schemas';
+import type { CampaignDate, Event } from '@skyreach/schemas';
 
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =

@@ -1,4 +1,4 @@
-import type { Event } from '@skyreach/cli-kit';
+import type { Event } from '@skyreach/schemas';
 
 //
 /**

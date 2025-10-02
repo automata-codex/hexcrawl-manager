@@ -1,4 +1,4 @@
-import { type Event, eventsOf, pad } from '@skyreach/cli-kit';
+import { eventsOf, pad } from '@skyreach/cli-kit';
 import { readJsonl, REPO_PATHS } from '@skyreach/data';
 import {
   findSessionFiles,
@@ -9,6 +9,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
+
+import type { Event } from '@skyreach/schemas';
 
 describe('scribe start', () => {
   it('emits exactly one session_start with the requested startHex and writes a minimal valid log', async () => {

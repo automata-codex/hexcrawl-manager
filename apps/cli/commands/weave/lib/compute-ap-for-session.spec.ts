@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 
-import { computeApForSession } from './compute-ap-for-session.ts';
+import { computeApForSession } from './compute-ap-for-session';
 
-import type { Event } from '@skyreach/cli-kit';
+import type { Event } from '@skyreach/schemas';
 
 describe('Function `computeApForSession`', () => {
   const apEvents: Event[] = [

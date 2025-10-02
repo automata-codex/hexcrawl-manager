@@ -8,8 +8,7 @@ import {
   normalizeHexId,
 } from '@skyreach/core';
 
-import type { Event } from '@skyreach/cli-kit';
-import type { CampaignDate } from '@skyreach/schemas';
+import type { CampaignDate, Event } from '@skyreach/schemas';
 
 // Sum ALL time segments (daylight + night) since the last day_start
 export function activeSegmentsSinceStart(events: Event[], startIdx: number) {

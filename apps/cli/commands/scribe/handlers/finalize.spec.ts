@@ -1,4 +1,4 @@
-import { type Event, eventsOf, pad } from '@skyreach/cli-kit';
+import { eventsOf, pad } from '@skyreach/cli-kit';
 import { readJsonl, REPO_PATHS } from '@skyreach/data';
 import {
   findSessionFiles,
@@ -10,7 +10,7 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import type { CampaignDate } from '@skyreach/schemas';
+import type { CampaignDate, Event } from '@skyreach/schemas';
 
 describe('scribe finalize', () => {
   it('partitions session events correctly and writes output files', async () => {

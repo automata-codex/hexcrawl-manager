@@ -3,7 +3,7 @@ dist/
 
 # generated types & files
 .astro/
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 
 # dependencies
 node_modules/
