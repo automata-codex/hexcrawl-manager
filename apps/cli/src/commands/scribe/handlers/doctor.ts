@@ -1,12 +1,11 @@
 import { info, warn, error } from '@skyreach/cli-kit';
 import { REPO_PATHS } from '@skyreach/data';
 import { loadMeta } from '@skyreach/data';
-import { readEventLog } from '@skyreach/data';
 import fs from 'node:fs';
 import path from 'node:path';
-import yaml from 'yaml';
 
-import { detectDevMode } from '../services/general.ts';
+import { readEvents } from '../../../services/event-log';
+import { detectDevMode } from '../services/general';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -82,7 +81,7 @@ export default function doctor() {
         let mtime = 0;
         try {
           mtime = fs.statSync(lockPath).mtimeMs;
-        } catch {}
+        } catch { /* no op */ }
         const age = Date.now() - mtime;
         if (age > DAY_MS) {
           warn(`Stale lock: ${lock} (age ${(age / DAY_MS).toFixed(1)} days)`);
@@ -116,7 +115,7 @@ export default function doctor() {
       const filePath = path.join(inProgressDir, file);
       let events: any[] = [];
       try {
-        events = readEventLog(filePath);
+        events = readEvents(filePath);
       } catch (e) {
         warn(`Failed to read ${file}: ${e}`);
         continue;
@@ -136,7 +135,7 @@ export default function doctor() {
       const filePath = path.join(REPO_PATHS.SESSIONS(), file);
       let events: any[] = [];
       try {
-        events = readEventLog(filePath);
+        events = readEvents(filePath);
       } catch (e) {
         warn(`Failed to read session file ${file}: ${e}`);
         continue;

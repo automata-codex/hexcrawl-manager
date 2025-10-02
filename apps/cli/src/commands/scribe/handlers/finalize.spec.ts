@@ -1,5 +1,5 @@
 import { eventsOf, pad } from '@skyreach/cli-kit';
-import { readEventLog, REPO_PATHS } from '@skyreach/data';
+import { REPO_PATHS } from '@skyreach/data';
 import {
   findSessionFiles,
   runScribe,
@@ -9,6 +9,8 @@ import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
+
+import { readEvents } from '../../../services/event-log';
 
 import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';
 
@@ -39,7 +41,7 @@ describe('scribe finalize', () => {
 
         // Gather all events from all session files
         const files = findSessionFiles(REPO_PATHS.SESSIONS());
-        const allEvents = files.flatMap(readEventLog);
+        const allEvents = files.flatMap(readEvents);
 
         // Find all unique season IDs from day_start events
         const uniqueSeasons = new Set(
@@ -303,7 +305,7 @@ describe('scribe finalize', () => {
 
         const files = findSessionFiles(REPO_PATHS.SESSIONS());
         expect(files.length).toBe(2);
-        const allEvents = files.flatMap(readEventLog);
+        const allEvents = files.flatMap(readEvents);
 
         // Should have a session_continue at the start of the second block
         const sessionContinue = allEvents.find(
@@ -498,7 +500,7 @@ describe('scribe finalize', () => {
         expect(exitCode).toBe(0);
         expect(stderr).toBe('');
         const files = findSessionFiles(REPO_PATHS.SESSIONS());
-        const allEvents = files.flatMap(readEventLog);
+        const allEvents = files.flatMap(readEvents);
 
         // Trail edge should be normalized so from < to
         const trail = allEvents.find((e) => e.kind === 'trail');

@@ -1,5 +1,5 @@
 import { eventsOf, pad } from '@skyreach/cli-kit';
-import { readEventLog, REPO_PATHS } from '@skyreach/data';
+import { REPO_PATHS } from '@skyreach/data';
 import {
   findSessionFiles,
   runScribe,
@@ -9,6 +9,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
+
+import { readEvents } from '../../../services/event-log';
 
 import type { ScribeEvent } from '@skyreach/schemas';
 
@@ -33,7 +35,7 @@ describe('scribe start', () => {
         const files = findSessionFiles(REPO_PATHS.SESSIONS());
         expect(files.length).toBe(1);
 
-        const events: ScribeEvent[] = readEventLog(files[0]);
+        const events: ScribeEvent[] = readEvents(files[0]);
 
         // Exactly one session_start, with correct startHex
         const starts = eventsOf(events, 'session_start');
@@ -84,7 +86,7 @@ describe('scribe start', () => {
         const files = findSessionFiles(REPO_PATHS.SESSIONS());
         expect(files.length).toBe(1);
 
-        const events = readEventLog(files[0]);
+        const events = readEvents(files[0]);
 
         const starts = eventsOf(events, 'session_start');
         expect(starts.length).toBe(1);
@@ -114,7 +116,7 @@ describe('scribe start', () => {
         const files = findSessionFiles(REPO_PATHS.SESSIONS());
         expect(files.length).toBe(1);
 
-        const events = readEventLog(files[0]);
+        const events = readEvents(files[0]);
         const moves = eventsOf(events, 'move');
         expect(moves.length).toBe(2);
         expect(moves.map((m) => m.payload.to)).toEqual(['Q13', 'Q14']);
@@ -180,7 +182,7 @@ describe('scribe start', () => {
           : [];
         expect(devFiles.length).toBe(1);
         const devFile = path.join(devSessionsDir, devFiles[0]);
-        const events = readEventLog(devFile);
+        const events = readEvents(devFile);
         const starts = eventsOf(events, 'session_start');
         expect(starts.length).toBe(1);
 
@@ -293,7 +295,7 @@ describe('scribe start', () => {
         expect(stdout).toMatch(
           new RegExp(`resumed: ${sessionId} \\(2 events\\).*last hex Q13`, 'i'),
         ); // Should not emit a new session_start event
-        const fileEvents = readEventLog(sessionFile);
+        const fileEvents = readEvents(sessionFile);
         const starts = eventsOf(fileEvents, 'session_start');
         expect(starts.length).toBe(1);
       },

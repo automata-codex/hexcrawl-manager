@@ -161,6 +161,19 @@ export default defineConfig([
     },
   },
 
-  // 10) Put Prettier last to disable conflicting stylistic rules
+  // 10) Scoped override for the CLI
+  {
+    files: ["apps/cli/**/*.{ts,tsx,js}"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+    env: {
+      node: true,
+    },
+  },
+
+  // 11) Put Prettier last to disable conflicting stylistic rules
   prettier,
 ]);
