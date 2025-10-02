@@ -10,7 +10,7 @@ import { type Context } from '../types';
 import { readEvents, timeNowISO, writeEventsWithHeader } from './event-log';
 import { requireFile, requireSession } from './general';
 
-import type { CampaignDate, Event } from '@skyreach/schemas';
+import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';
 
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =
@@ -207,7 +207,7 @@ export function finalizeSession(
   }
 
   // Sort and check for impossible ordering
-  const expandedEvents: (Event & { _origIdx: number })[] = events.map(
+  const expandedEvents: (ScribeEvent & { _origIdx: number })[] = events.map(
     (e, i) => ({ ...e, _origIdx: i }),
   );
   expandedEvents.sort((a, b) => {
@@ -356,7 +356,7 @@ export function finalizeSession(
   // (d) Build blocks with assigned events
   const blocks: {
     seasonId: string;
-    events: (Event & { _origIdx: number })[];
+    events: (ScribeEvent & { _origIdx: number })[];
   }[] = blockWindows.map((win, b) => ({
     seasonId: win.seasonId,
     events: sortedEvents.filter((_, i) => eventBlockAssignment[i] === b),
@@ -399,7 +399,7 @@ export function finalizeSession(
   // For each block, synthesize lifecycle events as needed (avoid referencing finalizedBlocks before initialization)
   const finalizedBlocks: {
     seasonId: string;
-    events: (Event & { _origIdx: number })[];
+    events: (ScribeEvent & { _origIdx: number })[];
   }[] = [];
   for (let bIdx = 0; bIdx < blocks.length; bIdx++) {
     const block = blocks[bIdx];

@@ -5,9 +5,9 @@ import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import type { Event } from '@skyreach/schemas';
+import type { ScribeEvent } from '@skyreach/schemas';
 
-const events: Event[] = [
+const events: ScribeEvent[] = [
   {
     seq: 3,
     ts: '2024-01-01T18:40:00Z',

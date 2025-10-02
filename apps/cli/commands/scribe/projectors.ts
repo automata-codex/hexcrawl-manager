@@ -8,10 +8,10 @@ import {
   normalizeHexId,
 } from '@skyreach/core';
 
-import type { CampaignDate, Event } from '@skyreach/schemas';
+import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';
 
 // Sum ALL time segments (daylight + night) since the last day_start
-export function activeSegmentsSinceStart(events: Event[], startIdx: number) {
+export function activeSegmentsSinceStart(events: ScribeEvent[], startIdx: number) {
   let segments = 0;
   for (let i = startIdx + 1; i < events.length; i++) {
     const e = events[i];
@@ -22,7 +22,7 @@ export function activeSegmentsSinceStart(events: Event[], startIdx: number) {
   return segments;
 }
 
-export function daylightSegmentsSinceStart(events: Event[], startIdx: number) {
+export function daylightSegmentsSinceStart(events: ScribeEvent[], startIdx: number) {
   let segments = 0;
   for (let i = startIdx + 1; i < events.length; i++) {
     const e = events[i];
@@ -33,7 +33,7 @@ export function daylightSegmentsSinceStart(events: Event[], startIdx: number) {
   return segments;
 }
 
-export function findOpenDay(events: Event[]) {
+export function findOpenDay(events: ScribeEvent[]) {
   let lastStartIdx = -1;
   let lastEndIdx = -1;
   for (let i = events.length - 1; i >= 0; i--) {
@@ -53,7 +53,7 @@ export function findOpenDay(events: Event[]) {
   return { open, lastStartIdx };
 }
 
-export function firstCalendarDate(events: Event[]): CampaignDate | null {
+export function firstCalendarDate(events: ScribeEvent[]): CampaignDate | null {
   for (let i = 0; i < events.length; i++) {
     const e = events[i];
     if (e.kind === 'day_start' && (e as any).payload?.calendarDate) {
@@ -66,7 +66,7 @@ export function firstCalendarDate(events: Event[]): CampaignDate | null {
   return null;
 }
 
-export function isDayOpen(events: Event[]) {
+export function isDayOpen(events: ScribeEvent[]) {
   let lastStartIdx = -1;
   let lastEndIdx = -1;
   for (let i = events.length - 1; i >= 0; i--) {
@@ -86,7 +86,7 @@ export function isDayOpen(events: Event[]) {
   );
 }
 
-export function isPartyLost(events: Event[]): boolean {
+export function isPartyLost(events: ScribeEvent[]): boolean {
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
     if (e.kind === 'lost' && e.payload && typeof e.payload === 'object') {
@@ -101,7 +101,7 @@ export function isPartyLost(events: Event[]): boolean {
   return false;
 }
 
-export function lastCalendarDate(events: Event[]): CampaignDate | null {
+export function lastCalendarDate(events: ScribeEvent[]): CampaignDate | null {
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
     if (e.kind === 'day_start' && (e as any).payload?.calendarDate) {
@@ -115,7 +115,7 @@ export function lastCalendarDate(events: Event[]): CampaignDate | null {
 }
 
 /** Returns the current hex derived from the event log. */
-export function selectCurrentHex(events: Event[]): string | null {
+export function selectCurrentHex(events: ScribeEvent[]): string | null {
   // Prefer the last move's destination
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
@@ -144,7 +144,7 @@ export function selectCurrentHex(events: Event[]): string | null {
 }
 
 /** Returns the latest party list derived from the event log. */
-export function selectParty(events: Event[]): string[] {
+export function selectParty(events: ScribeEvent[]): string[] {
   let latest: string[] | null = null;
   for (let i = 0; i < events.length; i++) {
     const e = events[i];
@@ -159,7 +159,7 @@ export function selectParty(events: Event[]): string[] {
 }
 
 /** Returns the most recent WeatherCommitted payload from the event log, or null if none. */
-export function selectCurrentWeather(events: Event[]): WeatherCommitted | null {
+export function selectCurrentWeather(events: ScribeEvent[]): WeatherCommitted | null {
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
     if (e.kind === 'weather_committed' && e.payload) {
@@ -170,7 +170,7 @@ export function selectCurrentWeather(events: Event[]): WeatherCommitted | null {
 }
 
 /** Returns the most recent forecastAfter value from a previous day's weather_committed event, or 0 if none. */
-export function selectCurrentForecast(events: Event[]): number {
+export function selectCurrentForecast(events: ScribeEvent[]): number {
   const today = lastCalendarDate(events);
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];

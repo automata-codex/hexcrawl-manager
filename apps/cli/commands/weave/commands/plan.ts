@@ -16,7 +16,7 @@ import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { loadHavens, loadTrails } from '../lib/state';
 import { validateSessionEnvelope } from '../lib/validate';
 
-import type { Event } from '@skyreach/schemas';
+import type { ScribeEvent } from '@skyreach/schemas';
 
 export async function plan(fileArg?: string) {
   const meta = loadMeta();
@@ -32,7 +32,7 @@ export async function plan(fileArg?: string) {
     // --- Rollover planning: detect and parse ---
     const events = readJsonl(file);
     const rollover = events.find((e) => e.kind === 'season_rollover') as
-      | (Event & { payload: { seasonId: string } })
+      | (ScribeEvent & { payload: { seasonId: string } })
       | undefined;
     if (!rollover || !rollover.payload.seasonId) {
       error(

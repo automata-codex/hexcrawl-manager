@@ -1,6 +1,6 @@
 import { tierFromLevel } from '@skyreach/core';
 
-import type { Event } from '@skyreach/schemas';
+import type { ScribeEvent } from '@skyreach/schemas';
 import type { ApReason, Pillar, Tier } from '@skyreach/schemas';
 
 type LedgerPerPillar = { delta: 0 | 1; reason: ApReason };
@@ -15,7 +15,7 @@ type ReportAdvancementPoints = {
 type Work = { hadEligible: boolean; hadAny: boolean; hadOverTier: boolean };
 
 export function computeApForSession(
-  events: Event[],
+  events: ScribeEvent[],
   characterLevels: Record<string, number>, // attendees only
   sessionNum: number,
 ): {

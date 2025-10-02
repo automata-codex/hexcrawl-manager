@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest';
 
 import { computeApForSession } from './compute-ap-for-session';
 
-import type { Event } from '@skyreach/schemas';
+import type { ScribeEvent } from '@skyreach/schemas';
 
 describe('Function `computeApForSession`', () => {
-  const apEvents: Event[] = [
+  const apEvents: ScribeEvent[] = [
     {
       seq: 5,
       ts: '2024-01-01T19:00:00Z',

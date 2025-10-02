@@ -10,7 +10,7 @@ import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import type { Event } from '@skyreach/schemas';
+import type { ScribeEvent } from '@skyreach/schemas';
 
 describe('scribe start', () => {
   it('emits exactly one session_start with the requested startHex and writes a minimal valid log', async () => {
@@ -33,7 +33,7 @@ describe('scribe start', () => {
         const files = findSessionFiles(REPO_PATHS.SESSIONS());
         expect(files.length).toBe(1);
 
-        const events: Event[] = readJsonl(files[0]);
+        const events: ScribeEvent[] = readJsonl(files[0]);
 
         // Exactly one session_start, with correct startHex
         const starts = eventsOf(events, 'session_start');

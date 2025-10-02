@@ -10,7 +10,7 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import type { CampaignDate, Event } from '@skyreach/schemas';
+import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';
 
 describe('scribe finalize', () => {
   it('partitions session events correctly and writes output files', async () => {
@@ -184,7 +184,7 @@ describe('scribe finalize', () => {
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
         const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
-        const events: Event[] = [
+        const events: ScribeEvent[] = [
           {
             seq: 1,
             kind: 'session_start',
@@ -234,7 +234,7 @@ describe('scribe finalize', () => {
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
         const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
-        const events: Event[] = [
+        const events: ScribeEvent[] = [
           {
             seq: 1,
             kind: 'session_start',

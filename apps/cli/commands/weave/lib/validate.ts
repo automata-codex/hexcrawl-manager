@@ -1,11 +1,11 @@
-import type { Event } from '@skyreach/schemas';
+import type { ScribeEvent } from '@skyreach/schemas';
 
 //
 /**
  * Session envelope validation helper for weave commands. Usage: `const result = validateSessionEnvelope(events);`
  * @returns { isValid: boolean, error: string | null }
  */
-export function validateSessionEnvelope(events: Event[]): {
+export function validateSessionEnvelope(events: ScribeEvent[]): {
   isValid: boolean;
   error: string | null;
 } {
