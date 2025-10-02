@@ -4,10 +4,10 @@ import {
   pickNextSessionId,
   sortScribeIds,
 } from '@skyreach/cli-kit';
+import { formatDate } from '@skyreach/core';
 import {
   REPO_PATHS,
   isGitDirty,
-  resolveDataPath,
   writeYamlAtomic,
 } from '@skyreach/data';
 import { SessionReportSchema } from '@skyreach/schemas';
@@ -19,20 +19,15 @@ import yaml from 'yaml';
 
 import pkg from '../../../../../../../package.json' assert { type: 'json' };
 import {
+  appendApEntries,
+  buildSessionApEntries,
+} from '../../../../services/ap-ledger.service';
+import {
   firstCalendarDate,
   lastCalendarDate,
   selectParty,
 } from '../../../scribe/projectors';
 import { computeApForSession } from '../../lib/compute-ap-for-session';
-
-import type { CampaignDate } from '@skyreach/schemas';
-
-function formatDate(d: CampaignDate | null): string {
-  if (!d) {
-    return 'unknown';
-  }
-  return `${d.day} ${d.month} ${d.year}`;
-}
 
 function getFingerprint(sessionId: string, scribeIds: string[]): string {
   const fingerprintObj = { sessionId, scribeIds };
@@ -261,27 +256,11 @@ export async function apApply(sessionId?: string) {
   writeYamlAtomic(reportPath, reportOut);
 
   // Append per-character session_ap entries to the ledger
-  let ledger = [];
-  if (fs.existsSync(REPO_PATHS.AP_LEDGER())) {
-    ledger = yaml.parse(fs.readFileSync(REPO_PATHS.AP_LEDGER(), 'utf8')) || [];
-  }
-  for (const characterId of Object.keys(ledgerResults)) {
-    const ap = ledgerResults[characterId];
-    ledger.push({
-      kind: 'session_ap',
-      advancementPoints: {
-        combat: { delta: ap.combat.delta, reason: ap.combat.reason },
-        exploration: {
-          delta: ap.exploration.delta,
-          reason: ap.exploration.reason,
-        },
-        social: { delta: ap.social.delta, reason: ap.social.reason },
-      },
-      appliedAt: now,
-      characterId,
-      sessionId,
-      source: fingerprint,
-    });
-  }
-  writeYamlAtomic(REPO_PATHS.AP_LEDGER(), ledger);
+  const entries = buildSessionApEntries(ledgerResults, {
+    appliedAt: now,
+    sessionId,
+    fingerprint,
+  });
+
+  appendApEntries(REPO_PATHS.AP_LEDGER(), entries);
 }

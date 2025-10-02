@@ -169,9 +169,6 @@ export default defineConfig([
         ...globals.node,
       },
     },
-    env: {
-      node: true,
-    },
   },
 
   // 11) Put Prettier last to disable conflicting stylistic rules

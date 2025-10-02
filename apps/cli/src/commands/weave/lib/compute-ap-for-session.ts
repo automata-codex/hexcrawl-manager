@@ -1,10 +1,8 @@
 import { tierFromLevel } from '@skyreach/core';
 
+import type { LedgerResultsByCharacter } from '../../../services/ap-ledger.service';
 import type { ScribeEvent } from '@skyreach/schemas';
-import type { ApReason, Pillar, Tier } from '@skyreach/schemas';
-
-type LedgerPerPillar = { delta: 0 | 1; reason: ApReason };
-type LedgerResults = Record<string, Record<Pillar, LedgerPerPillar>>;
+import type { Pillar, Tier } from '@skyreach/schemas';
 
 type ReportAdvancementPoints = {
   combat: { number: 0 | 1; maxTier: Tier };
@@ -20,7 +18,7 @@ export function computeApForSession(
   sessionNum: number,
 ): {
   reportAdvancementPoints: ReportAdvancementPoints;
-  ledgerResults: LedgerResults;
+  ledgerResults: LedgerResultsByCharacter;
 } {
   const attendees = Object.keys(characterLevels);
 
@@ -76,7 +74,7 @@ export function computeApForSession(
   }
 
   // Build ledger outputs
-  const ledgerResults: LedgerResults = {};
+  const ledgerResults: LedgerResultsByCharacter = {};
   for (const cid of attendees) {
     ledgerResults[cid] = {
       combat: { delta: 0, reason: 'normal' },

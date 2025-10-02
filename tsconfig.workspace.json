@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "composite": false,
+    "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
     "strict": true
