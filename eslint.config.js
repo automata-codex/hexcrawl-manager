@@ -31,6 +31,7 @@ export default defineConfig([
   // 1) Ignores
   {
     ignores: [
+      // root & common
       '.astro/**',
       '.build/**',
       '.svelte-kit/**',
@@ -38,8 +39,19 @@ export default defineConfig([
       '_reports/**',
       'coverage/**',
       'dist/**',
-      'packages/**/dist/**',
       'node_modules/**',
+
+      // packages
+      'packages/**/dist/**',
+
+      // apps (build & framework dirs)
+      'apps/**/dist/**',
+      'apps/**/build/**',
+      'apps/**/.vercel/**',
+      'apps/web/.svelte-kit/**',
+      'apps/web/.astro/**',
+
+      // python venvs in scripts
       'scripts/clue-linker/.venv-clue-linker/**',
       'scripts/elevation-solver/.venv-clue-linker/**',
     ],
@@ -58,7 +70,6 @@ export default defineConfig([
       ecmaVersion: 2022,
       sourceType: 'module',
     },
-    // plugins used in later rule blocks
     plugins: {
       '@typescript-eslint': tsPlugin,
       astro,
@@ -67,14 +78,21 @@ export default defineConfig([
     },
   },
 
-  // 5) CLI, packages, & Scripts (Node) — give Node globals like `console`, `process`, `__dirname`
+  // 5) Node contexts: CLIs, packages, scripts, and app config files
   {
     files: [
-      'cli/**/*.{js,ts}',
+      // monorepo nodes
       'scripts/**/*.{js,ts}',
-      'schemas/**/*.{js,ts}',
-      'lib/**/*.{js,ts}',
       'packages/**/src/**/*.{js,ts}',
+      // app: CLI source
+      'apps/cli/**/*.{js,ts}',
+      // app & framework config files that run in Node
+      'apps/**/astro.config.{js,cjs,mjs,ts}',
+      'apps/**/svelte.config.{js,cjs,mjs,ts}',
+      'apps/**/vite.config.{js,cjs,mjs,ts}',
+      'apps/**/tailwind.config.{js,cjs,mjs,ts}',
+      // (optional) any server code paths you keep under apps/**
+      'apps/**/server/**/*.{js,ts}',
     ],
     languageOptions: {
       globals: {
@@ -82,8 +100,8 @@ export default defineConfig([
       },
       parser: tsParser,
       parserOptions: {
-        // add a project here if you use type-aware rules
-        // project: ["cli/tsconfig.json"],
+        // Add project references here if you enable type-aware rules later
+        // project: ['apps/cli/tsconfig.json', 'packages/*/tsconfig.json'],
       },
     },
     rules: {
@@ -93,20 +111,24 @@ export default defineConfig([
     },
   },
 
-  // 6) Web (browser) — give browser globals like `window`, `document`, `console`
+  // 6) Web/browser code: the web app’s source
   {
-    files: ['src/**/*.{js,ts,jsx,tsx,astro,svelte}'],
+    files: [
+      'apps/web/src/**/*.{js,ts,jsx,tsx,astro,svelte}',
+    ],
     languageOptions: {
       globals: {
         ...globals.browser,
       },
+      // parser: tsParser,
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: 'module',
+        // extraFileExtensions: ['.svelte', '.astro'],
       },
     },
-    // Import ordering across web files
     rules: {
+      // Import ordering across web files
       'import/order': importOrder,
       // Keep console mostly clean on the web; change to 'off' if you prefer
       'no-console': 'warn',
@@ -133,7 +155,7 @@ export default defineConfig([
     files: ['**/*.svelte'],
     languageOptions: {
       parserOptions: {
-        parser: tsParser, // <- inner <script> uses TS parser
+        parser: tsParser,
         sourceType: 'module',
         extraFileExtensions: ['.svelte'],
       },
@@ -145,25 +167,24 @@ export default defineConfig([
     },
   },
 
-  // 9) TypeScript files anywhere (shared TS rules if you want them)
+  // 9) TypeScript files anywhere (shared TS rules)
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        // add projects if/when you enable type-aware rules
-        // project: ["cli/tsconfig.json", "web/tsconfig.json"],
+        // Add projects if/when you enable type-aware rules
+        // project: ['apps/cli/tsconfig.json', 'apps/web/tsconfig.json'],
       },
     },
-    // lightweight recommended TS rules (optional to expand)
     rules: {
       'import/order': importOrder,
     },
   },
 
-  // 10) Scoped override for the CLI
+  // 10) Scoped override for the CLI (kept explicit)
   {
-    files: ["apps/cli/**/*.{ts,tsx,js}"],
+    files: ['apps/cli/**/*.{ts,tsx,js}'],
     languageOptions: {
       globals: {
         ...globals.node,
