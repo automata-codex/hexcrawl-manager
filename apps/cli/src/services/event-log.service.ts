@@ -1,9 +1,15 @@
-import { readJsonl, writeJsonl, appendJsonl, atomicWrite } from '@skyreach/data';
+import {
+  readJsonl,
+  writeJsonl,
+  appendJsonl,
+  atomicWrite,
+} from '@skyreach/data';
 import { type ScribeEvent, ScribeEventSchema } from '@skyreach/schemas';
 
 const nowISO = () => new Date().toISOString();
 
-const nextSeq = (evs: ScribeEvent[]) => (evs.length ? Math.max(...evs.map(e => e.seq)) + 1 : 1);
+const nextSeq = (evs: ScribeEvent[]) =>
+  evs.length ? Math.max(...evs.map((e) => e.seq)) + 1 : 1;
 
 export const readEvents = (filePath: string): ScribeEvent[] =>
   readJsonl<ScribeEvent>(filePath, { schema: ScribeEventSchema });

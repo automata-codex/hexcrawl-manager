@@ -16,7 +16,8 @@ export function sortScribeIds(ids: string[]): string[] {
   }
 
   return [...ids].sort((a, b) => {
-    const pa = parse(a), pb = parse(b);
+    const pa = parse(a),
+      pb = parse(b);
     if (pa.date !== pb.date) return pa.date < pb.date ? -1 : 1;
     if (pa.suffix !== pb.suffix) {
       if (pa.suffix === '') return -1;

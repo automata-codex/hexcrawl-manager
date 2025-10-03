@@ -12,7 +12,11 @@ type AtomicWriteOpts = {
  * Write a file atomically: write to a temp file, then rename.
  * Ensures that the file is either fully written or not present.
  */
-export function atomicWrite(filePath: string, content: string, opts: AtomicWriteOpts = {}) {
+export function atomicWrite(
+  filePath: string,
+  content: string,
+  opts: AtomicWriteOpts = {},
+) {
   const { preserveMode = true } = opts;
   const dir = path.dirname(filePath);
 
@@ -31,10 +35,7 @@ export function atomicWrite(filePath: string, content: string, opts: AtomicWrite
   }
 
   // Hidden, unique tmp name in same dir to keep rename atomic
-  const tmpPath = path.join(
-    dir,
-    `.${Math.random().toString(36).slice(2)}.tmp`
-  );
+  const tmpPath = path.join(dir, `.${Math.random().toString(36).slice(2)}.tmp`);
 
   let fd: number | null = null;
   try {
@@ -63,14 +64,22 @@ export function atomicWrite(filePath: string, content: string, opts: AtomicWrite
       // Some filesystems/platforms may not support fsync on dirs—best-effort.
     } finally {
       if (dfd !== null) {
-        try { fs.closeSync(dfd); } catch { /* no op */}
+        try {
+          fs.closeSync(dfd);
+        } catch {
+          /* no op */
+        }
       }
     }
   } catch (err) {
     // Cleanup on failure
     try {
       if (fd !== null) {
-        try { fs.closeSync(fd); } catch { /* no op */}
+        try {
+          fs.closeSync(fd);
+        } catch {
+          /* no op */
+        }
       }
       if (fs.existsSync(tmpPath)) {
         fs.unlinkSync(tmpPath);

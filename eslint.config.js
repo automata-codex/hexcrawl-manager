@@ -113,9 +113,7 @@ export default defineConfig([
 
   // 6) Web/browser code: the web app’s source
   {
-    files: [
-      'apps/web/src/**/*.{js,ts,jsx,tsx,astro,svelte}',
-    ],
+    files: ['apps/web/src/**/*.{js,ts,jsx,tsx,astro,svelte}'],
     languageOptions: {
       globals: {
         ...globals.browser,
