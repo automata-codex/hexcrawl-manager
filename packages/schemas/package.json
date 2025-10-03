@@ -13,9 +13,8 @@
   "main": "dist/index.js",
   "private": true,
   "scripts": {
-    "build": "rimraf dist && tsc -p tsconfig.json && tsx ./src/build-json-schemas.ts",
-    "build:json": "tsx ./src/build-json-schemas.ts",
-    "clean": "rimraf dist"
+    "build": "tsc -p tsconfig.build.json",
+    "build:json-schemas": "tsx ./src/build-json-schemas.ts"
   },
   "type": "module",
   "types": "dist/index.d.ts",
