@@ -2,10 +2,10 @@ import { error, info, usage } from '@skyreach/cli-kit';
 import { isValidHexId, normalizeHexId } from '@skyreach/core';
 import { existsSync } from 'node:fs';
 
-import { selectCurrentHex } from '../projectors.ts';
-import { appendEvent, readEvents } from '../../../services/event-log.ts';
-import { detectDevMode } from '../services/general.ts';
-import { prepareSessionStart } from '../services/session.ts';
+import { appendEvent, readEvents } from '../../../services/event-log.service';
+import { selectCurrentHex } from '../projectors';
+import { detectDevMode } from '../services/general';
+import { prepareSessionStart } from '../services/session';
 
 import type { Context } from '../types';
 

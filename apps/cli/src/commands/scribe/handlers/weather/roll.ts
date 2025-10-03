@@ -1,9 +1,9 @@
 import { clamp, info } from '@skyreach/cli-kit';
 import { rollDice } from '@skyreach/data';
 
-import { lastCalendarDate, selectCurrentForecast } from '../../projectors.ts';
-import { readEvents } from '../../../../services/event-log.ts';
-import { requireFile, requireSession } from '../../services/general.ts';
+import { readEvents } from '../../../../services/event-log.service';
+import { lastCalendarDate, selectCurrentForecast } from '../../projectors';
+import { requireFile, requireSession } from '../../services/general';
 
 import {
   bandForTotal,
@@ -13,7 +13,7 @@ import {
   forecastAfterForCategory,
   getSeasonForDate,
   isInclementPlus,
-} from './helpers.ts';
+} from './helpers';
 
 import type { Context } from '../../types.ts';
 import type { Season, WeatherCategory, WeatherDraft } from '@skyreach/core';

@@ -2,13 +2,13 @@ import { info, usage, warn } from '@skyreach/cli-kit';
 import { hoursToSegmentsCeil, segmentsToHours } from '@skyreach/core';
 import { EXHAUSTION_HOURS, STEP_HOURS } from '@skyreach/schemas';
 
+import { appendEvent, readEvents } from '../../../services/event-log.service';
 import {
   activeSegmentsSinceStart,
   daylightSegmentsSinceStart,
   findOpenDay,
-} from '../projectors.ts';
-import { appendEvent, readEvents } from '../../../services/event-log';
-import { requireFile } from '../services/general.ts';
+} from '../projectors';
+import { requireFile } from '../services/general';
 
 import type { Context } from '../types';
 

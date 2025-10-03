@@ -1,7 +1,7 @@
 import { info } from '@skyreach/cli-kit';
 
-import { readEvents, writeEvents } from '../../../services/event-log.ts';
-import { requireFile } from '../services/general.ts';
+import { readEvents, writeEvents } from '../../../services/event-log.service';
+import { requireFile } from '../services/general';
 
 import type { Context } from '../types';
 

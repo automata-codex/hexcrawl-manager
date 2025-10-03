@@ -1,7 +1,7 @@
 import { info, usage } from '@skyreach/cli-kit';
 
-import { appendEvent } from '../../../services/event-log';
-import { requireSession } from '../services/general.ts';
+import { appendEvent } from '../../../services/event-log.service';
+import { requireSession } from '../services/general';
 
 import type { Context } from '../types';
 

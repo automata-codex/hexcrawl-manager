@@ -2,7 +2,7 @@ import { info, error } from '@skyreach/cli-kit';
 import { loadMeta } from '@skyreach/data';
 import path from 'path';
 
-import { readEvents } from '../../../services/event-log';
+import { readEvents } from '../../../services/event-log.service';
 import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
 import { getMostRecentRolloverFootprint, resolveInputFile } from '../lib/files';
 import {

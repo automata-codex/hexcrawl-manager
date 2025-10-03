@@ -10,7 +10,7 @@ import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import { readEvents } from '../../../services/event-log';
+import { readEvents } from '../../../services/event-log.service';
 
 import type { ScribeEvent } from '@skyreach/schemas';
 

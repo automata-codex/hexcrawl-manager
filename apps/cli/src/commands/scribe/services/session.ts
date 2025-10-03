@@ -5,9 +5,13 @@ import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
 
+import {
+  readEvents,
+  timeNowISO,
+  writeEventsWithHeader,
+} from '../../../services/event-log.service';
 import { type Context } from '../types';
 
-import { readEvents, timeNowISO, writeEventsWithHeader } from '../../../services/event-log';
 import { requireFile, requireSession } from './general';
 
 import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';

@@ -1,8 +1,8 @@
 import { info, usage, error } from '@skyreach/cli-kit';
 
-import { isDayOpen, lastCalendarDate } from '../projectors.ts';
-import { readEvents, appendEvent } from '../../../services/event-log';
-import { requireFile } from '../services/general.ts';
+import { readEvents, appendEvent } from '../../../services/event-log.service';
+import { isDayOpen, lastCalendarDate } from '../projectors';
+import { requireFile } from '../services/general';
 
 import type { Context } from '../types';
 

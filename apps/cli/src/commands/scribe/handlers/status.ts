@@ -1,15 +1,15 @@
 import { info } from '@skyreach/cli-kit';
 import { segmentsToHours } from '@skyreach/core';
 
+import { readEvents } from '../../../services/event-log.service';
 import {
   activeSegmentsSinceStart,
   daylightSegmentsSinceStart,
   findOpenDay,
   isPartyLost,
   selectCurrentHex,
-} from '../projectors.ts';
-import { readEvents } from '../../../services/event-log';
-import { requireFile } from '../services/general.ts';
+} from '../projectors';
+import { requireFile } from '../services/general';
 
 import type { Context } from '../types';
 

@@ -1,9 +1,9 @@
 import { error, info, usage, warn } from '@skyreach/cli-kit';
 
-import { selectParty } from '../projectors.ts';
+import { appendEvent, readEvents } from '../../../services/event-log.service';
+import { selectParty } from '../projectors';
 import { getAllCharacterIds } from '../services/character';
-import { appendEvent, readEvents } from '../../../services/event-log';
-import { requireSession } from '../services/general.ts';
+import { requireSession } from '../services/general';
 
 import type { Context } from '../types';
 

@@ -2,9 +2,9 @@ import { error, info, usage, warn } from '@skyreach/cli-kit';
 import { getHexNeighbors, isValidHexId, normalizeHexId } from '@skyreach/core';
 import { PACES, type Pace } from '@skyreach/schemas';
 
-import { selectCurrentHex, isPartyLost } from '../projectors.ts';
-import { appendEvent, readEvents } from '../../../services/event-log';
-import { requireSession } from '../services/general.ts';
+import { appendEvent, readEvents } from '../../../services/event-log.service';
+import { selectCurrentHex, isPartyLost } from '../projectors';
+import { requireSession } from '../services/general';
 
 import type { Context } from '../types';
 

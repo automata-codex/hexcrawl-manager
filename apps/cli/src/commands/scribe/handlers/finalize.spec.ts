@@ -10,7 +10,7 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import { readEvents } from '../../../services/event-log';
+import { readEvents } from '../../../services/event-log.service';
 
 import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';
 

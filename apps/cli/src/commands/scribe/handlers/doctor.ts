@@ -4,7 +4,7 @@ import { loadMeta } from '@skyreach/data';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { readEvents } from '../../../services/event-log';
+import { readEvents } from '../../../services/event-log.service';
 import { detectDevMode } from '../services/general';
 
 const DAY_MS = 24 * 60 * 60 * 1000;

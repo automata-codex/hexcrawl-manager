@@ -1,8 +1,8 @@
 import { info, error } from '@skyreach/cli-kit';
 import { clamp } from '@skyreach/cli-kit';
 
-import { appendEvent } from '../../../../services/event-log.ts';
-import { requireFile } from '../../services/general.ts';
+import { appendEvent } from '../../../../services/event-log.service';
+import { requireFile } from '../../services/general';
 
 import type { Context } from '../../types.ts';
 import type { WeatherDraft } from '@skyreach/core';
