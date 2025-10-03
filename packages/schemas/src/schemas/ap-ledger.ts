@@ -2,19 +2,6 @@ import { z } from 'zod';
 
 import { SessionId } from './session-report';
 
-const AbsenceSpendEntrySchema = z.object({
-  kind: z.literal('absence_spend'),
-  allocations: z.object({
-    combat: z.number().int().min(0).default(0),
-    exploration: z.number().int().min(0).default(0),
-    social: z.number().int().min(0).default(0),
-  }),
-  appliedAt: z.string().datetime(),
-  characterId: z.string(),
-  notes: z.string().optional(),
-  sessionId: SessionId.optional(), // when allocate happens outside a session, you’ll attach it to "most recent completed" and set this
-});
-
 export const ApReasonSchema = z.enum([
   'normal',
   'cap',
@@ -28,6 +15,19 @@ const ApSchema = z.object({
   delta: z.number().int().nonnegative(), // use a separate correction entry if you ever need negatives
   note: z.string().optional(),
   reason: ApReasonSchema.optional(),
+});
+
+const AbsenceSpendEntrySchema = z.object({
+  kind: z.literal('absence_spend'),
+  advancementPoints: z.object({
+    combat: ApSchema,
+    exploration: ApSchema,
+    social: ApSchema,
+  }),
+  appliedAt: z.string().datetime(),
+  characterId: z.string(),
+  notes: z.string().optional(),
+  sessionId: SessionId, // when allocate happens outside a session, you’ll attach it to "most recent completed" and set this
 });
 
 const SessionApEntrySchema = z.object({

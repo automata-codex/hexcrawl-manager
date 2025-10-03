@@ -4766,9 +4766,9 @@
 					"sources": [
 						{
 							"fileName": "packages/data/src/jsonl.ts",
-							"line": 70,
+							"line": 76,
 							"character": 16,
-							"url": "https://github.com/alexgs/skyreach/blob/develop/packages/data/src/jsonl.ts#L70"
+							"url": "https://github.com/alexgs/skyreach/blob/develop/packages/data/src/jsonl.ts#L76"
 						}
 					],
 					"signatures": [
@@ -4781,9 +4781,9 @@
 							"sources": [
 								{
 									"fileName": "packages/data/src/jsonl.ts",
-									"line": 70,
+									"line": 76,
 									"character": 16,
-									"url": "https://github.com/alexgs/skyreach/blob/develop/packages/data/src/jsonl.ts#L70"
+									"url": "https://github.com/alexgs/skyreach/blob/develop/packages/data/src/jsonl.ts#L76"
 								}
 							],
 							"typeParameters": [
@@ -5816,9 +5816,9 @@
 					"sources": [
 						{
 							"fileName": "packages/data/src/jsonl.ts",
-							"line": 59,
+							"line": 62,
 							"character": 16,
-							"url": "https://github.com/alexgs/skyreach/blob/develop/packages/data/src/jsonl.ts#L59"
+							"url": "https://github.com/alexgs/skyreach/blob/develop/packages/data/src/jsonl.ts#L62"
 						}
 					],
 					"signatures": [
@@ -5831,9 +5831,9 @@
 							"sources": [
 								{
 									"fileName": "packages/data/src/jsonl.ts",
-									"line": 59,
+									"line": 62,
 									"character": 16,
-									"url": "https://github.com/alexgs/skyreach/blob/develop/packages/data/src/jsonl.ts#L59"
+									"url": "https://github.com/alexgs/skyreach/blob/develop/packages/data/src/jsonl.ts#L62"
 								}
 							],
 							"typeParameters": [
