@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "composite": false,
+    "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
     "strict": true
@@ -12,6 +13,7 @@
     { "path": "packages/schemas/tsconfig.build.json" },
     { "path": "packages/core/tsconfig.build.json" },
     { "path": "packages/data/tsconfig.build.json" },
-    { "path": "packages/cli-kit/tsconfig.build.json" }
+    { "path": "packages/cli-kit/tsconfig.build.json" },
+    { "path": "packages/test-helpers/tsconfig.build.json" }
   ]
 }

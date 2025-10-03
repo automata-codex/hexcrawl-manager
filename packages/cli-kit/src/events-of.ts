@@ -1,5 +1,5 @@
-import type { Event } from '@skyreach/schemas';
+import type { ScribeEvent } from '@skyreach/schemas';
 
-export function eventsOf(events: Event[], kind: string): Event[] {
+export function eventsOf(events: ScribeEvent[], kind: string): ScribeEvent[] {
   return events.filter((e) => e.kind === kind);
 }

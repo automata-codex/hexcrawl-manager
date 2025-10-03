@@ -8,7 +8,7 @@ _Single-file catalog generated from TypeDoc JSON. Edits will be overwritten._
 - `function clamp(val: number, min: number, max: number): number`
 - `function error(message: string): void`
 - `type Event = any;`
-- `function eventsOf(events: Event[], kind: string): Event[]`
+- `function eventsOf(events: { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }[], kind: string): { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }[]`
 - `function info(message: string): void`
 - `function pad(n: number, len: number): string`
 - `function pickNextSessionId(completed: number[], availableWithLogs: number[]): string`
@@ -26,6 +26,7 @@ _Single-file catalog generated from TypeDoc JSON. Edits will be overwritten._
 - `type DetailTables = Record&lt;Season, DetailTable&gt;;`
 - `type EffectsTable = Record&lt;WeatherCategory, WeatherEffects&gt;;`
 - `type ForecastModifierTable = Record&lt;WeatherCategory, number&gt;;`
+- `function formatDate(d: null | { day: number; month: "Primaris" | "Gelidus" | "Hibernis" | "Vernalis" | "Pluvoris" | "Florara" | "Solinus" | "Aestara" | "Lucidus" | "Fructara" | "Umbraeus" | "Aridus"; year: number }): string`
 - `function getHexNeighbors(hex: string): string[]` — Get neighboring hexes for a given hex in an odd-q flat-topped hex grid.
 - `function getSeasonForDate(date: { day: number; month: "Primaris" | "Gelidus" | "Hibernis" | "Vernalis" | "Pluvoris" | "Florara" | "Solinus" | "Aestara" | "Lucidus" | "Fructara" | "Umbraeus" | "Aridus"; year: number }): Season`
 - `function hexSort(hexIdA: string, hexIdB: string): number` — Sorts two hex IDs first by column (alphabetically) and then by row (numerically).
@@ -47,8 +48,8 @@ _Single-file catalog generated from TypeDoc JSON. Edits will be overwritten._
 
 ## data/src
 
-- `function appendJsonl(p: string, record: Event): void`
-- `function atomicWrite(filePath: string, content: string): void` — Write a file atomically: write to a temp file, then rename.
+- `function appendJsonl(p: string, record: T, opts: WriteOpts): void`
+- `function atomicWrite(filePath: string, content: string, opts: AtomicWriteOpts): void` — Write a file atomically: write to a temp file, then rename.
 Ensures that the file is either fully written or not present.
 - `function ensureRepoDirs(): void`
 - `function getGitHeadCommit(): null | string` — Returns the current git HEAD commit SHA, or null if not in a git repo.
@@ -56,20 +57,21 @@ Ensures that the file is either fully written or not present.
 - `function getRepoRoot(): string` — Returns the repository root directory, respecting the REPO_ROOT env override.
 Falls back to config if not set.
 - `function isGitDirty(): boolean` — Returns true if the git working directory is dirty (has uncommitted changes).
-- `function loadConfig(): null | { repoRoot: string }` — Load and validate the skyreach.config.json file. Caches the result after the
-first load.
+- `function loadConfig(opts?: { cwd?: string; throwIfMissing?: boolean }): null | { repoRoot: string }`
 - `function loadMeta(): { appliedSessions: string[]; nextSessionSeq: number; rolledSeasons: string[] }` — Loads the meta.yaml file and returns its contents as MetaData.
-- `function readJsonl(p: string): Event[]`
-- `const REPO_PATHS: { CHARACTERS: () =&gt; string; DEV: () =&gt; string; DEV_IN_PROGRESS: () =&gt; string; DEV_ROLLOVERS: () =&gt; string; DEV_SESSIONS: () =&gt; string; FOOTPRINTS: () =&gt; string; HAVENS: () =&gt; string; IN_PROGRESS: () =&gt; string; LOCKS: () =&gt; string; LOGS_ROOT: () =&gt; string; META: () =&gt; string; REPORTS: () =&gt; string; ROLLOVERS: () =&gt; string; SESSIONS: () =&gt; string; TRAILS: () =&gt; string };`
+- `function readJsonl(filename: string, opts: ReadOpts&lt;T&gt;): T[]`
+- `const REPO_PATHS: { AP_LEDGER: () =&gt; string; CHARACTERS: () =&gt; string; DEV: () =&gt; string; DEV_IN_PROGRESS: () =&gt; string; DEV_ROLLOVERS: () =&gt; string; DEV_SESSIONS: () =&gt; string; FOOTPRINTS: () =&gt; string; HAVENS: () =&gt; string; IN_PROGRESS: () =&gt; string; LOCKS: () =&gt; string; LOGS_ROOT: () =&gt; string; META: () =&gt; string; REPORTS: () =&gt; string; ROLLOVERS: () =&gt; string; SESSIONS: () =&gt; string; TRAILS: () =&gt; string };`
 - `function resolveDataPath(rel: string): string` — Resolve a path relative to the repo's `data/` directory.
 - `function rollDice(notation: string): number` — Parses dice notation (e.g., "2d6+1") and rolls the dice. Uses secure RNG for
 true randomness only (no seed support).
 - `function saveMeta(partialMeta: Partial&lt;MetaData&gt;): void` — Saves a partial MetaData object to meta.yaml, merging with the existing data.
-- `function writeJsonl(p: string, records: Record&lt;string, any&gt;[]): void`
+- `function writeJsonl(filename: string, records: Iterable&lt;T&gt;, opts: WriteOpts): void`
 - `function writeYamlAtomic(filePath: string, data: any): void` — Write a YAML file atomically.
 
 ## schemas/src
 
+- `type ApDelta = z.infer&lt;ApSchema&gt;;`
+- `type ApLedgerEntry = z.infer&lt;ApLedgerEntrySchema&gt;;`
 - `const ApLedgerEntrySchema: ZodDiscriminatedUnion&lt;"kind", [ZodObject&lt;{ allocations: ZodObject&lt;{ combat: ZodDefault&lt;ZodNumber&gt;; exploration: ZodDefault&lt;ZodNumber&gt;; social: ZodDefault&lt;ZodNumber&gt; }, "strip", ZodTypeAny, { combat: number; exploration: number; social: number }, { combat?: number; exploration?: number; social?: number }&gt;; appliedAt: ZodString; characterId: ZodString; kind: ZodLiteral&lt;"absence_spend"&gt;; notes: ZodOptional&lt;ZodString&gt;; sessionId: ZodOptional&lt;ZodString&gt; }, "strip", ZodTypeAny, { allocations: { combat: number; exploration: number; social: number }; appliedAt: string; characterId: string; kind: "absence_spend"; notes?: string; sessionId?: string }, { allocations: { combat?: number; exploration?: number; social?: number }; appliedAt: string; characterId: string; kind: "absence_spend"; notes?: string; sessionId?: string }&gt;, ZodObject&lt;{ advancementPoints: ZodObject&lt;{ combat: ZodObject&lt;{ delta: ZodNumber; note: ZodOptional&lt;ZodString&gt;; reason: ZodOptional&lt;ZodEnum&lt;[unknown, unknown, unknown, unknown, unknown, unknown]&gt;&gt; }, "strip", ZodTypeAny, { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }, { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }&gt;; exploration: ZodObject&lt;{ delta: ZodNumber; note: ZodOptional&lt;ZodString&gt;; reason: ZodOptional&lt;ZodEnum&lt;[unknown, unknown, unknown, unknown, unknown, unknown]&gt;&gt; }, "strip", ZodTypeAny, { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }, { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }&gt;; social: ZodObject&lt;{ delta: ZodNumber; note: ZodOptional&lt;ZodString&gt;; reason: ZodOptional&lt;ZodEnum&lt;[unknown, unknown, unknown, unknown, unknown, unknown]&gt;&gt; }, "strip", ZodTypeAny, { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }, { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }&gt; }, "strip", ZodTypeAny, { combat: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }; exploration: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }; social: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" } }, { combat: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }; exploration: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }; social: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" } }&gt;; appliedAt: ZodString; characterId: ZodString; kind: ZodLiteral&lt;"session_ap"&gt;; sessionId: ZodString; source: ZodOptional&lt;ZodObject&lt;{ fileHash: ZodString }, "strip", ZodTypeAny, { fileHash: string }, { fileHash: string }&gt;&gt; }, "strip", ZodTypeAny, { advancementPoints: { combat: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }; exploration: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }; social: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" } }; appliedAt: string; characterId: string; kind: "session_ap"; sessionId: string; source?: { fileHash: string } }, { advancementPoints: { combat: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }; exploration: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" }; social: { delta: number; note?: string; reason?: "normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered" } }; appliedAt: string; characterId: string; kind: "session_ap"; sessionId: string; source?: { fileHash: string } }&gt;]&gt;;`
 - `type ApReason = z.infer&lt;ApReasonSchema&gt;;`
 - `const ApReasonSchema: ZodEnum&lt;["normal", "cap", "absence_spend", "downtime", "correction", "grandfathered"]&gt;;`
@@ -144,6 +146,8 @@ true randomness only (no seed support).
 - `type Scope = z.infer&lt;ScopeSchema&gt;;`
 - `const ScopeListSchema: ZodArray&lt;ZodEnum&lt;["gm:view", "player:view", "public:view"]&gt;, "many"&gt;;`
 - `const ScopeSchema: ZodEnum&lt;["gm:view", "player:view", "public:view"]&gt;;`
+- `type ScribeEvent = z.infer&lt;ScribeEventSchema&gt;;`
+- `const ScribeEventSchema: ZodObject&lt;{ kind: ZodString; payload: ZodRecord&lt;ZodString, ZodUnknown&gt;; seq: ZodNumber; ts: ZodString }, "strip", ZodTypeAny, { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }, { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }&gt;;`
 - `const SeasonId: ZodString;`
 - `type SegmentMetadataData = z.infer&lt;SegmentMetadataSchema&gt;;`
 - `const SegmentMetadataSchema: ZodObject&lt;{ impedesTravel: ZodOptional&lt;ZodBoolean&gt; }, "strip", ZodTypeAny, { impedesTravel?: boolean }, { impedesTravel?: boolean }&gt;;`

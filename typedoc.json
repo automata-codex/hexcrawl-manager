@@ -7,7 +7,7 @@
     "packages/schemas/src/index.ts",
     "packages/test-helpers/src/index.ts"
   ],
-  "tsconfig": "tsconfig.workspace.json",
+  "tsconfig": "tsconfig.docs.json",
 
   "json": "docs/api/typedoc.json",
   "readme": "none",

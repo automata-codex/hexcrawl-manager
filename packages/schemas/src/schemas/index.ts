@@ -20,6 +20,7 @@ export * from './player';
 export * from './region';
 export * from './rumor';
 export * from './scopes';
+export * from './scribe-event';
 export * from './session';
 export * from './session-report';
 export * from './stat-block';
