@@ -16,7 +16,10 @@ type WriteOpts = {
   eol?: '\n' | '\r\n';
 };
 
-export function readJsonl<T = unknown>(filename: string, opts: ReadOpts<T> = {}): T[] {
+export function readJsonl<T = unknown>(
+  filename: string,
+  opts: ReadOpts<T> = {},
+): T[] {
   if (!fs.existsSync(filename)) return [];
   const raw = fs.readFileSync(filename, 'utf8');
   if (!raw.trim()) return [];
@@ -59,18 +62,21 @@ export function readJsonl<T = unknown>(filename: string, opts: ReadOpts<T> = {})
 export function writeJsonl<T extends Record<string, unknown>>(
   filename: string,
   records: Iterable<T>,
-  opts: WriteOpts = {}
+  opts: WriteOpts = {},
 ): void {
   ensureDir(filename);
   const eol = opts.eol ?? '\n';
-  const content = Array.from(records).map((r) => JSON.stringify(r)).join(eol) + eol;
+  const content =
+    Array.from(records)
+      .map((r) => JSON.stringify(r))
+      .join(eol) + eol;
   atomicWrite(filename, content);
 }
 
 export function appendJsonl<T extends Record<string, unknown>>(
   p: string,
   record: T,
-  opts: AppendOpts = {}
+  opts: AppendOpts = {},
 ): void {
   ensureDir(p);
   const eol = opts.eol ?? '\n';

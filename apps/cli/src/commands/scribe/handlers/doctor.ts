@@ -81,7 +81,9 @@ export default function doctor() {
         let mtime = 0;
         try {
           mtime = fs.statSync(lockPath).mtimeMs;
-        } catch { /* no op */ }
+        } catch {
+          /* no op */
+        }
         const age = Date.now() - mtime;
         if (age > DAY_MS) {
           warn(`Stale lock: ${lock} (age ${(age / DAY_MS).toFixed(1)} days)`);

@@ -11,7 +11,10 @@ import {
 import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';
 
 // Sum ALL time segments (daylight + night) since the last day_start
-export function activeSegmentsSinceStart(events: ScribeEvent[], startIdx: number) {
+export function activeSegmentsSinceStart(
+  events: ScribeEvent[],
+  startIdx: number,
+) {
   let segments = 0;
   for (let i = startIdx + 1; i < events.length; i++) {
     const e = events[i];
@@ -22,7 +25,10 @@ export function activeSegmentsSinceStart(events: ScribeEvent[], startIdx: number
   return segments;
 }
 
-export function daylightSegmentsSinceStart(events: ScribeEvent[], startIdx: number) {
+export function daylightSegmentsSinceStart(
+  events: ScribeEvent[],
+  startIdx: number,
+) {
   let segments = 0;
   for (let i = startIdx + 1; i < events.length; i++) {
     const e = events[i];
@@ -159,7 +165,9 @@ export function selectParty(events: ScribeEvent[]): string[] {
 }
 
 /** Returns the most recent WeatherCommitted payload from the event log, or null if none. */
-export function selectCurrentWeather(events: ScribeEvent[]): WeatherCommitted | null {
+export function selectCurrentWeather(
+  events: ScribeEvent[],
+): WeatherCommitted | null {
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
     if (e.kind === 'weather_committed' && e.payload) {

@@ -45,7 +45,7 @@ export function loadConfig(opts?: {
     if (opts?.throwIfMissing) {
       throw new Error(
         `Config file not found. Looked upward from ${cwd} for ${CONFIG_FILENAME}` +
-        (fromEnv ? ` (env override ${fromEnv} did not resolve).` : '.')
+          (fromEnv ? ` (env override ${fromEnv} did not resolve).` : '.'),
       );
     }
     return null;

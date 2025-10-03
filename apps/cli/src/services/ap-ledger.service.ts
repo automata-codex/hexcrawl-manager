@@ -20,7 +20,7 @@ export function readApLedger(filePath: string): ApLedgerEntry[] {
 
 export function rewriteApLedger(
   filePath: string,
-  entries: Iterable<ApLedgerEntry>
+  entries: Iterable<ApLedgerEntry>,
 ): void {
   writeJsonl<ApLedgerEntry>(filePath, entries);
 }
@@ -31,7 +31,7 @@ export function appendApEntry(filePath: string, entry: ApLedgerEntry): void {
 
 export function appendApEntries(
   filePath: string,
-  entries: Iterable<ApLedgerEntry>
+  entries: Iterable<ApLedgerEntry>,
 ): void {
   // simple loop keeps generic layer tiny
   for (const e of entries) appendApEntry(filePath, e);
@@ -48,7 +48,7 @@ export function buildSessionApEntries(
     appliedAt,
     sessionId,
     fingerprint,
-  }: { appliedAt: string; sessionId: string; fingerprint: string }
+  }: { appliedAt: string; sessionId: string; fingerprint: string },
 ): ApLedgerEntry[] {
   const entries: ApLedgerEntry[] = [];
   for (const characterId of Object.keys(ledgerResults)) {
@@ -56,9 +56,12 @@ export function buildSessionApEntries(
     entries.push({
       kind: 'session_ap',
       advancementPoints: {
-        exploration: { delta: ap.exploration.delta, reason: ap.exploration.reason },
-        social: { delta: ap.social.delta, reason: ap.social.reason },
         combat: { delta: ap.combat.delta, reason: ap.combat.reason },
+        exploration: {
+          delta: ap.exploration.delta,
+          reason: ap.exploration.reason,
+        },
+        social: { delta: ap.social.delta, reason: ap.social.reason },
       },
       appliedAt,
       characterId,

@@ -28,7 +28,9 @@ describe('scribe start', () => {
         ];
 
         // eslint-disable-next-line no-unused-vars
-        const { exitCode, stderr, stdout } = await runScribe(commands, { repo });
+        const { exitCode, stderr, stdout } = await runScribe(commands, {
+          repo,
+        });
         expect(exitCode).toBe(0);
         expect(stderr).toBeFalsy();
 

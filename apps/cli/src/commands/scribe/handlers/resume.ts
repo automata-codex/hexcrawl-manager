@@ -4,10 +4,7 @@ import { existsSync } from 'node:fs';
 import { readEvents } from '../../../services/event-log.service';
 import { selectCurrentHex } from '../projectors';
 import { detectDevMode } from '../services/general';
-import {
-  findLatestInProgress,
-  inProgressPathFor,
-} from '../services/session';
+import { findLatestInProgress, inProgressPathFor } from '../services/session';
 
 import type { Context } from '../types';
 
