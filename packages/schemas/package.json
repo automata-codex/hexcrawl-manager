@@ -18,12 +18,12 @@
   },
   "type": "module",
   "types": "dist/index.d.ts",
+  "dependencies": {
+    "zod": "^3.24.4"
+  },
   "devDependencies": {
     "rimraf": "^6",
     "typescript": "^5.6.3",
     "zod-to-json-schema": "^3"
-  },
-  "peerDependencies": {
-    "zod": "^3.23.8"
   }
 }
