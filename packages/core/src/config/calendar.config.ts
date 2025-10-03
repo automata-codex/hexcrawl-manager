@@ -1,4 +1,4 @@
-import { CalendarConfig } from '@skyreach/core';
+import { CalendarConfig } from '../types';
 
 export const CALENDAR_CONFIG: CalendarConfig = {
   months: [

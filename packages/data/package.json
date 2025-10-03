@@ -10,5 +10,9 @@
     "lint": "eslint . || true"
   },
   "type": "module",
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "yaml": "^2.8.1",
+    "zod": "^3.25.0"
+  }
 }
