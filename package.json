@@ -41,8 +41,6 @@
     "rebuild": "npm run clean && npm run build",
     "release:version": "changeset version",
     "test": "npm run -ws test",
-    "test:scribe": "vitest run apps/cli/src/commands/scribe/**/*.spec.ts",
-    "test:scribe:watch": "vitest --watch apps/cli/src/commands/scribe/**/*.spec.ts",
     "typecheck": "tsc -b tsconfig.workspace.json"
   },
   "type": "module",

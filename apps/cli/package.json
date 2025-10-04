@@ -3,7 +3,13 @@
   "version": "2.3.0",
   "private": true,
   "scripts": {
-    "start": "tsx src/skyreach.ts"
+    "start": "tsx src/skyreach.ts",
+    "test": "vitest run src/**/*.spec.ts",
+    "test:watch": "vitest --watch src/**/*.spec.ts",
+    "test:scribe": "vitest run src/commands/scribe/**/*.spec.ts",
+    "test:scribe:watch": "vitest --watch src/commands/scribe/**/*.spec.ts",
+    "test:weave": "vitest run src/commands/weave/**/*.spec.ts",
+    "test:weave:watch": "vitest --watch src/commands/weave/**/*.spec.ts"
   },
   "type": "module",
   "dependencies": {
