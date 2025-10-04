@@ -2,6 +2,7 @@ import { REPO_PATHS } from '@skyreach/data';
 import { ApLedgerEntry, ApLedgerEntrySchema } from '@skyreach/schemas';
 
 import { readApLedger } from '../../../../services/ap-ledger.service';
+import { aggregateApByCharacter } from '../../lib/aggregate-ap-by-character';
 
 // Command handler for `weave ap status`
 export async function apStatus() {
@@ -40,23 +41,3 @@ export async function apStatus() {
   console.log('-------------------------------------------------');
 }
 
-/**
- * Aggregates AP by character and pillar from the AP ledger entries.
- * Returns a map: characterId -> { combat, exploration, social }
- */
-export function aggregateApByCharacter(ledgerEntries: ApLedgerEntry[]): Record<string, { combat: number; exploration: number; social: number }> {
-  const result: Record<string, { combat: number; exploration: number; social: number }> = {};
-  for (const entry of ledgerEntries) {
-    const { characterId } = entry;
-    if (!characterId) continue;
-    if (!result[characterId]) {
-      result[characterId] = { combat: 0, exploration: 0, social: 0 };
-    }
-    if (entry.kind === 'session_ap' || entry.kind === 'absence_spend') {
-      result[characterId].combat += entry.advancementPoints.combat?.delta ?? 0;
-      result[characterId].exploration += entry.advancementPoints.exploration?.delta ?? 0;
-      result[characterId].social += entry.advancementPoints.social?.delta ?? 0;
-    }
-  }
-  return result;
-}
