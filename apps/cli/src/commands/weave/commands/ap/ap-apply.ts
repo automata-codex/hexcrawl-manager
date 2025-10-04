@@ -39,7 +39,7 @@ export async function apApply(sessionId?: string) {
         `Invalid sessionId format: ${sessionId}. Expected format is session-####.`,
       );
     }
-    const sessionNum = parseInt(sessionId.split('-')[1], 10);
+    const sessionNum = sessionId.split('-')[1];
     const allFiles = discoverFinalizedScribeLogs(sessionNum);
     if (allFiles.length === 0) {
       throw new Error(`No finalized logs for ${sessionId}.`);
@@ -125,7 +125,7 @@ export async function apApply(sessionId?: string) {
     sessionId = pickNextSessionId(completedSessions, pendingSessions);
   }
 
-  const sessionNum = parseInt(sessionId.split('-')[1], 10);
+  const sessionNum = sessionId.split('-')[1];
 
   // --- Discover Scribe IDs (Finalized Logs) ---
   const allFiles = discoverFinalizedScribeLogs(sessionNum);
@@ -189,7 +189,7 @@ export async function apApply(sessionId?: string) {
   const { reportAdvancementPoints, ledgerResults } = computeApForSession(
     eventsOf(events, 'advancement_point'),
     characterLevels,
-    sessionNum,
+    parseInt(sessionNum, 10), // Is this dangerous or problematic?
   );
 
   // --- Write Outputs ---

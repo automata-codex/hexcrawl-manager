@@ -5,6 +5,8 @@ import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
+import { readApLedger } from '../../../../services/ap-ledger.service';
+
 import type { ScribeEvent } from '@skyreach/schemas';
 
 const events: ScribeEvent[] = [
@@ -228,9 +230,8 @@ describe('Command `weave ap apply`', () => {
           });
 
           // Verify AP ledger output
-          const ledgerPath = path.join(repo, 'data', 'ap-ledger.yaml');
-          expect(fs.existsSync(ledgerPath)).toBe(true);
-          const ledger = yaml.parse(fs.readFileSync(ledgerPath, 'utf8'));
+          expect(fs.existsSync(REPO_PATHS.AP_LEDGER())).toBe(true);
+          const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
 
           // Find entries for session-0001 and check AP values
           const alistarEntry = ledger.find(
@@ -246,43 +247,43 @@ describe('Command `weave ap apply`', () => {
               e.sessionId === 'session-0001' && e.characterId === 'istavan',
           );
           expect(alistarEntry).toBeDefined();
-          expect(alistarEntry.advancementPoints.combat).toEqual({
+          expect(alistarEntry!.advancementPoints.combat).toEqual({
             delta: 1,
             reason: 'grandfathered',
           });
-          expect(alistarEntry.advancementPoints.exploration).toEqual({
+          expect(alistarEntry!.advancementPoints.exploration).toEqual({
             delta: 1,
             reason: 'normal',
           });
-          expect(alistarEntry.advancementPoints.social).toEqual({
+          expect(alistarEntry!.advancementPoints.social).toEqual({
             delta: 1,
             reason: 'grandfathered',
           });
 
           expect(daemarisEntry).toBeDefined();
-          expect(daemarisEntry.advancementPoints.combat).toEqual({
+          expect(daemarisEntry!.advancementPoints.combat).toEqual({
             delta: 1,
             reason: 'grandfathered',
           });
-          expect(daemarisEntry.advancementPoints.exploration).toEqual({
+          expect(daemarisEntry!.advancementPoints.exploration).toEqual({
             delta: 1,
             reason: 'normal',
           });
-          expect(daemarisEntry.advancementPoints.social).toEqual({
+          expect(daemarisEntry!.advancementPoints.social).toEqual({
             delta: 1,
             reason: 'grandfathered',
           });
 
           expect(istavanEntry).toBeDefined();
-          expect(istavanEntry.advancementPoints.combat).toEqual({
+          expect(istavanEntry!.advancementPoints.combat).toEqual({
             delta: 1,
             reason: 'normal',
           });
-          expect(istavanEntry.advancementPoints.exploration).toEqual({
+          expect(istavanEntry!.advancementPoints.exploration).toEqual({
             delta: 1,
             reason: 'normal',
           });
-          expect(istavanEntry.advancementPoints.social).toEqual({
+          expect(istavanEntry!.advancementPoints.social).toEqual({
             delta: 1,
             reason: 'normal',
           });
@@ -359,24 +360,23 @@ describe('Command `weave ap apply`', () => {
           ]);
 
           // Verify AP ledger output for session-0002
-          const ledgerPath = path.join(repo, 'data', 'ap-ledger.yaml');
-          expect(fs.existsSync(ledgerPath)).toBe(true);
-          const ledger = yaml.parse(fs.readFileSync(ledgerPath, 'utf8'));
+          expect(fs.existsSync(REPO_PATHS.AP_LEDGER())).toBe(true);
+          const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
 
           const alistarEntry = ledger.find(
             (e: any) =>
               e.sessionId === 'session-0002' && e.characterId === 'alistar',
           );
           expect(alistarEntry).toBeDefined();
-          expect(alistarEntry.advancementPoints.combat).toEqual({
+          expect(alistarEntry!.advancementPoints.combat).toEqual({
             delta: 1,
             reason: 'grandfathered',
           });
-          expect(alistarEntry.advancementPoints.exploration).toEqual({
+          expect(alistarEntry!.advancementPoints.exploration).toEqual({
             delta: 1,
             reason: 'normal',
           });
-          expect(alistarEntry.advancementPoints.social).toEqual({
+          expect(alistarEntry!.advancementPoints.social).toEqual({
             delta: 1,
             reason: 'grandfathered',
           });
@@ -386,15 +386,15 @@ describe('Command `weave ap apply`', () => {
               e.sessionId === 'session-0002' && e.characterId === 'daemaris',
           );
           expect(daemarisEntry).toBeDefined();
-          expect(daemarisEntry.advancementPoints.combat).toEqual({
+          expect(daemarisEntry!.advancementPoints.combat).toEqual({
             delta: 1,
             reason: 'grandfathered',
           });
-          expect(daemarisEntry.advancementPoints.exploration).toEqual({
+          expect(daemarisEntry!.advancementPoints.exploration).toEqual({
             delta: 1,
             reason: 'normal',
           });
-          expect(daemarisEntry.advancementPoints.social).toEqual({
+          expect(daemarisEntry!.advancementPoints.social).toEqual({
             delta: 1,
             reason: 'grandfathered',
           });
@@ -404,15 +404,15 @@ describe('Command `weave ap apply`', () => {
               e.sessionId === 'session-0002' && e.characterId === 'istavan',
           );
           expect(istavanEntry).toBeDefined();
-          expect(istavanEntry.advancementPoints.combat).toEqual({
+          expect(istavanEntry!.advancementPoints.combat).toEqual({
             delta: 1,
             reason: 'normal',
           });
-          expect(istavanEntry.advancementPoints.exploration).toEqual({
+          expect(istavanEntry!.advancementPoints.exploration).toEqual({
             delta: 1,
             reason: 'normal',
           });
-          expect(istavanEntry.advancementPoints.social).toEqual({
+          expect(istavanEntry!.advancementPoints.social).toEqual({
             delta: 1,
             reason: 'normal',
           });
@@ -517,8 +517,6 @@ describe('Command `weave ap apply`', () => {
             ['ap', 'apply', 'session-0001'],
             { repo },
           );
-          console.log('STDERR1:', resultFirst.stderr);
-          console.log('STDOUT1:', resultFirst.stdout);
           expect(resultFirst.exitCode).toBe(0);
           expect(resultFirst.stderr).toBeFalsy();
 
@@ -527,7 +525,7 @@ describe('Command `weave ap apply`', () => {
             REPO_PATHS.REPORTS(),
             'session-0001.yaml',
           );
-          const ledgerPath = path.join(repo, 'data', 'ap-ledger.yaml');
+          const ledgerPath = path.join(repo, 'data', 'ap-ledger.jsonl');
           expect(fs.existsSync(reportPath)).toBe(true);
           expect(fs.existsSync(ledgerPath)).toBe(true);
           const reportFirst = fs.readFileSync(reportPath, 'utf8');
@@ -538,8 +536,6 @@ describe('Command `weave ap apply`', () => {
             ['ap', 'apply', 'session-0001'],
             { repo },
           );
-          console.log('STDERR2:', resultSecond.stderr);
-          console.log('STDOUT2:', resultSecond.stdout);
           expect(resultSecond.exitCode).toBe(0);
           expect(resultSecond.stderr).toBeFalsy();
           expect(resultSecond.stdout).toMatch(/no-op/i);
