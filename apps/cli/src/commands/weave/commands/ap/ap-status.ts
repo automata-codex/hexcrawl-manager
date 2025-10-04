@@ -1,10 +1,9 @@
 import { REPO_PATHS } from '@skyreach/data';
 import { ApLedgerEntry, ApLedgerEntrySchema } from '@skyreach/schemas';
-import fs from 'fs';
-import path from 'path';
-import yaml from 'yaml';
 
 import { readApLedger } from '../../../../services/ap-ledger.service';
+import { loadAllCharacters } from '../../../../services/characters.service';
+import { loadAllSessionReports } from '../../../../services/sessions.service';
 import { aggregateApByCharacter } from '../../lib/aggregate-ap-by-character';
 import { computeUnclaimedAbsenceAwards } from '../../lib/compute-unclaimed-absence-awards';
 
@@ -44,27 +43,10 @@ export async function apStatus() {
   }
   console.log('-------------------------------------------------');
 
-  // --- Compute and print unclaimed absence awards ---
-  // Load all character YAML files
-  const charDir = REPO_PATHS.CHARACTERS();
-  const charFiles = fs.readdirSync(charDir).filter(f => f.endsWith('.yml') || f.endsWith('.yaml'));
-  const characters = charFiles.map(f => {
-    const filePath = path.join(charDir, f);
-    const raw = fs.readFileSync(filePath, 'utf8');
-    return yaml.parse(raw);
-  });
-
-  // Load all session YAML files
-  const sessionDir = REPO_PATHS.SESSIONS();
-  const sessionFiles = fs.readdirSync(sessionDir).filter(f => f.endsWith('.yml') || f.endsWith('.yaml'));
-  const sessions = sessionFiles.map(f => {
-    const filePath = path.join(sessionDir, f);
-    const raw = fs.readFileSync(filePath, 'utf8');
-    return yaml.parse(raw);
-  });
-
   // Compute unclaimed absence awards
-  const absenceAwards = computeUnclaimedAbsenceAwards(sessions, characters, ledgerEntries);
+  const characters = loadAllCharacters();
+  const sessionReports = loadAllSessionReports();
+  const absenceAwards = computeUnclaimedAbsenceAwards(sessionReports, characters, ledgerEntries);
 
   // Print the results
   console.log('\nUnclaimed Absence Awards:');
