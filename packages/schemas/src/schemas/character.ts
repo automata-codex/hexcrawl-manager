@@ -2,6 +2,20 @@ import { z } from 'zod';
 
 import { ClassEnum } from './class-enum';
 
+const CharacterLifecycleReason = z.enum([
+  'archived',
+  'converted_to_npc',
+  'inactive_player',
+  'killed_in_action',
+  'retired_by_player',
+]);
+
+const CharacterLifecycle = z.object({
+  retiredAt: z.string().date(), // ISO date (real-world)
+  retiredReason: CharacterLifecycleReason,
+  retiredNote: z.string().max(200).optional(), // short free-text if needed
+});
+
 export const CharacterSchema = z.object({
   id: z.string(),
   fullName: z.string(),
@@ -23,6 +37,7 @@ export const CharacterSchema = z.object({
   backstory: z.string().optional(), // GM-only backstory in Markdown
   goals: z.string().optional(), // GM-only goals in Markdown
   notes: z.string().optional(), // GM-only notes in Markdown
+  lifecycle: CharacterLifecycle.optional(),
 });
 
 export type CharacterData = z.infer<typeof CharacterSchema>;

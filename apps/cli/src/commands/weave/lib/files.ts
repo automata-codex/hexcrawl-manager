@@ -5,7 +5,7 @@ import path from 'path';
 import prompts from 'prompts';
 import yaml from 'yaml';
 
-import { compareSeasonIds, normalizeSeasonId } from './season.ts';
+import { compareSeasonIds, normalizeSeasonId } from './season';
 
 /**
  * Find the most recent rollover footprint for a given seasonId (<= that season).
