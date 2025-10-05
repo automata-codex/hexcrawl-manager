@@ -1,5 +1,6 @@
-import { clamp, info } from '@skyreach/cli-kit';
+import { info } from '@skyreach/cli-kit';
 import { rollDice } from '@skyreach/data';
+import { clamp } from 'lodash-es';
 
 import { readEvents } from '../../../../services/event-log.service';
 import { lastCalendarDate, selectCurrentForecast } from '../../projectors';
