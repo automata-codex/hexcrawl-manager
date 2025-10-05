@@ -75,3 +75,5 @@ export const SessionReportSchema = z.discriminatedUnion('status', [
   PlannedSessionReport,
   CompletedSessionReport,
 ]);
+
+export type SessionReport = z.infer<typeof SessionReportSchema>;

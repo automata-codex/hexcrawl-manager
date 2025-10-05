@@ -50,7 +50,7 @@ export async function runScribe(
 
   const entry = opts.entry || {
     cmd: 'tsx',
-    args: ['apps/cli/skyreach.ts', 'scribe'],
+    args: ['src/skyreach.ts', 'scribe'],
   };
 
   const env = {

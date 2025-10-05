@@ -1,15 +1,9 @@
-import {
-  eventsOf,
-  pad,
-  pickNextSessionId,
-  sortScribeIds,
-} from '@skyreach/cli-kit';
+import { eventsOf, pickNextSessionId, sortScribeIds } from '@skyreach/cli-kit';
 import { formatDate } from '@skyreach/core';
 import { REPO_PATHS, isGitDirty, writeYamlAtomic } from '@skyreach/data';
 import { SessionReportSchema } from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
-import { glob } from 'glob';
 import path from 'path';
 import yaml from 'yaml';
 
@@ -18,6 +12,7 @@ import {
   appendApEntries,
   buildSessionApEntries,
 } from '../../../../services/ap-ledger.service';
+import { discoverFinalizedScribeLogs } from '../../../../services/sessions.service';
 import {
   firstCalendarDate,
   lastCalendarDate,
@@ -45,17 +40,7 @@ export async function apApply(sessionId?: string) {
       );
     }
     const sessionNum = sessionId.split('-')[1];
-    const sessionsDir = REPO_PATHS.SESSIONS();
-
-    // Discover Finalized Scribe Logs
-    const pattern1 = path.join(sessionsDir, `session_${sessionNum}_*.jsonl`);
-    const pattern2 = path.join(
-      sessionsDir,
-      `session_${sessionNum}[a-z]_*.jsonl`,
-    );
-    const files1 = glob.sync(pattern1);
-    const files2 = glob.sync(pattern2);
-    const allFiles = Array.from(new Set([...files1, ...files2]));
+    const allFiles = discoverFinalizedScribeLogs(sessionNum);
     if (allFiles.length === 0) {
       throw new Error(`No finalized logs for ${sessionId}.`);
     }
@@ -140,24 +125,10 @@ export async function apApply(sessionId?: string) {
     sessionId = pickNextSessionId(completedSessions, pendingSessions);
   }
 
-  const sessionNum = parseInt(sessionId.split('-')[1], 10);
+  const sessionNum = sessionId.split('-')[1];
 
   // --- Discover Scribe IDs (Finalized Logs) ---
-  const pattern1 = path.join(
-    REPO_PATHS.SESSIONS(),
-    `session_${pad(sessionNum)}_*.jsonl`,
-  );
-  const pattern2 = path.join(
-    REPO_PATHS.SESSIONS(),
-    `session_${pad(sessionNum)}[a-z]_*.jsonl`,
-  );
-  const files1 = fs.existsSync(REPO_PATHS.SESSIONS())
-    ? glob.sync(pattern1)
-    : [];
-  const files2 = fs.existsSync(REPO_PATHS.SESSIONS())
-    ? glob.sync(pattern2)
-    : [];
-  const allFiles = Array.from(new Set([...files1, ...files2]));
+  const allFiles = discoverFinalizedScribeLogs(sessionNum);
   if (allFiles.length === 0) {
     throw new Error(`No finalized logs for ${sessionId}.`);
   }
@@ -218,7 +189,7 @@ export async function apApply(sessionId?: string) {
   const { reportAdvancementPoints, ledgerResults } = computeApForSession(
     eventsOf(events, 'advancement_point'),
     characterLevels,
-    sessionNum,
+    parseInt(sessionNum, 10), // Is this dangerous or problematic?
   );
 
   // --- Write Outputs ---

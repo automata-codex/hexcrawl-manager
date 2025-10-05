@@ -1,7 +1,7 @@
 import path from 'node:path';
 
-import { getNextUnrolledSeason } from './files.ts';
-import { normalizeSeasonId } from './season.ts';
+import { getNextUnrolledSeason } from './files';
+import { normalizeSeasonId } from './season';
 
 export function isRolloverAlreadyApplied(meta: any, fileId: string): boolean {
   return meta.appliedSessions?.includes(fileId);

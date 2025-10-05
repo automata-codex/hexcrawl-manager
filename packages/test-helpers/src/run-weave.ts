@@ -18,7 +18,7 @@ export async function runWeave(
 ): Promise<RunWeaveResult> {
   const entry = opts.entry || {
     cmd: 'tsx',
-    args: ['apps/cli/skyreach.ts', 'weave'],
+    args: ['src/skyreach.ts', 'weave'],
   };
 
   const env = {

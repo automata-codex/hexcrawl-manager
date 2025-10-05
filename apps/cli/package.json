@@ -3,14 +3,28 @@
   "version": "2.3.0",
   "private": true,
   "scripts": {
-    "start": "tsx src/skyreach.ts"
+    "start": "tsx src/skyreach.ts",
+    "test": "vitest run --dir src --mode unit",
+    "test:watch": "vitest --watch --dir src --mode unit",
+    "test:scribe": "vitest run --dir src/commands/scribe --mode unit",
+    "test:scribe:watch": "vitest --watch --dir src/commands/scribe --mode unit",
+    "test:weave": "vitest run --dir src/commands/weave --mode unit",
+    "test:weave:int": "vitest run --dir src/commands/weave --mode int",
+    "test:weave:watch": "vitest --watch --dir src/commands/weave --mode unit"
   },
   "type": "module",
+  "volta": {
+    "node": "22.20.0",
+    "npm": "11.6.1"
+  },
   "dependencies": {
-    "@skyreach/cli-kit": "^2.3.0",
-    "@skyreach/core": "^2.3.0",
-    "@skyreach/data": "^2.3.0",
-    "@skyreach/schemas": "^2.3.0",
-    "@skyreach/test-helpers": "^2.3.0"
+    "@skyreach/cli-kit": "*",
+    "@skyreach/core": "*",
+    "@skyreach/data": "*",
+    "@skyreach/schemas": "*",
+    "@skyreach/test-helpers": "*",
+    "commander": "^13.1.0",
+    "lodash-es": "^4.17.21",
+    "prompts": "^2.4.2"
   }
 }
