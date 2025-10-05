@@ -3,6 +3,7 @@
   "version": "2.3.0",
   "private": true,
   "scripts": {
+    "check": "tsc --noEmit",
     "start": "tsx src/skyreach.ts",
     "test": "vitest run --dir src --mode unit",
     "test:watch": "vitest --watch --dir src --mode unit",

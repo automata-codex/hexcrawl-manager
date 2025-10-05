@@ -5,7 +5,7 @@ import { apply } from './commands/apply';
 import { plan } from './commands/plan';
 
 export const weaveCommand = new Command('weave')
-  .description('Apply session and rollover artifacts to campaign state');
+  .description('Use session and rollover artifacts to update campaign state');
 
 weaveCommand.addCommand(apCommand);
 
