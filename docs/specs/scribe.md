@@ -1,4 +1,4 @@
-# `scribe` — Spec (v1.0)
+# `scribe` — Spec (v1.1)
 
 ## Purpose
 
@@ -34,7 +34,7 @@ The following commands are available in the REPL (see handlers for details):
 - `party` — Manage party members.
 - `rest` / `resume` — Log rest periods and resumptions.
 - `scout` — Record scouting actions.
-- `start` — Begin a new session (creates a new log file).
+- `start` — Begin a new session (creates a new log file). See also `start interactive` for power-user overrides.
 - `status` — Show current session/log status.
 - `trail` — Mark a trail between hexes.
 - `undo` — Undo or revert the last action(s).
@@ -60,4 +60,3 @@ The following commands are available in the REPL (see handlers for details):
 * Provide command completion and history for usability.
 * Post-command hooks (e.g., weather reminders) can be added for session flavor.
 * All commands should be idempotent and safe to repeat as needed.
-

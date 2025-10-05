@@ -1,10 +1,10 @@
-# `scribe finalize` — Spec (v1.1)
+# `scribe finalize` Command Spec (v1.1)
 
 ## Overview
 
 Finalizes an in-progress scribe **session** event log. Splits it into **season-homogeneous parts**, inserts **standalone rollover** logs where boundaries occur, normalizes keys, and writes **canonical session files**. Commits the reserved session sequence number in `meta.yaml` only if output is produced.
 
-Handles both **session lifecycle events** and **season boundaries** without dropping legitimate non-day events.
+Handles both **session lifecycle events** and **season boundaries** without dropping legitimate non-day events. Ensures that `sessionDate` from the `session_start` event matches the filename stem and that finalized sessions respect the global sequence ordering model.
 
 ## Inputs
 
@@ -21,14 +21,14 @@ Handles both **session lifecycle events** and **season boundaries** without drop
 
 ## Event Assumptions
 
-- The in-progress file is a JSONL event log containing events such as:
-  - `session_start` (status `"in-progress"`)
-  - `session_pause` (status `"paused"`)
-  - `session_continue` (status `"in-progress"`)
-  - `session_end` (status `"final"`)
-  - `day_start`, `day_end`
-  - action events (`move`, `trail`, etc.)
-- The log may or may not contain a `session_end`.
+* The in-progress file is a JSONL event log containing events such as:
+  * `session_start` (status `"in-progress"`, includes `"sessionDate"`)
+  * `session_pause` (status `"paused"`)
+  * `session_continue` (status `"in-progress"`)
+  * `session_end` (status `"final"`)
+  * `day_start`, `day_end`
+  * action events (`move`, `trail`, etc.)
+* The log may or may not contain a `session_end`.
 
 ## Behavior
 
@@ -36,6 +36,8 @@ Handles both **session lifecycle events** and **season boundaries** without drop
 
   - Abort if `sessionId` or `file` missing from context.
   - Abort if no matching lock in production mode.
+  - Abort if the session ID’s `<SEQ>` does not match the lock’s `seq` (unless running in recovery mode).
+  - Verify that `session_start.sessionDate` matches the `<YYYY-MM-DD>` in the filename stem.
 
 2. **Validation**
 
@@ -127,12 +129,20 @@ Handles both **session lifecycle events** and **season boundaries** without drop
 
   - **Prod**:
     - If ≥1 finalized outputs were written:
-      - Read `meta.nextSessionSeq` and bump by 1 (or heal to `lock.seq + 1` if needed).
+      - Read `meta.nextSessionSeq`.
+      - If finalizing a session with `seq` **lower** than `meta.nextSessionSeq`, print warning and set `meta.nextSessionSeq = max(existing finalized seq) + 1`.
+      - If `meta.nextSessionSeq` mismatches the lock’s `seq`, heal by setting it to `lock.seq + 1`.
       - Write `meta.yaml` atomically.
     - If no outputs, do not bump the counter.
     - Remove lock file and in-progress file.
   - **Dev**:
-    - No counter updates, no locks. Delete the in-progress file after writing outputs.
+    - No counter updates, no locks. Delete in-progress file after writing outputs.
+
+  > **Implementation Note:** To compute `max(finalized)`, the command should
+  > inspect all finalized session files in `data/session-logs/` and extract
+  > their `<SEQ>` values from filenames. The resulting value determines the
+  > new `meta.nextSessionSeq = max(finalized) + 1`. This ensures correct
+  > sequencing even when sessions are finalized out of order.
 
 ## Outputs
 
@@ -141,7 +151,7 @@ Handles both **session lifecycle events** and **season boundaries** without drop
     - `✔ finalized → data/session-logs/session-0023_2025-09-15.jsonl`
     - `✔ rollover → data/session-logs/rollovers/rollover_1511-autumn.jsonl`
 - **Failure**:
-  - Error messages for missing context, no `day_start`, impossible order, or missing lock.
+  - Error messages for missing context, no `day_start`, impossible order, missing lock, or date mismatch.
 
 ## Filename Patterns (canonical)
 
@@ -158,3 +168,10 @@ Handles both **session lifecycle events** and **season boundaries** without drop
 - Filesystem errors (throws).
 - File does not begin with `session_start` or `session_continue`.
 - File ends with neither `session_end` nor `session_pause`.
+- `sessionDate` mismatch with filename stem.
+
+## Implicit Cursors
+
+- `currentHex` initialized from `session_start.startHex` or `session_continue.currentHex`.
+- No explicit pointers are persisted; all derived at runtime.
+- `move.from=null` preserved for later inference by `weave`.
