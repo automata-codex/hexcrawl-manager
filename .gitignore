@@ -33,3 +33,4 @@ pnpm-debug.log*
 /data/session-logs/_dev
 /.test-repos/
 /_reports/
+tree.txt

@@ -1,5 +1,5 @@
 import { info, error } from '@skyreach/cli-kit';
-import { clamp } from '@skyreach/cli-kit';
+import { clamp } from 'lodash-es';
 
 import { appendEvent } from '../../../../services/event-log.service';
 import { requireFile } from '../../services/general';

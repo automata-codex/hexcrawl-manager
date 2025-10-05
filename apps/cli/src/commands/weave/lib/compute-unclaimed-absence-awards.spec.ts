@@ -1,4 +1,4 @@
-import { pad } from '@skyreach/cli-kit';
+import { padSessionNum } from '@skyreach/core';
 import {
   ApLedgerEntry,
   ApLedgerEntrySchema,
@@ -16,7 +16,7 @@ import { computeUnclaimedAbsenceAwards } from './compute-unclaimed-absence-award
 // --- Helpers ---
 
 const asSessionId = (n: number): z.infer<typeof SessionId> =>
-  `session-${pad(n)}` as const;
+  `session-${padSessionNum(n)}` as const;
 
 function makeCompletedSession(opts: {
   n: number; // 1-based counter -> session id

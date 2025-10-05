@@ -1,5 +1,4 @@
-import { pad } from '@skyreach/cli-kit';
-import { hexSort, normalizeHexId } from '@skyreach/core';
+import { hexSort, normalizeHexId, padSessionNum } from '@skyreach/core';
 import { REPO_PATHS, loadMeta, saveMeta } from '@skyreach/data';
 import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
@@ -111,14 +110,14 @@ export function prepareSessionStart({
     };
   }
   const ymd = date.toISOString().slice(0, 10);
-  const sessionId = `session_${pad(seq)}_${ymd}`;
+  const sessionId = `session_${padSessionNum(seq)}_${ymd}`;
   const inProgressFile = path.join(
     REPO_PATHS.IN_PROGRESS(),
     `${sessionId}.jsonl`,
   );
 
   // Check for lock conflict
-  const lockFile = path.join(REPO_PATHS.LOCKS(), `session_${pad(seq)}.lock`);
+  const lockFile = path.join(REPO_PATHS.LOCKS(), `session_${padSessionNum(seq)}.lock`);
   if (fs.existsSync(lockFile)) {
     return {
       ok: false,

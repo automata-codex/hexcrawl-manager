@@ -1,4 +1,4 @@
-import { eventsOf, pickNextSessionId, sortScribeIds } from '@skyreach/cli-kit';
+import { eventsOf } from '@skyreach/cli-kit';
 import { formatDate } from '@skyreach/core';
 import { REPO_PATHS, isGitDirty, writeYamlAtomic } from '@skyreach/data';
 import { SessionReportSchema } from '@skyreach/schemas';
@@ -12,7 +12,11 @@ import {
   appendApEntries,
   buildSessionApEntries,
 } from '../../../../services/ap-ledger.service';
-import { discoverFinalizedScribeLogs } from '../../../../services/sessions.service';
+import {
+  discoverFinalizedScribeLogs,
+  pickNextSessionId,
+  sortScribeIds,
+} from '../../../../services/sessions.service';
 import {
   firstCalendarDate,
   lastCalendarDate,

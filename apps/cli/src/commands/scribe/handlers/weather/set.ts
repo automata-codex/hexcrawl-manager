@@ -1,13 +1,13 @@
 import { info, error } from '@skyreach/cli-kit';
-import { clamp } from '@skyreach/cli-kit';
 import { WEATHER_CATEGORIES } from '@skyreach/schemas';
+import { clamp } from 'lodash-es';
 
 import {
   bandForTotal,
   descriptorsFor,
   effectsForCategory,
   isInclementPlus,
-} from './helpers.ts';
+} from './helpers';
 
 import type { Context } from '../../types.ts';
 import type { Season, WeatherDraft } from '@skyreach/core';

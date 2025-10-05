@@ -1,8 +1,7 @@
-import { info, error } from '@skyreach/cli-kit';
+import { info, error, selectFromFiles } from '@skyreach/cli-kit';
 import { REPO_PATHS, isGitDirty } from '@skyreach/data';
 import fs from 'fs';
 import path from 'path';
-import prompts from 'prompts';
 import yaml from 'yaml';
 
 import { compareSeasonIds, normalizeSeasonId } from './season';
@@ -75,20 +74,6 @@ function listFilesIfDir(dir: string): string[] {
   }
 }
 
-export async function promptSelectFile(candidates: string[]): Promise<string> {
-  const choices = candidates.map((f) => ({
-    title: path.relative(process.cwd(), f),
-    value: f,
-  }));
-  const response = await prompts({
-    type: 'select',
-    name: 'file',
-    message: 'Select a session or rollover file:',
-    choices,
-  });
-  return response.file;
-}
-
 export function requireCleanGitOrAllowDirty(opts?: { allowDirty?: boolean }) {
   const allowDirty = opts?.allowDirty || process.argv.includes('--allow-dirty');
   if (!allowDirty && isGitDirty()) {
@@ -115,7 +100,13 @@ export async function resolveInputFile(
     error('No file specified and --no-prompt is set.');
     process.exit(4);
   }
-  const selected = await promptSelectFile(candidates);
+
+  const choices = candidates.map((f) => ({
+    label: path.relative(process.cwd(), f),
+    value: f,
+  }));
+  const selected = await selectFromFiles(choices);
+
   if (!selected) {
     info('No file selected.');
     process.exit(5);

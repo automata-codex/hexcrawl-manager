@@ -1,12 +1,12 @@
-import { clamp } from '@skyreach/cli-kit';
 import { CALENDAR_CONFIG } from '@skyreach/core';
 import { rollDice } from '@skyreach/data';
+import { clamp } from 'lodash-es';
 
-import { DESCRIPTOR_LIBRARY } from '../../config/descriptor-library.config.ts';
-import { DETAIL_TABLES } from '../../config/detail-tables.config.ts';
-import { EFFECTS_TABLE } from '../../config/effects-table.config.ts';
-import { FORECAST_MODIFIER } from '../../config/forecast-modifier.config.ts';
-import { SEASONAL_BANDS } from '../../config/seasonal-bands.config.ts';
+import { DESCRIPTOR_LIBRARY } from '../../config/descriptor-library.config';
+import { DETAIL_TABLES } from '../../config/detail-tables.config';
+import { EFFECTS_TABLE } from '../../config/effects-table.config';
+import { FORECAST_MODIFIER } from '../../config/forecast-modifier.config';
+import { SEASONAL_BANDS } from '../../config/seasonal-bands.config';
 
 import type { Season, WeatherCategory } from '@skyreach/core';
 import type { CampaignDate } from '@skyreach/schemas';
