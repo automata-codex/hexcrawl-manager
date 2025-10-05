@@ -1,4 +1,4 @@
-# `weave ap allocate` — Command Spec
+# `weave allocate ap` — Command Spec
 
 > **File:** `docs/specs/weave-commands/ap-allocate.md`
 >
