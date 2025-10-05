@@ -55,28 +55,33 @@ export async function maybeOverride<T>(
  * Returns the selected path.
  */
 export async function selectFromFiles(
-  files: string[],
+  files: { label: string; value: string }[],
   opts?: {
     title?: string;
     autoSelectSingle?: boolean;
   },
 ): Promise<string> {
-  if (files.length === 0) {
+  const autoSelect = opts?.autoSelectSingle ?? true;
+  if (!Array.isArray(files) || files.length === 0) {
     throw new Error('No files to select from.');
   }
-  if (!isInteractive() || (opts?.autoSelectSingle ?? true) && files.length === 1) {
-    return files[0];
+
+  // if only one and autoSelectSingle = true, skip prompt
+  if (!isInteractive() || (autoSelect && files.length === 1)) {
+    return files[0].value;
   }
 
-  const value = await prompts.select({
-    message: opts?.title ?? 'Select a file',
-    options: files.map((f) => ({ label: f, value: f })),
-  }).catch(onCancel);
+  const result = await prompts
+    .select({
+      message: opts?.title ?? 'Select a file',
+      options: files,
+    })
+    .catch(onCancel);
 
-  if (typeof value !== 'string') {
+  if (typeof result !== 'string') {
     onCancel();
   }
-  return value as string;
+  return result as string;
 }
 
 // Spinner for brief work:
