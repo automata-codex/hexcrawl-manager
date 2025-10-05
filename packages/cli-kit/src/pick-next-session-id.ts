@@ -1,5 +1,5 @@
 // Pick next session id (Option R)
-import { pad } from './pad';
+import { padSessionNum } from '@skyreach/core';
 
 export function pickNextSessionId(
   completed: number[],
@@ -13,5 +13,5 @@ export function pickNextSessionId(
   }
 
   const next = Math.min(...candidates);
-  return `session-${pad(next)}`;
+  return `session-${padSessionNum(next)}`;
 }

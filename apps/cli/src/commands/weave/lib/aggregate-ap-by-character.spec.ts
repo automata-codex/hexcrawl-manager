@@ -1,4 +1,4 @@
-import { pad } from '@skyreach/cli-kit';
+import { padSessionNum } from '@skyreach/core';
 import { ApLedgerEntry, SessionId } from '@skyreach/schemas';
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { aggregateApByCharacter } from './aggregate-ap-by-character';
 
 const asSessionId = (n: number): z.infer<typeof SessionId> =>
-  `session-${pad(n)}` as const;
+  `session-${padSessionNum(n)}` as const;
 
 /**
  * Absence spends recorded so far:

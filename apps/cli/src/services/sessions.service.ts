@@ -1,4 +1,3 @@
-import { pad } from '@skyreach/cli-kit';
 import { loadAllYamlInDir, REPO_PATHS } from '@skyreach/data';
 import { glob } from 'glob';
 import path from 'path';

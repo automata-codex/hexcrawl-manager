@@ -1,4 +1,4 @@
-import { pad } from '@skyreach/cli-kit';
+import { padSessionNum } from '@skyreach/core';
 import { loadMeta, resolveDataPath, writeYamlAtomic } from '@skyreach/data';
 import { SessionReportSchema } from '@skyreach/schemas';
 import { Command } from 'commander';
@@ -27,7 +27,7 @@ export const sessionCommand = new Command('session')
     }
 
     // Step 2: Generate Session ID
-    const sessionId = `session-${pad(nextSessionSeq)}`;
+    const sessionId = `session-${padSessionNum(nextSessionSeq)}`;
 
     // Step 3: Determine Output Path
     const sessionReportsDir = resolveDataPath('session-reports'); // TODO This should use REPO_PATHS

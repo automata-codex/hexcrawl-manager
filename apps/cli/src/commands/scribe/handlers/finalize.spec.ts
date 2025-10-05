@@ -1,4 +1,5 @@
-import { eventsOf, pad } from '@skyreach/cli-kit';
+import { eventsOf } from '@skyreach/cli-kit';
+import { padSessionNum } from '@skyreach/core';
 import { REPO_PATHS } from '@skyreach/data';
 import {
   findSessionFiles,
@@ -172,13 +173,13 @@ describe('scribe finalize', () => {
       async (repo) => {
         const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
         const nextSessionNumber = parseInt(meta.nextSessionSeq, 10) || 1;
-        const sessionId = `session_${pad(nextSessionNumber)}_2025-09-20`;
+        const sessionId = `session_${padSessionNum(nextSessionNumber)}_2025-09-20`;
 
         const lockDir = REPO_PATHS.LOCKS();
         fs.mkdirSync(lockDir, { recursive: true });
         const lockFile = path.join(
           lockDir,
-          `session_${pad(nextSessionNumber)}.lock`,
+          `session_${padSessionNum(nextSessionNumber)}.lock`,
         );
         fs.writeFileSync(lockFile, '');
 
@@ -230,7 +231,7 @@ describe('scribe finalize', () => {
       async (repo) => {
         const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
         const nextSessionNumber = parseInt(meta.nextSessionSeq, 10) || 1;
-        const sessionId = `session_${pad(nextSessionNumber)}_2025-09-20`;
+        const sessionId = `session_${padSessionNum(nextSessionNumber)}_2025-09-20`;
 
         // Manually write an in-progress file
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
