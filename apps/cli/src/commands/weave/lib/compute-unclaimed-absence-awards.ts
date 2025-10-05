@@ -1,4 +1,8 @@
-import type { ApLedgerEntry, CharacterData, SessionReport } from '@skyreach/schemas';
+import type {
+  ApLedgerEntry,
+  CharacterData,
+  SessionReport,
+} from '@skyreach/schemas';
 
 type UnclaimedAbsenceSummary = {
   characterId: string;
@@ -7,7 +11,7 @@ type UnclaimedAbsenceSummary = {
   claimed: number;
   unclaimed: number;
   introducedAt?: string; // YYYY-MM-DD (derived)
-  retiredAt?: string;    // YYYY-MM-DD (from lifecycle, if any)
+  retiredAt?: string; // YYYY-MM-DD (from lifecycle, if any)
 };
 
 /**
@@ -33,8 +37,13 @@ export function computeUnclaimedAbsenceAwards(
 ): UnclaimedAbsenceSummary[] {
   // 1) Filter to completed sessions with valid YYYY-MM-DD sessionDate
   const completed = sessions
-    .filter((s): s is Extract<SessionReport, { status: 'completed' }> => s.status === 'completed')
-    .filter((s) => typeof s.sessionDate === 'string' && s.sessionDate.length === 10);
+    .filter(
+      (s): s is Extract<SessionReport, { status: 'completed' }> =>
+        s.status === 'completed',
+    )
+    .filter(
+      (s) => typeof s.sessionDate === 'string' && s.sessionDate.length === 10,
+    );
 
   // Sort by date ascending (YYYY-MM-DD is lexicographically sortable)
   completed.sort((a, b) => a.sessionDate.localeCompare(b.sessionDate));
@@ -57,8 +66,9 @@ export function computeUnclaimedAbsenceAwards(
   const attendanceBySessionId = new Map<string, Set<string>>();
   for (const s of completed) {
     const present = new Set(
-      (s.characterIds ?? [])
-        .filter((idOrGuest): idOrGuest is string => typeof idOrGuest === 'string')
+      (s.characterIds ?? []).filter(
+        (idOrGuest): idOrGuest is string => typeof idOrGuest === 'string',
+      ),
     );
     attendanceBySessionId.set(s.id, present);
   }
@@ -84,7 +94,10 @@ export function computeUnclaimedAbsenceAwards(
       (ap.exploration?.delta ?? 0) +
       (ap.social?.delta ?? 0);
     if (inc > 0) {
-      claimedByChar.set(characterId, (claimedByChar.get(characterId) ?? 0) + inc);
+      claimedByChar.set(
+        characterId,
+        (claimedByChar.get(characterId) ?? 0) + inc,
+      );
     }
   }
 
@@ -109,7 +122,10 @@ export function computeUnclaimedAbsenceAwards(
 
     // Window end: retiredAt (if present) else lastCompletedDate
     const retiredAt = c.lifecycle?.retiredAt;
-    const windowEnd = retiredAt && retiredAt < lastCompletedDate ? retiredAt : lastCompletedDate;
+    const windowEnd =
+      retiredAt && retiredAt < lastCompletedDate
+        ? retiredAt
+        : lastCompletedDate;
 
     // If the window is inverted for any reason, no accrual
     if (windowEnd < introducedAt) {

@@ -38,7 +38,7 @@ export async function apStatus() {
   for (const [characterId, ap] of Object.entries(apByCharacter)) {
     const pad = (s: string, n: number) => s.padEnd(n, ' ');
     console.log(
-      `${pad(characterId, 16)}${pad(ap.combat.toString(), 9)}${pad(ap.exploration.toString(), 14)}${pad(ap.social.toString(), 7)}`
+      `${pad(characterId, 16)}${pad(ap.combat.toString(), 9)}${pad(ap.exploration.toString(), 14)}${pad(ap.social.toString(), 7)}`,
     );
   }
   console.log('-------------------------------------------------');
@@ -46,7 +46,11 @@ export async function apStatus() {
   // Compute unclaimed absence awards
   const characters = loadAllCharacters();
   const sessionReports = loadAllSessionReports();
-  const absenceAwards = computeUnclaimedAbsenceAwards(sessionReports, characters, ledgerEntries);
+  const absenceAwards = computeUnclaimedAbsenceAwards(
+    sessionReports,
+    characters,
+    ledgerEntries,
+  );
 
   // Print the results
   console.log('\nUnclaimed Absence Awards:');
@@ -56,7 +60,7 @@ export async function apStatus() {
   for (const row of absenceAwards) {
     const pad = (s: string, n: number) => s.padEnd(n, ' ');
     console.log(
-      `${pad(row.displayName, 17)}${pad(row.eligibleMissed.toString(), 9)}${pad(row.claimed.toString(), 8)}${pad(row.unclaimed.toString(), 10)}`
+      `${pad(row.displayName, 17)}${pad(row.eligibleMissed.toString(), 9)}${pad(row.claimed.toString(), 8)}${pad(row.unclaimed.toString(), 10)}`,
     );
   }
   console.log('-------------------------------------------------');

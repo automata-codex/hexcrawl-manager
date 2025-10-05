@@ -6,9 +6,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     test: {
-      include: isIntegration
-        ? ['**/*.spec-int.ts']
-        : ['**/*.spec.ts'],
+      include: isIntegration ? ['**/*.spec-int.ts'] : ['**/*.spec.ts'],
       exclude: [
         '**/node_modules/**',
         '**/dist/**',

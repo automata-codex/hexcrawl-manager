@@ -1,6 +1,9 @@
 import { ApLedgerEntry } from '@skyreach/schemas';
 
-type AggregatedAp = Record<string, { combat: number; exploration: number; social: number }>;
+type AggregatedAp = Record<
+  string,
+  { combat: number; exploration: number; social: number }
+>;
 
 /**
  * Aggregates AP by character and pillar from the AP ledger entries.

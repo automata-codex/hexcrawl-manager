@@ -19,9 +19,9 @@ const asSessionId = (n: number): z.infer<typeof SessionId> =>
   `session-${pad(n)}` as const;
 
 function makeCompletedSession(opts: {
-  n: number;              // 1-based counter -> session id
-  date: string;           // YYYY-MM-DD real-world date
-  present: string[];      // characterIds present
+  n: number; // 1-based counter -> session id
+  date: string; // YYYY-MM-DD real-world date
+  present: string[]; // characterIds present
 }): SessionReport {
   const id = asSessionId(opts.n);
   return {
@@ -53,9 +53,7 @@ function makeCompletedSession(opts: {
   };
 }
 
-function makePlannedSession(opts: {
-  n: number;
-}): SessionReport {
+function makePlannedSession(opts: { n: number }): SessionReport {
   const id = asSessionId(opts.n);
   return {
     id,
@@ -129,9 +127,17 @@ export const CHAR_C: CharacterData = CharacterSchema.parse({
  * s6 planned (ignored)
  */
 export const SESSIONS = [
-  makeCompletedSession({ n: 1, date: '2025-09-01', present: ['char-a', 'char-b'] }),
+  makeCompletedSession({
+    n: 1,
+    date: '2025-09-01',
+    present: ['char-a', 'char-b'],
+  }),
   makeCompletedSession({ n: 2, date: '2025-09-08', present: ['char-a'] }),
-  makeCompletedSession({ n: 3, date: '2025-09-15', present: ['char-a', 'char-c'] }),
+  makeCompletedSession({
+    n: 3,
+    date: '2025-09-15',
+    present: ['char-a', 'char-c'],
+  }),
   makeCompletedSession({ n: 4, date: '2025-09-22', present: ['char-c'] }),
   makeCompletedSession({ n: 5, date: '2025-09-29', present: ['char-a'] }),
   makePlannedSession({ n: 6 }), // should be ignored by status
@@ -181,9 +187,27 @@ export const LEDGER: ApLedgerEntry[] = [
  * - C introduced at s3; window end s5. Missed: s5 only => eligibleMissed = 1; claimed = 0; unclaimed = 1
  */
 export const EXPECTED = [
-  { characterId: 'char-a', displayName: 'Quince',  eligibleMissed: 1, claimed: 1, unclaimed: 0 },
-  { characterId: 'char-b', displayName: 'Istavan', eligibleMissed: 2, claimed: 2, unclaimed: 0 },
-  { characterId: 'char-c', displayName: 'Thava',   eligibleMissed: 1, claimed: 0, unclaimed: 1 },
+  {
+    characterId: 'char-a',
+    displayName: 'Quince',
+    eligibleMissed: 1,
+    claimed: 1,
+    unclaimed: 0,
+  },
+  {
+    characterId: 'char-b',
+    displayName: 'Istavan',
+    eligibleMissed: 2,
+    claimed: 2,
+    unclaimed: 0,
+  },
+  {
+    characterId: 'char-c',
+    displayName: 'Thava',
+    eligibleMissed: 1,
+    claimed: 0,
+    unclaimed: 1,
+  },
 ] as const;
 
 describe('computeUnclaimedAbsenceAwards (happy path)', () => {
@@ -205,7 +229,7 @@ describe('computeUnclaimedAbsenceAwards (happy path)', () => {
     const result = computeUnclaimedAbsenceAwards(
       SESSIONS,
       [CHAR_A, CHAR_B, CHAR_C],
-      LEDGER
+      LEDGER,
     );
 
     // Compare as maps for order independence

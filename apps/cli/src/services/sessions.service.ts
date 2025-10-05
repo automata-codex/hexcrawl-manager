@@ -6,7 +6,10 @@ import path from 'path';
 import type { SessionReport } from '@skyreach/schemas';
 
 export function discoverFinalizedScribeLogs(sessionNumber: string): string[] {
-  const pattern1 = path.join(REPO_PATHS.SESSIONS(), `session_${sessionNumber}_*.jsonl`);
+  const pattern1 = path.join(
+    REPO_PATHS.SESSIONS(),
+    `session_${sessionNumber}_*.jsonl`,
+  );
   const pattern2 = path.join(
     REPO_PATHS.SESSIONS(),
     `session_${sessionNumber}[a-z]_*.jsonl`,

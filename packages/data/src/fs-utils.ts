@@ -13,9 +13,14 @@ export function ensureDir(filename: string) {
  * is provided, validates each parsed object and warns on failure (with absolute
  * file path).
  */
-export function loadAllYamlInDir<T>(dir: string, validator?: ZodSchema<T>): T[] {
+export function loadAllYamlInDir<T>(
+  dir: string,
+  validator?: ZodSchema<T>,
+): T[] {
   if (!fs.existsSync(dir)) return [];
-  const files = fs.readdirSync(dir).filter(f => f.endsWith('.yml') || f.endsWith('.yaml'));
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'));
   const results: T[] = [];
   for (const f of files) {
     const filePath = path.join(dir, f);
