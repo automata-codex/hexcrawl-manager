@@ -1,13 +1,16 @@
 import {
-  assertSessionId,
   SessionAlreadyAppliedError,
   SessionFingerprintMismatchError,
   SessionReportValidationError,
+  assertSessionId,
+  formatDate,
+  padSessionNum,
 } from '@skyreach/core';
 import {
   REPO_PATHS,
   discoverFinalizedLogs,
   discoverFinalizedLogsFor,
+  writeYamlAtomic,
 } from '@skyreach/data';
 import { SessionReportSchema } from '@skyreach/schemas';
 import crypto from 'crypto';
@@ -16,10 +19,22 @@ import path from 'path';
 import yaml from 'yaml';
 import { ZodError } from 'zod';
 
+import pkg from '../../../../../../package.json' assert { type: 'json' };
+import {
+  appendApEntries,
+  buildSessionApEntries,
+} from '../../../services/ap-ledger.service';
+import { eventsOf } from '../../../services/event-log.service';
 import {
   pickNextSessionId,
   sortScribeIds,
 } from '../../../services/sessions.service';
+import {
+  firstCalendarDate,
+  lastCalendarDate,
+  selectParty,
+} from '../../scribe/projectors';
+import { computeApForSession } from '../lib/compute-ap-for-session';
 import { assertCleanGitOrAllowDirty } from '../lib/files';
 
 interface ApplyApOptions {
@@ -28,10 +43,10 @@ interface ApplyApOptions {
 }
 
 interface ApplyApResult {
-  sessionId: string;          // the session actually applied
-  reportPath: string;         // where the report was (re)written
-  entriesAppended: number;    // how many AP ledger entries were appended
-  alreadyApplied: boolean;    // true if no-op due to matching fingerprint
+  sessionId: string; // the session actually applied
+  reportPath: string; // where the report was (re)written
+  entriesAppended: number; // how many AP ledger entries were appended
+  alreadyApplied: boolean; // true if no-op due to matching fingerprint
 }
 
 // TODO rename this to `calcFingerprint`
@@ -58,7 +73,9 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     }
 
     // Sort Scribe IDs
-    const unsortedScribeIds = allFiles.map((file) => path.basename(file.filename, '.jsonl'));
+    const unsortedScribeIds = allFiles.map((file) =>
+      path.basename(file.filename, '.jsonl'),
+    );
     const scribeIds = sortScribeIds(unsortedScribeIds);
 
     const reportPath = path.join(
@@ -129,13 +146,18 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   }
 
   // Scribe IDs sorted
-  const unsortedScribeIds = allFiles.map((file) => path.basename(file.filename, '.jsonl'));
+  const unsortedScribeIds = allFiles.map((file) =>
+    path.basename(file.filename, '.jsonl'),
+  );
   const scribeIds = sortScribeIds(unsortedScribeIds);
 
   // --- Parse All Parts ---
   let events = [];
   for (const file of allFiles) {
-    const lines = fs.readFileSync(file.fullPath, 'utf8').split('\n').filter(Boolean);
+    const lines = fs
+      .readFileSync(file.fullPath, 'utf8')
+      .split('\n')
+      .filter(Boolean);
     for (const line of lines) {
       try {
         const event = JSON.parse(line);
@@ -146,5 +168,85 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     }
   }
 
-  // TODO >> Coming soon!
+  // --- Derive Session Fields ---
+  const gameStartDate = formatDate(firstCalendarDate(events));
+  const gameEndDate = formatDate(lastCalendarDate(events));
+  const notes = eventsOf(events, 'note').map((e) => e.payload.text);
+  const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
+
+  // --- Derive Attendance ---
+  const party = selectParty(events);
+  // We don't currently have any way to record guests in the session log, so we don't need to worry about that here.
+
+  // --- Build characterLevels map ---
+  const characterLevels: Record<string, number> = {};
+  for (const characterId of party) {
+    let level = 1;
+    try {
+      const charPathYaml = path.join(
+        REPO_PATHS.CHARACTERS(),
+        `${characterId}.yaml`,
+      );
+      const charPathYml = path.join(
+        REPO_PATHS.CHARACTERS(),
+        `${characterId}.yml`,
+      );
+      const charPath = fs.existsSync(charPathYaml) ? charPathYaml : charPathYml;
+      if (fs.existsSync(charPath)) {
+        const charYaml = yaml.parse(fs.readFileSync(charPath, 'utf8'));
+        if (typeof charYaml.level === 'number') {
+          level = charYaml.level;
+        }
+      }
+    } catch {
+      level = 1;
+    }
+    characterLevels[characterId] = level;
+  }
+
+  // --- Compute AP results ---
+  const { reportAdvancementPoints, ledgerResults } = computeApForSession(
+    eventsOf(events, 'advancement_point'),
+    characterLevels,
+    sessionNum,
+  );
+
+  // --- Write Outputs ---
+  // Write completed session report
+  const fingerprint = getFingerprint(sessionId, scribeIds);
+  const now = new Date().toISOString();
+  const reportOut = {
+    id: sessionId,
+    advancementPoints: reportAdvancementPoints,
+    characterIds: party, // Eventually we'll want to include guests here
+    fingerprint,
+    gameEndDate,
+    gameStartDate,
+    notes,
+    schemaVersion: 2,
+    scribeIds,
+    sessionDate,
+    source: 'scribe',
+    status: 'completed',
+    weave: {
+      appliedAt: now,
+      version: pkg.version,
+    },
+    createdAt: createdAt.length === 0 ? now : createdAt,
+    updatedAt: now,
+  };
+  const reportPath = path.join(
+    REPO_PATHS.REPORTS(),
+    `session-${padSessionNum(sessionNum)}.yaml`,
+  );
+  writeYamlAtomic(reportPath, reportOut);
+
+  // Append per-character session_ap entries to the ledger
+  const entries = buildSessionApEntries(ledgerResults, {
+    appliedAt: now,
+    sessionId,
+    fingerprint,
+  });
+
+  appendApEntries(REPO_PATHS.AP_LEDGER(), entries);
 }
