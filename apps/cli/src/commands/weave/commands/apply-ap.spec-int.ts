@@ -5,7 +5,7 @@ import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import { readApLedger } from '../../../../services/ap-ledger.service';
+import { readApLedger } from '../../../services/ap-ledger.service';
 
 import type { ScribeEvent } from '@skyreach/schemas';
 
