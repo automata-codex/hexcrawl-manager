@@ -20,7 +20,10 @@ import { applyAp } from './apply-ap';
 export type ApplyArgs = {
   sessionId?: string;
   allowDirty?: boolean;
+  mode?: ApplyMode;
 };
+
+export type ApplyMode = 'all' | 'ap' | 'trails';
 
 export const exitCodeForApply = makeExitMapper(
   [
@@ -38,13 +41,29 @@ export const exitCodeForApply = makeExitMapper(
 );
 
 export async function apply(args: ApplyArgs) {
-  const { sessionId: rawId, allowDirty } = args;
+  const { allowDirty, mode: rawMode, sessionId: rawId } = args;
+  const mode: ApplyMode = rawMode ?? 'all';
   const sessionId = rawId ? assertSessionId(rawId) : undefined;
 
   try {
-    // eslint-disable-next-line no-unused-vars
-    const result = await applyAp({ sessionId, allowDirty });
-    // TODO print success
+    if (mode === 'all' || mode === 'trails') {
+      throw new CliError('Trails application is not implemented yet.');
+    }
+
+    // @ts-expect-error -- TypeScript doesn't like this comparison for some reason
+    if (mode === 'all' || mode === 'ap') {
+      const result = await applyAp({ sessionId, allowDirty });
+
+      console.log('');
+      if (result.alreadyApplied) {
+        console.log(`✅ ${result.sessionId} was already applied (no changes made).`);
+      } else {
+        console.log(`✨ Applied ${result.sessionId}:`);
+        console.log(`  • ${result.entriesAppended} ledger entr${result.entriesAppended === 1 ? 'y' : 'ies'} appended`);
+        console.log(`  • Report: ${result.reportPath}`);
+      }
+      console.log('');
+    }
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     error(message);

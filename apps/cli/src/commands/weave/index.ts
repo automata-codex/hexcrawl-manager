@@ -4,14 +4,9 @@ import { apCommand } from './commands/ap';
 import { apply as applyHandler } from './commands/apply';
 import { plan } from './commands/plan';
 
-// (Optional) stubs/placeholders you’ll flesh out soon:
-async function applyTrails(opts: { sessionId?: string; allowDirty?: boolean }) {
-  // TODO: implement trail application
-  return opts;
-}
-
-export const weaveCommand = new Command('weave')
-  .description('Use session and rollover artifacts to update campaign state');
+export const weaveCommand = new Command('weave').description(
+  'Use session and rollover artifacts to update campaign state',
+);
 
 // ---- existing sub-tree ----
 weaveCommand.addCommand(apCommand);
@@ -22,9 +17,15 @@ const applyCommand = new Command('apply')
   .description('Apply a session or rollover file to campaign state')
   .argument('[sessionId]', 'Optional session id, e.g. session-0042')
   .option('--allow-dirty', 'Allow applying with dirty git state')
-  .action(async (sessionId: string | undefined, opts: { allowDirty?: boolean }) => {
-    await applyHandler({ sessionId, allowDirty: opts.allowDirty });
-  });
+  .action(
+    async (sessionId: string | undefined, opts: { allowDirty?: boolean }) => {
+      await applyHandler({
+        allowDirty: opts.allowDirty,
+        sessionId,
+        mode: 'all',
+      });
+    },
+  );
 
 // `weave apply ap [sessionId]`
 applyCommand
@@ -32,9 +33,15 @@ applyCommand
   .description('Apply Advancement Points for a session')
   .argument('[sessionId]', 'Optional session id, e.g. session-0042')
   .option('--allow-dirty', 'Allow applying with dirty git state')
-  .action(async (sessionId: string | undefined, opts: { allowDirty?: boolean }) => {
-    await applyHandler({ sessionId, allowDirty: opts.allowDirty });
-  });
+  .action(
+    async (sessionId: string | undefined, opts: { allowDirty?: boolean }) => {
+      await applyHandler({
+        allowDirty: opts.allowDirty,
+        sessionId,
+        mode: 'ap',
+      });
+    },
+  );
 
 // `weave apply trails [sessionId]`
 applyCommand
@@ -42,9 +49,15 @@ applyCommand
   .description('Apply trail updates for a session')
   .argument('[sessionId]', 'Optional session id, e.g. session-0042')
   .option('--allow-dirty', 'Allow applying with dirty git state')
-  .action(async (sessionId: string | undefined, opts: { allowDirty?: boolean }) => {
-    await applyTrails({ sessionId, allowDirty: opts.allowDirty });
-  });
+  .action(
+    async (sessionId: string | undefined, opts: { allowDirty?: boolean }) => {
+      await applyHandler({
+        allowDirty: opts.allowDirty,
+        sessionId,
+        mode: 'trails',
+      });
+    },
+  );
 
 weaveCommand.addCommand(applyCommand);
 
