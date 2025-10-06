@@ -5,6 +5,7 @@ import {
   SessionIdError,
   SessionLogsNotFoundError,
   SessionReportValidationError,
+  assertSessionId,
 } from '@skyreach/core';
 import {
   DirtyGitError,
@@ -15,6 +16,11 @@ import {
 import { CliError } from '../lib/errors';
 
 import { applyAp } from './apply-ap';
+
+export type ApplyArgs = {
+  sessionId?: string;
+  allowDirty?: boolean;
+};
 
 export const exitCodeForApply = makeExitMapper(
   [
@@ -31,12 +37,13 @@ export const exitCodeForApply = makeExitMapper(
   1, // fallback default
 );
 
-// TODO Wire this into the Commander bit that calls handlers
-export async function apply(opts: {}) {
-  // TODO Process opts, figure out what to do
+export async function apply(args: ApplyArgs) {
+  const { sessionId: rawId, allowDirty } = args;
+  const sessionId = rawId ? assertSessionId(rawId) : undefined;
+
   try {
     // eslint-disable-next-line no-unused-vars
-    const result = await applyAp(opts);
+    const result = await applyAp({ sessionId, allowDirty });
     // TODO print success
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
