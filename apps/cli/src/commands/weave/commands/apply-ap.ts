@@ -14,6 +14,7 @@ import { ZodError } from 'zod';
 
 import {
   discoverFinalizedScribeLogs,
+  pickNextSessionId,
   sortScribeIds,
 } from '../../../services/sessions.service';
 import { assertCleanGitOrAllowDirty } from '../lib/files';
@@ -41,15 +42,16 @@ function getFingerprint(sessionId: string, scribeIds: string[]): string {
 
 export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   let createdAt: string = '';
+  let { sessionId } = opts;
 
   // --- Get a Valid Session ID ---
-  if (opts.sessionId) {
+  if (sessionId) {
     // Validate Session ID Format
-    assertSessionId(opts.sessionId);
-    const sessionNum = opts.sessionId.split('-')[1]; // TODO Rename this is sessionNumStr
+    assertSessionId(sessionId);
+    const sessionNum = sessionId.split('-')[1]; // TODO Rename this to sessionNumStr or paddedSessionNum
     const allFiles = discoverFinalizedScribeLogs(sessionNum);
     if (allFiles.length === 0) {
-      throw new Error(`No finalized logs for ${opts.sessionId}.`);
+      throw new Error(`No finalized logs for ${sessionId}.`);
     }
 
     // Sort Scribe IDs
@@ -68,9 +70,9 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
         reportYaml = SessionReportSchema.parse(reportYamlRaw);
       } catch (err) {
         if (err instanceof ZodError) {
-          throw new SessionReportValidationError(opts.sessionId, err.issues);
+          throw new SessionReportValidationError(sessionId, err.issues);
         }
-        throw new Error(`Failed to parse report for ${opts.sessionId}: ${err}`);
+        throw new Error(`Failed to parse report for ${sessionId}: ${err}`);
       }
       createdAt = reportYaml.createdAt ?? '';
 
@@ -80,14 +82,14 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
       }
 
       // Check for Existing Completed Report (idempotency Check)
-      const fingerprint = getFingerprint(opts.sessionId, scribeIds);
+      const fingerprint = getFingerprint(sessionId, scribeIds);
       const reportFingerprint =
         reportYaml.status === 'completed' ? reportYaml.fingerprint : undefined;
       if (reportFingerprint === fingerprint) {
-        throw new SessionAlreadyAppliedError(opts.sessionId);
+        throw new SessionAlreadyAppliedError(sessionId);
       }
       if (reportYaml.status !== 'planned') {
-        throw new SessionFingerprintMismatchError(opts.sessionId);
+        throw new SessionFingerprintMismatchError(sessionId);
       }
     }
   } else {
@@ -95,5 +97,24 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     const sessionNumbers = discoverFinalizedLogs().map(
       (log) => log.sessionNumber,
     );
+
+    // Identify pending sessions
+    const reportFiles = fs.existsSync(REPO_PATHS.REPORTS())
+      ? fs.readdirSync(REPO_PATHS.REPORTS())
+      : [];
+    const completedSessions = reportFiles
+      .filter((f) => f.match(/^session-\d{4}\.yaml$/))
+      .map((f) => f.match(/^session-(\d{4})\.yaml$/)![1])
+      .map((f) => parseInt(f, 10));
+    const pendingSessions = sessionNumbers.filter(
+      (num) => !completedSessions.includes(num),
+    );
+
+    // Pick the next session to apply
+    if (pendingSessions.length === 0) {
+      throw new Error('No pending sessions with finalized logs found.');
+    }
+    sessionId = pickNextSessionId(completedSessions, pendingSessions);
   }
+  // TODO >> Coming soon!
 }
