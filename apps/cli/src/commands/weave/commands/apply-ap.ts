@@ -8,7 +8,8 @@ import {
 import {
   REPO_PATHS,
   discoverFinalizedLogs,
-  discoverFinalizedLogsFor,
+  discoverFinalizedLogsForOrThrow,
+  readFinalizedJsonl,
   writeYamlAtomic,
 } from '@skyreach/data';
 import { SessionReportSchema } from '@skyreach/schemas';
@@ -66,10 +67,7 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     // Validate Session ID Format
     assertSessionId(sessionId);
     const paddedSessionNum = sessionId.split('-')[1];
-    const allFiles = discoverFinalizedLogsFor(paddedSessionNum);
-    if (allFiles.length === 0) {
-      throw new Error(`No finalized logs for ${sessionId}.`);
-    }
+    const allFiles = discoverFinalizedLogsForOrThrow(paddedSessionNum);
 
     // Sort Scribe IDs
     const unsortedScribeIds = allFiles.map((file) =>
@@ -147,10 +145,7 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   const paddedSessionNum = sessionId.split('-')[1];
 
   // --- Discover Scribe IDs (Finalized Logs) ---
-  const allFiles = discoverFinalizedLogsFor(paddedSessionNum);
-  if (allFiles.length === 0) {
-    throw new Error(`No finalized logs for ${sessionId}.`);
-  }
+  const allFiles = discoverFinalizedLogsForOrThrow(paddedSessionNum);
 
   // Scribe IDs sorted
   const unsortedScribeIds = allFiles.map((file) =>
@@ -159,21 +154,7 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   const scribeIds = sortScribeIds(unsortedScribeIds);
 
   // --- Parse All Parts ---
-  let events = [];
-  for (const file of allFiles) {
-    const lines = fs
-      .readFileSync(file.fullPath, 'utf8')
-      .split('\n')
-      .filter(Boolean);
-    for (const line of lines) {
-      try {
-        const event = JSON.parse(line);
-        events.push(event);
-      } catch (err) {
-        throw new Error(`Failed to parse JSONL in ${file}: ${err}`);
-      }
-    }
-  }
+  const events = readFinalizedJsonl(paddedSessionNum);
 
   // --- Derive Session Fields ---
   const gameStartDate = formatDate(firstCalendarDate(events));

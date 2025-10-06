@@ -6,7 +6,11 @@ import {
   SessionLogsNotFoundError,
   SessionReportValidationError,
 } from '@skyreach/core';
-import { DirtyGitError } from '@skyreach/data';
+import {
+  DirtyGitError,
+  FinalizedLogJsonParseError,
+  FinalizedLogsNotFoundError,
+} from '@skyreach/data';
 
 import { CliError } from '../lib/errors';
 
@@ -14,15 +18,17 @@ import { applyAp } from './apply-ap';
 
 export const exitCodeForApply = makeExitMapper(
   [
-    [CliError, 1],                 // generic
-    [DirtyGitError, 5],            // external failure
+    [CliError, 1], // generic
+    [DirtyGitError, 5], // external failure
+    [FinalizedLogJsonParseError, 2], // invalid/corrupt input
+    [FinalizedLogsNotFoundError, 3], // not found
     [SessionAlreadyAppliedError, 0], // benign no-op
     [SessionFingerprintMismatchError, 4], // conflicting state
-    [SessionIdError, 2],           // invalid session id or missing context
+    [SessionIdError, 2], // invalid session id or missing context
     [SessionLogsNotFoundError, 4], // domain-specific failure
     [SessionReportValidationError, 2], // usage: schema invalid
   ],
-  1 // fallback default
+  1, // fallback default
 );
 
 // TODO Wire this into the Commander bit that calls handlers
