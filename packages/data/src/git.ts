@@ -1,5 +1,14 @@
 import { execSync } from 'child_process';
 
+export class DirtyGitError extends Error {
+  constructor() {
+    super(
+      'Working tree has uncommitted changes. Commit or stash changes, or use --allow-dirty.',
+    );
+    this.name = 'DirtyGitError';
+  }
+}
+
 /**
  * Returns the current git HEAD commit SHA, or null if not in a git repo.
  */

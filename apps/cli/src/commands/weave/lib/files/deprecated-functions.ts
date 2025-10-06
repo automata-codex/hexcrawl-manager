@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 
-import { compareSeasonIds, normalizeSeasonId } from './season';
+import { compareSeasonIds, normalizeSeasonId } from '../season';
 
 /**
  * Find the most recent rollover footprint for a given seasonId (<= that season).
@@ -74,6 +74,7 @@ function listFilesIfDir(dir: string): string[] {
   }
 }
 
+/** @deprecated */
 export function requireCleanGitOrAllowDirty(opts?: { allowDirty?: boolean }) {
   const allowDirty = opts?.allowDirty || process.argv.includes('--allow-dirty');
   if (!allowDirty && isGitDirty()) {

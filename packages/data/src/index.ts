@@ -1,8 +1,9 @@
 export { atomicWrite } from './atomic-write';
+export * from './finalized-session-logs';
 export * from './fs-utils';
 export { getRepoPath } from './get-repo-path';
 export { getRepoRoot } from './get-repo-root';
-export { getGitHeadCommit, isGitDirty } from './git';
+export * from './git';
 export * from './jsonl';
 export { loadConfig } from './load-config';
 export * from './meta';

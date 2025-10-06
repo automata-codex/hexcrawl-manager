@@ -5,7 +5,7 @@ import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import { readApLedger } from '../../../../services/ap-ledger.service';
+import { readApLedger } from '../../../services/ap-ledger.service';
 
 import type { ScribeEvent } from '@skyreach/schemas';
 
@@ -173,11 +173,11 @@ function writeCharacterFiles() {
   );
 }
 
-describe('Command `weave ap apply`', () => {
+describe('Command `weave apply ap`', () => {
   describe('CLI invocation', () => {
     it('applies AP for a specific session in explicit mode', async () => {
       await withTempRepo(
-        'ap-apply-explicit',
+        'apply-ap-explicit',
         { initGit: false },
         async (repo) => {
           writeCharacterFiles();
@@ -195,7 +195,7 @@ describe('Command `weave ap apply`', () => {
           // Run weave ap apply explicitly for session-0001
           // eslint-disable-next-line no-unused-vars
           const { exitCode, stderr, stdout } = await runWeave(
-            ['ap', 'apply', 'session-0001'],
+            ['apply', 'ap', 'session-0001'],
             { repo },
           );
 
@@ -293,7 +293,7 @@ describe('Command `weave ap apply`', () => {
 
     it('auto-selects the next pending session in Option R mode', async () => {
       await withTempRepo(
-        'ap-apply-auto-mode',
+        'apply-ap-auto-mode',
         { initGit: false },
         async (repo) => {
           writeCharacterFiles();
@@ -339,7 +339,7 @@ describe('Command `weave ap apply`', () => {
           // Run weave ap apply in auto-mode (Option R)
           // eslint-disable-next-line no-unused-vars
           const { exitCode, stderr, stdout } = await runWeave(
-            ['ap', 'apply'],
+            ['apply', 'ap'],
             { repo },
           );
 
@@ -422,7 +422,7 @@ describe('Command `weave ap apply`', () => {
 
     it('fails with a clear message if no pending sessions are found in "Option R" mode', async () => {
       await withTempRepo(
-        'ap-apply-no-pending',
+        'apply-ap-no-pending',
         { initGit: false },
         async (repo) => {
           writeCharacterFiles();
@@ -455,7 +455,7 @@ describe('Command `weave ap apply`', () => {
 
           // Run weave ap apply in auto-mode (Option R) with no pending sessions
           const { exitCode, stderr, stdout } = await runWeave(
-            ['ap', 'apply'],
+            ['apply', 'ap'],
             { repo },
           );
 
@@ -497,7 +497,7 @@ describe('Command `weave ap apply`', () => {
   describe('Idempotency', () => {
     it('is idempotent: repeat runs with same fingerprint make no changes', async () => {
       await withTempRepo(
-        'ap-apply-idempotent',
+        'apply-ap-idempotent',
         { initGit: false },
         async (repo) => {
           writeCharacterFiles();
@@ -514,7 +514,7 @@ describe('Command `weave ap apply`', () => {
 
           // First run: apply AP for session-0001
           const resultFirst = await runWeave(
-            ['ap', 'apply', 'session-0001'],
+            ['apply', 'ap', 'session-0001'],
             { repo },
           );
           expect(resultFirst.exitCode).toBe(0);
@@ -533,12 +533,12 @@ describe('Command `weave ap apply`', () => {
 
           // Second run: re-apply AP for session-0001 (should be a no-op)
           const resultSecond = await runWeave(
-            ['ap', 'apply', 'session-0001'],
+            ['apply', 'ap', 'session-0001'],
             { repo },
           );
           expect(resultSecond.exitCode).toBe(0);
           expect(resultSecond.stderr).toBeFalsy();
-          expect(resultSecond.stdout).toMatch(/no-op/i);
+          expect(resultSecond.stdout).toMatch(/no changes made/i);
 
           // Capture outputs after second run
           const reportSecond = fs.readFileSync(reportPath, 'utf8');

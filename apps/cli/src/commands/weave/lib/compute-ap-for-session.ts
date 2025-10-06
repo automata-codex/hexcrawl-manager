@@ -1,4 +1,4 @@
-import { tierFromLevel } from '@skyreach/core';
+import { padSessionNum, tierFromLevel } from '@skyreach/core';
 
 import type { LedgerResultsByCharacter } from '../../../services/ap-ledger.service';
 import type { ScribeEvent } from '@skyreach/schemas';
@@ -15,12 +15,13 @@ type Work = { hadEligible: boolean; hadAny: boolean; hadOverTier: boolean };
 export function computeApForSession(
   events: ScribeEvent[],
   characterLevels: Record<string, number>, // attendees only
-  sessionNum: number,
+  sessionNum: number | string,
 ): {
   reportAdvancementPoints: ReportAdvancementPoints;
   ledgerResults: LedgerResultsByCharacter;
 } {
   const attendees = Object.keys(characterLevels);
+  const sessionNumber = parseInt(padSessionNum(sessionNum), 10);
 
   // Pillar-wise aggregates across *all* events (for the session report)
   const hadAnyByPillar: Record<Pillar, boolean> = {
@@ -84,7 +85,7 @@ export function computeApForSession(
 
     (['combat', 'exploration', 'social'] as Pillar[]).forEach((pillar) => {
       const w = work[cid][pillar];
-      if (sessionNum <= 19) {
+      if (sessionNumber <= 19) {
         const delta: 0 | 1 = w.hadAny ? 1 : 0;
         ledgerResults[cid][pillar] = {
           delta,
@@ -107,7 +108,7 @@ export function computeApForSession(
     social: { number: 0, maxTier: maxSeenTierByPillar.social },
   };
 
-  if (sessionNum <= 19) {
+  if (sessionNumber <= 19) {
     reportAdvancementPoints.combat.number = hadAnyByPillar.combat ? 1 : 0;
     reportAdvancementPoints.exploration.number = hadAnyByPillar.exploration
       ? 1

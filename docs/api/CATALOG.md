@@ -5,19 +5,23 @@ _Single-file catalog generated from TypeDoc JSON. Edits will be overwritten._
 
 ## cli-kit/src
 
-- `function clamp(val: number, min: number, max: number): number`
+- `type Constructor = (args: any[]) =&gt; T;`
 - `function error(message: string): void`
-- `type Event = any;`
-- `function eventsOf(events: { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }[], kind: string): { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }[]`
 - `function info(message: string): void`
-- `function pad(n: number, len: number): string`
-- `function pickNextSessionId(completed: number[], availableWithLogs: number[]): string`
-- `function sortScribeIds(ids: string[]): string[]`
+- `function isInteractive(): boolean`
+- `function makeExitMapper(pairs: [Constructor&lt;unknown&gt;, number][], defaultCode: number): (err: unknown) =&gt; number` — Creates a mapping function that returns an exit code for a given error.
+- `function maybeOverride(label: string, computed: T, opts?: MaybeOverrideOpts&lt;T&gt;): Promise&lt;T&gt;` — Show a computed value and let the user optionally override it.
+Hit Enter = accept computed. Esc/Ctrl+C = cancel (throws).
+- `function selectFromFiles(files: { label: string; value: string }[], opts?: { autoSelectSingle?: boolean; title?: string }): Promise&lt;string&gt;` — Pick a file from a list. If exactly one, auto-select (unless disabled).
+Returns the selected path.
+- `function spinner(text: string): { stop: (msg?: string) =&gt; void }`
 - `function usage(message: string): void`
+- `class UserCanceledError`
 - `function warn(message: string): void`
 
 ## core/src
 
+- `function assertSessionId(value: string): void` — Asserting validator (throws on bad input)
 - `const CALENDAR_CONFIG: CalendarConfig;`
 - `type CalendarConfig = any;`
 - `function datesEqual(a: null | { day: number; month: "Primaris" | "Gelidus" | "Hibernis" | "Vernalis" | "Pluvoris" | "Florara" | "Solinus" | "Aestara" | "Lucidus" | "Fructara" | "Umbraeus" | "Aridus"; year: number }, b: null | { day: number; month: "Primaris" | "Gelidus" | "Hibernis" | "Vernalis" | "Pluvoris" | "Florara" | "Solinus" | "Aestara" | "Lucidus" | "Fructara" | "Umbraeus" | "Aridus"; year: number }): boolean`
@@ -31,15 +35,22 @@ _Single-file catalog generated from TypeDoc JSON. Edits will be overwritten._
 - `function getSeasonForDate(date: { day: number; month: "Primaris" | "Gelidus" | "Hibernis" | "Vernalis" | "Pluvoris" | "Florara" | "Solinus" | "Aestara" | "Lucidus" | "Fructara" | "Umbraeus" | "Aridus"; year: number }): Season`
 - `function hexSort(hexIdA: string, hexIdB: string): number` — Sorts two hex IDs first by column (alphabetically) and then by row (numerically).
 - `function hoursToSegmentsCeil(hours: number): number`
+- `function isSessionId(value: string): boolean` — Type guard (non-throwing)
 - `function isValidHexId(hexId: string): boolean` — Checks if a given string is a valid hex ID.
 - `type LeapRule = any;`
 - `type MonthDef = any;`
 - `function normalizeHexId(h: string): string` — Normalizes a hex ID by trimming whitespace and converting to uppercase.
+- `function padSessionNum(n: string | number): string`
 - `function parseTrailId(trailId: string): null | { from: string; to: string }` — Parses a trail ID into its constituent hex IDs.
 - `type Season = "winter" | "spring" | "summer" | "autumn";`
 - `type SeasonalBand = any;`
 - `type SeasonalBandsTable = Record&lt;Season, SeasonalBand[]&gt;;`
 - `function segmentsToHours(segments: number): number`
+- `class SessionAlreadyAppliedError`
+- `class SessionFingerprintMismatchError`
+- `class SessionIdError`
+- `class SessionLogsNotFoundError`
+- `class SessionReportValidationError`
 - `function tierFromLevel(level?: number): 1 | 2 | 3 | 4` — Derive character tier from character level
 - `type WeatherCategory = WEATHER_CATEGORIES[number];`
 - `type WeatherCommitted = any;`
@@ -51,9 +62,17 @@ _Single-file catalog generated from TypeDoc JSON. Edits will be overwritten._
 - `function appendJsonl(p: string, record: T, opts: WriteOpts): void`
 - `function atomicWrite(filePath: string, content: string, opts: AtomicWriteOpts): void` — Write a file atomically: write to a temp file, then rename.
 Ensures that the file is either fully written or not present.
+- `class DirtyGitError`
+- `function discoverFinalizedLogs(): FinalizedLogInfo[]` — List all finalized scribe logs in the sessions directory.
+- `function discoverFinalizedLogsFor(sessionNumber: string | number): FinalizedLogInfo[]` — Convenience filter for a specific session number (accepts number or "0001").
+- `function discoverFinalizedLogsForOrThrow(sessionNumber: string | number): FinalizedLogInfo[]` — Convenience guard that throws if nothing matches.
 - `function ensureDir(filename: string): void`
 - `function ensureRepoDirs(): void`
+- `interface FinalizedLogInfo`
+- `class FinalizedLogJsonParseError`
+- `class FinalizedLogsNotFoundError`
 - `function getGitHeadCommit(): null | string` — Returns the current git HEAD commit SHA, or null if not in a git repo.
+- `function getLatestSessionNumber(): undefined | number` — Latest (max) session number, if any.
 - `function getRepoPath(...segments: string[]): string` — Get an absolute path within the repository.
 - `function getRepoRoot(): string` — Returns the repository root directory, respecting the REPO_ROOT env override.
 Falls back to config if not set.
@@ -64,6 +83,10 @@ is provided, validates each parsed object and warns on failure (with absolute
 file path).
 - `function loadConfig(opts?: { cwd?: string; throwIfMissing?: boolean }): null | { repoRoot: string }`
 - `function loadMeta(): { appliedSessions: string[]; nextSessionSeq: number; rolledSeasons: string[] }` — Loads the meta.yaml file and returns its contents as MetaData.
+- `function parseSessionFilename(filename: string): null | FinalizedLogInfo`
+- `function readFinalizedJsonl(sessionNumber: string | number): { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }[]` — Reads and concatenates all finalized JSONL events for a given session.
+Throws FinalizedLogsNotFoundError if no files match,
+and FinalizedLogJsonParseError with file + line info if parsing fails.
 - `function readJsonl(filename: string, opts: ReadOpts&lt;T&gt;): T[]`
 - `const REPO_PATHS: { AP_LEDGER: () =&gt; string; CHARACTERS: () =&gt; string; DEV: () =&gt; string; DEV_IN_PROGRESS: () =&gt; string; DEV_ROLLOVERS: () =&gt; string; DEV_SESSIONS: () =&gt; string; FOOTPRINTS: () =&gt; string; HAVENS: () =&gt; string; IN_PROGRESS: () =&gt; string; LOCKS: () =&gt; string; LOGS_ROOT: () =&gt; string; META: () =&gt; string; REPORTS: () =&gt; string; ROLLOVERS: () =&gt; string; SESSIONS: () =&gt; string; TRAILS: () =&gt; string };`
 - `function resolveDataPath(rel: string): string` — Resolve a path relative to the repo's `data/` directory.

@@ -59,13 +59,17 @@ When `<sessionId>` is **omitted**:
 > Explicit mode (`weave ap apply session-####`) bypasses this scan and uses the provided `sessionId`.
 
 ### 3.3 Scribe ID discovery (for the chosen session)
+
 - Glob and union:
   - `session_####_*.jsonl`
   - `session_####[a-z]_*.jsonl`
 - If **no files found** → **fail** (“no finalized logs for <sessionId>”).
 - Sort basenames:
-  1) Asc by real-world timestamp in the filename (YYYY-MM-DD).
-  2) Tie-break by suffix: (no suffix) < `a` < `b` < …
+  1. **Asc by session number** (`####` parsed from the filename).
+     This ensures logs are processed in canonical session order regardless of file timestamps.
+  2. **Tie-break by suffix:** (no suffix) < `a` < `b` < …
+     This maintains the intended sequence among multi-part files for the same session.
+  3. (Optional tie-break) If needed, sort by real-world timestamp (YYYY-MM-DD) as a final fallback.
 
 Result:
 - `scribeIds[]` = **all** discovered basenames (sorted).
