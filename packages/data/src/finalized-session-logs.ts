@@ -48,9 +48,7 @@ export function discoverFinalizedLogs(): FinalizedLogInfo[] {
 
 /** Convenience filter for a specific session number (accepts number or "0001"). */
 export function discoverFinalizedLogsFor(sessionNumber: number | string): FinalizedLogInfo[] {
-  const target = typeof sessionNumber === 'number'
-    ? padSessionNum(sessionNumber)
-    : sessionNumber;
+  const target = padSessionNum(sessionNumber);
   return discoverFinalizedLogs().filter(
     (log) => padSessionNum(log.sessionNumber) === target,
   );

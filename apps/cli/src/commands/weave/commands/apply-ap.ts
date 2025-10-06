@@ -48,10 +48,9 @@ interface ApplyApResult {
   alreadyApplied: boolean; // true if no-op due to matching fingerprint
 }
 
-// TODO rename this to `calcFingerprint`
-function getFingerprint(sessionId: string, scribeIds: string[]): string {
-  // TODO Should we ensure that scribe IDs are sorted here?
-  const fingerprintObj = { sessionId, scribeIds };
+function calcFingerprint(sessionId: string, scribeIds: string[]): string {
+  const sortedScribeIds = sortScribeIds(scribeIds);
+  const fingerprintObj = { sessionId, scribeIds: sortedScribeIds };
   return crypto
     .createHash('sha256')
     .update(JSON.stringify(fingerprintObj))
@@ -66,8 +65,8 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   if (sessionId) {
     // Validate Session ID Format
     assertSessionId(sessionId);
-    const sessionNum = sessionId.split('-')[1]; // TODO Rename this to sessionNumStr or paddedSessionNum
-    const allFiles = discoverFinalizedLogsFor(sessionNum);
+    const paddedSessionNum = sessionId.split('-')[1];
+    const allFiles = discoverFinalizedLogsFor(paddedSessionNum);
     if (allFiles.length === 0) {
       throw new Error(`No finalized logs for ${sessionId}.`);
     }
@@ -80,9 +79,9 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
 
     const reportPath = path.join(
       REPO_PATHS.REPORTS(),
-      `session-${padSessionNum(sessionNum)}.yaml`,
+      `session-${padSessionNum(paddedSessionNum)}.yaml`,
     );
-    const fingerprint = getFingerprint(sessionId, scribeIds);
+    const fingerprint = calcFingerprint(sessionId, scribeIds);
     if (fs.existsSync(reportPath)) {
       const reportContent = fs.readFileSync(reportPath, 'utf8');
       let reportYaml;
@@ -145,10 +144,10 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     sessionId = pickNextSessionId(completedSessions, pendingSessions);
   }
 
-  const sessionNum = sessionId.split('-')[1]; // TODO Rename this to sessionNumStr or paddedSessionNum
+  const paddedSessionNum = sessionId.split('-')[1];
 
   // --- Discover Scribe IDs (Finalized Logs) ---
-  const allFiles = discoverFinalizedLogsFor(sessionNum);
+  const allFiles = discoverFinalizedLogsFor(paddedSessionNum);
   if (allFiles.length === 0) {
     throw new Error(`No finalized logs for ${sessionId}.`);
   }
@@ -216,16 +215,16 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   const { reportAdvancementPoints, ledgerResults } = computeApForSession(
     eventsOf(events, 'advancement_point'),
     characterLevels,
-    sessionNum,
+    paddedSessionNum,
   );
 
   // --- Write Outputs & Return Shape ---
-  const fingerprint = getFingerprint(sessionId, scribeIds);
+  const fingerprint = calcFingerprint(sessionId, scribeIds);
 
   // Write completed session report
   const reportPath = path.join(
     REPO_PATHS.REPORTS(),
-    `session-${padSessionNum(sessionNum)}.yaml`,
+    `session-${padSessionNum(paddedSessionNum)}.yaml`,
   );
   const now = new Date().toISOString();
   const reportOut = {

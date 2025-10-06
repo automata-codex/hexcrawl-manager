@@ -1,4 +1,4 @@
-import { tierFromLevel } from '@skyreach/core';
+import { padSessionNum, tierFromLevel } from '@skyreach/core';
 
 import type { LedgerResultsByCharacter } from '../../../services/ap-ledger.service';
 import type { ScribeEvent } from '@skyreach/schemas';
@@ -21,7 +21,7 @@ export function computeApForSession(
   ledgerResults: LedgerResultsByCharacter;
 } {
   const attendees = Object.keys(characterLevels);
-  const sessionNumber = typeof sessionNum === 'number' ? sessionNum : parseInt(sessionNum, 10);
+  const sessionNumber = parseInt(padSessionNum(sessionNum), 10);
 
   // Pillar-wise aggregates across *all* events (for the session report)
   const hadAnyByPillar: Record<Pillar, boolean> = {
