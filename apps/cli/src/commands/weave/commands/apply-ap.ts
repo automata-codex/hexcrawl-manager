@@ -1,5 +1,4 @@
 import {
-  SessionAlreadyAppliedError,
   SessionFingerprintMismatchError,
   SessionReportValidationError,
   assertSessionId,
@@ -51,6 +50,7 @@ interface ApplyApResult {
 
 // TODO rename this to `calcFingerprint`
 function getFingerprint(sessionId: string, scribeIds: string[]): string {
+  // TODO Should we ensure that scribe IDs are sorted here?
   const fingerprintObj = { sessionId, scribeIds };
   return crypto
     .createHash('sha256')
@@ -80,8 +80,9 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
 
     const reportPath = path.join(
       REPO_PATHS.REPORTS(),
-      `session-${sessionNum}.yaml`,
+      `session-${padSessionNum(sessionNum)}.yaml`,
     );
+    const fingerprint = getFingerprint(sessionId, scribeIds);
     if (fs.existsSync(reportPath)) {
       const reportContent = fs.readFileSync(reportPath, 'utf8');
       let reportYaml;
@@ -102,13 +103,20 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
       }
 
       // Check for Existing Completed Report (idempotency Check)
-      const fingerprint = getFingerprint(sessionId, scribeIds);
-      const reportFingerprint =
-        reportYaml.status === 'completed' ? reportYaml.fingerprint : undefined;
-      if (reportFingerprint === fingerprint) {
-        throw new SessionAlreadyAppliedError(sessionId);
+      const existingStatus = reportYaml.status;
+      const existingFingerprint =
+        existingStatus === 'completed' ? reportYaml.fingerprint : undefined;
+
+      if (existingFingerprint === fingerprint) {
+        return {
+          sessionId,
+          reportPath,
+          entriesAppended: 0,
+          alreadyApplied: true,
+        } satisfies ApplyApResult;
       }
-      if (reportYaml.status !== 'planned') {
+
+      if (existingStatus && existingStatus !== 'planned') {
         throw new SessionFingerprintMismatchError(sessionId);
       }
     }
@@ -211,9 +219,14 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     sessionNum,
   );
 
-  // --- Write Outputs ---
-  // Write completed session report
+  // --- Write Outputs & Return Shape ---
   const fingerprint = getFingerprint(sessionId, scribeIds);
+
+  // Write completed session report
+  const reportPath = path.join(
+    REPO_PATHS.REPORTS(),
+    `session-${padSessionNum(sessionNum)}.yaml`,
+  );
   const now = new Date().toISOString();
   const reportOut = {
     id: sessionId,
@@ -235,10 +248,6 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     createdAt: createdAt.length === 0 ? now : createdAt,
     updatedAt: now,
   };
-  const reportPath = path.join(
-    REPO_PATHS.REPORTS(),
-    `session-${padSessionNum(sessionNum)}.yaml`,
-  );
   writeYamlAtomic(reportPath, reportOut);
 
   // Append per-character session_ap entries to the ledger
@@ -247,6 +256,13 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     sessionId,
     fingerprint,
   });
-
   appendApEntries(REPO_PATHS.AP_LEDGER(), entries);
+
+  // Return the programmatic result
+  return {
+    sessionId,
+    reportPath,
+    entriesAppended: entries.length,
+    alreadyApplied: false,
+  } satisfies ApplyApResult;
 }
