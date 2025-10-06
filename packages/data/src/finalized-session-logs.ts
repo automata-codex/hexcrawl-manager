@@ -1,3 +1,4 @@
+import { padSessionNum } from '@skyreach/core';
 import fs from 'fs';
 import path from 'path';
 
@@ -29,10 +30,10 @@ export function discoverFinalizedLogs(): FinalizedLogInfo[] {
 /** Convenience filter for a specific session number (accepts number or "0001"). */
 export function discoverFinalizedLogsFor(sessionNumber: number | string): FinalizedLogInfo[] {
   const target = typeof sessionNumber === 'number'
-    ? String(sessionNumber).padStart(4, '0')
+    ? padSessionNum(sessionNumber)
     : sessionNumber;
   return discoverFinalizedLogs().filter(
-    (log) => String(log.sessionNumber).padStart(4, '0') === target,
+    (log) => padSessionNum(log.sessionNumber) === target,
   );
 }
 

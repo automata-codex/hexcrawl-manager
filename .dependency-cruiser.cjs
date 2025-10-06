@@ -1,20 +1,19 @@
-// .dependency-cruiser.cjs
 module.exports = {
   forbidden: [
-    // A) From CLI or Web into package internals: MUST go via barrels
+    // --- A. From CLI or Web into package internals: MUST go via barrels ---
     {
       name: 'no-deep-into-packages-from-cli-or-web',
       severity: 'error',
-      from: { path: '^(cli|src)/' },
+      from: { path: '^apps/(cli|web)/src/' },
       to: { path: '^packages/[^/]+/src/(?!index\\.(ts|js)$).+' },
     },
 
-    // B) Cross-package deep imports (OK within the same package)
+    // --- B. Cross-package deep imports (OK within the same package) ---
     // core -> other packages' internals
     {
       name: 'no-core-to-others-internals',
       severity: 'error',
-      from: { path: '^packages/core/' },
+      from: { path: '^packages/core/src/' },
       to: {
         path: '^packages/(cli-kit|data|schemas)/src/(?!index\\.(ts|js)$).+',
       },
@@ -23,7 +22,7 @@ module.exports = {
     {
       name: 'no-data-to-others-internals',
       severity: 'error',
-      from: { path: '^packages/data/' },
+      from: { path: '^packages/data/src/' },
       to: {
         path: '^packages/(cli-kit|core|schemas)/src/(?!index\\.(ts|js)$).+',
       },
@@ -32,26 +31,26 @@ module.exports = {
     {
       name: 'no-cli-kit-to-others-internals',
       severity: 'error',
-      from: { path: '^packages/cli-kit/' },
+      from: { path: '^packages/cli-kit/src/' },
       to: { path: '^packages/(core|data|schemas)/src/(?!index\\.(ts|js)$).+' },
     },
     // schemas -> other packages' internals
     {
       name: 'no-schemas-to-others-internals',
       severity: 'error',
-      from: { path: '^packages/schemas/' },
+      from: { path: '^packages/schemas/src/' },
       to: { path: '^packages/(cli-kit|core|data)/src/(?!index\\.(ts|js)$).+' },
     },
 
-    // C) Optional: prevent cross-command imports inside the CLI
+    // --- C. Optional: prevent cross-command imports inside the CLI ---
     {
       name: 'no-cross-command-imports',
       severity: 'error',
-      from: { path: '^cli/commands/([^/]+)/' },
-      to: { path: '^cli/commands/(?!\\1)/' },
+      from: { path: '^apps/cli/src/commands/([^/]+)/' },
+      to: { path: '^apps/cli/src/commands/(?!\\1)/' },
     },
 
-    // D) Limits on `cli-kit`
+    // --- D. Limits on `cli-kit` ---
     {
       name: 'no-cli-kit-to-core-or-data',
       from: { path: '^packages/cli-kit/src' },
@@ -67,7 +66,7 @@ module.exports = {
     },
   ],
   options: {
-    tsConfig: { fileName: 'tsconfig.json' },
-    doNotFollow: { path: ['node_modules'] },
+    tsConfig: { fileName: 'tsconfig.workspace.json' },
+    doNotFollow: { path: ['node_modules', 'dist'] },
   },
 };

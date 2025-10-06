@@ -4,7 +4,7 @@
   "description": "Campaign manager and data for _Beyond the Skyreach Mountains_",
   "private": true,
   "scripts": {
-    "arch:check": "depcruise \"apps/cli/**/*.ts\" \"packages/**/*.ts\" \"src/**/*.ts\" --config .dependency-cruiser.cjs",
+    "arch:check": "depcruise \"apps/**/*.ts\" \"packages/**/*.ts\" --config .dependency-cruiser.cjs",
     "astro": "npm run -w @skyreach/web astro",
     "build": "npm run build:packages && npm run build:json-schemas",
     "build:clue-links": "bash scripts/clue-linker/setup_virtualenv.sh && scripts/clue-linker/.venv-clue-linker/bin/python scripts/clue-linker/generate-clue-links.py",
