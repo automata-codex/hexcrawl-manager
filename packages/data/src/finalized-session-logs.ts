@@ -4,9 +4,24 @@ import path from 'path';
 
 import { REPO_PATHS } from './repo-paths';
 
-// session_0001[a]_YYYY-MM-DD[optional suffix].jsonl
-const SESSION_FILE_RE =
-  /^session_(\d{4})([a-z])?_(\d{4}-\d{2}-\d{2})(?:_(.+))?\.jsonl$/;
+export class FinalizedLogsNotFoundError extends Error {
+  constructor(public readonly sessionNumber: string | number) {
+    super(`No finalized scribe logs found for session ${padSessionNum(sessionNumber)}.`);
+    this.name = 'FinalizedLogsNotFoundError';
+  }
+}
+
+export class FinalizedLogJsonParseError extends Error {
+  constructor(
+    public readonly filePath: string,
+    public readonly line: number,
+    public readonly cause?: unknown
+  ) {
+    super(`Malformed JSON in ${filePath} at line ${line}.`);
+    this.name = 'FinalizedLogJsonParseError';
+    (this as any).cause = cause;
+  }
+}
 
 export interface FinalizedLogInfo {
   filename: string;      // basename
@@ -16,6 +31,10 @@ export interface FinalizedLogInfo {
   date: string;          // 'YYYY-MM-DD'
   variant?: string;      // trailing piece after the date, if any
 }
+
+// session_0001[a]_YYYY-MM-DD[optional suffix].jsonl
+const SESSION_FILE_RE =
+  /^session_(\d{4})([a-z])?_(\d{4}-\d{2}-\d{2})(?:_(.+))?\.jsonl$/;
 
 /** List all finalized scribe logs in the sessions directory. */
 export function discoverFinalizedLogs(): FinalizedLogInfo[] {

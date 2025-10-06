@@ -32,7 +32,7 @@
     "format:fix": "prettier --write .",
     "gen-json-schema": "npm run build:json-schemas",
     "lint": "eslint . --ext .js,.ts,.jsx,.tsx,.astro,.svelte",
-    "lint:deprecated": "npm run -ws lint",
+    "lint:deprecated": "npm run --workspaces lint",
     "lint:fix": "eslint . --ext .js,.ts,.jsx,.tsx,.astro,.svelte --fix",
     "pretest": "npm run build:packages",
     "pretest:scribe": "npm run build:packages",
@@ -40,7 +40,7 @@
     "preview": "npm run -w @skyreach/web preview",
     "rebuild": "npm run clean && npm run build",
     "release:version": "changeset version",
-    "test": "npm run -ws test",
+    "test": "npm run --workspaces test",
     "typecheck": "tsc -b tsconfig.workspace.json"
   },
   "type": "module",

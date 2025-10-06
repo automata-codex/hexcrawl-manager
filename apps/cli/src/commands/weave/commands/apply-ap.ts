@@ -4,7 +4,11 @@ import {
   SessionFingerprintMismatchError,
   SessionReportValidationError,
 } from '@skyreach/core';
-import { discoverFinalizedLogs, REPO_PATHS } from '@skyreach/data';
+import {
+  REPO_PATHS,
+  discoverFinalizedLogs,
+  discoverFinalizedLogsFor,
+} from '@skyreach/data';
 import { SessionReportSchema } from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -13,7 +17,6 @@ import yaml from 'yaml';
 import { ZodError } from 'zod';
 
 import {
-  discoverFinalizedScribeLogs,
   pickNextSessionId,
   sortScribeIds,
 } from '../../../services/sessions.service';
@@ -49,13 +52,13 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     // Validate Session ID Format
     assertSessionId(sessionId);
     const sessionNum = sessionId.split('-')[1]; // TODO Rename this to sessionNumStr or paddedSessionNum
-    const allFiles = discoverFinalizedScribeLogs(sessionNum);
+    const allFiles = discoverFinalizedLogsFor(sessionNum);
     if (allFiles.length === 0) {
       throw new Error(`No finalized logs for ${sessionId}.`);
     }
 
     // Sort Scribe IDs
-    const unsortedScribeIds = allFiles.map((f) => path.basename(f, '.jsonl'));
+    const unsortedScribeIds = allFiles.map((file) => path.basename(file.filename, '.jsonl'));
     const scribeIds = sortScribeIds(unsortedScribeIds);
 
     const reportPath = path.join(
@@ -116,5 +119,32 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     }
     sessionId = pickNextSessionId(completedSessions, pendingSessions);
   }
+
+  const sessionNum = sessionId.split('-')[1]; // TODO Rename this to sessionNumStr or paddedSessionNum
+
+  // --- Discover Scribe IDs (Finalized Logs) ---
+  const allFiles = discoverFinalizedLogsFor(sessionNum);
+  if (allFiles.length === 0) {
+    throw new Error(`No finalized logs for ${sessionId}.`);
+  }
+
+  // Scribe IDs sorted
+  const unsortedScribeIds = allFiles.map((file) => path.basename(file.filename, '.jsonl'));
+  const scribeIds = sortScribeIds(unsortedScribeIds);
+
+  // --- Parse All Parts ---
+  let events = [];
+  for (const file of allFiles) {
+    const lines = fs.readFileSync(file.fullPath, 'utf8').split('\n').filter(Boolean);
+    for (const line of lines) {
+      try {
+        const event = JSON.parse(line);
+        events.push(event);
+      } catch (err) {
+        throw new Error(`Failed to parse JSONL in ${file}: ${err}`);
+      }
+    }
+  }
+
   // TODO >> Coming soon!
 }
