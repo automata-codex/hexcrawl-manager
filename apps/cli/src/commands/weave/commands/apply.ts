@@ -1,7 +1,18 @@
-import { error } from '@skyreach/cli-kit';
-import { SessionIdError } from '@skyreach/core';
+import { error, makeExitMapper } from '@skyreach/cli-kit';
+import { SessionIdError, SessionLogsNotFoundError } from '@skyreach/core';
+
+import { CliError } from '../lib/errors';
 
 import { applyAp } from './apply-ap';
+
+export const exitCodeForApply = makeExitMapper(
+  [
+    [CliError, 1],                 // generic
+    [SessionIdError, 2],           // invalid session id or missing context
+    [SessionLogsNotFoundError, 4], // domain-specific failure
+  ],
+  1 // fallback default
+);
 
 // TODO Wire this into the Commander bit that calls handlers
 export async function apply(opts: {}) {
@@ -11,13 +22,8 @@ export async function apply(opts: {}) {
     const result = await applyAp(opts);
     // TODO print success
   } catch (e) {
-    if (e instanceof SessionIdError) {
-      error(e.message);
-      process.exit(2); // your “usage/validation” exit code
-    }
-    // fall back to your generic error handling
     const message = e instanceof Error ? e.message : String(e);
     error(message);
-    process.exit(1);
+    process.exit(exitCodeForApply(e));
   }
 }
