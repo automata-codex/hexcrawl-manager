@@ -1,5 +1,6 @@
 import { error, makeExitMapper } from '@skyreach/cli-kit';
 import { SessionIdError, SessionLogsNotFoundError } from '@skyreach/core';
+import { DirtyGitError } from '@skyreach/data';
 
 import { CliError } from '../lib/errors';
 
@@ -10,6 +11,7 @@ export const exitCodeForApply = makeExitMapper(
     [CliError, 1],                 // generic
     [SessionIdError, 2],           // invalid session id or missing context
     [SessionLogsNotFoundError, 4], // domain-specific failure
+    [DirtyGitError, 5],            // external failure
   ],
   1 // fallback default
 );
