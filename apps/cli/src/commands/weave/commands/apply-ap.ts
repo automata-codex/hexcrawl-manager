@@ -1,4 +1,10 @@
 import { assertSessionId } from '@skyreach/core';
+import path from 'path';
+
+import {
+  discoverFinalizedScribeLogs,
+  sortScribeIds,
+} from '../../../services/sessions.service';
 
 interface ApplyApOptions {
   allowDirty?: boolean;
@@ -18,7 +24,16 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   // --- Get a Valid Session ID ---
   if (opts.sessionId) {
     // Validate Session ID Format
-    assertSessionId(opts.sessionId)
+    assertSessionId(opts.sessionId);
+    const sessionNum = opts.sessionId.split('-')[1]; // TODO Rename this is sessionNumStr
+    const allFiles = discoverFinalizedScribeLogs(sessionNum);
+    if (allFiles.length === 0) {
+      throw new Error(`No finalized logs for ${opts.sessionId}.`);
+    }
+
+    // Sort Scribe IDs
+    const unsortedScribeIds = allFiles.map((f) => path.basename(f, '.jsonl'));
+    const scribeIds = sortScribeIds(unsortedScribeIds);
   } else {
     // TODO Coming soon!
   }

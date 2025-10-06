@@ -1,11 +1,6 @@
-const SESSION_ID_RE = /^session-\d{4}$/;
+import { SessionIdError } from '../errors';
 
-export class SessionIdError extends Error {
-  constructor(readonly value: string) {
-    super(`Invalid sessionId: ${value}. Expected format is 'session-####'.`);
-    this.name = 'SessionIdError';
-  }
-}
+const SESSION_ID_RE = /^session-\d{4}$/;
 
 /** Asserting validator (throws on bad input) */
 export function assertSessionId(value: string): void {
