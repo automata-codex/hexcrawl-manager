@@ -1,13 +1,10 @@
-export { atomicWrite } from './atomic-write';
+export * from './atomic-write';
 export * from './finalized-session-logs';
 export * from './fs-utils';
-export { getRepoPath } from './get-repo-path';
-export { getRepoRoot } from './get-repo-root';
 export * from './git';
 export * from './jsonl';
 export { loadConfig } from './load-config';
 export * from './meta';
-export { resolveDataPath } from './paths';
+export * from './paths';
 export { REPO_PATHS, ensureRepoDirs } from './repo-paths';
 export { rollDice } from './roll-dice';
-export { writeYamlAtomic } from './write-yaml-atomic';

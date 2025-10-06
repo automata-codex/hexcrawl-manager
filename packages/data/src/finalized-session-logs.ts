@@ -3,28 +3,11 @@ import { ScribeEvent } from '@skyreach/schemas';
 import fs from 'fs';
 import path from 'path';
 
+import {
+  FinalizedLogJsonParseError,
+  FinalizedLogsNotFoundError,
+} from './errors';
 import { REPO_PATHS } from './repo-paths';
-
-export class FinalizedLogsNotFoundError extends Error {
-  constructor(public readonly sessionNumber: string | number) {
-    super(
-      `No finalized scribe logs found for session ${padSessionNum(sessionNumber)}.`,
-    );
-    this.name = 'FinalizedLogsNotFoundError';
-  }
-}
-
-export class FinalizedLogJsonParseError extends Error {
-  constructor(
-    public readonly filePath: string,
-    public readonly line: number,
-    public readonly cause?: unknown,
-  ) {
-    super(`Malformed JSON in ${filePath} at line ${line}.`);
-    this.name = 'FinalizedLogJsonParseError';
-    (this as any).cause = cause;
-  }
-}
 
 export interface FinalizedLogInfo {
   filename: string; // basename

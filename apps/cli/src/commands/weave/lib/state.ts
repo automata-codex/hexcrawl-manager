@@ -12,6 +12,7 @@ export function appendToMetaAppliedSessions(meta: any, fileId: string) {
   }
 }
 
+/** @deprecated Use version from `@skyreach/data` instead. */
 export function loadHavens(): string[] {
   try {
     return yaml.parse(fs.readFileSync(REPO_PATHS.HAVENS(), 'utf8')) as string[];
@@ -20,6 +21,7 @@ export function loadHavens(): string[] {
   }
 }
 
+/** @deprecated Use version from `@skyreach/data` instead. */
 export function loadTrails(): Record<string, any> {
   try {
     return yaml.parse(fs.readFileSync(REPO_PATHS.TRAILS(), 'utf8')) as Record<

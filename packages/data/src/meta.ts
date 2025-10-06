@@ -1,8 +1,8 @@
 import fs from 'fs';
 import yaml from 'yaml';
 
+import { writeYamlAtomic } from './atomic-write';
 import { REPO_PATHS } from './repo-paths';
-import { writeYamlAtomic } from './write-yaml-atomic';
 
 import type { MetaData } from '@skyreach/schemas';
 

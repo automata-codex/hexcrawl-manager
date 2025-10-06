@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { getRepoPath } from './get-repo-path';
-import { resolveDataPath } from './paths';
+import { getRepoPath, resolveDataPath } from './paths';
 
 export const REPO_PATHS = {
   AP_LEDGER: () => resolveDataPath('ap-ledger.jsonl'),
