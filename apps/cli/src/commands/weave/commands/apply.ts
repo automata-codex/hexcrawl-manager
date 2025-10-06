@@ -1,5 +1,11 @@
 import { error, makeExitMapper } from '@skyreach/cli-kit';
-import { SessionIdError, SessionLogsNotFoundError } from '@skyreach/core';
+import {
+  SessionAlreadyAppliedError,
+  SessionFingerprintMismatchError,
+  SessionIdError,
+  SessionLogsNotFoundError,
+  SessionReportValidationError,
+} from '@skyreach/core';
 import { DirtyGitError } from '@skyreach/data';
 
 import { CliError } from '../lib/errors';
@@ -9,9 +15,12 @@ import { applyAp } from './apply-ap';
 export const exitCodeForApply = makeExitMapper(
   [
     [CliError, 1],                 // generic
+    [DirtyGitError, 5],            // external failure
+    [SessionAlreadyAppliedError, 0], // benign no-op
+    [SessionFingerprintMismatchError, 4], // conflicting state
     [SessionIdError, 2],           // invalid session id or missing context
     [SessionLogsNotFoundError, 4], // domain-specific failure
-    [DirtyGitError, 5],            // external failure
+    [SessionReportValidationError, 2], // usage: schema invalid
   ],
   1 // fallback default
 );
