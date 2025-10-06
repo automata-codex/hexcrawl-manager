@@ -1,4 +1,5 @@
 export { atomicWrite } from './atomic-write';
+export * from './finalized-session-logs';
 export * from './fs-utils';
 export { getRepoPath } from './get-repo-path';
 export { getRepoRoot } from './get-repo-root';

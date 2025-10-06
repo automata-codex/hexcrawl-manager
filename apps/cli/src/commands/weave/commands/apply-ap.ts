@@ -4,7 +4,7 @@ import {
   SessionFingerprintMismatchError,
   SessionReportValidationError,
 } from '@skyreach/core';
-import { REPO_PATHS } from '@skyreach/data';
+import { discoverFinalizedLogs, REPO_PATHS } from '@skyreach/data';
 import { SessionReportSchema } from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -91,6 +91,9 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
       }
     }
   } else {
-    // TODO Coming soon!
+    // Discover finalized session logs
+    const sessionNumbers = discoverFinalizedLogs().map(
+      (log) => log.sessionNumber,
+    );
   }
 }
