@@ -1,2 +1,3 @@
 export { assertCleanGitOrAllowDirty } from './assert-git-clean-or-allow-dirty';
-export * from './deprecated-functions';
+export { getMostRecentRolloverFootprint, getNextUnrolledSeason } from './deprecated-functions';
+export { resolveInputFile } from './resolve-input-file';

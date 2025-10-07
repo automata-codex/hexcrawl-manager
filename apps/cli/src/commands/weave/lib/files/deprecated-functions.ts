@@ -51,6 +51,7 @@ export function getNextUnrolledSeason(meta: any): string | null {
   return `${nextYear}-${order[idx]}`;
 }
 
+/** @deprecated */
 export function listCandidateFiles(meta: any): string[] {
   const sessionFiles = listFilesIfDir(REPO_PATHS.SESSIONS()).filter((f) =>
     f.endsWith('.jsonl'),
@@ -66,6 +67,7 @@ export function listCandidateFiles(meta: any): string[] {
   return allCandidates;
 }
 
+/** @deprecated */
 function listFilesIfDir(dir: string): string[] {
   try {
     return fs.readdirSync(dir).map((f) => path.join(dir, f));
@@ -85,6 +87,7 @@ export function requireCleanGitOrAllowDirty(opts?: { allowDirty?: boolean }) {
   }
 }
 
+/** @deprecated */
 export async function resolveInputFile(
   fileArg: string | undefined,
   meta: any,

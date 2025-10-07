@@ -1,7 +1,6 @@
-import { loadMeta } from '@skyreach/data';
+import { loadHavens, loadMeta, loadTrails } from '@skyreach/data';
 
-import { assertCleanGitOrAllowDirty } from '../lib/files';
-import { loadHavens, loadTrails } from '../lib/state';
+import { assertCleanGitOrAllowDirty, resolveInputFile } from '../lib/files';
 
 export interface ApplyTrailsDebug {
   /** Before/after snapshots for touched edges (subset, not whole file). */
@@ -50,12 +49,6 @@ export interface ApplyTrailsResult {
   seasonId?: string;         // normalized (first season for sessions)
   fileId?: string;           // basename of the applied file
 
-  /** Where trails live (or would be written) on disk. */
-  trailsPath: string;
-
-  /** Meta info: whether we skipped disk writes. */
-  dryRun: boolean;
-
   /** High-level outcome & coarse stats for CLI printing. */
   status: ApplyTrailsStatus;
   summary?: ApplyTrailsSummary;
@@ -98,5 +91,19 @@ export async function applyTrails(
   const trails = loadTrails();
   const meta = loadMeta();
   const havens = loadHavens();
+
+  let file;
+  const resolved = await resolveInputFile(opts.file, meta);
+  switch (resolved.status) {
+    case 'ok':
+      file = resolved.file!;
+      break;
+    case 'none-found':
+      return { status: 'no-op', message: 'No unapplied session or rollover files found.' };
+    case 'cancelled':
+      return { status: 'no-op', message: 'File selection cancelled by user.' };
+    case 'no-prompt-no-arg':
+      return { status: 'validation-error', message: 'No file specified and --no-prompt is set.' };
+  }
 
 }
