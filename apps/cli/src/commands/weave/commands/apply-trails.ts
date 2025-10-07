@@ -20,10 +20,15 @@ import {
   isRolloverAlreadyApplied,
   isRolloverChronologyValid,
   isRolloverFile,
+  isSessionAlreadyApplied,
+  isSessionChronologyValid,
   isSessionFile,
 } from '../lib/guards';
-import { normalizeSeasonId } from '../lib/season';
+import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { appendToMetaAppliedSessions, writeFootprint } from '../lib/state';
+import { validateSessionEnvelope } from '../lib/validate';
+
+import type { CampaignDate } from '@skyreach/schemas';
 
 export interface ApplyTrailsDebug {
   /** Before/after snapshots for touched edges (subset, not whole file). */
@@ -212,6 +217,51 @@ export async function applyTrails(
       throw new IoApplyError('I/O error during apply: ' + e);
     }
   } else if (isSessionFile(file)) {
+    // --- Validate session file ---
+    const events = readEvents(file);
+    const validation = validateSessionEnvelope(events);
+    if (!validation.isValid) {
+      throw new CliValidationError(
+        `Session envelope validation failed: ${validation.error}`,
+      );
+    }
+    if (events.length === 0) {
+      throw new CliValidationError('Session file is empty or unreadable.');
+    }
+    const dayStarts = events.filter((e) => e.kind === 'day_start');
+    if (dayStarts.length === 0) {
+      throw new CliValidationError('No day_start event in session.');
+    }
+
+    const seasonIds = dayStarts.map((e) => {
+      const calDate = e.payload?.calendarDate as CampaignDate;
+      return deriveSeasonId(calDate);
+    });
+    const firstSeasonId = normalizeSeasonId(seasonIds[0]);
+
+    // Ensure all events are in the same (normalized) season
+    const multiSeason = !seasonIds.every(
+      (sid) => normalizeSeasonId(sid) === firstSeasonId,
+    );
+    if (multiSeason) {
+      throw new CliValidationError(
+        'Multi-season session detected. All events must share the same season.',
+      );
+    }
+
+    // Ensure required rollovers have been applied
+    const chrono = isSessionChronologyValid(meta, firstSeasonId);
+    if (!chrono.valid) {
+      throw new ChronologyValidationError(
+        `Missing required rollover(s) for season ${firstSeasonId}: ${chrono.missing.join(', ')}`,
+      );
+    }
+    const fileId = path.basename(file);
+    if (isSessionAlreadyApplied(meta, fileId)) {
+      throw new AlreadyAppliedError('Session already applied.');
+    }
+
+
   } else {
   }
 }
