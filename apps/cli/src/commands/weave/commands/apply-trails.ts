@@ -1,4 +1,10 @@
-import { loadHavens, loadMeta, loadTrails } from '@skyreach/data';
+import {
+  loadHavens,
+  loadMeta,
+  loadTrails,
+  saveMeta,
+  saveTrails,
+} from '@skyreach/data';
 import path from 'path';
 
 import { readEvents } from '../../../services/event-log.service';
@@ -7,6 +13,7 @@ import {
   AlreadyAppliedError,
   ChronologyValidationError,
   CliValidationError,
+  IoApplyError,
 } from '../lib/errors';
 import { assertCleanGitOrAllowDirty, resolveInputFile } from '../lib/files';
 import {
@@ -16,7 +23,7 @@ import {
   isSessionFile,
 } from '../lib/guards';
 import { normalizeSeasonId } from '../lib/season';
-import { appendToMetaAppliedSessions } from '../lib/state';
+import { appendToMetaAppliedSessions, writeFootprint } from '../lib/state';
 
 export interface ApplyTrailsDebug {
   /** Before/after snapshots for touched edges (subset, not whole file). */
@@ -171,6 +178,39 @@ export async function applyTrails(
     meta.rolledSeasons.push(seasonId);
     appendToMetaAppliedSessions(meta, fileId);
 
+    // --- Update files ---
+    const footprint = {
+      id: `ROLL-${seasonId}`,
+      kind: 'rollover' as const,
+      seasonId,
+      appliedAt: new Date().toISOString(),
+      inputs: { sourceFile: file },
+      effects: { rollover: effects },
+      touched: { before, after },
+    };
+    try {
+      saveTrails(trailsAfter);
+      saveMeta(meta);
+      writeFootprint(footprint);
+
+      // Hand result back to the CLI shell for printing/exit code
+      return {
+        status: 'ok' as const,
+        kind: 'rollover' as const,
+        seasonId,
+        fileId: path.basename(file),
+        summary: {
+          maintained: effects.maintained.length,
+          persisted: effects.persisted.length,
+          deletedTrails: effects.deletedTrails.length,
+          edgesTouched: Object.keys({ ...before, ...after }).length,
+        },
+        debug: { footprintId: footprint.id },
+      };
+    } catch (e) {
+      // Let the caller decide how to map to exit codes
+      throw new IoApplyError('I/O error during apply: ' + e);
+    }
   } else if (isSessionFile(file)) {
   } else {
   }

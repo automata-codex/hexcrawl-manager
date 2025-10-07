@@ -28,3 +28,10 @@ export class CliValidationError extends CliError {
     this.name = 'CliValidationError';
   }
 }
+
+export class IoApplyError extends CliError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'IoApplyError';
+  }
+}
