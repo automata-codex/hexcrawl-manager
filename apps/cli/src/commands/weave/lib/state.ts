@@ -55,7 +55,7 @@ export function writeFootprint(footprint: any) {
         sequence = footprint.id;
       }
     }
-    fileName = `S-${realWorldDate}-${sequence}${suffix}.yaml`;
+    fileName = `S-${sequence}${suffix}_${realWorldDate}.yaml`;
   } else if (footprint.kind === 'rollover') {
     // Use seasonId
     const seasonId = (footprint.seasonId || 'unknown').toString().toLowerCase();

@@ -26,6 +26,7 @@ describe('Command `weave apply trails`', () => {
           REPO_PATHS.META(),
           yaml.stringify({
             rolledSeasons: ['1511-spring', '1511-summer'],
+            nextSessionSeq: 2,
             appliedSessions: [],
           }),
         );
@@ -39,7 +40,7 @@ describe('Command `weave apply trails`', () => {
         const events = [
           {
             seq: 1,
-            ts: '2025-10-01T00:10:00.000Z',
+            ts: '2025-10-01T00:11:00.000Z',
             kind: 'session_start',
             payload: {
               status: 'in-progress',
@@ -49,7 +50,7 @@ describe('Command `weave apply trails`', () => {
           },
           {
             seq: 2,
-            ts: '2025-10-01T00:11:00.000Z',
+            ts: '2025-10-01T00:12:00.000Z',
             kind: 'day_start',
             payload: {
               calendarDate: { year: 1511, month: 'Lucidus', day: 31 },
@@ -59,9 +60,21 @@ describe('Command `weave apply trails`', () => {
           },
           {
             seq: 3,
-            ts: '2025-10-01T00:12:00.000Z',
+            ts: '2025-10-01T00:13:00.000Z',
             kind: 'move',
             payload: { from: 'R14', to: 'Q13', pace: 'normal' },
+          },
+          {
+            seq: 4,
+            ts: '2025-10-01T00:14:00.000Z',
+            kind: 'trail',
+            payload: { from: 'Q13', to: 'R14', marked: true },
+          },
+          {
+            seq: 5,
+            ts: '2025-10-01T00:15:00.000Z',
+            kind: 'session_end',
+            payload: { status: 'final' },
           },
         ];
         fs.writeFileSync(
@@ -86,31 +99,31 @@ describe('Command `weave apply trails`', () => {
         const trails = yaml.parse(fs.readFileSync(REPO_PATHS.TRAILS(), 'utf8'));
 
         // Normalized key should exist (p12-p13, not p13-p12)
-        expect(trails['p12-p13']).toBeDefined();
+        expect(trails['q13-r14']).toBeDefined();
         // These fields are typical—adjust if your schema differs:
-        expect(trails['p12-p13']).toMatchObject({
+        expect(trails['q13-r14']).toMatchObject({
           usedThisSeason: true,
           permanent: expect.any(Boolean),
           streak: expect.any(Number),
-          lastSeasonTouched: '1511-autumn',
+          lastSeasonTouched: '1511-summer',
         });
 
         // --- Assert: meta updated with applied session ---
         const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
-        expect(meta.appliedSessions).toContain('session-0001_2025-10-01.jsonl');
+        expect(meta.appliedSessions).toContain('session_0001_2025-10-01.jsonl');
 
         // --- Assert: footprint written with session kind & season ---
         const footprintsDir = REPO_PATHS.FOOTPRINTS(); // adjust if different
         const files = fs.readdirSync(footprintsDir);
         const sessionFoot = files.find((f) =>
-          f.includes('S-session-0001_2025-10-01'),
+          f.includes('S-0001_2025-10-01'),
         );
         expect(sessionFoot).toBeTruthy();
         const foot = yaml.parse(
           fs.readFileSync(path.join(footprintsDir, sessionFoot!), 'utf8'),
         );
         expect(foot.kind).toBe('session');
-        expect(foot.seasonId).toBe('1511-autumn');
+        expect(foot.seasonId).toBe('1511-summer');
         expect(foot.inputs.sourceFile).toBe(sessionFile);
         // Effects should record created/rediscovered/used flags
         expect(foot.effects.session).toBeDefined();

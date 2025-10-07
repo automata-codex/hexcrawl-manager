@@ -298,7 +298,7 @@ export async function applyTrails(
 
       // Write footprint
       const footprint = {
-        id: `S-${fileId.replace(/\..*$/, '')}`,
+        id: `${fileId.replace(/\..*$/, '')}`,
         kind: 'session',
         seasonId: firstSeasonId,
         appliedAt: new Date().toISOString(),
