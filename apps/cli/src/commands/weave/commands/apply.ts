@@ -110,7 +110,7 @@ export async function apply(args: ApplyArgs) {
 
     if (mode === 'all' || mode === 'trails') {
       // TODO Handle certain errors so we continue with the loop (e.g. `NoChangesError`)
-      const items = resolveTrailsTarget(target ?? '');
+      const items = resolveTrailsTarget(target);
       for (const item of items) {
         const result = await applyTrails({ allowDirty, file: item.file });
         printApplyTrailsResult(result);

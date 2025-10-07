@@ -2,9 +2,9 @@ import { CampaignDate } from '@skyreach/schemas';
 
 import { CALENDAR_CONFIG } from '../config';
 import { SeasonIdError } from '../errors/season-id';
+import { SEASON_ID_RE } from '../regex';
 
-const SEASON_ID_RE = /^(\d{4})-(winter|spring|summer|autumn)$/i;
-const SEASON_ORDER = ['winter', 'spring', 'summer', 'autumn'];
+export const SEASON_ORDER = ['winter', 'spring', 'summer', 'autumn'];
 
 /** Validates and returns a normalized SeasonId (lowercase season). */
 export function assertSeasonId(value: string): string {

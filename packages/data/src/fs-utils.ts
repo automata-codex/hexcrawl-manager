@@ -9,6 +9,14 @@ import {
   DataValidationError,
 } from './errors';
 
+
+export function checkFileExists(file: string, msg?: string) {
+  if (!fs.existsSync(file)) {
+    throw new Error(msg ?? `File not found: ${file}`);
+  }
+  return file;
+}
+
 export function ensureDir(filename: string) {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
 }
