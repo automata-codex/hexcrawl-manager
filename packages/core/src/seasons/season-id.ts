@@ -1,7 +1,7 @@
-import { CampaignDate } from '@skyreach/schemas';
+import { CampaignDate, ScribeEvent } from '@skyreach/schemas';
 
 import { CALENDAR_CONFIG } from '../config';
-import { SeasonIdError } from '../errors/season-id';
+import { DayStartMissingError, SeasonIdError } from '../errors';
 import { SEASON_ID_RE } from '../regex';
 
 export const SEASON_ORDER = ['winter', 'spring', 'summer', 'autumn'];
@@ -49,6 +49,11 @@ export function deriveSeasonId(date: CampaignDate): string {
   return `${date.year}-${season}`.toLowerCase();
 }
 
+/** Runtime type guard for SeasonId (case-insensitive, allows normalization). */
+export function isSeasonId(value: string): boolean {
+  return SEASON_ID_RE.test(value);
+}
+
 /**
  * Normalize a season ID to lower-case, trimmed.
  */
@@ -56,7 +61,11 @@ export function normalizeSeasonId(id: string): string {
   return id.trim().toLowerCase();
 }
 
-/** Runtime type guard for SeasonId (case-insensitive, allows normalization). */
-export function isSeasonId(value: string): boolean {
-  return SEASON_ID_RE.test(value);
+export function seasonIdFromEvents(events: ScribeEvent[], fileHint?: string): string {
+  const dayStart = events.find((e) => e.kind === 'day_start');
+  if (!dayStart) {
+    throw new DayStartMissingError(fileHint);
+  }
+  const calDate = dayStart.payload?.calendarDate as CampaignDate;
+  return normalizeSeasonId(deriveSeasonId(calDate));
 }

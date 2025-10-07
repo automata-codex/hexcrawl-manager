@@ -2,18 +2,20 @@ import {
   SESSION_ID_RE,
   SessionIdError,
   assertSeasonId,
-  deriveSeasonId,
   isSeasonId,
   isSessionId,
-  normalizeSeasonId,
 } from '@skyreach/core';
-import { REPO_PATHS, SESSION_FILE_RE, checkFileExists } from '@skyreach/data';
+import {
+  REPO_PATHS,
+  SESSION_FILE_RE,
+  checkFileExists,
+  seasonOfSessionFile,
+  getRolloverFilename,
+} from '@skyreach/data';
 import fs from 'fs';
 import path from 'path';
 
-import { readEvents } from '../../../services/event-log.service';
-
-import type { CampaignDate } from '@skyreach/schemas';
+import { resolveTrailsSweep } from './resolve-trails-sweep';
 
 export type TrailsWorkItem =
   | { kind: 'rollover'; file: string; seasonId: string }
@@ -25,8 +27,6 @@ export type TrailsWorkItem =
       date: string;
       part?: string;
     };
-
-const ROLLOVER_FILE = (seasonId: string) => `rollover_${seasonId}.jsonl`;
 
 /** List all session files for a given numeric session (e.g. "0001"), sorted by date then part (a,b,c...). */
 function listSessionFilesByNumber(
@@ -93,22 +93,11 @@ function resolveSessionTarget(sessionId: string): TrailsWorkItem[] {
 }
 
 function rolloverFileFor(seasonId: string): string {
-  const file = path.join(REPO_PATHS.SESSIONS(), ROLLOVER_FILE(seasonId));
+  const file = path.join(REPO_PATHS.SESSIONS(), getRolloverFilename(seasonId));
   return checkFileExists(
     file,
     `Rollover file not found for ${seasonId}: ${path.basename(file)}`,
   );
-}
-
-function seasonOfSessionFile(sessionFile: string): string {
-  const events = readEvents(sessionFile);
-  const dayStart = events.find((e) => e.kind === 'day_start');
-  if (!dayStart)
-    throw new Error(
-      `No day_start in ${path.basename(sessionFile)}; cannot derive season.`,
-    );
-  const calDate = dayStart.payload?.calendarDate as CampaignDate;
-  return normalizeSeasonId(deriveSeasonId(calDate));
 }
 
 /**
@@ -123,9 +112,7 @@ export function resolveTrailsTarget(
   target: string | undefined,
 ): TrailsWorkItem[] {
   if (!target) {
-    throw new Error(
-      'resolveTrailsTarget: target is required (use sweep discovery for no-arg case).',
-    );
+    return resolveTrailsSweep();
   }
 
   // session id → interleaved sessions with rollovers inserted at season boundaries

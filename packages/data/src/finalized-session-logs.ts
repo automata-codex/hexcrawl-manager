@@ -7,6 +7,7 @@ import {
   FinalizedLogJsonParseError,
   FinalizedLogsNotFoundError,
 } from './errors';
+import { SESSION_FILE_RE } from './regex';
 import { REPO_PATHS } from './repo-paths';
 
 export interface FinalizedLogInfo {
@@ -17,10 +18,6 @@ export interface FinalizedLogInfo {
   date: string; // 'YYYY-MM-DD'
   variant?: string; // trailing piece after the date, if any
 }
-
-// session_0001[a]_YYYY-MM-DD[optional suffix].jsonl
-const SESSION_FILE_RE =
-  /^session_(\d{4})([a-z])?_(\d{4}-\d{2}-\d{2})(?:_(.+))?\.jsonl$/;
 
 /** List all finalized scribe logs in the sessions directory. */
 export function discoverFinalizedLogs(): FinalizedLogInfo[] {
@@ -86,7 +83,7 @@ export function parseSessionFilename(
  * Throws FinalizedLogsNotFoundError if no files match,
  * and FinalizedLogJsonParseError with file + line info if parsing fails.
  */
-export function readFinalizedJsonl(sessionNumber: number | string): ScribeEvent[] {
+export function readAllFinalizedLogsForSession(sessionNumber: number | string): ScribeEvent[] {
   const hits = discoverFinalizedLogsForOrThrow(sessionNumber);
   const allEvents: ScribeEvent[] = [];
 
@@ -108,4 +105,24 @@ export function readFinalizedJsonl(sessionNumber: number | string): ScribeEvent[
   }
 
   return allEvents;
+}
+
+export function readOneFinalizedLog(filePath: string): ScribeEvent[] {
+  const events: ScribeEvent[] = [];
+
+  const text = fs.readFileSync(filePath, 'utf8');
+  const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const lineNo = i + 1;
+    const line = lines[i].trim();
+    if (!line) {
+      continue; // skip blank lines
+    }
+    try {
+      events.push(JSON.parse(line));
+    } catch (e) {
+      throw new FinalizedLogJsonParseError(filePath, lineNo, e);
+    }
+  }
+  return events;
 }
