@@ -50,9 +50,11 @@ applyCommand
   .argument('[sessionId]', 'Optional session id, e.g. session-0042')
   .option('--allow-dirty', 'Allow applying with dirty git state')
   .action(
-    async (sessionId: string | undefined, opts: { allowDirty?: boolean }) => {
+    // TODO All the other handlers need to be updated with this pattern
+    async (sessionId: string | undefined, _opts: unknown, command) => {
+      const opts = command.optsWithGlobals();
       await applyHandler({
-        allowDirty: opts.allowDirty,
+        allowDirty: !!opts.allowDirty,
         sessionId,
         mode: 'trails',
       });

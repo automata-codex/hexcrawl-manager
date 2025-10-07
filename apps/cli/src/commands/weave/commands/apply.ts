@@ -14,10 +14,10 @@ import {
 } from '@skyreach/data';
 
 import { CliError, CliValidationError, NoChangesError } from '../lib/errors';
+import { resolveTrailsTarget } from '../lib/resolve-trails-target';
 
 import { applyAp } from './apply-ap';
 import { ApplyTrailsResult, applyTrails } from './apply-trails';
-import { resolveTrailsTarget } from '../lib/resolve-trails-target';
 
 export type ApplyArgs = {
   sessionId?: string;
