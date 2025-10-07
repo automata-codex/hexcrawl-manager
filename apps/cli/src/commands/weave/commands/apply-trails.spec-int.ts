@@ -6,10 +6,7 @@ import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
 describe('Command `weave apply trails`', () => {
-  //
-  // 1) Session apply: creates/updates a trail edge and writes a session footprint
-  //
-  it.only('applies trails for a specific session (explicit path)', async () => {
+  it('applies trails for a specific session (explicit path)', async () => {
     await withTempRepo(
       'apply-trails-session-explicit',
       { initGit: false },
@@ -83,13 +80,11 @@ describe('Command `weave apply trails`', () => {
         );
 
         // --- Run CLI: weave apply trails <sessionFile> ---
+        // eslint-disable-next-line no-unused-vars
         const { exitCode, stderr, stdout } = await runWeave(
           ['apply', 'trails', 'session-0001', '--allow-dirty'],
           { repo },
         );
-
-        console.log('STDERR:', stderr);
-        console.log('STDOUT:', stdout);
 
         expect(exitCode).toBe(0);
         expect(stderr).toBeFalsy();
@@ -131,10 +126,7 @@ describe('Command `weave apply trails`', () => {
     );
   });
 
-  //
-  // 2) Rollover apply: applies seasonal rollover, updates trails & meta, writes a rollover footprint
-  //
-  it('applies trails for a seasonal rollover (explicit path)', async () => {
+  it.only('applies trails for a seasonal rollover (explicit path)', async () => {
     await withTempRepo(
       'apply-trails-rollover-explicit',
       { initGit: false },
@@ -165,6 +157,7 @@ describe('Command `weave apply trails`', () => {
           REPO_PATHS.META(),
           yaml.stringify({
             rolledSeasons: [],
+            nextSessionSeq: 2,
             appliedSessions: [],
           }),
         );
@@ -183,10 +176,13 @@ describe('Command `weave apply trails`', () => {
         );
 
         // --- Run CLI: weave apply trails <rolloverFile> ---
-        const { exitCode, stderr } = await runWeave(
+        const { exitCode, stderr, stdout } = await runWeave(
           ['apply', 'trails', rollFile],
           { repo },
         );
+
+        console.log('STDERR:', stderr);
+        console.log('STDOUT:', stdout);
 
         expect(exitCode).toBe(0);
         expect(stderr).toBeFalsy();
