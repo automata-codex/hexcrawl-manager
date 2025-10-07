@@ -35,3 +35,11 @@ export class IoApplyError extends CliError {
     this.name = 'IoApplyError';
   }
 }
+
+/** Nothing to apply (maps to exit code 5). */
+export class NoChangesError extends CliError {
+  constructor(message = 'No changes would be made.') {
+    super(message);
+    this.name = 'NoChangesError';
+  }
+}

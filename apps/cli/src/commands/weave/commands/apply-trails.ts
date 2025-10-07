@@ -8,14 +8,19 @@ import {
 import path from 'path';
 
 import { readEvents } from '../../../services/event-log.service';
-import { applyRolloverToTrails } from '../lib/apply';
+import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
 import {
   AlreadyAppliedError,
   ChronologyValidationError,
   CliValidationError,
   IoApplyError,
+  NoChangesError,
 } from '../lib/errors';
-import { assertCleanGitOrAllowDirty, resolveInputFile } from '../lib/files';
+import {
+  assertCleanGitOrAllowDirty,
+  getMostRecentRolloverFootprint,
+  resolveInputFile,
+} from '../lib/files';
 import {
   isRolloverAlreadyApplied,
   isRolloverChronologyValid,
@@ -74,8 +79,8 @@ export interface ApplyTrailsOptions {
 export interface ApplyTrailsResult {
   /** Derived from file and guards. */
   kind?: ApplyTrailsKind;
-  seasonId?: string;         // normalized (first season for sessions)
-  fileId?: string;           // basename of the applied file
+  seasonId?: string; // normalized (first season for sessions)
+  fileId?: string; // basename of the applied file
 
   /** High-level outcome & coarse stats for CLI printing. */
   status: ApplyTrailsStatus;
@@ -89,26 +94,26 @@ export interface ApplyTrailsResult {
 }
 
 export type ApplyTrailsStatus =
-  | 'ok'                 // wrote changes (or would have in dryRun)
-  | 'already-applied'    // idempotency guard tripped
-  | 'no-op'              // valid input but nothing to change
-  | 'validation-error'   // schema/chronology/semantic checks failed
-  | 'unrecognized-file'  // neither session nor rollover
-  | 'io-error';          // write failed (not thrown if you prefer status)
+  | 'ok' // wrote changes (or would have in dryRun)
+  | 'already-applied' // idempotency guard tripped
+  | 'no-op' // valid input but nothing to change
+  | 'validation-error' // schema/chronology/semantic checks failed
+  | 'unrecognized-file' // neither session nor rollover
+  | 'io-error'; // write failed (not thrown if you prefer status)
 
 export interface ApplyTrailsSummary {
   // Session apply deltas
-  created?: number;          // effects.created.length
-  rediscovered?: number;     // effects.rediscovered.length
-  usesFlagged?: number;      // Object.keys(effects.usedFlags).length
+  created?: number; // effects.created.length
+  rediscovered?: number; // effects.rediscovered.length
+  usesFlagged?: number; // Object.keys(effects.usedFlags).length
 
   // Rollover deltas
-  maintained?: number;       // effects.maintained.length
-  persisted?: number;        // effects.persisted.length
-  deletedTrails?: number;    // effects.deletedTrails.length
+  maintained?: number; // effects.maintained.length
+  persisted?: number; // effects.persisted.length
+  deletedTrails?: number; // effects.deletedTrails.length
 
   // Aggregate/touch metrics (both paths)
-  edgesTouched?: number;     // unique keys in before/after set
+  edgesTouched?: number; // unique keys in before/after set
 }
 
 export async function applyTrails(
@@ -127,11 +132,17 @@ export async function applyTrails(
       file = resolved.file!;
       break;
     case 'none-found':
-      return { status: 'no-op', message: 'No unapplied session or rollover files found.' };
+      return {
+        status: 'no-op',
+        message: 'No unapplied session or rollover files found.',
+      };
     case 'cancelled':
       return { status: 'no-op', message: 'File selection cancelled by user.' };
     case 'no-prompt-no-arg':
-      return { status: 'validation-error', message: 'No file specified and --no-prompt is set.' };
+      return {
+        status: 'validation-error',
+        message: 'No file specified and --no-prompt is set.',
+      };
   }
 
   if (isRolloverFile(file)) {
@@ -213,7 +224,6 @@ export async function applyTrails(
         debug: { footprintId: footprint.id },
       };
     } catch (e) {
-      // Let the caller decide how to map to exit codes
       throw new IoApplyError('I/O error during apply: ' + e);
     }
   } else if (isSessionFile(file)) {
@@ -261,7 +271,59 @@ export async function applyTrails(
       throw new AlreadyAppliedError('Session already applied.');
     }
 
+    // --- Session apply logic ---
+    const mostRecentRoll = getMostRecentRolloverFootprint(firstSeasonId);
+    const deletedTrails =
+      mostRecentRoll?.effects?.rollover?.deletedTrails || [];
+    const { effects, before, after } = applySessionToTrails(
+      events,
+      trails,
+      firstSeasonId,
+      deletedTrails,
+      false,
+    );
+    const changed =
+      effects.created.length > 0 ||
+      effects.rediscovered.length > 0 ||
+      Object.keys(effects.usedFlags).length > 0;
+    if (!changed) {
+      throw new NoChangesError();
+    }
 
+    // --- Update files ---
+    try {
+      saveTrails(trails);
+      appendToMetaAppliedSessions(meta, fileId);
+      saveMeta(meta);
+
+      // Write footprint
+      const footprint = {
+        id: `S-${fileId.replace(/\..*$/, '')}`,
+        kind: 'session',
+        seasonId: firstSeasonId,
+        appliedAt: new Date().toISOString(),
+        inputs: { sourceFile: file },
+        effects: { session: effects },
+        touched: { before, after },
+      };
+      writeFootprint(footprint);
+
+      return {
+        status: 'ok' as const,
+        kind: 'session' as const,
+        seasonId: firstSeasonId,
+        fileId,
+        summary: {
+          created: effects.created.length,
+          rediscovered: effects.rediscovered.length,
+          usesFlagged: Object.keys(effects.usedFlags).length,
+          edgesTouched: Object.keys({ ...before, ...after }).length,
+        },
+        debug: { footprintId: footprint.id },
+      };
+    } catch (e) {
+      throw new IoApplyError('I/O error during apply: ' + e);
+    }
   } else {
   }
 }

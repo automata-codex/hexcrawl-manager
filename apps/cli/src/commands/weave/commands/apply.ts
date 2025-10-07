@@ -13,7 +13,7 @@ import {
   FinalizedLogsNotFoundError,
 } from '@skyreach/data';
 
-import { CliError, CliValidationError } from '../lib/errors';
+import { CliError, CliValidationError, NoChangesError } from '../lib/errors';
 
 import { applyAp } from './apply-ap';
 
@@ -32,6 +32,7 @@ export const exitCodeForApply = makeExitMapper(
     [FinalizedLogJsonParseError, 2], // invalid/corrupt input
     [FinalizedLogsNotFoundError, 3], // not found
     [SessionAlreadyAppliedError, 0], // benign no-op
+    [NoChangesError, 5], // no-op error
     [SessionFingerprintMismatchError, 4], // conflicting state
     [SessionIdError, 2], // invalid session id or missing context
     [SessionLogsNotFoundError, 4], // domain-specific failure
