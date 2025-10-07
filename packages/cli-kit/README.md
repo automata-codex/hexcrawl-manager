@@ -1,40 +1,33 @@
 # `@skyreach/cli-kit`
 
-This is the home for things that are:
+Shared **CLI UX primitives** and helpers. This package is for building nice command-line experiences across apps—**not** for domain or data logic.
 
-- shared by multiple CLI subcommands,
-- **don’t** touch FS/git/env (that’s `data`), and
-- **aren’t** domain mechanics (that’s `core`),
-- but **do** encode repo conventions (IDs, filenames, ordering).
+Examples include:
 
-## ChatGPT Recommended Structure
+- Console output helpers (`info`, `warn`, `error`, `success`, `debug`)
+- Interactive prompts (`selectFromFiles`, `confirm`, `input`)
+- TTY-aware niceties (spinners, progress, colorized text)
+- Formatting utilities (tables/columns, path shorteners, code frames)
+- Environment helpers (CI/non-interactive detection, width/tty checks)
+- Small time/measure helpers (timers, `withSpinner(asyncFn)`)
 
-```
-packages/cli-kit/src/
-├─ cli/                # actual CLI ergonomics (logger, errors, prompts, option parsing)
-│  ├─ logger.ts
-│  ├─ errors.ts
-│  └─ prompts.ts
-├─ conventions/        # repo-convention utilities (shared by scribe & weave)
-│  ├─ ids/
-│  │  ├─ session.ts        # pickNextSessionId
-│  │  └─ scribe.ts         # sortScribeIds
-│  ├─ events.ts            # eventsOf
-│  ├─ strings/
-│  │  └─ pad.ts
-│  └─ parse.ts             # tiny, pure parsers (no I/O)
-└─ index.ts            # barrel: re-export cli/* and conventions/*
-```
+**_No domain logic. No repository layout knowledge. No file I/O beyond generic helpers._**
 
-Rules:
+## Design principles
 
-* `cli-kit` may depend on `@skyreach/schemas` (for branded types, regexes).
-* `cli-kit` may **not** depend on `@skyreach/core` or `@skyreach/data`.
-* No `fs`, `path`, `yaml`, `simple-git`, `process.env` here—ever.
+- **UI only:** Provide presentation and interaction; leave policy to callers.
+- **Stateless & composable:** Pure functions where possible, minimal side effects.
+- **TTY-aware:** Pretty when attached to a TTY; degrade gracefully in CI/log files.
+- **Portable:** No assumptions about project structure, repo paths, or game rules.
 
-## Quick “what goes where” rubric
+## Do / Don’t
 
-* **Touches disk/git/env?** → `data`
-* **Implements campaign math/validation (AP, seasons, calendar semantics)?** → `core`
-* **Pure utils tied to repo shape (IDs, filenames, sorting) or CLI ergonomics?** → `cli-kit`
-* **Only one command uses it and it’s UI-ish?** → keep local to that command
+**Do**
+- Use for printing, prompting, spinners, and formatting.
+- Keep APIs generic (strings, lists, simple records).
+- Handle non-interactive mode gracefully (e.g., skip prompts with defaults).
+
+**Don’t**
+- Parse or enforce business rules.
+- Read/write project data files or know repo paths.
+- Decide exit codes or error semantics (the app owns that).
