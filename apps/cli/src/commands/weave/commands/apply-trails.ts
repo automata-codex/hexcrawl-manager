@@ -325,5 +325,6 @@ export async function applyTrails(
       throw new IoApplyError('I/O error during apply: ' + e);
     }
   } else {
+    throw new CliValidationError(`Unrecognized file type for apply: ${file}`);
   }
 }
