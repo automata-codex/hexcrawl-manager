@@ -13,7 +13,7 @@ import {
   FinalizedLogsNotFoundError,
 } from '@skyreach/data';
 
-import { CliError } from '../lib/errors';
+import { CliError, CliValidationError } from '../lib/errors';
 
 import { applyAp } from './apply-ap';
 
@@ -27,7 +27,7 @@ export type ApplyMode = 'all' | 'ap' | 'trails';
 
 export const exitCodeForApply = makeExitMapper(
   [
-    [CliError, 1], // generic
+    [CliValidationError, 4], // user input or file contents are invalid
     [DirtyGitError, 5], // external failure
     [FinalizedLogJsonParseError, 2], // invalid/corrupt input
     [FinalizedLogsNotFoundError, 3], // not found
@@ -36,6 +36,9 @@ export const exitCodeForApply = makeExitMapper(
     [SessionIdError, 2], // invalid session id or missing context
     [SessionLogsNotFoundError, 4], // domain-specific failure
     [SessionReportValidationError, 2], // usage: schema invalid
+
+    // Keep the most generic types at the end to avoid masking more specific ones
+    [CliError, 1], // generic
   ],
   1, // fallback default
 );

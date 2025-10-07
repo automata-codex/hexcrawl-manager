@@ -1,4 +1,5 @@
 export * from './atomic-write';
+export * from './errors';
 export * from './finalized-session-logs';
 export * from './fs-utils';
 export * from './git';

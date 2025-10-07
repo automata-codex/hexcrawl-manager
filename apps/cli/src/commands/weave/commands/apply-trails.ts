@@ -1,6 +1,9 @@
 import { loadHavens, loadMeta, loadTrails } from '@skyreach/data';
 
+import { readEvents } from '../../../services/event-log.service';
+import { CliValidationError } from '../lib/errors';
 import { assertCleanGitOrAllowDirty, resolveInputFile } from '../lib/files';
+import { isRolloverFile, isSessionFile } from '../lib/guards';
 
 export interface ApplyTrailsDebug {
   /** Before/after snapshots for touched edges (subset, not whole file). */
@@ -106,4 +109,16 @@ export async function applyTrails(
       return { status: 'validation-error', message: 'No file specified and --no-prompt is set.' };
   }
 
+  if (isRolloverFile(file)) {
+    const events = readEvents(file);
+    const rollover = events.find((e) => e.kind === 'season_rollover');
+    if (!rollover || !rollover.payload?.seasonId) {
+      throw new CliValidationError(
+        'Rollover file missing season_rollover event or seasonId.',
+      );
+    }
+
+  } else if (isSessionFile(file)) {
+  } else {
+  }
 }
