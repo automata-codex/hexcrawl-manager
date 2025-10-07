@@ -1,9 +1,10 @@
 import { REPO_PATHS, getGitHeadCommit, writeYamlAtomic } from '@skyreach/data';
+import { MetaData } from '@skyreach/schemas';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 
-export function appendToMetaAppliedSessions(meta: any, fileId: string) {
+export function appendToMetaAppliedSessions(meta: MetaData, fileId: string) {
   if (!meta.appliedSessions) {
     meta.appliedSessions = [];
   }

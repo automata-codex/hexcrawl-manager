@@ -1,9 +1,22 @@
 import { loadHavens, loadMeta, loadTrails } from '@skyreach/data';
+import path from 'path';
 
 import { readEvents } from '../../../services/event-log.service';
-import { CliValidationError } from '../lib/errors';
+import { applyRolloverToTrails } from '../lib/apply';
+import {
+  AlreadyAppliedError,
+  ChronologyValidationError,
+  CliValidationError,
+} from '../lib/errors';
 import { assertCleanGitOrAllowDirty, resolveInputFile } from '../lib/files';
-import { isRolloverFile, isSessionFile } from '../lib/guards';
+import {
+  isRolloverAlreadyApplied,
+  isRolloverChronologyValid,
+  isRolloverFile,
+  isSessionFile,
+} from '../lib/guards';
+import { normalizeSeasonId } from '../lib/season';
+import { appendToMetaAppliedSessions } from '../lib/state';
 
 export interface ApplyTrailsDebug {
   /** Before/after snapshots for touched edges (subset, not whole file). */
@@ -110,6 +123,7 @@ export async function applyTrails(
   }
 
   if (isRolloverFile(file)) {
+    // --- Validate rollover file ---
     const events = readEvents(file);
     const rollover = events.find((e) => e.kind === 'season_rollover');
     if (!rollover || !rollover.payload?.seasonId) {
@@ -117,6 +131,45 @@ export async function applyTrails(
         'Rollover file missing season_rollover event or seasonId.',
       );
     }
+    const seasonId = normalizeSeasonId(rollover.payload.seasonId as string);
+    const fileId = path.basename(file);
+    if (isRolloverAlreadyApplied(meta, fileId)) {
+      throw new AlreadyAppliedError('Rollover already applied.');
+    }
+    const chrono = isRolloverChronologyValid(meta, seasonId);
+    if (!chrono.valid) {
+      throw new ChronologyValidationError(
+        `Rollover is not for the next unapplied season. Expected: ${chrono.expected}`,
+      );
+    }
+
+    // --- Rollover apply logic ---
+    // Build set of affected edges
+    const { trails: trailsAfter, ...effects } = applyRolloverToTrails(
+      trails,
+      havens,
+      false,
+    );
+    const affectedEdges = new Set([
+      ...effects.maintained,
+      ...effects.persisted,
+      ...effects.deletedTrails,
+    ]);
+
+    // Build before/after for only affected edges
+    const before: Record<string, any> = {};
+    const after: Record<string, any> = {};
+    for (const edge of affectedEdges) {
+      before[edge] = trails[edge] ? { ...trails[edge] } : undefined;
+      after[edge] = trailsAfter[edge] ? { ...trailsAfter[edge] } : undefined;
+    }
+
+    // Update meta
+    if (!meta.rolledSeasons) {
+      meta.rolledSeasons = [];
+    }
+    meta.rolledSeasons.push(seasonId);
+    appendToMetaAppliedSessions(meta, fileId);
 
   } else if (isSessionFile(file)) {
   } else {
