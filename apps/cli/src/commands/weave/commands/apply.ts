@@ -5,7 +5,10 @@ import {
   SessionIdError,
   SessionLogsNotFoundError,
   SessionReportValidationError,
+  assertSeasonId,
   assertSessionId,
+  isSeasonId,
+  isSessionId,
 } from '@skyreach/core';
 import {
   DirtyGitError,
@@ -20,7 +23,7 @@ import { applyAp } from './apply-ap';
 import { ApplyTrailsResult, applyTrails } from './apply-trails';
 
 export type ApplyArgs = {
-  sessionId?: string;
+  target?: string;
   allowDirty?: boolean;
   mode?: ApplyMode;
 };
@@ -53,13 +56,13 @@ export function printApplyTrailsResult(res: ApplyTrailsResult) {
         const s = res.summary ?? {};
         info(
           `Session applied: ${res.fileId} (season ${res.seasonId}). ` +
-          `created=${s.created ?? 0}, rediscovered=${s.rediscovered ?? 0}, uses=${s.usesFlagged ?? 0}, touched=${s.edgesTouched ?? 0}.`
+            `created=${s.created ?? 0}, rediscovered=${s.rediscovered ?? 0}, uses=${s.usesFlagged ?? 0}, touched=${s.edgesTouched ?? 0}.`,
         );
       } else {
         const s = res.summary ?? {};
         info(
           `Rollover applied: season ${res.seasonId}. ` +
-          `maintained=${s.maintained ?? 0}, persisted=${s.persisted ?? 0}, deleted=${s.deletedTrails ?? 0}, touched=${s.edgesTouched ?? 0}.`
+            `maintained=${s.maintained ?? 0}, persisted=${s.persisted ?? 0}, deleted=${s.deletedTrails ?? 0}, touched=${s.edgesTouched ?? 0}.`,
         );
       }
       break;
@@ -85,14 +88,29 @@ export function printApplyTrailsResult(res: ApplyTrailsResult) {
 }
 
 export async function apply(args: ApplyArgs) {
-  const { allowDirty, mode: rawMode, sessionId: rawId } = args;
-  const mode: ApplyMode = rawMode ?? 'all';
-  const sessionId = rawId ? assertSessionId(rawId) : undefined;
-
   try {
+    const { allowDirty, mode: rawMode, target: rawTarget } = args;
+    const mode: ApplyMode = rawMode ?? 'all';
+
+    let targetType: 'session' | 'season' | 'undefined' = 'undefined';
+    let target: string | undefined = undefined;
+    if (rawTarget) {
+      if (isSessionId(rawTarget)) {
+        targetType = 'session';
+        target = assertSessionId(rawTarget);
+      } else if (isSeasonId(rawTarget)) {
+        targetType = 'season';
+        target = assertSeasonId(rawTarget);
+      } else {
+        throw new Error(
+          `Invalid target "${rawTarget}": must be a session ID (e.g. session-0042) or season ID (e.g. 1511-autumn).`,
+        );
+      }
+    }
+
     if (mode === 'all' || mode === 'trails') {
       // TODO Handle certain errors so we continue with the loop (e.g. `NoChangesError`)
-      const items = resolveTrailsTarget(sessionId ?? '');
+      const items = resolveTrailsTarget(target ?? '');
       for (const item of items) {
         const result = await applyTrails({ allowDirty, file: item.file });
         printApplyTrailsResult(result);
@@ -100,14 +118,21 @@ export async function apply(args: ApplyArgs) {
     }
 
     if (mode === 'all' || mode === 'ap') {
-      const result = await applyAp({ sessionId, allowDirty });
+      const result =
+        targetType === 'session'
+          ? await applyAp({ sessionId: target, allowDirty })
+          : await applyAp({ allowDirty });
 
       console.log('');
       if (result.alreadyApplied) {
-        console.log(`✅ ${result.sessionId} was already applied (no changes made).`);
+        console.log(
+          `✅ ${result.sessionId} was already applied (no changes made).`,
+        );
       } else {
         console.log(`✨ Applied ${result.sessionId}:`);
-        console.log(`  • ${result.entriesAppended} ledger entr${result.entriesAppended === 1 ? 'y' : 'ies'} appended`);
+        console.log(
+          `  • ${result.entriesAppended} ledger entr${result.entriesAppended === 1 ? 'y' : 'ies'} appended`,
+        );
         console.log(`  • Report: ${result.reportPath}`);
       }
       console.log('');
