@@ -3,6 +3,7 @@ export * from './characters';
 export * from './config';
 export * from './errors';
 export * from './hexes';
+export * from './seasons';
 export * from './sessions';
 export * from './trails';
 export * from './types';
