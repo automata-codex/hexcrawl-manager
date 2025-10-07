@@ -17,6 +17,7 @@ import { CliError, CliValidationError, NoChangesError } from '../lib/errors';
 
 import { applyAp } from './apply-ap';
 import { ApplyTrailsResult, applyTrails } from './apply-trails';
+import { resolveTrailsTarget } from '../lib/resolve-trails-target';
 
 export type ApplyArgs = {
   sessionId?: string;
@@ -90,8 +91,11 @@ export async function apply(args: ApplyArgs) {
 
   try {
     if (mode === 'all' || mode === 'trails') {
-      const result = await applyTrails({ allowDirty });
-      printApplyTrailsResult(result);
+      const items = resolveTrailsTarget(sessionId ?? '');
+      for (const item of items) {
+        const result = await applyTrails({ allowDirty, file: item.file });
+        printApplyTrailsResult(result);
+      }
     }
 
     if (mode === 'all' || mode === 'ap') {
