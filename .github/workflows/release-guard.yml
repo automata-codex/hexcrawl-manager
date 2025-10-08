@@ -1,0 +1,37 @@
+name: Require version bump on PRs to main
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions: {}
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare refs
+        run: |
+          echo "BASE=${{ github.event.pull_request.base.sha }}" >> $GITHUB_ENV
+          echo "HEAD=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+
+      - name: Checkout minimal history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # we reference specific SHAs
+
+      - name: Ensure version/changelog changes exist
+        run: |
+          set -euo pipefail
+          git diff --name-only "$BASE" "$HEAD" > changed.txt
+
+          # Look for package.json and/or CHANGELOG changes in root/apps/packages
+          if ! grep -E \
+            '(^package.json$)|(^CHANGELOG\.md$)|(^apps/[^/]+/package.json$)|(^apps/[^/]+/CHANGELOG\.md$)|(^packages/[^/]+/package.json$)|(^packages/[^/]+/CHANGELOG\.md$)' \
+            changed.txt >/dev/null; then
+            echo "❌ No version or changelog changes found."
+            echo "Run 'npm run changeset:version' on develop before opening this PR."
+            exit 1
+          fi
+
+          echo "✅ Detected version/changelog changes."
