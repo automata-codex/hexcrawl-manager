@@ -34,7 +34,7 @@ export const sessionCommand = new Command('session')
     const sessionId = `session-${padSessionNum(nextSessionSeq)}`;
 
     // Step 3: Determine Output Path
-    const sessionReportsDir = REPO_PATHS.REPORTS(); // TODO This should use REPO_PATHS
+    const sessionReportsDir = REPO_PATHS.REPORTS();
     const outPath = path.join(sessionReportsDir, `${sessionId}.yaml`);
 
     // Step 4: Check for Existing File
