@@ -1,6 +1,5 @@
 {
   "name": "skyreach",
-  "version": "2.3.0",
   "description": "Campaign manager and data for _Beyond the Skyreach Mountains_",
   "private": true,
   "scripts": {

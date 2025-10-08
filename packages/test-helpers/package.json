@@ -1,6 +1,6 @@
 {
   "name": "@skyreach/test-helpers",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -20,5 +20,5 @@
     "@skyreach/schemas": "*",
     "execa": "^9.6.0"
   },
-  "devDependencies": { }
+  "devDependencies": {}
 }
