@@ -12,5 +12,6 @@ export * from './paths';
 export * from './regex';
 export { REPO_PATHS, ensureRepoDirs } from './repo-paths';
 export { rollDice } from './roll-dice';
+export * from './rollover-files';
 export * from './seasons';
 export * from './trails';

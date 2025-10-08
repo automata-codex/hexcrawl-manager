@@ -9,6 +9,7 @@ import {
 } from './errors';
 import { SESSION_FILE_RE } from './regex';
 import { REPO_PATHS } from './repo-paths';
+import { seasonOfSessionFile } from './seasons';
 
 export interface FinalizedLogInfo {
   filename: string; // basename
@@ -17,6 +18,10 @@ export interface FinalizedLogInfo {
   suffix?: string; // 'a' .. 'z' if present
   date: string; // 'YYYY-MM-DD'
   variant?: string; // trailing piece after the date, if any
+}
+
+export interface FinalizedLogWithSeason extends FinalizedLogInfo {
+  seasonId: string;
 }
 
 /** List all finalized scribe logs in the sessions directory. */
@@ -53,6 +58,16 @@ export function discoverFinalizedLogsForOrThrow(sessionNumber: number | string):
     throw new FinalizedLogsNotFoundError(sessionNumber);
   }
   return hits;
+}
+
+/** Add `seasonId` to each log by reading its first day_start event. */
+export function enrichLogsWithSeason(
+  logs: FinalizedLogInfo[],
+): FinalizedLogWithSeason[] {
+  return logs.map(l => ({
+    ...l,
+    seasonId: seasonOfSessionFile(l.fullPath),
+  }));
 }
 
 /** Latest (max) session number, if any. */

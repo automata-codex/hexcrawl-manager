@@ -1,90 +1,16 @@
-import { normalizeSeasonId } from '@skyreach/core';
 import {
-  REPO_PATHS,
-  SESSION_FILE_RE,
-  ROLLOVER_FILE_RE,
-  seasonOfSessionFile,
+  RolloverInfo,
+  discoverFinalizedLogs,
+  discoverRolloverFiles,
+  enrichLogsWithSeason,
   loadMeta,
 } from '@skyreach/data';
-import fs from 'fs';
-import path from 'path';
 
 import {
-  isSessionAlreadyApplied,
   isRolloverAlreadyApplied,
+  isSessionAlreadyApplied,
 } from './guards';
 import { TrailsWorkItem } from './resolve-trails-target';
-
-/** Internal shape while discovering session files. */
-type FoundSession = {
-  file: string;
-  base: string;
-  sessionNum: string;
-  date: string;     // YYYY-MM-DD
-  part?: string;    // a/b/c
-  seasonId: string; // normalized
-};
-
-/** Internal shape for rollover files on disk. */
-type FoundRollover = {
-  file: string;
-  base: string;
-  seasonId: string; // normalized
-};
-
-/** Discover all finalized session logs, with parsed parts. */
-function findSessionLogs(): FoundSession[] {
-  const dir = REPO_PATHS.SESSIONS();
-  if (!fs.existsSync(dir)) return [];
-  const out: FoundSession[] = [];
-
-  for (const base of fs.readdirSync(dir)) {
-    const m = base.match(SESSION_FILE_RE);
-    if (!m) continue;
-    const sessionNum = m[1];
-    const part = m[2]?.toLowerCase();
-    const date = m[3];
-    const file = path.join(dir, base);
-    out.push({
-      file,
-      base,
-      sessionNum,
-      date,
-      part,
-      seasonId: seasonOfSessionFile(file),
-    });
-  }
-
-  // Sort by date asc, then part (undefined before 'a')
-  out.sort((a, b) => {
-    const d = a.date.localeCompare(b.date);
-    if (d !== 0) return d;
-    const ai = a.part ? a.part.charCodeAt(0) : 0;
-    const bi = b.part ? b.part.charCodeAt(0) : 0;
-    return ai - bi;
-  });
-
-  return out;
-}
-
-/** Discover all rollover files on disk (both hyphen/underscore tolerated via regex). */
-function findRolloverFiles(): FoundRollover[] {
-  const dir = REPO_PATHS.SESSIONS();
-  if (!fs.existsSync(dir)) return [];
-  const out: FoundRollover[] = [];
-
-  for (const base of fs.readdirSync(dir)) {
-    const m = base.match(ROLLOVER_FILE_RE);
-    if (!m) continue;
-    const seasonId = normalizeSeasonId(`${m[1]}-${m[2].toLowerCase()}`);
-    const file = path.join(dir, base);
-    out.push({ file, base, seasonId });
-  }
-
-  // Sort by seasonId lexical (YYYY-season) which corresponds to year then season
-  out.sort((a, b) => a.seasonId.localeCompare(b.seasonId));
-  return out;
-}
 
 /**
  * Sweep resolver: when no specific target is provided, return all *unapplied* items
@@ -100,12 +26,12 @@ function findRolloverFiles(): FoundRollover[] {
  */
 export function resolveTrailsSweep(): TrailsWorkItem[] {
   const meta = loadMeta();
-  const sessionsAll = findSessionLogs();
-  const rolloversAll = findRolloverFiles();
+  const sessionsAll = enrichLogsWithSeason(discoverFinalizedLogs());
+  const rolloversAll = discoverRolloverFiles();
 
   // Filter out already-applied
-  const sessions = sessionsAll.filter((s) => !isSessionAlreadyApplied(meta, s.base));
-  const rolloverMap = new Map<string, FoundRollover>();
+  const sessions = sessionsAll.filter((s) => !isSessionAlreadyApplied(meta, s.filename));
+  const rolloverMap = new Map<string, RolloverInfo>();
   for (const r of rolloversAll) {
     if (!isRolloverAlreadyApplied(meta, r.base)) {
       rolloverMap.set(r.seasonId, r);
@@ -119,11 +45,11 @@ export function resolveTrailsSweep(): TrailsWorkItem[] {
     const s = sessions[i];
     out.push({
       kind: 'session',
-      file: s.file,
-      sessionId: `session-${s.sessionNum}`,
+      file: s.fullPath,
+      sessionId: `session-${s.sessionNumber}`,
       seasonId: s.seasonId,
       date: s.date,
-      part: s.part,
+      part: s.suffix,
     });
 
     const next = sessions[i + 1];
