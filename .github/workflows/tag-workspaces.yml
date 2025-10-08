@@ -1,0 +1,88 @@
+name: Tag bumped workspaces on main
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # (Optional) CI sanity — keep or delete these as you like
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Build (optional)
+        run: npm run -ws build || true
+      - name: Test (optional)
+        run: npm run -ws test || true
+
+      - name: Detect changed package.json files in this push
+        id: changed
+        run: |
+          set -euo pipefail
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+          # List only workspace manifests under apps/* or packages/* that changed in this push
+          CHANGED=$(git diff --name-only "$BEFORE" "$AFTER" | grep -E '^(apps|packages)/[^/]+/package\.json$' || true)
+          {
+            echo "files<<EOF"
+            echo "$CHANGED"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Tag all bumped workspaces
+        if: steps.changed.outputs.files != ''
+        run: |
+          set -euo pipefail
+
+          CREATED=0
+          echo "${{ steps.changed.outputs.files }}" | while IFS= read -r f; do
+            # Skip blanks or non-package.json (paranoia)
+            [ -z "$f" ] && continue
+            case "$f" in
+              */package.json) ;;
+              *) echo "Skipping non-package file: $f"; continue ;;
+            esac
+
+            # Extract name/version safely
+            NAME=$(node -p "try { require('./${f}').name || '' } catch { '' }")
+            VER=$(node -p "try { require('./${f}').version || '' } catch { '' }")
+
+            if [ -z "$NAME" ] || [ -z "$VER" ]; then
+              echo "Skipping $f (missing name/version)"
+              continue
+            fi
+
+            TAG="${NAME}@${VER}"
+
+            # Never move an existing tag — keep tags immutable
+            if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+              echo "Tag ${TAG} already exists; leaving unchanged."
+              continue
+            fi
+
+            git tag -a "${TAG}" -m "Release ${TAG}"
+            echo "Tagged ${TAG}"
+            CREATED=$((CREATED+1))
+          done
+
+          # Push tags if we created any new ones
+          if [ "$CREATED" -gt 0 ]; then
+            git push --tags
+          else
+            echo "No new tags created."
+          fi
