@@ -1,4 +1,5 @@
 import { REPO_PATHS } from '@skyreach/data';
+import { ScribeEvent } from '@skyreach/schemas';
 import { runWeave, withTempRepo } from '@skyreach/test-helpers';
 import fs from 'fs';
 import path from 'path';
@@ -164,11 +165,16 @@ describe('Command `weave apply trails`', () => {
 
         // --- Finalized rollover log (JSONL) ---
         const rollFile = path.join(
-          REPO_PATHS.SESSIONS(),
+          REPO_PATHS.ROLLOVERS(),
           'rollover_1511-autumn.jsonl',
         );
-        const rollEvents = [
-          { kind: 'season_rollover', payload: { seasonId: '1511-autumn' } },
+        const rollEvents: [ScribeEvent] = [
+          {
+            seq: 1,
+            ts: '2025-11-01T00:00:00.000Z',
+            kind: 'season_rollover',
+            payload: { seasonId: '1511-autumn' },
+          },
         ];
         fs.writeFileSync(
           rollFile,
@@ -177,7 +183,7 @@ describe('Command `weave apply trails`', () => {
 
         // --- Run CLI: weave apply trails <rolloverFile> ---
         const { exitCode, stderr, stdout } = await runWeave(
-          ['apply', 'trails', rollFile],
+          ['apply', 'trails', '1511-autumn', '--allow-dirty'],
           { repo },
         );
 
