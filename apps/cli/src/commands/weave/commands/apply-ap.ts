@@ -9,7 +9,7 @@ import {
   REPO_PATHS,
   discoverFinalizedLogs,
   discoverFinalizedLogsForOrThrow,
-  readFinalizedJsonl,
+  readAllFinalizedLogsForSession,
   writeYamlAtomic,
 } from '@skyreach/data';
 import { SessionReportSchema } from '@skyreach/schemas';
@@ -154,7 +154,7 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   const scribeIds = sortScribeIds(unsortedScribeIds);
 
   // --- Parse All Parts ---
-  const events = readFinalizedJsonl(paddedSessionNum);
+  const events = readAllFinalizedLogsForSession(paddedSessionNum);
 
   // --- Derive Session Fields ---
   const gameStartDate = formatDate(firstCalendarDate(events));

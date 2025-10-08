@@ -1,30 +1,14 @@
 import { padSessionNum } from '@skyreach/core';
 import { ScribeEvent } from '@skyreach/schemas';
 import fs from 'fs';
-import path from 'path';
 
+import {
+  FinalizedLogJsonParseError,
+  FinalizedLogsNotFoundError,
+} from './errors';
+import { parseSessionFilename } from './filenames';
 import { REPO_PATHS } from './repo-paths';
-
-export class FinalizedLogsNotFoundError extends Error {
-  constructor(public readonly sessionNumber: string | number) {
-    super(
-      `No finalized scribe logs found for session ${padSessionNum(sessionNumber)}.`,
-    );
-    this.name = 'FinalizedLogsNotFoundError';
-  }
-}
-
-export class FinalizedLogJsonParseError extends Error {
-  constructor(
-    public readonly filePath: string,
-    public readonly line: number,
-    public readonly cause?: unknown,
-  ) {
-    super(`Malformed JSON in ${filePath} at line ${line}.`);
-    this.name = 'FinalizedLogJsonParseError';
-    (this as any).cause = cause;
-  }
-}
+import { seasonOfSessionFile } from './seasons';
 
 export interface FinalizedLogInfo {
   filename: string; // basename
@@ -35,9 +19,9 @@ export interface FinalizedLogInfo {
   variant?: string; // trailing piece after the date, if any
 }
 
-// session_0001[a]_YYYY-MM-DD[optional suffix].jsonl
-const SESSION_FILE_RE =
-  /^session_(\d{4})([a-z])?_(\d{4}-\d{2}-\d{2})(?:_(.+))?\.jsonl$/;
+export interface FinalizedLogWithSeason extends FinalizedLogInfo {
+  seasonId: string;
+}
 
 /** List all finalized scribe logs in the sessions directory. */
 export function discoverFinalizedLogs(): FinalizedLogInfo[] {
@@ -75,6 +59,16 @@ export function discoverFinalizedLogsForOrThrow(sessionNumber: number | string):
   return hits;
 }
 
+/** Add `seasonId` to each log by reading its first day_start event. */
+export function enrichLogsWithSeason(
+  logs: FinalizedLogInfo[],
+): FinalizedLogWithSeason[] {
+  return logs.map(l => ({
+    ...l,
+    seasonId: seasonOfSessionFile(l.fullPath),
+  }));
+}
+
 /** Latest (max) session number, if any. */
 export function getLatestSessionNumber(): number | undefined {
   const all = discoverFinalizedLogs();
@@ -82,28 +76,12 @@ export function getLatestSessionNumber(): number | undefined {
   return all.reduce((max, x) => Math.max(max, x.sessionNumber), 0);
 }
 
-export function parseSessionFilename(
-  filename: string,
-): FinalizedLogInfo | null {
-  const m = filename.match(SESSION_FILE_RE);
-  if (!m) return null;
-  const [, num, suffix, date, variant] = m;
-  return {
-    filename,
-    fullPath: path.join(REPO_PATHS.SESSIONS(), filename),
-    sessionNumber: parseInt(num, 10),
-    suffix: suffix ?? undefined,
-    date,
-    variant: variant ?? undefined,
-  };
-}
-
 /**
  * Reads and concatenates all finalized JSONL events for a given session.
  * Throws FinalizedLogsNotFoundError if no files match,
  * and FinalizedLogJsonParseError with file + line info if parsing fails.
  */
-export function readFinalizedJsonl(sessionNumber: number | string): ScribeEvent[] {
+export function readAllFinalizedLogsForSession(sessionNumber: number | string): ScribeEvent[] {
   const hits = discoverFinalizedLogsForOrThrow(sessionNumber);
   const allEvents: ScribeEvent[] = [];
 
@@ -125,4 +103,24 @@ export function readFinalizedJsonl(sessionNumber: number | string): ScribeEvent[
   }
 
   return allEvents;
+}
+
+export function readOneFinalizedLog(filePath: string): ScribeEvent[] {
+  const events: ScribeEvent[] = [];
+
+  const text = fs.readFileSync(filePath, 'utf8');
+  const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const lineNo = i + 1;
+    const line = lines[i].trim();
+    if (!line) {
+      continue; // skip blank lines
+    }
+    try {
+      events.push(JSON.parse(line));
+    } catch (e) {
+      throw new FinalizedLogJsonParseError(filePath, lineNo, e);
+    }
+  }
+  return events;
 }

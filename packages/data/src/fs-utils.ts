@@ -3,6 +3,20 @@ import path from 'node:path';
 import yaml from 'yaml';
 import { ZodSchema } from 'zod';
 
+import {
+  DataFileNotFoundError,
+  DataParseError,
+  DataValidationError,
+} from './errors';
+
+
+export function checkFileExists(file: string, msg?: string) {
+  if (!fs.existsSync(file)) {
+    throw new Error(msg ?? `File not found: ${file}`);
+  }
+  return file;
+}
+
 export function ensureDir(filename: string) {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
 }
@@ -38,4 +52,24 @@ export function loadAllYamlInDir<T>(
     }
   }
   return results;
+}
+
+export function readAndValidateYaml<T>(filepath: string, schema: ZodSchema<T>): T {
+  const raw = readYaml(filepath);
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) {
+    throw new DataValidationError(filepath, parsed.error.issues);
+  }
+  return parsed.data;
+}
+
+export function readYaml(filepath: string): unknown {
+  if (!fs.existsSync(filepath)) {
+    throw new DataFileNotFoundError(filepath);
+  }
+  try {
+    return yaml.parse(fs.readFileSync(filepath, 'utf8'));
+  } catch (e) {
+    throw new DataParseError(filepath, e);
+  }
 }

@@ -1,5 +1,6 @@
 import { info, error } from '@skyreach/cli-kit';
-import { loadMeta } from '@skyreach/data';
+import { deriveSeasonId, normalizeSeasonId } from '@skyreach/core';
+import { isRolloverPath, loadHavens, loadMeta, loadTrails } from '@skyreach/data';
 import path from 'path';
 
 import { readEvents } from '../../../services/event-log.service';
@@ -8,13 +9,10 @@ import { getMostRecentRolloverFootprint, resolveInputFile } from '../lib/files';
 import {
   isRolloverAlreadyApplied,
   isRolloverChronologyValid,
-  isRolloverFile,
   isSessionAlreadyApplied,
   isSessionChronologyValid,
   isSessionFile,
 } from '../lib/guards';
-import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
-import { loadHavens, loadTrails } from '../lib/state';
 import { validateSessionEnvelope } from '../lib/validate';
 
 import type { ScribeEvent } from '@skyreach/schemas';
@@ -23,13 +21,28 @@ export async function plan(fileArg?: string) {
   const meta = loadMeta();
 
   // Use shared input helper for file selection
-  const file = await resolveInputFile(fileArg, meta);
-  if (!file) {
-    throw new Error('No file specified despite everything you did.');
+  let file;
+  const resolved = await resolveInputFile(fileArg, meta);
+  switch (resolved.status) {
+    case 'ok':
+      file = resolved.file!;
+      break;
+    case 'none-found':
+      return {
+        status: 'no-op',
+        message: 'No unapplied session or rollover files found.',
+      };
+    case 'cancelled':
+      return { status: 'no-op', message: 'File selection cancelled by user.' };
+    case 'no-prompt-no-arg':
+      return {
+        status: 'validation-error',
+        message: 'No file specified and --no-prompt is set.',
+      };
   }
 
   // File type detection
-  if (isRolloverFile(file)) {
+  if (isRolloverPath(file)) {
     // --- Rollover planning: detect and parse ---
     const events = readEvents(file);
     const rollover = events.find((e) => e.kind === 'season_rollover') as

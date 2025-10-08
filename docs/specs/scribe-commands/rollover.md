@@ -1,18 +1,19 @@
-# `scribe rollover` — Spec (v1)
+# `scribe rollover` — Spec (v1.1)
 
 ## Purpose
 
-Create a standalone JSONL artifact that represents a **season change** outside of any session, without consuming a session sequence number. `weave` will later apply this file to mutate trail state and write the detailed footprint (including actual d6 results).
+Create a standalone JSONL artifact representing a **season change** that occurs **outside of any session**. The artifact is later consumed by `weave apply trails` to mutate trail state and produce a footprint (including d6 outcomes).
 
 ## Preconditions
 
-* **No active session** may be in progress. If a session lock/in-progress file exists, the command must **fail**.
-  * Check: `sessions/.locks/` empty **and** no open in-progress buffer (implementation-specific).
-* Target season ID must be valid and normalized (case-insensitive); store lower-case internally.
+- **No active session** may be in progress. If a session lock/in-progress buffer exists, the command **fails**.
+  - Check: `data/session-logs/.locks/` is empty **and** no open in-progress buffer (implementation-specific).
+
+- Target `seasonId` must be valid (case-insensitive) and stored **normalized** (lower-case `YYYY-season`).
 
 ## Synopsis
 
-```
+```bash
 scribe rollover <seasonId>
 [--dev]                                              # write into dev namespace
 ```
@@ -21,74 +22,69 @@ scribe rollover <seasonId>
 
 1. **Validate no active session**
 
-  * If any session lock exists (e.g., `sessions/.locks/session_*.lock`) or an in-progress session buffer is detected → **exit with error** (see Exit Codes).
+   If any session lock exists (e.g., `data/session-logs/.locks/session-*.lock`) or an in-progress session buffer is detected → **exit with error** (see Exit Codes).
 
 2. **Resolve season(s)**
 
-  * `seasonId` comparisons are **case-insensitive**; normalize to lower-case (e.g., `1511-autumn`).
-  * If `--from/--to` provided, generate a **sequence** of season IDs from A → B (exclusive of A, inclusive of B). Do not infer calendar rules; assume `from`/`to` are already valid adjacent steps according to your calendar system.
+  - `seasonId` comparisons are case-insensitive; normalize to lower-case (e.g., `1511-autumn`).
+  - (Optional future) `--from/--to` could generate a sequence of season IDs from A → B; out of scope for this version.
 
 3. **Output location & naming**
 
-  * **Prod (default)**: `sessions/rollovers/rollover_<seasonId>_<UTC-ISO-DATE>.jsonl`
-    * Example: `sessions/rollovers/rollover_1511-autumn_2025-09-15.jsonl`
-  * **Dev (`--dev`)**: `sessions/_dev/rollovers/dev_rollover_<seasonId>_<UTC-ISO-DATETIME>.jsonl`
-  * Does **not** touch `meta.nextSessionSeq`.
+  - **Prod (default)**: `data/session-logs/rollovers/rollover_<seasonId>.jsonl`
+    Example: `data/session-logs/rollovers/rollover_1511-autumn.jsonl`
+  - **Dev (`--dev`)**: `data/session-logs/_dev/rollovers/dev_rollover_<seasonId>_<UTC-ISO-DATETIME>.jsonl`
 
-4. **File contents (minimal)**
+   Notes:
+  - No date suffix in **prod** filenames (single canonical file per season).
+  - Writing is **atomic** (temp + rename). If the prod file already exists for that season, **leave it as-is** (idempotent).
 
-  * One JSONL record:
+4. **File contents (standard ScribeEvent)**
 
-    ```json
-    { "kind": "season_rollover", "seasonId": "1511-autumn" }
-    ```
-  * Optionally prepend a header record for provenance (nice to have, not required):
+  - One JSONL record using the standard ScribeEvent envelope:
 
     ```json
-    { "kind": "header", "id": "ROLL-1511-autumn", "createdAt": "2025-09-15T21:30:00Z" }
+    { "kind": "season_rollover", "payload": { "seasonId": "1511-autumn" } }
     ```
-  * **Do not** include d6 outcomes or per-edge effects; `weave apply` will compute/store those in a footprint.
 
-5. **Atomic write**
+  - Optional header record (for provenance only; not required):
 
-  * Write to a temp file then rename to the final path to avoid partial files.
+    ```json
+    { "kind": "header", "payload": { "id": "ROLL-1511-autumn", "createdAt": "2025-09-15T21:30:00Z" } }
+    ```
 
-6. **No side effects**
+  - Do **not** include d6 outcomes or per-edge effects; `weave apply` computes and stores those in a footprint.
 
-  * Do not modify `data/meta.yaml` (no counters, no applied lists). Integration with chronology is handled by `weave`.
+5. **Side effects**
+
+  - **None.** Do **not** modify `data/meta.yaml` (no counters or applied lists). Chronology is handled by `weave`.
 
 ## Exit Codes (proposed)
 
-* `0` success
-* `2` active session detected (locks or in-progress buffer present)
-* `4` validation error (bad season ID, invalid range for `--from/--to`)
-* `6` filesystem/write error
+- `0` success
+- `2` active session detected (locks or in-progress buffer present)
+- `4` validation error (bad season ID)
+- `6` filesystem/write error
 
 ## Examples
 
-* Single rollover (prod):
+- Single rollover (prod):
 
-  ```
+  ```bash
   scribe rollover 1511-Autumn
-  -> sessions/rollovers/rollover_1511-autumn_2025-09-15.jsonl
+  # -> data/session-logs/rollovers/rollover_1511-autumn.jsonl
   ```
-* Dev rollover (no counters touched):
 
-  ```
+- Dev rollover (no counters touched):
+
+  ```bash
   scribe rollover 1511-Winter --dev
-  -> sessions/_dev/rollovers/dev_rollover_1511-winter_2025-09-15T21-37-22Z.jsonl
-  ```
-* Multiple rollovers (caught up after a hiatus):
-
-  ```
-  scribe rollover --from 1511-Autumn --to 1512-Spring
-  -> rollover_1511-winter_...jsonl
-  -> rollover_1512-spring_...jsonl
+  # -> data/session-logs/_dev/rollovers/dev_rollover_1511-winter_2025-09-15T21-37-22Z.jsonl
   ```
 
 ## Guardrails & Notes
 
-* **Active-session check is mandatory.** If you routinely need mid-session boundaries, use `finalize` auto-split or pause the session—`scribe rollover` is strictly **out-of-session**.
-* **Season normalization:** store lower-case (`1511-autumn`). Compare case-insensitively everywhere.
-* **Namespace isolation:** `--dev` outputs are ignored by default tooling unless explicitly included (same convention as dev sessions).
-* **Chronology is enforced by `weave`.** Applying a post-season session before its required rollover will fail at `weave plan/apply` with a clear message.
+- **Active-session check is mandatory.** This command is strictly **out-of-session**.
+- **Season normalization:** store lower-case (`1511-autumn`). Compare case-insensitively everywhere.
+- **Namespace isolation:** Dev outputs are ignored by default tooling unless explicitly included.
+- **Chronology is enforced by `weave`.** Applying a post-season session before its required rollover will fail at `weave plan/apply` or `weave apply` with a clear message.

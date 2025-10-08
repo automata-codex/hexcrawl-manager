@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import yaml from 'yaml';
 
 type AtomicWriteOpts = {
   /** If true (default), reuse the existing file's mode when replacing it. */
@@ -89,4 +90,14 @@ export function atomicWrite(
     }
     throw err;
   }
+}
+
+/**
+ * Write a YAML file atomically.
+ * @param filePath
+ * @param data
+ */
+export function writeYamlAtomic(filePath: string, data: any) {
+  const yamlStr = yaml.stringify(data);
+  atomicWrite(filePath, yamlStr);
 }

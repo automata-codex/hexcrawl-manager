@@ -15,13 +15,13 @@ weaveCommand.addCommand(apCommand);
 // `weave apply [sessionId]` -> defaults to AP application
 const applyCommand = new Command('apply')
   .description('Apply a session or rollover file to campaign state')
-  .argument('[sessionId]', 'Optional session id, e.g. session-0042')
+  .argument('[target]', 'Optional session ID (session-0042) or season ID (1511-autumn)')
   .option('--allow-dirty', 'Allow applying with dirty git state')
   .action(
-    async (sessionId: string | undefined, opts: { allowDirty?: boolean }) => {
+    async (target: string | undefined, opts: { allowDirty?: boolean }) => {
       await applyHandler({
         allowDirty: opts.allowDirty,
-        sessionId,
+        target,
         mode: 'all',
       });
     },
@@ -31,13 +31,13 @@ const applyCommand = new Command('apply')
 applyCommand
   .command('ap')
   .description('Apply Advancement Points for a session')
-  .argument('[sessionId]', 'Optional session id, e.g. session-0042')
+  .argument('[target]', 'Optional session ID (session-0042) or season ID (1511-autumn)')
   .option('--allow-dirty', 'Allow applying with dirty git state')
   .action(
-    async (sessionId: string | undefined, opts: { allowDirty?: boolean }) => {
+    async (target: string | undefined, opts: { allowDirty?: boolean }) => {
       await applyHandler({
         allowDirty: opts.allowDirty,
-        sessionId,
+        target,
         mode: 'ap',
       });
     },
@@ -47,13 +47,15 @@ applyCommand
 applyCommand
   .command('trails')
   .description('Apply trail updates for a session')
-  .argument('[sessionId]', 'Optional session id, e.g. session-0042')
+  .argument('[target]', 'Optional session ID (session-0042) or season ID (1511-autumn)')
   .option('--allow-dirty', 'Allow applying with dirty git state')
   .action(
-    async (sessionId: string | undefined, opts: { allowDirty?: boolean }) => {
+    // TODO All the other handlers need to be updated with this pattern
+    async (target: string | undefined, _opts: unknown, command) => {
+      const opts = command.optsWithGlobals();
       await applyHandler({
-        allowDirty: opts.allowDirty,
-        sessionId,
+        allowDirty: !!opts.allowDirty,
+        target,
         mode: 'trails',
       });
     },
@@ -74,9 +76,9 @@ weaveCommand
 weaveCommand
   .command('plan')
   .description('Plan application of a session or rollover file')
-  .argument('[sessionId]', 'Optional session id, e.g. session-0042')
-  .action(async (sessionId: string | undefined) => {
-    await plan(sessionId);
+  .argument('[target]', 'Optional session ID (session-0042) or season ID (1511-autumn)')
+  .action(async (target: string | undefined) => {
+    await plan(target); // TODO Make sure this function can handle session ID and season ID
   });
 
 // ---- status ----

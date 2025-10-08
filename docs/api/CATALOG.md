@@ -21,10 +21,17 @@ Returns the selected path.
 
 ## core/src
 
-- `function assertSessionId(value: string): void` — Asserting validator (throws on bad input)
+- `function assertSeasonId(value: string): string` — Validates and returns a normalized SeasonId (lowercase season).
+- `function assertSessionId(value: string): string` — Asserting validator (throws on bad input)
 - `const CALENDAR_CONFIG: CalendarConfig;`
 - `type CalendarConfig = any;`
+- `function compareSeasonIds(a: string, b: string): number` — Compare two season IDs (e.g., '1511-autumn') for chronological order.
+Returns -1 if a < b, 1 if a > b, 0 if equal.
+Sorts by year, then by season order (winter < spring < summer < autumn).
 - `function datesEqual(a: null | { day: number; month: "Primaris" | "Gelidus" | "Hibernis" | "Vernalis" | "Pluvoris" | "Florara" | "Solinus" | "Aestara" | "Lucidus" | "Fructara" | "Umbraeus" | "Aridus"; year: number }, b: null | { day: number; month: "Primaris" | "Gelidus" | "Hibernis" | "Vernalis" | "Pluvoris" | "Florara" | "Solinus" | "Aestara" | "Lucidus" | "Fructara" | "Umbraeus" | "Aridus"; year: number }): boolean`
+- `class DayStartMissingError`
+- `function deriveSeasonId(date: { day: number; month: "Primaris" | "Gelidus" | "Hibernis" | "Vernalis" | "Pluvoris" | "Florara" | "Solinus" | "Aestara" | "Lucidus" | "Fructara" | "Umbraeus" | "Aridus"; year: number }): string` — Derive a season ID (e.g., '1511-autumn') from a CampaignDate.
+Always returns lower-case.
 - `type DescriptorLibrary = Record&lt;Season, Record&lt;WeatherCategory, string[]&gt;&gt;;`
 - `type DetailTable = any;`
 - `type DetailTables = Record&lt;Season, DetailTable&gt;;`
@@ -32,20 +39,28 @@ Returns the selected path.
 - `type ForecastModifierTable = Record&lt;WeatherCategory, number&gt;;`
 - `function formatDate(d: null | { day: number; month: "Primaris" | "Gelidus" | "Hibernis" | "Vernalis" | "Pluvoris" | "Florara" | "Solinus" | "Aestara" | "Lucidus" | "Fructara" | "Umbraeus" | "Aridus"; year: number }): string`
 - `function getHexNeighbors(hex: string): string[]` — Get neighboring hexes for a given hex in an odd-q flat-topped hex grid.
+- `function getRolloverSeasonId(ev: { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }): undefined | string`
 - `function getSeasonForDate(date: { day: number; month: "Primaris" | "Gelidus" | "Hibernis" | "Vernalis" | "Pluvoris" | "Florara" | "Solinus" | "Aestara" | "Lucidus" | "Fructara" | "Umbraeus" | "Aridus"; year: number }): Season`
 - `function hexSort(hexIdA: string, hexIdB: string): number` — Sorts two hex IDs first by column (alphabetically) and then by row (numerically).
 - `function hoursToSegmentsCeil(hours: number): number`
+- `function isSeasonId(value: string): boolean` — Runtime type guard for SeasonId (case-insensitive, allows normalization).
 - `function isSessionId(value: string): boolean` — Type guard (non-throwing)
 - `function isValidHexId(hexId: string): boolean` — Checks if a given string is a valid hex ID.
 - `type LeapRule = any;`
 - `type MonthDef = any;`
 - `function normalizeHexId(h: string): string` — Normalizes a hex ID by trimming whitespace and converting to uppercase.
+- `function normalizeSeasonId(id: string): string` — Normalize a season ID to lower-case, trimmed.
 - `function padSessionNum(n: string | number): string`
 - `function parseTrailId(trailId: string): null | { from: string; to: string }` — Parses a trail ID into its constituent hex IDs.
 - `type Season = "winter" | "spring" | "summer" | "autumn";`
+- `const SEASON_ID_RE: RegExp;`
+- `const SEASON_ORDER: string[];`
 - `type SeasonalBand = any;`
 - `type SeasonalBandsTable = Record&lt;Season, SeasonalBand[]&gt;;`
+- `class SeasonIdError` — Domain error for invalid season identifiers.
+- `function seasonIdFromEvents(events: { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }[], fileHint?: string): string`
 - `function segmentsToHours(segments: number): number`
+- `const SESSION_ID_RE: RegExp;`
 - `class SessionAlreadyAppliedError`
 - `class SessionFingerprintMismatchError`
 - `class SessionIdError`
@@ -62,15 +77,25 @@ Returns the selected path.
 - `function appendJsonl(p: string, record: T, opts: WriteOpts): void`
 - `function atomicWrite(filePath: string, content: string, opts: AtomicWriteOpts): void` — Write a file atomically: write to a temp file, then rename.
 Ensures that the file is either fully written or not present.
+- `function buildRolloverFilename(season: string): string`
+- `function buildSessionFilename(sessionNumber: number, sessionDate: string, suffix?: string): string`
+- `function canonicalTrailId(a: string, b: string): string` — Build a stable edge id by ordering the two hex ids with hexSort.
+- `function checkFileExists(file: string, msg?: string): string`
+- `class DataFileNotFoundError`
+- `class DataParseError`
+- `class DataValidationError`
 - `class DirtyGitError`
 - `function discoverFinalizedLogs(): FinalizedLogInfo[]` — List all finalized scribe logs in the sessions directory.
 - `function discoverFinalizedLogsFor(sessionNumber: string | number): FinalizedLogInfo[]` — Convenience filter for a specific session number (accepts number or "0001").
 - `function discoverFinalizedLogsForOrThrow(sessionNumber: string | number): FinalizedLogInfo[]` — Convenience guard that throws if nothing matches.
+- `function discoverRolloverFiles(): RolloverInfo[]` — Discover all rollover files on disk (both hyphen/underscore tolerated via regex).
+- `function enrichLogsWithSeason(logs: FinalizedLogInfo[]): FinalizedLogWithSeason[]` — Add `seasonId` to each log by reading its first day_start event.
 - `function ensureDir(filename: string): void`
 - `function ensureRepoDirs(): void`
 - `interface FinalizedLogInfo`
 - `class FinalizedLogJsonParseError`
 - `class FinalizedLogsNotFoundError`
+- `interface FinalizedLogWithSeason`
 - `function getGitHeadCommit(): null | string` — Returns the current git HEAD commit SHA, or null if not in a git repo.
 - `function getLatestSessionNumber(): undefined | number` — Latest (max) session number, if any.
 - `function getRepoPath(...segments: string[]): string` — Get an absolute path within the repository.
@@ -82,17 +107,33 @@ of type T. Files ending with .yml or .yaml are included. If a Zod validator
 is provided, validates each parsed object and warns on failure (with absolute
 file path).
 - `function loadConfig(opts?: { cwd?: string; throwIfMissing?: boolean }): null | { repoRoot: string }`
+- `function loadHavens(): string[]`
 - `function loadMeta(): { appliedSessions: string[]; nextSessionSeq: number; rolledSeasons: string[] }` — Loads the meta.yaml file and returns its contents as MetaData.
+- `function loadTrails(): Record&lt;string, TrailData&gt;` — Load trails with normalized and sorted IDs.
+- `function normalizeTrailKeys(trails: Record&lt;string, TrailData&gt;): Record&lt;string, TrailData&gt;` — Normalize all keys to canonical form (e.g., "p12-p13" and "p13-p12" collapse).
+If duplicates normalize to the same key, the FIRST occurrence wins.
+- `function parseRolloverFilename(base: string): null | { seasonId: string }`
 - `function parseSessionFilename(filename: string): null | FinalizedLogInfo`
-- `function readFinalizedJsonl(sessionNumber: string | number): { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }[]` — Reads and concatenates all finalized JSONL events for a given session.
+- `function readAllFinalizedLogsForSession(sessionNumber: string | number): { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }[]` — Reads and concatenates all finalized JSONL events for a given session.
 Throws FinalizedLogsNotFoundError if no files match,
 and FinalizedLogJsonParseError with file + line info if parsing fails.
+- `function readAndValidateYaml(filepath: string, schema: ZodType&lt;T&gt;): T`
 - `function readJsonl(filename: string, opts: ReadOpts&lt;T&gt;): T[]`
+- `function readOneFinalizedLog(filePath: string): { kind: string; payload: Record&lt;string, unknown&gt;; seq: number; ts: string }[]`
+- `function readYaml(filepath: string): unknown`
 - `const REPO_PATHS: { AP_LEDGER: () =&gt; string; CHARACTERS: () =&gt; string; DEV: () =&gt; string; DEV_IN_PROGRESS: () =&gt; string; DEV_ROLLOVERS: () =&gt; string; DEV_SESSIONS: () =&gt; string; FOOTPRINTS: () =&gt; string; HAVENS: () =&gt; string; IN_PROGRESS: () =&gt; string; LOCKS: () =&gt; string; LOGS_ROOT: () =&gt; string; META: () =&gt; string; REPORTS: () =&gt; string; ROLLOVERS: () =&gt; string; SESSIONS: () =&gt; string; TRAILS: () =&gt; string };`
 - `function resolveDataPath(rel: string): string` — Resolve a path relative to the repo's `data/` directory.
 - `function rollDice(notation: string): number` — Parses dice notation (e.g., "2d6+1") and rolls the dice. Uses secure RNG for
 true randomness only (no seed support).
+- `const ROLLOVER_FILE_RE: RegExp;`
+- `type RolloverInfo = any;` — Internal shape for rollover files on disk.
 - `function saveMeta(partialMeta: Partial&lt;MetaData&gt;): void` — Saves a partial MetaData object to meta.yaml, merging with the existing data.
+- `function saveTrails(trails: Record&lt;string, TrailData&gt;): void` — Writes the canonical, sorted version of the trails file to disk.
+Always rewrites the entire file so diffs remain stable.
+- `function seasonOfSessionFile(filePath: string): string` — Read the first day_start from a session file and derive a normalized seasonId.
+- `const SESSION_FILE_RE: RegExp;`
+- `function sortTrailKeys(trails: Record&lt;string, TrailData&gt;): Record&lt;string, TrailData&gt;` — Deterministically sort the map by edge id using hex-aware ordering:
+first by the first hex (hexSort), then by the second hex (hexSort).
 - `function writeJsonl(filename: string, records: Iterable&lt;T&gt;, opts: WriteOpts): void`
 - `function writeYamlAtomic(filePath: string, data: any): void` — Write a YAML file atomically.
 

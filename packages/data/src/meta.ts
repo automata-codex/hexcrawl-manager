@@ -1,25 +1,14 @@
-import fs from 'fs';
-import yaml from 'yaml';
+import  { type MetaData, MetaSchema } from '@skyreach/schemas';
 
+import { writeYamlAtomic } from './atomic-write';
+import { readAndValidateYaml } from './fs-utils';
 import { REPO_PATHS } from './repo-paths';
-import { writeYamlAtomic } from './write-yaml-atomic';
-
-import type { MetaData } from '@skyreach/schemas';
 
 /**
  * Loads the meta.yaml file and returns its contents as MetaData.
  */
 export function loadMeta(): MetaData {
-  const metaPath = REPO_PATHS.META();
-  if (!fs.existsSync(metaPath)) {
-    throw new Error(`❌ meta.yaml not found at ${metaPath}`);
-  }
-  const metaRaw = fs.readFileSync(metaPath, 'utf8');
-  try {
-    return yaml.parse(metaRaw);
-  } catch (e) {
-    throw new Error(`❌ Failed to parse meta.yaml: ${e}`);
-  }
+  return readAndValidateYaml(REPO_PATHS.META(), MetaSchema);
 }
 
 /**

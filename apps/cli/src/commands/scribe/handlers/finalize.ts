@@ -4,8 +4,8 @@ import {
   detectDevMode,
   requireFile,
   requireSession,
-} from '../services/general.ts';
-import { finalizeSession } from '../services/session.ts';
+} from '../services/general';
+import { finalizeSession } from '../services/session';
 
 import type { Context } from '../types';
 

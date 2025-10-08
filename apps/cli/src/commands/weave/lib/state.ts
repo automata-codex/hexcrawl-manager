@@ -1,9 +1,10 @@
 import { REPO_PATHS, getGitHeadCommit, writeYamlAtomic } from '@skyreach/data';
+import { MetaData } from '@skyreach/schemas';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 
-export function appendToMetaAppliedSessions(meta: any, fileId: string) {
+export function appendToMetaAppliedSessions(meta: MetaData, fileId: string) {
   if (!meta.appliedSessions) {
     meta.appliedSessions = [];
   }
@@ -12,6 +13,7 @@ export function appendToMetaAppliedSessions(meta: any, fileId: string) {
   }
 }
 
+/** @deprecated Use version from `@skyreach/data` instead. */
 export function loadHavens(): string[] {
   try {
     return yaml.parse(fs.readFileSync(REPO_PATHS.HAVENS(), 'utf8')) as string[];
@@ -20,6 +22,7 @@ export function loadHavens(): string[] {
   }
 }
 
+/** @deprecated Use version from `@skyreach/data` instead. */
 export function loadTrails(): Record<string, any> {
   try {
     return yaml.parse(fs.readFileSync(REPO_PATHS.TRAILS(), 'utf8')) as Record<
@@ -52,7 +55,7 @@ export function writeFootprint(footprint: any) {
         sequence = footprint.id;
       }
     }
-    fileName = `S-${realWorldDate}-${sequence}${suffix}.yaml`;
+    fileName = `S-${sequence}${suffix}_${realWorldDate}.yaml`;
   } else if (footprint.kind === 'rollover') {
     // Use seasonId
     const seasonId = (footprint.seasonId || 'unknown').toString().toLowerCase();
