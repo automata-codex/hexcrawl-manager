@@ -1,15 +1,12 @@
 import { Command } from 'commander';
 
-import { apCommand } from './commands/ap';
 import { apply as applyHandler } from './commands/apply';
 import { plan } from './commands/plan';
+import { status as statusHandler } from './commands/status';
 
 export const weaveCommand = new Command('weave').description(
   'Use session and rollover artifacts to update campaign state',
 );
-
-// ---- existing sub-tree ----
-weaveCommand.addCommand(apCommand);
 
 // ---- apply (parent) ----
 // `weave apply [sessionId]` -> defaults to AP application
@@ -18,7 +15,8 @@ const applyCommand = new Command('apply')
   .argument('[target]', 'Optional session ID (session-0042) or season ID (1511-autumn)')
   .option('--allow-dirty', 'Allow applying with dirty git state')
   .action(
-    async (target: string | undefined, opts: { allowDirty?: boolean }) => {
+    async (target: string | undefined, _opts: unknown, command) => {
+      const opts = command.optsWithGlobals();
       await applyHandler({
         allowDirty: opts.allowDirty,
         target,
@@ -34,7 +32,8 @@ applyCommand
   .argument('[target]', 'Optional session ID (session-0042) or season ID (1511-autumn)')
   .option('--allow-dirty', 'Allow applying with dirty git state')
   .action(
-    async (target: string | undefined, opts: { allowDirty?: boolean }) => {
+    async (target: string | undefined, _opts: unknown, command) => {
+      const opts = command.optsWithGlobals();
       await applyHandler({
         allowDirty: opts.allowDirty,
         target,
@@ -50,7 +49,6 @@ applyCommand
   .argument('[target]', 'Optional session ID (session-0042) or season ID (1511-autumn)')
   .option('--allow-dirty', 'Allow applying with dirty git state')
   .action(
-    // TODO All the other handlers need to be updated with this pattern
     async (target: string | undefined, _opts: unknown, command) => {
       const opts = command.optsWithGlobals();
       await applyHandler({
@@ -85,7 +83,7 @@ weaveCommand
 weaveCommand
   .command('status')
   .description('Show weave status and unapplied items')
-  .action(() => {
-    console.log('weave status');
-    // TODO: implement status logic
+  .argument('[domain]', 'Optional domain to show status for (ap)', 'ap')
+  .action(async (domain: string | undefined) => {
+    await statusHandler({ mode: domain as 'ap' | undefined});
   });

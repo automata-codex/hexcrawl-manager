@@ -34,3 +34,4 @@ pnpm-debug.log*
 /.test-repos/
 /_reports/
 tree.txt
+docs/api/typedoc.json

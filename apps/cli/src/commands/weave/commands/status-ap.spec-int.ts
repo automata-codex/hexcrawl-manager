@@ -6,7 +6,7 @@ import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import { rewriteApLedger } from '../../../../services/ap-ledger.service';
+import { rewriteApLedger } from '../../../services/ap-ledger.service';
 
 // AP Status Command Test Suite (specs: ap-workflow-overview.md, ap-status.md)
 describe('Command `weave ap status`', () => {
@@ -78,7 +78,7 @@ describe('Command `weave ap status`', () => {
         );
 
         // Run the CLI command
-        const { exitCode, stdout, stderr } = await runWeave(['ap', 'status'], {
+        const { exitCode, stdout, stderr } = await runWeave(['status', 'ap'], {
           repo,
         });
         expect(exitCode).toBe(0);
