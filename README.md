@@ -1,39 +1,34 @@
-# Beyond the Skyreach Mountains 
+# Beyond the Skyreach Mountains
 
-## Access control system overview
+## 🛳️ Release Process
 
-This project implements an access control system to manage permissions for resources. The system uses **roles** and **scopes** to define and enforce access rules:
+Skyreach uses a **“version-on-develop”** workflow with lightweight automation. A repo owner decides when to release; GitHub Actions handles tagging and consistency checks.
 
-### Key Concepts
+### Manual steps
 
-**Scopes** are attached to content and determine what can be done with that content. **Roles** are assigned to users. Permission checks verify that the current user's role has access to the scope of the content they are trying to access.
+1. **On `develop`**, prepare a release:
 
-### How It Works
+   ```bash
+   git switch develop
+   npm run changeset:version      # applies version bumps + changelogs
+   git commit -am "chore(release): apply versions"
+   git push
+   ```
+2. **Open a PR** from `develop` → `main`.
 
-This check can be performed programmatically, or a convenience wrapper can be used to simplify the check process. Content without a check is accessible by all users.
+  * The “Require Version Bump” action will fail the PR if you forgot to run `changeset version`.
+  * Review and merge when you’re ready to ship.
 
-- `PublicContent` is limited to unregistered users, users without a role, and users with the `public` role.
-- `PlayerContent` is limited to users with the `player` role.
-- `SecretContent` is limited to users with the `gm` role.
-- `OpenContent` is accessible by public users and users with the `player` role.
-- `HiddenContent` is accessible by users with the `player` role or the `gm` role.
+### What happens automatically
 
-The `role` has to be set manually on the user's "public metadata" in the Clerk dashboard. The `role` is a string that can be `public`, `player`, or `gm`.
+* **On merge to `main`**
 
-### Best Practices
+  * CI builds and tests the repo (no publish step—packages are local/private).
+  * Any workspace (`apps/*` or `packages/*`) whose `package.json` changed gets a git tag: `<package-name>@<version>` (e.g. `@skyreach/core@2.9.0`)
+  * Existing tags are never moved; tags are immutable version markers.
 
-- Pages that contain only GM content should return a `404` status code if access by unauthorized users. The `SecretLayout` layout component provides this functionality out of the box.
+### Result
 
-### References
-
-- [ChatGPT thread][4]
-
-[4]: https://chatgpt.com/c/6786637a-96ec-800c-8fca-680d752b825b
-
-## Notes
-
-- [Usage of FontAwesome with Astro][1]
-- You can search the [Open 5e API][2] with queries like `https://api.open5e.com/monsters/?search=kobold&document__slug=wotc-srd`
-
-[1]: https://blog.verybadfrags.com/posts/2024-02-24-astro-font-awesome/
-[2]: https://open5e.com/api-docs
+* `develop` and `main` stay in sync—no post-merge back-merge needed.
+* Each release has clear, permanent tags for every workspace.
+* Repo owner retains full manual control over when releases happen, while routine checks and tagging are automatic.
