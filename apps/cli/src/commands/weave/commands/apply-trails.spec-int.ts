@@ -127,7 +127,7 @@ describe('Command `weave apply trails`', () => {
     );
   });
 
-  it.only('applies trails for a seasonal rollover (explicit path)', async () => {
+  it('applies trails for a seasonal rollover (explicit path)', async () => {
     await withTempRepo(
       'apply-trails-rollover-explicit',
       { initGit: false },
@@ -182,13 +182,11 @@ describe('Command `weave apply trails`', () => {
         );
 
         // --- Run CLI: weave apply trails <rolloverFile> ---
+        // eslint-disable-next-line no-unused-vars
         const { exitCode, stderr, stdout } = await runWeave(
           ['apply', 'trails', '1511-autumn', '--allow-dirty'],
           { repo },
         );
-
-        console.log('STDERR:', stderr);
-        console.log('STDOUT:', stdout);
 
         expect(exitCode).toBe(0);
         expect(stderr).toBeFalsy();

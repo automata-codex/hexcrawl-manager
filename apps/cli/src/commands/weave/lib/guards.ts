@@ -15,11 +15,16 @@ export function isRolloverChronologyValid(
   meta: MetaData,
   seasonId: string,
 ): { valid: boolean; expected: string } {
-  // Only allow rollover for the next unapplied season
   const expected = getNextUnrolledSeason(meta);
+  // If nothing has been rolled yet, allow any first rollover.
+  if (!expected) {
+    return { valid: true, expected: '' };
+  }
+
+  // Only allow rollover for the next unapplied season
   const valid =
-    expected && normalizeSeasonId(seasonId) === normalizeSeasonId(expected);
-  return { valid: !!valid, expected: expected || '' };
+    normalizeSeasonId(seasonId) === normalizeSeasonId(expected);
+  return { valid, expected: expected || '' };
 }
 
 /** @deprecated Use `isRolloverPath` from `@skyreach/data` instead */
