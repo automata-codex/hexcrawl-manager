@@ -1,4 +1,9 @@
 import {
+  deriveSeasonId,
+  getRolloverSeasonId,
+  normalizeSeasonId,
+} from '@skyreach/core';
+import {
   loadHavens,
   loadMeta,
   loadTrails,
@@ -29,7 +34,6 @@ import {
   isSessionChronologyValid,
   isSessionFile,
 } from '../lib/guards';
-import { deriveSeasonId, normalizeSeasonId } from '../lib/season';
 import { appendToMetaAppliedSessions, writeFootprint } from '../lib/state';
 import { validateSessionEnvelope } from '../lib/validate';
 
@@ -149,12 +153,10 @@ export async function applyTrails(
     // --- Validate rollover file ---
     const events = readEvents(file);
     const rollover = events.find((e) => e.kind === 'season_rollover');
-    if (!rollover || !rollover.payload?.seasonId) {
-      throw new CliValidationError(
-        'Rollover file missing season_rollover event or seasonId.',
-      );
+    const seasonId = rollover ? getRolloverSeasonId(rollover) : undefined;
+    if (!seasonId) {
+      throw new CliValidationError('Rollover file missing payload.seasonId.');
     }
-    const seasonId = normalizeSeasonId(rollover.payload.seasonId as string);
     const fileId = path.basename(file);
     if (isRolloverAlreadyApplied(meta, fileId)) {
       throw new AlreadyAppliedError('Rollover already applied.');

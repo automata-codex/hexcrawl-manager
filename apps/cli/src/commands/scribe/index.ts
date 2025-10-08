@@ -7,12 +7,13 @@ import readline from 'node:readline';
 import { scribeCompleter } from './completer';
 import { buildHandlers, showHelp } from './handlers';
 import weatherNag from './hooks/weather-nag';
-import { CalendarService } from './services/calendar.ts';
-import { tokenize } from './services/general.ts';
+import { CalendarService } from './services/calendar';
+import { tokenize } from './services/general';
 import { type Context } from './types';
 
 export const scribeCommand = new Command('scribe')
   .description('Open the in-session logging shell')
+  .option('--dev', 'Enable developer mode')
   .action(() => {
     ensureRepoDirs();
 

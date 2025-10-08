@@ -1,13 +1,12 @@
 import { padSessionNum } from '@skyreach/core';
 import { ScribeEvent } from '@skyreach/schemas';
 import fs from 'fs';
-import path from 'path';
 
 import {
   FinalizedLogJsonParseError,
   FinalizedLogsNotFoundError,
 } from './errors';
-import { SESSION_FILE_RE } from './regex';
+import { parseSessionFilename } from './filenames';
 import { REPO_PATHS } from './repo-paths';
 import { seasonOfSessionFile } from './seasons';
 
@@ -75,22 +74,6 @@ export function getLatestSessionNumber(): number | undefined {
   const all = discoverFinalizedLogs();
   if (!all.length) return undefined;
   return all.reduce((max, x) => Math.max(max, x.sessionNumber), 0);
-}
-
-export function parseSessionFilename(
-  filename: string,
-): FinalizedLogInfo | null {
-  const m = filename.match(SESSION_FILE_RE);
-  if (!m) return null;
-  const [, num, suffix, date, variant] = m;
-  return {
-    filename,
-    fullPath: path.join(REPO_PATHS.SESSIONS(), filename),
-    sessionNumber: parseInt(num, 10),
-    suffix: suffix ?? undefined,
-    date,
-    variant: variant ?? undefined,
-  };
 }
 
 /**
