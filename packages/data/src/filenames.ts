@@ -2,7 +2,11 @@ import { assertSeasonId, normalizeSeasonId } from '@skyreach/core';
 import path from 'path';
 
 import { FinalizedLogInfo } from './finalized-session-logs';
-import { ROLLOVER_FILE_RE, SESSION_FILE_RE } from './regex';
+import {
+  ROLLOVER_DEV_FILE_RE,
+  ROLLOVER_FILE_RE,
+  SESSION_FILE_RE,
+} from './regex';
 import { REPO_PATHS } from './repo-paths';
 
 export function buildRolloverDevFilename(season: string): string {
@@ -21,6 +25,11 @@ export function buildSessionFilename(
   suffix?: string,
 ): string {
   return `session-${sessionNumber}_${sessionDate}${suffix ?? ''}.jsonl`;
+}
+
+export function parseRolloverDevFilename(base: string) {
+  const m = base.match(ROLLOVER_DEV_FILE_RE);
+  return m ? { seasonId: assertSeasonId(`${m[1]}-${m[2]}`) } : null;
 }
 
 export function parseRolloverFilename(base: string) {

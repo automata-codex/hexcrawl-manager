@@ -1,8 +1,8 @@
+import { normalizeSeasonId } from '@skyreach/core';
 import { MetaData } from '@skyreach/schemas';
 import path from 'node:path';
 
 import { getNextUnrolledSeason } from './files';
-import { normalizeSeasonId } from './season';
 
 export function isRolloverAlreadyApplied(
   meta: MetaData,
@@ -22,6 +22,7 @@ export function isRolloverChronologyValid(
   return { valid: !!valid, expected: expected || '' };
 }
 
+/** @deprecated Use `isRolloverPath` from `@skyreach/data` instead */
 export function isRolloverFile(filePath: string): boolean {
   const dir = path.basename(path.dirname(filePath));
   const base = path.basename(filePath);

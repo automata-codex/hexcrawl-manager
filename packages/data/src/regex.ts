@@ -1,3 +1,6 @@
+export const ROLLOVER_DEV_FILE_RE =
+  /^dev_rollover_(\d{4})-(spring|summer|autumn|winter)_[^/]+\.jsonl$/i;
+
 export const ROLLOVER_FILE_RE = /^rollover_(\d{4})-(spring|summer|autumn|winter)\.jsonl$/i;
 
 // Accept BOTH underscore & hyphen in filenames (migration-safe).

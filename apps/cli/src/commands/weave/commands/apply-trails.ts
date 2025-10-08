@@ -4,6 +4,7 @@ import {
   normalizeSeasonId,
 } from '@skyreach/core';
 import {
+  isRolloverPath,
   loadHavens,
   loadMeta,
   loadTrails,
@@ -29,7 +30,6 @@ import {
 import {
   isRolloverAlreadyApplied,
   isRolloverChronologyValid,
-  isRolloverFile,
   isSessionAlreadyApplied,
   isSessionChronologyValid,
   isSessionFile,
@@ -149,7 +149,7 @@ export async function applyTrails(
       };
   }
 
-  if (isRolloverFile(file)) {
+  if (isRolloverPath(file)) {
     // --- Validate rollover file ---
     const events = readEvents(file);
     const rollover = events.find((e) => e.kind === 'season_rollover');
