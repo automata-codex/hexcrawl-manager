@@ -1,4 +1,3 @@
-// src/commands/status/lib/status-ap.ts
 import { REPO_PATHS } from '@skyreach/data';
 import { ApLedgerEntry, ApLedgerEntrySchema } from '@skyreach/schemas';
 

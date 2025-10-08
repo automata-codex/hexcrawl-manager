@@ -16,7 +16,12 @@ import {
   FinalizedLogsNotFoundError,
 } from '@skyreach/data';
 
-import { CliError, CliValidationError, NoChangesError } from '../lib/errors';
+import {
+  AlreadyAppliedError,
+  CliError,
+  CliValidationError,
+  NoChangesError,
+} from '../lib/errors';
 import { resolveTrailsTarget } from '../lib/resolve-trails-target';
 
 import { applyAp } from './apply-ap';
@@ -109,11 +114,35 @@ export async function apply(args: ApplyArgs) {
     }
 
     if (mode === 'all' || mode === 'trails') {
-      // TODO Handle certain errors so we continue with the loop (e.g. `NoChangesError`)
       const items = resolveTrailsTarget(target);
+
+      let applied = 0;
+      let skipped = 0;
+
+      // TODO Add a test for this loop, to ensure that it continues or aborts correctly
       for (const item of items) {
-        const result = await applyTrails({ allowDirty, file: item.file });
-        printApplyTrailsResult(result);
+        try {
+          const result = await applyTrails({ allowDirty, file: item.file });
+          printApplyTrailsResult(result);
+          applied++;
+        } catch (e) {
+          if (e instanceof AlreadyAppliedError) {
+            info(e.message);           // benign: continue
+            skipped++;
+            continue;
+          }
+          if (e instanceof NoChangesError) {
+            info(e.message);           // benign: continue
+            skipped++;
+            continue;
+          }
+          // anything else is a real failure: let the outer catch handle exit code
+          throw e;
+        }
+      }
+
+      if (items.length > 1) {
+        info(`Trail files: applied ${applied}, skipped ${skipped}.`);
       }
     }
 
