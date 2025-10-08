@@ -1,15 +1,15 @@
 import { info } from '@skyreach/cli-kit';
 
-import { HELP_TEXT } from '../help-text.ts';
+import { HELP_TEXT } from '../help-text';
 
-import abort from './abort.ts';
+import abort from './abort';
 import ap from './ap';
 import backtrack from './backtrack';
 import current from './current';
-import date from './date.ts';
-import day from './day.ts';
-import deadReckoning from './deadReckoning.ts';
-import doctor from './doctor.ts';
+import date from './date';
+import day from './day';
+import deadReckoning from './deadReckoning';
+import doctor from './doctor';
 import exit from './exit';
 import finalize from './finalize';
 import help from './help';
@@ -19,10 +19,11 @@ import party from './party';
 import quit from './quit';
 import rest from './rest';
 import resume from './resume';
+import rollover from './rollover';
 import scout from './scout';
 import start from './start';
-import status from './status.ts';
-import time from './time.ts';
+import status from './status';
+import time from './time';
 import trail from './trail';
 import undo from './undo';
 import view from './view';
@@ -30,6 +31,7 @@ import weather from './weather';
 
 import type { Context } from '../types';
 
+// eslint-disable-next-line no-unused-vars
 export type Handler = (args: string[]) => void | Promise<void>;
 export type HandlerMap = Record<string, Handler>;
 
@@ -52,6 +54,7 @@ export function buildHandlers(ctx: Context): HandlerMap {
     quit: quit(),
     rest: rest(ctx),
     resume: resume(ctx),
+    rollover: rollover(ctx),
     scout: scout(ctx),
     start: start(ctx),
     status: status(ctx),

@@ -1,9 +1,15 @@
-import { assertSeasonId } from '@skyreach/core';
+import { assertSeasonId, normalizeSeasonId } from '@skyreach/core';
 import path from 'path';
 
 import { FinalizedLogInfo } from './finalized-session-logs';
 import { ROLLOVER_FILE_RE, SESSION_FILE_RE } from './regex';
 import { REPO_PATHS } from './repo-paths';
+
+export function buildRolloverDevFilename(season: string): string {
+  const date = new Date().toISOString();
+  const safeDate = date.replace(/:/g, '-');
+  return `dev_rollover_${normalizeSeasonId(season)}_${safeDate}.jsonl`;
+}
 
 export function buildRolloverFilename(season: string): string {
   return `rollover_${season}.jsonl`;
