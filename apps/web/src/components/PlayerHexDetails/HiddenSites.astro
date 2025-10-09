@@ -1,0 +1,48 @@
+---
+import { canAccess, getCurrentUserRole } from '../../utils/auth';
+import { SCOPES } from '../../utils/constants';
+
+import HiddenSitesDetailList from './HiddenSitesDetailList.astro';
+import HiddenSitesStringList from './HiddenSitesStringList.astro';
+
+import type { HexData } from '@skyreach/schemas';
+
+interface Props {
+  hex: HexData;
+}
+
+const { hex } = Astro.props;
+
+const { hiddenSites = [] } = hex;
+
+const role = getCurrentUserRole(Astro.locals);
+
+// If you're a GM, and there are no hidden sites, return null
+if (canAccess(role, [SCOPES.GM]) && hiddenSites.length === 0) {
+  return null;
+}
+
+// If you're public or player, and either the hex is not explored or it has no hidden sites, return null
+if (
+  canAccess(role, [SCOPES.PLAYER, SCOPES.PUBLIC]) &&
+  (!hex.isExplored || hiddenSites.length === 0)
+) {
+  return null;
+}
+
+function isObjectArray(arr: any[]): arr is { description: string }[] {
+  return typeof arr[0] === 'object' && 'description' in arr[0];
+}
+---
+
+{
+  hiddenSites && hiddenSites.length > 0 && (
+    <>
+      {isObjectArray(hiddenSites) ? (
+        <HiddenSitesDetailList sites={hiddenSites} />
+      ) : (
+        <HiddenSitesStringList sites={hiddenSites} />
+      )}
+    </>
+  )
+}

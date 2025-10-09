@@ -1,0 +1,15 @@
+---
+import { formatText } from '../utils/text';
+
+import Layout from './BaseLayout.astro';
+const { frontmatter } = Astro.props;
+---
+
+<Layout title={frontmatter.title}>
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h1 class="title is-2">{formatText(frontmatter.title)}</h1>
+      <slot />
+    </div>
+  </section>
+</Layout>

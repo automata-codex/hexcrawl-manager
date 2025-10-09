@@ -12,3 +12,7 @@
 ### Minor Changes
 
 - 3bc046d: Establish Changesets; update advancement points
+
+## 2.3.0
+
+- No release; this version number was skipped.

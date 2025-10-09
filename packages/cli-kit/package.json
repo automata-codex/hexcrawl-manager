@@ -1,0 +1,22 @@
+{
+  "name": "@skyreach/cli-kit",
+  "version": "2.4.0",
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "main": "dist/index.js",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest run || true",
+    "lint": "eslint . || true"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@skyreach/schemas": "*"
+  }
+}

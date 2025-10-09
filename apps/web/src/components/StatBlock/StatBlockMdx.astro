@@ -1,0 +1,17 @@
+---
+import { getEntry } from 'astro:content';
+
+import StatBlock from './StatBlock.astro';
+
+interface Props {
+  statBlockId: string;
+}
+
+const { statBlockId } = Astro.props;
+const statBlockData = await getEntry('statBlocks', statBlockId);
+if (!statBlockData) {
+  throw new Error(`Stat block with ID ${statBlockId} not found`);
+}
+---
+
+<StatBlock data={statBlockData.data} />

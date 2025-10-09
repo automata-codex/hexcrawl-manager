@@ -1,0 +1,113 @@
+---
+import { getCollection } from 'astro:content';
+
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+import type { EncounterCategoryTables } from '../../../types';
+import type {
+  EncounterOverrideData,
+  EncounterTableData,
+  HexData,
+} from '@skyreach/schemas';
+
+const encounterData = await getCollection('encounters');
+const encounters = encounterData.sort((a, b) =>
+  a.data.name.localeCompare(b.data.name),
+);
+const title = 'Encounters';
+
+/**
+ * Build a unique list of all encounter IDs across region tables and hex encounter overrides
+ */
+export function getAllEncounterIds(
+  regionTables: EncounterTableData[],
+  hexes: HexData[],
+): string[] {
+  const seen = new Set<string>();
+
+  // Add encounters from region tables
+  for (const table of regionTables) {
+    for (const category of Object.values(table.categoryTables)) {
+      for (const entries of Object.values(category)) {
+        for (const entry of entries) {
+          seen.add(entry.encounterId);
+        }
+      }
+    }
+  }
+
+  // Add encounters from hex encounterOverrides
+  for (const hex of hexes) {
+    const overrides: EncounterOverrideData | undefined = hex.encounterOverrides;
+    if (overrides) {
+      if ('categoryTables' in overrides) {
+        Object.values(
+          overrides.categoryTables as EncounterCategoryTables,
+        ).forEach((category) => {
+          for (const entries of Object.values(category)) {
+            for (const entry of entries) {
+              seen.add(entry.encounterId);
+            }
+          }
+        });
+      }
+    }
+  }
+
+  return Array.from(seen);
+}
+
+const hexEntries = await getCollection('hexes');
+const hexes = hexEntries
+  .filter((hex) => !!hex.data.encounterOverrides)
+  .map((hex) => hex.data);
+const regions = await getCollection('regions');
+
+const regionTables = regions
+  .map((region) => region.data.encounters)
+  .filter((region) => !!region);
+const usedEncounters = getAllEncounterIds(regionTables, hexes);
+
+function formatEncounterName(encounterId: string, encounterName: string) {
+  if (!usedEncounters.includes(encounterId)) {
+    return `<span class="unused-encounter">${encounterName}</span>`;
+  }
+  return encounterName;
+}
+---
+
+<style is:global>
+  .unused-encounter {
+    color: var(--bulma-text);
+    font-style: italic;
+    font-weight: bold;
+  }
+</style>
+<style>
+  p {
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    columns: 3;
+    margin-top: 0;
+  }
+</style>
+<SecretLayout title={title}>
+  <p>
+    Encounter names <span class="unused-encounter">in this style</span> are unused.
+  </p>
+  <ul>
+    {
+      encounters.map((encounter) => (
+        <li>
+          <a href={`/gm-reference/encounters/${encounter.id}`}>
+            <Fragment
+              set:html={formatEncounterName(encounter.id, encounter.data.name)}
+            />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</SecretLayout>

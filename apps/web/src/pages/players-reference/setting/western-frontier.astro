@@ -1,0 +1,31 @@
+---
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import { faEyeEvil } from '@fortawesome/pro-light-svg-icons';
+import { getEntry } from 'astro:content';
+
+import SecretContent from '../../../components/Content/SecretContent.astro';
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import { renderMarkdown } from '../../../utils/markdown';
+
+const article = await getEntry('articles', 'western-frontier');
+if (!article) {
+  throw new Error('Article not found');
+}
+const { title } = article.data;
+
+const evilEye = icon(faEyeEvil);
+---
+
+<ArticleLayout title={title}>
+  <SecretContent>
+    <div class="box callout">
+      <Fragment set:html={evilEye.html} />
+      See the <a href="/gm-reference/western-frontier-gms-notes"
+        >GM&rsquo;s section</a
+      > for this article.
+    </div>
+  </SecretContent>
+  <article>
+    <Fragment set:html={renderMarkdown(article.body ?? '')} />
+  </article>
+</ArticleLayout>

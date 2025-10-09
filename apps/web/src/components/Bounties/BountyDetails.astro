@@ -1,0 +1,60 @@
+---
+import { getCollection } from 'astro:content';
+
+import { renderMarkdown } from '../../utils/markdown';
+import SecretContent from '../Content/SecretContent.astro';
+import StatBlock from '../StatBlock/StatBlock.astro';
+
+import type { BountyData } from '@skyreach/schemas';
+
+interface Props {
+  bounty: BountyData;
+}
+
+const { bounty } = Astro.props;
+
+const statBlockData = await getCollection('statBlocks');
+
+async function getStatBlocks(statBlockIds: string[]) {
+  const output = statBlockIds.map(async (id) => {
+    const statBlock = statBlockData.find((statBlock) => statBlock.id === id);
+    if (!statBlock) {
+      throw new Error('Stat block not found: ' + id);
+    }
+    return statBlock.data;
+  });
+  return Promise.all(output);
+}
+
+const statBlocks = await getStatBlocks(bounty.statBlocks);
+---
+
+<style>
+  .bounty-poster {
+    font-style: italic;
+  }
+</style>
+<p class="bounty-poster">Posted by: {bounty.poster}</p>
+<div>
+  <Fragment set:html={renderMarkdown(bounty.text)} />
+</div>
+<SecretContent>
+  {
+    bounty.notes && (
+      <div>
+        <h2 class="title is-3">GM&rsquo;s Notes</h2>
+        <Fragment set:html={renderMarkdown(bounty.notes)} />
+      </div>
+    )
+  }
+  {
+    statBlocks.length > 0 && (
+      <div>
+        <h2 class="title is-3">Stat Blocks</h2>
+        {statBlocks.map((statBlock) => (
+          <StatBlock data={statBlock} />
+        ))}
+      </div>
+    )
+  }
+</SecretContent>

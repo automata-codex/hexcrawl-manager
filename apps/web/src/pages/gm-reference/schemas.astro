@@ -1,0 +1,91 @@
+---
+import { promises as fs } from 'node:fs';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+import SecretLayout from '../../layouts/SecretLayout.astro';
+import { flattenJsonSchema } from '../../utils/schemas';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const SCHEMA_DIR = resolve(__dirname, '../../../schemas');
+
+// Load all Zod schemas dynamically
+async function loadJsonSchemas() {
+  const filenames = await fs.readdir(SCHEMA_DIR);
+  const schemas = [];
+
+  for (const filename of filenames) {
+    if (filename.endsWith('.json')) {
+      const file = await fs.readFile(resolve(SCHEMA_DIR, filename), 'utf-8');
+      const parsed = JSON.parse(file);
+      schemas.push({
+        filename,
+        name: parsed.description || filename,
+        fields: flattenJsonSchema(parsed, {
+          definitions: parsed.definitions,
+          rootSchema: parsed,
+          filename,
+        }),
+      });
+    }
+  }
+
+  return schemas;
+}
+
+const schemaList = await loadJsonSchemas();
+---
+
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+
+  th,
+  td {
+    text-align: left;
+    border-bottom: 1px solid #333;
+    padding-right: 1rem;
+  }
+</style>
+
+<SecretLayout title="Game Master Reference: Schemas">
+  {
+    schemaList.map(({ name, fields }) => (
+      <section>
+        <h2 class="title is-4">
+          <code>{name}</code>
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {fields.map((field) => (
+              <tr>
+                <td>
+                  <span
+                    style={`padding-left: ${field.depth}rem; display: inline-block;`}
+                  >
+                    {field.depth > 0 && '└ '}
+                    {field.key.split('.').pop()}
+                  </span>
+                </td>
+                <td>{field.type}</td>
+                <td>{field.required ? '✓' : ''}</td>
+                <td>{field.description}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    ))
+  }
+</SecretLayout>

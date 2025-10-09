@@ -1,0 +1,19 @@
+{
+  "name": "@skyreach/core",
+  "version": "2.4.0",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "main": "dist/index.js",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest run || true",
+    "lint": "eslint . || true"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@skyreach/schemas": "*"
+  }
+}

@@ -1,0 +1,15 @@
+---
+import { getCollection } from 'astro:content';
+
+import Faction from '../../../components/Faction.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+const factionData = await getCollection('factions');
+const factions = factionData
+  .map((entry) => entry.data)
+  .sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<SecretLayout title="Factions">
+  {factions.map((faction) => <Faction faction={faction} />)}
+</SecretLayout>

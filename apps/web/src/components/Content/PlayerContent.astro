@@ -1,0 +1,12 @@
+---
+import { canAccess, getCurrentUserRole } from '../../utils/auth';
+import { SCOPES } from '../../utils/constants';
+
+import type { Scope } from '@skyreach/schemas';
+
+// Restricts content to users with the "player" role.
+
+const role = getCurrentUserRole(Astro.locals);
+---
+
+{canAccess(role, [SCOPES.PLAYER]) && <slot />}

@@ -1,0 +1,28 @@
+---
+import { startCase, toLower } from 'lodash-es';
+
+import type { StatBlockSkillsData } from '@skyreach/schemas';
+
+interface Props {
+  data?: StatBlockSkillsData;
+}
+
+const { data = {} } = Astro.props;
+if (Object.keys(data).length === 0) {
+  return null;
+}
+const skills = Object.entries(data);
+---
+
+<div>
+  <span class="inline-heading">Skills:</span>
+  {' '}
+  {
+    skills.map(([skill, value]: [string, number]) => (
+      <span>
+        {startCase(toLower(skill))}+{value}
+        {skill !== skills[skills.length - 1][0] ? ', ' : ''}
+      </span>
+    ))
+  }
+</div>

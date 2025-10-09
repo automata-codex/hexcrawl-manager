@@ -1,0 +1,78 @@
+---
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from '@clerk/astro/components';
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import { faMountainSun } from '@fortawesome/pro-light-svg-icons';
+import { faBars } from '@fortawesome/pro-regular-svg-icons';
+
+const menuIcon = icon(faBars);
+const skyreachIcon = icon(faMountainSun);
+---
+
+<style>
+  .clerk-icon {
+    padding-right: 0;
+  }
+
+  .sidebar-toggle {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    height: fit-content;
+    align-self: center;
+  }
+
+  .sidebar-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  @media screen and (min-width: 768px) and (max-width: 1023px) {
+    .clerk-icon {
+      padding-right: 0.75rem;
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    .navbar {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-end {
+      justify-content: flex-end;
+      margin-inline-start: auto;
+    }
+  }
+</style>
+<div class="container is-max-desktop">
+  <nav class="navbar" role="navigation">
+    <div class="navbar-brand">
+      <button
+        class="button is-dark is-small sidebar-toggle"
+        onclick="window.dispatchEvent(new CustomEvent('toggle-sidebar'))"
+        aria-label="Toggle sidebar"
+      >
+        <Fragment set:html={menuIcon.html} />
+      </button>
+      <a class="navbar-item" href="/">
+        <Fragment set:html={skyreachIcon.html} />
+        Beyond the Skyreach Mountains
+      </a>
+    </div>
+    <div class="navbar-end">
+      <div class="navbar-item clerk-icon">
+        <SignedOut>
+          <SignInButton mode="modal" />
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </div>
+    </div>
+  </nav>
+</div>

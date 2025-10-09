@@ -1,0 +1,64 @@
+name: Tag bumped workspaces on main
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect changed package.json files in this push
+        id: changed
+        run: |
+          set -euo pipefail
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+          # List only workspace manifests under apps/* or packages/* that changed in this push
+          CHANGED=$(git diff --name-only "$BEFORE" "$AFTER" | grep -E '^(apps|packages)/[^/]+/package\.json$' || true)
+          {
+            echo "files<<EOF"
+            echo "$CHANGED"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Tag all bumped workspaces
+        if: steps.changed.outputs.files != ''
+        run: |
+          set -euo pipefail
+          CREATED=0
+
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in */package.json) ;; *) continue ;; esac
+
+            NAME=$(node -p "try { require('./${f}').name || '' } catch { '' }")
+            VER=$(node -p "try { require('./${f}').version || '' } catch { '' }")
+            [ -z "$NAME" ] || [ -z "$VER" ] && continue
+
+            TAG="${NAME}@${VER}"
+            if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+              echo "Tag ${TAG} already exists; leaving unchanged."
+              continue
+            fi
+
+            git tag -a "${TAG}" -m "Release ${TAG}"
+            echo "Tagged ${TAG}"
+            CREATED=1
+          done <<< "${{ steps.changed.outputs.files }}"
+
+          if [ "$CREATED" -eq 1 ]; then
+            git push --tags
+          else
+            echo "No new tags created."
+          fi

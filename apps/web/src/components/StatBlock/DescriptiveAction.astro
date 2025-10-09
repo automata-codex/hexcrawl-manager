@@ -1,0 +1,30 @@
+---
+import { renderBulletMarkdown } from '../../utils/markdown';
+
+import type { DescriptiveActionData } from '@skyreach/schemas';
+
+interface Props {
+  action: DescriptiveActionData;
+}
+
+const { action } = Astro.props;
+const nameText = action.recharge
+  ? `${action.name} (Recharge ${action.recharge})`
+  : action.name;
+---
+
+<style>
+  .action-name {
+    font-style: italic;
+    font-weight: bold;
+  }
+
+  .attack-type {
+    font-style: italic;
+  }
+</style>
+<div>
+  <span class="action-name">{nameText}.</span>
+  {' '}
+  <Fragment set:html={renderBulletMarkdown(action.desc)} />
+</div>

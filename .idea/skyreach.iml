@@ -10,6 +10,11 @@
       <excludeFolder url="file://$MODULE_DIR$/scripts/clue-linker" />
       <excludeFolder url="file://$MODULE_DIR$/scripts/clue-linker/.venv-clue-linker" />
       <excludeFolder url="file://$MODULE_DIR$/scripts/elevation-solver" />
+      <excludeFolder url="file://$MODULE_DIR$/_reports" />
+      <excludeFolder url="file://$MODULE_DIR$/data/session-logs/_dev" />
+      <excludeFolder url="file://$MODULE_DIR$/.test-repos" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/web/.astro" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/web/.vercel" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

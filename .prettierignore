@@ -1,0 +1,36 @@
+# content you don’t want formatted
+*.json
+*.md
+*.mdx
+*.xml
+*.yml
+*.yaml
+
+# common build artifacts
+dist/
+build/
+coverage/
+_reports/
+*.zip
+
+# packages build output
+packages/**/dist/**
+
+# apps build output + host artifacts
+apps/**/dist/**
+apps/**/build/**
+apps/**/.vercel/**
+
+# framework working dirs for the web app
+apps/web/.svelte-kit/**
+apps/web/.astro/**
+
+# (Prettier already ignores node_modules, but safe to be explicit)
+node_modules/**
+
+# local python venvs under scripts
+scripts/clue-linker/.venv-clue-linker/**
+scripts/elevation-solver/.venv-clue-linker/**
+
+# optional: TypeScript build info files
+**/*.tsbuildinfo

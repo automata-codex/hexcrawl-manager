@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+
+import ComponentLayout from '../../../layouts/ComponentLayout.astro';
+
+const charactersData = await getCollection('characters');
+const characters = charactersData
+  .map((character) => character.data)
+  .sort((a, b) => a.displayName.localeCompare(b.displayName));
+---
+
+<style>
+  .all-link {
+    margin-top: 1rem;
+  }
+
+  .list-container {
+    columns: 2;
+  }
+</style>
+<ComponentLayout title="Characters">
+  <div>
+    <div class="list-container">
+      <ul>
+        {
+          characters.map((character) => (
+            <li>
+              <a href={`/gm-reference/characters/${character.id}`}>
+                {character.fullName}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <p class="all-link">
+      View <a href="/gm-reference/characters/all">all characters</a> on one page.
+    </p>
+  </div>
+</ComponentLayout>

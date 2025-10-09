@@ -1,0 +1,30 @@
+{
+  "name": "@skyreach/schemas",
+  "version": "2.4.0",
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./*.schema.json": "./dist/*.schema.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "build:json-schemas": "tsx ./src/build-json-schemas.ts"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "zod-to-json-schema": "^3.24.5"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@skyreach/test-helpers",
+  "version": "2.4.0",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "dist/index.js",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@skyreach/core": "*",
+    "@skyreach/data": "*",
+    "@skyreach/schemas": "*",
+    "execa": "^9.6.0"
+  },
+  "devDependencies": {}
+}

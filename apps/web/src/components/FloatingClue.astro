@@ -1,0 +1,88 @@
+---
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import { faCircleInfo } from '@fortawesome/pro-solid-svg-icons';
+import { getCollection } from 'astro:content';
+
+import { getEncounterPath, getFloatingCluePath } from '../config/routes';
+import { flatKnowledgeTrees } from '../utils/knowledge-trees';
+import { renderBulletMarkdown, renderMarkdown } from '../utils/markdown';
+
+import Unlocks from './Unlocks.svelte';
+
+import type { FloatingClueData } from '@skyreach/schemas';
+
+interface Props {
+  clue: FloatingClueData;
+  showDetail?: boolean;
+  showName?: boolean;
+}
+
+const { clue, showDetail = false, showName = true } = Astro.props as Props;
+const infoIcon = icon(faCircleInfo);
+
+const encounters = await getCollection('encounters');
+const linkedEncounters = (clue.encounters ?? [])
+  .map((encounterId) =>
+    encounters.find((encounter) => encounter.id === encounterId),
+  )
+  .filter((e): e is NonNullable<typeof e> => Boolean(e));
+const encounterList = linkedEncounters
+  .map(
+    (encounter) => `
+  <a href="${getEncounterPath(encounter.id)}">
+    ${encounter.data.name}
+  </a>
+`,
+  )
+  .join(', ');
+---
+
+<style is:global>
+  h3.title.is-4 {
+    font-size: 1.25rem;
+  }
+</style>
+<style>
+  h2.title.is-3 {
+    color: var(--bulma-text-strong);
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  .icon {
+    margin-left: 0.5rem;
+  }
+</style>
+<h2 class="title is-3">
+  {showName && clue.name}
+  {
+    !showDetail && clue.detailText && (
+      <span class="icon">
+        <a href={getFloatingCluePath(clue.id)}>
+          <span set:html={infoIcon.html} />
+        </a>
+      </span>
+    )
+  }
+</h2>
+{
+  showDetail && encounterList.length > 0 && (
+    <div style="margin-bottom: 1rem;">
+      <p class="hanging-indent">
+        <span class="inline-heading">Encounters with this clue:</span>{' '}
+        <Fragment set:html={encounterList} />
+      </p>
+    </div>
+  )
+}
+<p style="margin-bottom: 1rem;">
+  {renderBulletMarkdown(clue.summary)}
+</p>
+<Unlocks knowledgeTrees={flatKnowledgeTrees} unlocks={clue.unlocks ?? []} />
+{
+  showDetail && clue.detailText && (
+    <div>
+      <Fragment set:html={renderMarkdown(clue.detailText ?? '')} />
+    </div>
+  )
+}

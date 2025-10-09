@@ -1,0 +1,23 @@
+---
+import { getHexNeighbors } from '@skyreach/core';
+
+import type { HexData } from '@skyreach/schemas';
+
+interface Props {
+  hex: HexData;
+}
+
+const { hex } = Astro.props;
+const neighbors = getHexNeighbors(hex.id);
+---
+
+<div>Neighbors:</div>
+{
+  neighbors.map((neighbor) => (
+    <div>
+      <a href={`/session-toolkit/hexes/${neighbor.toLowerCase()}`}>
+        {neighbor}
+      </a>
+    </div>
+  ))
+}

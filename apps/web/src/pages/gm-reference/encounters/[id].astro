@@ -1,0 +1,213 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+
+import StatBlock from '../../../components/StatBlock/StatBlock.astro';
+import {
+  getFloatingCluePath,
+  getHexPath,
+  getRegionPath,
+} from '../../../config/routes';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import {
+  renderBulletMarkdown,
+  renderMarkdown,
+  renderSubArticleMarkdown,
+} from '../../../utils/markdown';
+
+import type { FloatingClueEntry, HexEntry, RegionEntry } from '../../../types';
+import type { EncounterData } from '@skyreach/schemas';
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Query for the entry directly using the request slug
+const encounterData = await getEntry('encounters', id);
+
+// Redirect if the entry does not exist
+if (encounterData === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+const encounter: EncounterData = encounterData.data;
+const statBlocks = await getCollection('statBlocks');
+const regions = await getCollection('regions');
+const hexes = await getCollection('hexes');
+const floatingClues = await getCollection('floatingClues');
+
+const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
+
+function clueUsesEncounter(
+  clue: FloatingClueEntry,
+  encounterId: string,
+): boolean {
+  return !!clue.data.encounters?.includes(encounterId);
+}
+
+function encounterIsInRegion(
+  region: RegionEntry,
+  encounterId: string,
+): boolean {
+  for (const categoryTable of Object.values(
+    region.data.encounters?.categoryTables ?? {},
+  )) {
+    for (const entries of Object.values(categoryTable ?? {})) {
+      if (entries.some((entry) => entry.encounterId === encounterId)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function encounterIsInHex(hex: HexEntry, encounterId: string): boolean {
+  const overrides = hex.data.encounterOverrides;
+  if (!overrides || !('categoryTables' in overrides)) return false;
+
+  for (const category of Object.values(overrides.categoryTables ?? {})) {
+    for (const entries of Object.values(category ?? {})) {
+      if (entries.some((entry) => entry.encounterId === encounterId)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+const regionsUsingEncounter = regions.filter((region) =>
+  encounterIsInRegion(region, id),
+);
+const regionList = regionsUsingEncounter
+  .map(
+    (region) => `<a href=${getRegionPath(region.id)}>${region.data.name}</a>`,
+  )
+  .join(', ');
+const hexesUsingEncounter = hexes.filter((hex) => encounterIsInHex(hex, id));
+const hexList = hexesUsingEncounter
+  .map((hex) => `<a href=${getHexPath(hex.id)}>${hex.data.name}</a>`)
+  .join(', ');
+
+const floatingCluesUsingEncounter = floatingClues.filter((clue) =>
+  clueUsesEncounter(clue, id),
+);
+const floatingClueList = floatingCluesUsingEncounter
+  .map(
+    (clue) => `<a href=${getFloatingCluePath(clue.id)}>${clue.data.name}</a>`,
+  )
+  .join(', ');
+
+export const ROLEPLAY_BOOKS = [
+  { keyword: 'bearfolk', slug: 'roleplay-book-bearfolk' },
+  { keyword: 'alseid', slug: 'roleplay-book-alseid' },
+  { keyword: 'gearforged', slug: 'roleplay-book-gearforged' },
+  { keyword: 'kobold', slug: 'roleplay-book-kobolds' },
+];
+
+const statBlockIds = encounter.statBlocks ?? [];
+const matchedRoleplayBooks = ROLEPLAY_BOOKS.filter(({ keyword }) =>
+  statBlockIds.some((id) => id.includes(keyword)),
+);
+const roleplayBookEntries = (
+  await Promise.all(
+    matchedRoleplayBooks.map(({ slug }) => getEntry('articles', slug)),
+  )
+).filter((entry) => entry !== undefined);
+---
+
+<style is:global>
+  strong.inline-heading {
+    color: var(--bulma-strong-color);
+  }
+
+  .description table {
+    border-spacing: 0;
+    margin-top: 1rem;
+  }
+
+  .description td,
+  .description th {
+    border-bottom: 1px solid var(--bulma-border);
+    padding-right: 1rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .description th {
+    border-top: 1px solid var(--bulma-border);
+  }
+</style>
+<style>
+  .description {
+    margin-top: 1rem;
+
+    p:not(:first-child) {
+      text-indent: var(--skyreach-standard-indent);
+    }
+  }
+
+  .stat-block-container section:not(:last-child) {
+    border-bottom: 1px solid var(--bulma-body-color);
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+  }
+</style>
+<SecretLayout title={title}>
+  {
+    floatingClueList.length > 0 && (
+      <p>
+        <strong>Floating Clues</strong> using this encounter:{' '}
+        <Fragment set:html={floatingClueList} />
+      </p>
+    )
+  }
+
+  {
+    regionList.length > 0 && (
+      <p>
+        Regions with this encounter: <Fragment set:html={regionList} />
+      </p>
+    )
+  }
+  {
+    hexList.length > 0 && (
+      <p>
+        Hexes with this encounter: <Fragment set:html={hexList} />
+      </p>
+    )
+  }
+  <div class="description">
+    <Fragment set:html={renderMarkdown(encounter.description)} />
+  </div>
+  <div class="roleplay-books">
+    {
+      roleplayBookEntries.map((entry) => (
+        <div>
+          <h2 class="title is-3">{entry.data.title}</h2>
+          <Fragment set:html={renderSubArticleMarkdown(entry.body ?? '')} />
+        </div>
+      ))
+    }
+  </div>
+  <div class="stat-block-container">
+    {
+      encounter.statBlocks.map((statBlockId: string) => {
+        const statBlock = statBlocks.find(
+          (statBlock) => statBlock.id === statBlockId,
+        );
+        if (!statBlock) {
+          throw new Error(`Stat block not found: ${statBlockId}`);
+        }
+        return <StatBlock data={statBlock.data} />;
+      })
+    }
+  </div>
+</SecretLayout>

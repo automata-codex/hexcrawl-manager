@@ -1,0 +1,93 @@
+---
+import { getCollection } from 'astro:content';
+
+import { getHexPath, getRegionPath } from '../../config/routes';
+import { renderMarkdown } from '../../utils/markdown';
+import SecretContent from '../Content/SecretContent.astro';
+import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
+
+import ContentDensity from './ContentDensity.astro';
+import TreasureRating from './TreasureRating.astro';
+
+import type { RegionData } from '@skyreach/schemas';
+
+interface Props {
+  region: RegionData;
+  isSubcomponent?: boolean;
+}
+
+const { region, isSubcomponent = false } = Astro.props;
+
+function getRecHeading() {
+  const element = isSubcomponent ? 'h3' : 'h2';
+  return `<${element} class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</${element}>`;
+}
+
+const articles = await getCollection('articles');
+const dungeons = await getCollection('dungeons');
+const hexData = await getCollection('hexes');
+const hexes = hexData
+  .filter((hex) => hex.data.regionId === region.id)
+  .map((hex) => hex.data.id.toUpperCase())
+  .sort((a, b) => a.localeCompare(b));
+---
+
+<style>
+  .description-container {
+    margin-top: 1rem;
+
+    p:not(:first-child) {
+      text-indent: var(--skyreach-standard-indent);
+    }
+  }
+
+  .hex-list {
+    display: flex;
+    font-weight: bold;
+
+    div {
+      margin-right: 1rem;
+    }
+  }
+</style>
+<SecretContent>
+  <div>
+    <div class="hex-list">
+      <div><span class="inline-heading">Hexes:</span></div>
+      {
+        hexes.map((hex) => (
+          <div>
+            <a href={getHexPath(hex.toLowerCase())}>{hex}</a>
+          </div>
+        ))
+      }
+      <div>|</div>
+      <div><a href=`${getRegionPath(region.id)}/hexes`>View all</a></div>
+    </div>
+    <div class="hanging-indent">
+      <span class="inline-heading">Haven:</span>{' '}{region.haven}
+    </div>
+    <ContentDensity
+      dungeons={dungeons}
+      hexData={hexData}
+      hexCount={hexes.length}
+      region={region}
+    />
+    <TreasureRating
+      articles={articles}
+      dungeons={dungeons}
+      hexData={hexData}
+      region={region}
+    />
+    <div class="description-container">
+      <Fragment set:html={renderMarkdown(region.description)} />
+    </div>
+    <Fragment set:html={getRecHeading()} />
+    <p class="hanging-indent">
+      <span class="inline-heading">Chance of encounter:</span>
+      {' '}
+      {region.encounterChance * 5}% (&le;{region.encounterChance})
+    </p>
+    <RandomEncounterTable data={region.encounters} />
+  </div>
+</SecretContent>

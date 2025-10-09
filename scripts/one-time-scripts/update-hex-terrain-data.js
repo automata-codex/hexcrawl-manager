@@ -4,9 +4,9 @@
  */
 
 import pkg from 'fs-extra';
+import { globby } from 'globby';
 import { join } from 'path';
 import { parse, stringify } from 'yaml';
-import { globby } from 'globby';
 
 const { readFile, ensureDir, writeFile } = pkg;
 
@@ -84,8 +84,8 @@ async function processHexes(hexEntries, hexMap) {
     const hexEntries = await loadHexEntries();
     const existingHexMap = await findExistingHexFiles(DATA_DIR);
     await processHexes(hexEntries, existingHexMap);
-    console.log("✨ Done.");
+    console.log('✨ Done.');
   } catch (err) {
-    console.error("💥 Error:", err);
+    console.error('💥 Error:', err);
   }
 })();

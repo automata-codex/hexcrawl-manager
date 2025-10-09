@@ -1,0 +1,25 @@
+---
+import type { SpecialActionData } from '@skyreach/schemas';
+
+interface Props {
+  action: SpecialActionData;
+}
+
+const { action } = Astro.props;
+---
+
+<style>
+  .action-name {
+    font-style: italic;
+    font-weight: bold;
+  }
+
+  .attack-type {
+    font-style: italic;
+  }
+</style>
+<div>
+  <span class="action-name">{action.name}.</span>
+  {' '}
+  {action.desc}
+</div>

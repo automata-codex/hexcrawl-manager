@@ -4,9 +4,9 @@
  */
 
 import pkg from 'fs-extra';
+import { globby } from 'globby';
 import { basename, extname } from 'path';
 import { parse, stringify } from 'yaml';
-import { globby } from 'globby';
 
 const { readFile, writeFile } = pkg;
 
@@ -66,5 +66,5 @@ function extractSlugAndId(filePath) {
     }
   }
 
-  console.log("✨ Done adding default values to hex files.");
+  console.log('✨ Done adding default values to hex files.');
 })();

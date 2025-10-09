@@ -1,8 +1,9 @@
 # build output
 dist/
 
-# generated types
+# generated types & files
 .astro/
+*.tsbuildinfo
 
 # dependencies
 node_modules/
@@ -29,3 +30,8 @@ pnpm-debug.log*
 /scripts/clue-linker/.venv-clue-linker/
 /data/clue-links.yaml
 /scripts/elevation-solver/.venv-elevation-solver/
+/data/session-logs/_dev
+/.test-repos/
+/_reports/
+tree.txt
+docs/api/typedoc.json

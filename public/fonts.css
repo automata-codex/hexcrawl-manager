@@ -1,9 +1,0 @@
-/*
-This CSS resource incorporates links to font software which is the valuable copyrighted property of Monotype and/or its suppliers. You may not attempt to copy, install, redistribute, convert, modify or reverse engineer this font software. Please contact Monotype with any questions regarding Web Fonts: http://www.fonts.com
-*/
-
-@import url("https://fast.fonts.net/lt/1.css?apiType=css&c=d00c2ad7-9b1b-4635-8635-6ebb39177120&fontids=5728363");
-@font-face {
-  font-family: "Souvenir";
-  src:url("407181a3-a568-4379-a1cf-bb60661f0f70.woff2") format("woff2"),url("9236ffb0-c485-4f91-99ef-e969f3836d89.woff") format("woff");
-}
