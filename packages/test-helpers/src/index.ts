@@ -1,3 +1,4 @@
+export * from './fixtures';
 export { getTestRepoBase } from './get-test-repo-base';
 export { findSessionFiles } from './find-session-files';
 export { runScribe } from './run-scribe';
