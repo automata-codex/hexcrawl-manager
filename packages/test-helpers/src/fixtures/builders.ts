@@ -1,4 +1,4 @@
-import { getDaylightCapForSeason, Season } from '@skyreach/core';
+import { getDaylightCapForSeason, getSeasonForDate } from '@skyreach/core';
 import {
   type ScribeEventKind,
   type PayloadOfKind,
@@ -32,8 +32,8 @@ export function dayEnd(
 
 export function dayStart(
   calendarDate: DayStartEventPayload['calendarDate'],
-  season: Season,
 ): EventPrototype<'day_start'> {
+  const season = getSeasonForDate(calendarDate);
   return {
     kind: 'day_start',
     payload: {
@@ -88,7 +88,9 @@ export function partySet(ids: string[]): EventPrototype<'party_set'> {
   };
 }
 
-export function seasonRollover(seasonId: string): EventPrototype<'season_rollover'> {
+export function seasonRollover(
+  seasonId: string,
+): EventPrototype<'season_rollover'> {
   return {
     kind: 'season_rollover',
     payload: { seasonId },
@@ -123,7 +125,9 @@ export function sessionEnd(sessionId: string): EventPrototype<'session_end'> {
   };
 }
 
-export function sessionPause(sessionId: string): EventPrototype<'session_pause'> {
+export function sessionPause(
+  sessionId: string,
+): EventPrototype<'session_pause'> {
   return {
     kind: 'session_pause',
     payload: {
@@ -165,10 +169,9 @@ export function timeLog(
 export function trail(
   from: string,
   to: string,
-  marked: boolean,
 ): EventPrototype<'trail'> {
   return {
     kind: 'trail',
-    payload: { from, to, marked },
+    payload: { from, to, marked: true },
   };
 }

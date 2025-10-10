@@ -42,10 +42,10 @@ export function makeLog(
 
     // Construct the discriminated event; TS understands this shape
     return {
+      seq,
+      ts,
       kind: p.kind,
       payload: p.payload as PayloadOfKind<typeof p.kind>,
-      ts,
-      seq,
     } as ScribeEvent;
   });
 }
