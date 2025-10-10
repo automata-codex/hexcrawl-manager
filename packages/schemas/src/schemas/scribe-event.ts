@@ -27,6 +27,27 @@ export function makeEventSchema<const K extends string, P extends z.ZodTypeAny>(
  * Payload schemas (one per event)
  * -------------------------------------------------------------*/
 
+export const AdvancementPointEventPayloadSchema = z.object({
+  pillar: z.string(),
+  tier: z.number().int(),
+  note: z.string().optional(),
+  at: z.object({
+    hex: z.string().nullable(),
+    party: z.array(z.string()),
+  }),
+});
+export type AdvancementPointEventPayload = z.infer<typeof AdvancementPointEventPayloadSchema>;
+
+export const BacktrackEventPayloadSchema = z.object({
+  pace: z.enum(['slow', 'normal', 'fast']),
+});
+export type BacktrackEventPayload = z.infer<typeof BacktrackEventPayloadSchema>;
+
+export const DateSetEventPayloadSchema = z.object({
+  calendarDate: CampaignDateSchema,
+});
+export type DateSetEventPayload = z.infer<typeof DateSetEventPayloadSchema>;
+
 export const DayEndEventPayloadSchema = z.object({
   summary: z.object({
     active: z.number().int(),
@@ -55,7 +76,7 @@ export const LostEventPayloadSchema = z.object({
 export type LostEventPayload = z.infer<typeof LostEventPayloadSchema>;
 
 export const MoveEventPayloadSchema = z.object({
-  from: z.string(),
+  from: z.string().nullable(),
   to: z.string(),
   pace: z.enum(['slow', 'normal', 'fast']),
 });
@@ -71,6 +92,17 @@ export const PartySetEventPayloadSchema = z.object({
   ids: z.array(z.string().min(1)),
 });
 export type PartySetEventPayload = z.infer<typeof PartySetEventPayloadSchema>;
+
+export const ScoutEventPayloadSchema = z.object({
+  from: z.string(),
+  target: z.string(),
+  reveal: z.object({
+    terrain: z.boolean(),
+    vegetation: z.boolean(),
+    landmark: z.boolean(),
+  }),
+});
+export type ScoutEventPayload = z.infer<typeof ScoutEventPayloadSchema>;
 
 export const SeasonRolloverEventPayloadSchema = z.object({
   seasonId: z.string(), // e.g., "1511-spring"
@@ -121,9 +153,34 @@ export const TrailEventPayloadSchema = z.object({
 });
 export type TrailEventPayload = z.infer<typeof TrailEventPayloadSchema>;
 
+export const WeatherCommittedEventPayloadSchema = z.object({
+  date: CampaignDateSchema,
+  season: z.string(),
+  roll2d6: z.number().int().min(2).max(12),
+  forecastBefore: z.number().int().min(0),
+  total: z.number().int(),
+  category: z.string(),
+  detail: z.string().nullable().optional(),     // null in your samples; allow absent too
+  descriptors: z.array(z.string()).optional(),  // present or omitted in samples
+  forecastAfter: z.number().int().min(0),
+});
+export type WeatherCommittedEventPayload = z.infer<typeof WeatherCommittedEventPayloadSchema>;
+
 /** ------------------------------------------------------------
  * Full event schemas (compose base + kind + payload)
  * -------------------------------------------------------------*/
+
+export const AdvancementPointEventSchema = makeEventSchema(
+  'advancement_point',
+  AdvancementPointEventPayloadSchema,
+);
+export type AdvancementPointEvent = z.infer<typeof AdvancementPointEventSchema>;
+
+export const BacktrackEventSchema = makeEventSchema('backtrack', BacktrackEventPayloadSchema);
+export type BacktrackEvent = z.infer<typeof BacktrackEventSchema>;
+
+export const DateSetEventSchema = makeEventSchema('date_set', DateSetEventPayloadSchema);
+export type DateSetEvent = z.infer<typeof DateSetEventSchema>;
 
 export const DayEndEventSchema = makeEventSchema('day_end', DayEndEventPayloadSchema);
 export type DayEndEvent = z.infer<typeof DayEndEventSchema>;
@@ -146,6 +203,9 @@ export type NoteEvent = z.infer<typeof NoteEventSchema>;
 export const PartySetEventSchema = makeEventSchema('party_set', PartySetEventPayloadSchema);
 export type PartySetEvent = z.infer<typeof PartySetEventSchema>;
 
+export const ScoutEventSchema = makeEventSchema('scout', ScoutEventPayloadSchema);
+export type ScoutEvent = z.infer<typeof ScoutEventSchema>;
+
 export const SeasonRolloverEventSchema = makeEventSchema('season_rollover', SeasonRolloverEventPayloadSchema);
 export type SeasonRolloverEvent = z.infer<typeof SeasonRolloverEventSchema>;
 
@@ -167,11 +227,20 @@ export type TimeLogEvent = z.infer<typeof TimeLogEventSchema>;
 export const TrailEventSchema = makeEventSchema('trail', TrailEventPayloadSchema);
 export type TrailEvent = z.infer<typeof TrailEventSchema>;
 
+export const WeatherCommittedEventSchema = makeEventSchema(
+  'weather_committed',
+  WeatherCommittedEventPayloadSchema
+);
+export type WeatherCommittedEvent = z.infer<typeof WeatherCommittedEventSchema>;
+
 /** ------------------------------------------------------------
  * Union & derived utility types
  * -------------------------------------------------------------*/
 
 export const ScribeEventSchema = z.discriminatedUnion('kind', [
+  AdvancementPointEventSchema,
+  BacktrackEventSchema,
+  DateSetEventSchema,
   DayEndEventSchema,
   DayStartEventSchema,
   DeadReckoningEventSchema,
@@ -179,6 +248,7 @@ export const ScribeEventSchema = z.discriminatedUnion('kind', [
   MoveEventSchema,
   NoteEventSchema,
   PartySetEventSchema,
+  ScoutEventSchema,
   SeasonRolloverEventSchema,
   SessionContinueEventSchema,
   SessionEndEventSchema,
@@ -186,6 +256,7 @@ export const ScribeEventSchema = z.discriminatedUnion('kind', [
   SessionStartEventSchema,
   TimeLogEventSchema,
   TrailEventSchema,
+  WeatherCommittedEventSchema,
 ]);
 
 export type ScribeEvent = z.infer<typeof ScribeEventSchema>;

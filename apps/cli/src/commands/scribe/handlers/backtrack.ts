@@ -77,7 +77,7 @@ export default function backtrack(ctx: Context) {
     appendEvent(ctx.file!, 'backtrack', { pace }); // Checked by `requireFile`
 
     if (isLost) {
-      appendEvent(ctx.file!, 'lost', { state: 'off', method: 'backtrack' }); // Checked by `requireFile`
+      appendEvent(ctx.file!, 'lost', { state: 'off', reason: 'backtrack' }); // Checked by `requireFile`
       info(
         `Backtracking (${pace} pace). Regained bearings. Moved to ${prev.to}.`,
       );

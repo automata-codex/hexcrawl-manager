@@ -65,7 +65,6 @@ export function firstCalendarDate(events: ScribeEvent[]): CampaignDate | null {
     if (e.kind === 'day_start' && (e as any).payload?.calendarDate) {
       return (e as any).payload.calendarDate as CampaignDate;
     }
-    // @ts-expect-error -- Eventually it will recognize date_set events
     if (e.kind === 'date_set' && (e as any).payload?.calendarDate) {
       return (e as any).payload.calendarDate as CampaignDate;
     }
@@ -114,7 +113,6 @@ export function lastCalendarDate(events: ScribeEvent[]): CampaignDate | null {
     if (e.kind === 'day_start' && (e as any).payload?.calendarDate) {
       return (e as any).payload.calendarDate as CampaignDate;
     }
-    // @ts-expect-error -- Eventually it will recognize date_set events
     if (e.kind === 'date_set' && (e as any).payload?.calendarDate) {
       return (e as any).payload.calendarDate as CampaignDate;
     }
@@ -172,9 +170,7 @@ export function selectCurrentWeather(
 ): WeatherCommitted | null {
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
-    // @ts-expect-error -- Eventually it will recognize weather_committed events
     if (e.kind === 'weather_committed' && e.payload) {
-      // @ts-expect-error -- Eventually it will recognize weather_committed events
       return e.payload as WeatherCommitted;
     }
   }
@@ -187,19 +183,14 @@ export function selectCurrentForecast(events: ScribeEvent[]): number {
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
     if (
-      // @ts-expect-error -- Eventually it will recognize weather_committed events
       e.kind === 'weather_committed' &&
-      // @ts-expect-error -- Eventually it will recognize weather_committed events
       e.payload &&
-      // @ts-expect-error -- Eventually it will recognize weather_committed events
       typeof e.payload === 'object'
     ) {
-      // @ts-expect-error -- Eventually it will recognize weather_committed events
       const eventDate = (e.payload as WeatherCommitted).date;
       if (datesEqual(today, eventDate)) {
         continue; // skip today's weather
       }
-      // @ts-expect-error -- Eventually it will recognize weather_committed events
       const forecast = (e.payload as WeatherCommitted).forecastAfter;
       if (typeof forecast === 'number') {
         return forecast;

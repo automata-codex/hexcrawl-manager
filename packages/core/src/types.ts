@@ -46,6 +46,7 @@ export type MonthDef = {
   aliases?: string[]; // optional short forms or common misspellings
 };
 
+/** @deprecated Use the value from `@skyreach/schemas` instead. */
 export type Season = 'winter' | 'spring' | 'summer' | 'autumn';
 
 export type SeasonalBand = {

@@ -1,9 +1,14 @@
 import { getDaylightCapForSeason, getSeasonForDate } from '@skyreach/core';
 import {
-  type ScribeEventKind,
-  type PayloadOfKind,
+  type DateSetEventPayload,
   type DayStartEventPayload,
+  type PayloadOfKind,
+  type Pace,
+  type Pillar,
+  type ScribeEventKind,
+  type Season,
   type SessionContinueEventPayload,
+  type WeatherCategory,
 } from '@skyreach/schemas';
 
 /** Discriminated prototype that a finalizer can stamp with seq/ts. */
@@ -18,6 +23,45 @@ export type AnyEventPrototype = EventPrototype<ScribeEventKind>;
 /* -------------------------------------------------------------
  * Builder functions (alphabetical)
  * -------------------------------------------------------------*/
+
+export function ap(
+  pillar: Pillar,
+  tier: number,
+  party?: string[],
+  hex?: string,
+  note?: string,
+): EventPrototype<'advancement_point'> {
+  return {
+    kind: 'advancement_point',
+    payload: {
+      pillar,
+      tier,
+      note,
+      at: {
+        hex: hex ?? null,
+        party: party ?? [],
+      },
+    },
+  };
+}
+
+export function backtrack(
+  pace: Pace,
+): EventPrototype<'backtrack'> {
+  return {
+    kind: 'backtrack',
+    payload: { pace },
+  };
+}
+
+export function dateSet(
+  calendarDate: DateSetEventPayload['calendarDate'],
+): EventPrototype<'date_set'> {
+  return {
+    kind: 'date_set',
+    payload: { calendarDate },
+  };
+}
 
 export function dayEnd(
   active: number,
@@ -66,7 +110,7 @@ export function lost(
 export function move(
   from: string,
   to: string,
-  pace: 'slow' | 'normal' | 'fast' = 'normal',
+  pace: Pace = 'normal',
 ): EventPrototype<'move'> {
   return {
     kind: 'move',
@@ -85,6 +129,25 @@ export function partySet(ids: string[]): EventPrototype<'party_set'> {
   return {
     kind: 'party_set',
     payload: { ids },
+  };
+}
+
+export function scout(
+  from: string,
+  target: string,
+  revealLandmark: boolean,
+): EventPrototype<'scout'> {
+  return {
+    kind: 'scout',
+    payload: {
+      from,
+      target,
+      reveal: {
+        terrain: true,
+        vegetation: true,
+        landmark: revealLandmark,
+      },
+    },
   };
 }
 
@@ -173,5 +236,24 @@ export function trail(
   return {
     kind: 'trail',
     payload: { from, to, marked: true },
+  };
+}
+
+export function weather(args: {
+  category: WeatherCategory;
+  date: DayStartEventPayload['calendarDate'];
+  descriptors?: string[];
+  detail?: string | null;
+  forecastAfter: number;
+  forecastBefore: number;
+  roll2d6: number;
+  season: Season;
+}): EventPrototype<'weather_committed'> {
+  return {
+    kind: 'weather_committed',
+    payload: {
+      ...args,
+      total: args.roll2d6 + args.forecastBefore,
+    },
   };
 }
