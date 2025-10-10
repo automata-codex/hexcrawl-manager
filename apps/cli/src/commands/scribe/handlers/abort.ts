@@ -6,7 +6,7 @@ import {
   detectDevMode,
   requireFile,
   requireSession,
-} from '../services/general.ts';
+} from '../services/general';
 
 import type { Context } from '../types.ts';
 

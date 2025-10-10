@@ -164,3 +164,6 @@ export const ScribeEventSchema = z.discriminatedUnion('kind', [
 ]);
 
 export type ScribeEvent = z.infer<typeof ScribeEventSchema>;
+export type ScribeEventKind = ScribeEvent['kind'];
+export type ScribeEventPayload = ScribeEvent['payload'];
+export type ScribeEventOfKind<K extends ScribeEventKind> = Extract<ScribeEvent, { kind: K }>;

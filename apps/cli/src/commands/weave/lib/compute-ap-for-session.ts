@@ -53,7 +53,9 @@ export function computeApForSession(
 
   // Accumulate
   for (const e of events) {
+    // @ts-expect-error -- Eventually it will recognize advancement_point events
     const pillar = e.payload.pillar as Pillar;
+    // @ts-expect-error -- Eventually it will recognize advancement_point events
     const maxTier = (e.payload.tier ?? 1) as Tier;
 
     hadAnyByPillar[pillar] = true;

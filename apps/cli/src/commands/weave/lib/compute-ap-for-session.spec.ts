@@ -9,8 +9,10 @@ describe('Function `computeApForSession`', () => {
     {
       seq: 5,
       ts: '2024-01-01T19:00:00Z',
+      // @ts-expect-error -- Eventually it will recognize advancement_point events
       kind: 'advancement_point',
       payload: {
+        // @ts-expect-error -- Eventually it will recognize advancement_point events
         pillar: 'combat',
         tier: 1,
         note: 'Defeated goblins',
@@ -20,8 +22,10 @@ describe('Function `computeApForSession`', () => {
     {
       seq: 18,
       ts: '2024-01-01T19:10:00Z',
+      // @ts-expect-error -- Eventually it will recognize advancement_point events
       kind: 'advancement_point',
       payload: {
+        // @ts-expect-error -- Eventually it will recognize advancement_point events
         pillar: 'exploration',
         tier: 2,
         note: 'Found a hidden dungeon',
@@ -31,8 +35,10 @@ describe('Function `computeApForSession`', () => {
     {
       seq: 22,
       ts: '2024-01-01T19:11:00Z',
+      // @ts-expect-error -- Eventually it will recognize advancement_point events
       kind: 'advancement_point',
       payload: {
+        // @ts-expect-error -- Eventually it will recognize advancement_point events
         pillar: 'social',
         tier: 1,
         note: 'Talked to the alseid',
@@ -42,8 +48,10 @@ describe('Function `computeApForSession`', () => {
     {
       seq: 27,
       ts: '2024-01-01T19:12:00Z',
+      // @ts-expect-error -- Eventually it will recognize advancement_point events
       kind: 'advancement_point',
       payload: {
+        // @ts-expect-error -- Eventually it will recognize advancement_point events
         pillar: 'exploration',
         tier: 1,
         note: 'Entered a new region',
@@ -53,8 +61,10 @@ describe('Function `computeApForSession`', () => {
     {
       seq: 33,
       ts: '2024-01-01T19:13:00Z',
+      // @ts-expect-error -- Eventually it will recognize advancement_point events
       kind: 'advancement_point',
       payload: {
+        // @ts-expect-error -- Eventually it will recognize advancement_point events
         pillar: 'combat',
         tier: 1,
         note: 'Fought some baddies',
@@ -64,8 +74,10 @@ describe('Function `computeApForSession`', () => {
     {
       seq: 37,
       ts: '2024-01-01T19:14:00Z',
+      // @ts-expect-error -- Eventually it will recognize advancement_point events
       kind: 'advancement_point',
       payload: {
+        // @ts-expect-error -- Eventually it will recognize advancement_point events
         pillar: 'exploration',
         tier: 1,
         note: 'Found a hidden temple',
@@ -75,8 +87,10 @@ describe('Function `computeApForSession`', () => {
     {
       seq: 42,
       ts: '2024-01-01T19:15:00Z',
+      // @ts-expect-error -- Eventually it will recognize advancement_point events
       kind: 'advancement_point',
       payload: {
+        // @ts-expect-error -- Eventually it will recognize advancement_point events
         pillar: 'social',
         tier: 1,
         note: 'Chatted with village elder',

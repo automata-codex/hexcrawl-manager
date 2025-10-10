@@ -1,4 +1,8 @@
-import type { ScribeEvent } from '@skyreach/schemas';
+import { getSeasonForDate } from '@skyreach/core';
+
+import { eventsOf } from '../../../services/event-log.service';
+
+import type { DayStartEvent, ScribeEvent } from '@skyreach/schemas';
 
 //
 /**
@@ -26,14 +30,16 @@ export function validateSessionEnvelope(events: ScribeEvent[]): {
       error: 'Session must end with session_end or session_pause.',
     };
   }
-  const dayStarts = events.filter((e) => e.kind === 'day_start');
+  const dayStarts = eventsOf(events, 'day_start') as DayStartEvent[];
   if (dayStarts.length === 0) {
     return {
       isValid: false,
       error: 'Session must contain at least one day_start event.',
     };
   }
-  const seasonIds = new Set(dayStarts.map((e) => e.payload.seasonId));
+  const seasonIds = new Set(
+    dayStarts.map((e) => getSeasonForDate(e.payload.calendarDate)),
+  );
   if (seasonIds.size > 1) {
     return {
       isValid: false,

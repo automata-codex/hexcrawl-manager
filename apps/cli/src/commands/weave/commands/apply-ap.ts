@@ -12,14 +12,14 @@ import {
   readAllFinalizedLogsForSession,
   writeYamlAtomic,
 } from '@skyreach/data';
-import { SessionReportSchema } from '@skyreach/schemas';
+import { NoteEvent, SessionReportSchema } from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 import { ZodError } from 'zod';
 
-import pkg from '../../../../../../package.json' assert { type: 'json' };
+import pkg from '../../../../package.json' assert { type: 'json' };
 import {
   appendApEntries,
   buildSessionApEntries,
@@ -159,7 +159,9 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   // --- Derive Session Fields ---
   const gameStartDate = formatDate(firstCalendarDate(events));
   const gameEndDate = formatDate(lastCalendarDate(events));
-  const notes = eventsOf(events, 'note').map((e) => e.payload.text);
+  const notes = (eventsOf(events, 'note') as NoteEvent[]).map(
+    (e) => e.payload.text,
+  );
   const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
 
   // --- Derive Attendance ---
