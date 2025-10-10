@@ -2,7 +2,7 @@ import { REPO_PATHS } from '@skyreach/data';
 import { ScribeEvent } from '@skyreach/schemas';
 import {
   dayStart,
-  makeLog,
+  finalizeLog,
   move,
   runWeave,
   sessionEnd,
@@ -45,7 +45,7 @@ describe('Command `weave apply trails`', () => {
           `${sessionId}.jsonl`,
         );
 
-        const events = makeLog([
+        const events = finalizeLog([
           sessionStart(sessionId, 'R14'),
           dayStart({ year: 1511, month: 'Lucidus', day: 31 }),
           move('R14', 'Q13'),

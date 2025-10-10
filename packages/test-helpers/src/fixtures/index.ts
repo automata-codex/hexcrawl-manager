@@ -1,2 +1,2 @@
 export * from './builders';
-export { makeLog } from './make-log';
+export { finalizeLog } from './finalize-log';

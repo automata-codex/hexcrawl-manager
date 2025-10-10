@@ -3,7 +3,7 @@ import {
   ap,
   dayEnd,
   dayStart,
-  makeLog,
+  finalizeLog,
   partySet,
   runWeave,
   withTempRepo,
@@ -18,7 +18,7 @@ import { readApLedger } from '../../../services/ap-ledger.service';
 import type { ScribeEvent } from '@skyreach/schemas';
 
 const party = ['alistar', 'daemaris', 'istavan'];
-const events: ScribeEvent[] = makeLog(
+const events: ScribeEvent[] = finalizeLog(
   [
     dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
     partySet(party),

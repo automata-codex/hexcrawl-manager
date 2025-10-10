@@ -21,7 +21,7 @@ export interface FinalizeOptions {
 }
 
 /** Map raw prototypes → finalized ScribeEvent[] with seq/ts */
-export function makeLog(
+export function finalizeLog(
   prototypes: AnyEventPrototype[],
   opts: FinalizeOptions = {}
 ): ScribeEvent[] {
