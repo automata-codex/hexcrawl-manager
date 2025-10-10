@@ -6,6 +6,7 @@ import {
   finalizeLog,
   partySet,
   runWeave,
+  saveCharacters,
   withTempRepo,
 } from '@skyreach/test-helpers';
 import fs from 'node:fs';
@@ -18,81 +19,21 @@ import { readApLedger } from '../../../services/ap-ledger.service';
 import type { ScribeEvent } from '@skyreach/schemas';
 
 const party = ['alistar', 'daemaris', 'istavan'];
-const events: ScribeEvent[] = finalizeLog(
-  [
-    dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
-    partySet(party),
-    ap('combat', 1, party, 'A1', 'Defeated goblins'),
-    ap('exploration', 2, party, 'B1', 'Found a hidden dungeon'),
-    ap('social', 1, party, 'C1', 'Talked to the alseid'),
-    ap('exploration', 1, party, 'D1', 'Entered a new region'),
-    ap('combat', 1, party, 'E1', 'Fought some baddies'),
-    ap('exploration', 1, party, 'F1', 'Found a hidden temple'),
-    ap('social', 1, party, 'G1', 'Chatted with village elder'),
-    dayEnd(13, 13),
-  ]
-);
+const events: ScribeEvent[] = finalizeLog([
+  dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
+  partySet(party),
+  ap('combat', 1, party, 'A1', 'Defeated goblins'),
+  ap('exploration', 2, party, 'B1', 'Found a hidden dungeon'),
+  ap('social', 1, party, 'C1', 'Talked to the alseid'),
+  ap('exploration', 1, party, 'D1', 'Entered a new region'),
+  ap('combat', 1, party, 'E1', 'Fought some baddies'),
+  ap('exploration', 1, party, 'F1', 'Found a hidden temple'),
+  ap('social', 1, party, 'G1', 'Chatted with village elder'),
+  dayEnd(13, 13),
+]);
 
 function writeCharacterFiles() {
-  fs.writeFileSync(
-    path.join(REPO_PATHS.CHARACTERS(), 'alistar.yaml'),
-    yaml.stringify({
-      id: 'alistar',
-      fullName: 'Alistar',
-      displayName: 'Alistar',
-      pronouns: 'he/him',
-      playerId: 'peter-quinn',
-      species: 'Elf',
-      culture: 'Wood Elf',
-      class: 'Wizard',
-      level: 5,
-      advancementPoints: {
-        combat: 13,
-        exploration: 14,
-        social: 14,
-      },
-    }),
-  );
-
-  fs.writeFileSync(
-    path.join(REPO_PATHS.CHARACTERS(), 'daemaris.yaml'),
-    yaml.stringify({
-      id: 'daemaris',
-      fullName: 'Daemaris',
-      displayName: 'Daemaris',
-      pronouns: 'she/her',
-      playerId: 'emilie-siciliano',
-      species: 'Tiefling',
-      culture: 'Bandit',
-      class: 'Ranger',
-      level: 5,
-      advancementPoints: {
-        combat: 13,
-        exploration: 15,
-        social: 14,
-      },
-    }),
-  );
-
-  fs.writeFileSync(
-    path.join(REPO_PATHS.CHARACTERS(), 'istavan.yaml'),
-    yaml.stringify({
-      id: 'istavan',
-      fullName: 'Grandfather Istavan',
-      displayName: 'Istavan',
-      pronouns: 'he/him',
-      playerId: 'lucas-watkins',
-      species: 'Human',
-      culture: 'Frostfell',
-      class: 'Fighter',
-      level: 2,
-      advancementPoints: {
-        combat: 3,
-        exploration: 3,
-        social: 3,
-      },
-    }),
-  );
+  saveCharacters([{ key: 'alistar' }, { key: 'daemaris' }, { key: 'istavan' }]);
 }
 
 describe('Command `weave apply ap`', () => {
