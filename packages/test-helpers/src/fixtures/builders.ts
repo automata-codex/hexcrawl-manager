@@ -1,71 +1,98 @@
+import { getDaylightCapForSeason, Season } from '@skyreach/core';
 import {
-  CampaignDate,
-  DayEndEventPayload,
-  DayStartEventPayload,
-  DeadReckoningEventPayload,
-  LostEventPayload,
-  MoveEventPayload,
-  NoteEventPayload,
-  PartySetEventPayload,
-  SeasonRolloverEventPayload,
-  SessionContinueEventPayload,
-  SessionEndEventPayload,
-  SessionPauseEventPayload,
-  SessionStartEventPayload,
-  TimeLogEventPayload,
-  TrailEventPayload,
+  type ScribeEventKind,
+  type PayloadOfKind,
+  type DayStartEventPayload,
+  type SessionContinueEventPayload,
 } from '@skyreach/schemas';
+
+/** Discriminated prototype that a finalizer can stamp with seq/ts. */
+export type EventPrototype<K extends ScribeEventKind> = {
+  kind: K;
+  payload: PayloadOfKind<K>;
+};
+
+/** Convenience alias for arrays of mixed prototypes. */
+export type AnyEventPrototype = EventPrototype<ScribeEventKind>;
+
+/* -------------------------------------------------------------
+ * Builder functions (alphabetical)
+ * -------------------------------------------------------------*/
 
 export function dayEnd(
   active: number,
   daylight: number,
-  night: number,
-): DayEndEventPayload {
+): EventPrototype<'day_end'> {
+  const night = Math.max(active - daylight, 0);
   return {
-    summary: { active, daylight, night },
+    kind: 'day_end',
+    payload: { summary: { active, daylight, night } },
   };
 }
 
 export function dayStart(
-  calendarDate: CampaignDate,
-  season: string,
-  daylightCap: number,
-): DayStartEventPayload {
+  calendarDate: DayStartEventPayload['calendarDate'],
+  season: Season,
+): EventPrototype<'day_start'> {
   return {
-    calendarDate,
-    season,
-    daylightCap,
+    kind: 'day_start',
+    payload: {
+      calendarDate,
+      season,
+      daylightCap: getDaylightCapForSeason(season),
+    },
   };
 }
 
 export function deadReckoning(
   outcome: 'success' | 'failure',
-): DeadReckoningEventPayload {
-  return { outcome };
+): EventPrototype<'dead_reckoning'> {
+  return {
+    kind: 'dead_reckoning',
+    payload: { outcome },
+  };
 }
 
-export function lost(state: 'on' | 'off', reason?: string): LostEventPayload {
-  return { state, reason };
+export function lost(
+  state: 'on' | 'off',
+  reason?: string,
+): EventPrototype<'lost'> {
+  return {
+    kind: 'lost',
+    payload: { state, reason },
+  };
 }
 
 export function move(
   from: string,
   to: string,
   pace: 'slow' | 'normal' | 'fast' = 'normal',
-): MoveEventPayload {
-  return { from, to, pace };
+): EventPrototype<'move'> {
+  return {
+    kind: 'move',
+    payload: { from, to, pace },
+  };
 }
 
-export function note(text: string): NoteEventPayload {
-  return { text, scope: 'session' };
+export function note(text: string): EventPrototype<'note'> {
+  return {
+    kind: 'note',
+    payload: { text, scope: 'session' },
+  };
 }
 
-export function partySet(ids: string[]): PartySetEventPayload {
-  return { ids };
+export function partySet(ids: string[]): EventPrototype<'party_set'> {
+  return {
+    kind: 'party_set',
+    payload: { ids },
+  };
 }
 
-export function seasonRollover(seasonId: string): SeasonRolloverEventPayload {
-  return { seasonId };
+export function seasonRollover(seasonId: string): EventPrototype<'season_rollover'> {
+  return {
+    kind: 'season_rollover',
+    payload: { seasonId },
+  };
 }
 
 export function sessionContinue(
@@ -73,38 +100,46 @@ export function sessionContinue(
   currentHex: string,
   currentParty: string[],
   currentDate?: SessionContinueEventPayload['currentDate'],
-): SessionContinueEventPayload {
+): EventPrototype<'session_continue'> {
   return {
-    id: sessionId,
-    currentDate,
-    currentHex,
-    currentParty,
-    status: 'in-progress',
+    kind: 'session_continue',
+    payload: {
+      id: sessionId,
+      currentDate,
+      currentHex,
+      currentParty,
+      status: 'in-progress',
+    },
   };
 }
 
-export function sessionEnd(sessionId: string): SessionEndEventPayload {
+export function sessionEnd(sessionId: string): EventPrototype<'session_end'> {
   return {
-    id: sessionId,
-    status: 'final',
+    kind: 'session_end',
+    payload: {
+      id: sessionId,
+      status: 'final',
+    },
   };
 }
 
-export function sessionPause(sessionId: string): SessionPauseEventPayload {
+export function sessionPause(sessionId: string): EventPrototype<'session_pause'> {
   return {
-    id: sessionId,
-    status: 'paused',
+    kind: 'session_pause',
+    payload: {
+      id: sessionId,
+      status: 'paused',
+    },
   };
 }
 
 export function sessionStart(
   sessionId: string,
   startHex: string,
-): SessionStartEventPayload {
+): EventPrototype<'session_start'> {
   return {
-    id: sessionId,
-    startHex,
-    status: 'in-progress',
+    kind: 'session_start',
+    payload: { id: sessionId, startHex, status: 'in-progress' },
   };
 }
 
@@ -114,16 +149,26 @@ export function timeLog(
   nightSegments: number,
   phase: 'daylight' | 'night',
   note?: string,
-): TimeLogEventPayload {
+): EventPrototype<'time_log'> {
   return {
-    segments,
-    daylightSegments,
-    nightSegments,
-    phase,
-    note,
+    kind: 'time_log',
+    payload: {
+      segments,
+      daylightSegments,
+      nightSegments,
+      phase,
+      note,
+    },
   };
 }
 
-export function trail(from: string, to: string): TrailEventPayload {
-  return { from, to, marked: true };
+export function trail(
+  from: string,
+  to: string,
+  marked: boolean,
+): EventPrototype<'trail'> {
+  return {
+    kind: 'trail',
+    payload: { from, to, marked },
+  };
 }
