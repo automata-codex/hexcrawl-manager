@@ -41,7 +41,9 @@ export function parseSessionFilename(
   filename: string,
 ): FinalizedLogInfo | null {
   const m = filename.match(SESSION_FILE_RE);
-  if (!m) return null;
+  if (!m) {
+    return null;
+  }
   const [, num, suffix, date, variant] = m;
   return {
     filename,

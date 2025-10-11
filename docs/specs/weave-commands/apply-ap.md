@@ -1,4 +1,4 @@
-# `weave ap apply` — Command Spec
+# `weave apply ap` — Command Spec
 
 > **File:** `docs/specs/weave-commands/ap-apply.md`
 >
