@@ -1,4 +1,3 @@
-import { eventsOf } from '@skyreach/cli-kit';
 import { padSessionNum } from '@skyreach/core';
 import { REPO_PATHS } from '@skyreach/data';
 import {
@@ -11,9 +10,14 @@ import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import { readEvents } from '../../../services/event-log.service';
+import { eventsOf, readEvents } from '../../../services/event-log.service';
 
-import type { ScribeEvent } from '@skyreach/schemas';
+import type {
+  DayStartEvent,
+  MoveEvent,
+  ScribeEvent,
+  SessionStartEvent,
+} from '@skyreach/schemas';
 
 describe('scribe start', () => {
   it('emits exactly one session_start with the requested startHex and writes a minimal valid log', async () => {
@@ -41,12 +45,12 @@ describe('scribe start', () => {
         const events: ScribeEvent[] = readEvents(files[0]);
 
         // Exactly one session_start, with correct startHex
-        const starts = eventsOf(events, 'session_start');
+        const starts = eventsOf(events, 'session_start') as SessionStartEvent[];
         expect(starts.length).toBe(1);
         expect(starts[0].payload.startHex).toBe('P13');
 
         // At least one day_start, normalized season
-        const days = eventsOf(events, 'day_start');
+        const days = eventsOf(events, 'day_start') as DayStartEvent[];
         expect(days.length).toBeGreaterThanOrEqual(1);
         expect(days[0].payload.calendarDate).toEqual({
           year: 1511,
@@ -56,7 +60,7 @@ describe('scribe start', () => {
         expect(String(days[0].payload.season).toLowerCase()).toBe('autumn');
 
         // Move to Q13 was recorded; from may be null or 'P13' per spec
-        const moves = eventsOf(events, 'move');
+        const moves = eventsOf(events, 'move') as MoveEvent[];
         expect(moves.length).toBe(1);
         expect(moves[0].payload.to).toBe('Q13');
 
@@ -91,7 +95,7 @@ describe('scribe start', () => {
 
         const events = readEvents(files[0]);
 
-        const starts = eventsOf(events, 'session_start');
+        const starts = eventsOf(events, 'session_start') as SessionStartEvent[];
         expect(starts.length).toBe(1);
         expect(starts[0].payload.startHex).toBe('P13'); // original start is kept
 
@@ -120,7 +124,7 @@ describe('scribe start', () => {
         expect(files.length).toBe(1);
 
         const events = readEvents(files[0]);
-        const moves = eventsOf(events, 'move');
+        const moves = eventsOf(events, 'move') as MoveEvent[];
         expect(moves.length).toBe(2);
         expect(moves.map((m) => m.payload.to)).toEqual(['Q13', 'Q14']);
 
@@ -186,7 +190,7 @@ describe('scribe start', () => {
         expect(devFiles.length).toBe(1);
         const devFile = path.join(devSessionsDir, devFiles[0]);
         const events = readEvents(devFile);
-        const starts = eventsOf(events, 'session_start');
+        const starts = eventsOf(events, 'session_start') as SessionStartEvent[];
         expect(starts.length).toBe(1);
 
         // sessionId matches filename stem

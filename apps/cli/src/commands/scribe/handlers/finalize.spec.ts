@@ -1,4 +1,3 @@
-import { eventsOf } from '@skyreach/cli-kit';
 import { padSessionNum } from '@skyreach/core';
 import { REPO_PATHS } from '@skyreach/data';
 import {
@@ -11,9 +10,9 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import { readEvents } from '../../../services/event-log.service';
+import { eventsOf, readEvents } from '../../../services/event-log.service';
 
-import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';
+import type { DayStartEvent, ScribeEvent } from '@skyreach/schemas';
 
 describe('scribe finalize', () => {
   it('partitions session events correctly and writes output files', async () => {
@@ -45,10 +44,13 @@ describe('scribe finalize', () => {
         const allEvents = files.flatMap(readEvents);
 
         // Find all unique season IDs from day_start events
+        const allDayStarts = eventsOf(
+          allEvents,
+          'day_start',
+        ) as DayStartEvent[];
         const uniqueSeasons = new Set(
-          eventsOf(allEvents, 'day_start').map((e) => {
-            const calendarDate = e.payload.calendarDate as CampaignDate;
-            return `${calendarDate.year}-${String(e.payload.season).toLowerCase()}`;
+          allDayStarts.map((e) => {
+            return `${e.payload.calendarDate.year}-${String(e.payload.season).toLowerCase()}`;
           }),
         );
         expect(files.length).toEqual(uniqueSeasons.size); // Should be one session file per unique season
@@ -192,7 +194,11 @@ describe('scribe finalize', () => {
             seq: 1,
             kind: 'session_start',
             ts: '2025-09-20T10:00:00.000Z',
-            payload: { sessionId },
+            payload: {
+              id: sessionId,
+              status: 'in-progress',
+              startHex: 'R14',
+            },
           },
           {
             seq: 4,
@@ -200,6 +206,7 @@ describe('scribe finalize', () => {
             ts: '2025-09-20T09:00:00.000Z',
             payload: {
               calendarDate: { year: 1511, month: 'Umbraeus', day: 8 },
+              daylightCap: 12,
               season: 'autumn',
             },
           },
@@ -242,7 +249,11 @@ describe('scribe finalize', () => {
             seq: 1,
             kind: 'session_start',
             ts: '2025-09-20T10:00:00.000Z',
-            payload: { sessionId },
+            payload: {
+              id: sessionId,
+              status: 'in-progress',
+              startHex: 'R14',
+            },
           },
           {
             seq: 2,
@@ -250,6 +261,7 @@ describe('scribe finalize', () => {
             ts: '2025-09-20T11:00:00.000Z',
             payload: {
               calendarDate: { year: 1511, month: 'Umbraeus', day: 8 },
+              daylightCap: 12,
               season: 'autumn',
             },
           },

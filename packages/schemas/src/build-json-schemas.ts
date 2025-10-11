@@ -62,7 +62,6 @@ const PINNED = (process.env.JS_ENTRIES ?? '')
     });
 
     await writeFile(outputPath, JSON.stringify(json, null, 2), 'utf8');
-    console.log(`✔ wrote ${path.relative(process.cwd(), outputPath)}`);
   }
 
   // Emit a tiny manifest for convenience
@@ -76,7 +75,6 @@ const PINNED = (process.env.JS_ENTRIES ?? '')
   };
   const manifestPath = path.join(DIST_DIR, 'schemas.manifest.json');
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
-  console.log(`✔ wrote ${path.relative(process.cwd(), manifestPath)}`);
 })().catch((err) => {
   console.error('[build-json-schemas] Failed:', err);
   process.exitCode = 1;

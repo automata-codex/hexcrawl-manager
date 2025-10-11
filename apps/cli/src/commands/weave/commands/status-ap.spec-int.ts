@@ -1,6 +1,9 @@
 import { REPO_PATHS } from '@skyreach/data';
-import { ApLedgerEntry } from '@skyreach/schemas';
-import { runWeave, withTempRepo } from '@skyreach/test-helpers';
+import {
+  makeSessionApGrid,
+  runWeave,
+  withTempRepo,
+} from '@skyreach/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
@@ -17,52 +20,12 @@ describe('Command `weave ap status`', () => {
       { initGit: false },
       async (repo) => {
         // Write minimal AP ledger
-        const ledger: ApLedgerEntry[] = [
-          {
-            sessionId: 'session-0001',
-            advancementPoints: {
-              combat: { delta: 1, reason: 'normal' },
-              exploration: { delta: 1, reason: 'normal' },
-              social: { delta: 1, reason: 'normal' },
-            },
-            appliedAt: '2025-09-27T23:27:21.381Z',
-            characterId: 'alistar',
-            kind: 'session_ap',
-          },
-          {
-            sessionId: 'session-0002',
-            advancementPoints: {
-              combat: { delta: 1, reason: 'normal' },
-              exploration: { delta: 1, reason: 'normal' },
-              social: { delta: 1, reason: 'normal' },
-            },
-            appliedAt: '2025-09-28T23:27:21.381Z',
-            characterId: 'alistar',
-            kind: 'session_ap',
-          },
-          {
-            sessionId: 'session-0001',
-            advancementPoints: {
-              combat: { delta: 1, reason: 'normal' },
-              exploration: { delta: 1, reason: 'normal' },
-              social: { delta: 1, reason: 'normal' },
-            },
-            appliedAt: '2025-09-27T23:27:21.381Z',
-            characterId: 'daemaris',
-            kind: 'session_ap',
-          },
-          {
-            sessionId: 'session-0002',
-            advancementPoints: {
-              combat: { delta: 1, reason: 'normal' },
-              exploration: { delta: 1, reason: 'normal' },
-              social: { delta: 1, reason: 'normal' },
-            },
-            appliedAt: '2025-09-28T23:27:21.381Z',
-            characterId: 'daemaris',
-            kind: 'session_ap',
-          },
-        ];
+        const ledger = makeSessionApGrid({
+          characters: ['alistar', 'daemaris'],
+          sessions: [1, 2],
+          appliedAtBySession: (s) =>
+            s === 1 ? '2025-09-27T23:27:21.381Z' : '2025-09-28T23:27:21.381Z',
+        });
         rewriteApLedger(REPO_PATHS.AP_LEDGER(), ledger);
 
         // Write minimal character files

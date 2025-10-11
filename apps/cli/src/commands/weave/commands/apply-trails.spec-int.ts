@@ -1,6 +1,15 @@
 import { REPO_PATHS } from '@skyreach/data';
 import { ScribeEvent } from '@skyreach/schemas';
-import { runWeave, withTempRepo } from '@skyreach/test-helpers';
+import {
+  dayStart,
+  finalizeLog,
+  move,
+  runWeave,
+  sessionEnd,
+  sessionStart,
+  trail,
+  withTempRepo,
+} from '@skyreach/test-helpers';
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
@@ -30,51 +39,19 @@ describe('Command `weave apply trails`', () => {
         );
 
         // --- Finalized session log (JSONL) ---
+        const sessionId = 'session_0001_2025-10-01';
         const sessionFile = path.join(
           REPO_PATHS.SESSIONS(),
-          'session_0001_2025-10-01.jsonl',
+          `${sessionId}.jsonl`,
         );
 
-        const events = [
-          {
-            seq: 1,
-            ts: '2025-10-01T00:11:00.000Z',
-            kind: 'session_start',
-            payload: {
-              status: 'in-progress',
-              id: 'session_0001_2025-10-01',
-              startHex: 'R14',
-            },
-          },
-          {
-            seq: 2,
-            ts: '2025-10-01T00:12:00.000Z',
-            kind: 'day_start',
-            payload: {
-              calendarDate: { year: 1511, month: 'Lucidus', day: 31 },
-              season: 'summer',
-              daylightCap: 12,
-            },
-          },
-          {
-            seq: 3,
-            ts: '2025-10-01T00:13:00.000Z',
-            kind: 'move',
-            payload: { from: 'R14', to: 'Q13', pace: 'normal' },
-          },
-          {
-            seq: 4,
-            ts: '2025-10-01T00:14:00.000Z',
-            kind: 'trail',
-            payload: { from: 'Q13', to: 'R14', marked: true },
-          },
-          {
-            seq: 5,
-            ts: '2025-10-01T00:15:00.000Z',
-            kind: 'session_end',
-            payload: { status: 'final' },
-          },
-        ];
+        const events = finalizeLog([
+          sessionStart(sessionId, 'R14'),
+          dayStart({ year: 1511, month: 'Lucidus', day: 31 }),
+          move('R14', 'Q13'),
+          trail('Q13', 'R14'),
+          sessionEnd(sessionId),
+        ]);
         fs.writeFileSync(
           sessionFile,
           events.map((e) => JSON.stringify(e)).join('\n'),
@@ -111,9 +88,7 @@ describe('Command `weave apply trails`', () => {
         // --- Assert: footprint written with session kind & season ---
         const footprintsDir = REPO_PATHS.FOOTPRINTS(); // adjust if different
         const files = fs.readdirSync(footprintsDir);
-        const sessionFoot = files.find((f) =>
-          f.includes('S-0001_2025-10-01'),
-        );
+        const sessionFoot = files.find((f) => f.includes('S-0001_2025-10-01'));
         expect(sessionFoot).toBeTruthy();
         const foot = yaml.parse(
           fs.readFileSync(path.join(footprintsDir, sessionFoot!), 'utf8'),

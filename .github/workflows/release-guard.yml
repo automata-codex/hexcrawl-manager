@@ -21,7 +21,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # we reference specific SHAs
-          # token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Ensure version/changelog changes exist
         run: |

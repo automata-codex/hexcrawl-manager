@@ -13,7 +13,14 @@ import { type Context } from '../types';
 
 import { requireFile, requireSession } from './general';
 
-import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';
+import type {
+  CampaignDate,
+  DayStartEvent,
+  ScribeEvent,
+  SessionContinueEvent,
+  SessionEndEvent,
+  SessionPauseEvent,
+} from '@skyreach/schemas';
 
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =
@@ -266,7 +273,7 @@ export function finalizeSession(
       seq: (lastEvent.seq ?? 0) + 1,
       ts: timeNowISO(),
       kind: 'session_end',
-      payload: { status: 'final' },
+      payload: { id: sessionId, status: 'final' },
     });
   }
 
@@ -294,11 +301,10 @@ export function finalizeSession(
   // (b) Identify all day_start events and their seasonId, build block windows by season
   const dayStartIndices = sortedEvents
     .map((e, i) => {
-      const calendarDate = e.payload?.calendarDate as CampaignDate;
       return e.kind === 'day_start'
         ? {
             i,
-            seasonId: `${calendarDate.year}-${String(e.payload?.season).toLowerCase()}`,
+            seasonId: `${e.payload.calendarDate.year}-${String(e.payload?.season).toLowerCase()}`,
           }
         : null;
     })
@@ -368,9 +374,9 @@ export function finalizeSession(
   // --- Synthesize lifecycle events at block boundaries ---
   // Helper: get last known cursor/party/date up to a given event index
   function getSnapshot(upToIdx: number) {
-    let currentHex = null;
-    let currentParty = null;
-    let currentDate = null;
+    let currentHex = 'null';
+    let currentParty = ['null'];
+    let currentDate = {} as CampaignDate;
     for (let i = 0; i <= upToIdx; ++i) {
       const e = sortedEvents[i];
       if (e.kind === 'move' && e.payload?.to) {
@@ -379,8 +385,8 @@ export function finalizeSession(
       if (e.kind === 'trail' && e.payload?.to) {
         currentHex = e.payload.to;
       }
-      if (e.kind.startsWith('party_') && e.payload?.party) {
-        currentParty = e.payload.party;
+      if (e.kind === 'party_set' && e.payload?.ids) {
+        currentParty = e.payload.ids;
       }
       if (e.kind === 'day_start' && e.payload?.calendarDate) {
         currentDate = e.payload.calendarDate;
@@ -388,15 +394,10 @@ export function finalizeSession(
       if (e.kind === 'session_start' && e.payload?.startHex) {
         currentHex = e.payload.startHex;
       }
-      if (e.kind === 'session_start' && e.payload?.party) {
-        currentParty = e.payload.party;
-      }
     }
     return { currentHex, currentParty, currentDate };
   }
 
-  // Find original session_start, session_continue, session_end
-  const origSessionStart = sortedEvents.find((e) => e.kind === 'session_start');
   const sessionIdVal = sessionId;
 
   // For each block, synthesize lifecycle events as needed (avoid referencing finalizedBlocks before initialization)
@@ -408,7 +409,7 @@ export function finalizeSession(
     const block = blocks[bIdx];
     let blockEvents = [...block.events];
     const firstDayIdx = block.events.findIndex((e) => e.kind === 'day_start');
-    const firstDayEvent = block.events[firstDayIdx];
+    const firstDayEvent = block.events[firstDayIdx] as DayStartEvent;
     // --- Block start ---
     if (bIdx === 0) {
       // Block 1: must begin with session_start or session_continue (if present before first day)
@@ -417,17 +418,7 @@ export function finalizeSession(
       const hasCont = preFirstDay.find((e) => e.kind === 'session_continue');
       if (!hasStart && !hasCont) {
         // Insert synthetic session_start
-        const payload = origSessionStart?.payload || {
-          status: 'in-progress',
-          id: sessionIdVal,
-        };
-        blockEvents.unshift({
-          kind: 'session_start',
-          ts: firstDayEvent.ts,
-          seq: 0,
-          payload: { ...payload, status: 'in-progress', id: sessionIdVal },
-          _origIdx: -1,
-        });
+        throw new Error('Initial session_start missing; cannot synthesize without startHex.');
       }
     } else {
       // Block 2..N: must begin with session_continue (if present before first day)
@@ -454,10 +445,10 @@ export function finalizeSession(
             id: sessionIdVal,
             currentHex: snap.currentHex,
             currentParty: snap.currentParty,
-            currentDate: firstDayEvent.payload?.calendarDate,
+            currentDate: firstDayEvent.payload.calendarDate,
           },
           _origIdx: -1,
-        });
+        } satisfies SessionContinueEvent & { _origIdx: number });
       }
     }
     // --- Block end ---
@@ -477,7 +468,7 @@ export function finalizeSession(
           seq: 0,
           payload: { status: 'paused', id: sessionIdVal },
           _origIdx: -1,
-        });
+        } satisfies SessionPauseEvent & { _origIdx: number });
       }
     } else {
       // Final block: must end with session_end
@@ -489,7 +480,7 @@ export function finalizeSession(
           seq: 0,
           payload: { status: 'final', id: sessionIdVal },
           _origIdx: -1,
-        });
+        } satisfies SessionEndEvent & { _origIdx: number });
       }
     }
 

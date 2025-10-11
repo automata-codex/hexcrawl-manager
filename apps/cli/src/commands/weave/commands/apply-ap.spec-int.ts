@@ -1,5 +1,14 @@
 import { REPO_PATHS } from '@skyreach/data';
-import { runWeave, withTempRepo } from '@skyreach/test-helpers';
+import {
+  ap,
+  dayEnd,
+  dayStart,
+  finalizeLog,
+  partySet,
+  runWeave,
+  saveCharacters,
+  withTempRepo,
+} from '@skyreach/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
@@ -9,168 +18,22 @@ import { readApLedger } from '../../../services/ap-ledger.service';
 
 import type { ScribeEvent } from '@skyreach/schemas';
 
-const events: ScribeEvent[] = [
-  {
-    seq: 3,
-    ts: '2024-01-01T18:40:00Z',
-    kind: 'day_start',
-    payload: {
-      calendarDate: { year: 1511, month: 'Umbraeus', day: 17 },
-      season: 'autumn',
-      daylightCap: 12,
-    },
-  },
-  {
-    seq: 4,
-    ts: '2024-01-01T18:50:00Z',
-    kind: 'party_set',
-    payload: { ids: ['alistar', 'daemaris', 'istavan'] },
-  },
-  {
-    seq: 5,
-    ts: '2024-01-01T19:00:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'combat',
-      tier: 1,
-      note: 'Defeated goblins',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 18,
-    ts: '2024-01-01T19:10:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'exploration',
-      tier: 2,
-      note: 'Found a hidden dungeon',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 22,
-    ts: '2024-01-01T19:11:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'social',
-      tier: 1,
-      note: 'Talked to the alseid',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 27,
-    ts: '2024-01-01T19:12:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'exploration',
-      tier: 1,
-      note: 'Entered a new region',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 33,
-    ts: '2024-01-01T19:13:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'combat',
-      tier: 1,
-      note: 'Fought some baddies',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 37,
-    ts: '2024-01-01T19:14:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'exploration',
-      tier: 1,
-      note: 'Found a hidden temple',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 42,
-    ts: '2024-01-01T19:15:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'social',
-      tier: 1,
-      note: 'Chatted with village elder',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 21,
-    ts: '2024-01-01T19:20:00Z',
-    kind: 'day_end',
-    payload: { summary: { active: 13, daylight: 13, night: 0 } },
-  },
-];
+const party = ['alistar', 'daemaris', 'istavan'];
+const events: ScribeEvent[] = finalizeLog([
+  dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
+  partySet(party),
+  ap('combat', 1, party, 'A1', 'Defeated goblins'),
+  ap('exploration', 2, party, 'B1', 'Found a hidden dungeon'),
+  ap('social', 1, party, 'C1', 'Talked to the alseid'),
+  ap('exploration', 1, party, 'D1', 'Entered a new region'),
+  ap('combat', 1, party, 'E1', 'Fought some baddies'),
+  ap('exploration', 1, party, 'F1', 'Found a hidden temple'),
+  ap('social', 1, party, 'G1', 'Chatted with village elder'),
+  dayEnd(13, 13),
+]);
 
 function writeCharacterFiles() {
-  fs.writeFileSync(
-    path.join(REPO_PATHS.CHARACTERS(), 'alistar.yaml'),
-    yaml.stringify({
-      id: 'alistar',
-      fullName: 'Alistar',
-      displayName: 'Alistar',
-      pronouns: 'he/him',
-      playerId: 'peter-quinn',
-      species: 'Elf',
-      culture: 'Wood Elf',
-      class: 'Wizard',
-      level: 5,
-      advancementPoints: {
-        combat: 13,
-        exploration: 14,
-        social: 14,
-      },
-    }),
-  );
-
-  fs.writeFileSync(
-    path.join(REPO_PATHS.CHARACTERS(), 'daemaris.yaml'),
-    yaml.stringify({
-      id: 'daemaris',
-      fullName: 'Daemaris',
-      displayName: 'Daemaris',
-      pronouns: 'she/her',
-      playerId: 'emilie-siciliano',
-      species: 'Tiefling',
-      culture: 'Bandit',
-      class: 'Ranger',
-      level: 5,
-      advancementPoints: {
-        combat: 13,
-        exploration: 15,
-        social: 14,
-      },
-    }),
-  );
-
-  fs.writeFileSync(
-    path.join(REPO_PATHS.CHARACTERS(), 'istavan.yaml'),
-    yaml.stringify({
-      id: 'istavan',
-      fullName: 'Grandfather Istavan',
-      displayName: 'Istavan',
-      pronouns: 'he/him',
-      playerId: 'lucas-watkins',
-      species: 'Human',
-      culture: 'Frostfell',
-      class: 'Fighter',
-      level: 2,
-      advancementPoints: {
-        combat: 3,
-        exploration: 3,
-        social: 3,
-      },
-    }),
-  );
+  saveCharacters([{ key: 'alistar' }, { key: 'daemaris' }, { key: 'istavan' }]);
 }
 
 describe('Command `weave apply ap`', () => {
@@ -209,11 +72,7 @@ describe('Command `weave apply ap`', () => {
           );
           expect(fs.existsSync(reportPath)).toBe(true);
           const report = yaml.parse(fs.readFileSync(reportPath, 'utf8'));
-          expect(report.characterIds).toEqual([
-            'alistar',
-            'daemaris',
-            'istavan',
-          ]);
+          expect(report.characterIds).toEqual(party);
           expect(report.advancementPoints).toEqual({
             combat: {
               number: 1,
@@ -326,7 +185,7 @@ describe('Command `weave apply ap`', () => {
           fs.writeFileSync(
             reportPath1,
             yaml.stringify({
-              characterIds: ['alistar', 'daemaris', 'istavan'],
+              characterIds: party,
               status: 'completed',
               fingerprint: 'existing-fingerprint',
               sessionId: 'session-0001',
@@ -353,11 +212,7 @@ describe('Command `weave apply ap`', () => {
           );
           expect(fs.existsSync(reportPath2)).toBe(true);
           const report2 = yaml.parse(fs.readFileSync(reportPath2, 'utf8'));
-          expect(report2.characterIds).toEqual([
-            'alistar',
-            'daemaris',
-            'istavan',
-          ]);
+          expect(report2.characterIds).toEqual(party);
 
           // Verify AP ledger output for session-0002
           expect(fs.existsSync(REPO_PATHS.AP_LEDGER())).toBe(true);
@@ -443,7 +298,7 @@ describe('Command `weave apply ap`', () => {
           fs.writeFileSync(
             reportPath,
             yaml.stringify({
-              characterIds: ['alistar', 'daemaris', 'istavan'],
+              characterIds: party,
               sessionId: 'session-0001',
               advancementPoints: {
                 combat: { number: 1, maxTier: 1 },
