@@ -8,6 +8,7 @@ import {
   SessionReport,
   SessionReportSchema,
 } from '@skyreach/schemas';
+import { makeAbsenceSpend } from '@skyreach/test-helpers';
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
 
@@ -152,30 +153,20 @@ export const SESSIONS = [
  * - C has not claimed any -> should have 1 unclaimed from s5.
  */
 export const LEDGER: ApLedgerEntry[] = [
-  {
-    kind: 'absence_spend',
-    appliedAt: '2025-09-23T10:00:00Z',
+  makeAbsenceSpend({
     characterId: 'char-a',
-    sessionId: asSessionId(4), // attach to the most recent completed at the time of allocation
+    session: 4, // attach to the most recent completed at the time of allocation
+    appliedAt: '2025-09-23T10:00:00Z',
     notes: 'Claimed one social point for missed session',
-    advancementPoints: {
-      combat: { delta: 0, reason: 'absence_spend' },
-      exploration: { delta: 0, reason: 'absence_spend' },
-      social: { delta: 1, reason: 'absence_spend' },
-    },
-  },
-  {
-    kind: 'absence_spend',
-    appliedAt: '2025-09-16T10:00:00Z',
+    deltas: { social: 1 }, // combat/exploration default to 0
+  }),
+  makeAbsenceSpend({
     characterId: 'char-b',
-    sessionId: asSessionId(3),
+    session: 3,
+    appliedAt: '2025-09-16T10:00:00Z',
     notes: 'Covered two missed sessions before retirement',
-    advancementPoints: {
-      combat: { delta: 1, reason: 'absence_spend' },
-      exploration: { delta: 1, reason: 'absence_spend' },
-      social: { delta: 0, reason: 'absence_spend' },
-    },
-  },
+    deltas: { combat: 1, exploration: 1 }, // social defaults to 0
+  }),
 ];
 
 // --- Expected result for happy-path assertion ---
