@@ -16,7 +16,7 @@ import yaml from 'yaml';
 
 import { readApLedger } from '../../../services/ap-ledger.service';
 
-import type { ScribeEvent } from '@skyreach/schemas';
+import type { ScribeEvent, SessionReport } from '@skyreach/schemas';
 
 const party = ['alistar', 'daemaris', 'istavan'];
 const events: ScribeEvent[] = compileLog([
@@ -275,28 +275,22 @@ describe('Command `weave apply ap`', () => {
       );
     });
 
-    it('fails with a clear message if no pending sessions are found in "Option R" mode', async () => {
+    it('reports cleanly when no pending AP sessions are found (sweep mode)', async () => {
       await withTempRepo(
         'apply-ap-no-pending',
         { initGit: false },
         async (repo) => {
           writeCharacterFiles();
 
-          // Simulate finalized scribe logs for session-0001 (already completed)
-          const logPath = path.join(
-            REPO_PATHS.SESSIONS(),
-            'session_0001_2025-09-25.jsonl',
-          );
+          // Finalized log for session-0001
           fs.writeFileSync(
-            logPath,
+            path.join(REPO_PATHS.SESSIONS(), 'session_0001_2025-09-25.jsonl'),
             events.map((e) => JSON.stringify(e)).join('\n'),
           );
 
-          // Simulate completed report for session-0001
-          const reportsDir = REPO_PATHS.REPORTS();
-          const reportPath = path.join(reportsDir, 'session-0001.yaml');
+          // Completed report for session-0001
           fs.writeFileSync(
-            reportPath,
+            path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml'),
             yaml.stringify({
               status: 'completed',
               characterIds: party,
@@ -310,14 +304,15 @@ describe('Command `weave apply ap`', () => {
           );
 
           // Run weave ap apply in auto-mode (Option R) with no pending sessions
+          // eslint-disable-next-line no-unused-vars
           const { exitCode, stderr, stdout } = await runWeave(
             ['apply', 'ap'],
             { repo },
           );
 
-          // Should fail (non-zero exit code) and print a clear message
-          expect(exitCode).not.toBe(0);
-          expect(stderr || stdout).toMatch(/no pending sessions/i);
+          // Benign no-op
+          expect(exitCode).toBe(0);
+          expect(stderr).toBeFalsy();
         },
       );
     });
@@ -346,7 +341,7 @@ describe('Command `weave apply ap`', () => {
             ]).map((e) => JSON.stringify(e)).join('\n'),
           );
 
-          // Incomplete log for session-0004 (should be ignored)
+          // Finalized log for session-0004 (pending because report is not completed)
           const incompleteLogPath = path.join(
             REPO_PATHS.SESSIONS(),
             'session_0004_2025-09-28.jsonl',
@@ -356,7 +351,8 @@ describe('Command `weave apply ap`', () => {
             compileLog([
               dayStart({ year: 1511, month: 'Umbraeus', day: 19 }),
               partySet(party),
-              // Missing session_end and day_end
+              ap('exploration', 1, party, 'H2', 'Mapped the path to H3'),
+              dayEnd(14, 14),
             ]).map((e) => JSON.stringify(e)).join('\n'),
           );
 
@@ -386,17 +382,21 @@ describe('Command `weave apply ap`', () => {
           fs.writeFileSync(
             incompleteReportPath,
             yaml.stringify({
-              characterIds: party,
-              status: 'planned',
-              fingerprint: 'fp-0004',
-              sessionId: 'session-0004',
-              advancementPoints: [],
-            }),
+              id: 'session-0004',
+              status: 'planned', // not completed => pending
+              absenceAllocations: [],
+              downtime: [],
+              gameStartDate: '21 Umbraeus 1511',
+              schemaVersion: 2,
+              scribeIds: ['session_0004_2025-09-28'],
+              sessionDate: '2025-09-28',
+              source: 'scribe',
+            } satisfies SessionReport),
           );
 
           // Run weave ap apply in auto-mode to trigger discovery
           const { exitCode, stderr, stdout } = await runWeave(
-            ['apply', 'ap'],
+            ['apply', 'ap', '--allow-dirty'],
             { repo },
           );
 
