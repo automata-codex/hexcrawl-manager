@@ -5,7 +5,6 @@ export class CliError extends Error {
   }
 }
 
-
 /** User tried to apply a file we've already applied (maps to exit 3). */
 export class AlreadyAppliedError extends CliError {
   constructor(message = 'File already applied.') {
