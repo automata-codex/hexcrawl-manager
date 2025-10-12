@@ -400,9 +400,6 @@ describe('Command `weave apply ap`', () => {
             { repo },
           );
 
-          console.log('STDOUT:', stdout);
-          console.log('STDERR:', stderr);
-
           expect(exitCode).toBe(0);
           expect(stderr).toBeFalsy();
 
