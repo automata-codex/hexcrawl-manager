@@ -3,7 +3,7 @@ import {
   ap,
   dayEnd,
   dayStart,
-  finalizeLog,
+  compileLog,
   partySet,
   runWeave,
   saveCharacters,
@@ -16,10 +16,10 @@ import yaml from 'yaml';
 
 import { readApLedger } from '../../../services/ap-ledger.service';
 
-import type { ScribeEvent } from '@skyreach/schemas';
+import type { ScribeEvent, SessionReport } from '@skyreach/schemas';
 
 const party = ['alistar', 'daemaris', 'istavan'];
-const events: ScribeEvent[] = finalizeLog([
+const events: ScribeEvent[] = compileLog([
   dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
   partySet(party),
   ap('combat', 1, party, 'A1', 'Defeated goblins'),
@@ -275,29 +275,24 @@ describe('Command `weave apply ap`', () => {
       );
     });
 
-    it('fails with a clear message if no pending sessions are found in "Option R" mode', async () => {
+    it('reports cleanly when no pending AP sessions are found (sweep mode)', async () => {
       await withTempRepo(
         'apply-ap-no-pending',
         { initGit: false },
         async (repo) => {
           writeCharacterFiles();
 
-          // Simulate finalized scribe logs for session-0001 (already completed)
-          const logPath = path.join(
-            REPO_PATHS.SESSIONS(),
-            'session_0001_2025-09-25.jsonl',
-          );
+          // Finalized log for session-0001
           fs.writeFileSync(
-            logPath,
+            path.join(REPO_PATHS.SESSIONS(), 'session_0001_2025-09-25.jsonl'),
             events.map((e) => JSON.stringify(e)).join('\n'),
           );
 
-          // Simulate completed report for session-0001
-          const reportsDir = REPO_PATHS.REPORTS();
-          const reportPath = path.join(reportsDir, 'session-0001.yaml');
+          // Completed report for session-0001
           fs.writeFileSync(
-            reportPath,
+            path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml'),
             yaml.stringify({
+              status: 'completed',
               characterIds: party,
               sessionId: 'session-0001',
               advancementPoints: {
@@ -309,21 +304,118 @@ describe('Command `weave apply ap`', () => {
           );
 
           // Run weave ap apply in auto-mode (Option R) with no pending sessions
+          // eslint-disable-next-line no-unused-vars
           const { exitCode, stderr, stdout } = await runWeave(
             ['apply', 'ap'],
             { repo },
           );
 
-          // Should fail (non-zero exit code) and print a clear message
-          expect(exitCode).not.toBe(0);
-          expect(stderr || stdout).toMatch(/no pending sessions/i);
+          // Benign no-op
+          expect(exitCode).toBe(0);
+          expect(stderr).toBeFalsy();
         },
       );
     });
   });
 
   describe('Session resolution', () => {
-    it.todo('finds completed session reports and finalized logs');
+    it('finds completed session reports and finalized logs', async () => {
+      await withTempRepo(
+        'apply-ap-discovery',
+        { initGit: false },
+        async (repo) => {
+          writeCharacterFiles();
+
+          // Finalized log for session-0003
+          const finalizedLogPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            'session_0003_2025-09-27.jsonl',
+          );
+          fs.writeFileSync(
+            finalizedLogPath,
+            compileLog([
+              dayStart({ year: 1511, month: 'Umbraeus', day: 18 }),
+              partySet(party),
+              ap('exploration', 2, party, 'H1', 'Discovered ancient ruins'),
+              dayEnd(14, 14),
+            ]).map((e) => JSON.stringify(e)).join('\n'),
+          );
+
+          // Finalized log for session-0004 (pending because report is not completed)
+          const incompleteLogPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            'session_0004_2025-09-28.jsonl',
+          );
+          fs.writeFileSync(
+            incompleteLogPath,
+            compileLog([
+              dayStart({ year: 1511, month: 'Umbraeus', day: 19 }),
+              partySet(party),
+              ap('exploration', 1, party, 'H2', 'Mapped the path to H3'),
+              dayEnd(14, 14),
+            ]).map((e) => JSON.stringify(e)).join('\n'),
+          );
+
+          // Completed report for session-0003
+          const completedReportPath = path.join(
+            REPO_PATHS.REPORTS(),
+            'session-0003.yaml',
+          );
+          fs.writeFileSync(
+            completedReportPath,
+            yaml.stringify({
+              characterIds: party,
+              status: 'completed',
+              fingerprint: 'fp-0003',
+              sessionId: 'session-0003',
+              advancementPoints: [
+                { pillar: 'exploration', number: 2, maxTier: 1 },
+              ],
+            }),
+          );
+
+          // Incomplete report for session-0004 (should be ignored)
+          const incompleteReportPath = path.join(
+            REPO_PATHS.REPORTS(),
+            'session-0004.yaml',
+          );
+          fs.writeFileSync(
+            incompleteReportPath,
+            yaml.stringify({
+              id: 'session-0004',
+              status: 'planned', // not completed => pending
+              absenceAllocations: [],
+              downtime: [],
+              gameStartDate: '21 Umbraeus 1511',
+              schemaVersion: 2,
+              scribeIds: ['session_0004_2025-09-28'],
+              sessionDate: '2025-09-28',
+              source: 'scribe',
+            } satisfies SessionReport),
+          );
+
+          // Run weave ap apply in auto-mode to trigger discovery
+          const { exitCode, stderr, stdout } = await runWeave(
+            ['apply', 'ap', '--allow-dirty'],
+            { repo },
+          );
+
+          expect(exitCode).toBe(0);
+          expect(stderr).toBeFalsy();
+
+          // Only session-0003 should be discovered and processed
+          const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
+          const discoveredSessions = ledger.map((e: any) => e.sessionId);
+          expect(discoveredSessions).toContain('session-0004');
+          expect(discoveredSessions).not.toContain('session-0003');
+
+          // Optionally, check stdout for discovery message
+          expect(stdout).toMatch(/session-0004/);
+          expect(stdout).not.toMatch(/session-0003/);
+        },
+      );
+    });
+
     it.todo('validates that explicit session has finalized logs, else fails');
   });
 

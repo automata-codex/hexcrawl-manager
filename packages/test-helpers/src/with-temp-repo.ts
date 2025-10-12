@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 
 import { getTestRepoBase, TEST_REPO_SENTINEL } from './get-test-repo-base';
+import yaml from 'yaml';
 
 async function fileExists(p: string) {
   try {
@@ -108,16 +109,13 @@ export async function withTempRepo<T = string>(
         appliedSessions: [],
         nextSessionSeq: 27,
         rolledSeasons: [],
-        havens: [],
       },
       null,
       2,
     ),
   );
-  await fs.writeFile(
-    REPO_PATHS.TRAILS(),
-    JSON.stringify({ trails: {} }, null, 2),
-  );
+  await fs.writeFile(REPO_PATHS.HAVENS(), yaml.stringify([]));
+  await fs.writeFile(REPO_PATHS.TRAILS(), yaml.stringify({}));
 
   // Initialize git repo if needed
   if (opts?.initGit) {

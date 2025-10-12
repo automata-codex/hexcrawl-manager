@@ -1,9 +1,11 @@
-import { REPO_PATHS } from '@skyreach/data';
+import { REPO_PATHS, loadMeta } from '@skyreach/data';
 import { ScribeEvent } from '@skyreach/schemas';
 import {
+  compileLog,
+  dayEnd,
   dayStart,
-  finalizeLog,
   move,
+  partySet,
   runWeave,
   sessionEnd,
   sessionStart,
@@ -16,6 +18,8 @@ import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
 describe('Command `weave apply trails`', () => {
+  const party = ['alistar', 'daemaris', 'istavan'];
+
   it('applies trails for a specific session (explicit path)', async () => {
     await withTempRepo(
       'apply-trails-session-explicit',
@@ -45,7 +49,7 @@ describe('Command `weave apply trails`', () => {
           `${sessionId}.jsonl`,
         );
 
-        const events = finalizeLog([
+        const events = compileLog([
           sessionStart(sessionId, 'R14'),
           dayStart({ year: 1511, month: 'Lucidus', day: 31 }),
           move('R14', 'Q13'),
@@ -193,6 +197,127 @@ describe('Command `weave apply trails`', () => {
         expect(foot.inputs.sourceFile).toBe(rollFile);
         // Effects should include maintained/persisted/deletedTrails sets
         expect(foot.effects.rollover).toBeDefined();
+      },
+    );
+  });
+
+  it('auto-discovers and applies sessions in world order (oldest first) across runs', async () => {
+    await withTempRepo(
+      'apply-trails-discovery-world-order',
+      { initGit: false },
+      async (repo) => {
+        const session3Id = 'session_0003_2025-09-27';
+        const session4Id = 'session_0004_2025-09-28';
+
+        // session-0003 with a trail event
+        fs.writeFileSync(
+          path.join(REPO_PATHS.SESSIONS(), `${session3Id}.jsonl`),
+          compileLog([
+            sessionStart(session3Id, 'H1'),
+            dayStart({ year: 1511, month: 'Umbraeus', day: 18 }),
+            partySet(party),
+            trail('H1', 'H2'),
+            dayEnd(14, 14),
+            sessionEnd(session3Id),
+          ])
+            .map((e) => JSON.stringify(e))
+            .join('\n'),
+        );
+
+        // session-0004 with a trail event
+        fs.writeFileSync(
+          path.join(REPO_PATHS.SESSIONS(), `${session4Id}.jsonl`),
+          compileLog([
+            sessionStart(session4Id, 'H2'),
+            dayStart({ year: 1511, month: 'Umbraeus', day: 19 }),
+            partySet(party),
+            trail('H2', 'H3'),
+            dayEnd(14, 14),
+            sessionEnd(session4Id),
+          ])
+            .map((e) => JSON.stringify(e))
+            .join('\n'),
+        );
+
+        const { exitCode, stderr, stdout } = await runWeave(
+          ['apply', 'trails', '--allow-dirty'],
+          { repo },
+        );
+
+        expect(exitCode).toBe(0);
+        expect(stderr).toBeFalsy();
+        expect(stdout).toMatch(/session[_-]0003/i);
+        expect(stdout).toMatch(/session[_-]0004/i);
+
+        const meta1 = loadMeta();
+        expect(meta1.appliedSessions).toEqual(
+          expect.arrayContaining([
+            `${session3Id}.jsonl`,
+            `${session4Id}.jsonl`,
+          ]),
+        );
+      },
+    );
+  });
+
+  it('continues past sessions with no trail changes and applies the next eligible session', async () => {
+    await withTempRepo(
+      'apply-trails-discovery-skip-noop',
+      { initGit: false },
+      async (repo) => {
+        const session5Id = 'session_0005_2025-09-29';
+        const session6Id = 'session_0006_2025-09-30';
+
+        // session-0005: valid envelope, but no 'trail' events -> NoChangesError path
+        fs.writeFileSync(
+          path.join(REPO_PATHS.SESSIONS(), 'session_0005_2025-09-29.jsonl'),
+          compileLog([
+            sessionStart(session5Id, 'H3'),
+            dayStart({ year: 1511, month: 'Umbraeus', day: 20 }),
+            partySet(party),
+            move('H3', 'H4'),
+            dayEnd(14, 14),
+            sessionEnd(session5Id),
+          ])
+            .map((e) => JSON.stringify(e))
+            .join('\n'),
+        );
+
+        // session-0006: has a trail event -> should be applied
+        fs.writeFileSync(
+          path.join(REPO_PATHS.SESSIONS(), 'session_0006_2025-09-30.jsonl'),
+          compileLog([
+            sessionStart(session6Id, 'H4'),
+            dayStart({ year: 1511, month: 'Umbraeus', day: 21 }),
+            partySet(party),
+            trail('H4', 'H3'),
+            dayEnd(14, 14),
+            sessionEnd(session6Id),
+          ])
+            .map((e) => JSON.stringify(e))
+            .join('\n'),
+        );
+
+        // eslint-disable-next-line no-unused-vars
+        const { exitCode, stderr, stdout } = await runWeave(
+          ['apply', 'trails', '--allow-dirty'],
+          { repo },
+        );
+
+        // Expect some "no-op" style indication for 0005, and a positive apply for 0006.
+        // (Adjust regexes to match your CLI print strings.)
+        expect(stdout).toMatch(/no changes|no-op|nothing to apply/i);
+        expect(stdout).toMatch(/session[_-]0006/i);
+
+        const meta = loadMeta();
+
+        // No footprint/meta entry for the no-op session
+        expect(meta.appliedSessions).not.toContain(
+          'session_0005_2025-09-29.jsonl',
+        );
+
+        // Applied session recorded
+        expect(meta.appliedSessions).toContain('session_0006_2025-09-30.jsonl');
       },
     );
   });

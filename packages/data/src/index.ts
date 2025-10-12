@@ -14,4 +14,5 @@ export { REPO_PATHS, ensureRepoDirs } from './repo-paths';
 export { rollDice } from './roll-dice';
 export * from './rollover-files';
 export * from './seasons';
+export * from './session-reports';
 export * from './trails';

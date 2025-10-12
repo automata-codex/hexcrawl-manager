@@ -1,4 +1,4 @@
-# `weave ap status` — Command Spec
+# `weave status ap` — Command Spec
 
 > **File:** `docs/specs/weave-commands/ap-status.md`
 >

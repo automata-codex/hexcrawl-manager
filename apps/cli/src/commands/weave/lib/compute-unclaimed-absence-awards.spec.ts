@@ -33,7 +33,7 @@ function makeCompletedSession(opts: {
     downtime: [],
     gameStartDate: '',
     schemaVersion: 2,
-    scribeIds: [`session_${String(opts.n).padStart(4, '0')}_2025-09-01`], // any valid ScribeId shape
+    scribeIds: [`session_${padSessionNum(opts.n)}_2025-09-01`], // any valid ScribeId shape
     sessionDate: opts.date,
     source: 'scribe',
     // completed-only

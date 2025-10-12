@@ -1,4 +1,4 @@
 export * from './ap-ledger';
 export * from './builders';
-export { finalizeLog } from './finalize-log';
+export { compileLog } from './compile-log';
 export * from './save-character';

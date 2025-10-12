@@ -1,4 +1,4 @@
-import { ap, finalizeLog } from '@skyreach/test-helpers';
+import { ap, compileLog } from '@skyreach/test-helpers';
 import { describe, it, expect } from 'vitest';
 
 import { computeApForSession } from './compute-ap-for-session';
@@ -7,7 +7,7 @@ import type { ScribeEvent } from '@skyreach/schemas';
 
 describe('Function `computeApForSession`', () => {
   const party = ['alistar', 'istavan', 'daemaris'];
-  const apEvents: ScribeEvent[] = finalizeLog([
+  const apEvents: ScribeEvent[] = compileLog([
     ap('combat', 1, party, 'R14', 'Defeated goblins'),
     ap('exploration', 2, party, 'S15', 'Found a hidden dungeon'),
     ap('social', 1, party, 'Q14', 'Talked to the alseid'),

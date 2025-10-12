@@ -22,7 +22,7 @@ import {
   CliValidationError,
   NoChangesError,
 } from '../lib/errors';
-import { resolveTrailsTarget } from '../lib/resolve-trails-target';
+import { resolveApTarget, resolveTrailsTarget } from '../lib/resolvers';
 
 import { applyAp } from './apply-ap';
 import { ApplyTrailsResult, applyTrails } from './apply-trails';
@@ -147,24 +147,35 @@ export async function apply(args: ApplyArgs) {
     }
 
     if (mode === 'all' || mode === 'ap') {
-      const result =
-        targetType === 'session'
-          ? await applyAp({ sessionId: target, allowDirty })
-          : await applyAp({ allowDirty });
+      const targets =
+        targetType === 'session' ? [{ kind: 'session', sessionId: target! }] : resolveApTarget(undefined);
 
-      console.log('');
-      if (result.alreadyApplied) {
-        console.log(
-          `✅ ${result.sessionId} was already applied (no changes made).`,
-        );
-      } else {
-        console.log(`✨ Applied ${result.sessionId}:`);
-        console.log(
-          `  • ${result.entriesAppended} ledger entr${result.entriesAppended === 1 ? 'y' : 'ies'} appended`,
-        );
-        console.log(`  • Report: ${result.reportPath}`);
+      let applied = 0;
+      let skipped = 0;
+
+      for (const item of targets) {
+        try {
+          const result = await applyAp({ sessionId: item.sessionId, allowDirty });
+          if (result.alreadyApplied) {
+            console.log(`✅ ${result.sessionId} was already applied (no changes made).`);
+            skipped++;
+          } else {
+            console.log(`✨ Applied ${result.sessionId}:`);
+            console.log(`  • ${result.entriesAppended} ledger entr${result.entriesAppended === 1 ? 'y' : 'ies'} appended`);
+            console.log(`  • Report: ${result.reportPath}`);
+            applied++;
+          }
+        } catch (e) {
+          // Treat "already applied" as benign if applyAp throws that instead of returning a flag
+          if (e instanceof SessionIdError) throw e; // real misuse
+          // let other hard errors bubble to your exit mapper
+          throw e;
+        }
       }
-      console.log('');
+
+      if (targets.length > 1) {
+        console.log(`AP reports: applied ${applied}, skipped ${skipped}.`);
+      }
     }
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

@@ -7,6 +7,7 @@ import {
 } from '@skyreach/core';
 import {
   REPO_PATHS,
+  discoverCompletedReports,
   discoverFinalizedLogs,
   discoverFinalizedLogsForOrThrow,
   readAllFinalizedLogsForSession,
@@ -124,13 +125,7 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     );
 
     // Identify pending sessions
-    const reportFiles = fs.existsSync(REPO_PATHS.REPORTS())
-      ? fs.readdirSync(REPO_PATHS.REPORTS())
-      : [];
-    const completedSessions = reportFiles
-      .filter((f) => f.match(/^session-\d{4}\.yaml$/))
-      .map((f) => f.match(/^session-(\d{4})\.yaml$/)![1])
-      .map((f) => parseInt(f, 10));
+    const completedSessions = discoverCompletedReports();
     const pendingSessions = sessionNumbers.filter(
       (num) => !completedSessions.includes(num),
     );
