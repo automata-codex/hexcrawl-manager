@@ -1,18 +1,17 @@
-import { CampaignDate, ScribeEvent } from '@skyreach/schemas';
+import {
+  SEASON_ORDER,
+  CampaignDate,
+  ScribeEvent,
+  Season,
+} from '@skyreach/schemas';
 
 import { CALENDAR_CONFIG } from '../config';
 import { DayStartMissingError, SeasonIdError } from '../errors';
 import { SEASON_ID_RE } from '../regex';
 
-export const SEASON_ORDER = ['winter', 'spring', 'summer', 'autumn'];
-
 /** Validates and returns a normalized SeasonId (lowercase season). */
 export function assertSeasonId(value: string): string {
-  const m = value.match(SEASON_ID_RE);
-  if (!m) {
-    throw new SeasonIdError(value);
-  }
-  const [, year, season] = m;
+  const { season, year } = parseSeasonId(value);
   return normalizeSeasonId(`${year}-${season}`);
 }
 
@@ -29,8 +28,8 @@ export function compareSeasonIds(a: string, b: string): number {
   if (yA !== yB) {
     return yA - yB;
   }
-  const sA = SEASON_ORDER.indexOf(seasonA);
-  const sB = SEASON_ORDER.indexOf(seasonB);
+  const sA = SEASON_ORDER.indexOf(seasonA as Season);
+  const sB = SEASON_ORDER.indexOf(seasonB as Season);
   if (sA === -1 || sB === -1) {
     throw new Error(`Invalid season in seasonId: ${a} or ${b}`);
   }
@@ -59,6 +58,23 @@ export function isSeasonId(value: string): boolean {
  */
 export function normalizeSeasonId(id: string): string {
   return id.trim().toLowerCase();
+}
+
+export function parseSeasonId(seasonId: string) { // TODO Start here
+  const m = seasonId.match(SEASON_ID_RE);
+  if (!m) {
+    throw new SeasonIdError(seasonId);
+  }
+  return { year: Number(m[1]), season: m[2] as Season };
+}
+
+export function prevSeasonId(seasonId: string): string {
+  const { year, season } = parseSeasonId(seasonId);
+  const idx = SEASON_ORDER.indexOf(season);
+  const prevIdx = (idx + SEASON_ORDER.length - 1) % SEASON_ORDER.length;
+  const prevSeason = SEASON_ORDER[prevIdx];
+  const prevYear = prevSeason === SEASON_ORDER.at(-1) && season === SEASON_ORDER[0] ? year - 1 : year;
+  return normalizeSeasonId(`${prevYear}-${prevSeason}`);
 }
 
 export function seasonIdFromEvents(events: ScribeEvent[], fileHint?: string): string {

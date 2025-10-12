@@ -1,9 +1,11 @@
-import { REPO_PATHS } from '@skyreach/data';
+import { REPO_PATHS, loadMeta } from '@skyreach/data';
 import { ScribeEvent } from '@skyreach/schemas';
 import {
-  dayStart,
   compileLog,
+  dayEnd,
+  dayStart,
   move,
+  partySet,
   runWeave,
   sessionEnd,
   sessionStart,
@@ -16,6 +18,8 @@ import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
 describe('Command `weave apply trails`', () => {
+  const party = ['alistar', 'daemaris', 'istavan'];
+
   it('applies trails for a specific session (explicit path)', async () => {
     await withTempRepo(
       'apply-trails-session-explicit',
@@ -193,6 +197,65 @@ describe('Command `weave apply trails`', () => {
         expect(foot.inputs.sourceFile).toBe(rollFile);
         // Effects should include maintained/persisted/deletedTrails sets
         expect(foot.effects.rollover).toBeDefined();
+      },
+    );
+  });
+
+  it('auto-discovers and applies sessions in world order (oldest first) across runs', async () => {
+    await withTempRepo(
+      'apply-trails-discovery-world-order',
+      { initGit: false },
+      async (repo) => {
+        const session1Id = 'session_0003_2025-09-27';
+        const session2Id = 'session_0004_2025-09-28';
+
+        // session-0003 with a trail event
+        fs.writeFileSync(
+          path.join(REPO_PATHS.SESSIONS(), `${session1Id}.jsonl`),
+          compileLog([
+            sessionStart(session1Id, 'H1'),
+            dayStart({ year: 1511, month: 'Umbraeus', day: 18 }),
+            partySet(party),
+            trail('H1', 'H2'),
+            dayEnd(14, 14),
+            sessionEnd(session1Id),
+          ])
+            .map((e) => JSON.stringify(e))
+            .join('\n'),
+        );
+
+        // session-0004 with a trail event
+        fs.writeFileSync(
+          path.join(REPO_PATHS.SESSIONS(), `${session2Id}.jsonl`),
+          compileLog([
+            sessionStart(session2Id, 'H2'),
+            dayStart({ year: 1511, month: 'Umbraeus', day: 19 }),
+            partySet(party),
+            trail('H2', 'H3'),
+            dayEnd(14, 14),
+            sessionEnd(session2Id),
+          ])
+            .map((e) => JSON.stringify(e))
+            .join('\n'),
+        );
+
+        const { exitCode, stderr, stdout } = await runWeave(
+          ['apply', 'trails', '--allow-dirty'],
+          { repo },
+        );
+
+        expect(exitCode).toBe(0);
+        expect(stderr).toBeFalsy();
+        expect(stdout).toMatch(/session[_-]0003/i);
+        expect(stdout).toMatch(/session[_-]0004/i);
+
+        const meta1 = loadMeta();
+        expect(meta1.appliedSessions).toEqual(
+          expect.arrayContaining([
+            `${session1Id}.jsonl`,
+            `${session2Id}.jsonl`,
+          ]),
+        );
       },
     );
   });

@@ -1,4 +1,4 @@
-import { normalizeSeasonId } from '@skyreach/core';
+import { normalizeSeasonId, prevSeasonId } from '@skyreach/core';
 import { MetaData } from '@skyreach/schemas';
 import path from 'node:path';
 
@@ -44,16 +44,47 @@ export function isSessionAlreadyApplied(
   return meta.appliedSessions?.includes(fileId);
 }
 
+/**
+ * Check chronology against meta.rolledSeasons.
+ * - If rolledSeasons is empty => valid, no missing.
+ * - Otherwise, require a contiguous run of rolled seasons ending at `seasonId`.
+ *   Walk backward from `seasonId`, matching the tail of rolledSeasons; for any
+ *   gaps, push to `missing` and do NOT advance the rolled pointer.
+ */
 export function isSessionChronologyValid(
   meta: MetaData,
   seasonId: string,
 ): { valid: boolean; missing: string[] } {
-  // All seasons up to and including this one must be in meta.rolledSeasons
-  // For now, just check that this seasonId is in meta.rolledSeasons
-  const normalized = normalizeSeasonId(seasonId);
-  const rolled = (meta.rolledSeasons || []).map(normalizeSeasonId);
-  const valid = rolled.includes(normalized);
-  return { valid, missing: valid ? [] : [seasonId] };
+  const rolled = (meta.rolledSeasons ?? []).map(normalizeSeasonId);
+  const target = normalizeSeasonId(seasonId);
+
+  if (rolled.length === 0) {
+    return { valid: true, missing: [] };
+  }
+
+  let idx = rolled.length - 1; // pointer into rolledSeasons (tail → head)
+  let cursor: string = target; // walk backward from target
+  const missing: string[] = [];
+
+  while (idx >= 0) {
+    const want = cursor;
+    const have = rolled[idx];
+
+    if (have === want) {
+      // matched this step → advance both
+      idx -= 1;
+      cursor = prevSeasonId(cursor);
+    } else {
+      // gap detected → record missing, only move cursor back
+      missing.push(want);
+      cursor = prevSeasonId(cursor);
+      // DO NOT decrement idx here
+    }
+  }
+
+  // We’ve walked back to the head of rolledSeasons.
+  const valid = missing.length === 0;
+  return { valid, missing };
 }
 
 export function isSessionFile(filePath: string): boolean {

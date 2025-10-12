@@ -104,9 +104,6 @@ function rolloverFileFor(seasonId: string): string {
  * Resolve a target into an ordered list of trails work items.
  * - session-0001  => [ S(…a), R(currSeason if next changes), S(…b), R(next change), S(…c) ]
  * - 1511-autumn   => [ R(autumn) ]
- *
- * NOTE: This resolver expects a defined target. For a "sweep all" (no target) path,
- * use a separate discovery function that lists all unapplied items in world order.
  */
 export function resolveTrailsTarget(
   target: string | undefined,
