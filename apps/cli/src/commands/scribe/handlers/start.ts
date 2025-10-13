@@ -18,7 +18,11 @@ export default function start(ctx: Context) {
 
     // Step 1: Argument Parsing
     if (filteredArgs.length !== 1) {
-      usage('usage:\n  start <hex>\n  start interactive');
+      usage(
+`Usage:
+  start <HEX>          Start a new session in the given hex.
+  start interactive    Launch interactive session setup.`
+      );
       return;
     }
 

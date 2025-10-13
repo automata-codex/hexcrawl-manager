@@ -1,6 +1,9 @@
 import { SESSION_ID_RE, SessionIdError, padSessionNum } from '@skyreach/schemas';
 
-/** Asserting validator (throws on bad input) */
+/**
+ * @deprecated Use function from `@skyreach/schemas` instead.
+ * Asserting validator (throws on bad input)
+ */
 export function assertSessionId(value: string): string {
   if (!isSessionId(value)) {
     throw new SessionIdError(value);

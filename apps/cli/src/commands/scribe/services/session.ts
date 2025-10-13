@@ -1,5 +1,19 @@
-import { hexSort, normalizeHexId, padSessionNum } from '@skyreach/core';
-import { REPO_PATHS, loadMeta, saveMeta } from '@skyreach/data';
+import { hexSort, normalizeHexId } from '@skyreach/core';
+import {
+  REPO_PATHS,
+  loadMeta,
+  saveMeta,
+  buildSessionFilename,
+} from '@skyreach/data';
+import {
+  makeSessionId,
+  type CampaignDate,
+  type DayStartEvent,
+  type ScribeEvent,
+  type SessionContinueEvent,
+  type SessionEndEvent,
+  type SessionPauseEvent,
+} from '@skyreach/schemas';
 import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
@@ -12,15 +26,6 @@ import {
 import { type Context } from '../types';
 
 import { requireFile, requireSession } from './general';
-
-import type {
-  CampaignDate,
-  DayStartEvent,
-  ScribeEvent,
-  SessionContinueEvent,
-  SessionEndEvent,
-  SessionPauseEvent,
-} from '@skyreach/schemas';
 
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =
@@ -117,14 +122,14 @@ export function prepareSessionStart({
     };
   }
   const ymd = date.toISOString().slice(0, 10);
-  const sessionId = `session_${padSessionNum(seq)}_${ymd}`;
+  const sessionId = makeSessionId(seq);
   const inProgressFile = path.join(
     REPO_PATHS.IN_PROGRESS(),
-    `${sessionId}.jsonl`,
+    buildSessionFilename(sessionId, ymd),
   );
 
   // Check for lock conflict
-  const lockFile = path.join(REPO_PATHS.LOCKS(), `session_${padSessionNum(seq)}.lock`);
+  const lockFile = path.join(REPO_PATHS.LOCKS(), `${sessionId}.lock`);
   if (fs.existsSync(lockFile)) {
     return {
       ok: false,
@@ -135,7 +140,7 @@ export function prepareSessionStart({
   // Create lock file
   const lockData = {
     seq,
-    filename: `${sessionId}.jsonl`,
+    filename: path.basename(inProgressFile),
     createdAt: date.toISOString(),
     pid: process.pid,
   };
@@ -418,7 +423,9 @@ export function finalizeSession(
       const hasCont = preFirstDay.find((e) => e.kind === 'session_continue');
       if (!hasStart && !hasCont) {
         // Insert synthetic session_start
-        throw new Error('Initial session_start missing; cannot synthesize without startHex.');
+        throw new Error(
+          'Initial session_start missing; cannot synthesize without startHex.',
+        );
       }
     } else {
       // Block 2..N: must begin with session_continue (if present before first day)
