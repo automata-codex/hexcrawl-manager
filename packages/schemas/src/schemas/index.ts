@@ -23,6 +23,7 @@ export * from './rumor';
 export * from './scopes';
 export * from './scribe-event';
 export * from './session';
+export * from './session-id';
 export * from './session-report';
 export * from './stat-block';
 export * from './supplement-list';

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { SessionIdSchema } from './session-id';
+
 const AbsenceAllocationSchema = z.object({
   characterId: z.string(),
   allocations: z.object({
@@ -32,7 +34,7 @@ export const SessionId = z.string().regex(/^session-\d{4}$/); // e.g. session-00
 
 // Header shared by both planned & completed
 const SessionHeader = z.object({
-  id: SessionId, // "session-####"
+  id: SessionIdSchema, // "session-####"
   absenceAllocations: z.array(AbsenceAllocationSchema).default([]),
   downtime: z.array(DowntimeSchema).default([]),
   gameStartDate: z.string().default(''), // in-world date (free text); GM fills manually

@@ -16,7 +16,9 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "build:json-schemas": "tsx ./src/build-json-schemas.ts"
+    "build:json-schemas": "tsx ./src/build-json-schemas.ts",
+    "test": "vitest run --dir src",
+    "test:watch": "vitest --watch --dir src"
   },
   "type": "module",
   "types": "dist/index.d.ts",
