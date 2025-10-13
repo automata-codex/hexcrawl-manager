@@ -87,7 +87,7 @@ describe('Command `weave apply trails`', () => {
 
         // --- Assert: meta updated with applied session ---
         const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
-        expect(meta.appliedSessions).toContain('session_0001_2025-10-01.jsonl');
+        expect(meta.state.trails.applied?.appliedSessions).toContain('session_0001_2025-10-01.jsonl');
 
         // --- Assert: footprint written with session kind & season ---
         const footprintsDir = REPO_PATHS.FOOTPRINTS(); // adjust if different
@@ -181,8 +181,8 @@ describe('Command `weave apply trails`', () => {
 
         // --- Assert: meta updated with rolled season and applied session id ---
         const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
-        expect(meta.rolledSeasons).toContain('1511-autumn');
-        expect(meta.appliedSessions).toContain('rollover_1511-autumn.jsonl');
+        expect(meta.state.trails.applied?.rolledSeasons).toContain('1511-autumn');
+        expect(meta.state.trails.applied?.appliedSessions).toContain('rollover_1511-autumn.jsonl');
 
         // --- Assert: rollover footprint written with effects ---
         const footprintsDir = REPO_PATHS.FOOTPRINTS(); // adjust if different
@@ -249,8 +249,8 @@ describe('Command `weave apply trails`', () => {
         expect(stdout).toMatch(/session[_-]0003/i);
         expect(stdout).toMatch(/session[_-]0004/i);
 
-        const meta1 = loadMeta();
-        expect(meta1.appliedSessions).toEqual(
+        const meta = loadMeta();
+        expect(meta.state.trails.applied?.appliedSessions).toEqual(
           expect.arrayContaining([
             `${session3Id}.jsonl`,
             `${session4Id}.jsonl`,
@@ -312,12 +312,12 @@ describe('Command `weave apply trails`', () => {
         const meta = loadMeta();
 
         // No footprint/meta entry for the no-op session
-        expect(meta.appliedSessions).not.toContain(
+        expect(meta.state.trails.applied?.appliedSessions).not.toContain(
           'session_0005_2025-09-29.jsonl',
         );
 
         // Applied session recorded
-        expect(meta.appliedSessions).toContain('session_0006_2025-09-30.jsonl');
+        expect(meta.state.trails.applied?.appliedSessions).toContain('session_0006_2025-09-30.jsonl');
       },
     );
   });

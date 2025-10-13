@@ -1,6 +1,6 @@
-import { info, error, selectFromFiles } from '@skyreach/cli-kit';
+import { info, selectFromFiles } from '@skyreach/cli-kit';
 import { REPO_PATHS } from '@skyreach/data';
-import { MetaData } from '@skyreach/schemas';
+import { MetaV2Data } from '@skyreach/schemas';
 import fs from 'fs';
 import path from 'path';
 
@@ -16,7 +16,7 @@ export interface ResolveInputFileResult {
   candidates?: string[]; // helpful for logging/debug
 }
 
-function listCandidateFiles(meta: MetaData): string[] {
+function listCandidateFiles(meta: MetaV2Data): string[] {
   const sessionFiles = listFilesIfDir(REPO_PATHS.SESSIONS()).filter((f) =>
     f.endsWith('.jsonl'),
   );
@@ -25,7 +25,7 @@ function listCandidateFiles(meta: MetaData): string[] {
   );
   const allCandidates = [...sessionFiles, ...rolloverFiles].filter((f) => {
     const id = path.basename(f);
-    return !meta.appliedSessions?.includes(id);
+    return !meta.state.trails.applied?.appliedSessions?.includes(id);
   });
   allCandidates.sort((a, b) => a.localeCompare(b));
   return allCandidates;
@@ -45,7 +45,7 @@ function listFilesIfDir(dir: string): string[] {
  */
 export async function resolveInputFile(
   fileArg: string | undefined,
-  meta: MetaData,
+  meta: MetaV2Data,
 ): Promise<ResolveInputFileResult> {
   if (fileArg) {
     return { status: 'ok', file: fileArg };

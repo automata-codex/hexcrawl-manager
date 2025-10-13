@@ -1,18 +1,18 @@
 import { normalizeSeasonId, prevSeasonId } from '@skyreach/core';
-import { MetaData } from '@skyreach/schemas';
+import { MetaV2Data } from '@skyreach/schemas';
 import path from 'node:path';
 
 import { getNextUnrolledSeason } from './files';
 
 export function isRolloverAlreadyApplied(
-  meta: MetaData,
+  meta: MetaV2Data,
   fileId: string,
 ): boolean {
-  return meta.appliedSessions?.includes(fileId);
+  return meta.state.trails.applied?.appliedSessions?.includes(fileId) ?? false;
 }
 
 export function isRolloverChronologyValid(
-  meta: MetaData,
+  meta: MetaV2Data,
   seasonId: string,
 ): { valid: boolean; expected: string } {
   const expected = getNextUnrolledSeason(meta);
@@ -38,10 +38,10 @@ export function isRolloverFile(filePath: string): boolean {
 }
 
 export function isSessionAlreadyApplied(
-  meta: MetaData,
+  meta: MetaV2Data,
   fileId: string,
 ): boolean {
-  return meta.appliedSessions?.includes(fileId);
+  return meta.state.trails.applied?.appliedSessions?.includes(fileId) ?? false;
 }
 
 /**
@@ -52,10 +52,11 @@ export function isSessionAlreadyApplied(
  *   gaps, push to `missing` and do NOT advance the rolled pointer.
  */
 export function isSessionChronologyValid(
-  meta: MetaData,
+  meta: MetaV2Data,
   seasonId: string,
 ): { valid: boolean; missing: string[] } {
-  const rolled = (meta.rolledSeasons ?? []).map(normalizeSeasonId);
+  const rolledSeasons = meta.state.trails.applied?.rolledSeasons ?? [];
+  const rolled = rolledSeasons.map(normalizeSeasonId);
   const target = normalizeSeasonId(seasonId);
 
   if (rolled.length === 0) {

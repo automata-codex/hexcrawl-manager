@@ -132,10 +132,12 @@ export async function applyTrails(
     }
 
     // Update meta
-    if (!meta.rolledSeasons) {
-      meta.rolledSeasons = [];
+    if (!meta.state.trails.applied?.rolledSeasons) {
+      const applied = meta.state.trails.applied || {};
+      applied.rolledSeasons = [];
+      meta.state.trails.applied = applied;
     }
-    meta.rolledSeasons.push(seasonId);
+    meta.state.trails.applied?.rolledSeasons.push(seasonId);
     appendToMetaAppliedSessions(meta, fileId);
 
     // --- Update files ---
