@@ -1,5 +1,10 @@
 import { assertSeasonId, normalizeSeasonId } from '@skyreach/core';
-import { SessionDateSchema, makeSessionId } from '@skyreach/schemas';
+import {
+  SessionDateSchema,
+  makeSessionId,
+  assertSessionId,
+  type SessionId,
+} from '@skyreach/schemas';
 import path from 'path';
 
 import { FinalizedLogInfo } from './finalized-session-logs';
@@ -21,7 +26,11 @@ export function buildRolloverFilename(season: string): string {
 }
 
 /* eslint-disable no-unused-vars, no-redeclare */
-export function buildSessionFilename(sessionId: string, sessionDate: string): string;
+export function buildSessionFilename(
+  sessionId: SessionId,
+  sessionDate: string,
+  suffix?: string,
+): string;
 export function buildSessionFilename(
   sessionNumber: number,
   sessionDate: string,
@@ -35,7 +44,7 @@ export function buildSessionFilename(
 ): string {
   SessionDateSchema.parse(sessionDate);
 
-  const id = typeof a === 'number' ? makeSessionId(a) : a;
+  const id = typeof a === 'number' ? makeSessionId(a) : assertSessionId(a);
   return `${id}${suffix ?? ''}_${sessionDate}.jsonl`;
 }
 /* eslint-enable no-redeclare */

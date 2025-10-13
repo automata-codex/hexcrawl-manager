@@ -1,6 +1,8 @@
 import { error, info, usage } from '@skyreach/cli-kit';
 import { isValidHexId, normalizeHexId } from '@skyreach/core';
-import { existsSync } from 'node:fs';
+import { buildSessionFilename, REPO_PATHS } from '@skyreach/data';
+import { SESSION_ID_RE } from '@skyreach/schemas';
+import fs from 'node:fs';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
 import { selectCurrentHex } from '../projectors';
@@ -61,42 +63,22 @@ export default function start(ctx: Context) {
     // Extract sessionDate from filename (for event)
     let sessionDate = '';
     let sessionSeq = '';
-    let lockPath = '';
     let filenameStem = '';
     if (devMode) {
       // Dev mode: sessionId = filename stem = dev_<ISO>
       filenameStem = prep.sessionId;
       sessionDate = now.toISOString().slice(0, 10); // YYYY-MM-DD
     } else {
+      // TODO I feel like this can be less ugly
       // Production: session_<SEQ>_<YYYY-MM-DD>
-      const match = prep.sessionId.match(/^session_(\d{4,})_(\d{4}-\d{2}-\d{2})$/);
+      const match = prep.sessionId.match(SESSION_ID_RE);
       if (!match) {
         error('Session ID does not match required production format.');
         return;
       }
       sessionSeq = match[1];
-      sessionDate = match[2];
-      filenameStem = `session_${sessionSeq}_${sessionDate}`;
-      // Lock file path
-      lockPath = `data/session-logs/.locks/session_${sessionSeq}.lock`;
-      // Check for lock file
-      if (existsSync(lockPath)) {
-        error(`Lock file exists for session sequence ${sessionSeq}: ${lockPath}\nActive session in progress. Aborting.`);
-        return;
-      }
-      // Create lock file with metadata
-      const lockMeta = {
-        seq: Number(sessionSeq),
-        filename: `${filenameStem}.jsonl`,
-        createdAt: new Date().toISOString(),
-        pid: process.pid,
-      };
-      try {
-        require('fs').writeFileSync(lockPath, JSON.stringify(lockMeta, null, 2));
-      } catch (e) {
-        error(`Failed to create lock file: ${e}`);
-        return;
-      }
+      sessionDate = now.toISOString().slice(0, 10); // YYYY-MM-DD
+      filenameStem = buildSessionFilename(parseInt(sessionSeq, 10), sessionDate).replace('.jsonl', '');
     }
 
     // Ensure sessionId matches filename stem
@@ -106,7 +88,7 @@ export default function start(ctx: Context) {
     }
 
     // Step 5: Write or resume session_start event
-    if (!existsSync(ctx.file)) {
+    if (!fs.existsSync(ctx.file)) {
       appendEvent(ctx.file, 'session_start', {
         status: 'in-progress',
         id: prep.sessionId,

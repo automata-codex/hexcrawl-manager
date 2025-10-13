@@ -6,6 +6,7 @@ import {
   buildSessionFilename,
 } from '@skyreach/data';
 import {
+  assertSessionId,
   makeSessionId,
   type CampaignDate,
   type DayStartEvent,
@@ -112,15 +113,9 @@ export function prepareSessionStart({
   if (!fs.existsSync(REPO_PATHS.META())) {
     return { ok: false, error: `❌ Missing meta file at ${REPO_PATHS.META()}` };
   }
-  const metaRaw = fs.readFileSync(REPO_PATHS.META(), 'utf8');
-  const meta = yaml.parse(metaRaw) || {};
+  const meta = loadMeta();
   const seq = meta.nextSessionSeq;
-  if (!seq || typeof seq !== 'number') {
-    return {
-      ok: false,
-      error: '❌ Invalid or missing nextSessionSeq in meta.yaml',
-    };
-  }
+
   const ymd = date.toISOString().slice(0, 10);
   const sessionId = makeSessionId(seq);
   const inProgressFile = path.join(
@@ -166,13 +161,13 @@ export function finalizeSession(
     };
   }
 
-  const sessionId = ctx.sessionId!; // Checked by `requireSession`
+  const sessionId = assertSessionId(ctx.sessionId!); // Checked by `requireSession`
   const inProgressFile = ctx.file!; // Checked by `requireFile`
 
   // Lock file check (prod only)
   const lockFile = path.join(
     REPO_PATHS.LOCKS(),
-    `${sessionId.replace(/^(session_\d+)_.*$/, '$1')}.lock`,
+    `${sessionId}.lock`,
   );
   if (!devMode && !existsSync(lockFile)) {
     return {
@@ -547,6 +542,7 @@ export function finalizeSession(
     const block = finalizedBlocks[i];
     const suffix = blocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
     const finalSessionId = getFinalSessionId(sessionId, devMode, suffix);
+    const sessionDate = block.events.find((e) => e.kind === 'session_start')!.payload.sessionDate;
 
     // Header
     const inWorldStart =
@@ -559,7 +555,7 @@ export function finalizeSession(
         .find((e) => e.kind === 'day_start')?.payload?.calendarDate || null;
     const header = {
       kind: 'header',
-      id: finalSessionId,
+      id: sessionId,
       seasonId: block.seasonId,
       inWorldStart,
       inWorldEnd,
@@ -573,7 +569,7 @@ export function finalizeSession(
     });
 
     // Write session file
-    const sessionFile = path.join(sessionDir, `${finalSessionId}.jsonl`);
+    const sessionFile = path.join(sessionDir, buildSessionFilename(sessionId, sessionDate, suffix));
     writeEventsWithHeader(sessionFile, header, blockEvents);
     outputs.push(sessionFile);
 

@@ -1,5 +1,6 @@
 import { padSessionNum } from '@skyreach/core';
-import { REPO_PATHS } from '@skyreach/data';
+import { REPO_PATHS, loadMeta, buildSessionFilename } from '@skyreach/data';
+import { makeSessionId } from '@skyreach/schemas';
 import {
   compileLog,
   findSessionFiles,
@@ -32,12 +33,13 @@ describe('scribe start', () => {
           'start p13',
           'day start 8 umb 1511',
           'move q13 normal',
+          'finalize',
           'exit',
         ];
 
         // eslint-disable-next-line no-unused-vars
         const { exitCode, stderr, stdout } = await runScribe(commands, {
-          repo,
+          repo, ensureExit: false, ensureFinalize: false,
         });
         expect(exitCode).toBe(0);
         expect(stderr).toBeFalsy();
@@ -216,21 +218,17 @@ describe('scribe start', () => {
       'scribe-start-lock-conflict',
       { initGit: false },
       async (repo) => {
-        const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
-        const nextSessionNumber = parseInt(meta.nextSessionSeq, 10) || 1;
-        const sessionId = `session_${padSessionNum(nextSessionNumber)}_2025-09-20`;
+        const meta = loadMeta();
+        const sessionId = makeSessionId(meta.nextSessionSeq);
 
         const lockDir = REPO_PATHS.LOCKS();
         fs.mkdirSync(lockDir, { recursive: true });
-        const lockFile = path.join(
-          lockDir,
-          `session_${padSessionNum(nextSessionNumber)}.lock`,
-        );
+        const lockFile = path.join(lockDir, `${sessionId}.lock`);
         fs.writeFileSync(lockFile, '');
 
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
-        const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
+        const sessionFile = path.join(inProgressDir, buildSessionFilename(sessionId, '2025-09-20'));
         const events = [
           {
             kind: 'session_start',
@@ -251,6 +249,7 @@ describe('scribe start', () => {
           ensureExit: false,
           ensureFinalize: false,
         });
+
         expect(exitCode).toBe(0); // REPL exits normally
         expect(stderr).toMatch(
           new RegExp(
