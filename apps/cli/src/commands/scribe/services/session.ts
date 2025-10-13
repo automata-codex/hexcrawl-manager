@@ -6,6 +6,7 @@ import {
   buildSessionFilename,
 } from '@skyreach/data';
 import {
+  SESSION_ID_RE,
   assertSessionId,
   makeSessionId,
   type CampaignDate,
@@ -605,7 +606,7 @@ export function finalizeSession(
 
     // Update meta.yaml if outputs written
     if (outputs.length) {
-      const lockSeq = Number(sessionId.match(/session_(\d+)/)?.[1] || 0);
+      const lockSeq = Number(sessionId.match(SESSION_ID_RE)?.[1] || 0);
       const meta = loadMeta();
       if (meta.nextSessionSeq !== lockSeq + 1) {
         saveMeta({ nextSessionSeq: lockSeq + 1 });
