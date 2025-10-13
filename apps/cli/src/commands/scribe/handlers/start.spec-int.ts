@@ -1,8 +1,11 @@
 import { padSessionNum } from '@skyreach/core';
 import { REPO_PATHS } from '@skyreach/data';
 import {
+  compileLog,
   findSessionFiles,
+  move,
   runScribe,
+  sessionStart,
   withTempRepo,
 } from '@skyreach/test-helpers';
 import fs from 'node:fs';
@@ -279,29 +282,28 @@ describe('scribe start', () => {
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
         const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
-        const events = [
-          {
-            kind: 'session_start',
-            status: 'in-progress',
-            id: sessionId,
-            startHex: 'P13',
-          },
-          { kind: 'move', payload: { from: 'P13', to: 'Q13', pace: 'normal' } },
-        ];
+        const events = compileLog([
+          sessionStart(sessionId, 'P13'),
+          move('P13', 'Q13'),
+        ]);
         fs.writeFileSync(
           sessionFile,
           events.map((e) => JSON.stringify(e)).join('\n') + '\n',
         );
 
         const commands = ['start P13', 'exit'];
-        const { exitCode, stdout } = await runScribe(commands, {
+        // eslint-disable-next-line no-unused-vars
+        const { exitCode, stderr, stdout } = await runScribe(commands, {
           repo,
           ensureFinalize: false,
         });
+
         expect(exitCode).toBe(0);
         expect(stdout).toMatch(
           new RegExp(`resumed: ${sessionId} \\(2 events\\).*last hex Q13`, 'i'),
-        ); // Should not emit a new session_start event
+        );
+
+        // Should not emit a new session_start event
         const fileEvents = readEvents(sessionFile);
         const starts = eventsOf(fileEvents, 'session_start');
         expect(starts.length).toBe(1);

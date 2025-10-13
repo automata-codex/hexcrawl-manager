@@ -14,11 +14,11 @@ describe('sortScribeIds', () => {
     ];
     expect(sortScribeIds(ids)).toEqual([
       'session_0021_2025-09-16.jsonl',
-      'session_0021a_2025-09-16.jsonl',
       'session_0021_2025-09-17.jsonl',
+      'session_0021_2025-09-18.jsonl',
+      'session_0021a_2025-09-16.jsonl',
       'session_0021a_2025-09-17.jsonl',
       'session_0021b_2025-09-17.jsonl',
-      'session_0021_2025-09-18.jsonl',
     ]);
   });
   it('handles missing suffix', () => {
