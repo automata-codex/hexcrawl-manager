@@ -1,9 +1,7 @@
 import {
   SessionFingerprintMismatchError,
   SessionReportValidationError,
-  assertSessionId,
   formatDate,
-  padSessionNum,
 } from '@skyreach/core';
 import {
   REPO_PATHS,
@@ -13,7 +11,13 @@ import {
   readAllFinalizedLogsForSession,
   writeYamlAtomic,
 } from '@skyreach/data';
-import { NoteEvent, SessionReportSchema } from '@skyreach/schemas';
+import {
+  SessionReportSchema,
+  assertSessionId,
+  padSessionNum,
+  type NoteEvent,
+  type SessionId,
+} from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
@@ -40,7 +44,7 @@ import { assertCleanGitOrAllowDirty } from '../lib/files';
 
 interface ApplyApOptions {
   allowDirty?: boolean;
-  sessionId?: string;
+  sessionId?: SessionId;
 }
 
 interface ApplyApResult {

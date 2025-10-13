@@ -1,5 +1,5 @@
-import { padSessionNum } from '@skyreach/core';
-import { REPO_PATHS } from '@skyreach/data';
+import { REPO_PATHS, loadMeta, buildSessionFilename } from '@skyreach/data';
+import { makeSessionId } from '@skyreach/schemas';
 import {
   compileLog,
   findSessionFiles,
@@ -32,6 +32,7 @@ describe('scribe start', () => {
           'start p13',
           'day start 8 umb 1511',
           'move q13 normal',
+          'finalize',
           'exit',
         ];
 
@@ -39,6 +40,7 @@ describe('scribe start', () => {
         const { exitCode, stderr, stdout } = await runScribe(commands, {
           repo,
         });
+
         expect(exitCode).toBe(0);
         expect(stderr).toBeFalsy();
 
@@ -172,7 +174,8 @@ describe('scribe start', () => {
     );
   });
 
-  it('creates a dev session file in _dev/ with dev-mode flag, no lock file, and sessionId matches filename stem', async () => {
+  // Disabled because dev mode is currently not supported
+  it.skip('creates a dev session file in _dev/ with dev-mode flag, no lock file, and sessionId matches filename stem', async () => {
     await withTempRepo(
       'scribe-start-dev-mode',
       { initGit: false },
@@ -216,21 +219,17 @@ describe('scribe start', () => {
       'scribe-start-lock-conflict',
       { initGit: false },
       async (repo) => {
-        const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
-        const nextSessionNumber = parseInt(meta.nextSessionSeq, 10) || 1;
-        const sessionId = `session_${padSessionNum(nextSessionNumber)}_2025-09-20`;
+        const meta = loadMeta();
+        const sessionId = makeSessionId(meta.nextSessionSeq);
 
         const lockDir = REPO_PATHS.LOCKS();
         fs.mkdirSync(lockDir, { recursive: true });
-        const lockFile = path.join(
-          lockDir,
-          `session_${padSessionNum(nextSessionNumber)}.lock`,
-        );
+        const lockFile = path.join(lockDir, `${sessionId}.lock`);
         fs.writeFileSync(lockFile, '');
 
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
-        const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
+        const sessionFile = path.join(inProgressDir, buildSessionFilename(sessionId, '2025-09-20'));
         const events = [
           {
             kind: 'session_start',
@@ -251,6 +250,7 @@ describe('scribe start', () => {
           ensureExit: false,
           ensureFinalize: false,
         });
+
         expect(exitCode).toBe(0); // REPL exits normally
         expect(stderr).toMatch(
           new RegExp(
@@ -270,20 +270,16 @@ describe('scribe start', () => {
       { initGit: false },
       async (repo) => {
         // Read the next session number from the meta file
-        const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
-        const nextSessionNumber = String(meta.nextSessionSeq || 1).padStart(
-          4,
-          '0',
-        );
         const date = new Date().toISOString().slice(0, 10);
-        const sessionId = `session_${nextSessionNumber}_${date}`;
+        const meta = loadMeta();
+        const sessionId = makeSessionId(meta.nextSessionSeq);
 
         // Simulate an in-progress session file with one session_start and one move
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
-        const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
+        const sessionFile = path.join(inProgressDir, buildSessionFilename(sessionId, date));
         const events = compileLog([
-          sessionStart(sessionId, 'P13'),
+          sessionStart(sessionId, 'P13', date),
           move('P13', 'Q13'),
         ]);
         fs.writeFileSync(

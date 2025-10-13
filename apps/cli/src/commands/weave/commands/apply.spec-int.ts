@@ -35,14 +35,14 @@ describe('Function `weave apply`', () => {
         fs.writeFileSync(
           path.join(REPO_PATHS.SESSIONS(), `${session5Id}.jsonl`),
           compileLog([
-            sessionStart(session5Id, 'H7'),
+            sessionStart(session5Id, 'H7', '2025-09-29'),
             dayStart({ year: 1511, month: 'Umbraeus', day: 20 }),
             partySet(party),
             ap('combat', 1, party, 'H7', 'Defeated goblins'),
             // no trail event
             dayEnd(14, 14),
             sessionEnd(session5Id),
-          ])
+          ], { startTime: '2025-09-29' })
             .map((e) => JSON.stringify(e))
             .join('\n'),
         );
@@ -51,7 +51,7 @@ describe('Function `weave apply`', () => {
         fs.writeFileSync(
           path.join(REPO_PATHS.SESSIONS(), `${session6Id}.jsonl`),
           compileLog([
-            sessionStart(session6Id, 'H7'),
+            sessionStart(session6Id, 'H7', '2025-09-30'),
             dayStart({ year: 1511, month: 'Umbraeus', day: 21 }),
             partySet(party),
             ap('exploration', 2, party, 'H8', 'Found a hidden dungeon'),
@@ -59,7 +59,7 @@ describe('Function `weave apply`', () => {
             ap('social', 1, party, 'H8', 'Talked to the alseid'),
             dayEnd(14, 14),
             sessionEnd(session6Id),
-          ])
+          ], { startTime: '2025-09-30' })
             .map((e) => JSON.stringify(e))
             .join('\n'),
         );

@@ -128,6 +128,7 @@ export const SessionContinueEventPayloadSchema = z.object({
   currentDate: CampaignDateSchema.optional(),
   currentHex: z.string(),
   currentParty: z.array(z.string().min(1)),
+  sessionDate: z.string().date(),
   status: z.literal('in-progress'),
 });
 export type SessionContinueEventPayload = z.infer<typeof SessionContinueEventPayloadSchema>;
@@ -146,6 +147,7 @@ export type SessionPauseEventPayload = z.infer<typeof SessionPauseEventPayloadSc
 
 export const SessionStartEventPayloadSchema = z.object({
   id: z.string(), // Session ID
+  sessionDate: z.string().date(),
   status: z.literal('in-progress'),
   startHex: z.string(),
 });

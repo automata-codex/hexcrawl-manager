@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { SessionIdSchema } from './session-id';
+
 const AbsenceAllocationSchema = z.object({
   characterId: z.string(),
   allocations: z.object({
@@ -26,13 +28,17 @@ const GuestCharacter = z.object({
   playerName: z.string(),
 });
 
-const ScribeId = z.string().regex(/^session_\d{4}[a-z]?_\d{4}-\d{2}-\d{2}$/); // e.g. session_0012_2025-09-15
+const ScribeId = z.string().regex(/^session[_-]\d{4}[a-z]?_\d{4}-\d{2}-\d{2}$/); // e.g. session-0012_2025-09-15
 
-export const SessionId = z.string().regex(/^session-\d{4}$/); // e.g. session-0012
+/** Real-world date in YYYY-MM-DD format */
+export const SessionDateSchema = z.string().regex(
+  /^\d{4}-\d{2}-\d{2}$/,
+  'sessionDate must be in YYYY-MM-DD format',
+);
 
 // Header shared by both planned & completed
 const SessionHeader = z.object({
-  id: SessionId, // "session-####"
+  id: SessionIdSchema, // "session-####"
   absenceAllocations: z.array(AbsenceAllocationSchema).default([]),
   downtime: z.array(DowntimeSchema).default([]),
   gameStartDate: z.string().default(''), // in-world date (free text); GM fills manually

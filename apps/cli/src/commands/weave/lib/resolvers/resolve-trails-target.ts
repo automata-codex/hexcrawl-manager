@@ -1,9 +1,6 @@
 import {
-  SESSION_ID_RE,
-  SessionIdError,
   assertSeasonId,
   isSeasonId,
-  isSessionId,
 } from '@skyreach/core';
 import {
   REPO_PATHS,
@@ -12,6 +9,7 @@ import {
   checkFileExists,
   seasonOfSessionFile,
 } from '@skyreach/data';
+import { SESSION_ID_RE, SessionIdError, isSessionId } from '@skyreach/schemas';
 import fs from 'fs';
 import path from 'path';
 

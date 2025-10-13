@@ -1,3 +1,4 @@
+/** @deprecated Use function from `@skyreach/schemas` instead. */
 export function padSessionNum(n: number | string) {
   const str = n.toString().trim();
   if (/^\d{4}$/.test(str)) {

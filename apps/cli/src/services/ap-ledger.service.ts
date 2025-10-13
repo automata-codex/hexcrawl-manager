@@ -1,5 +1,5 @@
 import { readJsonl, writeJsonl, appendJsonl } from '@skyreach/data';
-import { ApDelta, ApLedgerEntry } from '@skyreach/schemas';
+import { ApDelta, ApLedgerEntry, SessionId } from '@skyreach/schemas';
 
 // --- Types ---
 
@@ -48,7 +48,7 @@ export function buildSessionApEntries(
     appliedAt,
     sessionId,
     fingerprint,
-  }: { appliedAt: string; sessionId: string; fingerprint: string },
+  }: { appliedAt: string; sessionId: SessionId; fingerprint: string },
 ): ApLedgerEntry[] {
   const entries: ApLedgerEntry[] = [];
   for (const characterId of Object.keys(ledgerResults)) {

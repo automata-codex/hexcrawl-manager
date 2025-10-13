@@ -1,5 +1,21 @@
-import { hexSort, normalizeHexId, padSessionNum } from '@skyreach/core';
-import { REPO_PATHS, loadMeta, saveMeta } from '@skyreach/data';
+import { hexSort, normalizeHexId } from '@skyreach/core';
+import {
+  REPO_PATHS,
+  loadMeta,
+  saveMeta,
+  buildSessionFilename,
+} from '@skyreach/data';
+import {
+  SESSION_ID_RE,
+  assertSessionId,
+  makeSessionId,
+  type CampaignDate,
+  type DayStartEvent,
+  type ScribeEvent,
+  type SessionContinueEvent,
+  type SessionEndEvent,
+  type SessionPauseEvent,
+} from '@skyreach/schemas';
 import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
@@ -13,15 +29,6 @@ import { type Context } from '../types';
 
 import { requireFile, requireSession } from './general';
 
-import type {
-  CampaignDate,
-  DayStartEvent,
-  ScribeEvent,
-  SessionContinueEvent,
-  SessionEndEvent,
-  SessionPauseEvent,
-} from '@skyreach/schemas';
-
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =
   | { ok: false; error: string }
@@ -34,15 +41,16 @@ export type SessionStartPrep =
       dev?: boolean;
     };
 
-function getFinalSessionId(basename: string, devMode: boolean, suffix: string) {
-  if (devMode) {
-    return `${basename}${suffix}`;
+function getSessionDateFromEvents(
+  events: ScribeEvent[],
+): string {
+  const startEvent = events.find(
+    (e) => e.kind === 'session_start',
+  );
+  if (startEvent?.payload?.sessionDate) {
+    return startEvent.payload.sessionDate;
   }
-  const sessionIdParts = basename.split('_');
-  if (sessionIdParts.length !== 3) {
-    throw new Error('Invalid sessionId format for production mode.');
-  }
-  return `${sessionIdParts[0]}_${sessionIdParts[1]}${suffix}_${sessionIdParts[2]}`;
+  throw new Error('Unable to determine session date from events.');
 }
 
 /** Latest in-progress file by mtime, or null if none. */
@@ -107,24 +115,18 @@ export function prepareSessionStart({
   if (!fs.existsSync(REPO_PATHS.META())) {
     return { ok: false, error: `❌ Missing meta file at ${REPO_PATHS.META()}` };
   }
-  const metaRaw = fs.readFileSync(REPO_PATHS.META(), 'utf8');
-  const meta = yaml.parse(metaRaw) || {};
+  const meta = loadMeta();
   const seq = meta.nextSessionSeq;
-  if (!seq || typeof seq !== 'number') {
-    return {
-      ok: false,
-      error: '❌ Invalid or missing nextSessionSeq in meta.yaml',
-    };
-  }
+
   const ymd = date.toISOString().slice(0, 10);
-  const sessionId = `session_${padSessionNum(seq)}_${ymd}`;
+  const sessionId = makeSessionId(seq);
   const inProgressFile = path.join(
     REPO_PATHS.IN_PROGRESS(),
-    `${sessionId}.jsonl`,
+    buildSessionFilename(sessionId, ymd),
   );
 
   // Check for lock conflict
-  const lockFile = path.join(REPO_PATHS.LOCKS(), `session_${padSessionNum(seq)}.lock`);
+  const lockFile = path.join(REPO_PATHS.LOCKS(), `${sessionId}.lock`);
   if (fs.existsSync(lockFile)) {
     return {
       ok: false,
@@ -135,7 +137,7 @@ export function prepareSessionStart({
   // Create lock file
   const lockData = {
     seq,
-    filename: `${sessionId}.jsonl`,
+    filename: path.basename(inProgressFile),
     createdAt: date.toISOString(),
     pid: process.pid,
   };
@@ -161,14 +163,11 @@ export function finalizeSession(
     };
   }
 
-  const sessionId = ctx.sessionId!; // Checked by `requireSession`
+  const sessionId = assertSessionId(ctx.sessionId!); // Checked by `requireSession`
   const inProgressFile = ctx.file!; // Checked by `requireFile`
 
   // Lock file check (prod only)
-  const lockFile = path.join(
-    REPO_PATHS.LOCKS(),
-    `${sessionId.replace(/^(session_\d+)_.*$/, '$1')}.lock`,
-  );
+  const lockFile = path.join(REPO_PATHS.LOCKS(), `${sessionId}.lock`);
   if (!devMode && !existsSync(lockFile)) {
     return {
       outputs: [],
@@ -215,6 +214,7 @@ export function finalizeSession(
       error: '❌ session_pause may only appear at the end of the file.',
     };
   }
+  const sessionDate = getSessionDateFromEvents(events);
 
   // Sort and check for impossible ordering
   const expandedEvents: (ScribeEvent & { _origIdx: number })[] = events.map(
@@ -417,8 +417,9 @@ export function finalizeSession(
       const hasStart = preFirstDay.find((e) => e.kind === 'session_start');
       const hasCont = preFirstDay.find((e) => e.kind === 'session_continue');
       if (!hasStart && !hasCont) {
-        // Insert synthetic session_start
-        throw new Error('Initial session_start missing; cannot synthesize without startHex.');
+        throw new Error(
+          'Initial session_start missing; cannot synthesize without startHex.',
+        );
       }
     } else {
       // Block 2..N: must begin with session_continue (if present before first day)
@@ -446,6 +447,7 @@ export function finalizeSession(
             currentHex: snap.currentHex,
             currentParty: snap.currentParty,
             currentDate: firstDayEvent.payload.calendarDate,
+            sessionDate,
           },
           _origIdx: -1,
         } satisfies SessionContinueEvent & { _origIdx: number });
@@ -539,7 +541,6 @@ export function finalizeSession(
   for (let i = 0; i < finalizedBlocks.length; i++) {
     const block = finalizedBlocks[i];
     const suffix = blocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
-    const finalSessionId = getFinalSessionId(sessionId, devMode, suffix);
 
     // Header
     const inWorldStart =
@@ -552,7 +553,7 @@ export function finalizeSession(
         .find((e) => e.kind === 'day_start')?.payload?.calendarDate || null;
     const header = {
       kind: 'header',
-      id: finalSessionId,
+      id: sessionId,
       seasonId: block.seasonId,
       inWorldStart,
       inWorldEnd,
@@ -566,7 +567,10 @@ export function finalizeSession(
     });
 
     // Write session file
-    const sessionFile = path.join(sessionDir, `${finalSessionId}.jsonl`);
+    const sessionFile = path.join(
+      sessionDir,
+      buildSessionFilename(sessionId, sessionDate, suffix),
+    );
     writeEventsWithHeader(sessionFile, header, blockEvents);
     outputs.push(sessionFile);
 
@@ -602,7 +606,7 @@ export function finalizeSession(
 
     // Update meta.yaml if outputs written
     if (outputs.length) {
-      const lockSeq = Number(sessionId.match(/session_(\d+)/)?.[1] || 0);
+      const lockSeq = Number(sessionId.match(SESSION_ID_RE)?.[1] || 0);
       const meta = loadMeta();
       if (meta.nextSessionSeq !== lockSeq + 1) {
         saveMeta({ nextSessionSeq: lockSeq + 1 });
