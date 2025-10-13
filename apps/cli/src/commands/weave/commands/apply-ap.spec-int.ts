@@ -1,5 +1,10 @@
 import { REPO_PATHS } from '@skyreach/data';
 import {
+  makeSessionId,
+  type ScribeEvent,
+  type SessionReport,
+} from '@skyreach/schemas';
+import {
   ap,
   dayEnd,
   dayStart,
@@ -15,8 +20,6 @@ import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
 import { readApLedger } from '../../../services/ap-ledger.service';
-
-import type { ScribeEvent, SessionReport } from '@skyreach/schemas';
 
 const party = ['alistar', 'daemaris', 'istavan'];
 const events: ScribeEvent[] = compileLog([
@@ -382,7 +385,7 @@ describe('Command `weave apply ap`', () => {
           fs.writeFileSync(
             incompleteReportPath,
             yaml.stringify({
-              id: 'session-0004',
+              id: makeSessionId(4),
               status: 'planned', // not completed => pending
               absenceAllocations: [],
               downtime: [],

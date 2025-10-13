@@ -1,8 +1,9 @@
-import { padSessionNum } from '@skyreach/core';
-import { ApLedgerEntry, ApLedgerEntrySchema, Pillar } from '@skyreach/schemas';
-
-export const asSessionId = (n: number | string) =>
-  typeof n === 'number' ? `session-${padSessionNum(n)}` : `session-${n}`;
+import {
+  ApLedgerEntry,
+  ApLedgerEntrySchema,
+  Pillar,
+  makeSessionId,
+} from '@skyreach/schemas';
 
 const apTriplet = <R extends 'normal' | 'absence_spend'>(
   deltas: Partial<Record<Pillar, number>>,
@@ -30,7 +31,7 @@ export function makeSessionAp(entry: {
   const e: ApLedgerEntry = {
     kind: 'session_ap',
     characterId: entry.characterId,
-    sessionId: asSessionId(entry.session),
+    sessionId: makeSessionId(entry.session),
     appliedAt: entry.appliedAt,
     advancementPoints: entry.deltas ?? normalAp({ combat: 1, exploration: 1, social: 1 }),
     ...(entry.notes ? { notes: entry.notes } : {}),
@@ -48,7 +49,7 @@ export function makeAbsenceSpend(entry: {
   const e: ApLedgerEntry = {
     kind: 'absence_spend',
     characterId: entry.characterId,
-    sessionId: asSessionId(entry.session),
+    sessionId: makeSessionId(entry.session),
     appliedAt: entry.appliedAt,
     advancementPoints: absenceAp(entry.deltas),
     ...(entry.notes ? { notes: entry.notes } : {}),

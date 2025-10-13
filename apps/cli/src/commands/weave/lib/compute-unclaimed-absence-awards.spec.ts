@@ -1,30 +1,23 @@
-import { padSessionNum } from '@skyreach/core';
 import {
   ApLedgerEntry,
   ApLedgerEntrySchema,
   CharacterData,
   CharacterSchema,
-  SessionId,
+  makeSessionId,
   SessionReport,
   SessionReportSchema,
 } from '@skyreach/schemas';
 import { makeAbsenceSpend } from '@skyreach/test-helpers';
 import { describe, it, expect } from 'vitest';
-import { z } from 'zod';
 
 import { computeUnclaimedAbsenceAwards } from './compute-unclaimed-absence-awards';
-
-// --- Helpers ---
-
-const asSessionId = (n: number): z.infer<typeof SessionId> =>
-  `session-${padSessionNum(n)}` as const;
 
 function makeCompletedSession(opts: {
   n: number; // 1-based counter -> session id
   date: string; // YYYY-MM-DD real-world date
   present: string[]; // characterIds present
 }): SessionReport {
-  const id = asSessionId(opts.n);
+  const id = makeSessionId(opts.n);
   return {
     id,
     status: 'completed',
@@ -33,7 +26,7 @@ function makeCompletedSession(opts: {
     downtime: [],
     gameStartDate: '',
     schemaVersion: 2,
-    scribeIds: [`session_${padSessionNum(opts.n)}_2025-09-01`], // any valid ScribeId shape
+    scribeIds: [`${makeSessionId(opts.n)}_2025-09-01`], // any valid ScribeId shape
     sessionDate: opts.date,
     source: 'scribe',
     // completed-only
@@ -55,7 +48,7 @@ function makeCompletedSession(opts: {
 }
 
 function makePlannedSession(opts: { n: number }): SessionReport {
-  const id = asSessionId(opts.n);
+  const id = makeSessionId(opts.n);
   return {
     id,
     status: 'planned',

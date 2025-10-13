@@ -10,17 +10,17 @@ export const SessionIdSchema = z
 
 export type SessionId = z.infer<typeof SessionIdSchema>;
 
-export function assertSessionId(value: string): string {
+export function assertSessionId(value: string): SessionId {
   if (!isSessionId(value)) {
     throw new SessionIdError(value);
   }
-  return value;
+  return SessionIdSchema.parse(value);
 }
 
-export const isSessionId = (value: string): value is SessionId =>
+export const isSessionId = (value: string): boolean =>
   SessionIdSchema.safeParse(value).success;
 
-export const makeSessionId = (number: number): SessionId => {
+export const makeSessionId = (number: number | string): SessionId => {
   const core = `session_${padSessionNum(number)}`;
   return SessionIdSchema.parse(core);
 };
