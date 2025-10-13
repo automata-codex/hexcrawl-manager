@@ -1,4 +1,3 @@
-import { warn } from '@skyreach/cli-kit';
 import fs from 'node:fs';
 
 import { atomicWrite } from './atomic-write';
@@ -130,7 +129,7 @@ export function readJsonlWithHeader<H = unknown, T = unknown>(
         if (!res.success) {
           const msg = `Invalid JSONL at ${filename}:${lineNo} – ${res.error.message}`;
           if (skipInvalid) {
-            warn(msg);
+            console.warn(msg);
             continue;
           }
           throw new Error(msg);
@@ -142,7 +141,7 @@ export function readJsonlWithHeader<H = unknown, T = unknown>(
     } catch (e) {
       const msg = `Bad JSONL at ${filename}:${lineNo} – ${(e as Error).message}`;
       if (skipInvalid) {
-        warn(msg);
+        console.warn(msg);
         continue;
       }
       throw new Error(msg);
