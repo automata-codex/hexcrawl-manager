@@ -10,6 +10,7 @@ import {
   isRolloverAlreadyApplied,
   isSessionAlreadyApplied,
 } from '../guards';
+
 import { TrailsWorkItem } from './resolve-trails-target';
 
 /**

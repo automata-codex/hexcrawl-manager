@@ -1,7 +1,5 @@
 # `weave apply ap` — Command Spec
 
-> **File:** `docs/specs/weave-commands/ap-apply.md`
->
 > **Scope:** Convert finalized scribe logs for a session into an immutable **completed** session report and append AP entries to the canonical ledger.
 >
 > **Related:** AP Workflow Overview (`docs/specs/ap-workflow-overview.md`), central Zod/TS schemas.

@@ -15,6 +15,7 @@ export * from './knowledge-node';
 export * from './loot-pack';
 export * from './map-path';
 export * from './meta';
+export * from './meta-v2';
 export * from './npc';
 export * from './player';
 export * from './region';
