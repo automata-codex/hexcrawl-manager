@@ -41,3 +41,5 @@ jobs:
 
       - name: Run ${{ matrix.cmd }}
         run: ${{ matrix.cmd }}
+        env:
+          TEST_REPO_BASE: './test-repos'
