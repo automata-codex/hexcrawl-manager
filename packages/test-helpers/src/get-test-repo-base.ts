@@ -9,6 +9,7 @@ const SENTINEL = '.skyreach-test-root';
  * Uses TEST_REPO_BASE env or defaults to ./.test-repos relative to project root.
  */
 export function getTestRepoBase(): string {
+  console.log('>> Using TEST_REPO_BASE:', process.env.TEST_REPO_BASE);
   const base = process.env.TEST_REPO_BASE || getRepoPath('.test-repos');
   if (!fs.existsSync(base)) {
     fs.mkdirSync(base, { recursive: true });
