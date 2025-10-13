@@ -1,6 +1,11 @@
-import { padSessionNum, SEASON_ID_RE } from '@skyreach/core';
+import { SEASON_ID_RE } from '@skyreach/core';
 import { loadMeta, REPO_PATHS } from '@skyreach/data';
-import { SESSION_ID_RE, type DayStartEvent, type ScribeEvent } from '@skyreach/schemas';
+import {
+  SESSION_ID_RE,
+  makeSessionId,
+  type DayStartEvent,
+  type ScribeEvent,
+} from '@skyreach/schemas';
 import {
   compileLog,
   dayStart,
@@ -12,10 +17,8 @@ import {
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import yaml from 'yaml';
 
 import { eventsOf, readEvents } from '../../../services/event-log.service';
-
 
 describe('scribe finalize', () => {
   it('partitions session events correctly and writes output files', async () => {
@@ -177,26 +180,26 @@ describe('scribe finalize', () => {
       'scribe-finalize-bad-seq',
       { initGit: false },
       async (repo) => {
-        const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
-        const nextSessionNumber = parseInt(meta.nextSessionSeq, 10) || 1;
-        const sessionId = `session_${padSessionNum(nextSessionNumber)}_2025-09-20`;
+        const meta = loadMeta();
+        const sessionId = makeSessionId(meta.nextSessionSeq);
 
         const lockDir = REPO_PATHS.LOCKS();
         fs.mkdirSync(lockDir, { recursive: true });
-        const lockFile = path.join(
-          lockDir,
-          `session_${padSessionNum(nextSessionNumber)}.lock`,
-        );
+        const lockFile = path.join(lockDir, `${sessionId}.lock`);
         fs.writeFileSync(lockFile, '');
 
         // Manually write a bad in-progress file
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
         const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
+
         const events: ScribeEvent[] = compileLog([
           sessionStart(sessionId, 'R14', '2025-09-20'),
           dayStart({ year: 1511, month: 'Umbraeus', day: 8 }),
         ], { startTime: '2025-09-20' });
+        events[0].seq = 10;
+        events[1].seq = 5;
+
         fs.writeFileSync(
           sessionFile,
           events.map((e) => JSON.stringify(e)).join('\n') + '\n',
@@ -222,9 +225,8 @@ describe('scribe finalize', () => {
       'scribe-finalize-no-lock',
       { initGit: false },
       async (repo) => {
-        const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
-        const nextSessionNumber = parseInt(meta.nextSessionSeq, 10) || 1;
-        const sessionId = `session_${padSessionNum(nextSessionNumber)}_2025-09-20`;
+        const meta = loadMeta();
+        const sessionId = makeSessionId(meta.nextSessionSeq);
 
         // Manually write an in-progress file
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
@@ -372,6 +374,7 @@ describe('scribe finalize', () => {
     );
   }, 12 * 60 * 60 * 1000);
 
+  // Not currently using dev mode, so skipping this test
   it.skip('skips lock/meta handling and writes to dev dirs in dev mode', async () => {
     await withTempRepo(
       'scribe-finalize-dev-mode',
