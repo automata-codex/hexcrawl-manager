@@ -34,5 +34,10 @@ jobs:
         env:
           FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
 
+      - name: Build packages
+        run: npm run build
+        env:
+          FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
+
       - name: Run ${{ matrix.cmd }}
         run: ${{ matrix.cmd }}
