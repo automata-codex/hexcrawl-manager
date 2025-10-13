@@ -167,6 +167,7 @@ export function sessionContinue(
   currentHex: string,
   currentParty: string[],
   currentDate?: SessionContinueEventPayload['currentDate'],
+  sessionDate: string = DEFAULT_DATE,
 ): EventPrototype<'session_continue'> {
   return {
     kind: 'session_continue',
@@ -176,6 +177,7 @@ export function sessionContinue(
       currentHex,
       currentParty,
       status: 'in-progress',
+      sessionDate
     },
   };
 }
