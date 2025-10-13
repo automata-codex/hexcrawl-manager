@@ -1,6 +1,6 @@
 import { error, info, usage } from '@skyreach/cli-kit';
 import { isValidHexId, normalizeHexId } from '@skyreach/core';
-import { buildSessionFilename, REPO_PATHS } from '@skyreach/data';
+import { buildSessionFilename } from '@skyreach/data';
 import { SESSION_ID_RE } from '@skyreach/schemas';
 import fs from 'node:fs';
 
