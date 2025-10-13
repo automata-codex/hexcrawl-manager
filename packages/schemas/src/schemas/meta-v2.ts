@@ -28,7 +28,7 @@ const SubsystemState = z
   })
   .strict();
 
-export const MetaSchemaV2 = z
+export const MetaV2Schema = z
   .object({
     version: z.literal(2),
     nextSessionSeq: z.number().int().positive(),
@@ -36,4 +36,4 @@ export const MetaSchemaV2 = z
   })
   .strict();
 
-export type MetaDataV2 = z.infer<typeof MetaSchemaV2>;
+export type MetaV2Data = z.infer<typeof MetaV2Schema>;
