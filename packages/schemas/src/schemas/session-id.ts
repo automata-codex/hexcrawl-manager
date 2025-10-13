@@ -21,7 +21,7 @@ export const isSessionId = (value: string): boolean =>
   SessionIdSchema.safeParse(value).success;
 
 export const makeSessionId = (number: number | string): SessionId => {
-  const core = `session_${padSessionNum(number)}`;
+  const core = `session-${padSessionNum(number)}`;
   return SessionIdSchema.parse(core);
 };
 
