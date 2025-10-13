@@ -1,16 +1,22 @@
-import { error, info } from '@skyreach/cli-kit';
+import { error, info, makeExitMapper } from '@skyreach/cli-kit';
 import {
+  SessionAlreadyAppliedError,
+  SessionFingerprintMismatchError,
+  SessionIdError,
+  SessionLogsNotFoundError,
+  SessionReportValidationError,
   assertSeasonId,
   assertSessionId,
   isSeasonId,
   isSessionId,
 } from '@skyreach/core';
+import { DirtyGitError, FinalizedLogJsonParseError, FinalizedLogsNotFoundError } from '@skyreach/data';
 
-import { AlreadyAppliedError, NoChangesError } from '../lib/errors';
+import { AlreadyAppliedError, CliError, CliValidationError, NoChangesError } from '../lib/errors';
 import { printApplyTrailsResult } from '../lib/printers';
 import { resolveTrailsTarget } from '../lib/resolvers';
 
-import { ApplyMode, exitCodeForApply } from './apply';
+import { ApplyMode } from './apply';
 import { planTrails } from './plan-trails';
 
 export type PlanArgs = {
@@ -21,7 +27,24 @@ export type PlanArgs = {
 
 export type PlanMode = 'all' | 'ap' | 'trails';
 
-// TODO Exit code mapper
+export const exitCodeForPlan = makeExitMapper(
+  [
+    [CliValidationError, 4], // user input or file contents are invalid
+    [DirtyGitError, 5], // external failure
+    [FinalizedLogJsonParseError, 2], // invalid/corrupt input
+    [FinalizedLogsNotFoundError, 3], // not found
+    [SessionAlreadyAppliedError, 0], // benign no-op
+    [NoChangesError, 5], // no-op error
+    [SessionFingerprintMismatchError, 4], // conflicting state
+    [SessionIdError, 2], // invalid session id or missing context
+    [SessionLogsNotFoundError, 4], // domain-specific failure
+    [SessionReportValidationError, 2], // usage: schema invalid
+
+    // Keep the most generic types at the end to avoid masking more specific ones
+    [CliError, 1], // generic
+  ],
+  1, // fallback default
+);
 
 export async function plan(args: PlanArgs) {
   try {
@@ -78,6 +101,6 @@ export async function plan(args: PlanArgs) {
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     error(message);
-    process.exit(exitCodeForApply(e));
+    process.exit(exitCodeForPlan(e));
   }
 }
