@@ -10,7 +10,8 @@
   "main": "dist/index.js",
   "private": true,
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc --noEmit"
   },
   "type": "module",
   "types": "dist/index.d.ts",

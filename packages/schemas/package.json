@@ -17,6 +17,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "build:json-schemas": "tsx ./src/build-json-schemas.ts",
+    "check": "tsc --noEmit",
     "test": "vitest run --dir src",
     "test:watch": "vitest --watch --dir src"
   },
