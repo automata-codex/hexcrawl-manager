@@ -40,15 +40,16 @@ export type SessionStartPrep =
       dev?: boolean;
     };
 
-function getFinalSessionId(basename: string, devMode: boolean, suffix: string) {
-  if (devMode) {
-    return `${basename}${suffix}`;
+function getSessionDateFromEvents(
+  events: ScribeEvent[],
+): string {
+  const startEvent = events.find(
+    (e) => e.kind === 'session_start',
+  );
+  if (startEvent?.payload?.sessionDate) {
+    return startEvent.payload.sessionDate;
   }
-  const sessionIdParts = basename.split('_');
-  if (sessionIdParts.length !== 3) {
-    throw new Error('Invalid sessionId format for production mode.');
-  }
-  return `${sessionIdParts[0]}_${sessionIdParts[1]}${suffix}_${sessionIdParts[2]}`;
+  throw new Error('Unable to determine session date from events.');
 }
 
 /** Latest in-progress file by mtime, or null if none. */
@@ -165,10 +166,7 @@ export function finalizeSession(
   const inProgressFile = ctx.file!; // Checked by `requireFile`
 
   // Lock file check (prod only)
-  const lockFile = path.join(
-    REPO_PATHS.LOCKS(),
-    `${sessionId}.lock`,
-  );
+  const lockFile = path.join(REPO_PATHS.LOCKS(), `${sessionId}.lock`);
   if (!devMode && !existsSync(lockFile)) {
     return {
       outputs: [],
@@ -215,6 +213,7 @@ export function finalizeSession(
       error: '❌ session_pause may only appear at the end of the file.',
     };
   }
+  const sessionDate = getSessionDateFromEvents(events);
 
   // Sort and check for impossible ordering
   const expandedEvents: (ScribeEvent & { _origIdx: number })[] = events.map(
@@ -417,7 +416,6 @@ export function finalizeSession(
       const hasStart = preFirstDay.find((e) => e.kind === 'session_start');
       const hasCont = preFirstDay.find((e) => e.kind === 'session_continue');
       if (!hasStart && !hasCont) {
-        // Insert synthetic session_start
         throw new Error(
           'Initial session_start missing; cannot synthesize without startHex.',
         );
@@ -448,6 +446,7 @@ export function finalizeSession(
             currentHex: snap.currentHex,
             currentParty: snap.currentParty,
             currentDate: firstDayEvent.payload.calendarDate,
+            sessionDate,
           },
           _origIdx: -1,
         } satisfies SessionContinueEvent & { _origIdx: number });
@@ -541,8 +540,6 @@ export function finalizeSession(
   for (let i = 0; i < finalizedBlocks.length; i++) {
     const block = finalizedBlocks[i];
     const suffix = blocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
-    const finalSessionId = getFinalSessionId(sessionId, devMode, suffix);
-    const sessionDate = block.events.find((e) => e.kind === 'session_start')!.payload.sessionDate;
 
     // Header
     const inWorldStart =
@@ -569,7 +566,10 @@ export function finalizeSession(
     });
 
     // Write session file
-    const sessionFile = path.join(sessionDir, buildSessionFilename(sessionId, sessionDate, suffix));
+    const sessionFile = path.join(
+      sessionDir,
+      buildSessionFilename(sessionId, sessionDate, suffix),
+    );
     writeEventsWithHeader(sessionFile, header, blockEvents);
     outputs.push(sessionFile);
 
