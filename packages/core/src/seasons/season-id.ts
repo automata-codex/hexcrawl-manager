@@ -60,7 +60,7 @@ export function normalizeSeasonId(id: string): string {
   return id.trim().toLowerCase();
 }
 
-export function parseSeasonId(seasonId: string) { // TODO Start here
+export function parseSeasonId(seasonId: string) {
   const m = seasonId.match(SEASON_ID_RE);
   if (!m) {
     throw new SeasonIdError(seasonId);
