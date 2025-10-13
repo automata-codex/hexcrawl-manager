@@ -31,6 +31,8 @@ jobs:
 
       - name: Install deps
         run: npm ci
+        env:
+          FONTAWESOME_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
 
       - name: Run ${{ matrix.cmd }}
         run: ${{ matrix.cmd }}
