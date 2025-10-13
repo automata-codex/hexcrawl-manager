@@ -20,6 +20,8 @@ export type EventPrototype<K extends ScribeEventKind> = {
 /** Convenience alias for arrays of mixed prototypes. */
 export type AnyEventPrototype = EventPrototype<ScribeEventKind>;
 
+const DEFAULT_DATE = '2025-10-01';
+
 /* -------------------------------------------------------------
  * Builder functions (alphabetical)
  * -------------------------------------------------------------*/
@@ -203,10 +205,16 @@ export function sessionPause(
 export function sessionStart(
   sessionId: string,
   startHex: string,
+  sessionDate: string = DEFAULT_DATE,
 ): EventPrototype<'session_start'> {
   return {
     kind: 'session_start',
-    payload: { id: sessionId, startHex, status: 'in-progress' },
+    payload: {
+      id: sessionId,
+      sessionDate,
+      startHex,
+      status: 'in-progress',
+    },
   };
 }
 

@@ -1,8 +1,11 @@
 import { padSessionNum } from '@skyreach/core';
 import { REPO_PATHS } from '@skyreach/data';
 import {
+  compileLog,
+  dayStart,
   findSessionFiles,
   runScribe,
+  sessionStart,
   withTempRepo,
 } from '@skyreach/test-helpers';
 import fs from 'fs';
@@ -189,28 +192,10 @@ describe('scribe finalize', () => {
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
         const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
-        const events: ScribeEvent[] = [
-          {
-            seq: 1,
-            kind: 'session_start',
-            ts: '2025-09-20T10:00:00.000Z',
-            payload: {
-              id: sessionId,
-              status: 'in-progress',
-              startHex: 'R14',
-            },
-          },
-          {
-            seq: 4,
-            kind: 'day_start',
-            ts: '2025-09-20T09:00:00.000Z',
-            payload: {
-              calendarDate: { year: 1511, month: 'Umbraeus', day: 8 },
-              daylightCap: 12,
-              season: 'autumn',
-            },
-          },
-        ];
+        const events: ScribeEvent[] = compileLog([
+          sessionStart(sessionId, 'R14', '2025-09-20'),
+          dayStart({ year: 1511, month: 'Umbraeus', day: 8 }),
+        ], { startTime: '2025-09-20' });
         fs.writeFileSync(
           sessionFile,
           events.map((e) => JSON.stringify(e)).join('\n') + '\n',
@@ -244,28 +229,10 @@ describe('scribe finalize', () => {
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
         const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
-        const events: ScribeEvent[] = [
-          {
-            seq: 1,
-            kind: 'session_start',
-            ts: '2025-09-20T10:00:00.000Z',
-            payload: {
-              id: sessionId,
-              status: 'in-progress',
-              startHex: 'R14',
-            },
-          },
-          {
-            seq: 2,
-            kind: 'day_start',
-            ts: '2025-09-20T11:00:00.000Z',
-            payload: {
-              calendarDate: { year: 1511, month: 'Umbraeus', day: 8 },
-              daylightCap: 12,
-              season: 'autumn',
-            },
-          },
-        ];
+        const events: ScribeEvent[] = compileLog([
+          sessionStart(sessionId, 'R14', '2025-09-20'),
+          dayStart({ year: 1511, month: 'Umbraeus', day: 8 }),
+        ], { startTime: '2025-09-20' });
         fs.writeFileSync(
           sessionFile,
           events.map((e) => JSON.stringify(e)).join('\n') + '\n',

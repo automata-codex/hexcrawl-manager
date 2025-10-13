@@ -146,6 +146,7 @@ export type SessionPauseEventPayload = z.infer<typeof SessionPauseEventPayloadSc
 
 export const SessionStartEventPayloadSchema = z.object({
   id: z.string(), // Session ID
+  sessionDate: z.string().date(),
   status: z.literal('in-progress'),
   startHex: z.string(),
 });

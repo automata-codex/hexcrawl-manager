@@ -283,7 +283,7 @@ describe('scribe start', () => {
         fs.mkdirSync(inProgressDir, { recursive: true });
         const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
         const events = compileLog([
-          sessionStart(sessionId, 'P13'),
+          sessionStart(sessionId, 'P13', date),
           move('P13', 'Q13'),
         ]);
         fs.writeFileSync(
