@@ -8,6 +8,7 @@
     "test": "vitest run --dir src --mode unit",
     "test:watch": "vitest --watch --dir src --mode unit",
     "test:scribe": "vitest run --dir src/commands/scribe --mode unit",
+    "test:scribe:int": "vitest run --dir src/commands/scribe --mode int",
     "test:scribe:watch": "vitest --watch --dir src/commands/scribe --mode unit",
     "test:weave": "vitest run --dir src/commands/weave --mode unit",
     "test:weave:int": "vitest run --dir src/commands/weave --mode int",

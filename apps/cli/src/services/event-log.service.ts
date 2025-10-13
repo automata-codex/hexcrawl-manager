@@ -1,14 +1,16 @@
 import {
-  readJsonl,
-  writeJsonl,
   appendJsonl,
   atomicWrite,
+  readJsonlWithHeader,
+  writeJsonl,
 } from '@skyreach/data';
 import {
+  ScribeEventSchema,
+  ScribeHeader,
+  ScribeHeaderSchema,
   type ScribeEvent,
   type ScribeEventKind,
   type ScribeEventOfKind,
-  ScribeEventSchema,
 } from '@skyreach/schemas';
 
 const nextSeq = (evs: ScribeEvent[]) =>
@@ -40,7 +42,11 @@ export function eventsOf(events: ScribeEvent[], kind: string): ScribeEvent[] {
 }
 
 export const readEvents = (filePath: string): ScribeEvent[] =>
-  readJsonl<ScribeEvent>(filePath, { schema: ScribeEventSchema });
+  readJsonlWithHeader<ScribeHeader, ScribeEvent>(filePath, {
+    headerSchema: ScribeHeaderSchema,
+    eventSchema: ScribeEventSchema,
+    requireHeader: false,
+  }).events;
 
 export const timeNowISO = () => new Date().toISOString();
 

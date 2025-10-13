@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { CampaignDateSchema } from './campaign-date';
 
-/** ------------------------------------------------------------
+/* -------------------------------------------------------------
  * Base & helpers
  * -------------------------------------------------------------*/
 
@@ -23,7 +23,21 @@ export function makeEventSchema<const K extends string, P extends z.ZodTypeAny>(
   });
 }
 
-/** ------------------------------------------------------------
+/* -------------------------------------------------------------
+ * Log headers
+ * -------------------------------------------------------------*/
+
+export const ScribeHeaderSchema = z.object({
+  kind: z.literal("header"),
+  id: z.string(),
+  seasonId: z.string(),
+  inWorldStart: CampaignDateSchema,
+  inWorldEnd: CampaignDateSchema,
+});
+
+export type ScribeHeader = z.infer<typeof ScribeHeaderSchema>;
+
+/* -------------------------------------------------------------
  * Payload schemas (one per event)
  * -------------------------------------------------------------*/
 
@@ -166,7 +180,7 @@ export const WeatherCommittedEventPayloadSchema = z.object({
 });
 export type WeatherCommittedEventPayload = z.infer<typeof WeatherCommittedEventPayloadSchema>;
 
-/** ------------------------------------------------------------
+/* -------------------------------------------------------------
  * Full event schemas (compose base + kind + payload)
  * -------------------------------------------------------------*/
 
@@ -233,7 +247,7 @@ export const WeatherCommittedEventSchema = makeEventSchema(
 );
 export type WeatherCommittedEvent = z.infer<typeof WeatherCommittedEventSchema>;
 
-/** ------------------------------------------------------------
+/* -------------------------------------------------------------
  * Union & derived utility types
  * -------------------------------------------------------------*/
 
