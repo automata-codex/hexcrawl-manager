@@ -6,10 +6,11 @@
     "check": "tsc --noEmit",
     "start": "tsx src/skyreach.ts",
     "test": "vitest run --dir src --mode unit",
-    "test:watch": "vitest --watch --dir src --mode unit",
+    "test:int": "vitest run --dir src --mode int",
     "test:scribe": "vitest run --dir src/commands/scribe --mode unit",
     "test:scribe:int": "vitest run --dir src/commands/scribe --mode int",
     "test:scribe:watch": "vitest --watch --dir src/commands/scribe --mode unit",
+    "test:watch": "vitest --watch --dir src --mode unit",
     "test:weave": "vitest run --dir src/commands/weave --mode unit",
     "test:weave:int": "vitest run --dir src/commands/weave --mode int",
     "test:weave:watch": "vitest --watch --dir src/commands/weave --mode unit"
