@@ -79,31 +79,45 @@ state:
 ## Zod schema (generic core, with trails as a consumer)
 
 ```ts
-import { z } from "zod";
+import { z } from 'zod';
 
-const IsoDate = z.string().regex(
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+\-]\d{2}:\d{2})$/
-);
-const Backend = z.enum(["meta","ledger","external"]);
+const Backend = z.enum(['meta', 'ledger', 'external']);
 
-const GenericApplied = z.record(z.array(z.string())); // e.g. { sessions: [...], seasons: [...] }
+const AppliedCollections = z.record(z.array(z.string())); // e.g. { sessions: [...], seasons: [...] }
 
-const GenericSubsystem = z.object({
-  backend: Backend,
-  applied: GenericApplied.optional(),
-  checkpoints: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
-  fingerprints: z.record(z.string().regex(/^sha256:[0-9a-fA-F]+$/)).optional(),
-  mirror: z.object({
-    lastMirrorAt: IsoDate,
+const Fingerprints = z.record(z.string().regex(/^sha256:[0-9a-fA-F]+$/));
+
+const Mirror = z
+  .object({
+    lastMirrorAt: z.string().datetime(),
     info: z.record(z.any()).optional(),
-  }).partial().optional(),
-}).strict();
+  })
+  .partial()
+  .refine((obj) => 'lastMirrorAt' in obj, {
+    message: 'mirror.lastMirrorAt required if mirror present',
+  });
 
-export const MetaV2Schema = z.object({
-  version: z.literal(2),
-  nextSessionSeq: z.number(),
-  state: z.record(GenericSubsystem),  // trails/ap/hexes/... all fit this
-}).strict();
+const SubsystemState = z
+  .object({
+    backend: Backend,
+    applied: AppliedCollections.optional(),
+    checkpoints: z
+      .record(z.union([z.string(), z.number(), z.boolean()]))
+      .optional(),
+    fingerprints: Fingerprints.optional(),
+    mirror: Mirror.optional(),
+  })
+  .strict();
+
+export const MetaSchemaV2 = z
+  .object({
+    version: z.literal(2),
+    nextSessionSeq: z.number().int().positive(),
+    state: z.record(SubsystemState),
+  })
+  .strict();
+
+export type MetaDataV2 = z.infer<typeof MetaSchemaV2>;
 ```
 
 > If you want extra type safety for **trails**, create a **narrower** schema for that one subsystem in your app layer (e.g., enforce that `applied.sessions` and `applied.seasons` are the allowed collections), but keep the on-disk spec generic as above.
