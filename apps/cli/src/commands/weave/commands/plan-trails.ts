@@ -3,6 +3,7 @@ import {
   DataValidationError,
   isRolloverPath,
   loadHavens,
+  loadMeta,
   loadTrails,
 } from '@skyreach/data';
 import path from 'path';
@@ -14,6 +15,7 @@ import {
 } from '../lib/apply';
 import { ChronologyValidationError } from '../lib/errors';
 import {
+  assertCleanGitOrAllowDirty,
   getMostRecentRolloverFootprint,
 } from '../lib/files';
 import {
@@ -23,47 +25,24 @@ import {
   isSessionChronologyValid,
   isSessionFile,
 } from '../lib/guards';
+import { ApplyTrailsResult } from '../lib/types';
 import { validateSessionEnvelope } from '../lib/validate';
 
-import type {
-  DayStartEvent,
-  MetaData,
-  SeasonRolloverEvent,
-} from '@skyreach/schemas';
+import type { DayStartEvent, SeasonRolloverEvent } from '@skyreach/schemas';
 
-export type PlanTrailsResult = {
-  domain: 'trails';
-  fileType: 'rollover' | 'session';
-  fileId: string; // basename(file)
-  seasonId: string; // normalized
-  status: 'ok' | 'no-op' | 'already-applied';
-  summary: {
-    // session-only (0 for rollover)
-    created: number;
-    usedFlags: number;
-    rediscovered: number;
-    // rollover-only (0 for session)
-    maintained: number;
-    persisted: number;
-    deleted: number;
-  };
-  effects: {
-    // session effects
-    created?: string[];
-    usedFlags?: Record<string, boolean>;
-    rediscovered?: string[];
-    // rollover effects
-    maintained?: string[];
-    persisted?: string[];
-    deletedTrails?: string[];
-  };
-};
-
-export async function planTrails(args: {
+export interface PlanTrailsOptions {
+  allowDirty?: boolean;
   file: string;
-  meta: MetaData;
-}): Promise<PlanTrailsResult> {
-  const { file, meta } = args;
+}
+
+export async function planTrails(opts: PlanTrailsOptions): Promise<ApplyTrailsResult> {
+  assertCleanGitOrAllowDirty(opts);
+
+  const havens = loadHavens();
+  const meta = loadMeta();
+  const trails = loadTrails();
+
+  const { file } = opts;
   const fileId = path.basename(file);
 
   if (isRolloverPath(file)) {
@@ -78,20 +57,17 @@ export async function planTrails(args: {
 
     if (isRolloverAlreadyApplied(meta, fileId)) {
       return {
-        domain: 'trails',
-        fileType: 'rollover',
-        fileId,
+        kind: 'rollover',
         seasonId,
+        fileId,
+        dryRun: true,
         status: 'already-applied',
         summary: {
           created: 0,
-          usedFlags: 0,
           rediscovered: 0,
           maintained: 0,
           persisted: 0,
-          deleted: 0,
         },
-        effects: {},
       };
     }
 
@@ -101,9 +77,6 @@ export async function planTrails(args: {
         'Rollover is not for the next unapplied season.',
       );
     }
-
-    const havens = loadHavens();
-    const trails = loadTrails();
 
     const effects = applyRolloverToTrails(trails, havens, true);
     const maintained = effects.maintained ?? [];
@@ -116,23 +89,16 @@ export async function planTrails(args: {
       deletedTrails.length > 0;
 
     return {
-      domain: 'trails',
-      fileType: 'rollover',
-      fileId,
+      kind: 'rollover',
       seasonId,
+      fileId,
+      dryRun: true,
       status: anyChanges ? 'ok' : 'no-op',
       summary: {
         created: 0,
-        usedFlags: 0,
         rediscovered: 0,
         maintained: maintained.length,
         persisted: persisted.length,
-        deleted: deletedTrails.length,
-      },
-      effects: {
-        maintained,
-        persisted,
-        deletedTrails,
       },
     };
   }
@@ -157,20 +123,17 @@ export async function planTrails(args: {
         )
         : 'unknown';
       return {
-        domain: 'trails',
-        fileType: 'session',
-        fileId,
+        kind: 'session',
         seasonId,
+        fileId,
+        dryRun: true,
         status: 'already-applied',
         summary: {
           created: 0,
-          usedFlags: 0,
           rediscovered: 0,
           maintained: 0,
           persisted: 0,
-          deleted: 0,
         },
-        effects: {},
       };
     }
 
@@ -221,23 +184,16 @@ export async function planTrails(args: {
       created.length > 0 || usedFlagsCount > 0 || rediscovered.length > 0;
 
     return {
-      domain: 'trails',
-      fileType: 'session',
-      fileId,
+      kind: 'session',
       seasonId: firstSeasonId,
+      fileId,
+      dryRun: true,
       status: anyChanges ? 'ok' : 'no-op',
       summary: {
         created: created.length,
-        usedFlags: usedFlagsCount,
         rediscovered: rediscovered.length,
         maintained: 0,
         persisted: 0,
-        deleted: 0,
-      },
-      effects: {
-        created,
-        usedFlags: effects.usedFlags,
-        rediscovered,
       },
     };
   }

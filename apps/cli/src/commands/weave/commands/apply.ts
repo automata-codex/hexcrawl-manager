@@ -22,10 +22,11 @@ import {
   CliValidationError,
   NoChangesError,
 } from '../lib/errors';
+import { printApplyTrailsResult } from '../lib/printers';
 import { resolveApTarget, resolveTrailsTarget } from '../lib/resolvers';
 
 import { applyAp } from './apply-ap';
-import { ApplyTrailsResult, applyTrails } from './apply-trails';
+import { applyTrails } from './apply-trails';
 
 export type ApplyArgs = {
   target?: string;
@@ -54,43 +55,6 @@ export const exitCodeForApply = makeExitMapper(
   1, // fallback default
 );
 
-export function printApplyTrailsResult(res: ApplyTrailsResult) {
-  switch (res.status) {
-    case 'ok': {
-      if (res.kind === 'session') {
-        const s = res.summary ?? {};
-        info(
-          `Session applied: ${res.fileId} (season ${res.seasonId}). ` +
-            `created=${s.created ?? 0}, rediscovered=${s.rediscovered ?? 0}, uses=${s.usesFlagged ?? 0}, touched=${s.edgesTouched ?? 0}.`,
-        );
-      } else {
-        const s = res.summary ?? {};
-        info(
-          `Rollover applied: season ${res.seasonId}. ` +
-            `maintained=${s.maintained ?? 0}, persisted=${s.persisted ?? 0}, deleted=${s.deletedTrails ?? 0}, touched=${s.edgesTouched ?? 0}.`,
-        );
-      }
-      break;
-    }
-
-    case 'already-applied':
-      info(res.message ?? 'Already applied.');
-      break;
-
-    case 'no-op':
-      info(res.message ?? 'No changes would be made.');
-      break;
-
-    case 'validation-error':
-    case 'unrecognized-file':
-      error(res.message ?? 'Validation error.');
-      break;
-
-    case 'io-error':
-      error(res.message ?? 'I/O error during apply.');
-      break;
-  }
-}
 
 export async function apply(args: ApplyArgs) {
   try {
@@ -119,7 +83,6 @@ export async function apply(args: ApplyArgs) {
       let applied = 0;
       let skipped = 0;
 
-      // TODO Add a test for this loop, to ensure that it continues or aborts correctly
       for (const item of items) {
         try {
           const result = await applyTrails({ allowDirty, file: item.file });

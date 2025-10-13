@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 
 import { apply as applyHandler } from './commands/apply';
-import { plan } from './commands/plan';
+import { plan as planHandler } from './commands/plan';
 import { status as statusHandler } from './commands/status';
 
 export const weaveCommand = new Command('weave').description(
@@ -75,8 +75,14 @@ weaveCommand
   .command('plan')
   .description('Plan application of a session or rollover file')
   .argument('[target]', 'Optional session ID (session-0042) or season ID (1511-autumn)')
-  .action(async (target: string | undefined) => {
-    await plan(target); // TODO Make sure this function can handle session ID and season ID
+  .action(
+    async (target: string | undefined, _opts: unknown, command) => {
+      const opts = command.optsWithGlobals();
+      await planHandler({
+        allowDirty: !!opts.allowDirty,
+        target,
+        mode: 'all',
+      });
   });
 
 // ---- status ----
