@@ -4,6 +4,7 @@ import {
   loadMeta,
   saveMeta,
   buildSessionFilename,
+  parseSessionFilename,
 } from '@skyreach/data';
 import {
   SESSION_ID_RE,
@@ -250,13 +251,32 @@ export function finalizeSession(
       error: '❌ No events found in session file.',
     };
   }
-  if (!events.some((e) => e.kind === 'day_start')) {
+
+  // Check session date in filename matches session_start event
+  let parsedInfo;
+  try {
+    parsedInfo = parseSessionFilename(path.basename(inProgressFile));
+    // eslint-disable-next-line no-unused-vars
+  } catch (e) {
+    parsedInfo = null;
+  }
+  if (!parsedInfo || !parsedInfo.date) {
     return {
       outputs: [],
       rollovers: [],
-      error: '❌ No day_start event found in session.',
+      error: `❌ Could not parse session date from filename: ${inProgressFile}`,
     };
   }
+  const filenameSessionDate = parsedInfo.date;
+  const eventSessionDate = getSessionDateFromEvents(events);
+  if (filenameSessionDate !== eventSessionDate) {
+    return {
+      outputs: [],
+      rollovers: [],
+      error: `❌ Session date in filename (${filenameSessionDate}) does not match session_start event (${eventSessionDate}).`,
+    };
+  }
+
   // Ensure the first event is session_start or session_continue
   if (
     !(
