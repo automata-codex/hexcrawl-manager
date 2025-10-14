@@ -13,8 +13,8 @@ export type RolloverInfo = {
 
 export type RolloverPathInfo = {
   kind: 'prod' | 'dev';
-  seasonId: string;  // normalized
-  base: string;      // filename only
+  seasonId: string; // normalized
+  base: string; // filename only
   parentDir: string; // usually 'rollovers'
   grandparentDir: string; // '' | '_dev' | etc.
 };
@@ -51,7 +51,10 @@ export function isProdRolloverPath(filePath: string): boolean {
 }
 
 /** True if path is either prod or dev rollover file. */
-export function isRolloverPath(filePath: string, opts?: { includeDev?: boolean }): boolean {
+export function isRolloverPath(
+  filePath: string,
+  opts?: { includeDev?: boolean },
+): boolean {
   const info = parseRolloverPath(filePath);
   if (!info) return false;
   return info.kind === 'prod' || !!opts?.includeDev;
@@ -67,9 +70,25 @@ export function parseRolloverPath(filePath: string): RolloverPathInfo | null {
 
   if (grandparent === '_dev') {
     const parsed = parseRolloverDevFilename(base);
-    return parsed ? { kind: 'dev', seasonId: parsed.seasonId, base, parentDir: parent, grandparentDir: grandparent } : null;
+    return parsed
+      ? {
+          kind: 'dev',
+          seasonId: parsed.seasonId,
+          base,
+          parentDir: parent,
+          grandparentDir: grandparent,
+        }
+      : null;
   }
 
   const parsed = parseRolloverFilename(base);
-  return parsed ? { kind: 'prod', seasonId: parsed.seasonId, base, parentDir: parent, grandparentDir: grandparent } : null;
+  return parsed
+    ? {
+        kind: 'prod',
+        seasonId: parsed.seasonId,
+        base,
+        parentDir: parent,
+        grandparentDir: grandparent,
+      }
+    : null;
 }

@@ -23,7 +23,7 @@ export interface FinalizeOptions {
 /** Map raw prototypes → finalized ScribeEvent[] with seq/ts */
 export function compileLog(
   prototypes: AnyEventPrototype[],
-  opts: FinalizeOptions = {}
+  opts: FinalizeOptions = {},
 ): ScribeEvent[] {
   const {
     startTime = new Date('2025-10-01T00:00:00Z'),

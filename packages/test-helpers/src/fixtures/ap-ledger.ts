@@ -1,8 +1,9 @@
-import { padSessionNum } from '@skyreach/core';
-import { ApLedgerEntry, ApLedgerEntrySchema, Pillar } from '@skyreach/schemas';
-
-export const asSessionId = (n: number | string) =>
-  typeof n === 'number' ? `session-${padSessionNum(n)}` : `session-${n}`;
+import {
+  ApLedgerEntry,
+  ApLedgerEntrySchema,
+  Pillar,
+  makeSessionId,
+} from '@skyreach/schemas';
 
 const apTriplet = <R extends 'normal' | 'absence_spend'>(
   deltas: Partial<Record<Pillar, number>>,
@@ -30,9 +31,10 @@ export function makeSessionAp(entry: {
   const e: ApLedgerEntry = {
     kind: 'session_ap',
     characterId: entry.characterId,
-    sessionId: asSessionId(entry.session),
+    sessionId: makeSessionId(entry.session),
     appliedAt: entry.appliedAt,
-    advancementPoints: entry.deltas ?? normalAp({ combat: 1, exploration: 1, social: 1 }),
+    advancementPoints:
+      entry.deltas ?? normalAp({ combat: 1, exploration: 1, social: 1 }),
     ...(entry.notes ? { notes: entry.notes } : {}),
   };
   return ApLedgerEntrySchema.parse(e);
@@ -48,7 +50,7 @@ export function makeAbsenceSpend(entry: {
   const e: ApLedgerEntry = {
     kind: 'absence_spend',
     characterId: entry.characterId,
-    sessionId: asSessionId(entry.session),
+    sessionId: makeSessionId(entry.session),
     appliedAt: entry.appliedAt,
     advancementPoints: absenceAp(entry.deltas),
     ...(entry.notes ? { notes: entry.notes } : {}),
@@ -63,7 +65,10 @@ export function makeSessionApGrid(opts: {
   // eslint-disable-next-line no-unused-vars
   appliedAtBySession: (s: number | string) => string;
   // eslint-disable-next-line no-unused-vars
-  deltasBy?: (c: string, s: number | string) => ApLedgerEntry['advancementPoints'];
+  deltasBy?: (
+    c: string,
+    s: number | string,
+  ) => ApLedgerEntry['advancementPoints'];
   // eslint-disable-next-line no-unused-vars
   notesBy?: (c: string, s: number | string) => string | undefined;
 }) {

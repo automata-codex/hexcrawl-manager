@@ -22,8 +22,7 @@ export function isRolloverChronologyValid(
   }
 
   // Only allow rollover for the next unapplied season
-  const valid =
-    normalizeSeasonId(seasonId) === normalizeSeasonId(expected);
+  const valid = normalizeSeasonId(seasonId) === normalizeSeasonId(expected);
   return { valid, expected: expected || '' };
 }
 

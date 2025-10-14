@@ -2,19 +2,22 @@ import { error, info, makeExitMapper } from '@skyreach/cli-kit';
 import {
   SessionAlreadyAppliedError,
   SessionFingerprintMismatchError,
-  SessionIdError,
   SessionLogsNotFoundError,
   SessionReportValidationError,
   assertSeasonId,
-  assertSessionId,
   isSeasonId,
-  isSessionId,
 } from '@skyreach/core';
 import {
   DirtyGitError,
   FinalizedLogJsonParseError,
   FinalizedLogsNotFoundError,
 } from '@skyreach/data';
+import {
+  SessionId,
+  SessionIdError,
+  assertSessionId,
+  isSessionId,
+} from '@skyreach/schemas';
 
 import {
   AlreadyAppliedError,
@@ -55,14 +58,13 @@ export const exitCodeForApply = makeExitMapper(
   1, // fallback default
 );
 
-
 export async function apply(args: ApplyArgs) {
   try {
     const { allowDirty, mode: rawMode, target: rawTarget } = args;
     const mode: ApplyMode = rawMode ?? 'all';
 
     let targetType: 'session' | 'season' | 'undefined' = 'undefined';
-    let target: string | undefined = undefined;
+    let target: SessionId | string | undefined = undefined;
     if (rawTarget) {
       if (isSessionId(rawTarget)) {
         targetType = 'session';
@@ -90,12 +92,12 @@ export async function apply(args: ApplyArgs) {
           applied++;
         } catch (e) {
           if (e instanceof AlreadyAppliedError) {
-            info(e.message);           // benign: continue
+            info(e.message); // benign: continue
             skipped++;
             continue;
           }
           if (e instanceof NoChangesError) {
-            info(e.message);           // benign: continue
+            info(e.message); // benign: continue
             skipped++;
             continue;
           }
@@ -111,20 +113,29 @@ export async function apply(args: ApplyArgs) {
 
     if (mode === 'all' || mode === 'ap') {
       const targets =
-        targetType === 'session' ? [{ kind: 'session', sessionId: target! }] : resolveApTarget(undefined);
+        targetType === 'session'
+          ? [{ kind: 'session', sessionId: target as SessionId }]
+          : resolveApTarget(undefined);
 
       let applied = 0;
       let skipped = 0;
 
       for (const item of targets) {
         try {
-          const result = await applyAp({ sessionId: item.sessionId, allowDirty });
+          const result = await applyAp({
+            sessionId: item.sessionId,
+            allowDirty,
+          });
           if (result.alreadyApplied) {
-            console.log(`✅ ${result.sessionId} was already applied (no changes made).`);
+            console.log(
+              `✅ ${result.sessionId} was already applied (no changes made).`,
+            );
             skipped++;
           } else {
             console.log(`✨ Applied ${result.sessionId}:`);
-            console.log(`  • ${result.entriesAppended} ledger entr${result.entriesAppended === 1 ? 'y' : 'ies'} appended`);
+            console.log(
+              `  • ${result.entriesAppended} ledger entr${result.entriesAppended === 1 ? 'y' : 'ies'} appended`,
+            );
             console.log(`  • Report: ${result.reportPath}`);
             applied++;
           }

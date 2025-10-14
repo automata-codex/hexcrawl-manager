@@ -10,7 +10,7 @@ export class SessionAlreadyAppliedError extends Error {
 export class SessionFingerprintMismatchError extends Error {
   constructor(readonly sessionId: string) {
     super(
-      `Completed report for ${sessionId} has a different fingerprint. Revert the prior apply or use a new session.`
+      `Completed report for ${sessionId} has a different fingerprint. Revert the prior apply or use a new session.`,
     );
     this.name = 'SessionFingerprintMismatchError';
   }
@@ -18,7 +18,10 @@ export class SessionFingerprintMismatchError extends Error {
 
 export class SessionReportValidationError extends Error {
   // eslint-disable-next-line no-unused-vars
-  constructor(readonly sessionId: string, readonly issues: ZodError['issues']) {
+  constructor(
+    readonly sessionId: string,
+    readonly issues: ZodError['issues'],
+  ) {
     super(`Session report for ${sessionId} is invalid.`);
     this.name = 'SessionReportValidationError';
   }

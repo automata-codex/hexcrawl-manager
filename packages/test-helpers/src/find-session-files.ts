@@ -1,3 +1,4 @@
+import { SESSION_FILE_RE } from '@skyreach/data';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -7,6 +8,6 @@ export function findSessionFiles(dir: string): string[] {
   }
   return fs
     .readdirSync(dir)
-    .filter((f) => /^session_\d+[a-z]?_\d{4}-\d{2}-\d{2}\.jsonl$/i.test(f))
+    .filter((f) => SESSION_FILE_RE.test(f))
     .map((f) => path.join(dir, f));
 }

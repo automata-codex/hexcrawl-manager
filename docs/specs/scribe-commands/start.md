@@ -1,4 +1,4 @@
-# `scribe start` Command Spec (v1.1)
+# `scribe start` Command Spec (v1.2)
 
 Two entry paths are supported:
 
@@ -29,35 +29,36 @@ Initializes or resumes a scribe session event log with safe defaults. Creates an
 
 2. **Session ID and Filename Generation**
   - **Production**:
-    - Format: `session_<SEQ>_<YYYY-MM-DD>` (zero-padded integer, e.g., `session_0012_2025-09-15`).
-    - `<SEQ>` taken from `meta.nextSessionSeq` (1-based), **not incremented here**.
-    - `<YYYY-MM-DD>` is **today’s date (local)**.
+    - Format: `session-XXXX_YYYY-MM-DD` (XXXX is a four-digit, zero-padded integer, e.g., `session-0012_2025-09-15`).
+    - `XXXX` taken from `meta.nextSessionSeq` (1-based), **not incremented here**.
+    - `YYYY-MM-DD` is **the date the session took place (local)**.
   - **Dev mode**:
     - Format: `dev_<ISO>` (ISO timestamp).
-  - Session ID always equals the filename stem.
+  - Session ID always equals the filename stem (e.g., `session-0012`).
 
 3. **Filename Enforcement**
   - **Production**:
-    - In-progress file: `data/session-logs/in-progress/session_<SEQ>_<YYYY-MM-DD>.jsonl`.
-    - Lock: `data/session-logs/.locks/session_<SEQ>.lock`.
+    - In-progress file: `data/session-logs/in-progress/session-XXXX_YYYY-MM-DD.jsonl`.
+    - Lock: `data/session-logs/.locks/session-XXXX.lock`.
   - **Dev mode**:
     - In-progress file: `data/session-logs/_dev/dev_<ISO>.jsonl`.
     - No lock file; no sequence reservation.
 
 4. **Session Sequence Management (Production only)**
   - Read `meta.nextSessionSeq`.
-  - Use that value as `<SEQ>`.
+  - Use that value as `XXXX`.
   - Create a lock file containing JSON metadata:
+
     ```json
     {
-      "seq": <SEQ>,
-      "filename": "session_<SEQ>_<YYYY-MM-DD>.jsonl",
+      "seq": XXXX,
+      "filename": "session-XXXX_YYYY-MM-DD.jsonl",
       "createdAt": "<ISO>",
       "pid": <process id>
     }
     ```
   - **Do not increment** `nextSessionSeq` yet. Increment happens on successful `finalize`.
-  - If lock exists for `<SEQ>`, abort (active session in progress).
+  - If lock exists for `XXXX`, abort (active session in progress).
 
 5. **Session File Handling**
   - Set `ctx.sessionId` and `ctx.file`.
@@ -67,9 +68,9 @@ Initializes or resumes a scribe session event log with safe defaults. Creates an
       {
         "kind": "session_start",
         "status": "in-progress",
-        "id": "<sessionId>",
+        "id": "session-XXXX",
         "startHex": "<hex>",
-        "sessionDate": "<YYYY-MM-DD>"
+        "sessionDate": "YYYY-MM-DD"
       }
       ```
     - Print `started: {sessionId} @ {hex}`.
@@ -93,25 +94,25 @@ Guided, prompt-based flow to create a new **production** session with explicit c
    - Default `date = today (YYYY-MM-DD)`.
 
 3. **Prompt — Overrides**
-   - Show preview of computed stem: `session_<SEQ>_<DATE>` and file paths.
+   - Show preview of computed stem: `session-XXXX_YYYY-MM-DD` and file paths.
    - Ask: “Override sequence number?” → if yes, prompt integer ≥ 1.
    - Ask: “Override session date?” → if yes, prompt `YYYY-MM-DD` (validate real date).
 
 4. **Conflict Checks**
-   - If a lock exists for `<SEQ>` → show error and **abort** (offer to run `doctor`).
+   - If a lock exists for `XXXX` → show error and **abort** (offer to run `doctor`).
    - If a file exists for the stem **but no lock** → warn and show **manual remediation instructions** (see below). Allow user to **cancel** or **continue** (continue will write only if they also choose to recreate the lock manually first).
 
 5. **Confirmation**
    - Show final stem + paths:
-     - `…/in-progress/session_<SEQ>_<DATE>.jsonl`
-     - `…/.locks/session_<SEQ>.lock`
+     - `…/in-progress/session-XXXX_YYYY-MM-DD.jsonl`
+     - `…/.locks/session-XXXX.lock`
    - Confirm: “Create session and lock?” `[y/N]`
 
 6. **Write**
    - Create lock (production-only).
    - Create new file (or append if resuming), and append `session_start` if new:
      ```json
-     { "kind": "session_start", "status": "in-progress", "id": "session_<SEQ>_<DATE>", "startHex": "<HEX>", "sessionDate": "<DATE>" }
+     { "kind": "session_start", "status": "in-progress", "id": "session-XXXX", "startHex": "<HEX>", "sessionDate": "YYYY-MM-DD" }
      ```
    - Print success summary.
 
@@ -121,12 +122,12 @@ When a file exists without a lock, print:
 
 ```
 Orphaned session file detected:
-  <path/to/in-progress/session_<SEQ>_<DATE>.jsonl>
+  <path/to/in-progress/session-XXXX_YYYY-MM-DD.jsonl>
 No matching lock at:
-  <path/to/.locks/session_<SEQ>.lock>
+  <path/to/.locks/session-XXXX.lock>
 
 To recreate lock manually:
-  echo '{"seq": <SEQ>, "filename": "session_<SEQ>_<DATE>.jsonl", "createdAt": "'$(date -Iseconds)'", "pid": <PID>}' > <lock-path>
+  echo '{"seq": XXXX, "filename": "session-XXXX_YYYY-MM-DD.jsonl", "createdAt": "'$(date -Iseconds)'", "pid": <PID>}' > <lock-path>
 Then rerun `start interactive`.
 ```
 
@@ -134,7 +135,7 @@ Then rerun `start interactive`.
 
 - **Production only**. If REPL was launched in `--dev` or `SKYREACH_DEV="true"`, print: “`start interactive` is unavailable in dev mode.”
 - Gaps in session numbering are **allowed** but a warning is shown. Gaps will be reported by `doctor`, and ordering is enforced by `finalize`/`weave apply`.
-- `sessionDate` in `session_start` **must match** the `<DATE>` portion of the stem; the command enforces this.
+- `sessionDate` in `session_start` **must match** the `YYYY-MM-DD` portion of the stem; the command enforces this.
 
 ## Outputs (both forms)
 
@@ -154,8 +155,8 @@ Then rerun `start interactive`.
 ## File Writes
 
 - **Prod**:
-  - In-progress file → `data/session-logs/in-progress/session_<SEQ>_<YYYY-MM-DD>.jsonl`
-  - Lock file → `data/session-logs/.locks/session_<SEQ>.lock`
+  - In-progress file → `data/session-logs/in-progress/session-XXXX_YYYY-MM-DD.jsonl`
+  - Lock file → `data/session-logs/.locks/session-XXXX.lock`
 - **Dev**:
   - In-progress file → `data/session-logs/_dev/dev_<ISO>.jsonl` (no `start interactive` here)
 

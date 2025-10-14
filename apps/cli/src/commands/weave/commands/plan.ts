@@ -10,9 +10,18 @@ import {
   isSeasonId,
   isSessionId,
 } from '@skyreach/core';
-import { DirtyGitError, FinalizedLogJsonParseError, FinalizedLogsNotFoundError } from '@skyreach/data';
+import {
+  DirtyGitError,
+  FinalizedLogJsonParseError,
+  FinalizedLogsNotFoundError,
+} from '@skyreach/data';
 
-import { AlreadyAppliedError, CliError, CliValidationError, NoChangesError } from '../lib/errors';
+import {
+  AlreadyAppliedError,
+  CliError,
+  CliValidationError,
+  NoChangesError,
+} from '../lib/errors';
 import { printApplyTrailsResult } from '../lib/printers';
 import { resolveTrailsTarget } from '../lib/resolvers';
 
@@ -80,12 +89,12 @@ export async function plan(args: PlanArgs) {
           applied++;
         } catch (e) {
           if (e instanceof AlreadyAppliedError) {
-            info(e.message);           // benign: continue
+            info(e.message); // benign: continue
             skipped++;
             continue;
           }
           if (e instanceof NoChangesError) {
-            info(e.message);           // benign: continue
+            info(e.message); // benign: continue
             skipped++;
             continue;
           }

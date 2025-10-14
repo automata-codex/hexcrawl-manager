@@ -11,7 +11,9 @@ interface MaybeOverrideOpts<T> {
 }
 
 export class UserCanceledError extends Error {
-  constructor(msg = 'Canceled by user') { super(msg); }
+  constructor(msg = 'Canceled by user') {
+    super(msg);
+  }
 }
 
 function onCancel(): never {
@@ -21,7 +23,11 @@ function onCancel(): never {
 
 export function isInteractive(): boolean {
   // centralize your non-interactive rules
-  return process.stdout.isTTY && !process.env.CI && process.env.NON_INTERACTIVE !== '1';
+  return (
+    process.stdout.isTTY &&
+    !process.env.CI &&
+    process.env.NON_INTERACTIVE !== '1'
+  );
 }
 
 /**
@@ -37,12 +43,14 @@ export async function maybeOverride<T>(
     return computed;
   }
 
-  const input = await prompts.text({
-    message: `${label}\n(Leave blank to accept: ${String(computed)})`,
-    placeholder: opts?.placeholder,
-    validate: opts?.validate,
-    initialValue: '', // forces explicit override typing
-  }).catch(onCancel);
+  const input = await prompts
+    .text({
+      message: `${label}\n(Leave blank to accept: ${String(computed)})`,
+      placeholder: opts?.placeholder,
+      validate: opts?.validate,
+      initialValue: '', // forces explicit override typing
+    })
+    .catch(onCancel);
 
   if (!input) {
     return computed; // user pressed Enter w/ empty input

@@ -19,7 +19,7 @@ const nextSeq = (evs: ScribeEvent[]) =>
 function makeEvent<K extends ScribeEventKind>(
   kind: K,
   payload: ScribeEventOfKind<K>['payload'],
-  base: { seq: number; ts: string }
+  base: { seq: number; ts: string },
 ): ScribeEventOfKind<K> {
   return { ...base, kind, payload } as ScribeEventOfKind<K>;
 }

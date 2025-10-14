@@ -50,7 +50,7 @@ describe('Command `weave apply trails`', () => {
         );
 
         const events = compileLog([
-          sessionStart(sessionId, 'R14'),
+          sessionStart(sessionId, 'R14', '2025-10-01'),
           dayStart({ year: 1511, month: 'Lucidus', day: 31 }),
           move('R14', 'Q13'),
           trail('Q13', 'R14'),
@@ -87,7 +87,9 @@ describe('Command `weave apply trails`', () => {
 
         // --- Assert: meta updated with applied session ---
         const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
-        expect(meta.state.trails.applied?.appliedSessions).toContain('session_0001_2025-10-01.jsonl');
+        expect(meta.state.trails.applied?.appliedSessions).toContain(
+          'session_0001_2025-10-01.jsonl',
+        );
 
         // --- Assert: footprint written with session kind & season ---
         const footprintsDir = REPO_PATHS.FOOTPRINTS(); // adjust if different
@@ -181,8 +183,12 @@ describe('Command `weave apply trails`', () => {
 
         // --- Assert: meta updated with rolled season and applied session id ---
         const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
-        expect(meta.state.trails.applied?.rolledSeasons).toContain('1511-autumn');
-        expect(meta.state.trails.applied?.appliedSessions).toContain('rollover_1511-autumn.jsonl');
+        expect(meta.state.trails.applied?.rolledSeasons).toContain(
+          '1511-autumn',
+        );
+        expect(meta.state.trails.applied?.appliedSessions).toContain(
+          'rollover_1511-autumn.jsonl',
+        );
 
         // --- Assert: rollover footprint written with effects ---
         const footprintsDir = REPO_PATHS.FOOTPRINTS(); // adjust if different
@@ -212,14 +218,17 @@ describe('Command `weave apply trails`', () => {
         // session-0003 with a trail event
         fs.writeFileSync(
           path.join(REPO_PATHS.SESSIONS(), `${session3Id}.jsonl`),
-          compileLog([
-            sessionStart(session3Id, 'H1'),
-            dayStart({ year: 1511, month: 'Umbraeus', day: 18 }),
-            partySet(party),
-            trail('H1', 'H2'),
-            dayEnd(14, 14),
-            sessionEnd(session3Id),
-          ])
+          compileLog(
+            [
+              sessionStart(session3Id, 'H1', '2025-09-27'),
+              dayStart({ year: 1511, month: 'Umbraeus', day: 18 }),
+              partySet(party),
+              trail('H1', 'H2'),
+              dayEnd(14, 14),
+              sessionEnd(session3Id),
+            ],
+            { startTime: '2025-09-27' },
+          )
             .map((e) => JSON.stringify(e))
             .join('\n'),
         );
@@ -227,14 +236,17 @@ describe('Command `weave apply trails`', () => {
         // session-0004 with a trail event
         fs.writeFileSync(
           path.join(REPO_PATHS.SESSIONS(), `${session4Id}.jsonl`),
-          compileLog([
-            sessionStart(session4Id, 'H2'),
-            dayStart({ year: 1511, month: 'Umbraeus', day: 19 }),
-            partySet(party),
-            trail('H2', 'H3'),
-            dayEnd(14, 14),
-            sessionEnd(session4Id),
-          ])
+          compileLog(
+            [
+              sessionStart(session4Id, 'H2', '2025-09-28'),
+              dayStart({ year: 1511, month: 'Umbraeus', day: 19 }),
+              partySet(party),
+              trail('H2', 'H3'),
+              dayEnd(14, 14),
+              sessionEnd(session4Id),
+            ],
+            { startTime: '2025-09-28' },
+          )
             .map((e) => JSON.stringify(e))
             .join('\n'),
         );
@@ -271,14 +283,17 @@ describe('Command `weave apply trails`', () => {
         // session-0005: valid envelope, but no 'trail' events -> NoChangesError path
         fs.writeFileSync(
           path.join(REPO_PATHS.SESSIONS(), 'session_0005_2025-09-29.jsonl'),
-          compileLog([
-            sessionStart(session5Id, 'H3'),
-            dayStart({ year: 1511, month: 'Umbraeus', day: 20 }),
-            partySet(party),
-            move('H3', 'H4'),
-            dayEnd(14, 14),
-            sessionEnd(session5Id),
-          ])
+          compileLog(
+            [
+              sessionStart(session5Id, 'H3', '2025-09-29'),
+              dayStart({ year: 1511, month: 'Umbraeus', day: 20 }),
+              partySet(party),
+              move('H3', 'H4'),
+              dayEnd(14, 14),
+              sessionEnd(session5Id),
+            ],
+            { startTime: '2025-09-29' },
+          )
             .map((e) => JSON.stringify(e))
             .join('\n'),
         );
@@ -286,14 +301,17 @@ describe('Command `weave apply trails`', () => {
         // session-0006: has a trail event -> should be applied
         fs.writeFileSync(
           path.join(REPO_PATHS.SESSIONS(), 'session_0006_2025-09-30.jsonl'),
-          compileLog([
-            sessionStart(session6Id, 'H4'),
-            dayStart({ year: 1511, month: 'Umbraeus', day: 21 }),
-            partySet(party),
-            trail('H4', 'H3'),
-            dayEnd(14, 14),
-            sessionEnd(session6Id),
-          ])
+          compileLog(
+            [
+              sessionStart(session6Id, 'H4', '2025-09-30'),
+              dayStart({ year: 1511, month: 'Umbraeus', day: 21 }),
+              partySet(party),
+              trail('H4', 'H3'),
+              dayEnd(14, 14),
+              sessionEnd(session6Id),
+            ],
+            { startTime: '2025-09-30' },
+          )
             .map((e) => JSON.stringify(e))
             .join('\n'),
         );
@@ -317,7 +335,9 @@ describe('Command `weave apply trails`', () => {
         );
 
         // Applied session recorded
-        expect(meta.state.trails.applied?.appliedSessions).toContain('session_0006_2025-09-30.jsonl');
+        expect(meta.state.trails.applied?.appliedSessions).toContain(
+          'session_0006_2025-09-30.jsonl',
+        );
       },
     );
   });

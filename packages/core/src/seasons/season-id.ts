@@ -73,11 +73,17 @@ export function prevSeasonId(seasonId: string): string {
   const idx = SEASON_ORDER.indexOf(season);
   const prevIdx = (idx + SEASON_ORDER.length - 1) % SEASON_ORDER.length;
   const prevSeason = SEASON_ORDER[prevIdx];
-  const prevYear = prevSeason === SEASON_ORDER.at(-1) && season === SEASON_ORDER[0] ? year - 1 : year;
+  const prevYear =
+    prevSeason === SEASON_ORDER.at(-1) && season === SEASON_ORDER[0]
+      ? year - 1
+      : year;
   return normalizeSeasonId(`${prevYear}-${prevSeason}`);
 }
 
-export function seasonIdFromEvents(events: ScribeEvent[], fileHint?: string): string {
+export function seasonIdFromEvents(
+  events: ScribeEvent[],
+  fileHint?: string,
+): string {
   const dayStart = events.find((e) => e.kind === 'day_start');
   if (!dayStart) {
     throw new DayStartMissingError(fileHint);

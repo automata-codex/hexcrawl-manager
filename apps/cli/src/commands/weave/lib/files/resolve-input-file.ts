@@ -6,9 +6,9 @@ import path from 'path';
 
 export type ResolveInputFileStatus =
   | 'ok'
-  | 'none-found'        // no candidates in repo
-  | 'no-prompt-no-arg'  // --no-prompt set and no fileArg
-  | 'cancelled';        // user escaped the prompt
+  | 'none-found' // no candidates in repo
+  | 'no-prompt-no-arg' // --no-prompt set and no fileArg
+  | 'cancelled'; // user escaped the prompt
 
 export interface ResolveInputFileResult {
   status: ResolveInputFileStatus;

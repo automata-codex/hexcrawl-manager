@@ -134,8 +134,8 @@ const statBlocks = dungeon.data.statBlocks
 {
   isSubcomponent && (
     <script>
-      const container = document.querySelector('.dungeon-content');
-      const offset = 1; // shift down by 1 level if (container){' '}
+      const container = document.querySelector('.dungeon-content'); const offset
+      = 1; // shift down by 1 level if (container){' '}
       {container!.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((el) => {
         const tagLevel = parseInt(el.tagName[1]);
         const visualLevel = Math.min(tagLevel + offset, 6);

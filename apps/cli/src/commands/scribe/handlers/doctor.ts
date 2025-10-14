@@ -6,6 +6,7 @@ import path from 'node:path';
 
 import { readEvents } from '../../../services/event-log.service';
 import { detectDevMode } from '../services/general';
+import { listLockFiles } from '../services/lock-file';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -29,13 +30,11 @@ export default function doctor() {
     // 2. Locks (prod only)
     let lockFiles: string[] = [];
     if (!devMode) {
-      if (fs.existsSync(REPO_PATHS.LOCKS())) {
-        lockFiles = fs
-          .readdirSync(REPO_PATHS.LOCKS())
-          .filter((f) => f.endsWith('.lock'));
+      lockFiles = listLockFiles();
+      if (lockFiles.length) {
         info(`Found ${lockFiles.length} lock(s).`);
       } else {
-        warn('No .locks/ directory found.');
+        warn('No lock files found.');
       }
     }
 

@@ -19,23 +19,26 @@ function ensureTrailingCommands(
   ensureFinalize: boolean,
   ensureExit: boolean,
 ): string[] {
-  let result = [...cmds];
-  // Remove trailing finalize/exit to avoid duplicates
-  while (
-    result.length &&
-    ['finalize', 'exit'].includes(
-      result[result.length - 1].trim().toLowerCase(),
-    )
-  ) {
+  // If we're not ensuring anything, leave the queue exactly as-is.
+  if (!ensureFinalize && !ensureExit) {
+    return [...cmds];
+  }
+
+  const result = [...cmds];
+  const toEnsure: string[] = [];
+  if (ensureFinalize) toEnsure.push('finalize');
+  if (ensureExit) toEnsure.push('exit');
+
+  const isEnsured = (s: string) => toEnsure.includes(s.trim().toLowerCase());
+
+  // Remove only the trailing commands we're going to (re)append,
+  // to avoid duplicates without stripping user-supplied ones we aren't managing.
+  while (result.length && isEnsured(result[result.length - 1])) {
     result.pop();
   }
-  if (ensureFinalize && ensureExit) {
-    result.push('finalize', 'exit');
-  } else if (ensureFinalize) {
-    result.push('finalize');
-  } else if (ensureExit) {
-    result.push('exit');
-  }
+
+  // Append in desired order: finalize then exit (if both requested).
+  result.push(...toEnsure);
   return result;
 }
 

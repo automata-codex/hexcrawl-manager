@@ -1,5 +1,10 @@
 import { REPO_PATHS } from '@skyreach/data';
 import {
+  makeSessionId,
+  type ScribeEvent,
+  type SessionReport,
+} from '@skyreach/schemas';
+import {
   ap,
   dayEnd,
   dayStart,
@@ -15,8 +20,6 @@ import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
 import { readApLedger } from '../../../services/ap-ledger.service';
-
-import type { ScribeEvent, SessionReport } from '@skyreach/schemas';
 
 const party = ['alistar', 'daemaris', 'istavan'];
 const events: ScribeEvent[] = compileLog([
@@ -197,10 +200,9 @@ describe('Command `weave apply ap`', () => {
 
           // Run weave ap apply in auto-mode (Option R)
           // eslint-disable-next-line no-unused-vars
-          const { exitCode, stderr, stdout } = await runWeave(
-            ['apply', 'ap'],
-            { repo },
-          );
+          const { exitCode, stderr, stdout } = await runWeave(['apply', 'ap'], {
+            repo,
+          });
 
           expect(exitCode).toBe(0);
           expect(stderr).toBeFalsy();
@@ -305,10 +307,9 @@ describe('Command `weave apply ap`', () => {
 
           // Run weave ap apply in auto-mode (Option R) with no pending sessions
           // eslint-disable-next-line no-unused-vars
-          const { exitCode, stderr, stdout } = await runWeave(
-            ['apply', 'ap'],
-            { repo },
-          );
+          const { exitCode, stderr, stdout } = await runWeave(['apply', 'ap'], {
+            repo,
+          });
 
           // Benign no-op
           expect(exitCode).toBe(0);
@@ -338,7 +339,9 @@ describe('Command `weave apply ap`', () => {
               partySet(party),
               ap('exploration', 2, party, 'H1', 'Discovered ancient ruins'),
               dayEnd(14, 14),
-            ]).map((e) => JSON.stringify(e)).join('\n'),
+            ])
+              .map((e) => JSON.stringify(e))
+              .join('\n'),
           );
 
           // Finalized log for session-0004 (pending because report is not completed)
@@ -353,7 +356,9 @@ describe('Command `weave apply ap`', () => {
               partySet(party),
               ap('exploration', 1, party, 'H2', 'Mapped the path to H3'),
               dayEnd(14, 14),
-            ]).map((e) => JSON.stringify(e)).join('\n'),
+            ])
+              .map((e) => JSON.stringify(e))
+              .join('\n'),
           );
 
           // Completed report for session-0003
@@ -382,7 +387,7 @@ describe('Command `weave apply ap`', () => {
           fs.writeFileSync(
             incompleteReportPath,
             yaml.stringify({
-              id: 'session-0004',
+              id: makeSessionId(4),
               status: 'planned', // not completed => pending
               absenceAllocations: [],
               downtime: [],
@@ -460,10 +465,9 @@ describe('Command `weave apply ap`', () => {
           );
 
           // First run: apply AP for session-0001
-          const resultFirst = await runWeave(
-            ['apply', 'ap', 'session-0001'],
-            { repo },
-          );
+          const resultFirst = await runWeave(['apply', 'ap', 'session-0001'], {
+            repo,
+          });
           expect(resultFirst.exitCode).toBe(0);
           expect(resultFirst.stderr).toBeFalsy();
 
@@ -479,10 +483,9 @@ describe('Command `weave apply ap`', () => {
           const ledgerFirst = fs.readFileSync(ledgerPath, 'utf8');
 
           // Second run: re-apply AP for session-0001 (should be a no-op)
-          const resultSecond = await runWeave(
-            ['apply', 'ap', 'session-0001'],
-            { repo },
-          );
+          const resultSecond = await runWeave(['apply', 'ap', 'session-0001'], {
+            repo,
+          });
           expect(resultSecond.exitCode).toBe(0);
           expect(resultSecond.stderr).toBeFalsy();
           expect(resultSecond.stdout).toMatch(/no changes made/i);

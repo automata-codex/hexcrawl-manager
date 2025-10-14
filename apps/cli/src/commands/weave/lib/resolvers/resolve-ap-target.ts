@@ -1,7 +1,15 @@
-import { assertSessionId, isSessionId, padSessionNum } from '@skyreach/core';
-import { discoverCompletedReports, discoverFinalizedLogs } from '@skyreach/data';
+import {
+  discoverCompletedReports,
+  discoverFinalizedLogs,
+} from '@skyreach/data';
+import {
+  SessionId,
+  assertSessionId,
+  isSessionId,
+  makeSessionId,
+} from '@skyreach/schemas';
 
-export type ApWorkItem = { kind: 'session'; sessionId: string };
+export type ApWorkItem = { kind: 'session'; sessionId: SessionId };
 
 /** Discover **pending** sessions for AP and return ordered work items. */
 function resolveApSweep(): ApWorkItem[] {
@@ -19,7 +27,7 @@ function resolveApSweep(): ApWorkItem[] {
   // 4) Return in stable, ascending order
   return pending.map((n) => ({
     kind: 'session' as const,
-    sessionId: `session-${padSessionNum(n)}`,
+    sessionId: makeSessionId(n),
   }));
 }
 

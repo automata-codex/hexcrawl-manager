@@ -20,6 +20,8 @@ export type EventPrototype<K extends ScribeEventKind> = {
 /** Convenience alias for arrays of mixed prototypes. */
 export type AnyEventPrototype = EventPrototype<ScribeEventKind>;
 
+const DEFAULT_DATE = '2025-10-01';
+
 /* -------------------------------------------------------------
  * Builder functions (alphabetical)
  * -------------------------------------------------------------*/
@@ -45,9 +47,7 @@ export function ap(
   };
 }
 
-export function backtrack(
-  pace: Pace,
-): EventPrototype<'backtrack'> {
+export function backtrack(pace: Pace): EventPrototype<'backtrack'> {
   return {
     kind: 'backtrack',
     payload: { pace },
@@ -165,6 +165,7 @@ export function sessionContinue(
   currentHex: string,
   currentParty: string[],
   currentDate?: SessionContinueEventPayload['currentDate'],
+  sessionDate: string = DEFAULT_DATE,
 ): EventPrototype<'session_continue'> {
   return {
     kind: 'session_continue',
@@ -174,6 +175,7 @@ export function sessionContinue(
       currentHex,
       currentParty,
       status: 'in-progress',
+      sessionDate,
     },
   };
 }
@@ -203,10 +205,16 @@ export function sessionPause(
 export function sessionStart(
   sessionId: string,
   startHex: string,
+  sessionDate: string = DEFAULT_DATE,
 ): EventPrototype<'session_start'> {
   return {
     kind: 'session_start',
-    payload: { id: sessionId, startHex, status: 'in-progress' },
+    payload: {
+      id: sessionId,
+      sessionDate,
+      startHex,
+      status: 'in-progress',
+    },
   };
 }
 
@@ -229,10 +237,7 @@ export function timeLog(
   };
 }
 
-export function trail(
-  from: string,
-  to: string,
-): EventPrototype<'trail'> {
+export function trail(from: string, to: string): EventPrototype<'trail'> {
   return {
     kind: 'trail',
     payload: { from, to, marked: true },

@@ -1,20 +1,14 @@
 import { info, error as printError, warn } from '@skyreach/cli-kit';
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'node:fs';
 
 import {
   detectDevMode,
   requireFile,
   requireSession,
 } from '../services/general';
+import { lockExists, removeLockFile } from '../services/lock-file';
 
 import type { Context } from '../types.ts';
-
-// Lock file helpers
-const lockDir = path.join('data', 'session-logs', '.locks');
-const lockFileName = (sessionId: string) => `session_${sessionId}.lock`;
-const lockFilePath = (sessionId: string) =>
-  path.join(lockDir, lockFileName(sessionId));
 
 export default function abort(ctx: Context) {
   return (args: string[]) => {
@@ -30,16 +24,17 @@ export default function abort(ctx: Context) {
     let abortOk = true;
     if (!devMode) {
       // Production: require lock file
-      const lockPath = lockFilePath(ctx.sessionId!); // Checked by `requireSession`
-      if (!fs.existsSync(lockPath)) {
+      if (!lockExists(ctx.sessionId!)) {
         printError(`No lock file found for session: ${ctx.sessionId!}`); // Checked by `requireSession`
         return;
       }
       // Try to delete lock file
       try {
-        fs.unlinkSync(lockPath);
+        removeLockFile(ctx.sessionId!); // Checked by `requireSession`
       } catch (e) {
-        warn(`Failed to delete lock file: ${lockPath} (${e})`);
+        warn(
+          `Failed to delete lock file for session ${ctx.sessionId!}: (${e})`,
+        );
         abortOk = false;
       }
     }

@@ -16,7 +16,8 @@ export function sortScribeIds(ids: string[]): string[] {
   }
 
   return [...ids].sort((a, b) => {
-    const pa = parse(a), pb = parse(b);
+    const pa = parse(a),
+      pb = parse(b);
 
     // 1. Asc by session number
     if (pa.num !== pb.num) {
