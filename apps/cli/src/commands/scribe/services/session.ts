@@ -638,10 +638,12 @@ export function finalizeSession(
         .find((e) => e.kind === 'day_start')?.payload?.calendarDate || null;
     const header = {
       kind: 'header',
-      id: sessionId,
-      seasonId: block.seasonId,
-      inWorldStart,
-      inWorldEnd,
+      payload: {
+        id: sessionId,
+        seasonId: block.seasonId,
+        inWorldStart,
+        inWorldEnd,
+      },
     };
 
     // Reassign seq
@@ -671,9 +673,11 @@ export function finalizeSession(
             rolloverDir,
             `rollover_${nextSeasonId}_${events[0].ts?.slice(0, 10)}.jsonl`,
           );
-      const rolloverEvent = { kind: 'season_rollover', seasonId: nextSeasonId };
-      writeEventsWithHeader(rolloverFile, rolloverEvent);
-      rollovers.push(rolloverFile);
+      if (!existsSync(rolloverFile)) {
+        const rolloverEvent = { kind: 'season_rollover', payload: { seasonId: nextSeasonId } };
+        writeEventsWithHeader(rolloverFile, rolloverEvent);
+        rollovers.push(rolloverFile);
+      }
     }
   }
 
