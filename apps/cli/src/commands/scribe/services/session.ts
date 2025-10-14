@@ -7,6 +7,7 @@ import {
 } from '@skyreach/data';
 import {
   SESSION_ID_RE,
+  SessionId,
   assertSessionId,
   makeSessionId,
   type CampaignDate,
@@ -39,7 +40,7 @@ export type SessionStartPrep =
   | { ok: false; error: string }
   | {
       ok: true;
-      sessionId: string;
+      sessionId: SessionId;
       inProgressFile: string;
       lockFile?: string;
       seq?: number;
@@ -59,7 +60,7 @@ function getSessionDateFromEvents(
 }
 
 /** Latest in-progress file by mtime, or null if none. */
-export function findLatestInProgress(): { id: string; path: string } | null {
+export function findLatestInProgress(): { id: SessionId; path: string } | null {
   const prodDir = REPO_PATHS.IN_PROGRESS();
   const devDir = REPO_PATHS.DEV_IN_PROGRESS();
   const candidates: { id: string; path: string; mtime: number }[] = [];
@@ -84,7 +85,7 @@ export function findLatestInProgress(): { id: string; path: string } | null {
   }
   candidates.sort((a, b) => b.mtime - a.mtime);
   const top = candidates[0];
-  return { id: top.id, path: top.path };
+  return { id: assertSessionId(top.id), path: top.path };
 }
 
 export const inProgressPathFor = (id: string, devMode?: boolean) => {
@@ -109,13 +110,14 @@ export function prepareSessionStart({
   sessionNumber?: number;
 }): SessionStartPrep {
   if (devMode) {
-    const iso = date.toISOString().replace(/[:.]/g, '-');
-    const sessionId = `dev_${iso}`;
-    const inProgressFile = path.join(
-      REPO_PATHS.DEV_IN_PROGRESS(),
-      `${sessionId}.jsonl`,
-    );
-    return { ok: true, sessionId, inProgressFile, dev: true };
+    // const iso = date.toISOString().replace(/[:.]/g, '-');
+    // const sessionId = `dev_${iso}`;
+    // const inProgressFile = path.join(
+    //   REPO_PATHS.DEV_IN_PROGRESS(),
+    //   `${sessionId}.jsonl`,
+    // );
+    // return { ok: true, sessionId, inProgressFile, dev: true };
+    throw new Error('Dev mode not supported for session start.');
   }
 
   // Production mode

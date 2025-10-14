@@ -25,13 +25,13 @@ export default function abort(ctx: Context) {
     let abortOk = true;
     if (!devMode) {
       // Production: require lock file
-      if (!lockExists(ctx.sessionId! as SessionId)) { // Checked by `requireSession`
+      if (!lockExists(ctx.sessionId!)) { // Checked by `requireSession`
         printError(`No lock file found for session: ${ctx.sessionId!}`); // Checked by `requireSession`
         return;
       }
       // Try to delete lock file
       try {
-        removeLockFile(ctx.sessionId! as SessionId); // Checked by `requireSession`
+        removeLockFile(ctx.sessionId!); // Checked by `requireSession`
       } catch (e) {
         warn(`Failed to delete lock file for session ${ctx.sessionId!}: (${e})`);
         abortOk = false;

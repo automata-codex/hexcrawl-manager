@@ -114,7 +114,7 @@ export async function apply(args: ApplyArgs) {
     if (mode === 'all' || mode === 'ap') {
       const targets =
         targetType === 'session'
-          ? [{ kind: 'session', sessionId: target! as SessionId }]
+          ? [{ kind: 'session', sessionId: target as SessionId }]
           : resolveApTarget(undefined);
 
       let applied = 0;
