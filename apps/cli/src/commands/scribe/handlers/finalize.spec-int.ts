@@ -41,7 +41,9 @@ describe('scribe finalize', () => {
           'finalize',
         ];
         // eslint-disable-next-line no-unused-vars
-        const { exitCode, stderr, stdout } = await runScribe(commands, { repo });
+        const { exitCode, stderr, stdout } = await runScribe(commands, {
+          repo,
+        });
 
         expect(exitCode).toBe(0);
         expect(stderr).toBe('');
@@ -193,10 +195,13 @@ describe('scribe finalize', () => {
         fs.mkdirSync(inProgressDir, { recursive: true });
         const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
 
-        const events: ScribeEvent[] = compileLog([
-          sessionStart(sessionId, 'R14', '2025-09-20'),
-          dayStart({ year: 1511, month: 'Umbraeus', day: 8 }),
-        ], { startTime: '2025-09-20' });
+        const events: ScribeEvent[] = compileLog(
+          [
+            sessionStart(sessionId, 'R14', '2025-09-20'),
+            dayStart({ year: 1511, month: 'Umbraeus', day: 8 }),
+          ],
+          { startTime: '2025-09-20' },
+        );
         events[0].seq = 10;
         events[1].seq = 5;
 
@@ -232,10 +237,13 @@ describe('scribe finalize', () => {
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
         const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
-        const events: ScribeEvent[] = compileLog([
-          sessionStart(sessionId, 'R14', '2025-09-20'),
-          dayStart({ year: 1511, month: 'Umbraeus', day: 8 }),
-        ], { startTime: '2025-09-20' });
+        const events: ScribeEvent[] = compileLog(
+          [
+            sessionStart(sessionId, 'R14', '2025-09-20'),
+            dayStart({ year: 1511, month: 'Umbraeus', day: 8 }),
+          ],
+          { startTime: '2025-09-20' },
+        );
         fs.writeFileSync(
           sessionFile,
           events.map((e) => JSON.stringify(e)).join('\n') + '\n',
@@ -338,41 +346,49 @@ describe('scribe finalize', () => {
     );
   });
 
-  it('removes lock and in-progress files and updates meta.yaml in production mode', async () => {
-    await withTempRepo(
-      'scribe-finalize-meta-lock',
-      { initGit: false },
-      async (repo) => {
-        const commands = [
-          'start p13',
-          'day start 8 umb 1511',
-          'move q13 normal',
-          'finalize',
-        ];
-        // eslint-disable-next-line no-unused-vars
-        const { exitCode, stderr, stdout } = await runScribe(commands, { repo });
+  it(
+    'removes lock and in-progress files and updates meta.yaml in production mode',
+    async () => {
+      await withTempRepo(
+        'scribe-finalize-meta-lock',
+        { initGit: false },
+        async (repo) => {
+          const commands = [
+            'start p13',
+            'day start 8 umb 1511',
+            'move q13 normal',
+            'finalize',
+          ];
+          // eslint-disable-next-line no-unused-vars
+          const { exitCode, stderr, stdout } = await runScribe(commands, {
+            repo,
+          });
 
-        expect(exitCode).toBe(0);
-        expect(stderr).toBe('');
+          expect(exitCode).toBe(0);
+          expect(stderr).toBe('');
 
-        // Lock and in-progress files should be gone
-        const lockDir = REPO_PATHS.LOCKS();
-        const lockFiles = fs.existsSync(lockDir) ? fs.readdirSync(lockDir) : [];
-        expect(lockFiles.length).toBe(0);
+          // Lock and in-progress files should be gone
+          const lockDir = REPO_PATHS.LOCKS();
+          const lockFiles = fs.existsSync(lockDir)
+            ? fs.readdirSync(lockDir)
+            : [];
+          expect(lockFiles.length).toBe(0);
 
-        const inProgressDir = REPO_PATHS.IN_PROGRESS();
-        const inProgressFiles = fs.existsSync(inProgressDir)
-          ? fs.readdirSync(inProgressDir)
-          : [];
-        expect(inProgressFiles.length).toBe(0);
+          const inProgressDir = REPO_PATHS.IN_PROGRESS();
+          const inProgressFiles = fs.existsSync(inProgressDir)
+            ? fs.readdirSync(inProgressDir)
+            : [];
+          expect(inProgressFiles.length).toBe(0);
 
-        // meta.yaml should have incremented nextSessionSeq
-        const meta = loadMeta();
-        expect(meta.nextSessionSeq).toBeGreaterThan(1);
-        expect(meta.nextSessionSeq).toEqual(28);
-      },
-    );
-  }, 12 * 60 * 60 * 1000);
+          // meta.yaml should have incremented nextSessionSeq
+          const meta = loadMeta();
+          expect(meta.nextSessionSeq).toBeGreaterThan(1);
+          expect(meta.nextSessionSeq).toEqual(28);
+        },
+      );
+    },
+    12 * 60 * 60 * 1000,
+  );
 
   // Not currently using dev mode, so skipping this test
   it.skip('skips lock/meta handling and writes to dev dirs in dev mode', async () => {

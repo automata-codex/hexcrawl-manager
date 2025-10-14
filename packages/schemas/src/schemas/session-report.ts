@@ -31,10 +31,9 @@ const GuestCharacter = z.object({
 const ScribeId = z.string().regex(/^session[_-]\d{4}[a-z]?_\d{4}-\d{2}-\d{2}$/); // e.g. session-0012_2025-09-15
 
 /** Real-world date in YYYY-MM-DD format */
-export const SessionDateSchema = z.string().regex(
-  /^\d{4}-\d{2}-\d{2}$/,
-  'sessionDate must be in YYYY-MM-DD format',
-);
+export const SessionDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'sessionDate must be in YYYY-MM-DD format');
 
 // Header shared by both planned & completed
 const SessionHeader = z.object({

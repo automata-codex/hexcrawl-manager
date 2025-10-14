@@ -28,8 +28,11 @@ export async function statusAp(): Promise<StatusApResult> {
   const ledgerEntries: ApLedgerEntry[] = [];
   for (const entry of ledgerEntriesRaw) {
     const parsed = ApLedgerEntrySchema.safeParse(entry);
-    if (parsed.success) ledgerEntries.push(parsed.data);
-    else console.warn('Invalid AP ledger entry found and skipped:', parsed.error);
+    if (parsed.success) {
+      ledgerEntries.push(parsed.data);
+    } else {
+      console.warn('Invalid AP ledger entry found and skipped:', parsed.error);
+    }
   }
 
   // 2) Aggregate AP by character/pillar

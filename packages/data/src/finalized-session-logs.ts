@@ -51,7 +51,9 @@ export function discoverFinalizedLogsFor(
 }
 
 /** Convenience guard that throws if nothing matches. */
-export function discoverFinalizedLogsForOrThrow(sessionNumber: number | string): FinalizedLogInfo[] {
+export function discoverFinalizedLogsForOrThrow(
+  sessionNumber: number | string,
+): FinalizedLogInfo[] {
   const hits = discoverFinalizedLogsFor(sessionNumber);
   if (hits.length === 0) {
     throw new FinalizedLogsNotFoundError(sessionNumber);
@@ -63,7 +65,7 @@ export function discoverFinalizedLogsForOrThrow(sessionNumber: number | string):
 export function enrichLogsWithSeason(
   logs: FinalizedLogInfo[],
 ): FinalizedLogWithSeason[] {
-  return logs.map(l => ({
+  return logs.map((l) => ({
     ...l,
     seasonId: seasonOfSessionFile(l.fullPath),
   }));
@@ -81,7 +83,9 @@ export function getLatestSessionNumber(): number | undefined {
  * Throws FinalizedLogsNotFoundError if no files match,
  * and FinalizedLogJsonParseError with file + line info if parsing fails.
  */
-export function readAllFinalizedLogsForSession(sessionNumber: number | string): ScribeEvent[] {
+export function readAllFinalizedLogsForSession(
+  sessionNumber: number | string,
+): ScribeEvent[] {
   const hits = discoverFinalizedLogsForOrThrow(sessionNumber);
   const allEvents: ScribeEvent[] = [];
 

@@ -29,8 +29,7 @@ function ensureTrailingCommands(
   if (ensureFinalize) toEnsure.push('finalize');
   if (ensureExit) toEnsure.push('exit');
 
-  const isEnsured = (s: string) =>
-    toEnsure.includes(s.trim().toLowerCase());
+  const isEnsured = (s: string) => toEnsure.includes(s.trim().toLowerCase());
 
   // Remove only the trailing commands we're going to (re)append,
   // to avoid duplicates without stripping user-supplied ones we aren't managing.

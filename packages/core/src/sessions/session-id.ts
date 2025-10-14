@@ -1,4 +1,8 @@
-import { SESSION_ID_RE, SessionIdError, padSessionNum } from '@skyreach/schemas';
+import {
+  SESSION_ID_RE,
+  SessionIdError,
+  padSessionNum,
+} from '@skyreach/schemas';
 
 /**
  * @deprecated Use function from `@skyreach/schemas` instead.
@@ -14,10 +18,7 @@ export function assertSessionId(value: string): string {
 /**
  * @deprecated Use function `makeSessionId` from `@skyreach/schemas` instead.
  */
-export function buildSessionId(
-  sessionNumber: number,
-  suffix?: string,
-): string {
+export function buildSessionId(sessionNumber: number, suffix?: string): string {
   return `session-${padSessionNum(sessionNumber)}${suffix ?? ''}`;
 }
 

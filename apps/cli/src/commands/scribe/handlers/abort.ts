@@ -1,5 +1,4 @@
 import { info, error as printError, warn } from '@skyreach/cli-kit';
-import { SessionId } from '@skyreach/schemas';
 import fs from 'node:fs';
 
 import {
@@ -25,7 +24,7 @@ export default function abort(ctx: Context) {
     let abortOk = true;
     if (!devMode) {
       // Production: require lock file
-      if (!lockExists(ctx.sessionId!)) { // Checked by `requireSession`
+      if (!lockExists(ctx.sessionId!)) {
         printError(`No lock file found for session: ${ctx.sessionId!}`); // Checked by `requireSession`
         return;
       }
@@ -33,7 +32,9 @@ export default function abort(ctx: Context) {
       try {
         removeLockFile(ctx.sessionId!); // Checked by `requireSession`
       } catch (e) {
-        warn(`Failed to delete lock file for session ${ctx.sessionId!}: (${e})`);
+        warn(
+          `Failed to delete lock file for session ${ctx.sessionId!}: (${e})`,
+        );
         abortOk = false;
       }
     }

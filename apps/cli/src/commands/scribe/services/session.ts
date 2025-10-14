@@ -47,12 +47,8 @@ export type SessionStartPrep =
       dev?: boolean;
     };
 
-function getSessionDateFromEvents(
-  events: ScribeEvent[],
-): string {
-  const startEvent = events.find(
-    (e) => e.kind === 'session_start',
-  );
+function getSessionDateFromEvents(events: ScribeEvent[]): string {
+  const startEvent = events.find((e) => e.kind === 'session_start');
   if (startEvent?.payload?.sessionDate) {
     return startEvent.payload.sessionDate;
   }

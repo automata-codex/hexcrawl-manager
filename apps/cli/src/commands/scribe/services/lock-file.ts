@@ -29,7 +29,7 @@ export function listLockFiles(): string[] {
   if (!fs.existsSync(dir)) {
     return [];
   }
-  return fs.readdirSync(dir).filter(f => f.endsWith('.lock'));
+  return fs.readdirSync(dir).filter((f) => f.endsWith('.lock'));
 }
 
 export function readLockFile(sessionId: SessionId): object | null {
@@ -40,4 +40,3 @@ export function readLockFile(sessionId: SessionId): object | null {
   const content = fs.readFileSync(filePath, 'utf8');
   return yaml.parse(content);
 }
-

@@ -6,10 +6,7 @@ import {
   loadMeta,
 } from '@skyreach/data';
 
-import {
-  isRolloverAlreadyApplied,
-  isSessionAlreadyApplied,
-} from '../guards';
+import { isRolloverAlreadyApplied, isSessionAlreadyApplied } from '../guards';
 
 import { TrailsWorkItem } from './resolve-trails-target';
 
@@ -31,7 +28,9 @@ export function resolveTrailsSweep(): TrailsWorkItem[] {
   const rolloversAll = discoverRolloverFiles();
 
   // Filter out already-applied
-  const sessions = sessionsAll.filter((s) => !isSessionAlreadyApplied(meta, s.filename));
+  const sessions = sessionsAll.filter(
+    (s) => !isSessionAlreadyApplied(meta, s.filename),
+  );
   const rolloverMap = new Map<string, RolloverInfo>();
   for (const r of rolloversAll) {
     if (!isRolloverAlreadyApplied(meta, r.base)) {
@@ -66,7 +65,9 @@ export function resolveTrailsSweep(): TrailsWorkItem[] {
 
   // Append any remaining standalone rollovers (no recent sessions for those seasons)
   // These are returned in ascending seasonId order.
-  for (const r of Array.from(rolloverMap.values()).sort((a, b) => a.seasonId.localeCompare(b.seasonId))) {
+  for (const r of Array.from(rolloverMap.values()).sort((a, b) =>
+    a.seasonId.localeCompare(b.seasonId),
+  )) {
     out.push({ kind: 'rollover', file: r.file, seasonId: r.seasonId });
   }
 

@@ -33,7 +33,8 @@ export function makeSessionAp(entry: {
     characterId: entry.characterId,
     sessionId: makeSessionId(entry.session),
     appliedAt: entry.appliedAt,
-    advancementPoints: entry.deltas ?? normalAp({ combat: 1, exploration: 1, social: 1 }),
+    advancementPoints:
+      entry.deltas ?? normalAp({ combat: 1, exploration: 1, social: 1 }),
     ...(entry.notes ? { notes: entry.notes } : {}),
   };
   return ApLedgerEntrySchema.parse(e);
@@ -64,7 +65,10 @@ export function makeSessionApGrid(opts: {
   // eslint-disable-next-line no-unused-vars
   appliedAtBySession: (s: number | string) => string;
   // eslint-disable-next-line no-unused-vars
-  deltasBy?: (c: string, s: number | string) => ApLedgerEntry['advancementPoints'];
+  deltasBy?: (
+    c: string,
+    s: number | string,
+  ) => ApLedgerEntry['advancementPoints'];
   // eslint-disable-next-line no-unused-vars
   notesBy?: (c: string, s: number | string) => string | undefined;
 }) {

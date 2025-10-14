@@ -47,9 +47,7 @@ export function ap(
   };
 }
 
-export function backtrack(
-  pace: Pace,
-): EventPrototype<'backtrack'> {
+export function backtrack(pace: Pace): EventPrototype<'backtrack'> {
   return {
     kind: 'backtrack',
     payload: { pace },
@@ -177,7 +175,7 @@ export function sessionContinue(
       currentHex,
       currentParty,
       status: 'in-progress',
-      sessionDate
+      sessionDate,
     },
   };
 }
@@ -239,10 +237,7 @@ export function timeLog(
   };
 }
 
-export function trail(
-  from: string,
-  to: string,
-): EventPrototype<'trail'> {
+export function trail(from: string, to: string): EventPrototype<'trail'> {
   return {
     kind: 'trail',
     payload: { from, to, marked: true },

@@ -9,10 +9,7 @@ import {
 import path from 'path';
 
 import { eventsOf, readEvents } from '../../../services/event-log.service';
-import {
-  applyRolloverToTrails,
-  applySessionToTrails,
-} from '../lib/apply';
+import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
 import { ChronologyValidationError } from '../lib/errors';
 import {
   assertCleanGitOrAllowDirty,
@@ -35,7 +32,9 @@ export interface PlanTrailsOptions {
   file: string;
 }
 
-export async function planTrails(opts: PlanTrailsOptions): Promise<ApplyTrailsResult> {
+export async function planTrails(
+  opts: PlanTrailsOptions,
+): Promise<ApplyTrailsResult> {
   assertCleanGitOrAllowDirty(opts);
 
   const havens = loadHavens();
@@ -47,10 +46,14 @@ export async function planTrails(opts: PlanTrailsOptions): Promise<ApplyTrailsRe
 
   if (isRolloverPath(file)) {
     const events = readEvents(file);
-    const rollover = events.find((e) => e.kind === 'season_rollover') as SeasonRolloverEvent | undefined;
+    const rollover = events.find((e) => e.kind === 'season_rollover') as
+      | SeasonRolloverEvent
+      | undefined;
 
     if (!rollover || !rollover.payload?.seasonId) {
-      throw new DataValidationError(file, { reason: 'missing_season_rollover_or_id' });
+      throw new DataValidationError(file, {
+        reason: 'missing_season_rollover_or_id',
+      });
     }
 
     const seasonId = normalizeSeasonId(rollover.payload.seasonId);
@@ -84,9 +87,7 @@ export async function planTrails(opts: PlanTrailsOptions): Promise<ApplyTrailsRe
     const deletedTrails = effects.deletedTrails ?? [];
 
     const anyChanges =
-      maintained.length > 0 ||
-      persisted.length > 0 ||
-      deletedTrails.length > 0;
+      maintained.length > 0 || persisted.length > 0 || deletedTrails.length > 0;
 
     return {
       kind: 'rollover',
@@ -118,9 +119,7 @@ export async function planTrails(opts: PlanTrailsOptions): Promise<ApplyTrailsRe
       // We still extract seasonId for a consistent shape.
       const dayStarts = eventsOf(events, 'day_start') as DayStartEvent[];
       const seasonId = dayStarts.length
-        ? normalizeSeasonId(
-          deriveSeasonId(dayStarts[0].payload.calendarDate),
-        )
+        ? normalizeSeasonId(deriveSeasonId(dayStarts[0].payload.calendarDate))
         : 'unknown';
       return {
         kind: 'session',
@@ -152,7 +151,10 @@ export async function planTrails(opts: PlanTrailsOptions): Promise<ApplyTrailsRe
       (sid) => normalizeSeasonId(sid) === firstSeasonId,
     );
     if (!allSameSeason) {
-      throw new DataValidationError(file, { reason: 'multi_season_session', seasonIds });
+      throw new DataValidationError(file, {
+        reason: 'multi_season_session',
+        seasonIds,
+      });
     }
 
     const chrono = isSessionChronologyValid(meta, firstSeasonId);
@@ -165,8 +167,9 @@ export async function planTrails(opts: PlanTrailsOptions): Promise<ApplyTrailsRe
     const trails = loadTrails();
     const mostRecentRoll = getMostRecentRolloverFootprint(firstSeasonId);
     const deletedTrails =
-      (mostRecentRoll?.effects?.rollover?.deletedTrails as string[] | undefined) ||
-      [];
+      (mostRecentRoll?.effects?.rollover?.deletedTrails as
+        | string[]
+        | undefined) || [];
 
     const { effects } = applySessionToTrails(
       events,

@@ -9,7 +9,6 @@ import {
   DataValidationError,
 } from './errors';
 
-
 export function checkFileExists(file: string, msg?: string) {
   if (!fs.existsSync(file)) {
     throw new Error(msg ?? `File not found: ${file}`);
@@ -54,7 +53,10 @@ export function loadAllYamlInDir<T>(
   return results;
 }
 
-export function readAndValidateYaml<T>(filepath: string, schema: ZodSchema<T>): T {
+export function readAndValidateYaml<T>(
+  filepath: string,
+  schema: ZodSchema<T>,
+): T {
   const raw = readYaml(filepath);
   const parsed = schema.safeParse(raw);
   if (!parsed.success) {

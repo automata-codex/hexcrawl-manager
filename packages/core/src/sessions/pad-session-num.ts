@@ -6,8 +6,8 @@ export function padSessionNum(n: number | string) {
   }
 
   if (/^\d+$/.test(str)) {
-    const digits = str.replace(/^0+/, '');          // strip leading zeros
-    return digits.padStart(4, '0').slice(-4);       // normalize to 4 digits
+    const digits = str.replace(/^0+/, ''); // strip leading zeros
+    return digits.padStart(4, '0').slice(-4); // normalize to 4 digits
   }
 
   throw new Error(`Invalid session number: ${n}`);

@@ -1,9 +1,5 @@
 import { padSessionNum } from '@skyreach/core';
-import {
-  REPO_PATHS,
-  loadMeta,
-  writeYamlAtomic,
-} from '@skyreach/data';
+import { REPO_PATHS, loadMeta, writeYamlAtomic } from '@skyreach/data';
 import { SessionReportSchema } from '@skyreach/schemas';
 import { Command } from 'commander';
 import fs from 'fs';

@@ -16,7 +16,7 @@ export function printApplyTrailsResult(res: ApplyTrailsResult) {
         printDryRunMarker(res);
         info(
           `Session applied: ${res.fileId} (season ${res.seasonId}). ` +
-          `created=${s.created ?? 0}, rediscovered=${s.rediscovered ?? 0}, uses=${s.usesFlagged ?? 0}, touched=${s.edgesTouched ?? 0}.`,
+            `created=${s.created ?? 0}, rediscovered=${s.rediscovered ?? 0}, uses=${s.usesFlagged ?? 0}, touched=${s.edgesTouched ?? 0}.`,
         );
         printDryRunMarker(res);
       } else {
@@ -24,7 +24,7 @@ export function printApplyTrailsResult(res: ApplyTrailsResult) {
         printDryRunMarker(res);
         info(
           `Rollover applied: season ${res.seasonId}. ` +
-          `maintained=${s.maintained ?? 0}, persisted=${s.persisted ?? 0}, deleted=${s.deletedTrails ?? 0}, touched=${s.edgesTouched ?? 0}.`,
+            `maintained=${s.maintained ?? 0}, persisted=${s.persisted ?? 0}, deleted=${s.deletedTrails ?? 0}, touched=${s.edgesTouched ?? 0}.`,
         );
         printDryRunMarker(res);
       }

@@ -229,7 +229,10 @@ describe('scribe start', () => {
 
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
-        const sessionFile = path.join(inProgressDir, buildSessionFilename(sessionId, '2025-09-20'));
+        const sessionFile = path.join(
+          inProgressDir,
+          buildSessionFilename(sessionId, '2025-09-20'),
+        );
         const events = [
           {
             kind: 'session_start',
@@ -277,7 +280,10 @@ describe('scribe start', () => {
         // Simulate an in-progress session file with one session_start and one move
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
-        const sessionFile = path.join(inProgressDir, buildSessionFilename(sessionId, date));
+        const sessionFile = path.join(
+          inProgressDir,
+          buildSessionFilename(sessionId, date),
+        );
         const events = compileLog([
           sessionStart(sessionId, 'P13', date),
           move('P13', 'Q13'),

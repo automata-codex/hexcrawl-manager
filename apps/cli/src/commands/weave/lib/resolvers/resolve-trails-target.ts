@@ -1,7 +1,4 @@
-import {
-  assertSeasonId,
-  isSeasonId,
-} from '@skyreach/core';
+import { assertSeasonId, isSeasonId } from '@skyreach/core';
 import {
   REPO_PATHS,
   SESSION_FILE_RE,
@@ -91,7 +88,10 @@ function resolveSessionTarget(sessionId: string): TrailsWorkItem[] {
 }
 
 function rolloverFileFor(seasonId: string): string {
-  const file = path.join(REPO_PATHS.ROLLOVERS(), buildRolloverFilename(seasonId));
+  const file = path.join(
+    REPO_PATHS.ROLLOVERS(),
+    buildRolloverFilename(seasonId),
+  );
   return checkFileExists(
     file,
     `Rollover file not found for ${seasonId}: ${path.basename(file)}`,
