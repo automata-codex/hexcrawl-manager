@@ -16,6 +16,7 @@ import {
   type SessionContinueEvent,
   type SessionEndEvent,
   type SessionPauseEvent,
+  parseSessionId,
 } from '@skyreach/schemas';
 import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
@@ -31,7 +32,9 @@ import { requireFile, requireSession } from './general';
 import {
   createLockFile,
   getLockFilePath,
+  LockData,
   lockExists,
+  readLockFile,
   removeLockFile,
 } from './lock-file';
 
@@ -179,7 +182,7 @@ export function prepareSessionStart({
   }
 
   // Create lock file
-  const lockData = {
+  const lockData: LockData = {
     seq,
     filename: path.basename(inProgressFile),
     createdAt: date.toISOString(),
@@ -211,13 +214,31 @@ export function finalizeSession(
   const inProgressFile = ctx.file!; // Checked by `requireFile`
 
   // Lock file check (prod only)
-  const lockFile = path.join(REPO_PATHS.LOCKS(), `${sessionId}.lock`);
-  if (!devMode && !existsSync(lockFile)) {
+  const lockFile = getLockFilePath(sessionId);
+  if (!devMode && !lockExists(sessionId)) {
     return {
       outputs: [],
       rollovers: [],
       error: `❌ No lock file for session: ${lockFile}`,
     };
+  }
+  if (!devMode) {
+    const lockData = readLockFile(sessionId);
+    if (!lockData) {
+      return {
+        outputs: [],
+        rollovers: [],
+        error: `❌ Could not parse lock file: ${lockFile}`,
+      };
+    }
+    const { number: sessionIdSeq } = parseSessionId(sessionId);
+    if (lockData.seq !== sessionIdSeq) {
+      return {
+        outputs: [],
+        rollovers: [],
+        error: `❌ SessionId sequence (${sessionIdSeq}) does not match lock file seq (${lockData.seq}) for session: ${sessionId}`,
+      };
+    }
   }
 
   // 2. Load and validate events
