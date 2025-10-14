@@ -127,6 +127,32 @@ export function prepareSessionStart({
         error: '❌ Session number must be a positive integer.',
       };
     }
+
+    // Check for an existing lock file for the given session number
+    const testSessionId = makeSessionId(sessionNumber);
+    if (lockExists(testSessionId)) {
+      return {
+        ok: false,
+        error: `❌ Lock file exists for session sequence ${sessionNumber} (${getLockFilePath(
+          testSessionId,
+        )}). Another session may be active.`,
+      };
+    }
+
+    // Check for an existing finalized session file with this number
+    const sessionFiles = readdirSync(REPO_PATHS.SESSIONS()).filter((f) =>
+      f.endsWith('.jsonl'),
+    );
+    const existingSession = sessionFiles.find((f) =>
+      f.startsWith(testSessionId),
+    );
+    if (existingSession) {
+      return {
+        ok: false,
+        error: `❌ Finalized session file already exists for session sequence ${sessionNumber}.`,
+      };
+    }
+
     seq = sessionNumber;
   } else {
     if (!fs.existsSync(REPO_PATHS.META())) {

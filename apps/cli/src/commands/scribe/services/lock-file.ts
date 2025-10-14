@@ -26,13 +26,17 @@ export function removeLockFile(sessionId: SessionId): void {
 
 export function listLockFiles(): string[] {
   const dir = REPO_PATHS.LOCKS();
-  if (!fs.existsSync(dir)) return [];
+  if (!fs.existsSync(dir)) {
+    return [];
+  }
   return fs.readdirSync(dir).filter(f => f.endsWith('.lock'));
 }
 
 export function readLockFile(sessionId: SessionId): object | null {
   const filePath = getLockFilePath(sessionId);
-  if (!fs.existsSync(filePath)) return null;
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
   const content = fs.readFileSync(filePath, 'utf8');
   return yaml.parse(content);
 }
