@@ -18,7 +18,6 @@ import {
 } from '@skyreach/schemas';
 import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
-import yaml from 'yaml';
 
 import {
   readEvents,
@@ -28,6 +27,12 @@ import {
 import { type Context } from '../types';
 
 import { requireFile, requireSession } from './general';
+import {
+  createLockFile,
+  getLockFilePath,
+  lockExists,
+  removeLockFile,
+} from './lock-file';
 
 // Discriminated union for prepareSessionStart return value
 export type SessionStartPrep =
@@ -141,8 +146,8 @@ export function prepareSessionStart({
   );
 
   // Check for lock conflict
-  const lockFile = path.join(REPO_PATHS.LOCKS(), `${sessionId}.lock`);
-  if (fs.existsSync(lockFile)) {
+  const lockFile = getLockFilePath(sessionId);
+  if (lockExists(sessionId)) {
     return {
       ok: false,
       error: `❌ Lock file exists for session sequence ${seq} (${lockFile}). Another session may be active.`,
@@ -156,7 +161,7 @@ export function prepareSessionStart({
     createdAt: date.toISOString(),
     pid: process.pid,
   };
-  fs.writeFileSync(lockFile, yaml.stringify(lockData), { flag: 'wx' });
+  createLockFile(sessionId, lockData);
 
   return { ok: true, sessionId, inProgressFile, lockFile, seq };
 }
@@ -610,9 +615,7 @@ export function finalizeSession(
   // 5. Meta/lock handling
   if (!devMode) {
     // Remove lock file
-    if (existsSync(lockFile)) {
-      fs.unlinkSync(lockFile);
-    }
+    removeLockFile(sessionId);
 
     // Remove in-progress file
     if (existsSync(inProgressFile)) {
