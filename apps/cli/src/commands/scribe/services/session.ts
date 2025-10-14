@@ -97,9 +97,11 @@ export const inProgressPathFor = (id: string, devMode?: boolean) => {
 export function prepareSessionStart({
   devMode,
   date,
+  sessionNumber,
 }: {
   devMode: boolean;
   date: Date;
+  sessionNumber?: number;
 }): SessionStartPrep {
   if (devMode) {
     const iso = date.toISOString().replace(/[:.]/g, '-');
@@ -112,12 +114,25 @@ export function prepareSessionStart({
   }
 
   // Production mode
-  if (!fs.existsSync(REPO_PATHS.META())) {
-    return { ok: false, error: `❌ Missing meta file at ${REPO_PATHS.META()}` };
+  let seq = 0;
+  if (sessionNumber) {
+    if (!Number.isInteger(sessionNumber) || sessionNumber < 1) {
+      return {
+        ok: false,
+        error: '❌ Session number must be a positive integer.',
+      };
+    }
+    seq = sessionNumber;
+  } else {
+    if (!fs.existsSync(REPO_PATHS.META())) {
+      return {
+        ok: false,
+        error: `❌ Missing meta file at ${REPO_PATHS.META()}`,
+      };
+    }
+    const meta = loadMeta();
+    seq = meta.nextSessionSeq;
   }
-  const meta = loadMeta();
-  const seq = meta.nextSessionSeq;
-
   const ymd = date.toISOString().slice(0, 10);
   const sessionId = makeSessionId(seq);
   const inProgressFile = path.join(

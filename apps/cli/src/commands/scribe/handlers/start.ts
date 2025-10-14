@@ -9,10 +9,12 @@ import { selectCurrentHex } from '../projectors';
 import { detectDevMode } from '../services/general';
 import { prepareSessionStart } from '../services/session';
 
+import { handleInteractiveSessionStart } from './start-interactive';
+
 import type { Context } from '../types';
 
 export default function start(ctx: Context) {
-  return (args: string[]) => {
+  return async (args: string[]) => {
     // Remove --dev if present
     const filteredArgs = args.filter((a) => a !== '--dev');
     const devMode = detectDevMode(args);
@@ -21,9 +23,9 @@ export default function start(ctx: Context) {
     // Step 1: Argument Parsing
     if (filteredArgs.length !== 1) {
       usage(
-`Usage:
+        `Usage:
   start <HEX>          Start a new session in the given hex.
-  start interactive    Launch interactive session setup.`
+  start interactive    Launch interactive session setup.`,
       );
       return;
     }
@@ -36,7 +38,7 @@ export default function start(ctx: Context) {
         return;
       }
       // Placeholder for interactive flow
-      info('Interactive session start is not yet implemented.');
+      await handleInteractiveSessionStart();
       return;
     }
 
@@ -78,7 +80,10 @@ export default function start(ctx: Context) {
       }
       sessionSeq = match[1];
       sessionDate = now.toISOString().slice(0, 10); // YYYY-MM-DD
-      filenameStem = buildSessionFilename(parseInt(sessionSeq, 10), sessionDate).replace('.jsonl', '');
+      filenameStem = buildSessionFilename(
+        parseInt(sessionSeq, 10),
+        sessionDate,
+      ).replace('.jsonl', '');
     }
 
     // Ensure sessionId matches filename stem
