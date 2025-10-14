@@ -1,23 +1,24 @@
+import { warn } from '@skyreach/cli-kit';
 import { hexSort, normalizeHexId } from '@skyreach/core';
 import {
   REPO_PATHS,
-  loadMeta,
-  saveMeta,
   buildSessionFilename,
+  getLatestSessionNumber,
+  loadMeta,
   parseSessionFilename,
+  saveMeta,
 } from '@skyreach/data';
 import {
-  SESSION_ID_RE,
   SessionId,
   assertSessionId,
   makeSessionId,
+  parseSessionId,
   type CampaignDate,
   type DayStartEvent,
   type ScribeEvent,
   type SessionContinueEvent,
   type SessionEndEvent,
   type SessionPauseEvent,
-  parseSessionId,
 } from '@skyreach/schemas';
 import fs, { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
@@ -693,10 +694,17 @@ export function finalizeSession(
 
     // Update meta.yaml if outputs written
     if (outputs.length) {
-      const lockSeq = Number(sessionId.match(SESSION_ID_RE)?.[1] || 0);
+      const { number: sessionIdSeq } = parseSessionId(sessionId);
       const meta = loadMeta();
-      if (meta.nextSessionSeq !== lockSeq + 1) {
-        saveMeta({ nextSessionSeq: lockSeq + 1 });
+      if (sessionIdSeq < meta.nextSessionSeq) {
+        // Heal meta.nextSessionSeq to max finalized seq + 1
+        const maxSeq = getLatestSessionNumber() ?? sessionIdSeq;
+        warn(
+          `⚠️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}). Healing meta to ${maxSeq + 1}.`
+        );
+        saveMeta({ nextSessionSeq: maxSeq + 1 });
+      } else if (meta.nextSessionSeq !== sessionIdSeq + 1) {
+        saveMeta({ nextSessionSeq: sessionIdSeq + 1 });
       }
     }
   } else {
