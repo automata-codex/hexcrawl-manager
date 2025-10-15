@@ -124,7 +124,13 @@ export default function doctor() {
           warnings.push(`Orphan in-progress file: ${file} (no matching lock)`);
           const parsed = parseSessionFilename(file);
           if (parsed) {
-            infos.push(`To remediate, run: touch sessions/session-${parsed.sessionNumber}.lock`);
+            // Use helpers to build lock file content
+            const seq = parsed.sessionNumber;
+            const filename = file;
+            const createdAt = new Date().toISOString();
+            const pid = process.pid;
+            const echoCmd = `echo '{"seq": ${seq}, "filename": "${filename}", "createdAt": "${createdAt}", "pid": ${pid}}' > data/session-logs/.locks/session_${seq}.lock`;
+            infos.push(`To remediate, run: ${echoCmd}`);
           } else {
             warnings.push(`Could not parse session filename for remediation instructions: ${file}`);
           }
