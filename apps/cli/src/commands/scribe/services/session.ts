@@ -20,7 +20,7 @@ import {
   type SessionEndEvent,
   type SessionPauseEvent,
 } from '@skyreach/schemas';
-import fs, { existsSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, statSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 
 import {
@@ -158,7 +158,7 @@ export function prepareSessionStart({
 
     seq = sessionNumber;
   } else {
-    if (!fs.existsSync(REPO_PATHS.META())) {
+    if (!existsSync(REPO_PATHS.META())) {
       return {
         ok: false,
         error: `❌ Missing meta file at ${REPO_PATHS.META()}`,
@@ -640,7 +640,7 @@ export function finalizeSession(
     const header = {
       kind: 'header',
       payload: {
-        id: sessionId,
+        id: suffix ? `${sessionId}${suffix}` : sessionId,
         seasonId: block.seasonId,
         inWorldStart,
         inWorldEnd,
@@ -672,7 +672,7 @@ export function finalizeSession(
           )
         : path.join(
             rolloverDir,
-            `rollover_${nextSeasonId}_${events[0].ts?.slice(0, 10)}.jsonl`,
+            `rollover_${nextSeasonId}.jsonl`,
           );
       if (!existsSync(rolloverFile)) {
         const rolloverEvent = { kind: 'season_rollover', payload: { seasonId: nextSeasonId } };
@@ -689,7 +689,7 @@ export function finalizeSession(
 
     // Remove in-progress file
     if (existsSync(inProgressFile)) {
-      fs.unlinkSync(inProgressFile);
+      unlinkSync(inProgressFile);
     }
 
     // Update meta.yaml if outputs written
@@ -710,7 +710,7 @@ export function finalizeSession(
   } else {
     // Dev: just remove in-progress file
     if (existsSync(inProgressFile)) {
-      fs.unlinkSync(inProgressFile);
+      unlinkSync(inProgressFile);
     }
   }
   return { outputs, rollovers };
