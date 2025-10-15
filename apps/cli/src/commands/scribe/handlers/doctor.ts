@@ -7,7 +7,10 @@ import path from 'node:path';
 import { readEvents } from '../../../services/event-log.service';
 import { detectDevMode } from '../services/general';
 import { listLockFiles } from '../services/lock-file';
-import { checkSessionSequenceGaps, checkSessionDateConsistency } from '../services/session';
+import {
+  checkSessionSequenceGaps,
+  checkSessionDateConsistency,
+} from '../services/session';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -37,7 +40,9 @@ export default function doctor() {
       try {
         const meta = loadMeta();
         nextSessionSeq = meta.nextSessionSeq;
-        infos.push(`Next session sequence: ${meta.nextSessionSeq ?? '(missing)'}`);
+        infos.push(
+          `Next session sequence: ${meta.nextSessionSeq ?? '(missing)'}`,
+        );
       } catch (e) {
         errors.push(`Failed to read meta.yaml: ${e}`);
       }
@@ -101,7 +106,9 @@ export default function doctor() {
         }
         const age = Date.now() - mtime;
         if (age > DAY_MS) {
-          warnings.push(`Stale lock: ${lock} (age ${(age / DAY_MS).toFixed(1)} days)`);
+          warnings.push(
+            `Stale lock: ${lock} (age ${(age / DAY_MS).toFixed(1)} days)`,
+          );
           lockCounts.stale++;
         }
         // Check for matching in-progress file
@@ -132,7 +139,9 @@ export default function doctor() {
             const echoCmd = `echo '{"seq": ${seq}, "filename": "${filename}", "createdAt": "${createdAt}", "pid": ${pid}}' > data/session-logs/.locks/session_${seq}.lock`;
             infos.push(`To remediate, run: ${echoCmd}`);
           } else {
-            warnings.push(`Could not parse session filename for remediation instructions: ${file}`);
+            warnings.push(
+              `Could not parse session filename for remediation instructions: ${file}`,
+            );
           }
           orphanInProgress++;
         }
@@ -200,38 +209,50 @@ export default function doctor() {
     if (gapResults) {
       sessionGapCount = gapResults.gaps.length;
       intentionalGapCount = gapResults.intentionalGaps.length;
-      gapResults.warnings.forEach(w => warnings.push(w));
-      gapResults.infos.forEach(i => infos.push(i));
+      gapResults.warnings.forEach((w) => warnings.push(w));
+      gapResults.infos.forEach((i) => infos.push(i));
     }
 
     // Session date consistency checks
-    const dateResultsSessions = checkSessionDateConsistency({ files: sessionFiles, dirName: 'SESSIONS', collect: true });
-    const dateResultsInProgress = checkSessionDateConsistency({ files: inProgressFiles, dirName: devMode ? 'DEV_IN_PROGRESS' : 'IN_PROGRESS', collect: true });
+    const dateResultsSessions = checkSessionDateConsistency({
+      files: sessionFiles,
+      dirName: 'SESSIONS',
+      collect: true,
+    });
+    const dateResultsInProgress = checkSessionDateConsistency({
+      files: inProgressFiles,
+      dirName: devMode ? 'DEV_IN_PROGRESS' : 'IN_PROGRESS',
+      collect: true,
+    });
     if (dateResultsSessions) {
       dateMismatchCount += dateResultsSessions.mismatches.length;
-      dateResultsSessions.warnings.forEach(w => warnings.push(w));
+      dateResultsSessions.warnings.forEach((w) => warnings.push(w));
     }
     if (dateResultsInProgress) {
       dateMismatchCount += dateResultsInProgress.mismatches.length;
-      dateResultsInProgress.warnings.forEach(w => warnings.push(w));
+      dateResultsInProgress.warnings.forEach((w) => warnings.push(w));
     }
 
     // Print structured summary
     info('--- Doctor Diagnostics Summary ---');
     info(`Next session sequence: ${nextSessionSeq ?? '(missing)'}`);
-    info(`Lock files: active=${lockCounts.active}, stale=${lockCounts.stale}, orphan=${lockCounts.orphan}`);
+    info(
+      `Lock files: active=${lockCounts.active}, stale=${lockCounts.stale}, orphan=${lockCounts.orphan}`,
+    );
     info(`Orphan in-progress files: ${orphanInProgress}`);
     info(`In-progress files missing session_start: ${missingStart}`);
-    info(`Sequence gaps: ${sessionGapCount}, intentional gaps: ${intentionalGapCount}`);
+    info(
+      `Sequence gaps: ${sessionGapCount}, intentional gaps: ${intentionalGapCount}`,
+    );
     info(`Session date mismatches: ${dateMismatchCount}`);
     info(`Cross-season sessions: ${crossSeason}`);
     info(`Dev files present: ${devFileCount}`);
     if (infos.length) info('Info messages:');
-    infos.forEach(i => info(i));
+    infos.forEach((i) => info(i));
     if (warnings.length) info('Warnings:');
-    warnings.forEach(w => warn(w));
+    warnings.forEach((w) => warn(w));
     if (errors.length) info('Errors:');
-    errors.forEach(e => error(e));
+    errors.forEach((e) => error(e));
     info('Doctor diagnostics complete.');
   };
 }
