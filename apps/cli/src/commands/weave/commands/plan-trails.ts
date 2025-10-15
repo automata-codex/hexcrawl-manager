@@ -5,12 +5,13 @@ import {
   loadHavens,
   loadMeta,
   loadTrails,
+  parseSessionFilename,
 } from '@skyreach/data';
 import path from 'path';
 
 import { eventsOf, readEvents } from '../../../services/event-log.service';
 import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
-import { ChronologyValidationError } from '../lib/errors';
+import { ChronologyValidationError, CliValidationError } from '../lib/errors';
 import {
   assertCleanGitOrAllowDirty,
   getMostRecentRolloverFootprint,
@@ -106,7 +107,16 @@ export async function planTrails(
 
   if (isSessionFile(file)) {
     const events = readEvents(file);
-    const validation = validateSessionEnvelope(events);
+
+    // Extract stem date from filename
+    const sessionFileInfo = parseSessionFilename(path.basename(file));
+    if (!sessionFileInfo) {
+      throw new CliValidationError(
+        'Session filename must include a valid date (e.g. session-0027_2025-10-15.json).',
+      );
+    }
+
+    const validation = validateSessionEnvelope(events, sessionFileInfo.date);
     if (!validation.isValid) {
       throw new DataValidationError(file, validation.error);
     }
