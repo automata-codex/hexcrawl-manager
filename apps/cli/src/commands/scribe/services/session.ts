@@ -204,154 +204,39 @@ export function finalizeSession(
   devMode = false,
 ): { outputs: string[]; rollovers: string[]; error?: string } {
   // 1. Guards
-  if (!requireSession(ctx) || !requireFile(ctx)) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: '❌ Missing sessionId or file in context.',
-    };
+  const contextCheck = validateSessionContext(ctx);
+  if (contextCheck.error) {
+    return { outputs: [], rollovers: [], error: contextCheck.error };
+  }
+  const lockCheck = validateLockFile(ctx, devMode);
+  if (lockCheck.error) {
+    return { outputs: [], rollovers: [], error: lockCheck.error };
   }
 
-  const sessionId = assertSessionId(ctx.sessionId!); // Checked by `requireSession`
-  const inProgressFile = ctx.file!; // Checked by `requireFile`
-
-  // Lock file check (prod only)
-  const lockFile = getLockFilePath(sessionId);
-  if (!devMode && !lockExists(sessionId)) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: `❌ No lock file for session: ${lockFile}`,
-    };
-  }
-  if (!devMode) {
-    const lockData = readLockFile(sessionId);
-    if (!lockData) {
-      return {
-        outputs: [],
-        rollovers: [],
-        error: `❌ Could not parse lock file: ${lockFile}`,
-      };
-    }
-    const { number: sessionIdSeq } = parseSessionId(sessionId);
-    if (lockData.seq !== sessionIdSeq) {
-      return {
-        outputs: [],
-        rollovers: [],
-        error: `❌ SessionId sequence (${sessionIdSeq}) does not match lock file seq (${lockData.seq}) for session: ${sessionId}`,
-      };
-    }
-  }
+  const sessionId = assertSessionId(ctx.sessionId!);
+  const inProgressFile = ctx.file!;
 
   // 2. Load and validate events
   const events = readEvents(inProgressFile);
-  if (!events.length) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: '❌ No events found in session file.',
-    };
+  const eventCheck = validateEventLog(ctx, events);
+  if (eventCheck.error) {
+    return { outputs: [], rollovers: [], error: eventCheck.error };
   }
 
-  // Check session date in filename matches session_start event
-  let parsedInfo;
-  try {
-    parsedInfo = parseSessionFilename(path.basename(inProgressFile));
-    // eslint-disable-next-line no-unused-vars
-  } catch (e) {
-    parsedInfo = null;
-  }
-  if (!parsedInfo || !parsedInfo.date) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: `❌ Could not parse session date from filename: ${inProgressFile}`,
-    };
-  }
-  const filenameSessionDate = parsedInfo.date;
-  const eventSessionDate = getSessionDateFromEvents(events);
-  if (filenameSessionDate !== eventSessionDate) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: `❌ Session date in filename (${filenameSessionDate}) does not match session_start event (${eventSessionDate}).`,
-    };
+  // 3. Sort and check for impossible ordering
+  const { sortedEvents, error: sortError } = sortAndValidateEvents(events);
+  if (sortError) {
+    return { outputs: [], rollovers: [], error: sortError };
   }
 
-  // Ensure the first event is session_start or session_continue
-  if (
-    !(
-      events[0].kind === 'session_start' ||
-      events[0].kind === 'session_continue'
-    )
-  ) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: '❌ First event must be session_start or session_continue.',
-    };
-  }
-  // Ensure session_pause only appears at the end (if at all)
-  const pauseIdx = events.findIndex((e) => e.kind === 'session_pause');
-  if (pauseIdx !== -1 && pauseIdx !== events.length - 1) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: '❌ session_pause may only appear at the end of the file.',
-    };
-  }
+  // 4. Block construction by season
   const sessionDate = getSessionDateFromEvents(events);
-
-  // Sort and check for impossible ordering
-  const expandedEvents: (ScribeEvent & { _origIdx: number })[] = events.map(
-    (e, i) => ({ ...e, _origIdx: i }),
-  );
-  expandedEvents.sort((a, b) => {
-    if (a.ts && b.ts) {
-      const tsCmp = a.ts.localeCompare(b.ts);
-      if (tsCmp !== 0) {
-        return tsCmp;
-      }
-    } else if (a.ts && !b.ts) {
-      return -1;
-    } else if (!a.ts && b.ts) {
-      return 1;
-    }
-
-    const aSeq = typeof a.seq === 'number' ? a.seq : Number.POSITIVE_INFINITY;
-    const bSeq = typeof b.seq === 'number' ? b.seq : Number.POSITIVE_INFINITY;
-
-    if (aSeq !== bSeq) {
-      return aSeq - bSeq;
-    }
-    return (a._origIdx ?? 0) - (b._origIdx ?? 0);
-  });
-  for (let i = 1; i < expandedEvents.length; i++) {
-    if (
-      expandedEvents[i].ts &&
-      expandedEvents[i - 1].ts &&
-      expandedEvents[i].ts < expandedEvents[i - 1].ts
-    ) {
-      return {
-        outputs: [],
-        rollovers: [],
-        error: '❌ Non-monotonic timestamps in event log.',
-      };
-    }
-    if (
-      typeof expandedEvents[i].seq === 'number' &&
-      typeof expandedEvents[i - 1].seq === 'number' &&
-      expandedEvents[i].seq < expandedEvents[i - 1].seq
-    ) {
-      return {
-        outputs: [],
-        rollovers: [],
-        error: '❌ Non-monotonic sequence numbers in event log.',
-      };
-    }
+  const { blocks, error: blockError } = buildSeasonBlocks(sortedEvents);
+  if (blockError) {
+    return { outputs: [], rollovers: [], error: blockError };
   }
 
-  // 3. Event Finalization: Ensure session_end or session_pause at end
+  // 5. Event Finalization: Ensure session_end or session_pause at end
   const lastEvent = events[events.length - 1];
   if (lastEvent.kind !== 'session_end' && lastEvent.kind !== 'session_pause') {
     // Append session_end with { status: "final" } and incremented sequence
@@ -362,100 +247,6 @@ export function finalizeSession(
       payload: { id: sessionId, status: 'final' },
     });
   }
-
-  // --- Revised Block Construction by Season ---
-  // (a) Sort events and track original index
-  const sortedEvents = events
-    .map((e, i) => ({ ...e, _origIdx: i }))
-    .sort((a, b) => {
-      if (a.ts && b.ts) {
-        const tsCmp = a.ts.localeCompare(b.ts);
-        if (tsCmp !== 0) {
-          return tsCmp;
-        }
-      } else if (a.ts && !b.ts) {
-        return -1;
-      } else if (!a.ts && b.ts) {
-        return 1;
-      }
-      const aSeq = typeof a.seq === 'number' ? a.seq : Number.POSITIVE_INFINITY;
-      const bSeq = typeof b.seq === 'number' ? b.seq : Number.POSITIVE_INFINITY;
-      if (aSeq !== bSeq) return aSeq - bSeq;
-      return a._origIdx - b._origIdx;
-    });
-
-  // (b) Identify all day_start events and their seasonId, build block windows by season
-  const dayStartIndices = sortedEvents
-    .map((e, i) => {
-      return e.kind === 'day_start'
-        ? {
-            i,
-            seasonId: `${e.payload.calendarDate.year}-${String(e.payload?.season).toLowerCase()}`,
-          }
-        : null;
-    })
-    .filter(Boolean) as { i: number; seasonId: string }[];
-  if (!dayStartIndices.length) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: '❌ No day_start event found in session.',
-    };
-  }
-
-  // Group consecutive day_starts with the same seasonId into a single block
-  const blockWindows: { start: number; end: number; seasonId: string }[] = [];
-  let currentSeason = dayStartIndices[0].seasonId;
-  let blockStart = dayStartIndices[0].i;
-  for (let b = 1; b < dayStartIndices.length; ++b) {
-    if (dayStartIndices[b].seasonId !== currentSeason) {
-      blockWindows.push({
-        start: blockStart,
-        end: dayStartIndices[b].i,
-        seasonId: currentSeason,
-      });
-      currentSeason = dayStartIndices[b].seasonId;
-      blockStart = dayStartIndices[b].i;
-    }
-  }
-
-  // Add the final block
-  blockWindows.push({
-    start: blockStart,
-    end: sortedEvents.length,
-    seasonId: currentSeason,
-  });
-
-  // (c) Assign events to blocks (no duplication)
-  // Track which block each event belongs to
-  const eventBlockAssignment = new Array(sortedEvents.length).fill(-1);
-  // Events before first day_start go in first block
-  for (let i = 0; i < blockWindows[0].start; ++i) {
-    eventBlockAssignment[i] = 0;
-  }
-  // Events after last day_start go in last block
-  for (
-    let i = blockWindows[blockWindows.length - 1].end;
-    i < sortedEvents.length;
-    ++i
-  ) {
-    eventBlockAssignment[i] = blockWindows.length - 1;
-  }
-  // Events inside each window
-  for (let b = 0; b < blockWindows.length; ++b) {
-    for (let i = blockWindows[b].start; i < blockWindows[b].end; ++i) {
-      eventBlockAssignment[i] = b;
-    }
-  }
-
-  // (d) Build blocks with assigned events
-  const blocks: {
-    seasonId: string;
-    events: (ScribeEvent & { _origIdx: number })[];
-  }[] = blockWindows.map((win, b) => ({
-    seasonId: win.seasonId,
-    events: sortedEvents.filter((_, i) => eventBlockAssignment[i] === b),
-  }));
 
   // --- Synthesize lifecycle events at block boundaries ---
   // Helper: get last known cursor/party/date up to a given event index
@@ -714,4 +505,181 @@ export function finalizeSession(
     }
   }
   return { outputs, rollovers };
+}
+
+function buildSeasonBlocks(sortedEvents: (ScribeEvent & { _origIdx: number })[]): { blocks: { seasonId: string; events: (ScribeEvent & { _origIdx: number })[] }[]; error?: string } {
+  // (a) Identify all day_start events and their seasonId, build block windows by season
+  const dayStartIndices = sortedEvents
+    .map((e, i) => {
+      return e.kind === 'day_start'
+        ? {
+          i,
+          seasonId: `${e.payload.calendarDate.year}-${String(e.payload?.season).toLowerCase()}`,
+        }
+        : null;
+    })
+    .filter(Boolean) as { i: number; seasonId: string }[];
+  if (!dayStartIndices.length) {
+    return { blocks: [], error: '❌ No day_start event found in session.' };
+  }
+
+  // Group consecutive day_starts with the same seasonId into a single block
+  const blockWindows: { start: number; end: number; seasonId: string }[] = [];
+  let currentSeason = dayStartIndices[0].seasonId;
+  let blockStart = dayStartIndices[0].i;
+  for (let b = 1; b < dayStartIndices.length; ++b) {
+    if (dayStartIndices[b].seasonId !== currentSeason) {
+      blockWindows.push({
+        start: blockStart,
+        end: dayStartIndices[b].i,
+        seasonId: currentSeason,
+      });
+      currentSeason = dayStartIndices[b].seasonId;
+      blockStart = dayStartIndices[b].i;
+    }
+  }
+  // Add the final block
+  blockWindows.push({
+    start: blockStart,
+    end: sortedEvents.length,
+    seasonId: currentSeason,
+  });
+
+  // (c) Assign events to blocks (no duplication)
+  // Track which block each event belongs to
+  const eventBlockAssignment = new Array(sortedEvents.length).fill(-1);
+  // Events before first day_start go in first block
+  for (let i = 0; i < blockWindows[0].start; ++i) {
+    eventBlockAssignment[i] = 0;
+  }
+  // Events after last day_start go in last block
+  for (
+    let i = blockWindows[blockWindows.length - 1].end;
+    i < sortedEvents.length;
+    ++i
+  ) {
+    eventBlockAssignment[i] = blockWindows.length - 1;
+  }
+  // Events inside each window
+  for (let b = 0; b < blockWindows.length; ++b) {
+    for (let i = blockWindows[b].start; i < blockWindows[b].end; ++i) {
+      eventBlockAssignment[i] = b;
+    }
+  }
+
+  // (d) Build blocks with assigned events
+  const blocks: {
+    seasonId: string;
+    events: (ScribeEvent & { _origIdx: number })[];
+  }[] = blockWindows.map((win, b) => ({
+    seasonId: win.seasonId,
+    events: sortedEvents.filter((_, i) => eventBlockAssignment[i] === b),
+  }));
+
+  return { blocks };
+}
+
+function sortAndValidateEvents(events: ScribeEvent[]): { sortedEvents: (ScribeEvent & { _origIdx: number })[]; error?: string } {
+  const expandedEvents: (ScribeEvent & { _origIdx: number })[] = events.map(
+    (e, i) => ({ ...e, _origIdx: i }),
+  );
+  expandedEvents.sort((a, b) => {
+    if (a.ts && b.ts) {
+      const tsCmp = a.ts.localeCompare(b.ts);
+      if (tsCmp !== 0) {
+        return tsCmp;
+      }
+    } else if (a.ts && !b.ts) {
+      return -1;
+    } else if (!a.ts && b.ts) {
+      return 1;
+    }
+    const aSeq = typeof a.seq === 'number' ? a.seq : Number.POSITIVE_INFINITY;
+    const bSeq = typeof b.seq === 'number' ? b.seq : Number.POSITIVE_INFINITY;
+    if (aSeq !== bSeq) {
+      return aSeq - bSeq;
+    }
+    return a._origIdx - b._origIdx;
+  });
+
+  for (let i = 1; i < expandedEvents.length; i++) {
+    // Check for monotonic timestamps
+    if (expandedEvents[i].ts && expandedEvents[i - 1].ts && expandedEvents[i].ts < expandedEvents[i - 1].ts) {
+      return { sortedEvents: expandedEvents, error: '❌ Events are not in monotonic timestamp order.' };
+    }
+
+    // Check for monotonic sequence numbers
+    if (
+      typeof expandedEvents[i].seq === 'number' &&
+      typeof expandedEvents[i - 1].seq === 'number' &&
+      expandedEvents[i].seq < expandedEvents[i - 1].seq
+    ) {
+      return { sortedEvents: expandedEvents, error: '❌ Non-monotonic sequence numbers in event log.' };
+    }
+  }
+
+  return { sortedEvents: expandedEvents };
+}
+
+function validateEventLog(ctx: Context, events: ScribeEvent[]): { error?: string } {
+  if (!events.length) {
+    return { error: '❌ No events found in session file.' };
+  }
+
+  // Check session date in filename matches session_start event
+  let parsedInfo;
+  try {
+    parsedInfo = parseSessionFilename(path.basename(ctx.file!));
+    // eslint-disable-next-line no-unused-vars
+  } catch (e) {
+    parsedInfo = null;
+  }
+  if (!parsedInfo || !parsedInfo.date) {
+    return { error: `❌ Could not parse session date from filename: ${ctx.file}` };
+  }
+  const filenameSessionDate = parsedInfo.date;
+  const eventSessionDate = getSessionDateFromEvents(events);
+  if (filenameSessionDate !== eventSessionDate) {
+    return { error: `❌ Session date in filename (${filenameSessionDate}) does not match session_start event (${eventSessionDate}).` };
+  }
+
+  // Ensure the first event is session_start or session_continue
+  if (
+    !(
+      events[0].kind === 'session_start' ||
+      events[0].kind === 'session_continue'
+    )
+  ) {
+    return { error: '❌ First event must be session_start or session_continue.' };
+  }
+  const pauseIdx = events.findIndex((e) => e.kind === 'session_pause');
+  if (pauseIdx !== -1 && pauseIdx !== events.length - 1) {
+    return { error: '❌ session_pause may only appear at the end of the file.' };
+  }
+  return {};
+}
+
+function validateLockFile(ctx: Context, devMode: boolean): { error?: string } {
+  if (devMode) return {};
+  const sessionId = assertSessionId(ctx.sessionId!);
+  const lockFile = getLockFilePath(sessionId);
+  if (!lockExists(sessionId)) {
+    return { error: `❌ No lock file for session: ${lockFile}` };
+  }
+  const lockData = readLockFile(sessionId);
+  if (!lockData) {
+    return { error: `❌ Could not parse lock file: ${lockFile}` };
+  }
+  const { number: sessionIdSeq } = parseSessionId(sessionId);
+  if (lockData.seq !== sessionIdSeq) {
+    return { error: `❌ SessionId sequence (${sessionIdSeq}) does not match lock file seq (${lockData.seq}) for session: ${sessionId}` };
+  }
+  return {};
+}
+
+function validateSessionContext(ctx: Context): { error?: string } {
+  if (!requireSession(ctx) || !requireFile(ctx)) {
+    return { error: '❌ Missing sessionId or file in context.' };
+  }
+  return {};
 }
