@@ -7,7 +7,7 @@ import path from 'node:path';
 import { readEvents } from '../../../services/event-log.service';
 import { detectDevMode } from '../services/general';
 import { listLockFiles } from '../services/lock-file';
-import { checkSessionSequenceGaps } from '../services/session';
+import { checkSessionSequenceGaps, checkSessionDateConsistency } from '../services/session';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -184,6 +184,10 @@ export default function doctor() {
       lockFiles,
       metaSeq,
     });
+
+    // Session date consistency checks
+    checkSessionDateConsistency({ files: sessionFiles, dirName: 'SESSIONS' });
+    checkSessionDateConsistency({ files: inProgressFiles, dirName: devMode ? 'DEV_IN_PROGRESS' : 'IN_PROGRESS' });
 
     info('Doctor diagnostics complete.');
   };

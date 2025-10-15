@@ -53,6 +53,41 @@ export type SessionStartPrep =
     };
 
 /**
+ * Checks that the sessionDate in the session_start event matches the <DATE> in the filename.
+ * Prints a warning for any mismatches.
+ */
+export function checkSessionDateConsistency({ files, dirName }: { files: string[]; dirName: string }) {
+  for (const file of files) {
+    const parsed = parseSessionFilename(file);
+    if (!parsed || !parsed.date) {
+      warn(`[${dirName}] Could not parse date from filename: ${file}`);
+      continue;
+    }
+    const filePath = path.join(REPO_PATHS[dirName](), file);
+    let events: any[] = [];
+    try {
+      events = readEvents(filePath);
+    } catch (e) {
+      warn(`[${dirName}] Failed to read ${file}: ${e}`);
+      continue;
+    }
+    const startEvent = events.find(ev => ev.kind === 'session_start');
+    if (!startEvent) {
+      warn(`[${dirName}] No session_start event found in ${file}`);
+      continue;
+    }
+    const eventDate = startEvent.sessionDate || (startEvent.payload && startEvent.payload.sessionDate);
+    if (!eventDate) {
+      warn(`[${dirName}] session_start event missing sessionDate in ${file}`);
+      continue;
+    }
+    if (parsed.date !== eventDate) {
+      warn(`[${dirName}] Session date mismatch: filename=${parsed.date}, event=${eventDate} in ${file}`);
+    }
+  }
+}
+
+/**
  * Checks for gaps in session sequence numbers across finalized, in-progress, and lock files.
  * Prints diagnostics for missing and intentional gaps, and checks against meta.nextSessionSeq.
  */
