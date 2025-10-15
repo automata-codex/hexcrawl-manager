@@ -242,37 +242,10 @@ export function finalizeSession(
   // 6. Write finalized session files and rollovers
   const { outputs, rollovers } = writeSessionFilesAndRollovers(finalizedBlocks, sessionId, sessionDate, events, devMode);
 
-  // 5. Meta/lock handling
-  if (!devMode) {
-    // Remove lock file
-    removeLockFile(sessionId);
+  // 7. Meta/lock handling and cleanup
+  updateMetaAndCleanup(sessionId, inProgressFile, outputs, devMode);
 
-    // Remove in-progress file
-    if (existsSync(inProgressFile)) {
-      unlinkSync(inProgressFile);
-    }
-
-    // Update meta.yaml if outputs written
-    if (outputs.length) {
-      const { number: sessionIdSeq } = parseSessionId(sessionId);
-      const meta = loadMeta();
-      if (sessionIdSeq < meta.nextSessionSeq) {
-        // Heal meta.nextSessionSeq to max finalized seq + 1
-        const maxSeq = getLatestSessionNumber() ?? sessionIdSeq;
-        warn(
-          `⚠️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}). Healing meta to ${maxSeq + 1}.`
-        );
-        saveMeta({ nextSessionSeq: maxSeq + 1 });
-      } else if (meta.nextSessionSeq !== sessionIdSeq + 1) {
-        saveMeta({ nextSessionSeq: sessionIdSeq + 1 });
-      }
-    }
-  } else {
-    // Dev: just remove in-progress file
-    if (existsSync(inProgressFile)) {
-      unlinkSync(inProgressFile);
-    }
-  }
+  // 8. Return results
   return { outputs, rollovers };
 }
 
@@ -551,6 +524,44 @@ function synthesizeLifecycleEvents(
     finalizedBlocks.push({ seasonId: block.seasonId, events: blockEvents });
   }
   return { finalizedBlocks };
+}
+
+function updateMetaAndCleanup(
+  sessionId: SessionId,
+  inProgressFile: string,
+  outputs: string[],
+  devMode: boolean
+): void {
+  if (!devMode) {
+    // Remove lock file
+    removeLockFile(sessionId);
+
+    // Remove in-progress file
+    if (existsSync(inProgressFile)) {
+      unlinkSync(inProgressFile);
+    }
+
+    // Update meta.yaml if outputs written
+    if (outputs.length) {
+      const { number: sessionIdSeq } = parseSessionId(sessionId);
+      const meta = loadMeta();
+      if (sessionIdSeq < meta.nextSessionSeq) {
+        // Heal meta.nextSessionSeq to max finalized seq + 1
+        const maxSeq = getLatestSessionNumber() ?? sessionIdSeq;
+        warn(
+          `⚠️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}). Healing meta to ${maxSeq + 1}.`
+        );
+        saveMeta({ nextSessionSeq: maxSeq + 1 });
+      } else if (meta.nextSessionSeq !== sessionIdSeq + 1) {
+        saveMeta({ nextSessionSeq: sessionIdSeq + 1 });
+      }
+    }
+  } else {
+    // Dev: just remove in-progress file
+    if (existsSync(inProgressFile)) {
+      unlinkSync(inProgressFile);
+    }
+  }
 }
 
 function validateEventLog(ctx: Context, events: ScribeEvent[]): { error?: string } {
