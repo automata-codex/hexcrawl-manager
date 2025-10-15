@@ -8,6 +8,7 @@ import {
   loadHavens,
   loadMeta,
   loadTrails,
+  parseSessionFilename,
   saveMeta,
   saveTrails,
 } from '@skyreach/data';
@@ -175,7 +176,16 @@ export async function applyTrails(
   } else if (isSessionFile(file)) {
     // --- Validate session file ---
     const events = readEvents(file);
-    const validation = validateSessionEnvelope(events);
+
+    // Extract stem date from filename
+    const sessionFileInfo = parseSessionFilename(path.basename(file));
+    if (!sessionFileInfo) {
+      throw new CliValidationError(
+        'Session filename must include a valid date (e.g. session-0027_2025-10-15.json).',
+      );
+    }
+
+    const validation = validateSessionEnvelope(events, sessionFileInfo.date);
     if (!validation.isValid) {
       throw new CliValidationError(
         `Session envelope validation failed: ${validation.error}`,
