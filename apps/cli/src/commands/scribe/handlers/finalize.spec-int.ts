@@ -197,7 +197,10 @@ describe('scribe finalize', () => {
         // Manually write a bad in-progress file
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
-        const sessionFile = path.join(inProgressDir, buildSessionFilename(sessionId, '2025-09-20'));
+        const sessionFile = path.join(
+          inProgressDir,
+          buildSessionFilename(sessionId, '2025-09-20'),
+        );
 
         const events: ScribeEvent[] = compileLog(
           [
@@ -484,10 +487,10 @@ describe('scribe finalize', () => {
             .filter(Boolean);
           const header = JSON.parse(lines[0]);
           expect(header.kind).toBe('header');
-          expect(header.id).toMatch(SESSION_ID_RE);
-          expect(header.seasonId).toMatch(SEASON_ID_RE);
-          expect(header.inWorldStart).toBeTruthy();
-          expect(header.inWorldEnd).toBeTruthy();
+          expect(header.payload.id).toMatch(SESSION_ID_RE);
+          expect(header.payload.seasonId).toMatch(SEASON_ID_RE);
+          expect(header.payload.inWorldStart).toBeTruthy();
+          expect(header.payload.inWorldEnd).toBeTruthy();
         }
       },
     );
@@ -525,7 +528,9 @@ describe('scribe finalize', () => {
             .split(/\r?\n/)
             .filter(Boolean);
           const header = JSON.parse(lines[0]);
-          expect(header.seasonId).toBe(header.seasonId.toLowerCase());
+          expect(header.payload.seasonId).toBe(
+            header.payload.seasonId.toLowerCase(),
+          );
         }
       },
     );

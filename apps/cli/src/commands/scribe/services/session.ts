@@ -237,10 +237,21 @@ export function finalizeSession(
   }
 
   // 5. Synthesize lifecycle events for blocks
-  const { finalizedBlocks } = synthesizeLifecycleEvents(blocks, sortedEvents, sessionId, sessionDate);
+  const { finalizedBlocks } = synthesizeLifecycleEvents(
+    blocks,
+    sortedEvents,
+    sessionId,
+    sessionDate,
+  );
 
   // 6. Write finalized session files and rollovers
-  const { outputs, rollovers } = writeSessionFilesAndRollovers(finalizedBlocks, sessionId, sessionDate, events, devMode);
+  const { outputs, rollovers } = writeSessionFilesAndRollovers(
+    finalizedBlocks,
+    sessionId,
+    sessionDate,
+    events,
+    devMode,
+  );
 
   // 7. Meta/lock handling and cleanup
   updateMetaAndCleanup(sessionId, inProgressFile, outputs, devMode);
@@ -249,15 +260,23 @@ export function finalizeSession(
   return { outputs, rollovers };
 }
 
-function buildSeasonBlocks(sortedEvents: (ScribeEvent & { _origIdx: number })[]): { blocks: { seasonId: string; events: (ScribeEvent & { _origIdx: number })[] }[]; error?: string } {
+function buildSeasonBlocks(
+  sortedEvents: (ScribeEvent & { _origIdx: number })[],
+): {
+  blocks: {
+    seasonId: string;
+    events: (ScribeEvent & { _origIdx: number })[];
+  }[];
+  error?: string;
+} {
   // (a) Identify all day_start events and their seasonId, build block windows by season
   const dayStartIndices = sortedEvents
     .map((e, i) => {
       return e.kind === 'day_start'
         ? {
-          i,
-          seasonId: `${e.payload.calendarDate.year}-${String(e.payload?.season).toLowerCase()}`,
-        }
+            i,
+            seasonId: `${e.payload.calendarDate.year}-${String(e.payload?.season).toLowerCase()}`,
+          }
         : null;
     })
     .filter(Boolean) as { i: number; seasonId: string }[];
@@ -321,14 +340,11 @@ function buildSeasonBlocks(sortedEvents: (ScribeEvent & { _origIdx: number })[])
   return { blocks };
 }
 
-function normalizeTrailEdges<T extends { kind: string; payload?: any }>(events: T[]): T[] {
+function normalizeTrailEdges<T extends { kind: string; payload?: any }>(
+  events: T[],
+): T[] {
   return events.map((ev) => {
-    if (
-      ev.kind === 'trail' &&
-      ev.payload &&
-      ev.payload.from &&
-      ev.payload.to
-    ) {
+    if (ev.kind === 'trail' && ev.payload && ev.payload.from && ev.payload.to) {
       let { from, to } = ev.payload as { from: string; to: string };
       from = normalizeHexId(from);
       to = normalizeHexId(to);
@@ -343,7 +359,10 @@ function normalizeTrailEdges<T extends { kind: string; payload?: any }>(events: 
   });
 }
 
-function sortAndValidateEvents(events: ScribeEvent[]): { sortedEvents: (ScribeEvent & { _origIdx: number })[]; error?: string } {
+function sortAndValidateEvents(events: ScribeEvent[]): {
+  sortedEvents: (ScribeEvent & { _origIdx: number })[];
+  error?: string;
+} {
   const expandedEvents: (ScribeEvent & { _origIdx: number })[] = events.map(
     (e, i) => ({ ...e, _origIdx: i }),
   );
@@ -368,8 +387,15 @@ function sortAndValidateEvents(events: ScribeEvent[]): { sortedEvents: (ScribeEv
 
   for (let i = 1; i < expandedEvents.length; i++) {
     // Check for monotonic timestamps
-    if (expandedEvents[i].ts && expandedEvents[i - 1].ts && expandedEvents[i].ts < expandedEvents[i - 1].ts) {
-      return { sortedEvents: expandedEvents, error: '❌ Events are not in monotonic timestamp order.' };
+    if (
+      expandedEvents[i].ts &&
+      expandedEvents[i - 1].ts &&
+      expandedEvents[i].ts < expandedEvents[i - 1].ts
+    ) {
+      return {
+        sortedEvents: expandedEvents,
+        error: '❌ Events are not in monotonic timestamp order.',
+      };
     }
 
     // Check for monotonic sequence numbers
@@ -378,7 +404,10 @@ function sortAndValidateEvents(events: ScribeEvent[]): { sortedEvents: (ScribeEv
       typeof expandedEvents[i - 1].seq === 'number' &&
       expandedEvents[i].seq < expandedEvents[i - 1].seq
     ) {
-      return { sortedEvents: expandedEvents, error: '❌ Non-monotonic sequence numbers in event log.' };
+      return {
+        sortedEvents: expandedEvents,
+        error: '❌ Non-monotonic sequence numbers in event log.',
+      };
     }
   }
 
@@ -386,11 +415,19 @@ function sortAndValidateEvents(events: ScribeEvent[]): { sortedEvents: (ScribeEv
 }
 
 function synthesizeLifecycleEvents(
-  blocks: { seasonId: string; events: (ScribeEvent & { _origIdx: number })[] }[],
+  blocks: {
+    seasonId: string;
+    events: (ScribeEvent & { _origIdx: number })[];
+  }[],
   sortedEvents: (ScribeEvent & { _origIdx: number })[],
   sessionId: SessionId,
-  sessionDate: string
-): { finalizedBlocks: { seasonId: string; events: (ScribeEvent & { _origIdx: number })[] }[] } {
+  sessionDate: string,
+): {
+  finalizedBlocks: {
+    seasonId: string;
+    events: (ScribeEvent & { _origIdx: number })[];
+  }[];
+} {
   function getSnapshot(upToIdx: number) {
     let currentHex = 'null';
     let currentParty = ['null'];
@@ -447,10 +484,10 @@ function synthesizeLifecycleEvents(
           bIdx === 0
             ? 0
             : sortedEvents.findIndex(
-              (e) =>
-                e._origIdx ===
-                prevBlock.events[prevBlock.events.length - 1]._origIdx,
-            );
+                (e) =>
+                  e._origIdx ===
+                  prevBlock.events[prevBlock.events.length - 1]._origIdx,
+              );
         const snap = getSnapshot(prevLastIdx);
         blockEvents.unshift({
           kind: 'session_continue',
@@ -530,7 +567,7 @@ function updateMetaAndCleanup(
   sessionId: SessionId,
   inProgressFile: string,
   outputs: string[],
-  devMode: boolean
+  devMode: boolean,
 ): void {
   if (!devMode) {
     // Remove lock file
@@ -549,7 +586,7 @@ function updateMetaAndCleanup(
         // Heal meta.nextSessionSeq to max finalized seq + 1
         const maxSeq = getLatestSessionNumber() ?? sessionIdSeq;
         warn(
-          `⚠️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}). Healing meta to ${maxSeq + 1}.`
+          `⚠️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}). Healing meta to ${maxSeq + 1}.`,
         );
         saveMeta({ nextSessionSeq: maxSeq + 1 });
       } else if (meta.nextSessionSeq !== sessionIdSeq + 1) {
@@ -564,7 +601,10 @@ function updateMetaAndCleanup(
   }
 }
 
-function validateEventLog(ctx: Context, events: ScribeEvent[]): { error?: string } {
+function validateEventLog(
+  ctx: Context,
+  events: ScribeEvent[],
+): { error?: string } {
   if (!events.length) {
     return { error: '❌ No events found in session file.' };
   }
@@ -578,11 +618,15 @@ function validateEventLog(ctx: Context, events: ScribeEvent[]): { error?: string
       events[0].kind === 'session_continue'
     )
   ) {
-    return { error: '❌ First event must be session_start or session_continue.' };
+    return {
+      error: '❌ First event must be session_start or session_continue.',
+    };
   }
   const pauseIdx = events.findIndex((e) => e.kind === 'session_pause');
   if (pauseIdx !== -1 && pauseIdx !== events.length - 1) {
-    return { error: '❌ session_pause may only appear at the end of the file.' };
+    return {
+      error: '❌ session_pause may only appear at the end of the file.',
+    };
   }
   return {};
 }
@@ -600,7 +644,9 @@ function validateLockFile(ctx: Context, devMode: boolean): { error?: string } {
   }
   const { number: sessionIdSeq } = parseSessionId(sessionId);
   if (lockData.seq !== sessionIdSeq) {
-    return { error: `❌ SessionId sequence (${sessionIdSeq}) does not match lock file seq (${lockData.seq}) for session: ${sessionId}` };
+    return {
+      error: `❌ SessionId sequence (${sessionIdSeq}) does not match lock file seq (${lockData.seq}) for session: ${sessionId}`,
+    };
   }
   return {};
 }
@@ -612,7 +658,10 @@ function validateSessionContext(ctx: Context): { error?: string } {
   return {};
 }
 
-function validateSessionDates(filePath: string, events: ScribeEvent[]): { error?: string } {
+function validateSessionDates(
+  filePath: string,
+  events: ScribeEvent[],
+): { error?: string } {
   let parsedInfo;
   try {
     parsedInfo = parseSessionFilename(path.basename(filePath));
@@ -622,7 +671,9 @@ function validateSessionDates(filePath: string, events: ScribeEvent[]): { error?
   }
 
   if (!parsedInfo || !parsedInfo.date) {
-    return { error: `❌ Could not parse session date from filename: ${filePath}` };
+    return {
+      error: `❌ Could not parse session date from filename: ${filePath}`,
+    };
   }
   const filenameSessionDate = parsedInfo.date;
 
@@ -635,17 +686,22 @@ function validateSessionDates(filePath: string, events: ScribeEvent[]): { error?
   }
 
   if (filenameSessionDate !== eventSessionDate) {
-    return { error: `❌ Session date in filename (${filenameSessionDate}) does not match session_start event (${eventSessionDate}).` };
+    return {
+      error: `❌ Session date in filename (${filenameSessionDate}) does not match session_start event (${eventSessionDate}).`,
+    };
   }
   return {};
 }
 
 function writeSessionFilesAndRollovers(
-  finalizedBlocks: { seasonId: string; events: (ScribeEvent & { _origIdx: number })[] }[],
+  finalizedBlocks: {
+    seasonId: string;
+    events: (ScribeEvent & { _origIdx: number })[];
+  }[],
   sessionId: SessionId,
   sessionDate: string,
   events: ScribeEvent[],
-  devMode: boolean
+  devMode: boolean,
 ): { outputs: string[]; rollovers: string[] } {
   const outputs: string[] = [];
   const rollovers: string[] = [];
@@ -659,11 +715,13 @@ function writeSessionFilesAndRollovers(
 
   for (let i = 0; i < finalizedBlocks.length; i++) {
     const block = finalizedBlocks[i];
-    const suffix = finalizedBlocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
+    const suffix =
+      finalizedBlocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
 
     // Header
     const inWorldStart =
-      block.events.find((e) => e.kind === 'day_start')?.payload?.calendarDate || null;
+      block.events.find((e) => e.kind === 'day_start')?.payload?.calendarDate ||
+      null;
     const inWorldEnd =
       block.events
         .slice()
@@ -699,15 +757,15 @@ function writeSessionFilesAndRollovers(
       const nextSeasonId = finalizedBlocks[i + 1].seasonId;
       const rolloverFile = devMode
         ? path.join(
-          rolloverDir,
-          `dev_rollover_${nextSeasonId}_${events[0].ts?.replace(/[:.]/g, '-')}.jsonl`,
-        )
-        : path.join(
-          rolloverDir,
-          `rollover_${nextSeasonId}.jsonl`,
-        );
+            rolloverDir,
+            `dev_rollover_${nextSeasonId}_${events[0].ts?.replace(/[:.]/g, '-')}.jsonl`,
+          )
+        : path.join(rolloverDir, `rollover_${nextSeasonId}.jsonl`);
       if (!existsSync(rolloverFile)) {
-        const rolloverEvent = { kind: 'season_rollover', payload: { seasonId: nextSeasonId } };
+        const rolloverEvent = {
+          kind: 'season_rollover',
+          payload: { seasonId: nextSeasonId },
+        };
         writeEventsWithHeader(rolloverFile, rolloverEvent);
         rollovers.push(rolloverFile);
       }
