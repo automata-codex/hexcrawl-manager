@@ -9,7 +9,10 @@ import type { DayStartEvent, ScribeEvent } from '@skyreach/schemas';
  * Session envelope validation helper for weave commands. Usage: `const result = validateSessionEnvelope(events);`
  * @returns { isValid: boolean, error: string | null }
  */
-export function validateSessionEnvelope(events: ScribeEvent[], stemDate: string): {
+export function validateSessionEnvelope(
+  events: ScribeEvent[],
+  stemDate: string,
+): {
   isValid: boolean;
   error: string | null;
 } {
@@ -48,8 +51,11 @@ export function validateSessionEnvelope(events: ScribeEvent[], stemDate: string)
   }
   // Check session_start.sessionDate matches stemDate if provided
   if (stemDate) {
-    const sessionStartEvent = events.find(e => e.kind === 'session_start');
-    if (sessionStartEvent && sessionStartEvent.payload?.sessionDate !== stemDate) {
+    const sessionStartEvent = events.find((e) => e.kind === 'session_start');
+    if (
+      sessionStartEvent &&
+      sessionStartEvent.payload?.sessionDate !== stemDate
+    ) {
       return {
         isValid: false,
         error: `session_start.sessionDate (${sessionStartEvent.payload?.sessionDate}) does not match stem date (${stemDate}).`,
