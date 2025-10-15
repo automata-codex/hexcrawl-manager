@@ -67,7 +67,7 @@ Handles both **session lifecycle events** and **season boundaries** without drop
     - Append alphabetical `<suffix>` (`a`, `b`, `c`, …) to the filename if multiple blocks for the same `SEQ`:
 
       ```
-      data/session-logs/session-<SEQ>_<YYYY-MM-DD>a.jsonl
+      data/session-logs/session-<SEQ>a_<YYYY-MM-DD>.jsonl
       ```
 
   - **Between blocks**, emit a minimal **rollover** file under:
@@ -88,7 +88,7 @@ Handles both **session lifecycle events** and **season boundaries** without drop
 
   - **Season IDs**: `YYYY-season` (from `day_start.payload.calendarDate`), lower-case.
   - **Trail edges**: Canonicalize as `"{col}{row}-{col}{row}"`, lower-case, with sort order = column letters then row numbers.
-  - **Session filenames**: `session-<SEQ>_<YYYY-MM-DD>[a|b|…].jsonl` (hyphen after `session`, underscore before date).
+  - **Session filenames**: `session-<SEQ>[a|b|…]_<YYYY-MM-DD>.jsonl` (hyphen after `session`, underscore before date).
 
 6. **Cursors & Move Inference**
 
@@ -155,7 +155,7 @@ Handles both **session lifecycle events** and **season boundaries** without drop
 
 ## Filename Patterns (canonical)
 
-- **Prod session**: `session-<SEQ>_<YYYY-MM-DD>.jsonl` (or with suffix `a`, `b`, …)
+- **Prod session**: `session-<SEQ>_<YYYY-MM-DD>.jsonl` (or with suffix `a`, `b`, … after `<SEQ>`)
 - **Prod rollover**: `rollover_<seasonId>.jsonl`
 - **Dev session**: `data/session-logs/_dev/session/dev_<ISO>.jsonl` (exact dev naming is flexible)
 - **Dev rollover**: `data/session-logs/_dev/rollovers/dev_rollover_<seasonId>_<ISO>.jsonl`

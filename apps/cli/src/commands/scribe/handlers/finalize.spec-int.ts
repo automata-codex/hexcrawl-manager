@@ -1,5 +1,5 @@
 import { SEASON_ID_RE } from '@skyreach/core';
-import { loadMeta, REPO_PATHS } from '@skyreach/data';
+import { buildSessionFilename, loadMeta, REPO_PATHS } from '@skyreach/data';
 import {
   SESSION_ID_RE,
   makeSessionId,
@@ -19,6 +19,7 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 
 import { eventsOf, readEvents } from '../../../services/event-log.service';
+import { createLockFile, LockData } from '../services/lock-file';
 
 describe('scribe finalize', () => {
   it('partitions session events correctly and writes output files', async () => {
@@ -185,15 +186,21 @@ describe('scribe finalize', () => {
         const meta = loadMeta();
         const sessionId = makeSessionId(meta.nextSessionSeq);
 
-        const lockDir = REPO_PATHS.LOCKS();
-        fs.mkdirSync(lockDir, { recursive: true });
-        const lockFile = path.join(lockDir, `${sessionId}.lock`);
-        fs.writeFileSync(lockFile, '');
+        const lockData: LockData = {
+          seq: 27,
+          createdAt: '',
+          filename: '',
+          pid: 0,
+        };
+        createLockFile(sessionId, lockData);
 
         // Manually write a bad in-progress file
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
-        const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
+        const sessionFile = path.join(
+          inProgressDir,
+          buildSessionFilename(sessionId, '2025-09-20'),
+        );
 
         const events: ScribeEvent[] = compileLog(
           [
@@ -480,10 +487,10 @@ describe('scribe finalize', () => {
             .filter(Boolean);
           const header = JSON.parse(lines[0]);
           expect(header.kind).toBe('header');
-          expect(header.id).toMatch(SESSION_ID_RE);
-          expect(header.seasonId).toMatch(SEASON_ID_RE);
-          expect(header.inWorldStart).toBeTruthy();
-          expect(header.inWorldEnd).toBeTruthy();
+          expect(header.payload.id).toMatch(SESSION_ID_RE);
+          expect(header.payload.seasonId).toMatch(SEASON_ID_RE);
+          expect(header.payload.inWorldStart).toBeTruthy();
+          expect(header.payload.inWorldEnd).toBeTruthy();
         }
       },
     );
@@ -521,7 +528,9 @@ describe('scribe finalize', () => {
             .split(/\r?\n/)
             .filter(Boolean);
           const header = JSON.parse(lines[0]);
-          expect(header.seasonId).toBe(header.seasonId.toLowerCase());
+          expect(header.payload.seasonId).toBe(
+            header.payload.seasonId.toLowerCase(),
+          );
         }
       },
     );

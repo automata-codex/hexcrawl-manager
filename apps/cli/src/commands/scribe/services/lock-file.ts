@@ -4,6 +4,13 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 
+export interface LockData {
+  seq: number;
+  filename: string;
+  createdAt: string; // ISO 8601
+  pid: number;
+}
+
 export function getLockFilePath(sessionId: SessionId): string {
   return path.join(REPO_PATHS.LOCKS(), `${sessionId}.lock`);
 }
@@ -12,7 +19,7 @@ export function lockExists(sessionId: SessionId): boolean {
   return fs.existsSync(getLockFilePath(sessionId));
 }
 
-export function createLockFile(sessionId: SessionId, data: object): void {
+export function createLockFile(sessionId: SessionId, data: LockData): void {
   const filePath = getLockFilePath(sessionId);
   fs.writeFileSync(filePath, yaml.stringify(data), { flag: 'wx' });
 }
@@ -32,7 +39,7 @@ export function listLockFiles(): string[] {
   return fs.readdirSync(dir).filter((f) => f.endsWith('.lock'));
 }
 
-export function readLockFile(sessionId: SessionId): object | null {
+export function readLockFile(sessionId: SessionId): LockData | null {
   const filePath = getLockFilePath(sessionId);
   if (!fs.existsSync(filePath)) {
     return null;

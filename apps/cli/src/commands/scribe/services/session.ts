@@ -1,15 +1,18 @@
+import { warn } from '@skyreach/cli-kit';
 import { hexSort, normalizeHexId } from '@skyreach/core';
 import {
   REPO_PATHS,
-  loadMeta,
-  saveMeta,
   buildSessionFilename,
+  getLatestSessionNumber,
+  loadMeta,
+  parseSessionFilename,
+  saveMeta,
 } from '@skyreach/data';
 import {
-  SESSION_ID_RE,
   SessionId,
   assertSessionId,
   makeSessionId,
+  parseSessionId,
   type CampaignDate,
   type DayStartEvent,
   type ScribeEvent,
@@ -17,7 +20,7 @@ import {
   type SessionEndEvent,
   type SessionPauseEvent,
 } from '@skyreach/schemas';
-import fs, { existsSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, statSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 
 import {
@@ -31,7 +34,9 @@ import { requireFile, requireSession } from './general';
 import {
   createLockFile,
   getLockFilePath,
+  LockData,
   lockExists,
+  readLockFile,
   removeLockFile,
 } from './lock-file';
 
@@ -59,7 +64,7 @@ function getSessionDateFromEvents(events: ScribeEvent[]): string {
 export function findLatestInProgress(): { id: SessionId; path: string } | null {
   const prodDir = REPO_PATHS.IN_PROGRESS();
   const devDir = REPO_PATHS.DEV_IN_PROGRESS();
-  const candidates: { id: string; path: string; mtime: number }[] = [];
+  const candidates: { id: SessionId; path: string; mtime: number }[] = [];
 
   for (const dir of [prodDir, devDir]) {
     if (!existsSync(dir)) {
@@ -70,7 +75,7 @@ export function findLatestInProgress(): { id: SessionId; path: string } | null {
       const p = path.join(dir, f);
       const s = statSync(p);
       candidates.push({
-        id: f.replace(/\.jsonl$/, ''),
+        id: makeSessionId(parseSessionFilename(f)?.sessionNumber ?? 0),
         path: p,
         mtime: s.mtimeMs,
       });
@@ -153,7 +158,7 @@ export function prepareSessionStart({
 
     seq = sessionNumber;
   } else {
-    if (!fs.existsSync(REPO_PATHS.META())) {
+    if (!existsSync(REPO_PATHS.META())) {
       return {
         ok: false,
         error: `❌ Missing meta file at ${REPO_PATHS.META()}`,
@@ -179,7 +184,7 @@ export function prepareSessionStart({
   }
 
   // Create lock file
-  const lockData = {
+  const lockData: LockData = {
     seq,
     filename: path.basename(inProgressFile),
     createdAt: date.toISOString(),
@@ -199,150 +204,72 @@ export function finalizeSession(
   devMode = false,
 ): { outputs: string[]; rollovers: string[]; error?: string } {
   // 1. Guards
-  if (!requireSession(ctx) || !requireFile(ctx)) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: '❌ Missing sessionId or file in context.',
-    };
+  const contextCheck = validateSessionContext(ctx);
+  if (contextCheck.error) {
+    return { outputs: [], rollovers: [], error: contextCheck.error };
+  }
+  const lockCheck = validateLockFile(ctx, devMode);
+  if (lockCheck.error) {
+    return { outputs: [], rollovers: [], error: lockCheck.error };
   }
 
-  const sessionId = assertSessionId(ctx.sessionId!); // Checked by `requireSession`
-  const inProgressFile = ctx.file!; // Checked by `requireFile`
-
-  // Lock file check (prod only)
-  const lockFile = path.join(REPO_PATHS.LOCKS(), `${sessionId}.lock`);
-  if (!devMode && !existsSync(lockFile)) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: `❌ No lock file for session: ${lockFile}`,
-    };
-  }
+  const sessionId = assertSessionId(ctx.sessionId!);
+  const inProgressFile = ctx.file!;
 
   // 2. Load and validate events
   const events = readEvents(inProgressFile);
-  if (!events.length) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: '❌ No events found in session file.',
-    };
+  const eventCheck = validateEventLog(ctx, events);
+  if (eventCheck.error) {
+    return { outputs: [], rollovers: [], error: eventCheck.error };
   }
-  if (!events.some((e) => e.kind === 'day_start')) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: '❌ No day_start event found in session.',
-    };
+
+  // 3. Sort and check for impossible ordering
+  const { sortedEvents, error: sortError } = sortAndValidateEvents(events);
+  if (sortError) {
+    return { outputs: [], rollovers: [], error: sortError };
   }
-  // Ensure the first event is session_start or session_continue
-  if (
-    !(
-      events[0].kind === 'session_start' ||
-      events[0].kind === 'session_continue'
-    )
-  ) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: '❌ First event must be session_start or session_continue.',
-    };
-  }
-  // Ensure session_pause only appears at the end (if at all)
-  const pauseIdx = events.findIndex((e) => e.kind === 'session_pause');
-  if (pauseIdx !== -1 && pauseIdx !== events.length - 1) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: '❌ session_pause may only appear at the end of the file.',
-    };
-  }
+
+  // 4. Block construction by season
   const sessionDate = getSessionDateFromEvents(events);
+  const { blocks, error: blockError } = buildSeasonBlocks(sortedEvents);
+  if (blockError) {
+    return { outputs: [], rollovers: [], error: blockError };
+  }
 
-  // Sort and check for impossible ordering
-  const expandedEvents: (ScribeEvent & { _origIdx: number })[] = events.map(
-    (e, i) => ({ ...e, _origIdx: i }),
+  // 5. Synthesize lifecycle events for blocks
+  const { finalizedBlocks } = synthesizeLifecycleEvents(
+    blocks,
+    sortedEvents,
+    sessionId,
+    sessionDate,
   );
-  expandedEvents.sort((a, b) => {
-    if (a.ts && b.ts) {
-      const tsCmp = a.ts.localeCompare(b.ts);
-      if (tsCmp !== 0) {
-        return tsCmp;
-      }
-    } else if (a.ts && !b.ts) {
-      return -1;
-    } else if (!a.ts && b.ts) {
-      return 1;
-    }
 
-    const aSeq = typeof a.seq === 'number' ? a.seq : Number.POSITIVE_INFINITY;
-    const bSeq = typeof b.seq === 'number' ? b.seq : Number.POSITIVE_INFINITY;
+  // 6. Write finalized session files and rollovers
+  const { outputs, rollovers } = writeSessionFilesAndRollovers(
+    finalizedBlocks,
+    sessionId,
+    sessionDate,
+    events,
+    devMode,
+  );
 
-    if (aSeq !== bSeq) {
-      return aSeq - bSeq;
-    }
-    return (a._origIdx ?? 0) - (b._origIdx ?? 0);
-  });
-  for (let i = 1; i < expandedEvents.length; i++) {
-    if (
-      expandedEvents[i].ts &&
-      expandedEvents[i - 1].ts &&
-      expandedEvents[i].ts < expandedEvents[i - 1].ts
-    ) {
-      return {
-        outputs: [],
-        rollovers: [],
-        error: '❌ Non-monotonic timestamps in event log.',
-      };
-    }
-    if (
-      typeof expandedEvents[i].seq === 'number' &&
-      typeof expandedEvents[i - 1].seq === 'number' &&
-      expandedEvents[i].seq < expandedEvents[i - 1].seq
-    ) {
-      return {
-        outputs: [],
-        rollovers: [],
-        error: '❌ Non-monotonic sequence numbers in event log.',
-      };
-    }
-  }
+  // 7. Meta/lock handling and cleanup
+  updateMetaAndCleanup(sessionId, inProgressFile, outputs, devMode);
 
-  // 3. Event Finalization: Ensure session_end or session_pause at end
-  const lastEvent = events[events.length - 1];
-  if (lastEvent.kind !== 'session_end' && lastEvent.kind !== 'session_pause') {
-    // Append session_end with { status: "final" } and incremented sequence
-    events.push({
-      seq: (lastEvent.seq ?? 0) + 1,
-      ts: timeNowISO(),
-      kind: 'session_end',
-      payload: { id: sessionId, status: 'final' },
-    });
-  }
+  // 8. Return results
+  return { outputs, rollovers };
+}
 
-  // --- Revised Block Construction by Season ---
-  // (a) Sort events and track original index
-  const sortedEvents = events
-    .map((e, i) => ({ ...e, _origIdx: i }))
-    .sort((a, b) => {
-      if (a.ts && b.ts) {
-        const tsCmp = a.ts.localeCompare(b.ts);
-        if (tsCmp !== 0) {
-          return tsCmp;
-        }
-      } else if (a.ts && !b.ts) {
-        return -1;
-      } else if (!a.ts && b.ts) {
-        return 1;
-      }
-      const aSeq = typeof a.seq === 'number' ? a.seq : Number.POSITIVE_INFINITY;
-      const bSeq = typeof b.seq === 'number' ? b.seq : Number.POSITIVE_INFINITY;
-      if (aSeq !== bSeq) return aSeq - bSeq;
-      return a._origIdx - b._origIdx;
-    });
-
-  // (b) Identify all day_start events and their seasonId, build block windows by season
+function buildSeasonBlocks(
+  sortedEvents: (ScribeEvent & { _origIdx: number })[],
+): {
+  blocks: {
+    seasonId: string;
+    events: (ScribeEvent & { _origIdx: number })[];
+  }[];
+  error?: string;
+} {
+  // (a) Identify all day_start events and their seasonId, build block windows by season
   const dayStartIndices = sortedEvents
     .map((e, i) => {
       return e.kind === 'day_start'
@@ -354,11 +281,7 @@ export function finalizeSession(
     })
     .filter(Boolean) as { i: number; seasonId: string }[];
   if (!dayStartIndices.length) {
-    return {
-      outputs: [],
-      rollovers: [],
-      error: '❌ No day_start event found in session.',
-    };
+    return { blocks: [], error: '❌ No day_start event found in session.' };
   }
 
   // Group consecutive day_starts with the same seasonId into a single block
@@ -376,7 +299,6 @@ export function finalizeSession(
       blockStart = dayStartIndices[b].i;
     }
   }
-
   // Add the final block
   blockWindows.push({
     start: blockStart,
@@ -415,8 +337,97 @@ export function finalizeSession(
     events: sortedEvents.filter((_, i) => eventBlockAssignment[i] === b),
   }));
 
-  // --- Synthesize lifecycle events at block boundaries ---
-  // Helper: get last known cursor/party/date up to a given event index
+  return { blocks };
+}
+
+function normalizeTrailEdges<T extends { kind: string; payload?: any }>(
+  events: T[],
+): T[] {
+  return events.map((ev) => {
+    if (ev.kind === 'trail' && ev.payload && ev.payload.from && ev.payload.to) {
+      let { from, to } = ev.payload as { from: string; to: string };
+      from = normalizeHexId(from);
+      to = normalizeHexId(to);
+      if (hexSort(from, to) > 0) {
+        // Swap so from < to by hexSort
+        return { ...ev, payload: { ...ev.payload, from: to, to: from } };
+      } else {
+        return { ...ev, payload: { ...ev.payload, from, to } };
+      }
+    }
+    return ev;
+  });
+}
+
+function sortAndValidateEvents(events: ScribeEvent[]): {
+  sortedEvents: (ScribeEvent & { _origIdx: number })[];
+  error?: string;
+} {
+  const expandedEvents: (ScribeEvent & { _origIdx: number })[] = events.map(
+    (e, i) => ({ ...e, _origIdx: i }),
+  );
+  expandedEvents.sort((a, b) => {
+    if (a.ts && b.ts) {
+      const tsCmp = a.ts.localeCompare(b.ts);
+      if (tsCmp !== 0) {
+        return tsCmp;
+      }
+    } else if (a.ts && !b.ts) {
+      return -1;
+    } else if (!a.ts && b.ts) {
+      return 1;
+    }
+    const aSeq = typeof a.seq === 'number' ? a.seq : Number.POSITIVE_INFINITY;
+    const bSeq = typeof b.seq === 'number' ? b.seq : Number.POSITIVE_INFINITY;
+    if (aSeq !== bSeq) {
+      return aSeq - bSeq;
+    }
+    return a._origIdx - b._origIdx;
+  });
+
+  for (let i = 1; i < expandedEvents.length; i++) {
+    // Check for monotonic timestamps
+    if (
+      expandedEvents[i].ts &&
+      expandedEvents[i - 1].ts &&
+      expandedEvents[i].ts < expandedEvents[i - 1].ts
+    ) {
+      return {
+        sortedEvents: expandedEvents,
+        error: '❌ Events are not in monotonic timestamp order.',
+      };
+    }
+
+    // Check for monotonic sequence numbers
+    if (
+      typeof expandedEvents[i].seq === 'number' &&
+      typeof expandedEvents[i - 1].seq === 'number' &&
+      expandedEvents[i].seq < expandedEvents[i - 1].seq
+    ) {
+      return {
+        sortedEvents: expandedEvents,
+        error: '❌ Non-monotonic sequence numbers in event log.',
+      };
+    }
+  }
+
+  return { sortedEvents: expandedEvents };
+}
+
+function synthesizeLifecycleEvents(
+  blocks: {
+    seasonId: string;
+    events: (ScribeEvent & { _origIdx: number })[];
+  }[],
+  sortedEvents: (ScribeEvent & { _origIdx: number })[],
+  sessionId: SessionId,
+  sessionDate: string,
+): {
+  finalizedBlocks: {
+    seasonId: string;
+    events: (ScribeEvent & { _origIdx: number })[];
+  }[];
+} {
   function getSnapshot(upToIdx: number) {
     let currentHex = 'null';
     let currentParty = ['null'];
@@ -442,9 +453,6 @@ export function finalizeSession(
     return { currentHex, currentParty, currentDate };
   }
 
-  const sessionIdVal = sessionId;
-
-  // For each block, synthesize lifecycle events as needed (avoid referencing finalizedBlocks before initialization)
   const finalizedBlocks: {
     seasonId: string;
     events: (ScribeEvent & { _origIdx: number })[];
@@ -487,7 +495,7 @@ export function finalizeSession(
           seq: 0,
           payload: {
             status: 'in-progress',
-            id: sessionIdVal,
+            id: sessionId,
             currentHex: snap.currentHex,
             currentParty: snap.currentParty,
             currentDate: firstDayEvent.payload.calendarDate,
@@ -512,7 +520,7 @@ export function finalizeSession(
           kind: 'session_pause',
           ts: block.events[lastDayIdx]?.ts || timeNowISO(),
           seq: 0,
-          payload: { status: 'paused', id: sessionIdVal },
+          payload: { status: 'paused', id: sessionId },
           _origIdx: -1,
         } satisfies SessionPauseEvent & { _origIdx: number });
       }
@@ -524,33 +532,15 @@ export function finalizeSession(
           kind: 'session_end',
           ts: block.events[block.events.length - 1]?.ts || timeNowISO(),
           seq: 0,
-          payload: { status: 'final', id: sessionIdVal },
+          payload: { status: 'final', id: sessionId },
           _origIdx: -1,
         } satisfies SessionEndEvent & { _origIdx: number });
       }
     }
 
     // --- Normalization: seasonId and trail edges ---
-    // Normalize seasonId
     block.seasonId = block.seasonId.toLowerCase();
-    // Canonicalize trail edges: use hexSort on from/to if both present
-    blockEvents = blockEvents.map((ev) => {
-      if (
-        ev.kind === 'trail' &&
-        ev.payload &&
-        ev.payload.from &&
-        ev.payload.to
-      ) {
-        let { from, to } = ev.payload as { from: string; to: string };
-        from = normalizeHexId(from);
-        to = normalizeHexId(to);
-        if (hexSort(from, to) > 0) {
-          // Swap so from < to by hexSort
-          return { ...ev, payload: { ...ev.payload, from: to, to: from } };
-        }
-      }
-      return ev;
-    });
+    blockEvents = normalizeTrailEdges(blockEvents);
 
     // --- Sorting & seq ---
     blockEvents = blockEvents
@@ -570,8 +560,149 @@ export function finalizeSession(
       .map((e, idx) => ({ ...e, seq: idx + 1 }));
     finalizedBlocks.push({ seasonId: block.seasonId, events: blockEvents });
   }
+  return { finalizedBlocks };
+}
 
-  // 4. Write finalized session files and rollovers
+function updateMetaAndCleanup(
+  sessionId: SessionId,
+  inProgressFile: string,
+  outputs: string[],
+  devMode: boolean,
+): void {
+  if (!devMode) {
+    // Remove lock file
+    removeLockFile(sessionId);
+
+    // Remove in-progress file
+    if (existsSync(inProgressFile)) {
+      unlinkSync(inProgressFile);
+    }
+
+    // Update meta.yaml if outputs written
+    if (outputs.length) {
+      const { number: sessionIdSeq } = parseSessionId(sessionId);
+      const meta = loadMeta();
+      if (sessionIdSeq < meta.nextSessionSeq) {
+        // Heal meta.nextSessionSeq to max finalized seq + 1
+        const maxSeq = getLatestSessionNumber() ?? sessionIdSeq;
+        warn(
+          `⚠️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}). Healing meta to ${maxSeq + 1}.`,
+        );
+        saveMeta({ nextSessionSeq: maxSeq + 1 });
+      } else if (meta.nextSessionSeq !== sessionIdSeq + 1) {
+        saveMeta({ nextSessionSeq: sessionIdSeq + 1 });
+      }
+    }
+  } else {
+    // Dev: just remove in-progress file
+    if (existsSync(inProgressFile)) {
+      unlinkSync(inProgressFile);
+    }
+  }
+}
+
+function validateEventLog(
+  ctx: Context,
+  events: ScribeEvent[],
+): { error?: string } {
+  if (!events.length) {
+    return { error: '❌ No events found in session file.' };
+  }
+  const dateCheck = validateSessionDates(ctx.file!, events);
+  if (dateCheck.error) {
+    return { error: dateCheck.error };
+  }
+  if (
+    !(
+      events[0].kind === 'session_start' ||
+      events[0].kind === 'session_continue'
+    )
+  ) {
+    return {
+      error: '❌ First event must be session_start or session_continue.',
+    };
+  }
+  const pauseIdx = events.findIndex((e) => e.kind === 'session_pause');
+  if (pauseIdx !== -1 && pauseIdx !== events.length - 1) {
+    return {
+      error: '❌ session_pause may only appear at the end of the file.',
+    };
+  }
+  return {};
+}
+
+function validateLockFile(ctx: Context, devMode: boolean): { error?: string } {
+  if (devMode) return {};
+  const sessionId = assertSessionId(ctx.sessionId!);
+  const lockFile = getLockFilePath(sessionId);
+  if (!lockExists(sessionId)) {
+    return { error: `❌ No lock file for session: ${lockFile}` };
+  }
+  const lockData = readLockFile(sessionId);
+  if (!lockData) {
+    return { error: `❌ Could not parse lock file: ${lockFile}` };
+  }
+  const { number: sessionIdSeq } = parseSessionId(sessionId);
+  if (lockData.seq !== sessionIdSeq) {
+    return {
+      error: `❌ SessionId sequence (${sessionIdSeq}) does not match lock file seq (${lockData.seq}) for session: ${sessionId}`,
+    };
+  }
+  return {};
+}
+
+function validateSessionContext(ctx: Context): { error?: string } {
+  if (!requireSession(ctx) || !requireFile(ctx)) {
+    return { error: '❌ Missing sessionId or file in context.' };
+  }
+  return {};
+}
+
+function validateSessionDates(
+  filePath: string,
+  events: ScribeEvent[],
+): { error?: string } {
+  let parsedInfo;
+  try {
+    parsedInfo = parseSessionFilename(path.basename(filePath));
+    // eslint-disable-next-line no-unused-vars
+  } catch (e) {
+    parsedInfo = null;
+  }
+
+  if (!parsedInfo || !parsedInfo.date) {
+    return {
+      error: `❌ Could not parse session date from filename: ${filePath}`,
+    };
+  }
+  const filenameSessionDate = parsedInfo.date;
+
+  let eventSessionDate: string;
+  try {
+    eventSessionDate = getSessionDateFromEvents(events);
+    // eslint-disable-next-line no-unused-vars
+  } catch (e) {
+    return { error: '❌ Unable to determine session date from events.' };
+  }
+
+  if (filenameSessionDate !== eventSessionDate) {
+    return {
+      error: `❌ Session date in filename (${filenameSessionDate}) does not match session_start event (${eventSessionDate}).`,
+    };
+  }
+  return {};
+}
+
+function writeSessionFilesAndRollovers(
+  finalizedBlocks: {
+    seasonId: string;
+    events: (ScribeEvent & { _origIdx: number })[];
+  }[],
+  sessionId: SessionId,
+  sessionDate: string,
+  events: ScribeEvent[],
+  devMode: boolean,
+): { outputs: string[]; rollovers: string[] } {
   const outputs: string[] = [];
   const rollovers: string[] = [];
   const sessionDir = devMode
@@ -584,7 +715,8 @@ export function finalizeSession(
 
   for (let i = 0; i < finalizedBlocks.length; i++) {
     const block = finalizedBlocks[i];
-    const suffix = blocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
+    const suffix =
+      finalizedBlocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
 
     // Header
     const inWorldStart =
@@ -597,10 +729,12 @@ export function finalizeSession(
         .find((e) => e.kind === 'day_start')?.payload?.calendarDate || null;
     const header = {
       kind: 'header',
-      id: sessionId,
-      seasonId: block.seasonId,
-      inWorldStart,
-      inWorldEnd,
+      payload: {
+        id: suffix ? `${sessionId}${suffix}` : sessionId,
+        seasonId: block.seasonId,
+        inWorldStart,
+        inWorldEnd,
+      },
     };
 
     // Reassign seq
@@ -626,38 +760,15 @@ export function finalizeSession(
             rolloverDir,
             `dev_rollover_${nextSeasonId}_${events[0].ts?.replace(/[:.]/g, '-')}.jsonl`,
           )
-        : path.join(
-            rolloverDir,
-            `rollover_${nextSeasonId}_${events[0].ts?.slice(0, 10)}.jsonl`,
-          );
-      const rolloverEvent = { kind: 'season_rollover', seasonId: nextSeasonId };
-      writeEventsWithHeader(rolloverFile, rolloverEvent);
-      rollovers.push(rolloverFile);
-    }
-  }
-
-  // 5. Meta/lock handling
-  if (!devMode) {
-    // Remove lock file
-    removeLockFile(sessionId);
-
-    // Remove in-progress file
-    if (existsSync(inProgressFile)) {
-      fs.unlinkSync(inProgressFile);
-    }
-
-    // Update meta.yaml if outputs written
-    if (outputs.length) {
-      const lockSeq = Number(sessionId.match(SESSION_ID_RE)?.[1] || 0);
-      const meta = loadMeta();
-      if (meta.nextSessionSeq !== lockSeq + 1) {
-        saveMeta({ nextSessionSeq: lockSeq + 1 });
+        : path.join(rolloverDir, `rollover_${nextSeasonId}.jsonl`);
+      if (!existsSync(rolloverFile)) {
+        const rolloverEvent = {
+          kind: 'season_rollover',
+          payload: { seasonId: nextSeasonId },
+        };
+        writeEventsWithHeader(rolloverFile, rolloverEvent);
+        rollovers.push(rolloverFile);
       }
-    }
-  } else {
-    // Dev: just remove in-progress file
-    if (existsSync(inProgressFile)) {
-      fs.unlinkSync(inProgressFile);
     }
   }
   return { outputs, rollovers };

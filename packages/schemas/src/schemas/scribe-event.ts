@@ -29,10 +29,12 @@ export function makeEventSchema<const K extends string, P extends z.ZodTypeAny>(
 
 export const ScribeHeaderSchema = z.object({
   kind: z.literal('header'),
-  id: z.string(),
-  seasonId: z.string(),
-  inWorldStart: CampaignDateSchema,
-  inWorldEnd: CampaignDateSchema,
+  payload: z.object({
+    id: z.string(),
+    seasonId: z.string(),
+    inWorldStart: CampaignDateSchema,
+    inWorldEnd: CampaignDateSchema,
+  }),
 });
 
 export type ScribeHeader = z.infer<typeof ScribeHeaderSchema>;
