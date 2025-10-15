@@ -1,4 +1,4 @@
-import { warn } from '@skyreach/cli-kit';
+import { info, warn } from '@skyreach/cli-kit';
 import { hexSort, normalizeHexId } from '@skyreach/core';
 import {
   REPO_PATHS,
@@ -51,6 +51,172 @@ export type SessionStartPrep =
       seq?: number;
       dev?: boolean;
     };
+
+/**
+ * Checks that the sessionDate in the session_start event matches the <DATE> in the filename.
+ * Prints a warning for any mismatches.
+ */
+export function checkSessionDateConsistency({
+  files,
+  dirName,
+  collect = false,
+}: {
+  files: string[];
+  dirName: keyof typeof REPO_PATHS;
+  collect?: boolean;
+}) {
+  const mismatches: {
+    file: string;
+    filenameDate: string;
+    eventDate: string;
+  }[] = [];
+  const warnings: string[] = [];
+  for (const file of files) {
+    const parsed = parseSessionFilename(file);
+    if (!parsed || !parsed.date) {
+      warnings.push(`[${dirName}] Could not parse date from filename: ${file}`);
+      continue;
+    }
+    const filePath = path.join(REPO_PATHS[dirName](), file);
+    let events: any[] = [];
+    try {
+      events = readEvents(filePath);
+    } catch (e) {
+      warnings.push(`[${dirName}] Failed to read ${file}: ${e}`);
+      continue;
+    }
+    const startEvent = events.find((ev) => ev.kind === 'session_start');
+    if (!startEvent) {
+      warnings.push(`[${dirName}] No session_start event found in ${file}`);
+      continue;
+    }
+    const eventDate =
+      startEvent.sessionDate ||
+      (startEvent.payload && startEvent.payload.sessionDate);
+    if (!eventDate) {
+      warnings.push(
+        `[${dirName}] session_start event missing sessionDate in ${file}`,
+      );
+      continue;
+    }
+    if (parsed.date !== eventDate) {
+      mismatches.push({ file, filenameDate: parsed.date, eventDate });
+      warnings.push(
+        `[${dirName}] Session date mismatch: filename=${parsed.date}, event=${eventDate} in ${file}`,
+      );
+    }
+  }
+  if (collect) {
+    return { mismatches, warnings };
+  } else {
+    warnings.forEach(warn);
+    return undefined;
+  }
+}
+
+/**
+ * Checks for gaps in session sequence numbers across finalized, in-progress, and lock files.
+ * Prints diagnostics for missing and intentional gaps, and checks against meta.nextSessionSeq.
+ */
+export function checkSessionSequenceGaps({
+  sessionFiles,
+  inProgressFiles,
+  lockFiles,
+  metaSeq,
+  collect = false,
+}: {
+  sessionFiles: string[];
+  inProgressFiles: string[];
+  lockFiles: string[];
+  metaSeq?: number;
+  collect?: boolean;
+}) {
+  const allSeqs = new Set<number>();
+  const seqSources: Record<number, string[]> = {};
+  const warnings: string[] = [];
+  const infos: string[] = [];
+  function addSeq(seq: number, source: string) {
+    allSeqs.add(seq);
+    if (!seqSources[seq]) seqSources[seq] = [];
+    seqSources[seq].push(source);
+  }
+  for (const file of sessionFiles) {
+    const parsed = parseSessionFilename(file);
+    if (parsed) addSeq(parsed.sessionNumber, 'finalized');
+  }
+  for (const file of inProgressFiles) {
+    const parsed = parseSessionFilename(file);
+    if (parsed) addSeq(parsed.sessionNumber, 'in-progress');
+  }
+  for (const file of lockFiles) {
+    const parsed = parseSessionFilename(
+      file.replace(/^session_|\.lock$/g, '.jsonl'),
+    );
+    if (parsed) addSeq(parsed.sessionNumber, 'lock');
+  }
+  const sortedSeqs = Array.from(allSeqs).sort((a, b) => a - b);
+  if (sortedSeqs.length === 0)
+    return collect
+      ? { gaps: [], intentionalGaps: [], warnings, infos }
+      : undefined;
+  const gaps: number[] = [];
+  for (let i = sortedSeqs[0]; i < sortedSeqs[sortedSeqs.length - 1]; i++) {
+    if (!allSeqs.has(i)) gaps.push(i);
+  }
+  const intentionalGaps: number[] = [];
+  for (const gap of gaps) {
+    const sessionFile = sessionFiles.find((f) => {
+      const parsed = parseSessionFilename(f);
+      return parsed && parsed.sessionNumber === gap;
+    });
+    let isIntentional = false;
+    if (sessionFile) {
+      const filePath = path.join(REPO_PATHS.SESSIONS(), sessionFile);
+      let events: any[] = [];
+      try {
+        events = readEvents(filePath);
+      } catch (e) {
+        warnings.push(`Failed to read session file ${sessionFile}: ${e}`);
+      }
+      const startEvent = events.find((ev) => ev.kind === 'session_start');
+      if (
+        startEvent &&
+        (startEvent.mode === 'interactive' || startEvent.interactive === true)
+      ) {
+        isIntentional = true;
+      }
+    }
+    if (isIntentional) {
+      intentionalGaps.push(gap);
+    } else {
+      warnings.push(
+        `Missing session sequence: ${gap} (not marked as intentional)`,
+      );
+    }
+  }
+  if (intentionalGaps.length) {
+    infos.push(
+      `Intentional sequence gaps (interactive sessions): ${intentionalGaps.join(', ')}`,
+    );
+  }
+  if (metaSeq !== undefined) {
+    if (
+      sortedSeqs.length &&
+      sortedSeqs[sortedSeqs.length - 1] + 1 !== metaSeq
+    ) {
+      warnings.push(
+        `Highest found session sequence is ${sortedSeqs[sortedSeqs.length - 1]}, but meta.nextSessionSeq is ${metaSeq}. Please verify.`,
+      );
+    }
+  }
+  if (collect) {
+    return { gaps, intentionalGaps, warnings, infos };
+  } else {
+    warnings.forEach(warn);
+    infos.forEach(info);
+    return undefined;
+  }
+}
 
 function getSessionDateFromEvents(events: ScribeEvent[]): string {
   const startEvent = events.find((e) => e.kind === 'session_start');
