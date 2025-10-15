@@ -240,73 +240,7 @@ export function finalizeSession(
   const { finalizedBlocks } = synthesizeLifecycleEvents(blocks, sortedEvents, sessionId, sessionDate);
 
   // 6. Write finalized session files and rollovers
-  const outputs: string[] = [];
-  const rollovers: string[] = [];
-  const sessionDir = devMode
-    ? REPO_PATHS.DEV_SESSIONS()
-    : REPO_PATHS.SESSIONS();
-  const rolloverDir = devMode
-    ? REPO_PATHS.DEV_ROLLOVERS()
-    : REPO_PATHS.ROLLOVERS();
-  let suffixChar = 'a'.charCodeAt(0);
-
-  for (let i = 0; i < finalizedBlocks.length; i++) {
-    const block = finalizedBlocks[i];
-    const suffix = blocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
-
-    // Header
-    const inWorldStart =
-      block.events.find((e) => e.kind === 'day_start')?.payload?.calendarDate ||
-      null;
-    const inWorldEnd =
-      block.events
-        .slice()
-        .reverse()
-        .find((e) => e.kind === 'day_start')?.payload?.calendarDate || null;
-    const header = {
-      kind: 'header',
-      payload: {
-        id: suffix ? `${sessionId}${suffix}` : sessionId,
-        seasonId: block.seasonId,
-        inWorldStart,
-        inWorldEnd,
-      },
-    };
-
-    // Reassign seq
-    const blockEvents = block.events.map((e, idx) => {
-      const ev = { ...e };
-      ev.seq = idx + 1;
-      return ev;
-    });
-
-    // Write session file
-    const sessionFile = path.join(
-      sessionDir,
-      buildSessionFilename(sessionId, sessionDate, suffix),
-    );
-    writeEventsWithHeader(sessionFile, header, blockEvents);
-    outputs.push(sessionFile);
-
-    // Write rollover if not last block
-    if (i < finalizedBlocks.length - 1) {
-      const nextSeasonId = finalizedBlocks[i + 1].seasonId;
-      const rolloverFile = devMode
-        ? path.join(
-            rolloverDir,
-            `dev_rollover_${nextSeasonId}_${events[0].ts?.replace(/[:.]/g, '-')}.jsonl`,
-          )
-        : path.join(
-            rolloverDir,
-            `rollover_${nextSeasonId}.jsonl`,
-          );
-      if (!existsSync(rolloverFile)) {
-        const rolloverEvent = { kind: 'season_rollover', payload: { seasonId: nextSeasonId } };
-        writeEventsWithHeader(rolloverFile, rolloverEvent);
-        rollovers.push(rolloverFile);
-      }
-    }
-  }
+  const { outputs, rollovers } = writeSessionFilesAndRollovers(finalizedBlocks, sessionId, sessionDate, events, devMode);
 
   // 5. Meta/lock handling
   if (!devMode) {
@@ -412,6 +346,28 @@ function buildSeasonBlocks(sortedEvents: (ScribeEvent & { _origIdx: number })[])
   }));
 
   return { blocks };
+}
+
+function normalizeTrailEdges<T extends { kind: string; payload?: any }>(events: T[]): T[] {
+  return events.map((ev) => {
+    if (
+      ev.kind === 'trail' &&
+      ev.payload &&
+      ev.payload.from &&
+      ev.payload.to
+    ) {
+      let { from, to } = ev.payload as { from: string; to: string };
+      from = normalizeHexId(from);
+      to = normalizeHexId(to);
+      if (hexSort(from, to) > 0) {
+        // Swap so from < to by hexSort
+        return { ...ev, payload: { ...ev.payload, from: to, to: from } };
+      } else {
+        return { ...ev, payload: { ...ev.payload, from, to } };
+      }
+    }
+    return ev;
+  });
 }
 
 function sortAndValidateEvents(events: ScribeEvent[]): { sortedEvents: (ScribeEvent & { _origIdx: number })[]; error?: string } {
@@ -573,26 +529,8 @@ function synthesizeLifecycleEvents(
     }
 
     // --- Normalization: seasonId and trail edges ---
-    // Normalize seasonId
     block.seasonId = block.seasonId.toLowerCase();
-    // Canonicalize trail edges: use hexSort on from/to if both present
-    blockEvents = blockEvents.map((ev) => {
-      if (
-        ev.kind === 'trail' &&
-        ev.payload &&
-        ev.payload.from &&
-        ev.payload.to
-      ) {
-        let { from, to } = ev.payload as { from: string; to: string };
-        from = normalizeHexId(from);
-        to = normalizeHexId(to);
-        if (hexSort(from, to) > 0) {
-          // Swap so from < to by hexSort
-          return { ...ev, payload: { ...ev.payload, from: to, to: from } };
-        }
-      }
-      return ev;
-    });
+    blockEvents = normalizeTrailEdges(blockEvents);
 
     // --- Sorting & seq ---
     blockEvents = blockEvents
@@ -689,4 +627,80 @@ function validateSessionDates(filePath: string, events: ScribeEvent[]): { error?
     return { error: `❌ Session date in filename (${filenameSessionDate}) does not match session_start event (${eventSessionDate}).` };
   }
   return {};
+}
+
+function writeSessionFilesAndRollovers(
+  finalizedBlocks: { seasonId: string; events: (ScribeEvent & { _origIdx: number })[] }[],
+  sessionId: SessionId,
+  sessionDate: string,
+  events: ScribeEvent[],
+  devMode: boolean
+): { outputs: string[]; rollovers: string[] } {
+  const outputs: string[] = [];
+  const rollovers: string[] = [];
+  const sessionDir = devMode
+    ? REPO_PATHS.DEV_SESSIONS()
+    : REPO_PATHS.SESSIONS();
+  const rolloverDir = devMode
+    ? REPO_PATHS.DEV_ROLLOVERS()
+    : REPO_PATHS.ROLLOVERS();
+  let suffixChar = 'a'.charCodeAt(0);
+
+  for (let i = 0; i < finalizedBlocks.length; i++) {
+    const block = finalizedBlocks[i];
+    const suffix = finalizedBlocks.length > 1 ? String.fromCharCode(suffixChar + i) : '';
+
+    // Header
+    const inWorldStart =
+      block.events.find((e) => e.kind === 'day_start')?.payload?.calendarDate || null;
+    const inWorldEnd =
+      block.events
+        .slice()
+        .reverse()
+        .find((e) => e.kind === 'day_start')?.payload?.calendarDate || null;
+    const header = {
+      kind: 'header',
+      payload: {
+        id: suffix ? `${sessionId}${suffix}` : sessionId,
+        seasonId: block.seasonId,
+        inWorldStart,
+        inWorldEnd,
+      },
+    };
+
+    // Reassign seq
+    const blockEvents = block.events.map((e, idx) => {
+      const ev = { ...e };
+      ev.seq = idx + 1;
+      return ev;
+    });
+
+    // Write session file
+    const sessionFile = path.join(
+      sessionDir,
+      buildSessionFilename(sessionId, sessionDate, suffix),
+    );
+    writeEventsWithHeader(sessionFile, header, blockEvents);
+    outputs.push(sessionFile);
+
+    // Write rollover if not last block
+    if (i < finalizedBlocks.length - 1) {
+      const nextSeasonId = finalizedBlocks[i + 1].seasonId;
+      const rolloverFile = devMode
+        ? path.join(
+          rolloverDir,
+          `dev_rollover_${nextSeasonId}_${events[0].ts?.replace(/[:.]/g, '-')}.jsonl`,
+        )
+        : path.join(
+          rolloverDir,
+          `rollover_${nextSeasonId}.jsonl`,
+        );
+      if (!existsSync(rolloverFile)) {
+        const rolloverEvent = { kind: 'season_rollover', payload: { seasonId: nextSeasonId } };
+        writeEventsWithHeader(rolloverFile, rolloverEvent);
+        rollovers.push(rolloverFile);
+      }
+    }
+  }
+  return { outputs, rollovers };
 }
