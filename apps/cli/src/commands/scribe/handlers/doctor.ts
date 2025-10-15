@@ -1,5 +1,5 @@
 import { info, warn, error } from '@skyreach/cli-kit';
-import { REPO_PATHS } from '@skyreach/data';
+import { parseSessionFilename, REPO_PATHS } from '@skyreach/data';
 import { loadMeta } from '@skyreach/data';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -7,6 +7,7 @@ import path from 'node:path';
 import { readEvents } from '../../../services/event-log.service';
 import { detectDevMode } from '../services/general';
 import { listLockFiles } from '../services/lock-file';
+import { checkSessionSequenceGaps } from '../services/session';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -109,6 +110,12 @@ export default function doctor() {
         const expectedLock = `session_${sessionId}.lock`;
         if (!lockFiles.includes(expectedLock)) {
           warn(`Orphan in-progress file: ${file} (no matching lock)`);
+          const parsed = parseSessionFilename(file);
+          if (parsed) {
+            info(`To remediate, run: touch sessions/session-${parsed.sessionNumber}.lock`);
+          } else {
+            warn(`Could not parse session filename for remediation instructions: ${file}`);
+          }
           orphanInProgress++;
         }
       }
@@ -160,6 +167,23 @@ export default function doctor() {
     if (!devMode) {
       info(`Dev files present: ${devFiles.length}`);
     }
+
+    // Sequence gap checks
+    let metaSeq: number | undefined;
+    if (!devMode) {
+      try {
+        const meta = loadMeta();
+        metaSeq = meta.nextSessionSeq;
+      } catch (e) {
+        error(`Failed to read meta.yaml: ${e}`);
+      }
+    }
+    checkSessionSequenceGaps({
+      sessionFiles,
+      inProgressFiles,
+      lockFiles,
+      metaSeq,
+    });
 
     info('Doctor diagnostics complete.');
   };
