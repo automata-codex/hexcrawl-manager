@@ -64,7 +64,7 @@ function getSessionDateFromEvents(events: ScribeEvent[]): string {
 export function findLatestInProgress(): { id: SessionId; path: string } | null {
   const prodDir = REPO_PATHS.IN_PROGRESS();
   const devDir = REPO_PATHS.DEV_IN_PROGRESS();
-  const candidates: { id: string; path: string; mtime: number }[] = [];
+  const candidates: { id: SessionId; path: string; mtime: number }[] = [];
 
   for (const dir of [prodDir, devDir]) {
     if (!existsSync(dir)) {
@@ -75,7 +75,7 @@ export function findLatestInProgress(): { id: SessionId; path: string } | null {
       const p = path.join(dir, f);
       const s = statSync(p);
       candidates.push({
-        id: f.replace(/\.jsonl$/, ''),
+        id: makeSessionId(parseSessionFilename(f)?.sessionNumber ?? 0),
         path: p,
         mtime: s.mtimeMs,
       });
