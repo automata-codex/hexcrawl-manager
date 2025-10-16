@@ -6,8 +6,10 @@ import { makeSessionId, type MetaV2Data } from '@skyreach/schemas';
 import { appendEvent } from '../../../services/event-log.service';
 import { prepareSessionStart } from '../services/session';
 
+import type { Context } from '../types';
+
 // Main interactive session start handler
-export async function handleInteractiveSessionStart() {
+export async function handleInteractiveSessionStart(ctx: Context) {
   // Step 1: Prompt for hex
   const hex = await maybeOverride<string>('Enter starting hex ID', '', {
     validate: (raw) => (isValidHexId(raw) ? undefined : 'Invalid hex ID'),
@@ -52,7 +54,7 @@ export async function handleInteractiveSessionStart() {
     return;
   }
 
-  // Step 6: Confirm and write
+  // Step 6: Confirm
   const confirmed = await maybeOverride<boolean>(
     'Proceed with session creation?',
     true,
@@ -66,12 +68,16 @@ export async function handleInteractiveSessionStart() {
     return;
   }
 
-  // Step 7: Write session start event
-  appendEvent(sessionFile, 'session_start', {
-    id: sessionId,
+  // Step 7: Initialize context
+  ctx.sessionId = prep.sessionId;
+  ctx.file = prep.inProgressFile;
+
+  // Step 8: Write session start event
+  appendEvent(ctx.file, 'session_start', {
+    id: ctx.sessionId,
     sessionDate: date,
     startHex: hex,
     status: 'in-progress',
   });
-  info(`Session started: ${sessionFile}`);
+  info(`started: ${prep.sessionId} @ ${hex}`);
 }

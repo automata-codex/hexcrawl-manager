@@ -38,7 +38,7 @@ export default function start(ctx: Context) {
         return;
       }
       // Placeholder for interactive flow
-      await handleInteractiveSessionStart();
+      await handleInteractiveSessionStart(ctx);
       return;
     }
 
