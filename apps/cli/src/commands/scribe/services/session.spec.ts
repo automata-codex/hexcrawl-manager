@@ -1,3 +1,5 @@
+import { CALENDAR_CONFIG } from '@skyreach/core';
+import { buildSessionFilename, REPO_PATHS } from '@skyreach/data';
 import { TrailEventSchema, makeSessionId } from '@skyreach/schemas';
 import {
   compileLog,
@@ -10,11 +12,15 @@ import {
 } from '@skyreach/test-helpers';
 import { describe, it, expect } from 'vitest';
 
+import { CalendarService } from './calendar';
 import {
   buildSeasonBlocks,
   normalizeTrailEdges,
   sortAndValidateEvents,
   synthesizeLifecycleEvents,
+  validateEventLog,
+  validateSessionContext,
+  validateSessionDates,
 } from './session';
 
 describe('Session Service', () => {
@@ -109,6 +115,64 @@ describe('Session Service', () => {
       expect(
         result.finalizedBlocks[0].events.some((e) => e.kind === 'session_end'),
       ).toBe(true);
+    });
+  });
+
+  describe('Function `validateEventLog`', () => {
+    it('returns no error if event log is valid', () => {
+      const sessionId = makeSessionId(1);
+      const sessionDate = '2025-10-15';
+      const ctx = {
+        calendar: new CalendarService(CALENDAR_CONFIG),
+        sessionId,
+        sessionDate: '2025-10-15',
+        file: REPO_PATHS.IN_PROGRESS() + '/' + buildSessionFilename(sessionId, sessionDate),
+      };
+      const events = compileLog([
+        sessionStart(sessionId, 'R14', sessionDate),
+        dayStart({ year: 1511, month: 'Lucidus', day: 31 }),
+        move('R14', 'R15'),
+        dayEnd(0, 0),
+        sessionEnd(sessionId),
+      ]);
+
+      const result = validateEventLog(ctx, events);
+      expect(result.error).toBeUndefined();
+    });
+
+  });
+
+  describe('Function `validateSessionContext`', () => {
+    it('returns no error if context is valid', () => {
+      const sessionId = makeSessionId(1);
+      const sessionDate = '2025-10-15';
+      const ctx = {
+        calendar: new CalendarService(CALENDAR_CONFIG),
+        sessionId,
+        sessionDate: '2025-10-15',
+        file: REPO_PATHS.IN_PROGRESS() + '/' + buildSessionFilename(sessionId, sessionDate),
+      };
+
+      const result = validateSessionContext(ctx);
+      expect(result.error).toBeUndefined();
+    });
+  });
+
+  describe('Function `validateSessionDates`', () => {
+    it('returns no error if session_start date matches filename', () => {
+      const sessionId = makeSessionId(1);
+      const sessionDate = '2025-10-15';
+      const filePath = buildSessionFilename(sessionId, sessionDate);
+      const events = compileLog([
+        sessionStart(sessionId, 'R14', sessionDate),
+        dayStart({ year: 1511, month: 'Lucidus', day: 31 }),
+        move('R14', 'R15'),
+        dayEnd(0, 0),
+        sessionEnd(sessionId),
+      ]);
+
+      const result = validateSessionDates(filePath, events);
+      expect(result.error).toBeUndefined();
     });
   });
 });
