@@ -116,7 +116,11 @@ export function checkSessionDateConsistency({
 
 /**
  * Checks for gaps in session sequence numbers across finalized, in-progress, and lock files.
- * Prints diagnostics for missing and intentional gaps, and checks against meta.nextSessionSeq.
+ * - A "gap" is any sequence number in the expected range with no artifact at all.
+ * - Expected range:
+ *    - If metaSeq is provided: 1..(metaSeq - 1)
+ *    - Else: min(all found seqs)..max(all found seqs)
+ * - Warns about missing numbers and mismatches with meta.nextSessionSeq.
  */
 export function checkSessionSequenceGaps({
   sessionFiles,
@@ -135,11 +139,14 @@ export function checkSessionSequenceGaps({
   const seqSources: Record<number, string[]> = {};
   const warnings: string[] = [];
   const infos: string[] = [];
+
   function addSeq(seq: number, source: string) {
     allSeqs.add(seq);
     if (!seqSources[seq]) seqSources[seq] = [];
     seqSources[seq].push(source);
   }
+
+  // Collect sequences from filenames only
   for (const file of sessionFiles) {
     const parsed = parseSessionFilename(file);
     if (parsed) addSeq(parsed.sessionNumber, 'finalized');
@@ -154,63 +161,45 @@ export function checkSessionSequenceGaps({
     );
     if (parsed) addSeq(parsed.sessionNumber, 'lock');
   }
+
   const sortedSeqs = Array.from(allSeqs).sort((a, b) => a - b);
-  if (sortedSeqs.length === 0)
-    return collect
-      ? { gaps: [], intentionalGaps: [], warnings, infos }
-      : undefined;
+
+  // Nothing to compare against
+  if (sortedSeqs.length === 0) {
+    return collect ? { gaps: [], warnings, infos } : undefined;
+  }
+
+  // Determine expected range
+  const rangeStart = metaSeq !== undefined ? 1 : sortedSeqs[0];
+  const rangeEnd =
+    metaSeq !== undefined
+      ? Math.max(metaSeq - 1, rangeStart - 1)
+      : sortedSeqs[sortedSeqs.length - 1];
+
   const gaps: number[] = [];
-  for (let i = sortedSeqs[0]; i < sortedSeqs[sortedSeqs.length - 1]; i++) {
-    if (!allSeqs.has(i)) gaps.push(i);
+  if (rangeEnd >= rangeStart) {
+    for (let i = rangeStart; i <= rangeEnd; i++) {
+      if (!allSeqs.has(i)) gaps.push(i);
+    }
   }
-  const intentionalGaps: number[] = [];
+
+  // Emit warnings for gaps
   for (const gap of gaps) {
-    const sessionFile = sessionFiles.find((f) => {
-      const parsed = parseSessionFilename(f);
-      return parsed && parsed.sessionNumber === gap;
-    });
-    let isIntentional = false;
-    if (sessionFile) {
-      const filePath = path.join(REPO_PATHS.SESSIONS(), sessionFile);
-      let events: any[] = [];
-      try {
-        events = readEvents(filePath);
-      } catch (e) {
-        warnings.push(`Failed to read session file ${sessionFile}: ${e}`);
-      }
-      const startEvent = events.find((ev) => ev.kind === 'session_start');
-      if (
-        startEvent &&
-        (startEvent.mode === 'interactive' || startEvent.interactive === true)
-      ) {
-        isIntentional = true;
-      }
-    }
-    if (isIntentional) {
-      intentionalGaps.push(gap);
-    } else {
-      warnings.push(
-        `Missing session sequence: ${gap} (not marked as intentional)`,
-      );
-    }
+    warnings.push(`Missing session sequence: ${gap}`);
   }
-  if (intentionalGaps.length) {
-    infos.push(
-      `Intentional sequence gaps (interactive sessions): ${intentionalGaps.join(', ')}`,
-    );
-  }
+
+  // Meta mismatch check: highest found + 1 should equal metaSeq (if provided)
   if (metaSeq !== undefined) {
-    if (
-      sortedSeqs.length &&
-      sortedSeqs[sortedSeqs.length - 1] + 1 !== metaSeq
-    ) {
+    const highestFound = sortedSeqs[sortedSeqs.length - 1];
+    if (highestFound + 1 !== metaSeq) {
       warnings.push(
-        `Highest found session sequence is ${sortedSeqs[sortedSeqs.length - 1]}, but meta.nextSessionSeq is ${metaSeq}. Please verify.`,
+        `Highest found session sequence is ${highestFound}, but meta.nextSessionSeq is ${metaSeq}. Please verify.`,
       );
     }
   }
+
   if (collect) {
-    return { gaps, intentionalGaps, warnings, infos };
+    return { gaps, warnings, infos };
   } else {
     warnings.forEach(warn);
     infos.forEach(info);
@@ -255,6 +244,7 @@ export function findLatestInProgress(): { id: SessionId; path: string } | null {
   return { id: assertSessionId(top.id), path: top.path };
 }
 
+/** @deprecated Use `buildSessionFilename` from @skyreach/data instead. */
 export const inProgressPathFor = (id: string, devMode?: boolean) => {
   if (devMode) {
     return path.join(REPO_PATHS.DEV_IN_PROGRESS(), `${id}.jsonl`);
@@ -426,7 +416,8 @@ export function finalizeSession(
   return { outputs, rollovers };
 }
 
-function buildSeasonBlocks(
+/** @internal */
+export function buildSeasonBlocks(
   sortedEvents: (ScribeEvent & { _origIdx: number })[],
 ): {
   blocks: {
@@ -506,7 +497,8 @@ function buildSeasonBlocks(
   return { blocks };
 }
 
-function normalizeTrailEdges<T extends { kind: string; payload?: any }>(
+/** @internal */
+export function normalizeTrailEdges<T extends { kind: string; payload?: any }>(
   events: T[],
 ): T[] {
   return events.map((ev) => {
@@ -525,7 +517,8 @@ function normalizeTrailEdges<T extends { kind: string; payload?: any }>(
   });
 }
 
-function sortAndValidateEvents(events: ScribeEvent[]): {
+/** @internal */
+export function sortAndValidateEvents(events: ScribeEvent[]): {
   sortedEvents: (ScribeEvent & { _origIdx: number })[];
   error?: string;
 } {
@@ -580,7 +573,8 @@ function sortAndValidateEvents(events: ScribeEvent[]): {
   return { sortedEvents: expandedEvents };
 }
 
-function synthesizeLifecycleEvents(
+/** @internal */
+export function synthesizeLifecycleEvents(
   blocks: {
     seasonId: string;
     events: (ScribeEvent & { _origIdx: number })[];
@@ -729,7 +723,8 @@ function synthesizeLifecycleEvents(
   return { finalizedBlocks };
 }
 
-function updateMetaAndCleanup(
+/** @internal */
+export function updateMetaAndCleanup(
   sessionId: SessionId,
   inProgressFile: string,
   outputs: string[],
@@ -767,7 +762,8 @@ function updateMetaAndCleanup(
   }
 }
 
-function validateEventLog(
+/** @internal */
+export function validateEventLog(
   ctx: Context,
   events: ScribeEvent[],
 ): { error?: string } {
@@ -797,7 +793,11 @@ function validateEventLog(
   return {};
 }
 
-function validateLockFile(ctx: Context, devMode: boolean): { error?: string } {
+/** @internal */
+export function validateLockFile(
+  ctx: Context,
+  devMode: boolean,
+): { error?: string } {
   if (devMode) return {};
   const sessionId = assertSessionId(ctx.sessionId!);
   const lockFile = getLockFilePath(sessionId);
@@ -817,14 +817,16 @@ function validateLockFile(ctx: Context, devMode: boolean): { error?: string } {
   return {};
 }
 
-function validateSessionContext(ctx: Context): { error?: string } {
+/** @internal */
+export function validateSessionContext(ctx: Context): { error?: string } {
   if (!requireSession(ctx) || !requireFile(ctx)) {
     return { error: '❌ Missing sessionId or file in context.' };
   }
   return {};
 }
 
-function validateSessionDates(
+/** @internal */
+export function validateSessionDates(
   filePath: string,
   events: ScribeEvent[],
 ): { error?: string } {
@@ -859,7 +861,8 @@ function validateSessionDates(
   return {};
 }
 
-function writeSessionFilesAndRollovers(
+/** @internal */
+export function writeSessionFilesAndRollovers(
   finalizedBlocks: {
     seasonId: string;
     events: (ScribeEvent & { _origIdx: number })[];

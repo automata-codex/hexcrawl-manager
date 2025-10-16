@@ -44,7 +44,6 @@ Inspects session-related metadata, in-progress files, and locks to identify pote
 4. **Check Sequence Gaps**
   - Collect all known `<SEQ>` from finalized, in-progress, and lock files.
   - Sort numerically and identify gaps.
-  - Gaps caused by `start interactive` are marked as **intentional** (if those sessions exist).
   - Warn about missing intermediate numbers and suggest verifying against `meta.nextSessionSeq`.
 
 5. **Check Session Date Consistency**

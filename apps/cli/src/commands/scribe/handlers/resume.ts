@@ -16,12 +16,13 @@ export default function resume(ctx: Context) {
     const devMode = detectDevMode(args);
     const filteredArgs = args.filter((a) => a !== '--dev'); // Remove --dev if present
     if (filteredArgs[0]) {
-      sessionId = assertSessionId(filteredArgs[0]);
-      filePath = inProgressPathFor(sessionId, devMode);
-      if (!existsSync(filePath)) {
-        error(`❌ No in-progress log for '${sessionId}' at ${filePath}`);
-        return;
-      }
+      throw new Error('Unimplemented');
+      // sessionId = assertSessionId(filteredArgs[0]);
+      // filePath = inProgressPathFor(sessionId, devMode);
+      // if (!existsSync(filePath)) {
+      //   error(`❌ No in-progress log for '${sessionId}' at ${filePath}`);
+      //   return;
+      // }
     } else {
       const latest = findLatestInProgress();
       if (!latest) {
