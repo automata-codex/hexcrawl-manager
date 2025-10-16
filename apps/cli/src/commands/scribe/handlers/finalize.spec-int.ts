@@ -119,65 +119,6 @@ describe('scribe finalize', () => {
     );
   });
 
-  // Silly Copilot, there is no `session` command
-  it.skip('errors if session_pause appears before the end', async () => {
-    await withTempRepo(
-      'scribe-finalize-pause-mid',
-      { initGit: false },
-      async (repo) => {
-        const commands = [
-          'start p13',
-          'day start 8 umb 1511',
-          'session pause',
-          'move q13 normal',
-          'finalize',
-        ];
-        const { exitCode, stdout } = await runScribe(commands, { repo });
-
-        expect(exitCode).toBe(0); // REPL exits normally
-        expect(stdout).toMatch(/session_pause may only appear at the end/i);
-        const files = findSessionFiles(REPO_PATHS.SESSIONS());
-        expect(files.length).toBe(0);
-      },
-    );
-  });
-
-  // Silly Copilot, non-monotonic timestamps are impossible because we sort by timestamp before checking for monotonicity
-  it.skip('errors if timestamps are non-monotonic', async () => {
-    await withTempRepo(
-      'scribe-finalize-bad-ts',
-      { initGit: false },
-      async (repo) => {
-        // Manually write a bad in-progress file
-        const inProgressDir = REPO_PATHS.IN_PROGRESS();
-        fs.mkdirSync(inProgressDir, { recursive: true });
-        const sessionId = `session_0027_2025-09-20`;
-        const sessionFile = path.join(inProgressDir, `${sessionId}.jsonl`);
-        const events = [
-          { kind: 'session_start', ts: '2025-09-20T10:00:00.000Z' },
-          {
-            kind: 'day_start',
-            payload: {
-              calendarDate: { year: 1511, month: 'Umbraeus', day: 8 },
-              season: 'autumn',
-            },
-            ts: '2025-09-20T09:00:00.000Z',
-          },
-        ];
-        fs.writeFileSync(
-          sessionFile,
-          events.map((e) => JSON.stringify(e)).join('\n') + '\n',
-        );
-        const commands = ['finalize'];
-        const { exitCode, stderr } = await runScribe(commands, { repo });
-        expect(exitCode).not.toBe(0);
-        expect(stderr).toMatch(/non-monotonic timestamps/i);
-        const files = findSessionFiles(REPO_PATHS.SESSIONS());
-        expect(files.length).toBe(0);
-      },
-    );
-  });
-
   it('errors if sequence numbers are non-monotonic', async () => {
     await withTempRepo(
       'scribe-finalize-bad-seq',
@@ -353,49 +294,43 @@ describe('scribe finalize', () => {
     );
   });
 
-  it(
-    'removes lock and in-progress files and updates meta.yaml in production mode',
-    async () => {
-      await withTempRepo(
-        'scribe-finalize-meta-lock',
-        { initGit: false },
-        async (repo) => {
-          const commands = [
-            'start p13',
-            'day start 8 umb 1511',
-            'move q13 normal',
-            'finalize',
-          ];
-          // eslint-disable-next-line no-unused-vars
-          const { exitCode, stderr, stdout } = await runScribe(commands, {
-            repo,
-          });
+  it('removes lock and in-progress files and updates meta.yaml in production mode', async () => {
+    await withTempRepo(
+      'scribe-finalize-meta-lock',
+      { initGit: false },
+      async (repo) => {
+        const commands = [
+          'start p13',
+          'day start 8 umb 1511',
+          'move q13 normal',
+          'finalize',
+        ];
+        // eslint-disable-next-line no-unused-vars
+        const { exitCode, stderr, stdout } = await runScribe(commands, {
+          repo,
+        });
 
-          expect(exitCode).toBe(0);
-          expect(stderr).toBe('');
+        expect(exitCode).toBe(0);
+        expect(stderr).toBe('');
 
-          // Lock and in-progress files should be gone
-          const lockDir = REPO_PATHS.LOCKS();
-          const lockFiles = fs.existsSync(lockDir)
-            ? fs.readdirSync(lockDir)
-            : [];
-          expect(lockFiles.length).toBe(0);
+        // Lock and in-progress files should be gone
+        const lockDir = REPO_PATHS.LOCKS();
+        const lockFiles = fs.existsSync(lockDir) ? fs.readdirSync(lockDir) : [];
+        expect(lockFiles.length).toBe(0);
 
-          const inProgressDir = REPO_PATHS.IN_PROGRESS();
-          const inProgressFiles = fs.existsSync(inProgressDir)
-            ? fs.readdirSync(inProgressDir)
-            : [];
-          expect(inProgressFiles.length).toBe(0);
+        const inProgressDir = REPO_PATHS.IN_PROGRESS();
+        const inProgressFiles = fs.existsSync(inProgressDir)
+          ? fs.readdirSync(inProgressDir)
+          : [];
+        expect(inProgressFiles.length).toBe(0);
 
-          // meta.yaml should have incremented nextSessionSeq
-          const meta = loadMeta();
-          expect(meta.nextSessionSeq).toBeGreaterThan(1);
-          expect(meta.nextSessionSeq).toEqual(28);
-        },
-      );
-    },
-    12 * 60 * 60 * 1000,
-  );
+        // meta.yaml should have incremented nextSessionSeq
+        const meta = loadMeta();
+        expect(meta.nextSessionSeq).toBeGreaterThan(1);
+        expect(meta.nextSessionSeq).toEqual(28);
+      },
+    );
+  });
 
   // Not currently using dev mode, so skipping this test
   it.skip('skips lock/meta handling and writes to dev dirs in dev mode', async () => {
@@ -532,6 +467,57 @@ describe('scribe finalize', () => {
             header.payload.seasonId.toLowerCase(),
           );
         }
+      },
+    );
+  });
+
+  it('handles backfill of historical logs', async () => {
+    await withTempRepo(
+      'scribe-finalize-backfill',
+      { initGit: false },
+      async (repo) => {
+        const commands = [
+          'start interactive --hex R14 --seq 5 --date 2025-09-27 --yes',
+          'day start 30 hib 1511',
+          'move p14',
+          'rest',
+          'day start',
+          'rest',
+          'day start',
+          'rest',
+          'day start',
+          'move p15',
+          'rest',
+          'finalize',
+        ];
+
+        // eslint-disable-next-line no-unused-vars
+        const { exitCode, stderr, stdout } = await runScribe(commands, {
+          repo, ensureExit: false, ensureFinalize: false,
+        });
+
+        expect(exitCode).toBe(0);
+        expect(stderr).toBe('');
+
+        // Gather all events from all session files
+        const files = findSessionFiles(REPO_PATHS.SESSIONS());
+        const allEvents = files.flatMap(readEvents);
+
+        // Find all unique season IDs from day_start events
+        const allDayStarts = eventsOf(
+          allEvents,
+          'day_start',
+        ) as DayStartEvent[];
+        const uniqueSeasons = new Set(
+          allDayStarts.map((e) => {
+            return `${e.payload.calendarDate.year}-${String(e.payload.season).toLowerCase()}`;
+          }),
+        );
+        expect(files.length).toEqual(uniqueSeasons.size); // Should be one session file per unique season
+
+        // Should contain all moves
+        const moves = allEvents.filter((e) => e.kind === 'move');
+        expect(moves.length).toBe(2);
       },
     );
   });

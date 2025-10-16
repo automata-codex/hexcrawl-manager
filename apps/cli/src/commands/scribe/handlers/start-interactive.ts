@@ -8,6 +8,54 @@ import { prepareSessionStart } from '../services/session';
 
 import type { Context } from '../types';
 
+export type StartInteractiveValues = {
+  hex: string;      // normalized (e.g., 'R14')
+  seq: number;      // session sequence
+  date: string;     // 'YYYY-MM-DD'
+};
+
+/**
+ * Run the same work as the interactive flow, but with pre-supplied values.
+ * Skips all prompts. Performs the same validations and file setup.
+ */
+export async function startInteractiveWithValues(
+  ctx: Context,
+  vals: StartInteractiveValues,
+): Promise<void> {
+  // Validate hex/date quickly (seq is checked by Number parse at call sites)
+  if (!isValidHexId(vals.hex)) {
+    error('❌ Invalid hex. Example: `R14`');
+    return;
+  }
+  const hex = normalizeHexId(vals.hex);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(vals.date)) {
+    error('❌ Invalid date format; expected YYYY-MM-DD.');
+    return;
+  }
+
+  const prep = prepareSessionStart({
+    sessionNumber: vals.seq,
+    date: new Date(vals.date),
+    devMode: false,
+  });
+  if (!prep.ok) {
+    error(prep.error);
+    return;
+  }
+
+  ctx.sessionId = prep.sessionId;
+  ctx.file = prep.inProgressFile;
+
+  appendEvent(ctx.file, 'session_start', {
+    id: ctx.sessionId,
+    sessionDate: vals.date,
+    startHex: hex,
+    status: 'in-progress',
+  });
+
+  info(`started: ${prep.sessionId} @ ${hex}`);
+}
+
 // Main interactive session start handler
 export async function handleInteractiveSessionStart(ctx: Context) {
   // Step 1: Prompt for hex
