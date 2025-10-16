@@ -52,6 +52,87 @@ export type SessionStartPrep =
       dev?: boolean;
     };
 
+/** @internal */
+export function buildSeasonBlocks(
+  sortedEvents: (ScribeEvent & { _origIdx: number })[],
+): {
+  blocks: {
+    seasonId: string;
+    events: (ScribeEvent & { _origIdx: number })[];
+  }[];
+  error?: string;
+} {
+  // (a) Identify all day_start events and their seasonId, build block windows by season
+  const dayStartIndices = sortedEvents
+    .map((e, i) => {
+      return e.kind === 'day_start'
+        ? {
+            i,
+            seasonId: `${e.payload.calendarDate.year}-${String(e.payload?.season).toLowerCase()}`,
+          }
+        : null;
+    })
+    .filter(Boolean) as { i: number; seasonId: string }[];
+  if (!dayStartIndices.length) {
+    return { blocks: [], error: '❌ No day_start event found in session.' };
+  }
+
+  // Group consecutive day_starts with the same seasonId into a single block
+  const blockWindows: { start: number; end: number; seasonId: string }[] = [];
+  let currentSeason = dayStartIndices[0].seasonId;
+  let blockStart = dayStartIndices[0].i;
+  for (let b = 1; b < dayStartIndices.length; ++b) {
+    if (dayStartIndices[b].seasonId !== currentSeason) {
+      blockWindows.push({
+        start: blockStart,
+        end: dayStartIndices[b].i,
+        seasonId: currentSeason,
+      });
+      currentSeason = dayStartIndices[b].seasonId;
+      blockStart = dayStartIndices[b].i;
+    }
+  }
+  // Add the final block
+  blockWindows.push({
+    start: blockStart,
+    end: sortedEvents.length,
+    seasonId: currentSeason,
+  });
+
+  // (c) Assign events to blocks (no duplication)
+  // Track which block each event belongs to
+  const eventBlockAssignment = new Array(sortedEvents.length).fill(-1);
+  // Events before first day_start go in first block
+  for (let i = 0; i < blockWindows[0].start; ++i) {
+    eventBlockAssignment[i] = 0;
+  }
+  // Events after last day_start go in last block
+  for (
+    let i = blockWindows[blockWindows.length - 1].end;
+    i < sortedEvents.length;
+    ++i
+  ) {
+    eventBlockAssignment[i] = blockWindows.length - 1;
+  }
+  // Events inside each window
+  for (let b = 0; b < blockWindows.length; ++b) {
+    for (let i = blockWindows[b].start; i < blockWindows[b].end; ++i) {
+      eventBlockAssignment[i] = b;
+    }
+  }
+
+  // (d) Build blocks with assigned events
+  const blocks: {
+    seasonId: string;
+    events: (ScribeEvent & { _origIdx: number })[];
+  }[] = blockWindows.map((win, b) => ({
+    seasonId: win.seasonId,
+    events: sortedEvents.filter((_, i) => eventBlockAssignment[i] === b),
+  }));
+
+  return { blocks };
+}
+
 /**
  * Checks that the sessionDate in the session_start event matches the <DATE> in the filename.
  * Prints a warning for any mismatches.
@@ -215,6 +296,71 @@ function getSessionDateFromEvents(events: ScribeEvent[]): string {
   throw new Error('Unable to determine session date from events.');
 }
 
+/**
+ * Finalizes an in-progress file, splitting by season, writing rollovers, updating meta/locks, and returning output info.
+ * Returns { outputs: string[], rollovers: string[], error?: string }
+ */
+export function finalizeSession(
+  ctx: Context,
+  devMode = false,
+): { outputs: string[]; rollovers: string[]; error?: string } {
+  // 1. Guards
+  const contextCheck = validateSessionContext(ctx);
+  if (contextCheck.error) {
+    return { outputs: [], rollovers: [], error: contextCheck.error };
+  }
+  const lockCheck = validateLockFile(ctx, devMode);
+  if (lockCheck.error) {
+    return { outputs: [], rollovers: [], error: lockCheck.error };
+  }
+
+  const sessionId = assertSessionId(ctx.sessionId!);
+  const inProgressFile = ctx.file!;
+
+  // 2. Load and validate events
+  const events = readEvents(inProgressFile);
+  const eventCheck = validateEventLog(ctx, events);
+  if (eventCheck.error) {
+    return { outputs: [], rollovers: [], error: eventCheck.error };
+  }
+
+  // 3. Sort and check for impossible ordering
+  const { sortedEvents, error: sortError } = sortAndValidateEvents(events);
+  if (sortError) {
+    return { outputs: [], rollovers: [], error: sortError };
+  }
+
+  // 4. Block construction by season
+  const sessionDate = getSessionDateFromEvents(events);
+  const { blocks, error: blockError } = buildSeasonBlocks(sortedEvents);
+  if (blockError) {
+    return { outputs: [], rollovers: [], error: blockError };
+  }
+
+  // 5. Synthesize lifecycle events for blocks
+  const { finalizedBlocks } = synthesizeLifecycleEvents(
+    blocks,
+    sortedEvents,
+    sessionId,
+    sessionDate,
+  );
+
+  // 6. Write finalized session files and rollovers
+  const { outputs, rollovers } = writeSessionFilesAndRollovers(
+    finalizedBlocks,
+    sessionId,
+    sessionDate,
+    events,
+    devMode,
+  );
+
+  // 7. Meta/lock handling and cleanup
+  updateMetaAndCleanup(sessionId, inProgressFile, outputs, devMode);
+
+  // 8. Return results
+  return { outputs, rollovers };
+}
+
 /** Latest in-progress file by mtime, or null if none. */
 export function findLatestInProgress(): { id: SessionId; path: string } | null {
   const prodDir = REPO_PATHS.IN_PROGRESS();
@@ -251,6 +397,26 @@ export const inProgressPathFor = (id: string, devMode?: boolean) => {
   }
   return path.join(REPO_PATHS.IN_PROGRESS(), `${id}.jsonl`);
 };
+
+/** @internal */
+export function normalizeTrailEdges<T extends { kind: string; payload?: any }>(
+  events: T[],
+): T[] {
+  return events.map((ev) => {
+    if (ev.kind === 'trail' && ev.payload && ev.payload.from && ev.payload.to) {
+      let { from, to } = ev.payload as { from: string; to: string };
+      from = normalizeHexId(from);
+      to = normalizeHexId(to);
+      if (hexSort(from, to) > 0) {
+        // Swap so from < to by hexSort
+        return { ...ev, payload: { ...ev.payload, from: to, to: from } };
+      } else {
+        return { ...ev, payload: { ...ev.payload, from, to } };
+      }
+    }
+    return ev;
+  });
+}
 
 /**
  * Prepares session start: generates sessionId, file paths, and handles
@@ -349,172 +515,6 @@ export function prepareSessionStart({
   createLockFile(sessionId, lockData);
 
   return { ok: true, sessionId, inProgressFile, lockFile, seq };
-}
-
-/**
- * Finalizes an in-progress file, splitting by season, writing rollovers, updating meta/locks, and returning output info.
- * Returns { outputs: string[], rollovers: string[], error?: string }
- */
-export function finalizeSession(
-  ctx: Context,
-  devMode = false,
-): { outputs: string[]; rollovers: string[]; error?: string } {
-  // 1. Guards
-  const contextCheck = validateSessionContext(ctx);
-  if (contextCheck.error) {
-    return { outputs: [], rollovers: [], error: contextCheck.error };
-  }
-  const lockCheck = validateLockFile(ctx, devMode);
-  if (lockCheck.error) {
-    return { outputs: [], rollovers: [], error: lockCheck.error };
-  }
-
-  const sessionId = assertSessionId(ctx.sessionId!);
-  const inProgressFile = ctx.file!;
-
-  // 2. Load and validate events
-  const events = readEvents(inProgressFile);
-  const eventCheck = validateEventLog(ctx, events);
-  if (eventCheck.error) {
-    return { outputs: [], rollovers: [], error: eventCheck.error };
-  }
-
-  // 3. Sort and check for impossible ordering
-  const { sortedEvents, error: sortError } = sortAndValidateEvents(events);
-  if (sortError) {
-    return { outputs: [], rollovers: [], error: sortError };
-  }
-
-  // 4. Block construction by season
-  const sessionDate = getSessionDateFromEvents(events);
-  const { blocks, error: blockError } = buildSeasonBlocks(sortedEvents);
-  if (blockError) {
-    return { outputs: [], rollovers: [], error: blockError };
-  }
-
-  // 5. Synthesize lifecycle events for blocks
-  const { finalizedBlocks } = synthesizeLifecycleEvents(
-    blocks,
-    sortedEvents,
-    sessionId,
-    sessionDate,
-  );
-
-  // 6. Write finalized session files and rollovers
-  const { outputs, rollovers } = writeSessionFilesAndRollovers(
-    finalizedBlocks,
-    sessionId,
-    sessionDate,
-    events,
-    devMode,
-  );
-
-  // 7. Meta/lock handling and cleanup
-  updateMetaAndCleanup(sessionId, inProgressFile, outputs, devMode);
-
-  // 8. Return results
-  return { outputs, rollovers };
-}
-
-/** @internal */
-export function buildSeasonBlocks(
-  sortedEvents: (ScribeEvent & { _origIdx: number })[],
-): {
-  blocks: {
-    seasonId: string;
-    events: (ScribeEvent & { _origIdx: number })[];
-  }[];
-  error?: string;
-} {
-  // (a) Identify all day_start events and their seasonId, build block windows by season
-  const dayStartIndices = sortedEvents
-    .map((e, i) => {
-      return e.kind === 'day_start'
-        ? {
-            i,
-            seasonId: `${e.payload.calendarDate.year}-${String(e.payload?.season).toLowerCase()}`,
-          }
-        : null;
-    })
-    .filter(Boolean) as { i: number; seasonId: string }[];
-  if (!dayStartIndices.length) {
-    return { blocks: [], error: '❌ No day_start event found in session.' };
-  }
-
-  // Group consecutive day_starts with the same seasonId into a single block
-  const blockWindows: { start: number; end: number; seasonId: string }[] = [];
-  let currentSeason = dayStartIndices[0].seasonId;
-  let blockStart = dayStartIndices[0].i;
-  for (let b = 1; b < dayStartIndices.length; ++b) {
-    if (dayStartIndices[b].seasonId !== currentSeason) {
-      blockWindows.push({
-        start: blockStart,
-        end: dayStartIndices[b].i,
-        seasonId: currentSeason,
-      });
-      currentSeason = dayStartIndices[b].seasonId;
-      blockStart = dayStartIndices[b].i;
-    }
-  }
-  // Add the final block
-  blockWindows.push({
-    start: blockStart,
-    end: sortedEvents.length,
-    seasonId: currentSeason,
-  });
-
-  // (c) Assign events to blocks (no duplication)
-  // Track which block each event belongs to
-  const eventBlockAssignment = new Array(sortedEvents.length).fill(-1);
-  // Events before first day_start go in first block
-  for (let i = 0; i < blockWindows[0].start; ++i) {
-    eventBlockAssignment[i] = 0;
-  }
-  // Events after last day_start go in last block
-  for (
-    let i = blockWindows[blockWindows.length - 1].end;
-    i < sortedEvents.length;
-    ++i
-  ) {
-    eventBlockAssignment[i] = blockWindows.length - 1;
-  }
-  // Events inside each window
-  for (let b = 0; b < blockWindows.length; ++b) {
-    for (let i = blockWindows[b].start; i < blockWindows[b].end; ++i) {
-      eventBlockAssignment[i] = b;
-    }
-  }
-
-  // (d) Build blocks with assigned events
-  const blocks: {
-    seasonId: string;
-    events: (ScribeEvent & { _origIdx: number })[];
-  }[] = blockWindows.map((win, b) => ({
-    seasonId: win.seasonId,
-    events: sortedEvents.filter((_, i) => eventBlockAssignment[i] === b),
-  }));
-
-  return { blocks };
-}
-
-/** @internal */
-export function normalizeTrailEdges<T extends { kind: string; payload?: any }>(
-  events: T[],
-): T[] {
-  return events.map((ev) => {
-    if (ev.kind === 'trail' && ev.payload && ev.payload.from && ev.payload.to) {
-      let { from, to } = ev.payload as { from: string; to: string };
-      from = normalizeHexId(from);
-      to = normalizeHexId(to);
-      if (hexSort(from, to) > 0) {
-        // Swap so from < to by hexSort
-        return { ...ev, payload: { ...ev.payload, from: to, to: from } };
-      } else {
-        return { ...ev, payload: { ...ev.payload, from, to } };
-      }
-    }
-    return ev;
-  });
 }
 
 /** @internal */

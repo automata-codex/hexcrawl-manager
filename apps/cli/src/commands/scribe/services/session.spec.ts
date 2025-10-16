@@ -15,6 +15,7 @@ import { describe, it, expect } from 'vitest';
 import { CalendarService } from './calendar';
 import {
   buildSeasonBlocks,
+  checkSessionSequenceGaps,
   normalizeTrailEdges,
   sortAndValidateEvents,
   synthesizeLifecycleEvents,
@@ -49,6 +50,21 @@ describe('Session Service', () => {
       expect(result.blocks.length).toBe(2);
       expect(result.blocks[0].seasonId).toBe('1511-summer');
       expect(result.blocks[1].seasonId).toBe('1511-autumn');
+    });
+  });
+
+  describe('Function `checkSessionSequenceGaps`', () => {
+    it('detects missing sequence numbers', () => {
+      const result = checkSessionSequenceGaps({
+        sessionFiles: ['session-0003_2025-09-29.jsonl'],
+        inProgressFiles: ['session-0001_2025-09-27.jsonl'],
+        lockFiles: [],
+        collect: true,
+      });
+      expect(result?.gaps).toContain(2);
+      expect(
+        result?.warnings.some((w) => w.includes('Missing session sequence')),
+      ).toBe(true);
     });
   });
 
@@ -126,7 +142,10 @@ describe('Session Service', () => {
         calendar: new CalendarService(CALENDAR_CONFIG),
         sessionId,
         sessionDate: '2025-10-15',
-        file: REPO_PATHS.IN_PROGRESS() + '/' + buildSessionFilename(sessionId, sessionDate),
+        file:
+          REPO_PATHS.IN_PROGRESS() +
+          '/' +
+          buildSessionFilename(sessionId, sessionDate),
       };
       const events = compileLog([
         sessionStart(sessionId, 'R14', sessionDate),
@@ -139,7 +158,6 @@ describe('Session Service', () => {
       const result = validateEventLog(ctx, events);
       expect(result.error).toBeUndefined();
     });
-
   });
 
   describe('Function `validateSessionContext`', () => {
@@ -150,7 +168,10 @@ describe('Session Service', () => {
         calendar: new CalendarService(CALENDAR_CONFIG),
         sessionId,
         sessionDate: '2025-10-15',
-        file: REPO_PATHS.IN_PROGRESS() + '/' + buildSessionFilename(sessionId, sessionDate),
+        file:
+          REPO_PATHS.IN_PROGRESS() +
+          '/' +
+          buildSessionFilename(sessionId, sessionDate),
       };
 
       const result = validateSessionContext(ctx);
