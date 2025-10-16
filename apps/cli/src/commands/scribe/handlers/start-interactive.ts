@@ -11,10 +11,11 @@ import type { Context } from '../types';
 // Main interactive session start handler
 export async function handleInteractiveSessionStart(ctx: Context) {
   // Step 1: Prompt for hex
-  const hex = await maybeOverride<string>('Enter starting hex ID', '', {
+  const hex = await maybeOverride<string>('Enter starting hex ID', 'V17', {
     validate: (raw) => (isValidHexId(raw) ? undefined : 'Invalid hex ID'),
     parse: (raw) => normalizeHexId(raw as string),
-    placeholder: 'e.g. A1',
+    placeholder: 'A1',
+    rl: ctx.rl,
   });
 
   // Step 2: Prompt for sequence
@@ -26,6 +27,7 @@ export async function handleInteractiveSessionStart(ctx: Context) {
       validate: (raw) => (isNaN(Number(raw)) ? 'Must be a number' : undefined),
       parse: (raw) => Number(raw),
       placeholder: String(meta.nextSessionSeq),
+      rl: ctx.rl,
     },
   );
 
@@ -35,6 +37,7 @@ export async function handleInteractiveSessionStart(ctx: Context) {
     validate: (raw) =>
       /\d{4}-\d{2}-\d{2}/.test(raw) ? undefined : 'Invalid date format',
     placeholder: today,
+    rl: ctx.rl,
   });
 
   // Step 4: Preview session stem and file
@@ -61,6 +64,7 @@ export async function handleInteractiveSessionStart(ctx: Context) {
     {
       parse: (raw) => String(raw).toLowerCase() === 'y' || raw === '',
       placeholder: 'Y/n',
+      rl: ctx.rl,
     },
   );
   if (!confirmed) {
