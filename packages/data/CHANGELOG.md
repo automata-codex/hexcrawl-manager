@@ -1,5 +1,15 @@
 # @skyreach/data
 
+## 2.5.0
+
+### Minor Changes
+
+- 3f9dc1b: Implement `weave allocate ap` command
+- 65916d2: Add `SessionId` branded type; add `scribe start` interactive mode
+- feeb18e: Improve and test discovery for `weave apply`.
+- fee59a4: Update `scribe` tests; add GitHub Action ti run tests on every PR
+- 933be02: Add support for `meta.yaml` v2
+
 ## 2.4.0
 
 ### Minor Changes
