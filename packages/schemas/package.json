@@ -1,6 +1,6 @@
 {
   "name": "@skyreach/schemas",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "exports": {
     ".": {
       "default": "./dist/index.js",
@@ -16,7 +16,10 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "build:json-schemas": "tsx ./src/build-json-schemas.ts"
+    "build:json-schemas": "tsx ./src/build-json-schemas.ts",
+    "check": "tsc --noEmit",
+    "test": "vitest run --dir src",
+    "test:watch": "vitest --watch --dir src"
   },
   "type": "module",
   "types": "dist/index.d.ts",

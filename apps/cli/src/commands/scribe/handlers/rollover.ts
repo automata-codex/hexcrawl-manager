@@ -41,7 +41,9 @@ export default function rollover(ctx: Context) {
     const devMode = detectDevMode(args);
 
     if (!seasonIdRaw || !isSeasonId(seasonIdRaw)) {
-      error('❌ Invalid or missing season id. Format: YYYY-(spring|summer|autumn|winter)');
+      error(
+        '❌ Invalid or missing season id. Format: YYYY-(spring|summer|autumn|winter)',
+      );
       process.exit(4);
     }
 
@@ -53,9 +55,15 @@ export default function rollover(ctx: Context) {
     // Output path resolution
     let outPath: string;
     if (devMode) {
-      outPath = path.resolve(REPO_PATHS.DEV_ROLLOVERS(), buildRolloverDevFilename(seasonIdRaw));
+      outPath = path.resolve(
+        REPO_PATHS.DEV_ROLLOVERS(),
+        buildRolloverDevFilename(seasonIdRaw),
+      );
     } else {
-      outPath = path.resolve(REPO_PATHS.ROLLOVERS(), buildRolloverFilename(seasonIdRaw));
+      outPath = path.resolve(
+        REPO_PATHS.ROLLOVERS(),
+        buildRolloverFilename(seasonIdRaw),
+      );
       if (fs.existsSync(outPath)) {
         info('Rollover file already exists. No action taken.');
         process.exit(0);
@@ -74,9 +82,11 @@ export default function rollover(ctx: Context) {
       info(`Rollover file written: ${outPath}`);
       process.exit(0);
     } catch (e) {
-      error('❌ Failed to write rollover file: ' + (e instanceof Error ? e.message : String(e)));
+      error(
+        '❌ Failed to write rollover file: ' +
+          (e instanceof Error ? e.message : String(e)),
+      );
       process.exit(6);
     }
   };
 }
-

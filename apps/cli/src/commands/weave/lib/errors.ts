@@ -5,7 +5,6 @@ export class CliError extends Error {
   }
 }
 
-
 /** User tried to apply a file we've already applied (maps to exit 3). */
 export class AlreadyAppliedError extends CliError {
   constructor(message = 'File already applied.') {
@@ -26,6 +25,19 @@ export class CliValidationError extends CliError {
   constructor(message: string) {
     super(message);
     this.name = 'CliValidationError';
+  }
+}
+
+export class InsufficientCreditsError extends CliError {
+  constructor(
+    public characterId: string,
+    public available: number,
+    public requested: number,
+  ) {
+    super(
+      `Insufficient Tier-1 absence credits for "${characterId}": requested ${requested}, available ${available}.`,
+    );
+    this.name = 'InsufficientCreditsError';
   }
 }
 

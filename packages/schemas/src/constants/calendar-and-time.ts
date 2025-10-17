@@ -1,3 +1,7 @@
+import { Season } from '../types';
+
+export const SEASON_ORDER: Season[] = ['winter', 'spring', 'summer', 'autumn'];
+
 export const MONTH_NAMES = [
   'Primaris',
   'Gelidus',

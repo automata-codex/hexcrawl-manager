@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { SessionId } from './session-report';
+import { SessionIdSchema } from './session-id';
 
 export const ApReasonSchema = z.enum([
   'normal',
@@ -27,7 +27,7 @@ const AbsenceSpendEntrySchema = z.object({
   appliedAt: z.string().datetime(),
   characterId: z.string(),
   notes: z.string().optional(),
-  sessionId: SessionId, // when allocate happens outside a session, you’ll attach it to "most recent completed" and set this
+  sessionId: SessionIdSchema, // when allocate happens outside a session, you’ll attach it to "most recent completed" and set this
 });
 
 const SessionApEntrySchema = z.object({
@@ -39,7 +39,7 @@ const SessionApEntrySchema = z.object({
   }),
   appliedAt: z.string().datetime(),
   characterId: z.string(),
-  sessionId: SessionId, // ties back to the report id
+  sessionId: SessionIdSchema, // ties back to the report id
   source: z.object({ fileHash: z.string() }).optional(), // optional idempotency/audit
 });
 

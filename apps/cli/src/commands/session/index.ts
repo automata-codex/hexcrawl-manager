@@ -1,10 +1,5 @@
-import { padSessionNum } from '@skyreach/core';
-import {
-  REPO_PATHS,
-  loadMeta,
-  writeYamlAtomic,
-} from '@skyreach/data';
-import { SessionReportSchema } from '@skyreach/schemas';
+import { REPO_PATHS, loadMeta, writeYamlAtomic } from '@skyreach/data';
+import { SessionReportSchema, makeSessionId } from '@skyreach/schemas';
 import { Command } from 'commander';
 import fs from 'fs';
 import path from 'path';
@@ -31,7 +26,7 @@ export const sessionCommand = new Command('session')
     }
 
     // Step 2: Generate Session ID
-    const sessionId = `session-${padSessionNum(nextSessionSeq)}`;
+    const sessionId = makeSessionId(nextSessionSeq);
 
     // Step 3: Determine Output Path
     const sessionReportsDir = REPO_PATHS.REPORTS();

@@ -3,7 +3,10 @@ import { getHexNeighbors, isValidHexId, normalizeHexId } from '@skyreach/core';
 import { PACES, type Pace } from '@skyreach/schemas';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
-import { selectCurrentHex, isPartyLost } from '../projectors';
+import {
+  selectCurrentHex,
+  isPartyLost,
+} from '../../../services/projectors.service';
 import { requireSession } from '../services/general';
 
 import type { Context } from '../types';

@@ -1,10 +1,10 @@
 // Pick next session id (Option R)
-import { padSessionNum } from '@skyreach/core';
+import { SessionId, makeSessionId } from '@skyreach/schemas';
 
 export function pickNextSessionId(
   completed: number[],
   availableWithLogs: number[],
-): string {
+): SessionId {
   const maxCompleted = completed.length ? Math.max(...completed) : 0;
   const candidates = availableWithLogs.filter((n) => n > maxCompleted);
 
@@ -13,5 +13,5 @@ export function pickNextSessionId(
   }
 
   const next = Math.min(...candidates);
-  return `session-${padSessionNum(next)}`;
+  return makeSessionId(next);
 }

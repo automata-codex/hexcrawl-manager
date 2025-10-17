@@ -1,16 +1,34 @@
 import { info, warn, error } from '@skyreach/cli-kit';
-import { REPO_PATHS } from '@skyreach/data';
+import { parseSessionFilename, REPO_PATHS } from '@skyreach/data';
 import { loadMeta } from '@skyreach/data';
 import fs from 'node:fs';
 import path from 'node:path';
 
 import { readEvents } from '../../../services/event-log.service';
 import { detectDevMode } from '../services/general';
+import { listLockFiles } from '../services/lock-file';
+import {
+  checkSessionSequenceGaps,
+  checkSessionDateConsistency,
+} from '../services/session';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export default function doctor() {
   return (args: string[]) => {
+    // Diagnostic collections
+    const infos: string[] = [];
+    const warnings: string[] = [];
+    const errors: string[] = [];
+    let nextSessionSeq: number | undefined;
+    let lockCounts = { active: 0, stale: 0, orphan: 0 };
+    let orphanInProgress = 0;
+    let missingStart = 0;
+    let crossSeason = 0;
+    let devFileCount = 0;
+    let sessionGapCount = 0;
+    let dateMismatchCount = 0;
+
     const devMode = detectDevMode(args);
     const inProgressDir = devMode
       ? REPO_PATHS.DEV_IN_PROGRESS()
@@ -20,22 +38,24 @@ export default function doctor() {
     if (!devMode) {
       try {
         const meta = loadMeta();
-        info(`Next session sequence: ${meta.nextSessionSeq ?? '(missing)'}`);
+        nextSessionSeq = meta.nextSessionSeq;
+        infos.push(
+          `Next session sequence: ${meta.nextSessionSeq ?? '(missing)'}`,
+        );
       } catch (e) {
-        error(`Failed to read meta.yaml: ${e}`);
+        errors.push(`Failed to read meta.yaml: ${e}`);
       }
     }
 
     // 2. Locks (prod only)
     let lockFiles: string[] = [];
     if (!devMode) {
-      if (fs.existsSync(REPO_PATHS.LOCKS())) {
-        lockFiles = fs
-          .readdirSync(REPO_PATHS.LOCKS())
-          .filter((f) => f.endsWith('.lock'));
-        info(`Found ${lockFiles.length} lock(s).`);
+      lockFiles = listLockFiles();
+      lockCounts.active = lockFiles.length;
+      if (lockFiles.length) {
+        infos.push(`Found ${lockFiles.length} lock(s).`);
       } else {
-        warn('No .locks/ directory found.');
+        warnings.push('No lock files found.');
       }
     }
 
@@ -45,9 +65,9 @@ export default function doctor() {
       inProgressFiles = fs
         .readdirSync(inProgressDir)
         .filter((f) => f.endsWith('.jsonl'));
-      info(`Found ${inProgressFiles.length} in-progress file(s).`);
+      infos.push(`Found ${inProgressFiles.length} in-progress file(s).`);
     } else {
-      warn(`${inProgressDir} not found.`);
+      warnings.push(`${inProgressDir} not found.`);
     }
 
     // 4. Sessions
@@ -56,9 +76,9 @@ export default function doctor() {
       sessionFiles = fs
         .readdirSync(REPO_PATHS.SESSIONS())
         .filter((f) => f.endsWith('.jsonl'));
-      info(`Found ${sessionFiles.length} finalized session file(s).`);
+      infos.push(`Found ${sessionFiles.length} finalized session file(s).`);
     } else {
-      warn('sessions/ directory not found.');
+      warnings.push('sessions/ directory not found.');
     }
 
     // 5. Dev files (always list for visibility)
@@ -67,14 +87,13 @@ export default function doctor() {
       devFiles = fs
         .readdirSync(REPO_PATHS.DEV_IN_PROGRESS())
         .filter((f) => f.endsWith('.jsonl'));
-      info(`Found ${devFiles.length} dev file(s) in _dev/.`);
+      devFileCount = devFiles.length;
+      infos.push(`Found ${devFiles.length} dev file(s) in _dev/.`);
     } else {
-      if (!devMode) warn('_dev/ directory not found.');
+      if (!devMode) warnings.push('_dev/ directory not found.');
     }
 
     // 6. Lock checks (prod)
-    let staleLocks = 0,
-      orphanLocks = 0;
     if (!devMode && lockFiles.length) {
       for (const lock of lockFiles) {
         const lockPath = path.join(REPO_PATHS.LOCKS(), lock);
@@ -86,30 +105,43 @@ export default function doctor() {
         }
         const age = Date.now() - mtime;
         if (age > DAY_MS) {
-          warn(`Stale lock: ${lock} (age ${(age / DAY_MS).toFixed(1)} days)`);
-          staleLocks++;
+          warnings.push(
+            `Stale lock: ${lock} (age ${(age / DAY_MS).toFixed(1)} days)`,
+          );
+          lockCounts.stale++;
         }
         // Check for matching in-progress file
         const sessionId = lock.replace(/^session_|\.lock$/g, '');
         const expected = `${sessionId}.jsonl`;
         if (!inProgressFiles.includes(expected)) {
-          warn(`Orphan lock: ${lock} (no matching in-progress file)`);
-          orphanLocks++;
+          warnings.push(`Orphan lock: ${lock} (no matching in-progress file)`);
+          lockCounts.orphan++;
         }
       }
-      info(`Stale locks: ${staleLocks}, Orphan locks: ${orphanLocks}`);
     }
 
     // 7. In-progress checks
-    let orphanInProgress = 0,
-      missingStart = 0;
     for (const file of inProgressFiles) {
       // In prod, check for matching lock
       if (!devMode) {
         const sessionId = file.replace(/\.jsonl$/, '');
         const expectedLock = `session_${sessionId}.lock`;
         if (!lockFiles.includes(expectedLock)) {
-          warn(`Orphan in-progress file: ${file} (no matching lock)`);
+          warnings.push(`Orphan in-progress file: ${file} (no matching lock)`);
+          const parsed = parseSessionFilename(file);
+          if (parsed) {
+            // Use helpers to build lock file content
+            const seq = parsed.sessionNumber;
+            const filename = file;
+            const createdAt = new Date().toISOString();
+            const pid = process.pid;
+            const echoCmd = `echo '{"seq": ${seq}, "filename": "${filename}", "createdAt": "${createdAt}", "pid": ${pid}}' > data/session-logs/.locks/session_${seq}.lock`;
+            infos.push(`To remediate, run: ${echoCmd}`);
+          } else {
+            warnings.push(
+              `Could not parse session filename for remediation instructions: ${file}`,
+            );
+          }
           orphanInProgress++;
         }
       }
@@ -119,27 +151,23 @@ export default function doctor() {
       try {
         events = readEvents(filePath);
       } catch (e) {
-        warn(`Failed to read ${file}: ${e}`);
+        warnings.push(`Failed to read ${file}: ${e}`);
         continue;
       }
       if (!events.some((ev) => ev.kind === 'session_start')) {
-        warn(`In-progress file ${file} missing session_start event.`);
+        warnings.push(`In-progress file ${file} missing session_start event.`);
         missingStart++;
       }
     }
-    info(
-      `Orphan in-progress: ${orphanInProgress}, Missing session_start: ${missingStart}`,
-    );
 
     // 8. Session log checks (cross-season)
-    let crossSeason = 0;
     for (const file of sessionFiles) {
       const filePath = path.join(REPO_PATHS.SESSIONS(), file);
       let events: any[] = [];
       try {
         events = readEvents(filePath);
       } catch (e) {
-        warn(`Failed to read session file ${file}: ${e}`);
+        warnings.push(`Failed to read session file ${file}: ${e}`);
         continue;
       }
       // Find all unique seasonIds in day_start events
@@ -149,19 +177,78 @@ export default function doctor() {
           .map((ev) => (ev.seasonId || '').toLowerCase()),
       );
       if (seasons.size > 1) {
-        warn(
+        warnings.push(
           `Session file ${file} spans multiple seasons: ${Array.from(seasons).join(', ')}`,
         );
         crossSeason++;
       }
     }
-    info(`Cross-season sessions: ${crossSeason}`);
 
     // 9. Dev file summary
+    // Already tracked as devFileCount
+
+    // Sequence gap checks
+    let metaSeq: number | undefined;
     if (!devMode) {
-      info(`Dev files present: ${devFiles.length}`);
+      try {
+        const meta = loadMeta();
+        metaSeq = meta.nextSessionSeq;
+      } catch (e) {
+        errors.push(`Failed to read meta.yaml: ${e}`);
+      }
+    }
+    // Refactor helpers to return results
+    const gapResults = checkSessionSequenceGaps({
+      sessionFiles,
+      inProgressFiles,
+      lockFiles,
+      metaSeq,
+      collect: true,
+    });
+    if (gapResults) {
+      sessionGapCount = gapResults.gaps.length;
+      gapResults.warnings.forEach((w) => warnings.push(w));
+      gapResults.infos.forEach((i) => infos.push(i));
     }
 
+    // Session date consistency checks
+    const dateResultsSessions = checkSessionDateConsistency({
+      files: sessionFiles,
+      dirName: 'SESSIONS',
+      collect: true,
+    });
+    const dateResultsInProgress = checkSessionDateConsistency({
+      files: inProgressFiles,
+      dirName: devMode ? 'DEV_IN_PROGRESS' : 'IN_PROGRESS',
+      collect: true,
+    });
+    if (dateResultsSessions) {
+      dateMismatchCount += dateResultsSessions.mismatches.length;
+      dateResultsSessions.warnings.forEach((w) => warnings.push(w));
+    }
+    if (dateResultsInProgress) {
+      dateMismatchCount += dateResultsInProgress.mismatches.length;
+      dateResultsInProgress.warnings.forEach((w) => warnings.push(w));
+    }
+
+    // Print structured summary
+    info('--- Doctor Diagnostics Summary ---');
+    info(`Next session sequence: ${nextSessionSeq ?? '(missing)'}`);
+    info(
+      `Lock files: active=${lockCounts.active}, stale=${lockCounts.stale}, orphan=${lockCounts.orphan}`,
+    );
+    info(`Orphan in-progress files: ${orphanInProgress}`);
+    info(`In-progress files missing session_start: ${missingStart}`);
+    info(`Sequence gaps: ${sessionGapCount}`);
+    info(`Session date mismatches: ${dateMismatchCount}`);
+    info(`Cross-season sessions: ${crossSeason}`);
+    info(`Dev files present: ${devFileCount}`);
+    if (infos.length) info('Info messages:');
+    infos.forEach((i) => info(i));
+    if (warnings.length) info('Warnings:');
+    warnings.forEach((w) => warn(w));
+    if (errors.length) info('Errors:');
+    errors.forEach((e) => error(e));
     info('Doctor diagnostics complete.');
   };
 }

@@ -1,45 +1,50 @@
 import {
   SessionFingerprintMismatchError,
   SessionReportValidationError,
-  assertSessionId,
   formatDate,
-  padSessionNum,
 } from '@skyreach/core';
 import {
   REPO_PATHS,
+  discoverCompletedReports,
   discoverFinalizedLogs,
   discoverFinalizedLogsForOrThrow,
   readAllFinalizedLogsForSession,
   writeYamlAtomic,
 } from '@skyreach/data';
-import { SessionReportSchema } from '@skyreach/schemas';
+import {
+  SessionReportSchema,
+  assertSessionId,
+  padSessionNum,
+  type NoteEvent,
+  type SessionId,
+} from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 import { ZodError } from 'zod';
 
-import pkg from '../../../../../../package.json' assert { type: 'json' };
+import pkg from '../../../../package.json' assert { type: 'json' };
 import {
   appendApEntries,
   buildSessionApEntries,
 } from '../../../services/ap-ledger.service';
 import { eventsOf } from '../../../services/event-log.service';
 import {
-  pickNextSessionId,
-  sortScribeIds,
-} from '../../../services/sessions.service';
-import {
   firstCalendarDate,
   lastCalendarDate,
   selectParty,
-} from '../../scribe/projectors';
-import { computeApForSession } from '../lib/compute-ap-for-session';
+} from '../../../services/projectors.service';
+import {
+  pickNextSessionId,
+  sortScribeIds,
+} from '../../../services/sessions.service';
+import { computeApForSession } from '../lib/core/compute-ap-for-session';
 import { assertCleanGitOrAllowDirty } from '../lib/files';
 
 interface ApplyApOptions {
   allowDirty?: boolean;
-  sessionId?: string;
+  sessionId?: SessionId;
 }
 
 interface ApplyApResult {
@@ -124,13 +129,7 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     );
 
     // Identify pending sessions
-    const reportFiles = fs.existsSync(REPO_PATHS.REPORTS())
-      ? fs.readdirSync(REPO_PATHS.REPORTS())
-      : [];
-    const completedSessions = reportFiles
-      .filter((f) => f.match(/^session-\d{4}\.yaml$/))
-      .map((f) => f.match(/^session-(\d{4})\.yaml$/)![1])
-      .map((f) => parseInt(f, 10));
+    const completedSessions = discoverCompletedReports();
     const pendingSessions = sessionNumbers.filter(
       (num) => !completedSessions.includes(num),
     );
@@ -159,7 +158,9 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   // --- Derive Session Fields ---
   const gameStartDate = formatDate(firstCalendarDate(events));
   const gameEndDate = formatDate(lastCalendarDate(events));
-  const notes = eventsOf(events, 'note').map((e) => e.payload.text);
+  const notes = (eventsOf(events, 'note') as NoteEvent[]).map(
+    (e) => e.payload.text,
+  );
   const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
 
   // --- Derive Attendance ---

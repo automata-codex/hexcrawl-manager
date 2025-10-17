@@ -1,6 +1,13 @@
 import { REPO_PATHS } from '@skyreach/data';
-import { ApLedgerEntry } from '@skyreach/schemas';
-import { runWeave, withTempRepo } from '@skyreach/test-helpers';
+import { ApLedgerEntry, makeSessionId, padSessionNum } from '@skyreach/schemas';
+import {
+  makeCompletedSessionReport,
+  makePlannedSessionReport,
+  makeSessionApGrid,
+  runWeave,
+  saveCharacter,
+  withTempRepo,
+} from '@skyreach/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
@@ -17,52 +24,12 @@ describe('Command `weave ap status`', () => {
       { initGit: false },
       async (repo) => {
         // Write minimal AP ledger
-        const ledger: ApLedgerEntry[] = [
-          {
-            sessionId: 'session-0001',
-            advancementPoints: {
-              combat: { delta: 1, reason: 'normal' },
-              exploration: { delta: 1, reason: 'normal' },
-              social: { delta: 1, reason: 'normal' },
-            },
-            appliedAt: '2025-09-27T23:27:21.381Z',
-            characterId: 'alistar',
-            kind: 'session_ap',
-          },
-          {
-            sessionId: 'session-0002',
-            advancementPoints: {
-              combat: { delta: 1, reason: 'normal' },
-              exploration: { delta: 1, reason: 'normal' },
-              social: { delta: 1, reason: 'normal' },
-            },
-            appliedAt: '2025-09-28T23:27:21.381Z',
-            characterId: 'alistar',
-            kind: 'session_ap',
-          },
-          {
-            sessionId: 'session-0001',
-            advancementPoints: {
-              combat: { delta: 1, reason: 'normal' },
-              exploration: { delta: 1, reason: 'normal' },
-              social: { delta: 1, reason: 'normal' },
-            },
-            appliedAt: '2025-09-27T23:27:21.381Z',
-            characterId: 'daemaris',
-            kind: 'session_ap',
-          },
-          {
-            sessionId: 'session-0002',
-            advancementPoints: {
-              combat: { delta: 1, reason: 'normal' },
-              exploration: { delta: 1, reason: 'normal' },
-              social: { delta: 1, reason: 'normal' },
-            },
-            appliedAt: '2025-09-28T23:27:21.381Z',
-            characterId: 'daemaris',
-            kind: 'session_ap',
-          },
-        ];
+        const ledger = makeSessionApGrid({
+          characters: ['alistar', 'daemaris'],
+          sessions: [1, 2],
+          appliedAtBySession: (s) =>
+            s === 1 ? '2025-09-27T23:27:21.381Z' : '2025-09-28T23:27:21.381Z',
+        });
         rewriteApLedger(REPO_PATHS.AP_LEDGER(), ledger);
 
         // Write minimal character files
@@ -94,9 +61,120 @@ describe('Command `weave ap status`', () => {
     );
   });
 
-  it.todo(
-    'derives absence credits at runtime for Tier 1 characters not in downtime',
-  );
+  it('derives absence credits at runtime for Tier 1 characters not in downtime', async () => {
+    await withTempRepo(
+      'ap-status-absence-derivation',
+      { initGit: false },
+      async (repo) => {
+        // --- Character files (Tier 1 by level) ---
+        saveCharacter('alistar', {
+          level: 1,
+          advancementPoints: { combat: 0, exploration: 0, social: 0 },
+        });
+        saveCharacter('daemaris', {
+          level: 1,
+          advancementPoints: { combat: 0, exploration: 0, social: 0 },
+        });
+        saveCharacter('istavan', {
+          level: 1,
+          advancementPoints: { combat: 0, exploration: 0, social: 0 },
+        });
+
+        // --- Session reports ---
+        const sessionReports = [
+          makeCompletedSessionReport({
+            n: 1,
+            date: '2025-09-01',
+            present: ['alistar', 'daemaris', 'istavan'],
+          }),
+          makeCompletedSessionReport({
+            n: 2,
+            date: '2025-09-08',
+            present: ['daemaris', 'istavan'],
+          }),
+          makeCompletedSessionReport({
+            n: 3,
+            date: '2025-09-15',
+            present: ['daemaris', 'istavan'],
+          }),
+          makeCompletedSessionReport({
+            n: 4,
+            date: '2025-09-22',
+            present: ['daemaris', 'istavan'],
+          }),
+          makeCompletedSessionReport({
+            n: 5,
+            date: '2025-09-29',
+            present: ['alistar', 'daemaris', 'istavan'],
+          }),
+          makePlannedSessionReport({ n: 6 }), // should be ignored by status
+        ];
+        sessionReports.forEach((report, i) => {
+          const filename = path.join(
+            REPO_PATHS.REPORTS(),
+            `session-${padSessionNum(i + 1)}.yaml`,
+          );
+          fs.writeFileSync(filename, yaml.stringify(report));
+        });
+
+        // --- AP Ledger: spend 1 absence credit (social) at/after session 3 ---
+        const ledger: ApLedgerEntry[] = [
+          {
+            kind: 'absence_spend' as const,
+            appliedAt: '2025-09-29T23:00:00Z',
+            characterId: 'alistar',
+            sessionId: makeSessionId(3),
+            notes: 'Claimed one absence reward (social)',
+            advancementPoints: {
+              combat: { delta: 0, reason: 'absence_spend' as const },
+              exploration: { delta: 0, reason: 'absence_spend' as const },
+              social: { delta: 1, reason: 'absence_spend' as const },
+            },
+          },
+        ];
+        rewriteApLedger(REPO_PATHS.AP_LEDGER(), ledger);
+
+        // --- Run status with JSON output for structured assertions ---
+        const { exitCode, stdout, stderr } = await runWeave(['status', 'ap'], {
+          repo,
+        });
+
+        expect(exitCode).toBe(0);
+        expect(stderr).toBeFalsy();
+
+        const awardsBlock = (() => {
+          const lines = stdout.split(/\r?\n/);
+          const start = lines.findIndex((l) =>
+            /Unclaimed Absence Awards/i.test(l),
+          );
+          if (start < 0) return '';
+
+          // collect until we've seen the *third* dashed separator after start
+          let dashCount = 0;
+          const block: string[] = [];
+          for (let i = start; i < lines.length; i++) {
+            block.push(lines[i]);
+            if (/^-{3,}\s*$/.test(lines[i])) {
+              dashCount++;
+              if (dashCount === 3) break; // third dashed line marks the footer
+            }
+          }
+          return block.join('\n');
+        })();
+
+        const alistarLine = awardsBlock
+          .split(/\r?\n/)
+          .find((line) => /^Alistar\s+/i.test(line));
+        expect(
+          alistarLine,
+          'expected an Alistar row in absence awards table',
+        ).toBeTruthy();
+
+        expect(alistarLine).toMatch(/Alistar\s+3\s+1\s+2/);
+      },
+    );
+  });
+
   it.todo('shows earned, spent, and available absence credits');
   it.todo('outputs a human-readable table by default');
   it.todo('outputs structured JSON when --json is passed');

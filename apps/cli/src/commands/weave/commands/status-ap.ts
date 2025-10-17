@@ -1,11 +1,12 @@
+import { warn } from '@skyreach/cli-kit';
 import { REPO_PATHS } from '@skyreach/data';
 import { ApLedgerEntry, ApLedgerEntrySchema } from '@skyreach/schemas';
 
 import { readApLedger } from '../../../services/ap-ledger.service';
 import { loadAllCharacters } from '../../../services/characters.service';
 import { loadAllSessionReports } from '../../../services/sessions.service';
-import { aggregateApByCharacter } from '../lib/aggregate-ap-by-character';
-import { computeUnclaimedAbsenceAwards } from '../lib/compute-unclaimed-absence-awards';
+import { aggregateApByCharacter } from '../lib/core/aggregate-ap-by-character';
+import { computeUnclaimedAbsenceAwards } from '../lib/core/compute-unclaimed-absence-awards';
 
 export interface StatusApResult {
   apByCharacter: Record<
@@ -13,6 +14,7 @@ export interface StatusApResult {
     { combat: number; exploration: number; social: number }
   >;
   absenceAwards: Array<{
+    characterId: string;
     displayName: string;
     eligibleMissed: number;
     claimed: number;
@@ -28,8 +30,11 @@ export async function statusAp(): Promise<StatusApResult> {
   const ledgerEntries: ApLedgerEntry[] = [];
   for (const entry of ledgerEntriesRaw) {
     const parsed = ApLedgerEntrySchema.safeParse(entry);
-    if (parsed.success) ledgerEntries.push(parsed.data);
-    else console.warn('Invalid AP ledger entry found and skipped:', parsed.error);
+    if (parsed.success) {
+      ledgerEntries.push(parsed.data);
+    } else {
+      warn(`Invalid AP ledger entry found and skipped: ${parsed.error}`);
+    }
   }
 
   // 2) Aggregate AP by character/pillar

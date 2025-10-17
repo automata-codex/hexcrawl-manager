@@ -1,12 +1,12 @@
 import { usage } from '@skyreach/cli-kit';
 
-import weatherAbandon from './weather/abandon.ts';
-import weatherClear from './weather/clear.ts';
-import weatherCommit from './weather/commit.ts';
+import weatherAbandon from './weather/abandon';
+import weatherClear from './weather/clear';
+import weatherCommit from './weather/commit';
 import weatherRoll from './weather/roll';
-import weatherSet from './weather/set.ts';
-import weatherShow from './weather/show.ts';
-import weatherUse from './weather/use.ts';
+import weatherSet from './weather/set';
+import weatherShow from './weather/show';
+import weatherUse from './weather/use';
 
 import type { Context } from '../types';
 

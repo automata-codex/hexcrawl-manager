@@ -8,12 +8,13 @@ import {
   findOpenDay,
   isPartyLost,
   selectCurrentHex,
-} from '../projectors';
+} from '../../../services/projectors.service';
 import { requireFile } from '../services/general';
 
 import type { Context } from '../types';
 
 export default function status(ctx: Context) {
+  // eslint-disable-next-line no-unused-vars
   return (_args: string[]) => {
     if (!requireFile(ctx)) return;
 

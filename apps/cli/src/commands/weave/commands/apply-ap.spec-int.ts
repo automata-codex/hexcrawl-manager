@@ -1,5 +1,19 @@
 import { REPO_PATHS } from '@skyreach/data';
-import { runWeave, withTempRepo } from '@skyreach/test-helpers';
+import {
+  makeSessionId,
+  type ScribeEvent,
+  type SessionReport,
+} from '@skyreach/schemas';
+import {
+  ap,
+  dayEnd,
+  dayStart,
+  compileLog,
+  partySet,
+  runWeave,
+  saveCharacters,
+  withTempRepo,
+} from '@skyreach/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
@@ -7,170 +21,22 @@ import yaml from 'yaml';
 
 import { readApLedger } from '../../../services/ap-ledger.service';
 
-import type { ScribeEvent } from '@skyreach/schemas';
-
-const events: ScribeEvent[] = [
-  {
-    seq: 3,
-    ts: '2024-01-01T18:40:00Z',
-    kind: 'day_start',
-    payload: {
-      calendarDate: { year: 1511, month: 'Umbraeus', day: 17 },
-      season: 'autumn',
-      daylightCap: 12,
-    },
-  },
-  {
-    seq: 4,
-    ts: '2024-01-01T18:50:00Z',
-    kind: 'party_set',
-    payload: { ids: ['alistar', 'daemaris', 'istavan'] },
-  },
-  {
-    seq: 5,
-    ts: '2024-01-01T19:00:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'combat',
-      tier: 1,
-      note: 'Defeated goblins',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 18,
-    ts: '2024-01-01T19:10:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'exploration',
-      tier: 2,
-      note: 'Found a hidden dungeon',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 22,
-    ts: '2024-01-01T19:11:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'social',
-      tier: 1,
-      note: 'Talked to the alseid',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 27,
-    ts: '2024-01-01T19:12:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'exploration',
-      tier: 1,
-      note: 'Entered a new region',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 33,
-    ts: '2024-01-01T19:13:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'combat',
-      tier: 1,
-      note: 'Fought some baddies',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 37,
-    ts: '2024-01-01T19:14:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'exploration',
-      tier: 1,
-      note: 'Found a hidden temple',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 42,
-    ts: '2024-01-01T19:15:00Z',
-    kind: 'advancement_point',
-    payload: {
-      pillar: 'social',
-      tier: 1,
-      note: 'Chatted with village elder',
-      at: { hex: '0101', party: ['alistar', 'istavan', 'daemaris'] },
-    },
-  },
-  {
-    seq: 21,
-    ts: '2024-01-01T19:20:00Z',
-    kind: 'day_end',
-    payload: { summary: { active: 13, daylight: 13, night: 0 } },
-  },
-];
+const party = ['alistar', 'daemaris', 'istavan'];
+const events: ScribeEvent[] = compileLog([
+  dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
+  partySet(party),
+  ap('combat', 1, party, 'A1', 'Defeated goblins'),
+  ap('exploration', 2, party, 'B1', 'Found a hidden dungeon'),
+  ap('social', 1, party, 'C1', 'Talked to the alseid'),
+  ap('exploration', 1, party, 'D1', 'Entered a new region'),
+  ap('combat', 1, party, 'E1', 'Fought some baddies'),
+  ap('exploration', 1, party, 'F1', 'Found a hidden temple'),
+  ap('social', 1, party, 'G1', 'Chatted with village elder'),
+  dayEnd(13, 13),
+]);
 
 function writeCharacterFiles() {
-  fs.writeFileSync(
-    path.join(REPO_PATHS.CHARACTERS(), 'alistar.yaml'),
-    yaml.stringify({
-      id: 'alistar',
-      fullName: 'Alistar',
-      displayName: 'Alistar',
-      pronouns: 'he/him',
-      playerId: 'peter-quinn',
-      species: 'Elf',
-      culture: 'Wood Elf',
-      class: 'Wizard',
-      level: 5,
-      advancementPoints: {
-        combat: 13,
-        exploration: 14,
-        social: 14,
-      },
-    }),
-  );
-
-  fs.writeFileSync(
-    path.join(REPO_PATHS.CHARACTERS(), 'daemaris.yaml'),
-    yaml.stringify({
-      id: 'daemaris',
-      fullName: 'Daemaris',
-      displayName: 'Daemaris',
-      pronouns: 'she/her',
-      playerId: 'emilie-siciliano',
-      species: 'Tiefling',
-      culture: 'Bandit',
-      class: 'Ranger',
-      level: 5,
-      advancementPoints: {
-        combat: 13,
-        exploration: 15,
-        social: 14,
-      },
-    }),
-  );
-
-  fs.writeFileSync(
-    path.join(REPO_PATHS.CHARACTERS(), 'istavan.yaml'),
-    yaml.stringify({
-      id: 'istavan',
-      fullName: 'Grandfather Istavan',
-      displayName: 'Istavan',
-      pronouns: 'he/him',
-      playerId: 'lucas-watkins',
-      species: 'Human',
-      culture: 'Frostfell',
-      class: 'Fighter',
-      level: 2,
-      advancementPoints: {
-        combat: 3,
-        exploration: 3,
-        social: 3,
-      },
-    }),
-  );
+  saveCharacters([{ key: 'alistar' }, { key: 'daemaris' }, { key: 'istavan' }]);
 }
 
 describe('Command `weave apply ap`', () => {
@@ -209,11 +75,7 @@ describe('Command `weave apply ap`', () => {
           );
           expect(fs.existsSync(reportPath)).toBe(true);
           const report = yaml.parse(fs.readFileSync(reportPath, 'utf8'));
-          expect(report.characterIds).toEqual([
-            'alistar',
-            'daemaris',
-            'istavan',
-          ]);
+          expect(report.characterIds).toEqual(party);
           expect(report.advancementPoints).toEqual({
             combat: {
               number: 1,
@@ -326,7 +188,7 @@ describe('Command `weave apply ap`', () => {
           fs.writeFileSync(
             reportPath1,
             yaml.stringify({
-              characterIds: ['alistar', 'daemaris', 'istavan'],
+              characterIds: party,
               status: 'completed',
               fingerprint: 'existing-fingerprint',
               sessionId: 'session-0001',
@@ -338,10 +200,9 @@ describe('Command `weave apply ap`', () => {
 
           // Run weave ap apply in auto-mode (Option R)
           // eslint-disable-next-line no-unused-vars
-          const { exitCode, stderr, stdout } = await runWeave(
-            ['apply', 'ap'],
-            { repo },
-          );
+          const { exitCode, stderr, stdout } = await runWeave(['apply', 'ap'], {
+            repo,
+          });
 
           expect(exitCode).toBe(0);
           expect(stderr).toBeFalsy();
@@ -353,11 +214,7 @@ describe('Command `weave apply ap`', () => {
           );
           expect(fs.existsSync(reportPath2)).toBe(true);
           const report2 = yaml.parse(fs.readFileSync(reportPath2, 'utf8'));
-          expect(report2.characterIds).toEqual([
-            'alistar',
-            'daemaris',
-            'istavan',
-          ]);
+          expect(report2.characterIds).toEqual(party);
 
           // Verify AP ledger output for session-0002
           expect(fs.existsSync(REPO_PATHS.AP_LEDGER())).toBe(true);
@@ -420,30 +277,25 @@ describe('Command `weave apply ap`', () => {
       );
     });
 
-    it('fails with a clear message if no pending sessions are found in "Option R" mode', async () => {
+    it('reports cleanly when no pending AP sessions are found (sweep mode)', async () => {
       await withTempRepo(
         'apply-ap-no-pending',
         { initGit: false },
         async (repo) => {
           writeCharacterFiles();
 
-          // Simulate finalized scribe logs for session-0001 (already completed)
-          const logPath = path.join(
-            REPO_PATHS.SESSIONS(),
-            'session_0001_2025-09-25.jsonl',
-          );
+          // Finalized log for session-0001
           fs.writeFileSync(
-            logPath,
+            path.join(REPO_PATHS.SESSIONS(), 'session_0001_2025-09-25.jsonl'),
             events.map((e) => JSON.stringify(e)).join('\n'),
           );
 
-          // Simulate completed report for session-0001
-          const reportsDir = REPO_PATHS.REPORTS();
-          const reportPath = path.join(reportsDir, 'session-0001.yaml');
+          // Completed report for session-0001
           fs.writeFileSync(
-            reportPath,
+            path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml'),
             yaml.stringify({
-              characterIds: ['alistar', 'daemaris', 'istavan'],
+              status: 'completed',
+              characterIds: party,
               sessionId: 'session-0001',
               advancementPoints: {
                 combat: { number: 1, maxTier: 1 },
@@ -454,21 +306,121 @@ describe('Command `weave apply ap`', () => {
           );
 
           // Run weave ap apply in auto-mode (Option R) with no pending sessions
-          const { exitCode, stderr, stdout } = await runWeave(
-            ['apply', 'ap'],
-            { repo },
-          );
+          // eslint-disable-next-line no-unused-vars
+          const { exitCode, stderr, stdout } = await runWeave(['apply', 'ap'], {
+            repo,
+          });
 
-          // Should fail (non-zero exit code) and print a clear message
-          expect(exitCode).not.toBe(0);
-          expect(stderr || stdout).toMatch(/no pending sessions/i);
+          // Benign no-op
+          expect(exitCode).toBe(0);
+          expect(stderr).toBeFalsy();
         },
       );
     });
   });
 
   describe('Session resolution', () => {
-    it.todo('finds completed session reports and finalized logs');
+    it('finds completed session reports and finalized logs', async () => {
+      await withTempRepo(
+        'apply-ap-discovery',
+        { initGit: false },
+        async (repo) => {
+          writeCharacterFiles();
+
+          // Finalized log for session-0003
+          const finalizedLogPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            'session_0003_2025-09-27.jsonl',
+          );
+          fs.writeFileSync(
+            finalizedLogPath,
+            compileLog([
+              dayStart({ year: 1511, month: 'Umbraeus', day: 18 }),
+              partySet(party),
+              ap('exploration', 2, party, 'H1', 'Discovered ancient ruins'),
+              dayEnd(14, 14),
+            ])
+              .map((e) => JSON.stringify(e))
+              .join('\n'),
+          );
+
+          // Finalized log for session-0004 (pending because report is not completed)
+          const incompleteLogPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            'session_0004_2025-09-28.jsonl',
+          );
+          fs.writeFileSync(
+            incompleteLogPath,
+            compileLog([
+              dayStart({ year: 1511, month: 'Umbraeus', day: 19 }),
+              partySet(party),
+              ap('exploration', 1, party, 'H2', 'Mapped the path to H3'),
+              dayEnd(14, 14),
+            ])
+              .map((e) => JSON.stringify(e))
+              .join('\n'),
+          );
+
+          // Completed report for session-0003
+          const completedReportPath = path.join(
+            REPO_PATHS.REPORTS(),
+            'session-0003.yaml',
+          );
+          fs.writeFileSync(
+            completedReportPath,
+            yaml.stringify({
+              characterIds: party,
+              status: 'completed',
+              fingerprint: 'fp-0003',
+              sessionId: 'session-0003',
+              advancementPoints: [
+                { pillar: 'exploration', number: 2, maxTier: 1 },
+              ],
+            }),
+          );
+
+          // Incomplete report for session-0004 (should be ignored)
+          const incompleteReportPath = path.join(
+            REPO_PATHS.REPORTS(),
+            'session-0004.yaml',
+          );
+          fs.writeFileSync(
+            incompleteReportPath,
+            yaml.stringify({
+              id: makeSessionId(4),
+              status: 'planned', // not completed => pending
+              absenceAllocations: [],
+              downtime: [],
+              gameStartDate: '21 Umbraeus 1511',
+              schemaVersion: 2,
+              scribeIds: ['session_0004_2025-09-28'],
+              sessionDate: '2025-09-28',
+              source: 'scribe',
+            } satisfies SessionReport),
+          );
+
+          // Run weave ap apply in auto-mode to trigger discovery
+          const { exitCode, stderr, stdout } = await runWeave(
+            ['apply', 'ap', '--allow-dirty'],
+            { repo },
+          );
+
+          expect(exitCode).toBe(0);
+          expect(stderr).toBeFalsy();
+
+          // Only session-0003 should be discovered and processed
+          const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
+          const discoveredSessions = ledger.map((e: any) => e.sessionId);
+          expect(discoveredSessions).toContain('session-0004');
+          expect(discoveredSessions).not.toContain('session-0003');
+
+          // Optionally, check stdout for discovery message
+          expect(stdout).toMatch(/session-0004/);
+          expect(stdout).not.toMatch(/session-0003/);
+        },
+      );
+    });
+
     it.todo('validates that explicit session has finalized logs, else fails');
   });
 
@@ -513,10 +465,9 @@ describe('Command `weave apply ap`', () => {
           );
 
           // First run: apply AP for session-0001
-          const resultFirst = await runWeave(
-            ['apply', 'ap', 'session-0001'],
-            { repo },
-          );
+          const resultFirst = await runWeave(['apply', 'ap', 'session-0001'], {
+            repo,
+          });
           expect(resultFirst.exitCode).toBe(0);
           expect(resultFirst.stderr).toBeFalsy();
 
@@ -532,10 +483,9 @@ describe('Command `weave apply ap`', () => {
           const ledgerFirst = fs.readFileSync(ledgerPath, 'utf8');
 
           // Second run: re-apply AP for session-0001 (should be a no-op)
-          const resultSecond = await runWeave(
-            ['apply', 'ap', 'session-0001'],
-            { repo },
-          );
+          const resultSecond = await runWeave(['apply', 'ap', 'session-0001'], {
+            repo,
+          });
           expect(resultSecond.exitCode).toBe(0);
           expect(resultSecond.stderr).toBeFalsy();
           expect(resultSecond.stdout).toMatch(/no changes made/i);

@@ -2,7 +2,10 @@ import { warn } from '@skyreach/cli-kit';
 import { datesEqual } from '@skyreach/core';
 
 import { readEvents } from '../../../services/event-log.service';
-import { lastCalendarDate, selectCurrentWeather } from '../projectors';
+import {
+  lastCalendarDate,
+  selectCurrentWeather,
+} from '../../../services/projectors.service';
 
 import type { Context } from '../types';
 import type { WeatherCommitted } from '@skyreach/core';

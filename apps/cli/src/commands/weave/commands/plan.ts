@@ -1,197 +1,117 @@
-import { info, error } from '@skyreach/cli-kit';
-import { deriveSeasonId, normalizeSeasonId } from '@skyreach/core';
-import { isRolloverPath, loadHavens, loadMeta, loadTrails } from '@skyreach/data';
-import path from 'path';
-
-import { readEvents } from '../../../services/event-log.service';
-import { applyRolloverToTrails, applySessionToTrails } from '../lib/apply';
-import { getMostRecentRolloverFootprint, resolveInputFile } from '../lib/files';
+import { error, info, makeExitMapper } from '@skyreach/cli-kit';
 import {
-  isRolloverAlreadyApplied,
-  isRolloverChronologyValid,
-  isSessionAlreadyApplied,
-  isSessionChronologyValid,
-  isSessionFile,
-} from '../lib/guards';
-import { validateSessionEnvelope } from '../lib/validate';
+  SessionAlreadyAppliedError,
+  SessionFingerprintMismatchError,
+  SessionLogsNotFoundError,
+  SessionReportValidationError,
+  assertSeasonId,
+  isSeasonId,
+} from '@skyreach/core';
+import {
+  DirtyGitError,
+  FinalizedLogJsonParseError,
+  FinalizedLogsNotFoundError,
+} from '@skyreach/data';
+import {
+  assertSessionId,
+  isSessionId,
+  SessionIdError,
+} from '@skyreach/schemas';
 
-import type { ScribeEvent } from '@skyreach/schemas';
+import {
+  AlreadyAppliedError,
+  CliError,
+  CliValidationError,
+  NoChangesError,
+} from '../lib/errors';
+import { printApplyTrailsResult } from '../lib/printers';
+import { resolveTrailsTarget } from '../lib/resolvers';
 
-export async function plan(fileArg?: string) {
-  const meta = loadMeta();
+import { ApplyMode } from './apply';
+import { planTrails } from './plan-trails';
 
-  // Use shared input helper for file selection
-  let file;
-  const resolved = await resolveInputFile(fileArg, meta);
-  switch (resolved.status) {
-    case 'ok':
-      file = resolved.file!;
-      break;
-    case 'none-found':
-      return {
-        status: 'no-op',
-        message: 'No unapplied session or rollover files found.',
-      };
-    case 'cancelled':
-      return { status: 'no-op', message: 'File selection cancelled by user.' };
-    case 'no-prompt-no-arg':
-      return {
-        status: 'validation-error',
-        message: 'No file specified and --no-prompt is set.',
-      };
-  }
+export type PlanArgs = {
+  target?: string;
+  allowDirty?: boolean;
+  mode?: PlanMode;
+};
 
-  // File type detection
-  if (isRolloverPath(file)) {
-    // --- Rollover planning: detect and parse ---
-    const events = readEvents(file);
-    const rollover = events.find((e) => e.kind === 'season_rollover') as
-      | (ScribeEvent & { payload: { seasonId: string } })
-      | undefined;
-    if (!rollover || !rollover.payload.seasonId) {
-      error(
-        'Validation error: Rollover file missing season_rollover event or seasonId.',
-      );
-      process.exit(4);
-    }
-    const seasonId = normalizeSeasonId(rollover.payload.seasonId);
-    info(`Rollover plan for season: ${seasonId}`);
+export type PlanMode = 'all' | 'ap' | 'trails';
 
-    // Already applied check
-    const fileId = path.basename(file);
-    if (isRolloverAlreadyApplied(meta, fileId)) {
-      info('Rollover already applied.');
-      process.exit(3);
-    }
+export const exitCodeForPlan = makeExitMapper(
+  [
+    [CliValidationError, 4], // user input or file contents are invalid
+    [DirtyGitError, 5], // external failure
+    [FinalizedLogJsonParseError, 2], // invalid/corrupt input
+    [FinalizedLogsNotFoundError, 3], // not found
+    [SessionAlreadyAppliedError, 0], // benign no-op
+    [NoChangesError, 5], // no-op error
+    [SessionFingerprintMismatchError, 4], // conflicting state
+    [SessionIdError, 2], // invalid session id or missing context
+    [SessionLogsNotFoundError, 4], // domain-specific failure
+    [SessionReportValidationError, 2], // usage: schema invalid
 
-    // Chronology check: only allow for next unapplied season
-    const chrono = isRolloverChronologyValid(meta, seasonId);
-    if (!chrono.valid) {
-      error(
-        `Validation error: Rollover is not for the next unapplied season. Expected: ${chrono.expected}`,
-      );
-      process.exit(4);
-    }
+    // Keep the most generic types at the end to avoid masking more specific ones
+    [CliError, 1], // generic
+  ],
+  1, // fallback default
+);
 
-    // --- Load trails and havens ---
-    const havens = loadHavens();
-    const trails = loadTrails();
+export async function plan(args: PlanArgs) {
+  try {
+    const { allowDirty, mode: rawMode, target: rawTarget } = args;
+    const mode: ApplyMode = rawMode ?? 'all';
 
-    // Use shared helper for dry-run plan
-    const effects = applyRolloverToTrails(trails, havens, true);
-
-    // No-op check: if all lists are empty, exit 5
-    if (
-      effects.maintained.length === 0 &&
-      effects.persisted.length === 0 &&
-      effects.deletedTrails.length === 0
-    ) {
-      info('No changes would be made.');
-      process.exit(5);
-    }
-    info(`Near-haven edges (maintained): ${effects.maintained.length}`);
-    info(`Far-haven edges (persisted): ${effects.persisted.length}`);
-    info(`Far-haven edges (deleted): ${effects.deletedTrails.length}`);
-    info(
-      '  Sample maintained: ' + JSON.stringify(effects.maintained.slice(0, 5)),
-    );
-    info(
-      '  Sample persisted: ' + JSON.stringify(effects.persisted.slice(0, 5)),
-    );
-    info(
-      '  Sample deleted: ' + JSON.stringify(effects.deletedTrails.slice(0, 5)),
-    );
-    process.exit(0);
-  } else if (isSessionFile(file)) {
-    const events = readEvents(file);
-    const validation = validateSessionEnvelope(events);
-    if (!validation.isValid) {
-      error(`Session envelope validation failed: ${validation.error}`);
-      process.exit(4);
+    let targetType: 'session' | 'season' | 'undefined' = 'undefined';
+    let target: string | undefined = undefined;
+    if (rawTarget) {
+      if (isSessionId(rawTarget)) {
+        targetType = 'session';
+        target = assertSessionId(rawTarget);
+      } else if (isSeasonId(rawTarget)) {
+        targetType = 'season';
+        target = assertSeasonId(rawTarget);
+      } else {
+        throw new Error(
+          `Invalid target "${rawTarget}": must be a session ID (e.g. session-0042) or season ID (e.g. 1511-autumn).`,
+        );
+      }
     }
 
-    // Already applied check
-    const fileId = path.basename(file);
-    if (isSessionAlreadyApplied(meta, fileId)) {
-      info('Session already applied.');
-      process.exit(3);
-    }
+    if (mode === 'all' || mode === 'trails') {
+      const items = resolveTrailsTarget(target);
 
-    // --- Session planning logic ---
-    if (!events.length) {
-      error('Session file is empty or unreadable.');
-      process.exit(4);
-    }
+      let applied = 0;
+      let skipped = 0;
 
-    const dayStarts = events.filter((e) => e.kind === 'day_start');
-    if (!dayStarts.length) {
-      error('Validation error: No day_start event in session.');
-      process.exit(4);
-    }
+      for (const item of items) {
+        try {
+          const result = await planTrails({ allowDirty, file: item.file });
+          printApplyTrailsResult(result);
+          applied++;
+        } catch (e) {
+          if (e instanceof AlreadyAppliedError) {
+            info(e.message); // benign: continue
+            skipped++;
+            continue;
+          }
+          if (e instanceof NoChangesError) {
+            info(e.message); // benign: continue
+            skipped++;
+            continue;
+          }
+          // anything else is a real failure: let the outer catch handle exit code
+          throw e;
+        }
+      }
 
-    // All day_start events must have the same seasonId
-    const seasonIds = dayStarts.map((e) =>
-      deriveSeasonId(e.payload.calendarDate as any),
-    );
-    const firstSeasonId = seasonIds[0];
-    if (
-      !seasonIds.every(
-        (sid) => normalizeSeasonId(sid) === normalizeSeasonId(firstSeasonId),
-      )
-    ) {
-      error(
-        'Validation error: Multi-season session detected. All events must share the same season.',
-      );
-      process.exit(4);
+      if (items.length > 1) {
+        info(`Trail files: applied ${applied}, skipped ${skipped}.`);
+      }
     }
-
-    // Chronology check: all required rollovers must be present
-    const chrono = isSessionChronologyValid(meta, firstSeasonId);
-    if (!chrono.valid) {
-      error(
-        `Validation error: Missing required rollover(s) for season ${firstSeasonId}: ${chrono.missing.join(', ')}`,
-      );
-      process.exit(4);
-    }
-
-    // Simulate plan
-    const trails = loadTrails();
-    const mostRecentRoll = getMostRecentRolloverFootprint(firstSeasonId);
-    const deletedTrails =
-      mostRecentRoll?.effects?.rollover?.deletedTrails || [];
-    const { effects } = applySessionToTrails(
-      events,
-      trails,
-      firstSeasonId,
-      deletedTrails,
-      true,
-    );
-
-    // Output summary
-    info('Plan summary:');
-    if (effects.created.length) {
-      info('  Edges to create: ' + JSON.stringify(effects.created));
-    }
-    if (Object.keys(effects.usedFlags).length) {
-      info(
-        '  Edges to set usedThisSeason: ' +
-          JSON.stringify(Object.keys(effects.usedFlags)),
-      );
-    }
-    if (effects.rediscovered.length) {
-      info('  Rediscovered edges: ' + JSON.stringify(effects.rediscovered));
-    }
-    if (
-      !effects.created.length &&
-      !Object.keys(effects.usedFlags).length &&
-      !effects.rediscovered.length
-    ) {
-      info('No changes would be made.');
-      process.exit(5);
-    }
-    process.exit(0);
-  } else {
-    error('Unrecognized file type for planning.');
-    process.exit(4);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    error(message);
+    process.exit(exitCodeForPlan(e));
   }
 }

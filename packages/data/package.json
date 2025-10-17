@@ -1,6 +1,6 @@
 {
   "name": "@skyreach/data",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "exports": {
     ".": "./dist/index.js"
   },
@@ -8,6 +8,7 @@
   "private": true,
   "scripts": {
     "build": "tsc -b",
+    "check": "tsc --noEmit",
     "test": "vitest run || true",
     "lint": "eslint . || true"
   },

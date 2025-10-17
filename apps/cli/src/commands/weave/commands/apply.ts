@@ -2,19 +2,22 @@ import { error, info, makeExitMapper } from '@skyreach/cli-kit';
 import {
   SessionAlreadyAppliedError,
   SessionFingerprintMismatchError,
-  SessionIdError,
   SessionLogsNotFoundError,
   SessionReportValidationError,
   assertSeasonId,
-  assertSessionId,
   isSeasonId,
-  isSessionId,
 } from '@skyreach/core';
 import {
   DirtyGitError,
   FinalizedLogJsonParseError,
   FinalizedLogsNotFoundError,
 } from '@skyreach/data';
+import {
+  SessionId,
+  SessionIdError,
+  assertSessionId,
+  isSessionId,
+} from '@skyreach/schemas';
 
 import {
   AlreadyAppliedError,
@@ -22,10 +25,11 @@ import {
   CliValidationError,
   NoChangesError,
 } from '../lib/errors';
-import { resolveTrailsTarget } from '../lib/resolve-trails-target';
+import { printApplyTrailsResult } from '../lib/printers';
+import { resolveApTarget, resolveTrailsTarget } from '../lib/resolvers';
 
 import { applyAp } from './apply-ap';
-import { ApplyTrailsResult, applyTrails } from './apply-trails';
+import { applyTrails } from './apply-trails';
 
 export type ApplyArgs = {
   target?: string;
@@ -54,51 +58,13 @@ export const exitCodeForApply = makeExitMapper(
   1, // fallback default
 );
 
-export function printApplyTrailsResult(res: ApplyTrailsResult) {
-  switch (res.status) {
-    case 'ok': {
-      if (res.kind === 'session') {
-        const s = res.summary ?? {};
-        info(
-          `Session applied: ${res.fileId} (season ${res.seasonId}). ` +
-            `created=${s.created ?? 0}, rediscovered=${s.rediscovered ?? 0}, uses=${s.usesFlagged ?? 0}, touched=${s.edgesTouched ?? 0}.`,
-        );
-      } else {
-        const s = res.summary ?? {};
-        info(
-          `Rollover applied: season ${res.seasonId}. ` +
-            `maintained=${s.maintained ?? 0}, persisted=${s.persisted ?? 0}, deleted=${s.deletedTrails ?? 0}, touched=${s.edgesTouched ?? 0}.`,
-        );
-      }
-      break;
-    }
-
-    case 'already-applied':
-      info(res.message ?? 'Already applied.');
-      break;
-
-    case 'no-op':
-      info(res.message ?? 'No changes would be made.');
-      break;
-
-    case 'validation-error':
-    case 'unrecognized-file':
-      error(res.message ?? 'Validation error.');
-      break;
-
-    case 'io-error':
-      error(res.message ?? 'I/O error during apply.');
-      break;
-  }
-}
-
 export async function apply(args: ApplyArgs) {
   try {
     const { allowDirty, mode: rawMode, target: rawTarget } = args;
     const mode: ApplyMode = rawMode ?? 'all';
 
     let targetType: 'session' | 'season' | 'undefined' = 'undefined';
-    let target: string | undefined = undefined;
+    let target: SessionId | string | undefined = undefined;
     if (rawTarget) {
       if (isSessionId(rawTarget)) {
         targetType = 'session';
@@ -119,7 +85,6 @@ export async function apply(args: ApplyArgs) {
       let applied = 0;
       let skipped = 0;
 
-      // TODO Add a test for this loop, to ensure that it continues or aborts correctly
       for (const item of items) {
         try {
           const result = await applyTrails({ allowDirty, file: item.file });
@@ -127,12 +92,12 @@ export async function apply(args: ApplyArgs) {
           applied++;
         } catch (e) {
           if (e instanceof AlreadyAppliedError) {
-            info(e.message);           // benign: continue
+            info(e.message); // benign: continue
             skipped++;
             continue;
           }
           if (e instanceof NoChangesError) {
-            info(e.message);           // benign: continue
+            info(e.message); // benign: continue
             skipped++;
             continue;
           }
@@ -147,24 +112,44 @@ export async function apply(args: ApplyArgs) {
     }
 
     if (mode === 'all' || mode === 'ap') {
-      const result =
+      const targets =
         targetType === 'session'
-          ? await applyAp({ sessionId: target, allowDirty })
-          : await applyAp({ allowDirty });
+          ? [{ kind: 'session', sessionId: target as SessionId }]
+          : resolveApTarget(undefined);
 
-      console.log('');
-      if (result.alreadyApplied) {
-        console.log(
-          `✅ ${result.sessionId} was already applied (no changes made).`,
-        );
-      } else {
-        console.log(`✨ Applied ${result.sessionId}:`);
-        console.log(
-          `  • ${result.entriesAppended} ledger entr${result.entriesAppended === 1 ? 'y' : 'ies'} appended`,
-        );
-        console.log(`  • Report: ${result.reportPath}`);
+      let applied = 0;
+      let skipped = 0;
+
+      for (const item of targets) {
+        try {
+          const result = await applyAp({
+            sessionId: item.sessionId,
+            allowDirty,
+          });
+          if (result.alreadyApplied) {
+            console.log(
+              `✅ ${result.sessionId} was already applied (no changes made).`,
+            );
+            skipped++;
+          } else {
+            console.log(`✨ Applied ${result.sessionId}:`);
+            console.log(
+              `  • ${result.entriesAppended} ledger entr${result.entriesAppended === 1 ? 'y' : 'ies'} appended`,
+            );
+            console.log(`  • Report: ${result.reportPath}`);
+            applied++;
+          }
+        } catch (e) {
+          // Treat "already applied" as benign if applyAp throws that instead of returning a flag
+          if (e instanceof SessionIdError) throw e; // real misuse
+          // let other hard errors bubble to your exit mapper
+          throw e;
+        }
       }
-      console.log('');
+
+      if (targets.length > 1) {
+        console.log(`AP reports: applied ${applied}, skipped ${skipped}.`);
+      }
     }
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

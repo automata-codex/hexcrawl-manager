@@ -11,6 +11,7 @@ These events are consumed by `finalize` and `weave` to produce session outputs a
   - `status`: `"in-progress"`
   - `id`: Session id
   - `startHex`: Starting hex id
+  - `sessionDate`: Date string (YYYY-MM-DD) of the real-world date when the session started
 
 ### `session_end`
 - **Emitted by:** `finalize.ts` (via `finalizeSession` in `session.ts`)

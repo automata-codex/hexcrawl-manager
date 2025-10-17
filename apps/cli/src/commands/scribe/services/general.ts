@@ -1,7 +1,7 @@
 import { warn } from '@skyreach/cli-kit';
 
 import { readEvents } from '../../../services/event-log.service';
-import { selectCurrentHex } from '../projectors';
+import { selectCurrentHex } from '../../../services/projectors.service';
 
 import type { Context } from '../types.ts';
 

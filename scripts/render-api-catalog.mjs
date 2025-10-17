@@ -79,7 +79,8 @@ function textFromComment(comment) {
     .join('')
     .trim();
   // if empty, fallback to older shape comment.shortText
-  return text || (comment.shortText?.trim() ?? '');
+  const output = text || (comment.shortText?.trim() ?? '');
+  return output.replaceAll('\n', ' ');
 }
 
 function codeInline(s) {

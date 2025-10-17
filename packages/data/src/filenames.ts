@@ -1,4 +1,10 @@
 import { assertSeasonId, normalizeSeasonId } from '@skyreach/core';
+import {
+  SessionDateSchema,
+  makeSessionId,
+  assertSessionId,
+  type SessionId,
+} from '@skyreach/schemas';
 import path from 'path';
 
 import { FinalizedLogInfo } from './finalized-session-logs';
@@ -19,13 +25,29 @@ export function buildRolloverFilename(season: string): string {
   return `rollover_${season}.jsonl`;
 }
 
+/* eslint-disable no-unused-vars, no-redeclare */
+export function buildSessionFilename(
+  sessionId: SessionId,
+  sessionDate: string,
+  suffix?: string,
+): string;
 export function buildSessionFilename(
   sessionNumber: number,
   sessionDate: string,
   suffix?: string,
+): string;
+/* eslint-enable no-unused-vars */
+export function buildSessionFilename(
+  a: string | number,
+  sessionDate: string,
+  suffix?: string,
 ): string {
-  return `session-${sessionNumber}_${sessionDate}${suffix ?? ''}.jsonl`;
+  SessionDateSchema.parse(sessionDate);
+
+  const id = typeof a === 'number' ? makeSessionId(a) : assertSessionId(a);
+  return `${id}${suffix ?? ''}_${sessionDate}.jsonl`;
 }
+/* eslint-enable no-redeclare */
 
 export function parseRolloverDevFilename(base: string) {
   const m = base.match(ROLLOVER_DEV_FILE_RE);
@@ -41,7 +63,9 @@ export function parseSessionFilename(
   filename: string,
 ): FinalizedLogInfo | null {
   const m = filename.match(SESSION_FILE_RE);
-  if (!m) return null;
+  if (!m) {
+    return null;
+  }
   const [, num, suffix, date, variant] = m;
   return {
     filename,

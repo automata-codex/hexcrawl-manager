@@ -1,7 +1,7 @@
 import { error, info, usage, warn } from '@skyreach/cli-kit';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
-import { selectParty } from '../projectors';
+import { selectParty } from '../../../services/projectors.service';
 import { getAllCharacterIds } from '../services/character';
 import { requireSession } from '../services/general';
 

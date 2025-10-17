@@ -1,6 +1,6 @@
 {
   "name": "@skyreach/test-helpers",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -10,7 +10,8 @@
   "main": "dist/index.js",
   "private": true,
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc --noEmit"
   },
   "type": "module",
   "types": "dist/index.d.ts",

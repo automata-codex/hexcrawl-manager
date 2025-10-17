@@ -1,0 +1,45 @@
+name: PR Tests
+
+on:
+  pull_request:
+    branches: [develop, main]
+
+concurrency:
+  group: pr-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: ${{ matrix.cmd }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cmd:
+          - "npm run -w @skyreach/cli test"
+          - "npm run -w @skyreach/cli test:int"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+        env:
+          FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
+
+      - name: Build packages
+        run: npm run build
+        env:
+          FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
+
+      - name: Run ${{ matrix.cmd }}
+        run: ${{ matrix.cmd }}
+        env:
+          TEST_REPO_BASE: './test-repos'

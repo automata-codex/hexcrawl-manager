@@ -1,22 +1,39 @@
 import {
-  readJsonl,
-  writeJsonl,
   appendJsonl,
   atomicWrite,
+  readJsonlWithHeader,
+  writeJsonl,
 } from '@skyreach/data';
-import { type ScribeEvent, ScribeEventSchema } from '@skyreach/schemas';
+import {
+  ScribeEventSchema,
+  ScribeHeader,
+  ScribeHeaderSchema,
+  type ScribeEvent,
+  type ScribeEventKind,
+  type ScribeEventOfKind,
+} from '@skyreach/schemas';
 
 const nextSeq = (evs: ScribeEvent[]) =>
   evs.length ? Math.max(...evs.map((e) => e.seq)) + 1 : 1;
 
-export const appendEvent = (
+function makeEvent<K extends ScribeEventKind>(
+  kind: K,
+  payload: ScribeEventOfKind<K>['payload'],
+  base: { seq: number; ts: string },
+): ScribeEventOfKind<K> {
+  return { ...base, kind, payload } as ScribeEventOfKind<K>;
+}
+
+export const appendEvent = <K extends ScribeEventKind>(
   filePath: string,
-  kind: string,
-  payload: Record<string, unknown>,
+  kind: K,
+  payload: ScribeEventOfKind<K>['payload'],
 ) => {
   const evs = readEvents(filePath);
-  const rec: ScribeEvent = { seq: nextSeq(evs), ts: timeNowISO(), kind, payload };
-  appendJsonl<ScribeEvent>(filePath, rec);
+  const base = { seq: nextSeq(evs), ts: timeNowISO() };
+  const rec = makeEvent(kind, payload, base);
+
+  appendJsonl<ScribeEvent>(filePath, rec as ScribeEvent);
   return rec;
 };
 
@@ -25,7 +42,11 @@ export function eventsOf(events: ScribeEvent[], kind: string): ScribeEvent[] {
 }
 
 export const readEvents = (filePath: string): ScribeEvent[] =>
-  readJsonl<ScribeEvent>(filePath, { schema: ScribeEventSchema });
+  readJsonlWithHeader<ScribeHeader, ScribeEvent>(filePath, {
+    headerSchema: ScribeHeaderSchema,
+    eventSchema: ScribeEventSchema,
+    requireHeader: false,
+  }).events;
 
 export const timeNowISO = () => new Date().toISOString();
 

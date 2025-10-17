@@ -1,8 +1,8 @@
 import { info } from '@skyreach/cli-kit';
 
 import { readEvents } from '../../../../services/event-log.service';
+import { selectCurrentWeather } from '../../../../services/projectors.service';
 import { EFFECTS_TABLE } from '../../config/effects-table.config';
-import { selectCurrentWeather } from '../../projectors';
 import { requireFile } from '../../services/general';
 
 import type { CalendarService } from '../../services/calendar.ts';

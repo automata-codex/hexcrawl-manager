@@ -1,5 +1,39 @@
 # @skyreach/cli
 
+## 2.5.0
+
+### Minor Changes
+
+- 3f9dc1b: Implement `weave allocate ap` command
+- 99a55f6: Update and expand `scribe doctor` command
+- cbfd8ed: Update tests with fixture factories
+- ba92ccf: Add more tests; switch to custom prompts for interactivity in `scribe` tool
+- 65916d2: Add `SessionId` branded type; add `scribe start` interactive mode
+- feeb18e: Improve and test discovery for `weave apply`.
+- ba530e6: Update `scribe finalize` per spec
+- fee59a4: Update `scribe` tests; add GitHub Action ti run tests on every PR
+- ba78e1e: Update `session` command (removing call to deprecated function)
+- 933be02: Add support for `meta.yaml` v2
+- 1dc8e05: Update `weave apply trails` to match spec
+- fb47a9e: Update `weave plan` command
+
+### Patch Changes
+
+- 06c8020: Refactor file layout
+- Updated dependencies [3f9dc1b]
+- Updated dependencies [cbfd8ed]
+- Updated dependencies [ba92ccf]
+- Updated dependencies [65916d2]
+- Updated dependencies [feeb18e]
+- Updated dependencies [ba530e6]
+- Updated dependencies [fee59a4]
+- Updated dependencies [933be02]
+  - @skyreach/test-helpers@2.5.0
+  - @skyreach/data@2.5.0
+  - @skyreach/schemas@2.5.0
+  - @skyreach/core@2.5.0
+  - @skyreach/cli-kit@2.5.0
+
 ## 2.4.0
 
 ### Minor Changes

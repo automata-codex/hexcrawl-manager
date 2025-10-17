@@ -9,7 +9,7 @@ export type Constructor<T = unknown> = new (...args: any[]) => T;
  */
 export function makeExitMapper(
   pairs: [Constructor, number][],
-  defaultCode = 1
+  defaultCode = 1,
 ) {
   return (err: unknown): number => {
     for (const [Ctor, code] of pairs) {
