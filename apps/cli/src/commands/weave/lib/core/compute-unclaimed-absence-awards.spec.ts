@@ -3,9 +3,7 @@ import {
   ApLedgerEntrySchema,
   CharacterData,
   CharacterSchema,
-  SessionReport,
   SessionReportSchema,
-  makeSessionId,
 } from '@skyreach/schemas';
 import {
   makeAbsenceSpend,
@@ -15,23 +13,6 @@ import {
 import { describe, it, expect } from 'vitest';
 
 import { computeUnclaimedAbsenceAwards } from './compute-unclaimed-absence-awards';
-
-function makePlannedSession(opts: { n: number }): SessionReport {
-  const id = makeSessionId(opts.n);
-  return {
-    id,
-    status: 'planned',
-    absenceAllocations: [],
-    downtime: [],
-    gameStartDate: '',
-    schemaVersion: 2,
-    scribeIds: [],
-    sessionDate: '', // blank for planned
-    source: 'scribe',
-    agenda: [],
-    gmNotes: '',
-  };
-}
 
 // --- Characters ---
 

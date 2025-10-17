@@ -33,3 +33,13 @@ export function discoverCompletedReports(): number[] {
   completed.sort((a, b) => a - b);
   return completed;
 }
+
+/**
+ * Returns the numeric ID of the last (highest) completed session report.
+ * Returns null if there are no completed reports.
+ */
+export function findLastCompletedSessionSeq(): number | null {
+  const completed = discoverCompletedReports();
+  if (completed.length === 0) return null;
+  return Math.max(...completed);
+}
