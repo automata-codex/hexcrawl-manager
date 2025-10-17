@@ -28,7 +28,7 @@ const allocateApMock = vi
       dryRun: true,
       note: '',
       pillars: {},
-      sessionIdSpentAt: ''
+      sessionIdSpentAt: '',
     };
   });
 vi.mock('./allocate-ap', () => ({
@@ -42,11 +42,16 @@ beforeEach(() => {
 describe('parseAllocateTokens', () => {
   it('parses a single block with explicit pillar splits matching amount', () => {
     const tokens = [
-      '--character', 'char-1',
-      '--amount', '3',
-      '--combat', '1',
-      '--exploration', '2',
-      '--note', 'Missed 0021',
+      '--character',
+      'char-1',
+      '--amount',
+      '3',
+      '--combat',
+      '1',
+      '--exploration',
+      '2',
+      '--note',
+      'Missed 0021',
     ];
     const blocks = parseAllocateTokens(tokens);
     expect(blocks).toEqual<AllocationBlock[]>([
@@ -63,39 +68,71 @@ describe('parseAllocateTokens', () => {
     const tokens = ['--character', 'alpha', '--amount', '5'];
     const blocks = parseAllocateTokens(tokens);
     expect(blocks).toEqual<AllocationBlock[]>([
-      { characterId: 'alpha', amount: 5, note: undefined, pillarSplits: undefined },
+      {
+        characterId: 'alpha',
+        amount: 5,
+        note: undefined,
+        pillarSplits: undefined,
+      },
     ]);
   });
 
   it('parses multiple blocks, each with their own fields', () => {
     const tokens = [
-      '--character', 'c1',
-      '--amount', '2',
-      '--social', '2',
-      '--note', 'make-up credit',
+      '--character',
+      'c1',
+      '--amount',
+      '2',
+      '--social',
+      '2',
+      '--note',
+      'make-up credit',
 
-      '--character', 'c2',
-      '--amount', '1',
-      '--exploration', '1',
+      '--character',
+      'c2',
+      '--amount',
+      '1',
+      '--exploration',
+      '1',
     ];
     const blocks = parseAllocateTokens(tokens);
     expect(blocks).toEqual<AllocationBlock[]>([
-      { characterId: 'c1', amount: 2, note: 'make-up credit', pillarSplits: { social: 2 } },
-      { characterId: 'c2', amount: 1, note: undefined, pillarSplits: { exploration: 1 } },
+      {
+        characterId: 'c1',
+        amount: 2,
+        note: 'make-up credit',
+        pillarSplits: { social: 2 },
+      },
+      {
+        characterId: 'c2',
+        amount: 1,
+        note: undefined,
+        pillarSplits: { exploration: 1 },
+      },
     ]);
   });
 
   it('accepts zero values (e.g., amount 0, split 0) without error', () => {
     const tokens = [
-      '--character', 'c0',
-      '--amount', '0',
-      '--combat', '0',
-      '--exploration', '0',
-      '--social', '0',
+      '--character',
+      'c0',
+      '--amount',
+      '0',
+      '--combat',
+      '0',
+      '--exploration',
+      '0',
+      '--social',
+      '0',
     ];
     const blocks = parseAllocateTokens(tokens);
     expect(blocks).toEqual<AllocationBlock[]>([
-      { characterId: 'c0', amount: 0, note: undefined, pillarSplits: { combat: 0, exploration: 0, social: 0 } },
+      {
+        characterId: 'c0',
+        amount: 0,
+        note: undefined,
+        pillarSplits: { combat: 0, exploration: 0, social: 0 },
+      },
     ]);
   });
 });
@@ -108,8 +145,10 @@ describe('sliceAfterWeaveAllocateAp', () => {
       'weave',
       'allocate',
       'ap',
-      '--character', 'x',
-      '--amount', '1',
+      '--character',
+      'x',
+      '--amount',
+      '1',
     ];
     const tokens = sliceAfterWeaveAllocateAp(raw);
     expect(tokens).toEqual(['--character', 'x', '--amount', '1']);
@@ -130,15 +169,23 @@ describe('allocateFromCli', () => {
       'weave',
       'allocate',
       'ap',
-      '--character', 'id1',
-      '--amount', '2',
-      '--social', '2',
-      '--note', 'absence credit',
+      '--character',
+      'id1',
+      '--amount',
+      '2',
+      '--social',
+      '2',
+      '--note',
+      'absence credit',
 
-      '--character', 'id2',
-      '--amount', '3',
-      '--combat', '1',
-      '--exploration', '2',
+      '--character',
+      'id2',
+      '--amount',
+      '3',
+      '--combat',
+      '1',
+      '--exploration',
+      '2',
     ];
 
     await allocateFromCli(raw, /* dryRun */ true);
@@ -167,9 +214,15 @@ describe('allocateFromCli', () => {
 
   it('handles amount-only (no splits) blocks', async () => {
     const raw = [
-      'node', 'cli.js', 'weave', 'allocate', 'ap',
-      '--character', 'solo',
-      '--amount', '4',
+      'node',
+      'cli.js',
+      'weave',
+      'allocate',
+      'ap',
+      '--character',
+      'solo',
+      '--amount',
+      '4',
     ];
 
     await allocateFromCli(raw, false);

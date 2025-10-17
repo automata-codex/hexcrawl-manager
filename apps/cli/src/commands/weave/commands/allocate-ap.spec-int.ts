@@ -78,7 +78,6 @@ describe('Command `weave allocate ap`', () => {
           fs.writeFileSync(filename, yaml.stringify(report));
         });
 
-
         // --- AP Ledger ---
         const ledger: ApLedgerEntry[] = [];
         rewriteApLedger(REPO_PATHS.AP_LEDGER(), ledger);

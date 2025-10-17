@@ -25,14 +25,17 @@ export type AllocationBlock = {
   pillarSplits?: Partial<Record<Pillar, number>>;
 };
 
-export const exitCodeForAllocate = makeExitMapper([
-  [CliValidationError, 4],
-  [InsufficientCreditsError, 6],
-  [IoApplyError, 2],
+export const exitCodeForAllocate = makeExitMapper(
+  [
+    [CliValidationError, 4],
+    [InsufficientCreditsError, 6],
+    [IoApplyError, 2],
 
-  // Keep the most generic types at the end to avoid masking more specific ones
-  [CliError, 1],
-], 1);
+    // Keep the most generic types at the end to avoid masking more specific ones
+    [CliError, 1],
+  ],
+  1,
+);
 
 /**
  * Single allocation (kept small and reusable/testable).
@@ -101,9 +104,13 @@ export function parseAllocateTokens(tokens: string[]): AllocationBlock[] {
 
   const finalize = () => {
     if (!current) return;
-    if (!current.characterId) throw new Error('Missing --character for an allocation block.');
+    if (!current.characterId) {
+      throw new Error('Missing --character for an allocation block.');
+    }
     if (current.amount == null || !isInt(current.amount)) {
-      throw new Error(`Missing or invalid --amount for character "${current.characterId}".`);
+      throw new Error(
+        `Missing or invalid --amount for character "${current.characterId}".`,
+      );
     }
 
     const { combat = 0, exploration = 0, social = 0 } = current.splits;
@@ -124,17 +131,17 @@ export function parseAllocateTokens(tokens: string[]): AllocationBlock[] {
     const sum = combat + exploration + social;
     if (provided.length > 0 && sum !== current.amount) {
       throw new Error(
-        `Pillar split mismatch for "${current.characterId}": combat(${combat}) + exploration(${exploration}) + social(${social}) = ${sum}, but --amount is ${current.amount}.`
+        `Pillar split mismatch for "${current.characterId}": combat(${combat}) + exploration(${exploration}) + social(${social}) = ${sum}, but --amount is ${current.amount}.`,
       );
     }
 
     const pillarSplits =
       provided.length > 0
         ? ({
-          ...(current.splits.combat != null ? { combat } : {}),
-          ...(current.splits.exploration != null ? { exploration } : {}),
-          ...(current.splits.social != null ? { social } : {}),
-        } as AllocationBlock['pillarSplits'])
+            ...(current.splits.combat != null ? { combat } : {}),
+            ...(current.splits.exploration != null ? { exploration } : {}),
+            ...(current.splits.social != null ? { social } : {}),
+          } as AllocationBlock['pillarSplits'])
         : undefined;
 
     blocks.push({
@@ -149,7 +156,9 @@ export function parseAllocateTokens(tokens: string[]): AllocationBlock[] {
 
   const take = (i: number) => {
     const v = tokens[i + 1];
-    if (!v || v.startsWith('-')) throw new Error(`Expected a value after ${tokens[i]}.`);
+    if (!v || v.startsWith('-')) {
+      throw new Error(`Expected a value after ${tokens[i]}.`);
+    }
     return v;
   };
 
@@ -169,7 +178,9 @@ export function parseAllocateTokens(tokens: string[]): AllocationBlock[] {
       case '--amount': {
         if (!current) current = { splits: {} };
         const n = Number(take(i));
-        if (!isInt(n)) throw new Error('Expected a non-negative integer for --amount.');
+        if (!isInt(n)) {
+          throw new Error('Expected a non-negative integer for --amount.');
+        }
         current.amount = n;
         i++;
         break;
@@ -178,7 +189,9 @@ export function parseAllocateTokens(tokens: string[]): AllocationBlock[] {
       case '--combat': {
         if (!current) current = { splits: {} };
         const n = Number(take(i));
-        if (!isInt(n)) throw new Error('Expected a non-negative integer for --combat.');
+        if (!isInt(n)) {
+          throw new Error('Expected a non-negative integer for --combat.');
+        }
         current.splits.combat = n;
         i++;
         break;
@@ -187,7 +200,9 @@ export function parseAllocateTokens(tokens: string[]): AllocationBlock[] {
       case '--exploration': {
         if (!current) current = { splits: {} };
         const n = Number(take(i));
-        if (!isInt(n)) throw new Error('Expected a non-negative integer for --exploration.');
+        if (!isInt(n)) {
+          throw new Error('Expected a non-negative integer for --exploration.');
+        }
         current.splits.exploration = n;
         i++;
         break;
@@ -196,7 +211,9 @@ export function parseAllocateTokens(tokens: string[]): AllocationBlock[] {
       case '--social': {
         if (!current) current = { splits: {} };
         const n = Number(take(i));
-        if (!isInt(n)) throw new Error('Expected a non-negative integer for --social.');
+        if (!isInt(n)) {
+          throw new Error('Expected a non-negative integer for --social.');
+        }
         current.splits.social = n;
         i++;
         break;
@@ -221,9 +238,9 @@ export function parseAllocateTokens(tokens: string[]): AllocationBlock[] {
   if (blocks.length === 0) {
     throw new Error(
       'No allocations found.\n' +
-      'Usage:\n' +
-      '  weave allocate ap --character <id> --amount <n> [--combat <n>] [--exploration <n>] [--social <n>] [--note "..."]\n' +
-      '  (repeat --character/--amount/... to allocate for multiple characters)'
+        'Usage:\n' +
+        '  weave allocate ap --character <id> --amount <n> [--combat <n>] [--exploration <n>] [--social <n>] [--note "..."]\n' +
+        '  (repeat --character/--amount/... to allocate for multiple characters)',
     );
   }
 
@@ -234,7 +251,7 @@ export function parseAllocateTokens(tokens: string[]): AllocationBlock[] {
 function printAllocateResults(results: AllocateApResult[]) {
   if (results.length === 0) return;
 
-  const dryRun = results.some(r => r.dryRun);
+  const dryRun = results.some((r) => r.dryRun);
   const headers = [
     'characterId',
     'amount',
@@ -260,10 +277,7 @@ function printAllocateResults(results: AllocateApResult[]) {
 
   // compute column widths
   const widths = headers.map((h, idx) =>
-    Math.max(
-      h.length,
-      ...rows.map((row) => (row[idx] ?? '').length),
-    ),
+    Math.max(h.length, ...rows.map((row) => (row[idx] ?? '').length)),
   );
 
   const pad = (str: string, w: number) => str.padEnd(w, ' ');
@@ -272,10 +286,7 @@ function printAllocateResults(results: AllocateApResult[]) {
     cols.map((c, i) => pad(c, widths[i])).join('   '); // 3 spaces between cols
 
   // header
-  info(
-    (dryRun ? '[DRY RUN] ' : '') +
-    line(headers),
-  );
+  info((dryRun ? '[DRY RUN] ' : '') + line(headers));
   // separator
   info(line(widths.map((w) => '-'.repeat(w))));
 
@@ -292,9 +303,13 @@ function printAllocateResults(results: AllocateApResult[]) {
 export function sliceAfterWeaveAllocateAp(rawArgs: string[]): string[] {
   const iWeave = rawArgs.findIndex((t) => t === 'weave');
   if (iWeave === -1) return [];
-  const iAllocate = rawArgs.slice(iWeave + 1).findIndex((t) => t === 'allocate');
+  const iAllocate = rawArgs
+    .slice(iWeave + 1)
+    .findIndex((t) => t === 'allocate');
   if (iAllocate === -1) return [];
-  const iAp = rawArgs.slice(iWeave + 1 + iAllocate + 1).findIndex((t) => t === 'ap');
+  const iAp = rawArgs
+    .slice(iWeave + 1 + iAllocate + 1)
+    .findIndex((t) => t === 'ap');
   if (iAp === -1) return [];
   const start = iWeave + 1 + iAllocate + 1 + iAp + 1;
   return rawArgs.slice(start);

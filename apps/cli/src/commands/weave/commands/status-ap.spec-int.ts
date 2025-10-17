@@ -144,7 +144,9 @@ describe('Command `weave ap status`', () => {
 
         const awardsBlock = (() => {
           const lines = stdout.split(/\r?\n/);
-          const start = lines.findIndex((l) => /Unclaimed Absence Awards/i.test(l));
+          const start = lines.findIndex((l) =>
+            /Unclaimed Absence Awards/i.test(l),
+          );
           if (start < 0) return '';
 
           // collect until we've seen the *third* dashed separator after start
@@ -163,7 +165,10 @@ describe('Command `weave ap status`', () => {
         const alistarLine = awardsBlock
           .split(/\r?\n/)
           .find((line) => /^Alistar\s+/i.test(line));
-        expect(alistarLine, 'expected an Alistar row in absence awards table').toBeTruthy();
+        expect(
+          alistarLine,
+          'expected an Alistar row in absence awards table',
+        ).toBeTruthy();
 
         expect(alistarLine).toMatch(/Alistar\s+3\s+1\s+2/);
       },

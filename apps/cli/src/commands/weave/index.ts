@@ -10,19 +10,30 @@ export const weaveCommand = new Command('weave').description(
 );
 
 // ---- allocate (parent) ----
-const allocateCommand = new Command('allocate')
-  .description('Allocate Advancement Points (AP) to a character');
+const allocateCommand = new Command('allocate').description(
+  'Allocate Advancement Points (AP) to a character',
+);
 
 // `weave allocate ap` -> allocate AP to one or more characters
 const allocateAp = new Command('ap')
   .description('Allocate AP to one or more characters')
   // Define options purely for help/UX. We won’t use these parsed values.
   .addOption(
-    new Option('--character <id>', 'Character ID (starts a new allocation block)'),
+    new Option(
+      '--character <id>',
+      'Character ID (starts a new allocation block)',
+    ),
   )
-  .addOption(new Option('--amount <n>', 'Total credits to allocate in this block'))
+  .addOption(
+    new Option('--amount <n>', 'Total credits to allocate in this block'),
+  )
   .addOption(new Option('--combat <n>', 'Combat pillar credits for this block'))
-  .addOption(new Option('--exploration <n>', 'Exploration pillar credits for this block'))
+  .addOption(
+    new Option(
+      '--exploration <n>',
+      'Exploration pillar credits for this block',
+    ),
+  )
   .addOption(new Option('--social <n>', 'Social pillar credits for this block'))
   .option('--note <text>', 'Optional note for the current block')
   .option('--dry-run', 'Show what would be allocated without making changes')

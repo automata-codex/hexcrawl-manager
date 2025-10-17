@@ -2,7 +2,10 @@ import { info, usage, warn } from '@skyreach/cli-kit';
 import { PACES, type Pace } from '@skyreach/schemas';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
-import { isPartyLost, selectCurrentHex } from '../../../services/projectors.service';
+import {
+  isPartyLost,
+  selectCurrentHex,
+} from '../../../services/projectors.service';
 import { requireFile, requireSession } from '../services/general';
 
 import type { Context } from '../types';
