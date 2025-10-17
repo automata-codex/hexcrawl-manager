@@ -285,7 +285,6 @@ function printAllocateResults(results: AllocateApResult[]) {
   }
 }
 
-
 /**
  * Slice raw argv to the tokens after `weave allocate ap`.
  * (Commander layer also carries a local copy to print help early.)

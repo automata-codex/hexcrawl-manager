@@ -46,13 +46,13 @@ Notes:
   )
   // Allow repeats; we’ll parse from raw argv downstream.
   .allowUnknownOption(true)
-  .action(async (_a, _b, command) => {
+  .action(async (_opts, command) => {
     const opts = command.optsWithGlobals();
-    const raw = command.parent?.parent?.rawArgs ?? process.argv;
+    const raw = process.argv;
+    const tokens = sliceAfterThisCommand(raw, command);
 
-    // If user ran just `weave allocate ap`, show help instead of a vague error.
-    const afterAp = sliceAfterWeaveAllocateAp(raw);
-    if (afterAp.length === 0) {
+    // If nothing after 'ap', show help; otherwise let the orchestrator validate.
+    if (tokens.length === 0) {
       command.help({ error: false });
       return;
     }
@@ -64,21 +64,17 @@ allocateCommand.addCommand(allocateAp);
 weaveCommand.addCommand(allocateCommand);
 
 // --- helper kept local to CLI so help works even without importing orchestrator utils ---
-function sliceAfterWeaveAllocateAp(rawArgs: string[]): string[] {
-  const iWeave = rawArgs.findIndex((t) => t === 'weave');
-  if (iWeave === -1) {
-    return [];
-  }
-  const iAllocate = rawArgs.slice(iWeave + 1).findIndex((t) => t === 'allocate');
-  if (iAllocate === -1) {
-    return [];
-  }
-  const iAp = rawArgs.slice(iWeave + 1 + iAllocate + 1).findIndex((t) => t === 'ap');
-  if (iAp === -1) {
-    return [];
-  }
-  const start = iWeave + 1 + iAllocate + 1 + iAp + 1;
-  return rawArgs.slice(start);
+function sliceAfterThisCommand(rawArgs: string[], command: Command): string[] {
+  // Prefer the real runtime name of this command
+  const token = command.name(); // 'ap'
+  // Some setups add a path or alias; last occurrence is safest
+  const idx = rawArgs.lastIndexOf(token);
+  if (idx !== -1) return rawArgs.slice(idx + 1);
+
+  // Fallback: chop off "node cli.js"
+  if (rawArgs.length >= 2) return rawArgs.slice(2);
+
+  return [];
 }
 
 // ---- apply (parent) ----
