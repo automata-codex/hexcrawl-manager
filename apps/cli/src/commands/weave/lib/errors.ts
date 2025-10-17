@@ -28,6 +28,19 @@ export class CliValidationError extends CliError {
   }
 }
 
+export class InsufficientCreditsError extends CliError {
+  constructor(
+    public characterId: string,
+    public available: number,
+    public requested: number,
+  ) {
+    super(
+      `Insufficient Tier-1 absence credits for "${characterId}": requested ${requested}, available ${available}.`,
+    );
+    this.name = 'InsufficientCreditsError';
+  }
+}
+
 export class IoApplyError extends CliError {
   constructor(message: string) {
     super(message);

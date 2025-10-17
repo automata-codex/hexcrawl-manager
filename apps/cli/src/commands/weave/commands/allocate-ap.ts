@@ -3,8 +3,26 @@ import { REPO_PATHS, getLatestSessionNumber } from '@skyreach/data';
 import { ApLedgerEntry, makeSessionId } from '@skyreach/schemas';
 
 import { appendApEntry } from '../../../services/ap-ledger.service';
+import { loadAllCharacters } from '../../../services/characters.service';
+import { InsufficientCreditsError } from '../lib/errors';
+
+import { statusAp } from './status-ap';
 
 import type { AllocateArgs } from './allocate';
+
+// OPTIONAL: if you already have this somewhere, import it instead.
+async function getAvailableAbsenceCredits(characterId: string): Promise<number> {
+  const characters = loadAllCharacters();
+  const character = characters.find((c) => c.id === characterId);
+  if (!character) {
+    // Prefer a hard failure — caller likely passed a bad id
+    throw new Error(`Character not found: "${characterId}".`);
+  }
+
+  const { absenceAwards } = await statusAp();
+  const row = absenceAwards.find((r) => r.characterId === characterId);
+  return row?.unclaimed ?? 0;
+}
 
 // Helper: Build AP ledger entry
 function buildAbsenceSpendEntry(args: AllocateArgs): ApLedgerEntry {
@@ -48,10 +66,16 @@ export async function allocateAp(args: AllocateArgs) {
   }
   validatePillarSplits(args.amount, args.pillarSplits);
 
-  // Step 2: Prepare AP allocation data
+  // Step 2: Ensure the character actually has enough unspent Tier-1 credits
+  const available = await getAvailableAbsenceCredits(args.characterId);
+  if (available < args.amount) {
+    throw new InsufficientCreditsError(args.characterId, available, args.amount);
+  }
+
+  // Step 3: Prepare AP allocation data
   const entry = buildAbsenceSpendEntry(args);
 
-  // Step 3: Apply AP allocation (unless dryRun)
+  // Step 4: Apply AP allocation (unless dryRun)
   if (!args.dryRun) {
     appendApEntry(REPO_PATHS.AP_LEDGER(), entry);
     info(`AP allocation recorded for character ${args.characterId}`);
