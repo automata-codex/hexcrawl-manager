@@ -2,7 +2,7 @@ import { error, info, usage, warn } from '@skyreach/cli-kit';
 import { isValidHexId, normalizeHexId } from '@skyreach/core';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
-import { selectCurrentHex } from '../projectors';
+import { selectCurrentHex } from '../../../services/projectors.service';
 import { requireFile, requireSession } from '../services/general';
 
 import type { Context } from '../types';

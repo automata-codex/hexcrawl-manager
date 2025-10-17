@@ -27,7 +27,6 @@ export default function doctor() {
     let crossSeason = 0;
     let devFileCount = 0;
     let sessionGapCount = 0;
-    let intentionalGapCount = 0;
     let dateMismatchCount = 0;
 
     const devMode = detectDevMode(args);
@@ -208,7 +207,6 @@ export default function doctor() {
     });
     if (gapResults) {
       sessionGapCount = gapResults.gaps.length;
-      intentionalGapCount = gapResults.intentionalGaps.length;
       gapResults.warnings.forEach((w) => warnings.push(w));
       gapResults.infos.forEach((i) => infos.push(i));
     }
@@ -241,9 +239,7 @@ export default function doctor() {
     );
     info(`Orphan in-progress files: ${orphanInProgress}`);
     info(`In-progress files missing session_start: ${missingStart}`);
-    info(
-      `Sequence gaps: ${sessionGapCount}, intentional gaps: ${intentionalGapCount}`,
-    );
+    info(`Sequence gaps: ${sessionGapCount}`);
     info(`Session date mismatches: ${dateMismatchCount}`);
     info(`Cross-season sessions: ${crossSeason}`);
     info(`Dev files present: ${devFileCount}`);

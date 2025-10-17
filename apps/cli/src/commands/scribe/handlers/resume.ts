@@ -3,7 +3,7 @@ import { type SessionId, assertSessionId } from '@skyreach/schemas';
 import { existsSync } from 'node:fs';
 
 import { readEvents } from '../../../services/event-log.service';
-import { selectCurrentHex } from '../projectors';
+import { selectCurrentHex } from '../../../services/projectors.service';
 import { detectDevMode } from '../services/general';
 import { findLatestInProgress, inProgressPathFor } from '../services/session';
 

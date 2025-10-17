@@ -7,7 +7,7 @@ import {
   activeSegmentsSinceStart,
   daylightSegmentsSinceStart,
   findOpenDay,
-} from '../projectors';
+} from '../../../services/projectors.service';
 import { requireFile } from '../services/general';
 
 import type { Context } from '../types';

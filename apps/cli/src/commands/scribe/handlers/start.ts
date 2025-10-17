@@ -5,7 +5,7 @@ import { SESSION_ID_RE } from '@skyreach/schemas';
 import fs from 'node:fs';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
-import { selectCurrentHex } from '../projectors';
+import { selectCurrentHex } from '../../../services/projectors.service';
 import { detectDevMode } from '../services/general';
 import { prepareSessionStart } from '../services/session';
 
