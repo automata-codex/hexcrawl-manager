@@ -7,45 +7,14 @@ import {
   SessionReportSchema,
   makeSessionId,
 } from '@skyreach/schemas';
-import { makeAbsenceSpend } from '@skyreach/test-helpers';
+import {
+  makeAbsenceSpend,
+  makeCompletedSessionReport,
+  makePlannedSessionReport,
+} from '@skyreach/test-helpers';
 import { describe, it, expect } from 'vitest';
 
 import { computeUnclaimedAbsenceAwards } from './compute-unclaimed-absence-awards';
-
-function makeCompletedSession(opts: {
-  n: number; // 1-based counter -> session id
-  date: string; // YYYY-MM-DD real-world date
-  present: string[]; // characterIds present
-}): SessionReport {
-  const id = makeSessionId(opts.n);
-  return {
-    id,
-    status: 'completed',
-    // required header bits
-    absenceAllocations: [],
-    downtime: [],
-    gameStartDate: '',
-    schemaVersion: 2,
-    scribeIds: [`${makeSessionId(opts.n)}_2025-09-01`], // any valid ScribeId shape
-    sessionDate: opts.date,
-    source: 'scribe',
-    // completed-only
-    advancementPoints: {
-      combat: { number: 1, maxTier: 1 },
-      exploration: { number: 1, maxTier: 1 },
-      social: { number: 1, maxTier: 1 },
-    },
-    characterIds: [
-      // Strings are PCs; objects would be guests (we omit guests here in happy path)
-      ...opts.present,
-    ],
-    fingerprint: `fp-${id}`,
-    gameEndDate: '',
-    notes: [],
-    todo: [],
-    weave: { appliedAt: `${opts.date}T12:00:00.000Z`, version: '1' },
-  };
-}
 
 function makePlannedSession(opts: { n: number }): SessionReport {
   const id = makeSessionId(opts.n);
@@ -121,20 +90,20 @@ export const CHAR_C: CharacterData = CharacterSchema.parse({
  * s6 planned (ignored)
  */
 export const SESSIONS = [
-  makeCompletedSession({
+  makeCompletedSessionReport({
     n: 1,
     date: '2025-09-01',
     present: ['char-a', 'char-b'],
   }),
-  makeCompletedSession({ n: 2, date: '2025-09-08', present: ['char-a'] }),
-  makeCompletedSession({
+  makeCompletedSessionReport({ n: 2, date: '2025-09-08', present: ['char-a'] }),
+  makeCompletedSessionReport({
     n: 3,
     date: '2025-09-15',
     present: ['char-a', 'char-c'],
   }),
-  makeCompletedSession({ n: 4, date: '2025-09-22', present: ['char-c'] }),
-  makeCompletedSession({ n: 5, date: '2025-09-29', present: ['char-a'] }),
-  makePlannedSession({ n: 6 }), // should be ignored by status
+  makeCompletedSessionReport({ n: 4, date: '2025-09-22', present: ['char-c'] }),
+  makeCompletedSessionReport({ n: 5, date: '2025-09-29', present: ['char-a'] }),
+  makePlannedSessionReport({ n: 6 }), // should be ignored by status
 ];
 
 // --- AP Ledger ---
