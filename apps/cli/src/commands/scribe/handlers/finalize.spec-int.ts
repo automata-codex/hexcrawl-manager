@@ -1,5 +1,10 @@
 import { SEASON_ID_RE } from '@skyreach/core';
-import { buildSessionFilename, loadMeta, REPO_PATHS } from '@skyreach/data';
+import {
+  REPO_PATHS,
+  buildSessionFilename,
+  discoverFinalizedLogsFor,
+  loadMeta,
+} from '@skyreach/data';
 import {
   SESSION_ID_RE,
   makeSessionId,
@@ -476,9 +481,10 @@ describe('scribe finalize', () => {
       'scribe-finalize-backfill',
       { initGit: false },
       async (repo) => {
-        const commands = [
-          'start interactive --hex R14 --seq 5 --date 2025-09-27 --yes',
-          'day start 30 hib 1511',
+        // Create a most recent session before creating the backfill session (prevents unexpected Meta file healing)
+        const latestSessionCommands = [
+          'start p13',
+          'day start 1 umb 1512',
           'move p14',
           'rest',
           'day start',
@@ -492,8 +498,28 @@ describe('scribe finalize', () => {
         ];
 
         // eslint-disable-next-line no-unused-vars
-        const { exitCode, stderr, stdout } = await runScribe(commands, {
-          repo, ensureExit: false, ensureFinalize: false,
+        const latestSessionOutput = await runScribe(latestSessionCommands, {
+          repo,
+        });
+
+        const session5Commands = [
+          'start interactive --hex r14 --seq 5 --date 2025-09-27 --yes',
+          'day start 30 hib 1511',
+          'move r13',
+          'rest',
+          'day start',
+          'rest',
+          'day start',
+          'rest',
+          'day start',
+          'move r12',
+          'rest',
+          'finalize',
+        ];
+
+        // eslint-disable-next-line no-unused-vars
+        const { exitCode, stderr, stdout } = await runScribe(session5Commands, {
+          repo,
         });
 
         expect(exitCode).toBe(0);
@@ -515,8 +541,13 @@ describe('scribe finalize', () => {
         );
         expect(files.length).toEqual(uniqueSeasons.size); // Should be one session file per unique season
 
+        // Gather all events from just session 5 files
+        const session5LogInfo = discoverFinalizedLogsFor(5);
+        const session5Files = session5LogInfo.map((l) => l.fullPath);
+        const session5Events = session5Files.flatMap(readEvents);
+
         // Should contain all moves
-        const moves = allEvents.filter((e) => e.kind === 'move');
+        const moves = session5Events.filter((e) => e.kind === 'move');
         expect(moves.length).toBe(2);
       },
     );
