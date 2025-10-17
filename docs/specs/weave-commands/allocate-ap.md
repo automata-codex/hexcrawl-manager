@@ -24,10 +24,10 @@
 
 ```bash
 # Spend N credits for a Tier-1 character, mapping credits to pillars explicitly
-weave ap allocate --character <id> --amount 3 --combat 1 --exploration 2 --note "Missed 0021"
+weave allocate ap --character <id> --amount 3 --combat 1 --exploration 2 --note "Missed 0021"
 
 # Multiple characters (repeat flags per character)
-weave ap allocate \
+weave allocate ap \
   --character <id1> --amount 2 --social 2 \
   --character <id2> --amount 1 --exploration 1
 ```
@@ -147,10 +147,10 @@ istavan       3        1/2/0             session-0023       5→2               
 
 ```bash
 # Tier-1: split across pillars
-weave ap allocate --character istavan --amount 3 --combat 1 --exploration 2 --note "Missed 0021"
+weave allocate ap --character istavan --amount 3 --combat 1 --exploration 2 --note "Missed 0021"
 
 # Multiple Tier-1 allocations
-weave ap allocate \
+weave allocate ap \
   --character istavan --amount 2 --exploration 2 \
   --character mira    --amount 1 --social 1
 ```
