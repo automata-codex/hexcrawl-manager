@@ -3,9 +3,9 @@ import {
   ApLedgerEntrySchema,
   CharacterData,
   CharacterSchema,
-  makeSessionId,
   SessionReport,
   SessionReportSchema,
+  makeSessionId,
 } from '@skyreach/schemas';
 import { makeAbsenceSpend } from '@skyreach/test-helpers';
 import { describe, it, expect } from 'vitest';

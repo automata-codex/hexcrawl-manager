@@ -1,4 +1,5 @@
-import { padSessionNum, tierFromLevel } from '@skyreach/core';
+import { tierFromLevel } from '@skyreach/core';
+import { padSessionNum } from '@skyreach/schemas';
 
 import type { LedgerResultsByCharacter } from '../../../services/ap-ledger.service';
 import type { ScribeEvent } from '@skyreach/schemas';
