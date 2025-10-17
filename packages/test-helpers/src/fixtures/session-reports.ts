@@ -32,7 +32,7 @@ export function makeCompletedSessionReport(opts: {
     notes: [],
     todo: [],
     weave: { appliedAt: `${opts.date}T12:00:00.000Z`, version: '1' },
-  };
+  } satisfies SessionReport;
 }
 
 export function makePlannedSessionReport(opts: { n: number }): SessionReport {
@@ -49,5 +49,5 @@ export function makePlannedSessionReport(opts: { n: number }): SessionReport {
     source: 'scribe',
     agenda: [],
     gmNotes: '',
-  };
+  } satisfies SessionReport;
 }

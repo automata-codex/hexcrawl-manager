@@ -1,8 +1,11 @@
 import { REPO_PATHS } from '@skyreach/data';
-import { ApLedgerEntry, makeSessionId } from '@skyreach/schemas';
+import { ApLedgerEntry, makeSessionId, padSessionNum } from '@skyreach/schemas';
 import {
+  makeCompletedSessionReport,
+  makePlannedSessionReport,
   makeSessionApGrid,
   runWeave,
+  saveCharacter,
   withTempRepo,
 } from '@skyreach/test-helpers';
 import fs from 'node:fs';
@@ -64,63 +67,55 @@ describe('Command `weave ap status`', () => {
       { initGit: false },
       async (repo) => {
         // --- Character files (Tier 1 by level) ---
-        const charactersDir = path.join(repo, 'data', 'characters');
-        fs.mkdirSync(charactersDir, { recursive: true });
-        fs.writeFileSync(
-          path.join(charactersDir, 'alistar.yaml'),
-          yaml.stringify({ id: 'alistar', displayName: 'Alistar', level: 1 }),
-        );
+        saveCharacter('alistar', {
+          level: 1,
+          advancementPoints: { combat: 0, exploration: 0, social: 0 },
+        });
+        saveCharacter('daemaris', {
+          level: 1,
+          advancementPoints: { combat: 0, exploration: 0, social: 0 },
+        });
+        saveCharacter('istavan', {
+          level: 1,
+          advancementPoints: { combat: 0, exploration: 0, social: 0 },
+        });
 
-        // --- Finalized session logs: 3 sessions total ---
-        // Alistar attends session 1, is absent for sessions 2 and 3 (no downtime markers).
-        const sessionsDir = REPO_PATHS.SESSIONS();
-        fs.mkdirSync(sessionsDir, { recursive: true });
-
-        const writeSession = (
-          seq: number,
-          isoDate: string,
-          party: string[],
-        ) => {
-          const events = [
-            {
-              kind: 'day_start',
-              ts: `${isoDate}T10:00:00Z`,
-              seq: 1,
-              payload: {
-                calendarDate: { year: 1511, month: 'Umbraeus', day: 15 + seq },
-                season: 'autumn',
-                daylightCap: 12,
-              },
-            },
-            {
-              kind: 'party_set',
-              ts: `${isoDate}T10:05:00Z`,
-              seq: 2,
-              payload: { ids: party },
-            },
-            {
-              kind: 'day_end',
-              ts: `${isoDate}T18:00:00Z`,
-              seq: 3,
-              payload: { daylightUsed: 8, hoursTraveled: 6 },
-            },
-          ];
+        // --- Session reports ---
+        const sessionReports = [
+          makeCompletedSessionReport({
+            n: 1,
+            date: '2025-09-01',
+            present: ['alistar', 'daemaris', 'istavan'],
+          }),
+          makeCompletedSessionReport({
+            n: 2,
+            date: '2025-09-08',
+            present: ['daemaris', 'istavan'],
+          }),
+          makeCompletedSessionReport({
+            n: 3,
+            date: '2025-09-15',
+            present: ['daemaris', 'istavan'],
+          }),
+          makeCompletedSessionReport({
+            n: 4,
+            date: '2025-09-22',
+            present: ['daemaris', 'istavan'],
+          }),
+          makeCompletedSessionReport({
+            n: 5,
+            date: '2025-09-29',
+            present: ['alistar', 'daemaris', 'istavan'],
+          }),
+          makePlannedSessionReport({ n: 6 }), // should be ignored by status
+        ];
+        sessionReports.forEach((report, i) => {
           const filename = path.join(
-            sessionsDir,
-            `session_${String(seq).padStart(4, '0')}_${isoDate}.jsonl`,
+            REPO_PATHS.REPORTS(),
+            `session-${padSessionNum(i + 1)}.yaml`,
           );
-          fs.writeFileSync(
-            filename,
-            events.map((e) => JSON.stringify(e)).join('\n'),
-          );
-        };
-
-        // Session 1: Alistar present
-        writeSession(1, '2025-09-27', ['alistar']);
-        // Session 2: Alistar absent (party empty; could also include different PCs)
-        writeSession(2, '2025-09-28', []);
-        // Session 3: Alistar absent
-        writeSession(3, '2025-09-29', []);
+          fs.writeFileSync(filename, yaml.stringify(report));
+        });
 
         // --- AP Ledger: spend 1 absence credit (social) at/after session 3 ---
         const ledger: ApLedgerEntry[] = [
@@ -140,10 +135,9 @@ describe('Command `weave ap status`', () => {
         rewriteApLedger(REPO_PATHS.AP_LEDGER(), ledger);
 
         // --- Run status with JSON output for structured assertions ---
-        const { exitCode, stdout, stderr } = await runWeave(
-          ['status', 'ap'],
-          { repo },
-        );
+        const { exitCode, stdout, stderr } = await runWeave(['status', 'ap'], {
+          repo,
+        });
 
         console.log('STDOUT:', stdout);
         console.log('STDERR:', stderr);
