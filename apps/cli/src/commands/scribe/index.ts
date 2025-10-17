@@ -30,6 +30,7 @@ export const scribeCommand = new Command('scribe')
       historySize: 200,
       completer: scribeCompleter,
     });
+    ctx.rl = rl;
 
     const handlers = buildHandlers(ctx);
 

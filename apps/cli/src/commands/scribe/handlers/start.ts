@@ -9,9 +9,26 @@ import { selectCurrentHex } from '../projectors';
 import { detectDevMode } from '../services/general';
 import { prepareSessionStart } from '../services/session';
 
-import { handleInteractiveSessionStart } from './start-interactive';
+import {
+  handleInteractiveSessionStart,
+  startInteractiveWithValues,
+} from './start-interactive';
 
 import type { Context } from '../types';
+
+function parseInteractiveFlags(argv: string[]) {
+  // very small flag parser: --hex R14 --seq 5 --date 2025-09-27 --yes
+  const out: { hex?: string; seq?: number; date?: string; yes?: boolean } = {};
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--hex') out.hex = argv[++i];
+    else if (a === '--seq') out.seq = Number(argv[++i]);
+    else if (a === '--date') out.date = argv[++i];
+    else if (a === '--yes' || a === '--confirm' || a === '--no-prompt')
+      out.yes = true;
+  }
+  return out;
+}
 
 export default function start(ctx: Context) {
   return async (args: string[]) => {
@@ -21,7 +38,7 @@ export default function start(ctx: Context) {
     const now = new Date();
 
     // Step 1: Argument Parsing
-    if (filteredArgs.length !== 1) {
+    if (filteredArgs.length === 0) {
       usage(
         `Usage:
   start <HEX>          Start a new session in the given hex.
@@ -30,19 +47,58 @@ export default function start(ctx: Context) {
       return;
     }
 
+    // First token determines sub-mode; any remaining tokens are flags for "interactive"
     const arg = filteredArgs[0];
+    const flagArgs = filteredArgs.slice(1);
+
     if (arg === 'interactive') {
       // Step 2: Dev Mode Handling for interactive
       if (devMode) {
         error('`start interactive` is unavailable in dev mode.');
         return;
       }
-      // Placeholder for interactive flow
-      await handleInteractiveSessionStart();
+
+      const flags = parseInteractiveFlags(flagArgs);
+      const hasAnyFlag =
+        flags.hex !== undefined ||
+        flags.seq !== undefined ||
+        flags.date !== undefined ||
+        flags.yes;
+      const allProvided = Boolean(
+        flags.hex && Number.isFinite(flags.seq) && flags.date && flags.yes,
+      );
+
+      if (hasAnyFlag && !allProvided) {
+        usage(
+          `Usage:
+  start interactive --hex <HEX> --seq <N> --date <YYYY-MM-DD> --yes`,
+        );
+        return;
+      }
+
+      if (allProvided) {
+        await startInteractiveWithValues(ctx, {
+          hex: flags.hex!,
+          seq: flags.seq!,
+          date: flags.date!,
+        });
+        return;
+      }
+
+      await handleInteractiveSessionStart(ctx);
       return;
     }
 
-    // ...existing code for start <HEX>...
+    // For non-interactive <HEX> path, require exactly one arg (the hex)
+    if (filteredArgs.length !== 1) {
+      usage(
+        `Usage:
+  start <HEX>                         Start a new session in the given hex.
+  start interactive                   Launch interactive session setup.`,
+      );
+      return;
+    }
+
     if (!arg || !isValidHexId(arg)) {
       error('❌ Invalid hex. Example: `start P13`');
       return;
