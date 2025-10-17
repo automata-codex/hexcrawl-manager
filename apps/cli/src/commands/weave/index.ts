@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 
+import { allocate as allocateHandler } from './commands/allocate';
 import { apply as applyHandler } from './commands/apply';
 import { plan as planHandler } from './commands/plan';
 import { status as statusHandler } from './commands/status';
@@ -7,6 +8,30 @@ import { status as statusHandler } from './commands/status';
 export const weaveCommand = new Command('weave').description(
   'Use session and rollover artifacts to update campaign state',
 );
+
+// ---- allocate (parent) ----
+const allocateCommand = new Command('allocate')
+  .description('Allocate Advancement Points (AP) to a character');
+
+// `weave allocate ap <characterId> <amount>`
+allocateCommand
+  .command('ap')
+  .description('Allocate AP to a character')
+  .argument('<characterId>', 'Character ID to allocate AP to')
+  .argument('<amount>', 'Amount of AP to allocate')
+  .option('--note <note>', 'Optional note for the allocation')
+  .option('--dry-run', 'Show what would be allocated without making changes')
+  .action(async (characterId: string, amount: string, _opts: unknown, command) => {
+    const opts = command.optsWithGlobals();
+    await allocateHandler({
+      characterId,
+      amount: Number(amount),
+      note: opts.note,
+      dryRun: !!opts.dryRun,
+    });
+  });
+
+weaveCommand.addCommand(allocateCommand);
 
 // ---- apply (parent) ----
 // `weave apply [sessionId]` -> defaults to AP application
