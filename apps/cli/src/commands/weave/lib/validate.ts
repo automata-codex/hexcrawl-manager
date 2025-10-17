@@ -4,7 +4,6 @@ import { eventsOf } from '../../../services/event-log.service';
 
 import type { DayStartEvent, ScribeEvent } from '@skyreach/schemas';
 
-//
 /**
  * Session envelope validation helper for weave commands. Usage: `const result = validateSessionEnvelope(events);`
  * @returns { isValid: boolean, error: string | null }

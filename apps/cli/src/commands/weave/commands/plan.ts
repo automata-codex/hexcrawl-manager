@@ -2,19 +2,21 @@ import { error, info, makeExitMapper } from '@skyreach/cli-kit';
 import {
   SessionAlreadyAppliedError,
   SessionFingerprintMismatchError,
-  SessionIdError,
   SessionLogsNotFoundError,
   SessionReportValidationError,
   assertSeasonId,
-  assertSessionId,
   isSeasonId,
-  isSessionId,
 } from '@skyreach/core';
 import {
   DirtyGitError,
   FinalizedLogJsonParseError,
   FinalizedLogsNotFoundError,
 } from '@skyreach/data';
+import {
+  assertSessionId,
+  isSessionId,
+  SessionIdError,
+} from '@skyreach/schemas';
 
 import {
   AlreadyAppliedError,

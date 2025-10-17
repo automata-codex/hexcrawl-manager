@@ -31,15 +31,15 @@ import {
 } from '../../../services/ap-ledger.service';
 import { eventsOf } from '../../../services/event-log.service';
 import {
-  pickNextSessionId,
-  sortScribeIds,
-} from '../../../services/sessions.service';
-import {
   firstCalendarDate,
   lastCalendarDate,
   selectParty,
-} from '../../scribe/projectors';
-import { computeApForSession } from '../lib/compute-ap-for-session';
+} from '../../../services/projectors.service';
+import {
+  pickNextSessionId,
+  sortScribeIds,
+} from '../../../services/sessions.service';
+import { computeApForSession } from '../lib/core/compute-ap-for-session';
 import { assertCleanGitOrAllowDirty } from '../lib/files';
 
 interface ApplyApOptions {

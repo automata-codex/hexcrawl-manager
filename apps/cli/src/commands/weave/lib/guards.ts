@@ -26,16 +26,6 @@ export function isRolloverChronologyValid(
   return { valid, expected: expected || '' };
 }
 
-/** @deprecated Use `isRolloverPath` from `@skyreach/data` instead */
-export function isRolloverFile(filePath: string): boolean {
-  const dir = path.basename(path.dirname(filePath));
-  const base = path.basename(filePath);
-  return (
-    dir === 'rollovers' &&
-    /^rollover_[\w-]+_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base)
-  );
-}
-
 export function isSessionAlreadyApplied(
   meta: MetaV2Data,
   fileId: string,

@@ -4,8 +4,8 @@ import { ApLedgerEntry, ApLedgerEntrySchema } from '@skyreach/schemas';
 import { readApLedger } from '../../../services/ap-ledger.service';
 import { loadAllCharacters } from '../../../services/characters.service';
 import { loadAllSessionReports } from '../../../services/sessions.service';
-import { aggregateApByCharacter } from '../lib/aggregate-ap-by-character';
-import { computeUnclaimedAbsenceAwards } from '../lib/compute-unclaimed-absence-awards';
+import { aggregateApByCharacter } from '../lib/core/aggregate-ap-by-character';
+import { computeUnclaimedAbsenceAwards } from '../lib/core/compute-unclaimed-absence-awards';
 
 export interface StatusApResult {
   apByCharacter: Record<
