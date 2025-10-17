@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import {
+  parseAllocateTokens,
+  sliceAfterWeaveAllocateAp,
+  allocateFromCli,
+  type AllocationBlock,
+} from './allocate';
+import { AllocateApResult } from './allocate-ap';
+
 // Mock cli-kit logging + exit mapper (no-op / deterministic)
 vi.mock('@skyreach/cli-kit', () => ({
   info: vi.fn(),
@@ -8,17 +16,24 @@ vi.mock('@skyreach/cli-kit', () => ({
 }));
 
 // Mock allocate-ap; we'll assert on calls in E2E test
-const allocateApMock = vi.fn();
+const allocateApMock = vi
+  // eslint-disable-next-line no-unused-vars
+  .fn(async (..._rest): Promise<AllocateApResult> => {
+    return {
+      amount: 0,
+      availableAfter: 0,
+      availableBefore: 0,
+      characterId: '',
+      createdAt: '',
+      dryRun: true,
+      note: '',
+      pillars: {},
+      sessionIdSpentAt: ''
+    };
+  });
 vi.mock('./allocate-ap', () => ({
   allocateAp: (...args: unknown[]) => allocateApMock(...args),
 }));
-
-import {
-  parseAllocateTokens,
-  sliceAfterWeaveAllocateAp,
-  allocateFromCli,
-  type AllocationBlock,
-} from './allocate';
 
 beforeEach(() => {
   allocateApMock.mockReset();
