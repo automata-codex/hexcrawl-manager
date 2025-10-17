@@ -39,7 +39,7 @@ import {
   pickNextSessionId,
   sortScribeIds,
 } from '../../../services/sessions.service';
-import { computeApForSession } from '../lib/compute-ap-for-session';
+import { computeApForSession } from '../lib/core/compute-ap-for-session';
 import { assertCleanGitOrAllowDirty } from '../lib/files';
 
 interface ApplyApOptions {
