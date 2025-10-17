@@ -9,9 +9,9 @@ import { prepareSessionStart } from '../services/session';
 import type { Context } from '../types';
 
 export type StartInteractiveValues = {
-  hex: string;      // normalized (e.g., 'R14')
-  seq: number;      // session sequence
-  date: string;     // 'YYYY-MM-DD'
+  hex: string; // normalized (e.g., 'R14')
+  seq: number; // session sequence
+  date: string; // 'YYYY-MM-DD'
 };
 
 /**

@@ -2,7 +2,10 @@ import { info, usage } from '@skyreach/cli-kit';
 import { PILLARS, TIERS } from '@skyreach/schemas';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
-import { selectCurrentHex, selectParty } from '../../../services/projectors.service';
+import {
+  selectCurrentHex,
+  selectParty,
+} from '../../../services/projectors.service';
 import { requireSession } from '../services/general';
 
 import type { Context } from '../types';

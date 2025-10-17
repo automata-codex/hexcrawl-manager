@@ -1,7 +1,10 @@
 import { info, usage, error } from '@skyreach/cli-kit';
 
 import { readEvents, appendEvent } from '../../../services/event-log.service';
-import { isDayOpen, lastCalendarDate } from '../../../services/projectors.service';
+import {
+  isDayOpen,
+  lastCalendarDate,
+} from '../../../services/projectors.service';
 import { requireFile } from '../services/general';
 
 import type { Context } from '../types';

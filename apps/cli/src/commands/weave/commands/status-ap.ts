@@ -1,3 +1,4 @@
+import { warn } from '@skyreach/cli-kit';
 import { REPO_PATHS } from '@skyreach/data';
 import { ApLedgerEntry, ApLedgerEntrySchema } from '@skyreach/schemas';
 
@@ -13,6 +14,7 @@ export interface StatusApResult {
     { combat: number; exploration: number; social: number }
   >;
   absenceAwards: Array<{
+    characterId: string;
     displayName: string;
     eligibleMissed: number;
     claimed: number;
@@ -31,7 +33,7 @@ export async function statusAp(): Promise<StatusApResult> {
     if (parsed.success) {
       ledgerEntries.push(parsed.data);
     } else {
-      console.warn('Invalid AP ledger entry found and skipped:', parsed.error);
+      warn(`Invalid AP ledger entry found and skipped: ${parsed.error}`);
     }
   }
 

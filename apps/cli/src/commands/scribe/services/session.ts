@@ -689,11 +689,11 @@ export function synthesizeLifecycleEvents(
       const hasEnd = afterLastDay.find((e) => e.kind === 'session_end');
       if (!hasEnd) {
         blockEvents.push({
-          kind: 'session_end',
+          seq: Number.MAX_SAFE_INTEGER,
           ts: block.events[block.events.length - 1]?.ts || timeNowISO(),
-          seq: 0,
+          kind: 'session_end',
           payload: { status: 'final', id: sessionId },
-          _origIdx: -1,
+          _origIdx: Number.MAX_SAFE_INTEGER,
         } satisfies SessionEndEvent & { _origIdx: number });
       }
     }

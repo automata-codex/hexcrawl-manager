@@ -7,7 +7,7 @@ import type { SessionId } from '@skyreach/schemas';
 export type Context = {
   calendar: CalendarService;
   file: string | null; // in-progress file path
-  rl?: Interface
+  rl?: Interface;
   sessionId: SessionId | null;
   weatherDraft?: WeatherDraft;
   weatherNagPrintedForDates?: Set<string>; // Use strings for easy Set membership

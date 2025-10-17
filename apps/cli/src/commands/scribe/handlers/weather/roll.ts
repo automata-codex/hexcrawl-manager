@@ -3,7 +3,10 @@ import { rollDice } from '@skyreach/data';
 import { clamp } from 'lodash-es';
 
 import { readEvents } from '../../../../services/event-log.service';
-import { lastCalendarDate, selectCurrentForecast } from '../../../../services/projectors.service';
+import {
+  lastCalendarDate,
+  selectCurrentForecast,
+} from '../../../../services/projectors.service';
 import { requireFile, requireSession } from '../../services/general';
 
 import {
