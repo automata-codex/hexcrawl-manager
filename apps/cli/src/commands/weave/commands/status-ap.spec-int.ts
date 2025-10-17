@@ -61,7 +61,7 @@ describe('Command `weave ap status`', () => {
     );
   });
 
-  it.only('derives absence credits at runtime for Tier 1 characters not in downtime', async () => {
+  it('derives absence credits at runtime for Tier 1 characters not in downtime', async () => {
     await withTempRepo(
       'ap-status-absence-derivation',
       { initGit: false },
@@ -144,45 +144,31 @@ describe('Command `weave ap status`', () => {
 
         expect(exitCode).toBe(0);
         expect(stderr).toBeFalsy();
-        expect(stdout).toContain('alistar');
 
-        // Pull a small window of text around Alistar’s row to make format-agnostic checks easier
-        const lines = stdout.split(/\r?\n/);
-        const idx = lines.findIndex((l) => /alistar/i.test(l));
-        expect(idx).toBeGreaterThanOrEqual(0);
+        const awardsBlock = (() => {
+          const lines = stdout.split(/\r?\n/);
+          const start = lines.findIndex((l) => /Unclaimed Absence Awards/i.test(l));
+          if (start < 0) return '';
 
-        const windowStart = Math.max(0, idx - 3);
-        const windowEnd = Math.min(lines.length, idx + 4);
-        const snippet = lines.slice(windowStart, windowEnd).join('\n');
+          // collect until we've seen the *third* dashed separator after start
+          let dashCount = 0;
+          const block: string[] = [];
+          for (let i = start; i < lines.length; i++) {
+            block.push(lines[i]);
+            if (/^-{3,}\s*$/.test(lines[i])) {
+              dashCount++;
+              if (dashCount === 3) break; // third dashed line marks the footer
+            }
+          }
+          return block.join('\n');
+        })();
 
-        // Expect absence to reflect:
-        // - earned: 2 (missed sessions 2 and 3, Tier 1, no downtime)
-        // - spent: 1 (one absence_spend in ledger)
-        // - available: 1 (2 - 1)
-        //
-        // Be tolerant to formatting: “Absence”, “absence”, “Credits”, “earned 2”, “earned: 2”, etc.
-        const hasAbsenceBlock =
-          /absence|credits?/i.test(snippet) ||
-          /earned|spent|available/i.test(snippet);
+        const alistarLine = awardsBlock
+          .split(/\r?\n/)
+          .find((line) => /^Alistar\s+/i.test(line));
+        expect(alistarLine, 'expected an Alistar row in absence awards table').toBeTruthy();
 
-        expect(hasAbsenceBlock).toBe(true);
-
-        // Flexible number capture helpers (accept ":" or whitespace, optional label pluralization)
-        const reNum = (label: string, n: number) =>
-          new RegExp(`${label}\\s*:?\\s*${n}\\b`, 'i');
-
-        expect(reNum('earned', 2).test(snippet)).toBe(true);
-        expect(reNum('spent', 1).test(snippet)).toBe(true);
-        expect(reNum('available', 1).test(snippet)).toBe(true);
-
-        // Keep the original pillar sanity check style as a safeguard:
-        // Example row like: "| alistar | 2 | 2 | ..." (combat/exploration totals include the social spend in the table elsewhere)
-        // If your table prints pillars in fixed columns, this keeps us aligned with the first test’s strategy.
-        // (Relaxed to "at least one social point reflected somewhere in the row block")
-        const socialHint = /(social|soc)\b.*\b1\b/i;
-        // Allow the spend to be summarized in a separate section; don’t hard-fail if not present on the same row.
-        // Only assert that totals table still contains the character row.
-        expect(stdout).toMatch(/alistar/i);
+        expect(alistarLine).toMatch(/Alistar\s+3\s+1\s+2/);
       },
     );
   });
