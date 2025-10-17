@@ -1,7 +1,14 @@
 import { error, info, makeExitMapper } from '@skyreach/cli-kit';
 import { Pillar } from '@skyreach/schemas';
 
-import { allocateAp } from './allocate-ap';
+import {
+  CliError,
+  CliValidationError,
+  InsufficientCreditsError,
+  IoApplyError,
+} from '../lib/errors';
+
+import { allocateAp, AllocateApResult } from './allocate-ap';
 
 export type AllocateArgs = {
   characterId: string;
@@ -19,17 +26,20 @@ export type AllocationBlock = {
 };
 
 export const exitCodeForAllocate = makeExitMapper([
-  // ...add error mappings as needed...
-]);
+  [CliValidationError, 4],
+  [InsufficientCreditsError, 6],
+  [IoApplyError, 2],
+
+  // Keep the most generic types at the end to avoid masking more specific ones
+  [CliError, 1],
+], 1);
 
 /**
  * Single allocation (kept small and reusable/testable).
  */
-export async function allocate(args: AllocateArgs) {
+export async function allocate(args: AllocateArgs): Promise<AllocateApResult> {
   try {
-    const result = await allocateAp(args);
-    info(`AP allocated: ${JSON.stringify(result)}`);
-    return 0;
+    return allocateAp(args);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     error(message);
@@ -50,15 +60,18 @@ export async function allocateFromCli(rawArgs: string[], dryRun: boolean) {
  * Execute many allocations. If one throws, exit is handled by `allocate()`.
  */
 export async function allocateMany(blocks: AllocationBlock[], dryRun: boolean) {
+  const results: AllocateApResult[] = [];
   for (const blk of blocks) {
-    await allocate({
+    const result = await allocate({
       characterId: blk.characterId,
       amount: blk.amount,
       note: blk.note,
       pillarSplits: blk.pillarSplits,
       dryRun,
     });
+    results.push(result);
   }
+  printAllocateResults(results);
 }
 
 /**
@@ -216,6 +229,62 @@ export function parseAllocateTokens(tokens: string[]): AllocationBlock[] {
 
   return blocks;
 }
+
+// Pretty-printer for one or many results
+function printAllocateResults(results: AllocateApResult[]) {
+  if (results.length === 0) return;
+
+  const dryRun = results.some(r => r.dryRun);
+  const headers = [
+    'characterId',
+    'amount',
+    'pillars (c/e/s)',
+    'sessionIdSpentAt',
+    'available(before→after)',
+    'note',
+  ];
+
+  const rows = results.map((r) => {
+    const c = r.pillars.combat ?? 0;
+    const e = r.pillars.exploration ?? 0;
+    const s = r.pillars.social ?? 0;
+    return [
+      r.characterId,
+      String(r.amount),
+      `${c}/${e}/${s}`,
+      r.sessionIdSpentAt,
+      `${r.availableBefore}→${r.availableAfter}`,
+      r.note ?? '',
+    ];
+  });
+
+  // compute column widths
+  const widths = headers.map((h, idx) =>
+    Math.max(
+      h.length,
+      ...rows.map((row) => (row[idx] ?? '').length),
+    ),
+  );
+
+  const pad = (str: string, w: number) => str.padEnd(w, ' ');
+
+  const line = (cols: string[]) =>
+    cols.map((c, i) => pad(c, widths[i])).join('   '); // 3 spaces between cols
+
+  // header
+  info(
+    (dryRun ? '[DRY RUN] ' : '') +
+    line(headers),
+  );
+  // separator
+  info(line(widths.map((w) => '-'.repeat(w))));
+
+  // rows
+  for (const r of rows) {
+    info(line(r));
+  }
+}
+
 
 /**
  * Slice raw argv to the tokens after `weave allocate ap`.
