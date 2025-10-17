@@ -1,5 +1,11 @@
 # @skyreach/web
 
+## 2.4.1
+
+### Patch Changes
+
+- 65916d2: Add `SessionId` branded type; add `scribe start` interactive mode
+
 ## 2.4.0
 
 ### Minor Changes
