@@ -1,4 +1,4 @@
-import { REPO_PATHS } from '@skyreach/data';
+import { buildSessionFilename, REPO_PATHS } from '@skyreach/data';
 import {
   makeSessionId,
   type ScribeEvent,
@@ -51,7 +51,7 @@ describe('Command `weave apply ap`', () => {
           // Simulate finalized scribe logs for session-0001
           const logPath = path.join(
             REPO_PATHS.SESSIONS(),
-            'session_0001_2025-09-25.jsonl',
+            buildSessionFilename(1, '2025-09-25'),
           );
           fs.writeFileSync(
             logPath,
@@ -164,7 +164,7 @@ describe('Command `weave apply ap`', () => {
           // session-0001 (already completed)
           const logPath1 = path.join(
             REPO_PATHS.SESSIONS(),
-            'session_0001_2025-09-25.jsonl',
+            buildSessionFilename(1, '2025-09-25'),
           );
           fs.writeFileSync(
             logPath1,
@@ -173,7 +173,7 @@ describe('Command `weave apply ap`', () => {
           // session-0002 (pending)
           const logPath2 = path.join(
             REPO_PATHS.SESSIONS(),
-            'session_0002_2025-09-26.jsonl',
+            buildSessionFilename(2, '2025-09-26'),
           );
           fs.writeFileSync(
             logPath2,
@@ -286,7 +286,10 @@ describe('Command `weave apply ap`', () => {
 
           // Finalized log for session-0001
           fs.writeFileSync(
-            path.join(REPO_PATHS.SESSIONS(), 'session_0001_2025-09-25.jsonl'),
+            path.join(
+              REPO_PATHS.SESSIONS(),
+              buildSessionFilename(1, '2025-09-25'),
+            ),
             events.map((e) => JSON.stringify(e)).join('\n'),
           );
 
@@ -330,7 +333,7 @@ describe('Command `weave apply ap`', () => {
           // Finalized log for session-0003
           const finalizedLogPath = path.join(
             REPO_PATHS.SESSIONS(),
-            'session_0003_2025-09-27.jsonl',
+            buildSessionFilename(3, '2025-09-27'),
           );
           fs.writeFileSync(
             finalizedLogPath,
@@ -347,7 +350,7 @@ describe('Command `weave apply ap`', () => {
           // Finalized log for session-0004 (pending because report is not completed)
           const incompleteLogPath = path.join(
             REPO_PATHS.SESSIONS(),
-            'session_0004_2025-09-28.jsonl',
+            buildSessionFilename(4, '2025-09-28'),
           );
           fs.writeFileSync(
             incompleteLogPath,
@@ -393,7 +396,7 @@ describe('Command `weave apply ap`', () => {
               downtime: [],
               gameStartDate: '21 Umbraeus 1511',
               schemaVersion: 2,
-              scribeIds: ['session_0004_2025-09-28'],
+              scribeIds: ['session-0004_2025-09-28'],
               sessionDate: '2025-09-28',
               source: 'scribe',
             } satisfies SessionReport),
@@ -457,7 +460,7 @@ describe('Command `weave apply ap`', () => {
           // Simulate finalized scribe logs for session-0001
           const logPath = path.join(
             REPO_PATHS.SESSIONS(),
-            'session_0001_2025-09-25.jsonl',
+            buildSessionFilename(1, '2025-09-25'),
           );
           fs.writeFileSync(
             logPath,
