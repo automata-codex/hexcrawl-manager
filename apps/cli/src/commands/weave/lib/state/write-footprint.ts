@@ -5,7 +5,7 @@ export function writeFootprint(footprint: any) {
   let fileName: string;
   if (footprint.kind === 'session') {
     // Extract sequence, suffix, and real-world date from sessionId
-    // sessionId format: session_<SEQ><suffix>_<DATE>
+    // sessionId format: session-<SEQ><suffix>_<DATE>
     let realWorldDate = '';
     let sequence = 'unknown';
     let suffix = '';

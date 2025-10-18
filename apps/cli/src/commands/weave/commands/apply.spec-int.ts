@@ -103,7 +103,7 @@ describe('Function `weave apply`', () => {
         );
 
         // --- AP assertions ---
-        // Printed “Applied session_0005” block
+        // Printed “Applied session-0005” block
         expect(stdout).toMatch(/Applied session-0005/i);
 
         // Ledger actually updated -- other tests ensure correctness of AP calc
