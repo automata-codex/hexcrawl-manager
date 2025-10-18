@@ -10,14 +10,19 @@ Skyreach uses a **“version-on-develop”** workflow with lightweight automatio
 
    ```bash
    git switch develop
-   npm run changeset:version      # applies version bumps + changelogs
-   git commit -am "chore(release): apply versions"
+   git co -b release-YYYY-MM-DD # create a release branch
+   npm run release:version      # applies version bumps + changelogs
+   git commit -am "Set new versions; update changelogs"
    git push
    ```
-2. **Open a PR** from `develop` → `main`.
 
-  * The “Require Version Bump” action will fail the PR if you forgot to run `changeset version`.
-  * Review and merge when you’re ready to ship.
+2. **Open a PR** from `release-YYYY-MM-DD` → `develop`.
+   * The "Require changeset" action will fail, but you can still merge the PR.
+   * **TODO** Add a check so the action doesn't run on `release-` branches.
+
+3. **Open a PR** from `develop` → `main`.
+   * The “Require Version Bump” action will fail the PR if you forgot to run `changeset version`.
+   * Review and merge when you’re ready to ship.
 
 ### What happens automatically
 

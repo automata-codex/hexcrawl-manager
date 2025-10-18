@@ -20,9 +20,9 @@ This document explains **what the system does** and **where each responsibility 
 
 ## 2) Canonical Data Sources
 
-1) **Scribe logs** (`session_####_YYYY-MM-DD.jsonl`), possibly **multi-part**
+1) **Scribe logs** (`session-####_YYYY-MM-DD.jsonl`), possibly **multi-part**
    - A single session’s finalized logs may be split across multiple files named:
-     `session_####[a-z]?_YYYY-MM-DD.jsonl` (suffix `a`, `b`, … optional).
+     `session-####[a-z]?_YYYY-MM-DD.jsonl` (suffix `a`, `b`, … optional).
    - Logs are written during play and become **finalized** when `scribe finalize` moves them from `data/session-logs/in-progress/` → `data/session-logs/sessions/`.
    - **Presence under `/sessions/` is sufficient** to count as finalized.
 
@@ -51,7 +51,7 @@ This document explains **what the system does** and **where each responsibility 
 
 ### D. Apply (weave)
 - **Scribe ID discovery:** For `session-####`, `weave ap apply` **discovers** all finalized parts by filename:
-  `data/session-logs/sessions/session_####[a-z]?_*.jsonl`.
+  `data/session-logs/sessions/session-####[a-z]?_*.jsonl`.
   - If **no files are found** → **fail** (“no finalized logs for session”).
   - Command processes **all** discovered parts; no partial apply.
 - **Auto-mode session resolution:** When `<sessionId>` is omitted, pick the **smallest** pending session number that has finalized logs and is **greater** than the highest **completed** session number.
@@ -186,7 +186,7 @@ This document explains **what the system does** and **where each responsibility 
 ## 11) Quick Checklist (for implementers)
 
 - [ ] `scribe finalize` moved all log parts to `/sessions/`.
-- [ ] `weave ap apply` discovered **all** `session_####[a-z]?_*.jsonl` parts → proceed; else **fail**.
+- [ ] `weave ap apply` discovered **all** `session-####[a-z]?_*.jsonl` parts → proceed; else **fail**.
 - [ ] Completed report is written once; subsequent applies are no-ops for the same `{ sessionId, sorted scribeIds }`.
 - [ ] Ledger entries follow event-level gating and session-era rules (≤0019 grandfather / ≥0020 cap).
 - [ ] `status` derives absence credits (Tier 1 & not in downtime) without persisting.

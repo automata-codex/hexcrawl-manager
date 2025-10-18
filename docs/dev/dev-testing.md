@@ -59,14 +59,14 @@ scribe finalize --dev
    - Copy a dev file into the production sessions directory **with a production-style name**.
    - Use a throwaway high sequence (e.g., `9999`) if you’re *manually* testing and not using the allocator.
    ```sh
-   cp data/session-logs/_dev/dev_2025-09-17T15-30-00.jsonl       data/session-logs/sessions/session_9999_2025-09-17.jsonl
+   cp data/session-logs/_dev/dev_2025-09-17T15-30-00.jsonl       data/session-logs/sessions/session-9999_2025-09-17.jsonl
    ```
    > If you’re testing a **rollover**, place it under:
    > `data/session-logs/rollovers/rollover_<seasonId>_<YYYY-MM-DD>.jsonl`
 
 4. **Run weave**
    ```sh
-   weave apply data/session-logs/sessions/session_9999_2025-09-17.jsonl
+   weave apply data/session-logs/sessions/session-9999_2025-09-17.jsonl
    # or
    weave apply data/session-logs/rollovers/rollover_1511-autumn_2025-09-30.jsonl
    ```
@@ -100,7 +100,7 @@ scribe finalize --dev
 - **`weave` is real.** There is no sandboxed dev state; it mutates production state files.
 - **Chronology matters.** `weave` enforces season order and idempotency; apply rollovers before sessions for a season.
 - **Footprints are your audit log.** Every `weave apply` writes a footprint file for traceability.
-- **Filename policy matters.** Production sessions: `session_<SEQ>_<YYYY-MM-DD>.jsonl`. Rollovers: `rollover_<seasonId>_<YYYY-MM-DD>.jsonl`.
+- **Filename policy matters.** Production sessions: `session-<SEQ>_<YYYY-MM-DD>.jsonl`. Rollovers: `rollover_<seasonId>_<YYYY-MM-DD>.jsonl`.
 
 ---
 

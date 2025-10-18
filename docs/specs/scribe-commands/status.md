@@ -27,7 +27,7 @@ This command is **read‑only**. It never writes events or touches locks/meta.
   - Read all events from `ctx.file` (JSONL).
   - Determine `stem` by stripping extension from the filename.
   - **Parse stem** with `parseSessionStem`:
-    - **Prod**: `session_<SEQ>_<YYYY-MM-DD>[<suffix>]`
+    - **Prod**: `session-<SEQ>_<YYYY-MM-DD>[<suffix>]`
     - **Dev**:   `dev_<ISO>`
   - Extract or derive:
     - `sessionId = events[0].id` (fallback to `stem`).
@@ -37,7 +37,7 @@ This command is **read‑only**. It never writes events or touches locks/meta.
 2. **Consistency Checks (non‑fatal warnings)**
   - If prod and a `session_start` is present but its `sessionDate` **≠** the stem `<YYYY-MM-DD>`, print a **date mismatch warning**.
   - If the file does **not** begin with `session_start` or `session_continue`, print a **header warning**.
-  - If prod and `locksDir/session_<SEQ>.lock` is **missing**, print a **missing lock warning** (orphaned file).
+  - If prod and `locksDir/session-<SEQ>.lock` is **missing**, print a **missing lock warning** (orphaned file).
 
 3. **Compute Party/Day Cursors**
   - `currentHex` := `selectCurrentHex(events)`:
@@ -113,8 +113,8 @@ If header/date/lock warnings exist, show them **above** the block with a prefixe
 ## Dev vs Production Notes
 
 - **Production**
-  - Stem: `session_<SEQ>_<YYYY-MM-DD>[suffix]`
-  - Lock expected at: `data/session-logs/.locks/session_<SEQ>.lock`
+  - Stem: `session-<SEQ>_<YYYY-MM-DD>[suffix]`
+  - Lock expected at: `data/session-logs/.locks/session-<SEQ>.lock`
   - `sessionDate` must match stem date; mismatch reported.
 - **Dev**
   - Stem: `dev_<ISO>` under `_dev/`

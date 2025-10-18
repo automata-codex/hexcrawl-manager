@@ -20,7 +20,7 @@
 
 ```bash
 # Plan or apply a specific file
-weave trails plan data/session-logs/sessions/session_0023_2025-09-15.jsonl
+weave trails plan data/session-logs/sessions/session-0023_2025-09-15.jsonl
 weave trails apply data/session-logs/rollovers/rollover_1511-autumn_2025-10-01.jsonl
 
 # Omit file: select the next unapplied candidate in stem order
@@ -36,8 +36,8 @@ weave trails apply
 
 ### 3.1 Artifacts
 - **Session files**
-  - `data/session-logs/sessions/session_<SEQ>_<YYYY-MM-DD>.jsonl`
-  - Or multi‑part from finalize: `session_<SEQ>a_*.jsonl`, `session_<SEQ>b_*.jsonl`, …
+  - `data/session-logs/sessions/session-<SEQ>_<YYYY-MM-DD>.jsonl`
+  - Or multi‑part from finalize: `session-<SEQ>a_*.jsonl`, `session-<SEQ>b_*.jsonl`, …
   - Must include an initial `session_start` with `sessionDate` matching the stem date.
 - **Rollover files**
   - `data/session-logs/rollovers/rollover_<seasonId>_<YYYY-MM-DD>.jsonl`
@@ -184,7 +184,7 @@ weave trails apply
 weave trails apply data/session-logs/rollovers/rollover_1511-autumn_2025-10-01.jsonl
 
 # Idempotent re-apply
-weave trails apply data/session-logs/sessions/session_0020_2025-08-10.jsonl
+weave trails apply data/session-logs/sessions/session-0020_2025-08-10.jsonl
 # -> already applied (3)
 ```
 

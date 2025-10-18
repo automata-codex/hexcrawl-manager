@@ -43,7 +43,7 @@ The following commands are available in the REPL (see handlers for details):
 
 ## State & Files
 
-* Session logs: `sessions/session_<SEQ>_<DATE>.jsonl` (one per session)
+* Session logs: `sessions/session-<SEQ>_<DATE>.jsonl` (one per session)
 * Temporary/in-progress files may be created during a session.
 * Finalized logs are consumed by `weave`.
 

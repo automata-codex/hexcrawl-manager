@@ -3,7 +3,7 @@
 ## Purpose
 
 `meta.nextSessionSeq` is a **suggestion cursor** for the next production session number used by `scribe`.
-It aids UX and lock reservation, but it is **not** the authoritative ordering source. Authoritative ordering comes from the **session stem** in finalized files: `session_<SEQ>_<YYYY-MM-DD>`.
+It aids UX and lock reservation, but it is **not** the authoritative ordering source. Authoritative ordering comes from the **session stem** in finalized files: `session-<SEQ>_<YYYY-MM-DD>`.
 
 ## Invariants
 
@@ -16,7 +16,7 @@ It aids UX and lock reservation, but it is **not** the authoritative ordering so
 - **`scribe start` (normal)** — **reads** to propose `<SEQ>`; does **not** write.
 - **`scribe start interactive`** — **reads** defaults; does **not** write.
 - **`scribe finalize` (prod)** — **writes** on success:
-  - After writing ≥1 finalized outputs for stem `session_<SEQ>_...`, set
+  - After writing ≥1 finalized outputs for stem `session-<SEQ>_...`, set
     `meta.nextSessionSeq = max(all finalized SEQs) + 1`
   - If a lock exists and its `seq` is higher, heal forward to `lock.seq + 1`.
 - **`weave`** — **never writes**; may read for status/reporting only.
@@ -26,13 +26,13 @@ It aids UX and lock reservation, but it is **not** the authoritative ordering so
 ## Normal flow (happy path)
 
 1. `meta.nextSessionSeq = N`
-2. `scribe start P13` reserves lock for `N`, creates `session_N_YYYY-MM-DD.jsonl` in-progress.
-3. `scribe finalize` produces `session_N_YYYY-MM-DD.jsonl` (and possible suffix parts).
+2. `scribe start P13` reserves lock for `N`, creates `session-N_YYYY-MM-DD.jsonl` in-progress.
+3. `scribe finalize` produces `session-N_YYYY-MM-DD.jsonl` (and possible suffix parts).
 4. `finalize` sets `nextSessionSeq = N + 1` and removes the lock.
 
 ## Out-of-order & backfill flows
 
-- You may finalize sessions **out of sequence** (e.g., finalize `session_0012` after `session_0042`).
+- You may finalize sessions **out of sequence** (e.g., finalize `session-0012` after `session-0042`).
   On success, `finalize` recomputes:
   - `nextSessionSeq = max(finalized SEQs) + 1`
     This ensures the next suggested number always follows the highest finalized session.
@@ -46,7 +46,7 @@ It aids UX and lock reservation, but it is **not** the authoritative ordering so
 
 ## Lock interaction
 
-- A production `start` creates `.locks/session_<SEQ>.lock` with the reserved number.
+- A production `start` creates `.locks/session-<SEQ>.lock` with the reserved number.
 - If `finalize` completes successfully and the highest finalized `<SEQ>` is **behind** the lock’s `seq`, set
   `nextSessionSeq = lock.seq + 1` (heals forward in the rare case of concurrent or resumed finalize work).
 - If no outputs were written (e.g., validation failure), **do not** change `nextSessionSeq`.
