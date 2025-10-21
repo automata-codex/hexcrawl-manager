@@ -89,6 +89,11 @@ export type DeadReckoningEventPayload = z.infer<
   typeof DeadReckoningEventPayloadSchema
 >;
 
+export const ExploreEventPayloadSchema = z.object({
+  target: z.string(), // The party's current hex
+});
+export type ExploreEventPayload = z.infer<typeof ExploreEventPayloadSchema>;
+
 export const LostEventPayloadSchema = z.object({
   state: z.enum(['on', 'off']),
   reason: z.string().optional(),
@@ -239,6 +244,12 @@ export const DeadReckoningEventSchema = makeEventSchema(
   DeadReckoningEventPayloadSchema,
 );
 export type DeadReckoningEvent = z.infer<typeof DeadReckoningEventSchema>;
+
+export const ExploreEventSchema = makeEventSchema(
+  'explore',
+  ExploreEventPayloadSchema,
+);
+export type ExploreEvent = z.infer<typeof ExploreEventSchema>;
 
 export const LostEventSchema = makeEventSchema('lost', LostEventPayloadSchema);
 export type LostEvent = z.infer<typeof LostEventSchema>;
