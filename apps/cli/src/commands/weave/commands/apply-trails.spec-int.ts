@@ -43,7 +43,7 @@ describe('Command `weave apply trails`', () => {
         );
 
         // --- Finalized session log (JSONL) ---
-        const sessionId = 'session_0001_2025-10-01';
+        const sessionId = 'session-0001_2025-10-01';
         const sessionFile = path.join(
           REPO_PATHS.SESSIONS(),
           `${sessionId}.jsonl`,
@@ -88,7 +88,7 @@ describe('Command `weave apply trails`', () => {
         // --- Assert: meta updated with applied session ---
         const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
         expect(meta.state.trails.applied?.appliedSessions).toContain(
-          'session_0001_2025-10-01.jsonl',
+          'session-0001_2025-10-01.jsonl',
         );
 
         // --- Assert: footprint written with session kind & season ---
@@ -212,8 +212,8 @@ describe('Command `weave apply trails`', () => {
       'apply-trails-discovery-world-order',
       { initGit: false },
       async (repo) => {
-        const session3Id = 'session_0003_2025-09-27';
-        const session4Id = 'session_0004_2025-09-28';
+        const session3Id = 'session-0003_2025-09-27';
+        const session4Id = 'session-0004_2025-09-28';
 
         // session-0003 with a trail event
         fs.writeFileSync(
@@ -277,12 +277,12 @@ describe('Command `weave apply trails`', () => {
       'apply-trails-discovery-skip-noop',
       { initGit: false },
       async (repo) => {
-        const session5Id = 'session_0005_2025-09-29';
-        const session6Id = 'session_0006_2025-09-30';
+        const session5Id = 'session-0005_2025-09-29';
+        const session6Id = 'session-0006_2025-09-30';
 
         // session-0005: valid envelope, but no 'trail' events -> NoChangesError path
         fs.writeFileSync(
-          path.join(REPO_PATHS.SESSIONS(), 'session_0005_2025-09-29.jsonl'),
+          path.join(REPO_PATHS.SESSIONS(), 'session-0005_2025-09-29.jsonl'),
           compileLog(
             [
               sessionStart(session5Id, 'H3', '2025-09-29'),
@@ -300,7 +300,7 @@ describe('Command `weave apply trails`', () => {
 
         // session-0006: has a trail event -> should be applied
         fs.writeFileSync(
-          path.join(REPO_PATHS.SESSIONS(), 'session_0006_2025-09-30.jsonl'),
+          path.join(REPO_PATHS.SESSIONS(), 'session-0006_2025-09-30.jsonl'),
           compileLog(
             [
               sessionStart(session6Id, 'H4', '2025-09-30'),
@@ -331,12 +331,12 @@ describe('Command `weave apply trails`', () => {
 
         // No footprint/meta entry for the no-op session
         expect(meta.state.trails.applied?.appliedSessions).not.toContain(
-          'session_0005_2025-09-29.jsonl',
+          'session-0005_2025-09-29.jsonl',
         );
 
         // Applied session recorded
         expect(meta.state.trails.applied?.appliedSessions).toContain(
-          'session_0006_2025-09-30.jsonl',
+          'session-0006_2025-09-30.jsonl',
         );
       },
     );

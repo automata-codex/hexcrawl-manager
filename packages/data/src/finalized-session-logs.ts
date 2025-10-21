@@ -1,5 +1,4 @@
-import { padSessionNum } from '@skyreach/core';
-import { ScribeEvent } from '@skyreach/schemas';
+import { makeSessionId, ScribeEvent } from '@skyreach/schemas';
 import fs from 'fs';
 
 import {
@@ -44,9 +43,9 @@ export function discoverFinalizedLogs(): FinalizedLogInfo[] {
 export function discoverFinalizedLogsFor(
   sessionNumber: number | string,
 ): FinalizedLogInfo[] {
-  const target = padSessionNum(sessionNumber);
+  const target = makeSessionId(sessionNumber);
   return discoverFinalizedLogs().filter(
-    (log) => padSessionNum(log.sessionNumber) === target,
+    (log) => makeSessionId(log.sessionNumber) === target,
   );
 }
 
