@@ -1,3 +1,5 @@
+import { ExploreEvent, MoveEvent, ScoutEvent } from '@skyreach/schemas';
+
 export interface ApplyTrailsDebug {
   /** Before/after snapshots for touched edges (subset, not whole file). */
   touched?: {
@@ -57,3 +59,16 @@ export interface ApplyTrailsSummary {
   // Aggregate/touch metrics (both paths)
   edgesTouched?: number; // unique keys in before/after set
 }
+
+export type FinalizedHexEvent = ScoutEvent | ExploreEvent | MoveEvent;
+
+export type HexId = string;
+
+export type HexIntent = {
+  scouted?: true;
+  visited?: true;
+  explored?: true;
+  landmarkKnown?: true;
+};
+
+export type HexIntents = Record<HexId, HexIntent>;

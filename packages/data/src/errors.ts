@@ -56,3 +56,10 @@ export class FinalizedLogsNotFoundError extends Error {
     this.name = 'FinalizedLogsNotFoundError';
   }
 }
+
+export class HexFileNotFoundError extends Error {
+  constructor(public hexId: string) {
+    super(`Hex file not found for hexId "${hexId}"`);
+    this.name = 'HexFileNotFoundError';
+  }
+}
