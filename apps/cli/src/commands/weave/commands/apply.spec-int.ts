@@ -28,8 +28,8 @@ describe('Function `weave apply`', () => {
       { initGit: false },
       async (repo) => {
         // --- Trails setup ---
-        const session5Id = 'session_0005_2025-09-29';
-        const session6Id = 'session_0006_2025-09-30';
+        const session5Id = 'session-0005_2025-09-29';
+        const session6Id = 'session-0006_2025-09-30';
 
         // session-0005: valid envelope, but no trail() -> NoChangesError (benign)
         fs.writeFileSync(
@@ -103,7 +103,7 @@ describe('Function `weave apply`', () => {
         );
 
         // --- AP assertions ---
-        // Printed “Applied session_0005” block
+        // Printed “Applied session-0005” block
         expect(stdout).toMatch(/Applied session-0005/i);
 
         // Ledger actually updated -- other tests ensure correctness of AP calc

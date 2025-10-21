@@ -9,15 +9,14 @@ import path from 'path';
  * @returns Array of absolute paths to finalized scribe logs for the given session number
  */
 export function discoverFinalizedScribeLogs(sessionNumber: string): string[] {
-  const pattern1 = path.join(
-    REPO_PATHS.SESSIONS(),
-    `session_${sessionNumber}_*.jsonl`,
-  );
-  const pattern2 = path.join(
-    REPO_PATHS.SESSIONS(),
-    `session_${sessionNumber}[a-z]_*.jsonl`,
-  );
-  const files1 = glob.sync(pattern1);
-  const files2 = glob.sync(pattern2);
-  return Array.from(new Set([...files1, ...files2]));
+  const base = REPO_PATHS.SESSIONS();
+
+  // Match both `session_` and `session-` prefixes, with optional [a-z] suffix before date
+  const patterns = [
+    path.join(base, `session[_-]${sessionNumber}_*.jsonl`),
+    path.join(base, `session[_-]${sessionNumber}[a-z]_*.jsonl`),
+  ];
+
+  const files = patterns.flatMap((p) => glob.sync(p));
+  return Array.from(new Set(files));
 }

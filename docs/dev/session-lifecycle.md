@@ -5,8 +5,8 @@ This document summarizes the core conventions for handling session logs, rollove
 ## Filename Policy
 
 - **Production sessions**
-  Format: `session_<SEQ>_<YYYY-MM-DD>.jsonl`
-  Example: `session_0012_2025-09-15.jsonl`
+  Format: `session-<SEQ>_<YYYY-MM-DD>.jsonl`
+  Example: `session-0012_2025-09-15.jsonl`
   *`<SEQ>` is a zero-padded integer managed via `meta.nextSessionSeq`.*
 
 - **Dev sessions**

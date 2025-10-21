@@ -19,9 +19,9 @@
 * **Sessions & logs**
 
   * File roots: `data/session-logs/sessions/`
-  * Single-part: `session_0020_2025-09-10.jsonl`
-  * Multi-part: `session_0021a_2025-09-17.jsonl`, `session_0021b_2025-09-17.jsonl`
-  * ≤0019 vs ≥0020 coverage: `session_0019_*` (grandfather era), `session_0020_*` (cap era)
+  * Single-part: `session-0020_2025-09-10.jsonl`
+  * Multi-part: `session-0021a_2025-09-17.jsonl`, `session-0021b_2025-09-17.jsonl`
+  * ≤0019 vs ≥0020 coverage: `session-0019_*` (grandfather era), `session-0020_*` (cap era)
 * **Guests & downtime**
 
   * Guests recorded in logs → expect `attendance.guests[]` in completed report

@@ -128,7 +128,7 @@ export default function start(ctx: Context) {
       sessionDate = now.toISOString().slice(0, 10); // YYYY-MM-DD
     } else {
       // TODO I feel like this can be less ugly
-      // Production: session_<SEQ>_<YYYY-MM-DD>
+      // Production: session-<SEQ>_<YYYY-MM-DD>
       const match = prep.sessionId.match(SESSION_ID_RE);
       if (!match) {
         error('Session ID does not match required production format.');

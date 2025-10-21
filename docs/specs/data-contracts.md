@@ -25,7 +25,7 @@ _Add/adjust the exact filenames once finalized._
   `"normal" | "cap" | "absence_spend" | "downtime" | "correction" | "grandfathered"`.
 - **Session ID format:** `session-####` (4-digit zero-padded).
 - **Scribe log basename pattern:**
-  `session_####_YYYY-MM-DD.jsonl` or `session_####{a|b|c}_YYYY-MM-DD.jsonl`.
+  `session-####_YYYY-MM-DD.jsonl` or `session-####{a|b|c}_YYYY-MM-DD.jsonl`.
 - **AP event gate:** events carry `{ number, maxTier }` (see `schemas`).
 - **Character tier is derived from level:** 1–4→Tier 1, 5–10→Tier 2, 11–16→Tier 3, 17–20→Tier 4 (missing level ⇒ Tier 1).
 

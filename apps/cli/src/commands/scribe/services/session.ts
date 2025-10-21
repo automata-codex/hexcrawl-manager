@@ -36,6 +36,7 @@ import {
   getLockFilePath,
   LockData,
   lockExists,
+  parseLockFileName,
   readLockFile,
   removeLockFile,
 } from './lock-file';
@@ -237,10 +238,10 @@ export function checkSessionSequenceGaps({
     if (parsed) addSeq(parsed.sessionNumber, 'in-progress');
   }
   for (const file of lockFiles) {
-    const parsed = parseSessionFilename(
-      file.replace(/^session_|\.lock$/g, '.jsonl'),
-    );
-    if (parsed) addSeq(parsed.sessionNumber, 'lock');
+    const sessionId = parseLockFileName(file);
+    if (sessionId) {
+      addSeq(parseSessionId(sessionId).number, 'lock');
+    }
   }
 
   const sortedSeqs = Array.from(allSeqs).sort((a, b) => a - b);

@@ -3,6 +3,7 @@ import { MetaV2Data } from '@skyreach/schemas';
 import path from 'node:path';
 
 import { getNextUnrolledSeason } from './files';
+import { SESSION_FILE_RE } from '@skyreach/data';
 
 export function isRolloverAlreadyApplied(
   meta: MetaV2Data,
@@ -82,6 +83,6 @@ export function isSessionFile(filePath: string): boolean {
   const base = path.basename(filePath);
   return (
     dir === 'sessions' &&
-    /^session_\d+[a-z]?_\d{4}-\d{2}-\d{2}.*\.jsonl$/i.test(base)
+    SESSION_FILE_RE.test(base)
   );
 }

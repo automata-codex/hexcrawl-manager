@@ -37,9 +37,9 @@ weave ap apply <sessionId>     # sessionId format: session-#### (4-digit zero pa
 - **Scribe logs (finalized):**
   ```
   data/session-logs/sessions/
-    session_####_YYYY-MM-DD.jsonl
-    session_####a_YYYY-MM-DD.jsonl
-    session_####b_YYYY-MM-DD.jsonl
+    session-####_YYYY-MM-DD.jsonl
+    session-####a_YYYY-MM-DD.jsonl
+    session-####b_YYYY-MM-DD.jsonl
     ...
   ```
   Multi-part files are allowed; suffix is a single letter `a`..`z` (optional).
@@ -50,7 +50,7 @@ weave ap apply <sessionId>     # sessionId format: session-#### (4-digit zero pa
 ### 3.2 Auto-mode session resolution (Option R)
 When `<sessionId>` is **omitted**:
 1) Find the highest **completed** session number `N_completed` (0 if none).
-2) Scan `data/session-logs/sessions/` for any finalized logs matching `session_M*` where `M > N_completed`.
+2) Scan `data/session-logs/sessions/` for any finalized logs matching `session-M*` where `M > N_completed`.
 3) If none exist → **fail** (“no finalized logs for any pending session after session-####”).
    If some exist → choose the **smallest** such `M` and set `sessionId := session-MMMM`.
 
@@ -59,8 +59,8 @@ When `<sessionId>` is **omitted**:
 ### 3.3 Scribe ID discovery (for the chosen session)
 
 - Glob and union:
-  - `session_####_*.jsonl`
-  - `session_####[a-z]_*.jsonl`
+  - `session-####_*.jsonl`
+  - `session-####[a-z]_*.jsonl`
 - If **no files found** → **fail** (“no finalized logs for <sessionId>”).
 - Sort basenames:
   1. **Asc by session number** (`####` parsed from the filename).

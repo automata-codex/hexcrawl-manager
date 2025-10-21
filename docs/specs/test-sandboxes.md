@@ -93,7 +93,7 @@ Create a runner that pipes an array of commands into the REPL:
 
 **Acceptance**
 
-* Given a sandbox `repo`, calling `runScribe(["start P13","day 1511-12-01 winter","move Q13 normal"])` creates a `sessions/session_…jsonl` inside that `repo`.
+* Given a sandbox `repo`, calling `runScribe(["start P13","day 1511-12-01 winter","move Q13 normal"])` creates a `sessions/session-…jsonl` inside that `repo`.
 * Output contains no ANSI escapes when `FORCE_COLOR=0`.
 
 ### 5) CLI runner for `weave` (tests)

@@ -1,8 +1,10 @@
+import { SESSION_FILE_RE } from '@skyreach/data';
+
 // Sort scribe log basenames by date/suffix
-// Accepts: session_0021_2025-09-17.jsonl, session_0021a_2025-09-17.jsonl
+// Accepts: session-0021_2025-09-17.jsonl, session-0021a_2025-09-17.jsonl
 export function sortScribeIds(ids: string[]): string[] {
   function parse(id: string) {
-    const match = id.match(/^session_(\d{4})([a-z]?)_([\d-]+)\.jsonl$/);
+    const match = id.match(SESSION_FILE_RE);
     if (!match) {
       return { num: 0, suffix: '', date: '', orig: id };
     }

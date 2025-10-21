@@ -5,13 +5,13 @@ export function writeFootprint(footprint: any) {
   let fileName: string;
   if (footprint.kind === 'session') {
     // Extract sequence, suffix, and real-world date from sessionId
-    // sessionId format: session_<SEQ><suffix>_<DATE>
+    // sessionId format: session-<SEQ><suffix>_<DATE>
     let realWorldDate = '';
     let sequence = 'unknown';
     let suffix = '';
     if (typeof footprint.id === 'string') {
       const match = footprint.id.match(
-        /^session_(\d+)([a-z]*)_(\d{4}-\d{2}-\d{2})$/,
+        /^session[_-](\d+)([a-z]*)_(\d{4}-\d{2}-\d{2})$/, // TODO Replace with SCRIBE_ID_RE when available
       );
       if (match) {
         sequence = match[1];

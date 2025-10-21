@@ -19,8 +19,8 @@
 ## Artifacts & File Types
 
 * **Session files** (finalized by `scribe finalize`):
-  - `data/session-logs/sessions/session_<SEQ>_<YYYY-MM-DD>.jsonl`
-  - Multi‑part when split by season: `session_<SEQ>a_….jsonl`, `session_<SEQ>b_….jsonl`, etc. (Suffix is for display only; **ordering is by `<SEQ>`**.)
+  - `data/session-logs/sessions/session-<SEQ>_<YYYY-MM-DD>.jsonl`
+  - Multi‑part when split by season: `session-<SEQ>a_….jsonl`, `session-<SEQ>b_….jsonl`, etc. (Suffix is for display only; **ordering is by `<SEQ>`**.)
   - Must begin with `session_start` (or `session_continue`) and include `session_start.sessionDate` matching stem date.
 * **Rollover files** (standalone season maintenance):
   - `data/session-logs/rollovers/rollover_<seasonId>_<YYYY-MM-DD>.jsonl`
@@ -40,7 +40,7 @@
 
 ## Ordering & Chronology (Global Rules)
 
-* **Authoritative order** = numeric `<SEQ>` parsed from the stem `session_<SEQ>_<DATE>`.
+* **Authoritative order** = numeric `<SEQ>` parsed from the stem `session-<SEQ>_<DATE>`.
 * **sessionDate** for reporting/UI comes from the `session_start.sessionDate` field; per‑event timestamps are **provenance only**.
 * **Gaps** in `<SEQ>` are allowed (warn); **duplicates** are a hard error.
 * A **session** may only be applied if its **seasonId** is **≥** the last rolled season and all missing rollovers up to that season have been applied (domain enforces).

@@ -1,12 +1,13 @@
 import { info, warn, error } from '@skyreach/cli-kit';
 import { parseSessionFilename, REPO_PATHS } from '@skyreach/data';
 import { loadMeta } from '@skyreach/data';
+import { makeSessionId } from '@skyreach/schemas';
 import fs from 'node:fs';
 import path from 'node:path';
 
 import { readEvents } from '../../../services/event-log.service';
 import { detectDevMode } from '../services/general';
-import { listLockFiles } from '../services/lock-file';
+import { listLockFiles, makeLockFileName, parseLockFileName } from '../services/lock-file';
 import {
   checkSessionSequenceGaps,
   checkSessionDateConsistency,
@@ -111,9 +112,12 @@ export default function doctor() {
           lockCounts.stale++;
         }
         // Check for matching in-progress file
-        const sessionId = lock.replace(/^session_|\.lock$/g, '');
-        const expected = `${sessionId}.jsonl`;
-        if (!inProgressFiles.includes(expected)) {
+        const sessionId = parseLockFileName(lock);
+        if (!sessionId) {
+          warnings.push(`Could not parse session ID from lock file name: ${lock}`);
+          continue;
+        }
+        if (!inProgressFiles.includes(sessionId)) {
           warnings.push(`Orphan lock: ${lock} (no matching in-progress file)`);
           lockCounts.orphan++;
         }
@@ -124,8 +128,13 @@ export default function doctor() {
     for (const file of inProgressFiles) {
       // In prod, check for matching lock
       if (!devMode) {
-        const sessionId = file.replace(/\.jsonl$/, '');
-        const expectedLock = `session_${sessionId}.lock`;
+        const sessionFileInfo = parseSessionFilename(file);
+        if (!sessionFileInfo) {
+          warnings.push(`Could not parse session filename: ${file}`);
+          continue;
+        }
+        const sessionId = makeSessionId(sessionFileInfo.sessionNumber);
+        const expectedLock = makeLockFileName(sessionId);
         if (!lockFiles.includes(expectedLock)) {
           warnings.push(`Orphan in-progress file: ${file} (no matching lock)`);
           const parsed = parseSessionFilename(file);
@@ -135,7 +144,7 @@ export default function doctor() {
             const filename = file;
             const createdAt = new Date().toISOString();
             const pid = process.pid;
-            const echoCmd = `echo '{"seq": ${seq}, "filename": "${filename}", "createdAt": "${createdAt}", "pid": ${pid}}' > data/session-logs/.locks/session_${seq}.lock`;
+            const echoCmd = `echo '{"seq": ${seq}, "filename": "${filename}", "createdAt": "${createdAt}", "pid": ${pid}}' > data/session-logs/.locks/session-${seq}.lock`;
             infos.push(`To remediate, run: ${echoCmd}`);
           } else {
             warnings.push(
