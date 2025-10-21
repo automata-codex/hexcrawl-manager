@@ -13,6 +13,7 @@ export const REPO_PATHS = {
   DEV_SESSIONS: () => getRepoPath('data', 'session-logs', '_dev', 'sessions'), // Dev-mode finalized session logs
   FOOTPRINTS: () => getRepoPath('data', 'session-logs', 'footprints'), // Footprint logs
   HAVENS: () => getRepoPath('data', 'havens.yml'),
+  HEXES: () => resolveDataPath('hexes'),
   IN_PROGRESS: () => getRepoPath('data', 'session-logs', 'in-progress'), // In-progress session logs
   LOCKS: () => getRepoPath('data', 'session-logs', '.locks'), // Lock files for sessions
   LOGS_ROOT: () => getRepoPath('data', 'session-logs'), // Root for all session logs
