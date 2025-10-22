@@ -1,5 +1,9 @@
 import { normalizeHexId } from '@skyreach/core';
-import { HexFileNotFoundError, writeYamlAtomic } from '@skyreach/data';
+import {
+  HexFileNotFoundError,
+  REPO_PATHS,
+  writeYamlAtomic,
+} from '@skyreach/data';
 import { HexData } from '@skyreach/schemas';
 import fs from 'node:fs';
 import yaml from 'yaml';
@@ -54,7 +58,7 @@ function printSummary(rows: SummaryRow[], { log = console.log } = {}) {
 
 export async function applyHexes(opts: ApplyHexesOptions): Promise<{ changed: number; scanned: number; rows: SummaryRow[] }> {
   const log = console.log;
-  const root = opts.hexesRoot ?? 'data/hexes';
+  const root = opts.hexesRoot ?? REPO_PATHS.HEXES();
 
   // 1) index once
   const index = buildHexFileIndex(root);

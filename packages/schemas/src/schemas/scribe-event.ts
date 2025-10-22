@@ -331,6 +331,7 @@ export const ScribeEventSchema = z.discriminatedUnion('kind', [
   DayEndEventSchema,
   DayStartEventSchema,
   DeadReckoningEventSchema,
+  ExploreEventSchema,
   LostEventSchema,
   MoveEventSchema,
   NoteEventSchema,

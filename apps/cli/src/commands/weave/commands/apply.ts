@@ -25,10 +25,12 @@ import {
   CliValidationError,
   NoChangesError,
 } from '../lib/errors';
+import { loadFinalizedEventsForSessions } from '../lib/files';
 import { printApplyTrailsResult } from '../lib/printers';
 import { resolveApTarget, resolveTrailsTarget } from '../lib/resolvers';
 
 import { applyAp } from './apply-ap';
+import { applyHexes } from './apply-hexes';
 import { applyTrails } from './apply-trails';
 
 export type ApplyArgs = {
@@ -37,7 +39,7 @@ export type ApplyArgs = {
   mode?: ApplyMode;
 };
 
-export type ApplyMode = 'all' | 'ap' | 'trails';
+export type ApplyMode = 'all' | 'ap' | 'hexes' | 'trails';
 
 export const exitCodeForApply = makeExitMapper(
   [
@@ -150,6 +152,35 @@ export async function apply(args: ApplyArgs) {
       if (targets.length > 1) {
         console.log(`AP reports: applied ${applied}, skipped ${skipped}.`);
       }
+    }
+
+    if (mode === 'all' || mode === 'hexes') {
+      // Decide the sessions in scope:
+      // - If user targeted a specific session, just that one.
+      // - Otherwise reuse the same session selection you use for AP.
+      const sessionIds: SessionId[] =
+        targetType === 'session'
+          ? [target as SessionId]
+          : resolveApTarget(undefined).map((t) => t.sessionId);
+
+      // Load all finalized events for those sessions in one go.
+      const events = loadFinalizedEventsForSessions(sessionIds).filter(
+        (event) =>
+          event.kind === 'move' ||
+          event.kind === 'scout' ||
+          event.kind === 'explore',
+      );
+
+      // Hexes are stateless/idempotent, so we do a single aggregated pass.
+      // When called from `weave apply`, we default to writing (dryRun: false).
+      const { changed, scanned } = await applyHexes({
+        dryRun: false,
+        events,
+      });
+
+      info(
+        `Hexes: applied ${changed} file${changed === 1 ? '' : 's'}; ${scanned} hex${scanned === 1 ? '' : 'es'} scanned.`,
+      );
     }
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
