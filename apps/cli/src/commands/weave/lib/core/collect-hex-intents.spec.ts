@@ -72,7 +72,7 @@ describe('collectHexIntents', () => {
   it('merges multiple events for the same hex into a single intent', () => {
     const intents = collectHexIntents([
       scout('q12', true),
-      move('Q11', 'Q12'),           // mixed case on purpose
+      move('Q11', 'Q12'), // mixed case on purpose
       explore('q12'),
     ]);
 
@@ -112,7 +112,9 @@ describe('collectHexIntents', () => {
     ]);
 
     // All keys normalized (uppercase letters, digits preserved)
-    expect(new Set(Object.keys(intents))).toEqual(new Set(['P11', 'Q12', 'R13']));
+    expect(new Set(Object.keys(intents))).toEqual(
+      new Set(['P11', 'Q12', 'R13']),
+    );
     expect(intents['P11'].scouted).toBe(true);
     expect(intents['Q12'].visited).toBe(true);
     expect(intents['R13'].explored).toBe(true);
@@ -120,9 +122,9 @@ describe('collectHexIntents', () => {
 
   it('does not cross-contaminate flags between hexes', () => {
     const intents = collectHexIntents([
-      scout('q12'),      // scouted Q12
-      move('r14', 'r13'),       // visited R13
-      explore('s14'),    // explored S14
+      scout('q12'), // scouted Q12
+      move('r14', 'r13'), // visited R13
+      explore('s14'), // explored S14
     ]);
 
     expect(intents['Q12']).toEqual({ scouted: true });

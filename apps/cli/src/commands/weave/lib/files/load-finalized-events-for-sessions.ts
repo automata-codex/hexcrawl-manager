@@ -1,7 +1,9 @@
 import { readAllFinalizedLogsForSession } from '@skyreach/data';
 import { ScribeEvent, SessionId } from '@skyreach/schemas';
 
-export function loadFinalizedEventsForSessions(sessionIds: SessionId[]): ScribeEvent[] {
+export function loadFinalizedEventsForSessions(
+  sessionIds: SessionId[],
+): ScribeEvent[] {
   const events: ScribeEvent[] = [];
 
   for (const sessionId of sessionIds) {

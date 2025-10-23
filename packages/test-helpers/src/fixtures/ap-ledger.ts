@@ -64,7 +64,7 @@ export function makeSessionApGrid(opts: {
   sessions: Array<number | string>;
   // eslint-disable-next-line no-unused-vars
   appliedAtBySession: (s: number | string) => string;
-  // eslint-disable-next-line no-unused-vars
+
   deltasBy?: (
     c: string,
     s: number | string,

@@ -6,8 +6,8 @@ export function collectHexIntents(events: FinalizedHexEvent[]): HexIntents {
   const intents: HexIntents = {};
   const ensure = (h: string) => {
     const hexId = normalizeHexId(h);
-    return intents[hexId] ??= {};
-  }
+    return (intents[hexId] ??= {});
+  };
 
   for (const e of events) {
     switch (e.kind) {

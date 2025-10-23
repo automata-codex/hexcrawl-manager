@@ -27,7 +27,10 @@ import {
   NoChangesError,
 } from '../lib/errors';
 import { loadFinalizedEventsForSessions } from '../lib/files';
-import { printApplyHexesSummary, printApplyTrailsResult } from '../lib/printers';
+import {
+  printApplyHexesSummary,
+  printApplyTrailsResult,
+} from '../lib/printers';
 import { resolveApTarget, resolveTrailsTarget } from '../lib/resolvers';
 
 import { applyAp } from './apply-ap';

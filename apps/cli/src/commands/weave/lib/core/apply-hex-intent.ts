@@ -6,7 +6,7 @@ export type ApplyResult = {
   nextDoc: HexData;
   changed: boolean;
   flips: {
-    scouted?: boolean;  // flipped false/missing -> true
+    scouted?: boolean; // flipped false/missing -> true
     visited?: boolean;
     explored?: boolean;
     landmarkKnown?: boolean; // tag was added this run
@@ -15,7 +15,10 @@ export type ApplyResult = {
 
 const LANDMARK_TAG = 'landmark-known';
 
-export function applyHexIntentToDoc(doc: HexData, intent: HexIntent): ApplyResult {
+export function applyHexIntentToDoc(
+  doc: HexData,
+  intent: HexIntent,
+): ApplyResult {
   let changed = false;
   const flips: ApplyResult['flips'] = {};
   const next: HexData = { ...doc };

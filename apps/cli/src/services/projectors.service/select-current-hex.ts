@@ -1,5 +1,6 @@
 /** Returns the current hex derived from the event log. */
 import { normalizeHexId } from '@skyreach/core';
+
 import type { ScribeEvent } from '@skyreach/schemas';
 
 export function selectCurrentHex(events: ScribeEvent[]): string | null {

@@ -15,11 +15,21 @@ import { printApplyHexesDiffs } from '../lib/printers';
 import { FinalizedHexEvent, HexIntents } from '../lib/types';
 
 export type ApplyHexesRow = {
-  hex: string;                    // normalized (recommend UPPER)
-  file: string;                   // lowercase path on disk
-  flips: { scouted?: boolean; visited?: boolean; explored?: boolean; landmarkKnown?: boolean };
-  already: { scouted?: boolean; visited?: boolean; explored?: boolean; landmarkKnown?: boolean };
-  changed: boolean;               // convenience flag
+  hex: string; // normalized (recommend UPPER)
+  file: string; // lowercase path on disk
+  flips: {
+    scouted?: boolean;
+    visited?: boolean;
+    explored?: boolean;
+    landmarkKnown?: boolean;
+  };
+  already: {
+    scouted?: boolean;
+    visited?: boolean;
+    explored?: boolean;
+    landmarkKnown?: boolean;
+  };
+  changed: boolean; // convenience flag
   // optional diffs for dry-run UI
   beforeText?: string;
   afterText?: string;
@@ -28,11 +38,13 @@ export type ApplyHexesRow = {
 export type ApplyHexesOptions = {
   dryRun: boolean;
   events: FinalizedHexEvent[];
-  hexesRoot?: string;             // default REPO_PATHS.HEXES()
-  captureDiffs?: boolean;         // default false; only meaningful in dry-run
+  hexesRoot?: string; // default REPO_PATHS.HEXES()
+  captureDiffs?: boolean; // default false; only meaningful in dry-run
 };
 
-export async function applyHexes(opts: ApplyHexesOptions): Promise<{ changed: number; scanned: number; rows: ApplyHexesRow[] }> {
+export async function applyHexes(
+  opts: ApplyHexesOptions,
+): Promise<{ changed: number; scanned: number; rows: ApplyHexesRow[] }> {
   const root = opts.hexesRoot ?? REPO_PATHS.HEXES();
 
   // 1) index once (index keys should be NORMALIZED, values are lowercase paths)
@@ -47,7 +59,7 @@ export async function applyHexes(opts: ApplyHexesOptions): Promise<{ changed: nu
 
   // 3) apply per hex
   for (const [hexKey, intent] of Object.entries(intents)) {
-    const norm = normalizeHexId(hexKey);       // e.g., "Q12"
+    const norm = normalizeHexId(hexKey); // e.g., "Q12"
     const file = index[norm];
     if (!file) {
       // include normalized id in error for clarity
@@ -61,10 +73,16 @@ export async function applyHexes(opts: ApplyHexesOptions): Promise<{ changed: nu
       scouted: beforeDoc.isScouted === true,
       visited: beforeDoc.isVisited === true,
       explored: beforeDoc.isExplored === true,
-      landmarkKnown: Array.isArray(beforeDoc.tags) && beforeDoc.tags.includes('landmark-known'),
+      landmarkKnown:
+        Array.isArray(beforeDoc.tags) &&
+        beforeDoc.tags.includes('landmark-known'),
     };
 
-    const { nextDoc, changed: fileChanged, flips } = applyHexIntentToDoc(beforeDoc, intent);
+    const {
+      nextDoc,
+      changed: fileChanged,
+      flips,
+    } = applyHexIntentToDoc(beforeDoc, intent);
     const row: ApplyHexesRow = {
       hex: norm,
       file,

@@ -22,12 +22,18 @@ ${extra ?? ''}
 describe('applyHexIntentToDoc', () => {
   it('sets isScouted and adds tag only once', () => {
     const doc = baseDoc();
-    const res1 = applyHexIntentToDoc(doc, { scouted: true, landmarkKnown: true });
+    const res1 = applyHexIntentToDoc(doc, {
+      scouted: true,
+      landmarkKnown: true,
+    });
     expect(res1.changed).toBe(true);
     expect(res1.nextDoc.isScouted).toBe(true);
     expect(res1.nextDoc.tags).toContain('landmark-known');
 
-    const res2 = applyHexIntentToDoc(res1.nextDoc, { scouted: true, landmarkKnown: true });
+    const res2 = applyHexIntentToDoc(res1.nextDoc, {
+      scouted: true,
+      landmarkKnown: true,
+    });
     expect(res2.changed).toBe(false);
     expect(res2.flips.scouted).toBeUndefined();
     expect(res2.flips.landmarkKnown).toBeUndefined();
@@ -56,7 +62,12 @@ describe('applyHexIntentToDoc', () => {
 
   it('can flip multiple fields in one call', () => {
     const doc = baseDoc();
-    const res = applyHexIntentToDoc(doc, { scouted: true, visited: true, explored: true, landmarkKnown: true });
+    const res = applyHexIntentToDoc(doc, {
+      scouted: true,
+      visited: true,
+      explored: true,
+      landmarkKnown: true,
+    });
     expect(res.changed).toBe(true);
     expect(res.flips).toEqual({
       scouted: true,
@@ -77,7 +88,12 @@ isVisited: true
 isExplored: true
 tags: ['landmark-known']
 `);
-    const res = applyHexIntentToDoc(doc, { scouted: true, visited: true, explored: true, landmarkKnown: true });
+    const res = applyHexIntentToDoc(doc, {
+      scouted: true,
+      visited: true,
+      explored: true,
+      landmarkKnown: true,
+    });
     expect(res.changed).toBe(false);
     expect(res.flips.scouted).toBeUndefined();
     expect(res.flips.visited).toBeUndefined();
@@ -113,7 +129,11 @@ tags: ['haven', 'landmark-known']
   it('ignores false/undefined flags (true-only semantics)', () => {
     const doc = baseDoc();
     // @ts-expect-error: test robustness if someone passes false at runtime
-    const res = applyHexIntentToDoc(doc, { scouted: false, visited: undefined, explored: 0 as any });
+    const res = applyHexIntentToDoc(doc, {
+      scouted: false,
+      visited: undefined,
+      explored: 0 as any,
+    });
     expect(res.changed).toBe(false);
     expect(res.flips).toEqual({});
     expect(res.nextDoc.isScouted).toBeUndefined();
