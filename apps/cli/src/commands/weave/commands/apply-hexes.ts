@@ -11,70 +11,47 @@ import yaml from 'yaml';
 import { applyHexIntentToDoc } from '../lib/core/apply-hex-intent';
 import { collectHexIntents } from '../lib/core/collect-hex-intents';
 import { buildHexFileIndex } from '../lib/files';
+import { printApplyHexesDiffs } from '../lib/printers';
 import { FinalizedHexEvent, HexIntents } from '../lib/types';
 
-type SummaryRow = {
-  hex: string;
-  file: string;
+export type ApplyHexesRow = {
+  hex: string;                    // normalized (recommend UPPER)
+  file: string;                   // lowercase path on disk
   flips: { scouted?: boolean; visited?: boolean; explored?: boolean; landmarkKnown?: boolean };
   already: { scouted?: boolean; visited?: boolean; explored?: boolean; landmarkKnown?: boolean };
+  changed: boolean;               // convenience flag
+  // optional diffs for dry-run UI
+  beforeText?: string;
+  afterText?: string;
 };
 
 export type ApplyHexesOptions = {
   dryRun: boolean;
-  // Provide the events in-scope. When invoked via `weave apply`, pass only those sessions.
   events: FinalizedHexEvent[];
-  hexesRoot?: string; // default 'data/hexes'
+  hexesRoot?: string;             // default REPO_PATHS.HEXES()
+  captureDiffs?: boolean;         // default false; only meaningful in dry-run
 };
 
-function mark(flipped?: boolean, already?: boolean) {
-  return flipped ? '✓' : already ? '•' : '';
-}
-
-function printSummary(rows: SummaryRow[], { log = console.log } = {}) {
-  if (rows.length === 0) {
-    log('No hexes affected by the selected sessions.');
-    return;
-  }
-
-  const header = ['HEX', 'scouted', 'visited', 'explored', '+landmark-known', 'file'];
-  const lines = [header.join('  ')];
-
-  for (const r of rows.sort((a, b) => a.hex.localeCompare(b.hex))) {
-    lines.push(
-      [
-        r.hex,
-        mark(r.flips.scouted, r.already.scouted),
-        mark(r.flips.visited, r.already.visited),
-        mark(r.flips.explored, r.already.explored),
-        mark(r.flips.landmarkKnown, r.already.landmarkKnown),
-        r.file,
-      ].join('  ')
-    );
-  }
-
-  log(lines.join('\n'));
-}
-
-export async function applyHexes(opts: ApplyHexesOptions): Promise<{ changed: number; scanned: number; rows: SummaryRow[] }> {
-  const log = console.log;
+export async function applyHexes(opts: ApplyHexesOptions): Promise<{ changed: number; scanned: number; rows: ApplyHexesRow[] }> {
   const root = opts.hexesRoot ?? REPO_PATHS.HEXES();
 
-  // 1) index once
+  // 1) index once (index keys should be NORMALIZED, values are lowercase paths)
   const index = buildHexFileIndex(root);
 
-  // 2) collect intents
+  // 2) collect intents (ensure collector normalizes IDs consistently)
   const intents: HexIntents = collectHexIntents(opts.events);
 
-  const rows: SummaryRow[] = [];
+  const rows: ApplyHexesRow[] = [];
   let changed = 0;
   let scanned = 0;
 
   // 3) apply per hex
-  for (const [hex, intent] of Object.entries(intents)) {
-    const file = index[normalizeHexId(hex)];
+  for (const [hexKey, intent] of Object.entries(intents)) {
+    const norm = normalizeHexId(hexKey);       // e.g., "Q12"
+    const file = index[norm];
     if (!file) {
-      throw new HexFileNotFoundError(hex);
+      // include normalized id in error for clarity
+      throw new HexFileNotFoundError(`${hexKey} (${norm})`);
     }
 
     const beforeText = fs.readFileSync(file, 'utf8');
@@ -88,27 +65,32 @@ export async function applyHexes(opts: ApplyHexesOptions): Promise<{ changed: nu
     };
 
     const { nextDoc, changed: fileChanged, flips } = applyHexIntentToDoc(beforeDoc, intent);
+    const row: ApplyHexesRow = {
+      hex: norm,
+      file,
+      flips,
+      already,
+      changed: fileChanged,
+    };
 
     scanned += 1;
-
-    rows.push({ hex, file, flips, already });
 
     if (fileChanged) {
       changed += 1;
 
       if (opts.dryRun) {
-        const afterText = yaml.stringify(nextDoc);
-        // TODO Print output without changing files
+        if (opts.captureDiffs) {
+          row.beforeText = beforeText;
+          row.afterText = yaml.stringify(nextDoc);
+        }
+        printApplyHexesDiffs([row]);
       } else {
         writeYamlAtomic(file, nextDoc);
       }
     }
+
+    rows.push(row);
   }
-
-  // 4) summary print (compact)
-  printSummary(rows, { log });
-
-  log(`\n${opts.dryRun ? 'Planned' : 'Applied'}: ${changed} file(s) changed; ${scanned} hex(es) scanned.`);
 
   return { changed, scanned, rows };
 }

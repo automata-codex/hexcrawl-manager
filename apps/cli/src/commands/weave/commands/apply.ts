@@ -26,7 +26,7 @@ import {
   NoChangesError,
 } from '../lib/errors';
 import { loadFinalizedEventsForSessions } from '../lib/files';
-import { printApplyTrailsResult } from '../lib/printers';
+import { printApplyHexesSummary, printApplyTrailsResult } from '../lib/printers';
 import { resolveApTarget, resolveTrailsTarget } from '../lib/resolvers';
 
 import { applyAp } from './apply-ap';
@@ -173,14 +173,14 @@ export async function apply(args: ApplyArgs) {
 
       // Hexes are stateless/idempotent, so we do a single aggregated pass.
       // When called from `weave apply`, we default to writing (dryRun: false).
-      const { changed, scanned } = await applyHexes({
-        dryRun: false,
+      const dryRun = false;
+      const { changed, rows, scanned } = await applyHexes({
+        dryRun,
         events,
+        captureDiffs: dryRun,
       });
 
-      info(
-        `Hexes: applied ${changed} file${changed === 1 ? '' : 's'}; ${scanned} hex${scanned === 1 ? '' : 'es'} scanned.`,
-      );
+      printApplyHexesSummary(rows, { dryRun, changed, scanned });
     }
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
