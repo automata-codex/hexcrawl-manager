@@ -1,9 +1,9 @@
 import { normalizeSeasonId, prevSeasonId } from '@skyreach/core';
+import { SESSION_FILE_RE } from '@skyreach/data';
 import { MetaV2Data } from '@skyreach/schemas';
 import path from 'node:path';
 
 import { getNextUnrolledSeason } from './files';
-import { SESSION_FILE_RE } from '@skyreach/data';
 
 export function isRolloverAlreadyApplied(
   meta: MetaV2Data,
@@ -81,8 +81,5 @@ export function isSessionChronologyValid(
 export function isSessionFile(filePath: string): boolean {
   const dir = path.basename(path.dirname(filePath));
   const base = path.basename(filePath);
-  return (
-    dir === 'sessions' &&
-    SESSION_FILE_RE.test(base)
-  );
+  return dir === 'sessions' && SESSION_FILE_RE.test(base);
 }

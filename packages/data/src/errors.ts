@@ -1,4 +1,5 @@
-import { padSessionNum } from '@skyreach/core';
+import { normalizeHexId } from '@skyreach/core';
+import { padSessionNum } from '@skyreach/schemas';
 
 export class DataFileNotFoundError extends Error {
   constructor(public filepath: string) {
@@ -54,5 +55,12 @@ export class FinalizedLogsNotFoundError extends Error {
       `No finalized scribe logs found for session ${padSessionNum(sessionNumber)}.`,
     );
     this.name = 'FinalizedLogsNotFoundError';
+  }
+}
+
+export class HexFileNotFoundError extends Error {
+  constructor(public hexId: string) {
+    super(`Hex file not found for hexId "${normalizeHexId(hexId)}"`);
+    this.name = 'HexFileNotFoundError';
   }
 }

@@ -100,7 +100,10 @@ describe('scribe finalize', () => {
         // Manually write a bad in-progress file
         const inProgressDir = REPO_PATHS.IN_PROGRESS();
         fs.mkdirSync(inProgressDir, { recursive: true });
-        const sessionFile = path.join(inProgressDir, buildSessionFilename(27, '2025-09-20'));
+        const sessionFile = path.join(
+          inProgressDir,
+          buildSessionFilename(27, '2025-09-20'),
+        );
         fs.writeFileSync(
           sessionFile,
           JSON.stringify({

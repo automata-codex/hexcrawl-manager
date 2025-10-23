@@ -7,7 +7,11 @@ import path from 'node:path';
 
 import { readEvents } from '../../../services/event-log.service';
 import { detectDevMode } from '../services/general';
-import { listLockFiles, makeLockFileName, parseLockFileName } from '../services/lock-file';
+import {
+  listLockFiles,
+  makeLockFileName,
+  parseLockFileName,
+} from '../services/lock-file';
 import {
   checkSessionSequenceGaps,
   checkSessionDateConsistency,
@@ -114,7 +118,9 @@ export default function doctor() {
         // Check for matching in-progress file
         const sessionId = parseLockFileName(lock);
         if (!sessionId) {
-          warnings.push(`Could not parse session ID from lock file name: ${lock}`);
+          warnings.push(
+            `Could not parse session ID from lock file name: ${lock}`,
+          );
           continue;
         }
         if (!inProgressFiles.includes(sessionId)) {
