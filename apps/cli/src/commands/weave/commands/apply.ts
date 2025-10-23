@@ -11,6 +11,7 @@ import {
   DirtyGitError,
   FinalizedLogJsonParseError,
   FinalizedLogsNotFoundError,
+  HexFileNotFoundError,
 } from '@skyreach/data';
 import {
   SessionId,
@@ -41,14 +42,22 @@ export type ApplyArgs = {
 
 export type ApplyMode = 'all' | 'ap' | 'hexes' | 'trails';
 
+// Exit codes for `weave apply` command:
+// 0 = Success
+// 1 = Generic or uncategorized error
+// 2 = Invalid/corrupt input
+// 3 = Logs/data not found
+// 4 = Conflicting or invalid state
+// 5 = External failure (e.g., no changes to apply, dirty git state, etc.)
 export const exitCodeForApply = makeExitMapper(
   [
     [CliValidationError, 4], // user input or file contents are invalid
     [DirtyGitError, 5], // external failure
     [FinalizedLogJsonParseError, 2], // invalid/corrupt input
     [FinalizedLogsNotFoundError, 3], // not found
-    [SessionAlreadyAppliedError, 0], // benign no-op
+    [HexFileNotFoundError, 3], // not found
     [NoChangesError, 5], // no-op error
+    [SessionAlreadyAppliedError, 0], // benign no-op
     [SessionFingerprintMismatchError, 4], // conflicting state
     [SessionIdError, 2], // invalid session id or missing context
     [SessionLogsNotFoundError, 4], // domain-specific failure
