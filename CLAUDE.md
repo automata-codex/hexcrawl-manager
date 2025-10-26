@@ -185,3 +185,18 @@ Skyreach uses a "version-on-develop" workflow:
 - Development branch: `develop`
 - Feature branches from `develop`
 - Weave apply requires clean working tree (unless `--allow-dirty`)
+
+## D&D House Rules
+
+The Astro web app (`apps/web`) includes D&D house rules stored as:
+- Markdown and MDX files in `data/articles` (sometimes in multiple parts, assembled by an Astro component under `apps/web/src`--see `apps/web/src/config/routes.ts` for routing)
+- Astro pages/components for displaying rules
+
+**Recent changes:**
+- Rule handling code was recently modified
+- Rule content files may need updating to match new code structure
+
+**When working with rules:**
+- Preserve existing D&D content and terminology
+- Maintain rule formatting and structure
+- Check git history for recent changes to rule handling logic
