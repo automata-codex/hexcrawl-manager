@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const EncounterEntrySchema = z.object({
   encounterId: z.string(),
-  weight: z.number().default(1),
+  weight: z.number(),
 });
 
 export const TieredSubtableSchema = z.record(
@@ -13,7 +13,7 @@ export const TieredSubtableSchema = z.record(
 export const CategoryWeight = z.object({
   category: z.string(),
   label: z.string(),
-  weight: z.number().default(1),
+  weight: z.number(),
 });
 
 export const WeightedCategoryTable = z.array(CategoryWeight);

@@ -4,11 +4,14 @@ import {
   getSeasonForDate,
   segmentsToHours,
 } from '@skyreach/core';
-import { REPO_PATHS, readAndValidateYaml } from '@skyreach/data';
-import { TrailMapSchema, type Pace } from '@skyreach/schemas';
+import { REPO_PATHS, readAndValidateYaml, resolveDataPath } from '@skyreach/data';
+import {
+  EncounterTableSchema,
+  TrailMapSchema,
+  type Pace,
+} from '@skyreach/schemas';
 import path from 'path';
 
-import { defaultEncounterTable } from '../../../../../../../data/encounters/default-encounter-table';
 import { readEvents } from '../../../../services/event-log.service';
 import {
   selectCurrentHex,
@@ -117,6 +120,13 @@ export default function fastTravelPlanAndExecute(
   savePlan(plan);
   info(`Fast travel plan created. Starting journey...`);
 
+  // Load encounter table
+  const encounterTablePath = resolveDataPath('default-encounter-table.yaml');
+  const encounterTable = readAndValidateYaml(
+    encounterTablePath,
+    EncounterTableSchema,
+  );
+
   // Build state for runner
   const state: FastTravelState = {
     currentHex,
@@ -131,7 +141,7 @@ export default function fastTravelPlanAndExecute(
     weather,
     currentDate,
     currentSeason,
-    encounterTable: defaultEncounterTable,
+    encounterTable,
   };
 
   // Run fast travel
