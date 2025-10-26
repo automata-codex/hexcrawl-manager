@@ -11,13 +11,11 @@ import {
 } from '../../../../services/projectors.service';
 import { loadPlan } from '../../lib/core/fast-travel-plan';
 import { runFastTravel } from '../../lib/core/fast-travel-runner';
+import { emitFastTravelEvents } from '../../lib/emitters';
 import { loadEncounterTable } from '../../lib/encounters';
+import { handleFastTravelResult } from '../../lib/processors';
 import { requireSession } from '../../services/general';
 
-import {
-  emitFastTravelEvents,
-  handleFastTravelResult,
-} from './shared';
 
 import type { FastTravelState } from '../../lib/core/fast-travel-runner';
 import type { Context } from '../../types';

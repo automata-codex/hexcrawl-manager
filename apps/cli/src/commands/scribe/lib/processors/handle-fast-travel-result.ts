@@ -6,11 +6,11 @@ import {
   computeSessionHash,
   lastCalendarDate,
 } from '../../../../services/projectors.service';
-import { deletePlan, savePlan } from '../../lib/core/fast-travel-plan';
-import { loadEncounterTable } from '../../lib/encounters';
+import { deletePlan, savePlan } from '../core/fast-travel-plan';
+import { loadEncounterTable } from '../encounters';
 
-import type { FastTravelResult } from '../../lib/core/fast-travel-runner';
-import type { FastTravelPlan } from '../../lib/types/fast-travel';
+import type { FastTravelResult } from '../core/fast-travel-runner';
+import type { FastTravelPlan } from '../types/fast-travel';
 
 export { loadEncounterTable };
 

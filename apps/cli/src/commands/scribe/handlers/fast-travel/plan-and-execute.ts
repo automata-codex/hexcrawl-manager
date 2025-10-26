@@ -12,16 +12,17 @@ import {
   selectCurrentWeather,
   selectSegmentsUsedToday,
 } from '../../../../services/projectors.service';
-import { createPlan, loadPlan, savePlan } from '../../lib/core/fast-travel-plan';
+import {
+  createPlan,
+  loadPlan,
+  savePlan,
+} from '../../lib/core/fast-travel-plan';
 import { runFastTravel } from '../../lib/core/fast-travel-runner';
+import { emitFastTravelEvents } from '../../lib/emitters';
 import { loadEncounterTable } from '../../lib/encounters';
 import { buildTrailGraph, bfsTrailPath } from '../../lib/helpers/trails';
+import { handleFastTravelResult } from '../../lib/processors';
 import { requireSession } from '../../services/general';
-
-import {
-  emitFastTravelEvents,
-  handleFastTravelResult,
-} from './shared';
 
 import type { FastTravelState } from '../../lib/core/fast-travel-runner';
 import type { Context } from '../../types';
