@@ -9,6 +9,7 @@ Commands:
   day start [date]               start a new in-game day (auto-increments date if omitted)
   dead-rec <success|fail>        record a dead reckoning attempt (clears lost state on success)
   exit                           leave the shell
+  explore                        record exploration of the current hex
   fast <dest> <pace>             plan and execute fast travel along trails (pace: fast|normal|slow)
   fast abort                     cancel active fast travel plan
   fast resume                    resume paused fast travel

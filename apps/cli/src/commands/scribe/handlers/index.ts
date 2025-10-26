@@ -11,6 +11,7 @@ import day from './day';
 import deadReckoning from './deadReckoning';
 import doctor from './doctor';
 import exit from './exit';
+import explore from './explore';
 import fastTravel from './fast-travel';
 import finalize from './finalize';
 import help from './help';
@@ -47,6 +48,7 @@ export function buildHandlers(ctx: Context): HandlerMap {
     'dead-rec': deadReckoning(ctx),
     doctor: doctor(),
     exit: exit(),
+    explore: explore(ctx),
     fast: fastTravel(ctx),
     finalize: finalize(ctx),
     help: help(),
