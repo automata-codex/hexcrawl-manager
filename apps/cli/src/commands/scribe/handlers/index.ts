@@ -26,6 +26,7 @@ import scout from './scout';
 import start from './start';
 import status from './status';
 import time from './time';
+import todo from './todo';
 import trail from './trail';
 import undo from './undo';
 import view from './view';
@@ -63,6 +64,7 @@ export function buildHandlers(ctx: Context): HandlerMap {
     start: start(ctx),
     status: status(ctx),
     time: time(ctx),
+    todo: todo(ctx),
     trail: trail(ctx),
     undo: undo(ctx),
     view: view(ctx),

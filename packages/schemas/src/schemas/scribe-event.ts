@@ -183,6 +183,11 @@ export const TimeLogEventPayloadSchema = z.object({
 });
 export type TimeLogEventPayload = z.infer<typeof TimeLogEventPayloadSchema>;
 
+export const TodoEventPayloadSchema = z.object({
+  text: z.string(),
+});
+export type TodoEventPayload = z.infer<typeof TodoEventPayloadSchema>;
+
 export const TrailEventPayloadSchema = z.object({
   from: z.string(),
   to: z.string(),
@@ -308,6 +313,9 @@ export const TimeLogEventSchema = makeEventSchema(
 );
 export type TimeLogEvent = z.infer<typeof TimeLogEventSchema>;
 
+export const TodoEventSchema = makeEventSchema('todo', TodoEventPayloadSchema);
+export type TodoEvent = z.infer<typeof TodoEventSchema>;
+
 export const TrailEventSchema = makeEventSchema(
   'trail',
   TrailEventPayloadSchema,
@@ -343,6 +351,7 @@ export const ScribeEventSchema = z.discriminatedUnion('kind', [
   SessionPauseEventSchema,
   SessionStartEventSchema,
   TimeLogEventSchema,
+  TodoEventSchema,
   TrailEventSchema,
   WeatherCommittedEventSchema,
 ]);
