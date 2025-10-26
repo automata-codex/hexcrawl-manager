@@ -38,6 +38,7 @@ const ACTIVITY_CAP_SEGMENTS = 24;
 
 /**
  * Calculate the total segments required for a leg, including terrain and weather doublers.
+ * Only one doubler is applied - if both terrain and weather would double, only apply one.
  *
  * @param destHex The destination hex ID
  * @param pace The travel pace
@@ -51,17 +52,34 @@ export function calculateLegSegments(
 ): number {
   let segments = PACE_BASE_SEGMENTS[pace];
 
-  // Apply terrain doubler if destination is difficult
-  if (isDifficultHex(destHex)) {
-    segments *= 2;
-  }
+  // Apply doubler if either terrain is difficult OR weather slows travel
+  // Only apply ONE doubler, not both
+  const terrainDoubles = isDifficultHex(destHex);
+  const weatherDoubles = weather && slowsTravel(weather);
 
-  // Apply weather doubler if weather is inclement
-  if (weather && slowsTravel(weather)) {
+  if (terrainDoubles || weatherDoubles) {
     segments *= 2;
   }
 
   return segments;
+}
+
+/**
+ * Arguments for executing a leg of fast travel.
+ */
+export interface ExecuteLegArgs {
+  /** The destination hex ID */
+  destHex: string;
+  /** The travel pace */
+  pace: Pace;
+  /** Segments already used today (before this leg) */
+  activeSegmentsToday: number;
+  /** Remaining daylight segments available */
+  daylightSegmentsLeft: number;
+  /** Total daylight cap for the day */
+  daylightCapSegments: number;
+  /** Current weather (null if none) */
+  weather: WeatherCommitted | null;
 }
 
 /**
@@ -70,22 +88,18 @@ export function calculateLegSegments(
  * This is a pure function that does NOT perform I/O. It only calculates whether
  * a leg can be executed given the current state.
  *
- * @param destHex The destination hex ID
- * @param pace The travel pace
- * @param activeSegmentsToday Segments already used today (before this leg)
- * @param daylightSegmentsLeft Remaining daylight segments available
- * @param daylightCapSegments Total daylight cap for the day
- * @param weather Current weather (null if none)
+ * @param args Arguments for leg execution
  * @returns Result indicating if leg can execute and segment breakdown
  */
-export function executeLeg(
-  destHex: string,
-  pace: Pace,
-  activeSegmentsToday: number,
-  daylightSegmentsLeft: number,
-  daylightCapSegments: number,
-  weather: WeatherCommitted | null,
-): LegExecutionResult {
+export function executeLeg(args: ExecuteLegArgs): LegExecutionResult {
+  const {
+    destHex,
+    pace,
+    activeSegmentsToday,
+    daylightSegmentsLeft,
+    daylightCapSegments,
+    weather,
+  } = args;
   const totalSegments = calculateLegSegments(destHex, pace, weather);
 
   // Check activity cap (12 hours = 24 segments)

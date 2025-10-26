@@ -196,8 +196,8 @@ describe('runFastTravel', () => {
     expect(result.events).toHaveLength(3); // move + time_log for first leg, note for second
 
     expect(result.finalSegments).toEqual({
-      active: 2,
-      daylight: 2,
+      active: 4,
+      daylight: 4,
       night: 0,
     });
   });
@@ -208,10 +208,10 @@ describe('runFastTravel', () => {
       route: ['P13', 'P14'],
       currentLegIndex: 0,
       pace: 'normal',
-      activeSegmentsToday: 15, // Already used 7.5h
-      daylightSegmentsToday: 15,
+      activeSegmentsToday: 21, // Already used 10.5h
+      daylightSegmentsToday: 21,
       nightSegmentsToday: 0,
-      daylightSegmentsLeft: 9,
+      daylightSegmentsLeft: 3,
       daylightCapSegments: 24,
       weather: null,
       currentDate: { year: 1, month: 'Hibernis', day: 15 },
@@ -226,8 +226,8 @@ describe('runFastTravel', () => {
     expect(result.events).toHaveLength(0); // No events
 
     expect(result.finalSegments).toEqual({
-      active: 15,
-      daylight: 15,
+      active: 21,
+      daylight: 21,
       night: 0,
     });
   });
@@ -241,7 +241,7 @@ describe('runFastTravel', () => {
       activeSegmentsToday: 0,
       daylightSegmentsToday: 0,
       nightSegmentsToday: 0,
-      daylightSegmentsLeft: 1, // Only 0.5h daylight left
+      daylightSegmentsLeft: 2, // Only 1h daylight left
       daylightCapSegments: 24,
       weather: null,
       currentDate: { year: 1, month: 'Hibernis', day: 15 },
@@ -279,10 +279,10 @@ describe('runFastTravel', () => {
     expect(result.currentLegIndex).toBe(4);
     expect(result.events).toHaveLength(8); // 4 moves + 4 time_logs
 
-    // Each leg should use 1 segment (fast pace)
+    // Each leg should use 3 segments (fast pace)
     expect(result.finalSegments).toEqual({
-      active: 4,
-      daylight: 4,
+      active: 12,
+      daylight: 12,
       night: 0,
     });
   });
@@ -311,10 +311,10 @@ describe('runFastTravel', () => {
     expect(result.status).toBe('completed');
     expect(result.currentLegIndex).toBe(2);
 
-    // Each leg uses 4 segments (2 * 2 for difficult terrain)
+    // Each leg uses 8 segments (4 * 2 for difficult terrain)
     expect(result.finalSegments).toEqual({
-      active: 8,
-      daylight: 8,
+      active: 16,
+      daylight: 16,
       night: 0,
     });
   });
@@ -340,10 +340,10 @@ describe('runFastTravel', () => {
 
     expect(result.status).toBe('completed');
 
-    // Each leg uses 4 segments (2 * 2 for inclement weather)
+    // Each leg uses 8 segments (4 * 2 for inclement weather)
     expect(result.finalSegments).toEqual({
-      active: 8,
-      daylight: 8,
+      active: 16,
+      daylight: 16,
       night: 0,
     });
   });
@@ -354,10 +354,10 @@ describe('runFastTravel', () => {
       route: ['P13', 'P14', 'P15'],
       currentLegIndex: 1, // Resume from P14
       pace: 'normal',
-      activeSegmentsToday: 2, // Already used 1h
-      daylightSegmentsToday: 2,
+      activeSegmentsToday: 4, // Already used 2h
+      daylightSegmentsToday: 4,
       nightSegmentsToday: 0,
-      daylightSegmentsLeft: 22,
+      daylightSegmentsLeft: 20,
       daylightCapSegments: 24,
       weather: null,
       currentDate: { year: 1, month: 'Hibernis', day: 15 },
@@ -371,10 +371,10 @@ describe('runFastTravel', () => {
     expect(result.currentLegIndex).toBe(3);
     expect(result.events).toHaveLength(4); // 2 remaining legs
 
-    // Started with 2 segments, added 4 more (2 legs * 2 segments)
+    // Started with 4 segments, added 8 more (2 legs * 4 segments)
     expect(result.finalSegments).toEqual({
-      active: 6,
-      daylight: 6,
+      active: 12,
+      daylight: 12,
       night: 0,
     });
   });
@@ -400,15 +400,15 @@ describe('runFastTravel', () => {
 
     expect(result.status).toBe('completed');
 
-    // Slow pace uses 3 segments
+    // Slow pace uses 6 segments
     expect(result.finalSegments).toEqual({
-      active: 3,
-      daylight: 3,
+      active: 6,
+      daylight: 6,
       night: 0,
     });
   });
 
-  it('combines terrain and weather doublers', () => {
+  it('applies only one doubler for terrain and weather combined', () => {
     isDifficultHexSpy.mockReturnValue(true);
 
     const state: FastTravelState = {
@@ -431,8 +431,7 @@ describe('runFastTravel', () => {
 
     expect(result.status).toBe('completed');
 
-    // TODO It should only apply one doubler for difficult terrain + extreme weather
-    // 2 * 2 (terrain) * 2 (weather) = 8 segments
+    // Only one doubler applied: 4 * 2 = 8 segments
     expect(result.finalSegments).toEqual({
       active: 8,
       daylight: 8,
