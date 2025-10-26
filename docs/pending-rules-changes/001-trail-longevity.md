@@ -1,7 +1,7 @@
 # Trail Longevity and Permanence
 
 **ID:** 004
-**Status:** Proposed
+**Status:** Implemented
 **Owner:** —
 **Date Opened:** 2025-09-23
 **Source:** Conversation notes; Hexcrawl Rules (Trails section)
