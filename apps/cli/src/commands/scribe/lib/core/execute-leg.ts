@@ -1,8 +1,9 @@
-import { isInclement } from '@skyreach/core';
+import { slowsTravel } from '@skyreach/core';
 
 import { isDifficultHex } from '../helpers/hex-data';
 
-import type { Pace, WeatherCommitted } from '@skyreach/schemas';
+import type { WeatherCommitted } from '@skyreach/core';
+import type { Pace } from '@skyreach/schemas';
 
 /**
  * Result of attempting to execute a leg of travel.
@@ -56,7 +57,7 @@ export function calculateLegSegments(
   }
 
   // Apply weather doubler if weather is inclement
-  if (weather && isInclement(weather)) {
+  if (weather && slowsTravel(weather)) {
     segments *= 2;
   }
 

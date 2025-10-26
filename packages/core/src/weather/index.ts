@@ -1,1 +1,1 @@
-export { isInclement } from './is-inclement';
+export { slowsTravel } from './slows-travel';

@@ -1,3 +1,4 @@
+import { createWeather } from '@skyreach/test-helpers';
 import {
   MockInstance,
   afterEach,
@@ -319,10 +320,7 @@ describe('runFastTravel', () => {
       nightSegmentsToday: 0,
       daylightSegmentsLeft: 24,
       daylightCapSegments: 24,
-      weather: {
-        category: 'Inclement',
-        description: 'Heavy rain',
-      },
+      weather: createWeather('inclement'),
       currentDate: { year: 1, month: 'Hibernis', day: 15 },
       currentSeason: 'spring',
       encounterTable: mockEncounterTable,
@@ -413,10 +411,7 @@ describe('runFastTravel', () => {
       nightSegmentsToday: 0,
       daylightSegmentsLeft: 24,
       daylightCapSegments: 24,
-      weather: {
-        category: 'Extreme',
-        description: 'Blizzard',
-      },
+      weather: createWeather('extreme'),
       currentDate: { year: 1, month: 'Aridus', day: 15 },
       currentSeason: 'winter',
       encounterTable: mockEncounterTable,

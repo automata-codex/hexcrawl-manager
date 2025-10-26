@@ -1,3 +1,4 @@
+import { createWeather } from '@skyreach/test-helpers';
 import {
   MockInstance,
   afterEach,
@@ -12,7 +13,7 @@ import * as hexData from '../helpers/hex-data';
 
 import { calculateLegSegments, executeLeg } from './execute-leg';
 
-import type { WeatherCommitted } from '@skyreach/schemas';
+import type { WeatherCommitted } from '@skyreach/core';
 
 describe('calculateLegSegments', () => {
   // eslint-disable-next-line no-unused-vars
@@ -48,37 +49,25 @@ describe('calculateLegSegments', () => {
 
   it('applies weather doubler for inclement weather', () => {
     isDifficultHexSpy.mockReturnValue(false);
-    const weather: WeatherCommitted = {
-      category: 'Inclement',
-      description: 'Heavy rain',
-    };
+    const weather: WeatherCommitted = createWeather('inclement');
     expect(calculateLegSegments('P12', 'normal', weather)).toBe(4); // 2 * 2
   });
 
   it('applies both terrain and weather doublers', () => {
     isDifficultHexSpy.mockReturnValue(true);
-    const weather: WeatherCommitted = {
-      category: 'Inclement',
-      description: 'Heavy rain',
-    };
+    const weather: WeatherCommitted = createWeather('inclement');
     expect(calculateLegSegments('W23', 'normal', weather)).toBe(8); // 2 * 2 * 2
   });
 
   it('does not apply weather doubler for pleasant weather', () => {
     isDifficultHexSpy.mockReturnValue(false);
-    const weather: WeatherCommitted = {
-      category: 'Pleasant',
-      description: 'Clear skies',
-    };
+    const weather: WeatherCommitted = createWeather('nice');
     expect(calculateLegSegments('P12', 'normal', weather)).toBe(2);
   });
 
   it('handles fast pace with all doublers', () => {
     isDifficultHexSpy.mockReturnValue(true);
-    const weather: WeatherCommitted = {
-      category: 'Extreme',
-      description: 'Blizzard',
-    };
+    const weather: WeatherCommitted = createWeather('extreme');
     expect(calculateLegSegments('W23', 'fast', weather)).toBe(4); // 1 * 2 * 2
   });
 });
@@ -207,10 +196,7 @@ describe('executeLeg', () => {
   it('handles inclement weather increasing segment cost', () => {
     isDifficultHexSpy.mockReturnValue(false);
 
-    const weather: WeatherCommitted = {
-      category: 'Inclement',
-      description: 'Heavy rain',
-    };
+    const weather: WeatherCommitted = createWeather('inclement');
 
     const result = executeLeg('P12', 'normal', 0, 24, 24, weather);
 
@@ -223,10 +209,7 @@ describe('executeLeg', () => {
   it('handles both terrain and weather doublers', () => {
     isDifficultHexSpy.mockReturnValue(true);
 
-    const weather: WeatherCommitted = {
-      category: 'Extreme',
-      description: 'Blizzard',
-    };
+    const weather: WeatherCommitted = createWeather('extreme');
 
     const result = executeLeg('W23', 'normal', 0, 24, 24, weather);
 
@@ -239,10 +222,7 @@ describe('executeLeg', () => {
   it('rejects when doublers cause activity cap exceeded', () => {
     isDifficultHexSpy.mockReturnValue(true);
 
-    const weather: WeatherCommitted = {
-      category: 'Inclement',
-      description: 'Heavy rain',
-    };
+    const weather: WeatherCommitted = createWeather('inclement');
 
     const result = executeLeg(
       'W23',
@@ -262,10 +242,7 @@ describe('executeLeg', () => {
   it('rejects when doublers cause daylight exceeded', () => {
     isDifficultHexSpy.mockReturnValue(true);
 
-    const weather: WeatherCommitted = {
-      category: 'Inclement',
-      description: 'Heavy rain',
-    };
+    const weather: WeatherCommitted = createWeather('inclement');
 
     const result = executeLeg(
       'W23',
