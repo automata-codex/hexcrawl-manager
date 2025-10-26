@@ -42,4 +42,5 @@ jobs:
       - name: Run ${{ matrix.cmd }}
         run: ${{ matrix.cmd }}
         env:
-          TEST_REPO_BASE: './test-repos'
+          REPO_ROOT: '${{ github.workspace }}'
+          TEST_REPO_BASE: '${{ github.workspace }}/test-repos'
