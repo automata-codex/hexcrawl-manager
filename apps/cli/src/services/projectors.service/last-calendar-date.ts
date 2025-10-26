@@ -1,5 +1,9 @@
 import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';
 
+/**
+ * Find the last known calendar date from a list of events
+ * @param events
+ */
 export function lastCalendarDate(events: ScribeEvent[]): CampaignDate | null {
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];

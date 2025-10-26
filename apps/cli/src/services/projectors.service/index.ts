@@ -1,4 +1,5 @@
 export { activeSegmentsSinceStart } from './active-segments-since-start';
+export { computeSessionHash } from './compute-session-hash';
 export { daylightSegmentsSinceStart } from './daylight-segments-since-start';
 export { findOpenDay } from './find-open-day';
 export { firstCalendarDate } from './first-calendar-date';
@@ -6,6 +7,7 @@ export { isDayOpen } from './is-day-open';
 export { isPartyLost } from './is-party-lost';
 export { lastCalendarDate } from './last-calendar-date';
 export { selectCurrentHex } from './select-current-hex';
-export { selectParty } from './select-party';
 export { selectCurrentWeather } from './select-current-weather';
 export { selectCurrentForecast } from './select-current-forecast';
+export { selectSegmentsUsedToday } from './select-segments-used-today';
+export { selectParty } from './select-party';

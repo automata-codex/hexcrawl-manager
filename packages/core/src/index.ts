@@ -9,3 +9,4 @@ export * from './seasons';
 export * from './sessions';
 export * from './trails';
 export * from './types';
+export * from './weather';
