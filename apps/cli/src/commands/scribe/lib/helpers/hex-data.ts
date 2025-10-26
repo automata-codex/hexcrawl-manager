@@ -1,4 +1,8 @@
-import { getTravelDifficulty, isDifficultTerrain } from '@skyreach/core';
+import {
+  getTravelDifficulty,
+  isDifficultTerrain,
+  normalizeHexId,
+} from '@skyreach/core';
 import { readAndValidateYaml } from '@skyreach/data';
 import { HexSchema } from '@skyreach/schemas';
 
@@ -12,7 +16,8 @@ const hexIndex = buildHexFileIndex();
  * Returns false if hex data cannot be loaded.
  */
 export function isDifficultHex(hexId: string): boolean {
-  const filePath = hexIndex[hexId];
+  const normalizedId = normalizeHexId(hexId);
+  const filePath = hexIndex[normalizedId];
   if (!filePath) {
     return false; // Unknown hex, assume not difficult
   }

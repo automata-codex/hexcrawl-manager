@@ -20,9 +20,12 @@ describe('isDifficultHex', () => {
   });
 
   it('handles case-insensitive hex IDs', () => {
-    // Should normalize the hex ID
+    // Should normalize the hex ID - both should return the same result
     const upper = isDifficultHex('W23');
     const lower = isDifficultHex('w23');
+    // Both should return the same value since they reference the same hex
+    expect(typeof upper).toBe('boolean');
+    expect(typeof lower).toBe('boolean');
     expect(upper).toBe(lower);
   });
 });
