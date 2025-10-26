@@ -151,19 +151,19 @@ export default function fastTravelPlanAndExecute(
   for (const event of result.events) {
     switch (event.type) {
       case 'move':
-        emitMove(ctx.file!, event.from, event.to, event.pace);
+        emitMove(ctx.file!, event.payload.from, event.payload.to, event.payload.pace);
         break;
       case 'time_log':
         emitTimeLog(
           ctx.file!,
-          event.segments,
-          event.daylightSegments,
-          event.nightSegments,
-          event.phase,
+          event.payload.segments,
+          event.payload.daylightSegments,
+          event.payload.nightSegments,
+          event.payload.phase,
         );
         break;
       case 'note':
-        emitNote(ctx.file!, event.text, event.scope);
+        emitNote(ctx.file!, event.payload.text, event.payload.scope);
         break;
     }
   }

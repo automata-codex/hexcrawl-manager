@@ -82,37 +82,45 @@ describe('runFastTravel', () => {
     // Check first leg
     expect(result.events[0]).toEqual({
       type: 'move',
-      from: 'P12',
-      to: 'P13',
-      pace: 'normal',
+      payload: {
+        from: 'P12',
+        to: 'P13',
+        pace: 'normal',
+      },
     });
     expect(result.events[1]).toEqual({
       type: 'time_log',
-      segments: 2,
-      daylightSegments: 2,
-      nightSegments: 0,
-      phase: 'daylight',
+      payload: {
+        segments: 4,
+        daylightSegments: 4,
+        nightSegments: 0,
+        phase: 'daylight',
+      },
     });
 
     // Check second leg
     expect(result.events[2]).toEqual({
       type: 'move',
-      from: 'P13',
-      to: 'P14',
-      pace: 'normal',
+      payload: {
+        from: 'P13',
+        to: 'P14',
+        pace: 'normal',
+      },
     });
     expect(result.events[3]).toEqual({
       type: 'time_log',
-      segments: 2,
-      daylightSegments: 2,
-      nightSegments: 0,
-      phase: 'daylight',
+      payload: {
+        segments: 4,
+        daylightSegments: 4,
+        nightSegments: 0,
+        phase: 'daylight',
+      },
     });
 
     // Check final segments
     expect(result.finalSegments).toEqual({
-      active: 4,
-      daylight: 4,
+      active: 8,
+      daylight: 8,
       night: 0,
     });
   });
@@ -146,8 +154,10 @@ describe('runFastTravel', () => {
 
     expect(result.events[0]).toEqual({
       type: 'note',
-      text: 'Encounter entering P13: Wildlife - bear',
-      scope: 'session',
+      payload: {
+        text: 'Encounter entering P13: Wildlife - bear',
+        scope: 'session',
+      },
     });
 
     // No segments used yet

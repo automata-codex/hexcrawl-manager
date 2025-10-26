@@ -5,39 +5,28 @@ import { executeLeg } from './execute-leg';
 import type { WeatherCommitted } from '@skyreach/core';
 import type {
   CampaignDate,
+  DayEndEventPayload,
+  DayStartEventPayload,
   EncounterTableData,
+  MoveEventPayload,
+  NoteEventPayload,
   Pace,
   Season,
+  TimeLogEventPayload,
+  WeatherCommittedEventPayload,
 } from '@skyreach/schemas';
 
 /**
  * Events that can occur during fast travel execution.
+ * Uses payload types from scribe-event schemas for type safety.
  */
 export type FastTravelEvent =
-  | { type: 'move'; from: string | null; to: string; pace: Pace }
-  | {
-      type: 'time_log';
-      segments: number;
-      daylightSegments: number;
-      nightSegments: number;
-      phase: 'daylight' | 'night';
-    }
-  | { type: 'note'; text: string; scope: 'day' | 'session' }
-  | {
-      type: 'day_end';
-      summary: {
-        active: number;
-        daylight: number;
-        night: number;
-      };
-    }
-  | {
-      type: 'day_start';
-      date: CampaignDate;
-      season: string;
-      daylightCap: number;
-    }
-  | { type: 'weather_committed'; weather: WeatherCommitted };
+  | { type: 'move'; payload: MoveEventPayload }
+  | { type: 'time_log'; payload: TimeLogEventPayload }
+  | { type: 'note'; payload: NoteEventPayload }
+  | { type: 'day_end'; payload: DayEndEventPayload }
+  | { type: 'day_start'; payload: DayStartEventPayload }
+  | { type: 'weather_committed'; payload: WeatherCommittedEventPayload };
 
 /**
  * Result of executing fast travel.
@@ -124,8 +113,10 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
       // Encounter occurred - emit note and pause
       events.push({
         type: 'note',
-        text: encounterNote,
-        scope: 'session',
+        payload: {
+          text: encounterNote,
+          scope: 'session',
+        },
       });
 
       return {
@@ -141,14 +132,14 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     }
 
     // Try to execute the leg
-    const legResult = executeLeg(
+    const legResult = executeLeg({
       destHex,
-      state.pace,
+      pace: state.pace,
       activeSegmentsToday,
       daylightSegmentsLeft,
-      state.daylightCapSegments,
-      state.weather,
-    );
+      daylightCapSegments: state.daylightCapSegments,
+      weather: state.weather,
+    });
 
     if (!legResult.canExecute) {
       if (legResult.reason === 'no_capacity') {
@@ -182,17 +173,21 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     // Leg fits! Emit move and time_log
     events.push({
       type: 'move',
-      from: fromHex,
-      to: destHex,
-      pace: state.pace,
+      payload: {
+        from: fromHex,
+        to: destHex,
+        pace: state.pace,
+      },
     });
 
     events.push({
       type: 'time_log',
-      segments: legResult.segmentsUsed,
-      daylightSegments: legResult.daylightSegmentsUsed,
-      nightSegments: legResult.nightSegmentsUsed,
-      phase: 'daylight', // For MVP, all travel is during daylight
+      payload: {
+        segments: legResult.segmentsUsed,
+        daylightSegments: legResult.daylightSegmentsUsed,
+        nightSegments: legResult.nightSegmentsUsed,
+        phase: 'daylight', // For MVP, all travel is during daylight
+      },
     });
 
     // Update state
