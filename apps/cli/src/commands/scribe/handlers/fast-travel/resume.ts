@@ -1,11 +1,5 @@
-import { info, error } from '@skyreach/cli-kit';
-import {
-  getDaylightCapSegments,
-  getSeasonForDate,
-  segmentsToHours,
-} from '@skyreach/core';
-import { readAndValidateYaml, resolveDataPath } from '@skyreach/data';
-import { EncounterTableSchema } from '@skyreach/schemas';
+import { error, info } from '@skyreach/cli-kit';
+import { getDaylightCapSegments, getSeasonForDate } from '@skyreach/core';
 
 import { readEvents } from '../../../../services/event-log.service';
 import {
@@ -15,14 +9,15 @@ import {
   selectCurrentWeather,
   selectSegmentsUsedToday,
 } from '../../../../services/projectors.service';
-import {
-  deletePlan,
-  loadPlan,
-  savePlan,
-} from '../../lib/core/fast-travel-plan';
+import { loadPlan } from '../../lib/core/fast-travel-plan';
 import { runFastTravel } from '../../lib/core/fast-travel-runner';
-import { emitMove, emitTimeLog, emitNote } from '../../lib/helpers/emitters';
 import { requireSession } from '../../services/general';
+
+import {
+  emitFastTravelEvents,
+  handleFastTravelResult,
+  loadEncounterTable,
+} from './shared';
 
 import type { FastTravelState } from '../../lib/core/fast-travel-runner';
 import type { Context } from '../../types';
@@ -73,11 +68,7 @@ export default function fastTravelResume(ctx: Context) {
   const daylightSegmentsLeft = daylightCapSegments - daylightUsed;
 
   // Load encounter table
-  const encounterTablePath = resolveDataPath('default-encounter-table.yaml');
-  const encounterTable = readAndValidateYaml(
-    encounterTablePath,
-    EncounterTableSchema,
-  );
+  const encounterTable = loadEncounterTable();
 
   // Build state for runner
   const state: FastTravelState = {
@@ -101,63 +92,7 @@ export default function fastTravelResume(ctx: Context) {
   // Run fast travel
   const result = runFastTravel(state);
 
-  // Emit events
-  for (const event of result.events) {
-    switch (event.type) {
-      case 'move':
-        emitMove(ctx.file!, event.payload.from, event.payload.to, event.payload.pace);
-        break;
-      case 'time_log':
-        emitTimeLog(
-          ctx.file!,
-          event.payload.segments,
-          event.payload.daylightSegments,
-          event.payload.nightSegments,
-          event.payload.phase,
-        );
-        break;
-      case 'note':
-        emitNote(ctx.file!, event.payload.text, event.payload.scope);
-        break;
-    }
-  }
-
-  // Handle result
-  if (result.status === 'completed') {
-    deletePlan(ctx.sessionId!);
-    info(`Fast travel complete! Arrived at ${plan.destHex}.`);
-    info(
-      `Total time today: ${segmentsToHours(result.finalSegments.active)}h active, ${segmentsToHours(result.finalSegments.daylight)}h daylight`,
-    );
-  } else if (result.status === 'paused_encounter') {
-    // Update plan with current progress
-    plan.legIndex = result.currentLegIndex;
-    plan.activeSegmentsToday = result.finalSegments.active;
-    plan.daylightSegmentsLeft =
-      daylightCapSegments - result.finalSegments.daylight;
-
-    // Update hash
-    const updatedEvents = readEvents(ctx.file!);
-    plan.currentHash = computeSessionHash(updatedEvents);
-
-    savePlan(plan);
-    info(
-      `Encounter! Fast travel paused. Use \`fast resume\` to continue after resolving the encounter.`,
-    );
-  } else if (result.status === 'paused_no_capacity') {
-    // Update plan with current progress
-    plan.legIndex = result.currentLegIndex;
-    plan.activeSegmentsToday = result.finalSegments.active;
-    plan.daylightSegmentsLeft =
-      daylightCapSegments - result.finalSegments.daylight;
-
-    // Update hash
-    const updatedEvents = readEvents(ctx.file!);
-    plan.currentHash = computeSessionHash(updatedEvents);
-
-    savePlan(plan);
-    info(
-      `Out of capacity for today. Fast travel paused. Continue tomorrow with \`fast resume\`.`,
-    );
-  }
+  // Emit events and handle result
+  emitFastTravelEvents(ctx.file!, result.events);
+  handleFastTravelResult(ctx.file!, ctx.sessionId!, plan, result);
 }
