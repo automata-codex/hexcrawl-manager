@@ -47,7 +47,7 @@ describe('runFastTravel', () => {
     isDifficultHexSpy = vi.spyOn(hexData, 'isDifficultHex');
 
     // Default: no encounters, no difficult terrain
-    makeEncounterNoteSpy.mockReturnValue('');
+    makeEncounterNoteSpy.mockReturnValue(null);
     isDifficultHexSpy.mockReturnValue(false);
   });
 
@@ -170,7 +170,7 @@ describe('runFastTravel', () => {
 
   it('pauses when encounter occurs on second leg', () => {
     makeEncounterNoteSpy
-      .mockReturnValueOnce('') // No encounter on P13
+      .mockReturnValueOnce(null) // No encounter on P13
       .mockReturnValueOnce('Encounter entering P14: Wildlife - bear'); // Encounter on P14
 
     const state: FastTravelState = {

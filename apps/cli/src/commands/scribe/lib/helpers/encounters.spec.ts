@@ -139,9 +139,9 @@ describe('makeEncounterNote', () => {
     },
   };
 
-  it('returns empty string when no encounter occurs', () => {
+  it('returns null when no encounter occurs', () => {
     rollDiceSpy.mockReturnValue(11); // Roll 11 on d20
-    expect(makeEncounterNote('P12', mockTable)).toBe('');
+    expect(makeEncounterNote('P12', mockTable)).toBe(null);
   });
 
   it('returns formatted encounter note when encounter occurs', () => {

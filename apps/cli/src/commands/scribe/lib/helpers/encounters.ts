@@ -81,7 +81,7 @@ export function rollEncounterEntry(
 
 /**
  * Roll for an encounter entering a hex.
- * Returns an empty string if no encounter occurs.
+ * Returns null if no encounter occurs.
  * Returns a formatted note string if an encounter occurs.
  *
  * @param hexId The hex being entered
@@ -90,9 +90,9 @@ export function rollEncounterEntry(
 export function makeEncounterNote(
   hexId: string,
   table: EncounterTableData,
-): string {
+): string | null {
   if (!rollEncounterOccurs()) {
-    return '';
+    return null;
   }
 
   // Roll for category
