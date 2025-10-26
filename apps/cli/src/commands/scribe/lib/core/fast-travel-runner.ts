@@ -1,4 +1,4 @@
-import { makeEncounterNote } from '../helpers/encounters';
+import { makeEncounterNote } from '../encounters';
 
 import { executeLeg } from './execute-leg';
 
