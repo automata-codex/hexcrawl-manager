@@ -1,21 +1,21 @@
 import { info, error } from '@skyreach/cli-kit';
-import { getDaylightCapSegments, segmentsToHours } from '@skyreach/core';
-import { REPO_PATHS, readAndValidateYaml } from '@skyreach/data';
 import {
-  EncounterTableSchema,
-  TrailMapSchema,
-  type Pace,
-} from '@skyreach/schemas';
+  getDaylightCapSegments,
+  getSeasonForDate,
+  segmentsToHours,
+} from '@skyreach/core';
+import { REPO_PATHS, readAndValidateYaml } from '@skyreach/data';
+import { TrailMapSchema, type Pace } from '@skyreach/schemas';
 import path from 'path';
 
+import { defaultEncounterTable } from '../../../../../../../data/encounters/default-encounter-table';
 import { readEvents } from '../../../../services/event-log.service';
 import {
   selectCurrentHex,
   selectSegmentsUsedToday,
-  selectWeatherCommitted,
-  selectCampaignDate,
-  selectSeason,
+  lastCalendarDate,
   computeSessionHash,
+  selectCurrentWeather,
 } from '../../../../services/projectors.service';
 import {
   createPlan,
@@ -24,11 +24,7 @@ import {
   deletePlan,
 } from '../../lib/core/fast-travel-plan';
 import { runFastTravel } from '../../lib/core/fast-travel-runner';
-import {
-  emitMove,
-  emitTimeLog,
-  emitNote,
-} from '../../lib/helpers/emitters';
+import { emitMove, emitTimeLog, emitNote } from '../../lib/helpers/emitters';
 import { buildTrailGraph, bfsTrailPath } from '../../lib/helpers/trails';
 import { requireSession } from '../../services/general';
 
@@ -77,10 +73,25 @@ export default function fastTravelPlanAndExecute(
   info(`Found route: ${currentHex} → ${route.join(' → ')}`);
 
   // Load session state for planning
-  const { daylightUsed, totalUsed } = selectSegmentsUsedToday(events);
-  const weather = selectWeatherCommitted(events);
-  const currentDate = selectCampaignDate(events);
-  const currentSeason = selectSeason(currentDate);
+  const segmentsUsedToday = selectSegmentsUsedToday(events);
+  if (!segmentsUsedToday) {
+    error(
+      'Cannot fast travel: no open day found. Use `day start` to begin a new day.',
+    );
+    return;
+  }
+  const { daylightSegments: daylightUsed, activeSegments: totalUsed } =
+    segmentsUsedToday;
+  const weather = selectCurrentWeather(events);
+  const currentDate = lastCalendarDate(events);
+  if (!currentDate) {
+    error(
+      'Cannot fast travel: no current date. Use `day start` or `date set` first.',
+    );
+    return;
+  }
+
+  const currentSeason = getSeasonForDate(currentDate);
   const daylightCapSegments = getDaylightCapSegments(currentDate);
   const daylightSegmentsLeft = daylightCapSegments - daylightUsed;
   const currentHash = computeSessionHash(events);
@@ -106,16 +117,6 @@ export default function fastTravelPlanAndExecute(
   savePlan(plan);
   info(`Fast travel plan created. Starting journey...`);
 
-  // Load encounter table
-  const encounterTablePath = path.join(
-    REPO_PATHS.ENCOUNTER_TABLES(),
-    'default-encounter-table.yaml',
-  );
-  const encounterTable = readAndValidateYaml(
-    encounterTablePath,
-    EncounterTableSchema,
-  );
-
   // Build state for runner
   const state: FastTravelState = {
     currentHex,
@@ -130,7 +131,7 @@ export default function fastTravelPlanAndExecute(
     weather,
     currentDate,
     currentSeason,
-    encounterTable,
+    encounterTable: defaultEncounterTable,
   };
 
   // Run fast travel
@@ -166,7 +167,7 @@ export default function fastTravelPlanAndExecute(
     );
   } else if (result.status === 'paused_encounter') {
     // Update plan with current progress
-    plan.currentLegIndex = result.currentLegIndex;
+    plan.legIndex = result.currentLegIndex;
     plan.activeSegmentsToday = result.finalSegments.active;
     plan.daylightSegmentsLeft =
       daylightCapSegments - result.finalSegments.daylight;
@@ -181,7 +182,7 @@ export default function fastTravelPlanAndExecute(
     );
   } else if (result.status === 'paused_no_capacity') {
     // Update plan with current progress
-    plan.currentLegIndex = result.currentLegIndex;
+    plan.legIndex = result.currentLegIndex;
     plan.activeSegmentsToday = result.finalSegments.active;
     plan.daylightSegmentsLeft =
       daylightCapSegments - result.finalSegments.daylight;

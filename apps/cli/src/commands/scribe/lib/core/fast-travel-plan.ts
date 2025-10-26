@@ -53,6 +53,7 @@ export function createPlan(args: CreatePlanArgs): FastTravelPlan {
     hasWeatherForToday: args.hasWeatherForToday,
     lastSeq: args.currentSeq,
     lastHash: args.currentHash,
+    currentHash: args.currentHash,
   };
 }
 

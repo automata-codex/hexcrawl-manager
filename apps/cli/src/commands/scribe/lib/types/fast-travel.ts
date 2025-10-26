@@ -17,4 +17,5 @@ export interface FastTravelPlan {
   hasWeatherForToday: boolean; // Whether weather has been committed for today
   lastSeq: number; // Last event seq written (for integrity check)
   lastHash: string; // Hash of recent log tail (for integrity check)
+  currentHash: string; // Current log hash at last execution
 }

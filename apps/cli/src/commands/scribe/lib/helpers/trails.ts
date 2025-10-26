@@ -1,7 +1,6 @@
 import { normalizeHexId } from '@skyreach/core';
-import type { TrailData } from '@skyreach/schemas';
 
-export type TrailMap = Record<string, TrailData>;
+import type { TrailMap } from '@skyreach/schemas';
 
 /**
  * Build an undirected graph from trail data.

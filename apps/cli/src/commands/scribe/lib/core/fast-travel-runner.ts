@@ -2,11 +2,12 @@ import { makeEncounterNote } from '../helpers/encounters';
 
 import { executeLeg } from './execute-leg';
 
+import type { WeatherCommitted } from '@skyreach/core';
 import type {
   CampaignDate,
   EncounterTableData,
   Pace,
-  WeatherCommitted,
+  Season,
 } from '@skyreach/schemas';
 
 /**
@@ -87,7 +88,7 @@ export interface FastTravelState {
   /** Current date */
   currentDate: CampaignDate;
   /** Current season */
-  currentSeason: string;
+  currentSeason: Season;
   /** Encounter table to use */
   encounterTable: EncounterTableData;
 }
