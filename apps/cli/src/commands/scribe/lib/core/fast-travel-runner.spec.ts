@@ -18,18 +18,30 @@ import type { FastTravelState } from './fast-travel-runner';
 import type { EncounterTableData } from '@skyreach/schemas';
 
 describe('runFastTravel', () => {
-  // eslint-disable-next-line no-unused-vars
-  let makeEncounterNoteSpy: MockInstance<(hexId: string, table: {
-    mainTable: {
-      weight: number;
-      category: string;
-      label: string;
-    }[];
-    categoryTables: Record<string, Record<string, {
-      weight: number;
-      encounterId: string;
-    }[]>>;
-  }) => string>;
+  let makeEncounterNoteSpy: MockInstance<
+    (
+      // eslint-disable-next-line no-unused-vars
+      hexId: string,
+      // eslint-disable-next-line no-unused-vars
+      table: {
+        mainTable: {
+          weight: number;
+          category: string;
+          label: string;
+        }[];
+        categoryTables: Record<
+          string,
+          Record<
+            string,
+            {
+              weight: number;
+              encounterId: string;
+            }[]
+          >
+        >;
+      },
+    ) => string | null
+  >;
   // eslint-disable-next-line no-unused-vars
   let isDifficultHexSpy: MockInstance<(hexId: string) => boolean>;
 

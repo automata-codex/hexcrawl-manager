@@ -1,5 +1,13 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import * as data from '@skyreach/data';
+import {
+  MockInstance,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 import {
   makeEncounterNote,
@@ -11,7 +19,8 @@ import {
 import type { EncounterTableData } from '@skyreach/schemas';
 
 describe('rollEncounterOccurs', () => {
-  let rollDiceSpy: ReturnType<typeof vi.spyOn>;
+  // eslint-disable-next-line no-unused-vars
+  let rollDiceSpy: MockInstance<(notation: string) => number>;
 
   beforeEach(() => {
     rollDiceSpy = vi.spyOn(data, 'rollDice');
@@ -36,7 +45,8 @@ describe('rollEncounterOccurs', () => {
 });
 
 describe('rollEncounterType', () => {
-  let rollDiceSpy: ReturnType<typeof vi.spyOn>;
+  // eslint-disable-next-line no-unused-vars
+  let rollDiceSpy: MockInstance<(notation: string) => number>;
 
   beforeEach(() => {
     rollDiceSpy = vi.spyOn(data, 'rollDice');
@@ -74,7 +84,8 @@ describe('rollEncounterType', () => {
 });
 
 describe('rollEncounterEntry', () => {
-  let rollDiceSpy: ReturnType<typeof vi.spyOn>;
+  // eslint-disable-next-line no-unused-vars
+  let rollDiceSpy: MockInstance<(notation: string) => number>;
 
   beforeEach(() => {
     rollDiceSpy = vi.spyOn(data, 'rollDice');
@@ -118,9 +129,9 @@ describe('rollEncounterEntry', () => {
   });
 });
 
-
 describe('makeEncounterNote', () => {
-  let rollDiceSpy: ReturnType<typeof vi.spyOn>;
+  // eslint-disable-next-line no-unused-vars
+  let rollDiceSpy: MockInstance<(notation: string) => number>;
 
   beforeEach(() => {
     rollDiceSpy = vi.spyOn(data, 'rollDice');

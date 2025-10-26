@@ -1,7 +1,8 @@
 import { segmentsToHours } from '@skyreach/core';
-import type { CampaignDate, Pace } from '@skyreach/schemas';
 
 import { appendEvent } from '../../../../services/event-log.service';
+
+import type { CampaignDate, Pace } from '@skyreach/schemas';
 
 /**
  * Emit a day_end event with time summary.
@@ -14,13 +15,14 @@ export function emitDayEnd(
   daylightSegments: number,
   nightSegments: number,
 ): number {
-  return appendEvent(file, 'day_end', {
+  const event = appendEvent(file, 'day_end', {
     summary: {
       active: segmentsToHours(activeSegments),
       daylight: segmentsToHours(daylightSegments),
       night: segmentsToHours(nightSegments),
     },
   });
+  return event.seq;
 }
 
 /**
@@ -33,11 +35,12 @@ export function emitDayStart(
   season: string,
   daylightCapHours: number,
 ): number {
-  return appendEvent(file, 'day_start', {
+  const event = appendEvent(file, 'day_start', {
     calendarDate: date,
     season,
     daylightCap: daylightCapHours,
   });
+  return event.seq;
 }
 
 /**
@@ -50,8 +53,8 @@ export function emitWeatherCommitted(
   file: string,
   payload: any,
 ): { seq: number; payload: any } {
-  const seq = appendEvent(file, 'weather_committed', payload);
-  return { seq, payload };
+  const event = appendEvent(file, 'weather_committed', payload);
+  return { seq: event.seq, payload };
 }
 
 /**
@@ -64,7 +67,8 @@ export function emitMove(
   to: string,
   pace: Pace,
 ): number {
-  return appendEvent(file, 'move', { from, to, pace });
+  const event = appendEvent(file, 'move', { from, to, pace });
+  return event.seq;
 }
 
 /**
@@ -78,12 +82,13 @@ export function emitTimeLog(
   nightSegments: number,
   phase: 'daylight' | 'night',
 ): number {
-  return appendEvent(file, 'time_log', {
+  const event = appendEvent(file, 'time_log', {
     segments: totalSegments,
     daylightSegments,
     nightSegments,
     phase,
   });
+  return event.seq;
 }
 
 /**
@@ -95,5 +100,6 @@ export function emitNote(
   text: string,
   scope: 'day' | 'session' = 'session',
 ): number {
-  return appendEvent(file, 'note', { text, scope });
+  const event = appendEvent(file, 'note', { text, scope });
+  return event.seq;
 }

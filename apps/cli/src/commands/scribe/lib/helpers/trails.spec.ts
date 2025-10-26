@@ -1,12 +1,24 @@
 import { describe, expect, it } from 'vitest';
 
-import { bfsTrailPath, buildTrailGraph, TrailMap } from './trails';
+import { bfsTrailPath, buildTrailGraph } from './trails';
+
+import type { TrailMap } from '@skyreach/schemas';
 
 describe('buildTrailGraph', () => {
   it('creates bidirectional edges from trail data', () => {
     const trails: TrailMap = {
-      'p12-p13': { permanent: false, streak: 0, usedThisSeason: false },
-      'p13-q13': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-p13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'p13-q13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
     };
 
     const graph = buildTrailGraph(trails);
@@ -18,7 +30,12 @@ describe('buildTrailGraph', () => {
 
   it('handles mixed-case hex IDs', () => {
     const trails: TrailMap = {
-      'p12-P13': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-P13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
     };
 
     const graph = buildTrailGraph(trails);
@@ -29,9 +46,24 @@ describe('buildTrailGraph', () => {
 
   it('ignores invalid edge formats', () => {
     const trails: TrailMap = {
-      'p12-p13': { permanent: false, streak: 0, usedThisSeason: false },
-      'invalid': { permanent: false, streak: 0, usedThisSeason: false },
-      'a-b-c': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-p13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      invalid: {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'a-b-c': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
     };
 
     const graph = buildTrailGraph(trails);
@@ -51,8 +83,18 @@ describe('bfsTrailPath', () => {
 
   it('returns null when no path exists', () => {
     const trails: TrailMap = {
-      'p12-p13': { permanent: false, streak: 0, usedThisSeason: false },
-      'q14-q15': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-p13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'q14-q15': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
     };
     const graph = buildTrailGraph(trails);
 
@@ -62,7 +104,12 @@ describe('bfsTrailPath', () => {
 
   it('returns null when start hex not in graph', () => {
     const trails: TrailMap = {
-      'p12-p13': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-p13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
     };
     const graph = buildTrailGraph(trails);
 
@@ -72,9 +119,24 @@ describe('bfsTrailPath', () => {
 
   it('finds shortest path in simple chain', () => {
     const trails: TrailMap = {
-      'p12-p13': { permanent: false, streak: 0, usedThisSeason: false },
-      'p13-q13': { permanent: false, streak: 0, usedThisSeason: false },
-      'q13-r14': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-p13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'p13-q13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'q13-r14': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
     };
     const graph = buildTrailGraph(trails);
 
@@ -85,12 +147,37 @@ describe('bfsTrailPath', () => {
   it('finds shortest path when multiple routes exist', () => {
     const trails: TrailMap = {
       // Direct path: P12 → P13 → Q13 (2 edges)
-      'p12-p13': { permanent: false, streak: 0, usedThisSeason: false },
-      'p13-q13': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-p13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'p13-q13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
       // Longer path: P12 → R12 → R13 → Q13 (3 edges)
-      'p12-r12': { permanent: false, streak: 0, usedThisSeason: false },
-      'r12-r13': { permanent: false, streak: 0, usedThisSeason: false },
-      'r13-q13': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-r12': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'r12-r13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'r13-q13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
     };
     const graph = buildTrailGraph(trails);
 
@@ -101,10 +188,30 @@ describe('bfsTrailPath', () => {
   it('prefers permanent trails when tie-breaking', () => {
     const trails: TrailMap = {
       // Two equidistant paths from P12 to Q13
-      'p12-p13': { permanent: false, streak: 0, usedThisSeason: false },
-      'p13-q13': { permanent: true, streak: 0, usedThisSeason: false }, // Permanent
-      'p12-r12': { permanent: false, streak: 0, usedThisSeason: false },
-      'r12-q13': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-p13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'p13-q13': {
+        permanent: true,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      }, // Permanent
+      'p12-r12': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'r12-q13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
     };
     const graph = buildTrailGraph(trails);
 
@@ -115,10 +222,30 @@ describe('bfsTrailPath', () => {
 
   it('prefers usedThisSeason trails when tie-breaking (no permanent)', () => {
     const trails: TrailMap = {
-      'p12-p13': { permanent: false, streak: 0, usedThisSeason: true }, // Used
-      'p13-q13': { permanent: false, streak: 0, usedThisSeason: false },
-      'p12-r12': { permanent: false, streak: 0, usedThisSeason: false },
-      'r12-q13': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-p13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: true,
+        lastSeasonTouched: '1511-summer',
+      }, // Used
+      'p13-q13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'p12-r12': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'r12-q13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
     };
     const graph = buildTrailGraph(trails);
 
@@ -128,10 +255,30 @@ describe('bfsTrailPath', () => {
 
   it('prefers higher streak when tie-breaking (no permanent or used)', () => {
     const trails: TrailMap = {
-      'p12-p13': { permanent: false, streak: 5, usedThisSeason: false }, // Higher streak
-      'p13-q13': { permanent: false, streak: 0, usedThisSeason: false },
-      'p12-r12': { permanent: false, streak: 2, usedThisSeason: false },
-      'r12-q13': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-p13': {
+        permanent: false,
+        streak: 5,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      }, // Higher streak
+      'p13-q13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'p12-r12': {
+        permanent: false,
+        streak: 2,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'r12-q13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
     };
     const graph = buildTrailGraph(trails);
 
@@ -141,11 +288,36 @@ describe('bfsTrailPath', () => {
 
   it('handles complex network with cycles', () => {
     const trails: TrailMap = {
-      'p12-p13': { permanent: false, streak: 0, usedThisSeason: false },
-      'p13-q13': { permanent: false, streak: 0, usedThisSeason: false },
-      'q13-q12': { permanent: false, streak: 0, usedThisSeason: false },
-      'q12-p12': { permanent: false, streak: 0, usedThisSeason: false }, // Cycle back
-      'q13-r14': { permanent: false, streak: 0, usedThisSeason: false },
+      'p12-p13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'p13-q13': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'q13-q12': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
+      'q12-p12': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      }, // Cycle back
+      'q13-r14': {
+        permanent: false,
+        streak: 0,
+        usedThisSeason: false,
+        lastSeasonTouched: '1511-summer',
+      },
     };
     const graph = buildTrailGraph(trails);
 
