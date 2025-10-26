@@ -14,13 +14,13 @@ import {
 } from '../../../../services/projectors.service';
 import { createPlan, loadPlan, savePlan } from '../../lib/core/fast-travel-plan';
 import { runFastTravel } from '../../lib/core/fast-travel-runner';
+import { loadEncounterTable } from '../../lib/encounters';
 import { buildTrailGraph, bfsTrailPath } from '../../lib/helpers/trails';
 import { requireSession } from '../../services/general';
 
 import {
   emitFastTravelEvents,
   handleFastTravelResult,
-  loadEncounterTable,
 } from './shared';
 
 import type { FastTravelState } from '../../lib/core/fast-travel-runner';

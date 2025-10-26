@@ -144,6 +144,7 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     if (!legResult.canExecute) {
       if (legResult.reason === 'no_capacity') {
         // Out of capacity for today - pause
+        // For MVP, we don't automatically advance days - pause instead
         return {
           status: 'paused_no_capacity',
           currentLegIndex,

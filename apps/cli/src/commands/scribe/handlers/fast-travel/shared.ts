@@ -1,54 +1,18 @@
 import { info } from '@skyreach/cli-kit';
 import { getDaylightCapSegments, segmentsToHours } from '@skyreach/core';
 
+import { readEvents } from '../../../../services/event-log.service';
 import {
-  readEvents,
-} from '../../../../services/event-log.service';
-import { computeSessionHash } from '../../../../services/projectors.service';
-import {
-  deletePlan,
-  savePlan,
-} from '../../lib/core/fast-travel-plan';
+  computeSessionHash,
+  lastCalendarDate,
+} from '../../../../services/projectors.service';
+import { deletePlan, savePlan } from '../../lib/core/fast-travel-plan';
 import { loadEncounterTable } from '../../lib/encounters';
-import { emitMove, emitNote, emitTimeLog } from '../../lib/helpers/emitters';
 
-import type {
-  FastTravelEvent,
-  FastTravelResult,
-} from '../../lib/core/fast-travel-runner';
+import type { FastTravelResult } from '../../lib/core/fast-travel-runner';
 import type { FastTravelPlan } from '../../lib/types/fast-travel';
 
 export { loadEncounterTable };
-
-/**
- * Emit all events from a fast travel result to the event log.
- */
-export function emitFastTravelEvents(file: string, events: FastTravelEvent[]) {
-  for (const event of events) {
-    switch (event.type) {
-      case 'move':
-        emitMove(
-          file,
-          event.payload.from,
-          event.payload.to,
-          event.payload.pace,
-        );
-        break;
-      case 'time_log':
-        emitTimeLog(
-          file,
-          event.payload.segments,
-          event.payload.daylightSegments,
-          event.payload.nightSegments,
-          event.payload.phase,
-        );
-        break;
-      case 'note':
-        emitNote(file, event.payload.text, event.payload.scope);
-        break;
-    }
-  }
-}
 
 /**
  * Handle the result of fast travel execution, updating the plan and displaying messages.
@@ -72,9 +36,10 @@ export function handleFastTravelResult(
 
     // Recalculate daylight left from current events
     const events = readEvents(file);
-    const currentDate = require('../../../../services/projectors.service').lastCalendarDate(
-      events,
-    );
+    const currentDate = lastCalendarDate(events);
+    if (!currentDate) {
+      throw new Error('No calendar date found in events while handling fast-travel encounter pause.');
+    }
     const daylightCapSegments = getDaylightCapSegments(currentDate);
     plan.daylightSegmentsLeft =
       daylightCapSegments - result.finalSegments.daylight;
@@ -93,9 +58,10 @@ export function handleFastTravelResult(
 
     // Recalculate daylight left from current events
     const events = readEvents(file);
-    const currentDate = require('../../../../services/projectors.service').lastCalendarDate(
-      events,
-    );
+    const currentDate =lastCalendarDate(events);
+    if (!currentDate) {
+      throw new Error('No calendar date found in events while handling fast-travel no-capacity pause.');
+    }
     const daylightCapSegments = getDaylightCapSegments(currentDate);
     plan.daylightSegmentsLeft =
       daylightCapSegments - result.finalSegments.daylight;
