@@ -9,7 +9,18 @@ import {
 import { requireFile, requireSession } from '../services/general';
 
 import type { Context } from '../types';
-import type { CampaignDate } from '@skyreach/schemas';
+import type { CampaignDate, Season } from '@skyreach/schemas';
+
+/** Map seasons to emojis */
+function getSeasonEmoji(season: Season): string {
+  const emojis: Record<string, string> = {
+    winter: '❄️',
+    spring: '🌸',
+    summer: '☀️',
+    autumn: '🍂',
+  };
+  return emojis[season] || '🌍';
+}
 
 export default function day(ctx: Context) {
   return (args: string[]) => {
@@ -59,11 +70,27 @@ export default function day(ctx: Context) {
       const season = ctx.calendar.seasonFor(calendarDate!);
       const daylightCap = CALENDAR_CONFIG.daylightCaps[season];
 
+      // Check for season change
+      const lastDate = lastCalendarDate(events);
+      let seasonChangeMsg: string | null = null;
+      if (lastDate) {
+        const previousSeason = ctx.calendar.seasonFor(lastDate);
+        if (previousSeason !== season) {
+          const emoji = getSeasonEmoji(season);
+          seasonChangeMsg = `${emoji} Season changed from ${previousSeason} to ${season}`;
+        }
+      }
+
       appendEvent(ctx.file!, 'day_start', {
         calendarDate,
         season,
         daylightCap,
       });
+
+      // Display season change message first, if applicable
+      if (seasonChangeMsg) {
+        info(seasonChangeMsg);
+      }
 
       return info(
         `📅 Day started: ${ctx.calendar.formatDate(calendarDate!)} (daylight cap ${daylightCap}h)`,

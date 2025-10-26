@@ -10,10 +10,11 @@ Record a block of in-game **active time** for the current open day, allocating i
 time <hours> [<note>]
 ```
 
-* `<hours>`: positive number of hours to log. May be fractional; will be **ceiled** to the nearest `STEP_HOURS`.
+* `<hours>`: positive number of hours to log. Accepts formats like `3` or `3h`. May be fractional (e.g., `3.5` or `3.5h`); will be **ceiled** to the nearest `STEP_HOURS`.
 * `<note>`: Optional. A single string argument, quoted if it contains spaces. Examples:
   * `time 3`
-  * `time 3 "move to hex P13"`
+  * `time 3h`
+  * `time 3.5h "move to hex P13"`
 
 > No `--note` flag is required or supported for this command.
 
@@ -127,7 +128,10 @@ Where `daylightH = segmentsToHours(daylightSegments)` and `nightH = segmentsToHo
 $ time 1
 ⏱️ Logged: 1h — daylight
 
-$ time 4.1 move to hex p13
+$ time 3h
+⏱️ Logged: 3h — daylight
+
+$ time 4.1h move to hex p13
 ⚠️ Rounded 4.1h → 4.5h (0.5h steps).
 ⏱️ Logged: 4.5h — 3h daylight, 1.5h 🌙 night
 

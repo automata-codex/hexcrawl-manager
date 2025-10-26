@@ -17,6 +17,7 @@ import {
   padSessionNum,
   type NoteEvent,
   type SessionId,
+  type TodoEvent,
 } from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -161,6 +162,9 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   const notes = (eventsOf(events, 'note') as NoteEvent[]).map(
     (e) => e.payload.text,
   );
+  const todos = (eventsOf(events, 'todo') as TodoEvent[]).map(
+    (e) => e.payload.text,
+  );
   const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
 
   // --- Derive Attendance ---
@@ -217,6 +221,7 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
     gameEndDate,
     gameStartDate,
     notes,
+    todo: todos,
     schemaVersion: 2,
     scribeIds,
     sessionDate,
