@@ -1,4 +1,8 @@
-import { REPO_PATHS, readAndValidateYaml, writeYamlAtomic } from '@skyreach/data';
+import {
+  REPO_PATHS,
+  readAndValidateYaml,
+  writeYamlAtomic,
+} from '@skyreach/data';
 import { randomUUID } from 'node:crypto';
 import { existsSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
@@ -61,7 +65,10 @@ export function createPlan(args: CreatePlanArgs): FastTravelPlan {
  * Save a fast travel plan to disk.
  */
 export function savePlan(plan: FastTravelPlan): void {
-  const planFile = path.join(REPO_PATHS.FAST_TRAVEL(), `${plan.sessionId}.yaml`);
+  const planFile = path.join(
+    REPO_PATHS.FAST_TRAVEL(),
+    `${plan.sessionId}.yaml`,
+  );
   writeYamlAtomic(planFile, plan);
 }
 

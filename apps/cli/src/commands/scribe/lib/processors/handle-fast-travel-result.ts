@@ -38,7 +38,9 @@ export function handleFastTravelResult(
     const events = readEvents(file);
     const currentDate = lastCalendarDate(events);
     if (!currentDate) {
-      throw new Error('No calendar date found in events while handling fast-travel encounter pause.');
+      throw new Error(
+        'No calendar date found in events while handling fast-travel encounter pause.',
+      );
     }
     const daylightCapSegments = getDaylightCapSegments(currentDate);
     plan.daylightSegmentsLeft =
@@ -58,9 +60,11 @@ export function handleFastTravelResult(
 
     // Recalculate daylight left from current events
     const events = readEvents(file);
-    const currentDate =lastCalendarDate(events);
+    const currentDate = lastCalendarDate(events);
     if (!currentDate) {
-      throw new Error('No calendar date found in events while handling fast-travel no-capacity pause.');
+      throw new Error(
+        'No calendar date found in events while handling fast-travel no-capacity pause.',
+      );
     }
     const daylightCapSegments = getDaylightCapSegments(currentDate);
     plan.daylightSegmentsLeft =

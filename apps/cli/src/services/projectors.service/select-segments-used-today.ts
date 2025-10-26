@@ -14,10 +14,7 @@ export function selectSegmentsUsedToday(
     return null;
   }
 
-  const daylightSegments = daylightSegmentsSinceStart(
-    events,
-    lastStartIdx,
-  );
+  const daylightSegments = daylightSegmentsSinceStart(events, lastStartIdx);
   const activeSegments = activeSegmentsSinceStart(events, lastStartIdx);
   return { daylightSegments, activeSegments };
 }

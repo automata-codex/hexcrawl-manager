@@ -16,7 +16,6 @@ import { loadEncounterTable } from '../../lib/encounters';
 import { handleFastTravelResult } from '../../lib/processors';
 import { requireSession } from '../../services/general';
 
-
 import type { FastTravelState } from '../../lib/core/fast-travel-runner';
 import type { Context } from '../../types';
 

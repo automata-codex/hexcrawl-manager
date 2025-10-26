@@ -9,4 +9,3 @@ export const createWeather = (category: WeatherCategory): WeatherCommitted => ({
   season: 'spring',
   total: 7,
 });
-

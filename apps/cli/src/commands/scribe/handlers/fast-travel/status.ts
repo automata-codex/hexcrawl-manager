@@ -30,8 +30,12 @@ export default function fastTravelStatus(ctx: Context) {
   }
 
   info(`\nToday's Activity:`);
-  info(`  Active segments: ${plan.activeSegmentsToday} / 16 (${segmentsToHours(plan.activeSegmentsToday)}h / 8h)`);
-  info(`  Daylight left: ${plan.daylightSegmentsLeft} segments (${segmentsToHours(plan.daylightSegmentsLeft)}h)`);
+  info(
+    `  Active segments: ${plan.activeSegmentsToday} / 16 (${segmentsToHours(plan.activeSegmentsToday)}h / 8h)`,
+  );
+  info(
+    `  Daylight left: ${plan.daylightSegmentsLeft} segments (${segmentsToHours(plan.daylightSegmentsLeft)}h)`,
+  );
 
   info(`\nPlan ID: ${plan.groupId}`);
 }
