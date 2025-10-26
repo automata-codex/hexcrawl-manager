@@ -1,4 +1,4 @@
-import { info, error } from '@skyreach/cli-kit';
+import { info } from '@skyreach/cli-kit';
 import { segmentsToHours } from '@skyreach/core';
 
 import { loadPlan } from '../../lib/core/fast-travel-plan';
@@ -22,10 +22,10 @@ export default function fastTravelStatus(ctx: Context) {
   info(`Destination: ${plan.destHex}`);
   info(`Pace: ${plan.pace}`);
   info(`Route: ${plan.route.join(' → ')}`);
-  info(`Progress: ${plan.currentLegIndex} / ${plan.route.length} legs completed`);
+  info(`Progress: ${plan.legIndex} / ${plan.route.length} legs completed`);
 
-  if (plan.currentLegIndex < plan.route.length) {
-    const remaining = plan.route.slice(plan.currentLegIndex);
+  if (plan.legIndex < plan.route.length) {
+    const remaining = plan.route.slice(plan.legIndex);
     info(`Remaining: ${remaining.join(' → ')}`);
   }
 
@@ -34,5 +34,4 @@ export default function fastTravelStatus(ctx: Context) {
   info(`  Daylight left: ${plan.daylightSegmentsLeft} segments (${segmentsToHours(plan.daylightSegmentsLeft)}h)`);
 
   info(`\nPlan ID: ${plan.groupId}`);
-  info(`Created at sequence: ${plan.createdAtSeq}\n`);
 }

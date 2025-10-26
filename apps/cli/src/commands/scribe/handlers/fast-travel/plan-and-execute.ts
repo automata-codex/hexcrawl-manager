@@ -14,11 +14,11 @@ import path from 'path';
 
 import { readEvents } from '../../../../services/event-log.service';
 import {
-  selectCurrentHex,
-  selectSegmentsUsedToday,
-  lastCalendarDate,
   computeSessionHash,
+  lastCalendarDate,
+  selectCurrentHex,
   selectCurrentWeather,
+  selectSegmentsUsedToday,
 } from '../../../../services/projectors.service';
 import {
   createPlan,

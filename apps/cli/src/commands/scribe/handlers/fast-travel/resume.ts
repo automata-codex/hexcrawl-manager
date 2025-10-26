@@ -1,25 +1,27 @@
 import { info, error } from '@skyreach/cli-kit';
-import { getDaylightCapSegments, segmentsToHours } from '@skyreach/core';
-import { REPO_PATHS, readAndValidateYaml } from '@skyreach/data';
+import {
+  getDaylightCapSegments,
+  getSeasonForDate,
+  segmentsToHours,
+} from '@skyreach/core';
+import { readAndValidateYaml, resolveDataPath } from '@skyreach/data';
 import { EncounterTableSchema } from '@skyreach/schemas';
-import path from 'path';
 
 import { readEvents } from '../../../../services/event-log.service';
 import {
-  selectCurrentHex,
-  selectSegmentsUsedToday,
-  selectWeatherCommitted,
-  selectCampaignDate,
-  selectSeason,
   computeSessionHash,
+  lastCalendarDate,
+  selectCurrentHex,
+  selectCurrentWeather,
+  selectSegmentsUsedToday,
 } from '../../../../services/projectors.service';
-import { loadPlan, deletePlan, savePlan } from '../../lib/core/fast-travel-plan';
-import { runFastTravel } from '../../lib/core/fast-travel-runner';
 import {
-  emitMove,
-  emitTimeLog,
-  emitNote,
-} from '../../lib/helpers/emitters';
+  deletePlan,
+  loadPlan,
+  savePlan,
+} from '../../lib/core/fast-travel-plan';
+import { runFastTravel } from '../../lib/core/fast-travel-runner';
+import { emitMove, emitTimeLog, emitNote } from '../../lib/helpers/emitters';
 import { requireSession } from '../../services/general';
 
 import type { FastTravelState } from '../../lib/core/fast-travel-runner';
@@ -49,18 +51,29 @@ export default function fastTravelResume(ctx: Context) {
 
   // Load session state
   const currentHex = selectCurrentHex(events);
-  const { daylightUsed, totalUsed } = selectSegmentsUsedToday(events);
-  const weather = selectWeatherCommitted(events);
-  const currentDate = selectCampaignDate(events);
-  const currentSeason = selectSeason(currentDate);
+  const segmentsUsedToday = selectSegmentsUsedToday(events);
+  if (!segmentsUsedToday) {
+    error(
+      'Cannot fast travel: no open day found. Use `day start` to begin a new day.',
+    );
+    return;
+  }
+  const { daylightSegments: daylightUsed, activeSegments: totalUsed } =
+    segmentsUsedToday;
+  const weather = selectCurrentWeather(events);
+  const currentDate = lastCalendarDate(events);
+  if (!currentDate) {
+    error(
+      'Cannot fast travel: no current date. Use `day start` or `date set` first.',
+    );
+    return;
+  }
+  const currentSeason = getSeasonForDate(currentDate);
   const daylightCapSegments = getDaylightCapSegments(currentDate);
   const daylightSegmentsLeft = daylightCapSegments - daylightUsed;
 
   // Load encounter table
-  const encounterTablePath = path.join(
-    REPO_PATHS.ENCOUNTER_TABLES(),
-    'default-encounter-table.yaml',
-  );
+  const encounterTablePath = resolveDataPath('default-encounter-table.yaml');
   const encounterTable = readAndValidateYaml(
     encounterTablePath,
     EncounterTableSchema,
@@ -70,7 +83,7 @@ export default function fastTravelResume(ctx: Context) {
   const state: FastTravelState = {
     currentHex,
     route: plan.route,
-    currentLegIndex: plan.currentLegIndex,
+    currentLegIndex: plan.legIndex,
     pace: plan.pace,
     activeSegmentsToday: totalUsed,
     daylightSegmentsToday: daylightUsed,
@@ -118,7 +131,7 @@ export default function fastTravelResume(ctx: Context) {
     );
   } else if (result.status === 'paused_encounter') {
     // Update plan with current progress
-    plan.currentLegIndex = result.currentLegIndex;
+    plan.legIndex = result.currentLegIndex;
     plan.activeSegmentsToday = result.finalSegments.active;
     plan.daylightSegmentsLeft =
       daylightCapSegments - result.finalSegments.daylight;
@@ -133,7 +146,7 @@ export default function fastTravelResume(ctx: Context) {
     );
   } else if (result.status === 'paused_no_capacity') {
     // Update plan with current progress
-    plan.currentLegIndex = result.currentLegIndex;
+    plan.legIndex = result.currentLegIndex;
     plan.activeSegmentsToday = result.finalSegments.active;
     plan.daylightSegmentsLeft =
       daylightCapSegments - result.finalSegments.daylight;
