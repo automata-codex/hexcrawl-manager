@@ -1,8 +1,8 @@
 import { rollDice } from '@skyreach/data';
 
 import type {
-  CategoryTableData,
   EncounterTableData,
+  TieredSubtableData,
 } from '@skyreach/schemas';
 
 /**
@@ -21,6 +21,7 @@ export function rollEncounterOccurs(): boolean {
  */
 function weightedRandomSelection<T>(
   entries: T[],
+  // eslint-disable-next-line no-unused-vars
   getWeight: (entry: T) => number,
 ): T {
   const totalWeight = entries.reduce((sum, e) => sum + getWeight(e), 0);
@@ -54,13 +55,14 @@ export function rollEncounterType(table: EncounterTableData): string {
  * Roll on a category's subtable to get a specific encounter.
  * For MVP, always uses tier "1" subtable.
  * @param category The category ID (e.g., "wildlife", "factions")
+ * @param table The encounter table data
  * @returns The encounter ID (e.g., "black-bear")
  */
 export function rollEncounterEntry(
   category: string,
   table: EncounterTableData,
 ): string {
-  const categoryData: CategoryTableData | undefined =
+  const categoryData: TieredSubtableData | undefined =
     table.categoryTables[category];
 
   if (!categoryData) {
