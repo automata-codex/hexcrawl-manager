@@ -6,7 +6,7 @@ import {
 import { readAndValidateYaml } from '@skyreach/data';
 import { HexSchema } from '@skyreach/schemas';
 
-import { buildHexFileIndex } from '../../../../services/hexes.service';
+import { buildHexFileIndex } from '../../../services/hexes.service';
 
 // Cache the hex index at module load for performance
 const hexIndex = buildHexFileIndex();

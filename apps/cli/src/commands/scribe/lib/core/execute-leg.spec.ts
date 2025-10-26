@@ -9,7 +9,7 @@ import {
   vi,
 } from 'vitest';
 
-import * as hexData from '../helpers/hex-data';
+import * as hexData from '../hex-data';
 
 import { calculateLegSegments, executeLeg } from './execute-leg';
 

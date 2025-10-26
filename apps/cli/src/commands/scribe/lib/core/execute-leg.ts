@@ -1,6 +1,6 @@
 import { slowsTravel } from '@skyreach/core';
 
-import { isDifficultHex } from '../helpers/hex-data';
+import { isDifficultHex } from '../hex-data';
 
 import type { WeatherCommitted } from '@skyreach/core';
 import type { Pace } from '@skyreach/schemas';

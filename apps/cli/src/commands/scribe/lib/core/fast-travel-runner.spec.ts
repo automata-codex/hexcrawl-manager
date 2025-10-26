@@ -10,7 +10,7 @@ import {
 } from 'vitest';
 
 import * as encounters from '../encounters';
-import * as hexData from '../helpers/hex-data';
+import * as hexData from '../hex-data';
 
 import { runFastTravel } from './fast-travel-runner';
 

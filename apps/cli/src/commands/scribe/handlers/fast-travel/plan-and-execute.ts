@@ -20,8 +20,8 @@ import {
 import { runFastTravel } from '../../lib/core/fast-travel-runner';
 import { emitFastTravelEvents } from '../../lib/emitters';
 import { loadEncounterTable } from '../../lib/encounters';
-import { buildTrailGraph, bfsTrailPath } from '../../lib/helpers/trails';
 import { handleFastTravelResult } from '../../lib/processors';
+import { buildTrailGraph, bfsTrailPath } from '../../lib/trails';
 import { requireSession } from '../../services/general';
 
 import type { FastTravelState } from '../../lib/core/fast-travel-runner';
