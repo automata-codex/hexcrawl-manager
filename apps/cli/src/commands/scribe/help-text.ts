@@ -28,7 +28,7 @@ Commands:
   scout <HEX_ID> [landmark]      record scouting of an adjacent hex
   start <hex>                    start a new session
   status                         show current session status
-  time <hours>                   log active time
+  time <hours|3h>                log active time (accepts "3" or "3h" format)
   trail <hex>                    mark a trail from current hex to <hex>
   undo [n]                       remove last n in-progress events (default 1)
   view [n]                       show last n events (default 10)

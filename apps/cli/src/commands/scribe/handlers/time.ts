@@ -23,7 +23,12 @@ export default function time(ctx: Context) {
     }
 
     // Parse <hours> and <note> per spec
-    const input = Number(args[0]);
+    // Accept formats like "3" or "3h"
+    let hourString = args[0];
+    if (hourString.toLowerCase().endsWith('h')) {
+      hourString = hourString.slice(0, -1);
+    }
+    const input = Number(hourString);
     const note = (args[1] ?? '').trim();
 
     if (!Number.isFinite(input) || input <= 0) {
