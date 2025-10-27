@@ -12,8 +12,10 @@ export function loadFinalizedEventsForSessions(
 
   // Sort globally by timestamp for deterministic downstream behavior
   events.sort((a, b) => {
-    // Assuming ISO 8601 timestamps — lexical compare works, but safer to parse
-    return new Date(a.ts).getTime() - new Date(b.ts).getTime();
+    // Handle missing timestamps by treating them as earliest
+    const aTime = a.ts ? new Date(a.ts).getTime() : 0;
+    const bTime = b.ts ? new Date(b.ts).getTime() : 0;
+    return aTime - bTime;
   });
 
   return events;

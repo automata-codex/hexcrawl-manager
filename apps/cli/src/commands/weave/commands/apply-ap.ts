@@ -156,6 +156,13 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   // --- Parse All Parts ---
   const events = readAllFinalizedLogsForSession(paddedSessionNum);
 
+  // --- Validate Events ---
+  if (!events || events.length === 0) {
+    throw new Error(
+      `No events found for session ${sessionId}. The finalized log may be corrupted or empty.`,
+    );
+  }
+
   // --- Derive Session Fields ---
   const gameStartDate = formatDate(firstCalendarDate(events));
   const gameEndDate = formatDate(lastCalendarDate(events));
@@ -165,7 +172,15 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   const todos = (eventsOf(events, 'todo') as TodoEvent[]).map(
     (e) => e.payload.text,
   );
-  const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
+
+  // Get session date from session_start event
+  const sessionStartEvent = events.find((e) => e.kind === 'session_start');
+  if (!sessionStartEvent || !sessionStartEvent.payload?.sessionDate) {
+    throw new Error(
+      `Cannot determine session date for ${sessionId}: session_start event missing or has no sessionDate.`,
+    );
+  }
+  const sessionDate = sessionStartEvent.payload.sessionDate;
 
   // --- Derive Attendance ---
   const party = selectParty(events);

@@ -81,6 +81,7 @@ export function getLatestSessionNumber(): number | undefined {
  * Reads and concatenates all finalized JSONL events for a given session.
  * Throws FinalizedLogsNotFoundError if no files match,
  * and FinalizedLogJsonParseError with file + line info if parsing fails.
+ * Filters out header lines (kind === 'header').
  */
 export function readAllFinalizedLogsForSession(
   sessionNumber: number | string,
@@ -89,20 +90,7 @@ export function readAllFinalizedLogsForSession(
   const allEvents: ScribeEvent[] = [];
 
   for (const { fullPath } of hits) {
-    const text = fs.readFileSync(fullPath, 'utf8');
-    const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/);
-    for (let i = 0; i < lines.length; i++) {
-      const lineNo = i + 1;
-      const line = lines[i].trim();
-      if (!line) {
-        continue; // skip blank lines
-      }
-      try {
-        allEvents.push(JSON.parse(line));
-      } catch (e) {
-        throw new FinalizedLogJsonParseError(fullPath, lineNo, e);
-      }
-    }
+    allEvents.push(...readOneFinalizedLog(fullPath));
   }
 
   return allEvents;
@@ -120,7 +108,12 @@ export function readOneFinalizedLog(filePath: string): ScribeEvent[] {
       continue; // skip blank lines
     }
     try {
-      events.push(JSON.parse(line));
+      const parsed = JSON.parse(line);
+      // Skip header lines
+      if (parsed.kind === 'header') {
+        continue;
+      }
+      events.push(parsed);
     } catch (e) {
       throw new FinalizedLogJsonParseError(filePath, lineNo, e);
     }
