@@ -36,9 +36,20 @@ describe('Command `weave apply trails`', () => {
         fs.writeFileSync(
           REPO_PATHS.META(),
           yaml.stringify({
-            rolledSeasons: ['1511-spring', '1511-summer'],
+            version: 2,
             nextSessionSeq: 2,
-            appliedSessions: [],
+            state: {
+              trails: {
+                backend: 'meta',
+                applied: {
+                  appliedSessions: [],
+                  rolledSeasons: ['1511-spring', '1511-summer'],
+                },
+              },
+              ap: {
+                backend: 'ledger',
+              },
+            },
           }),
         );
 
@@ -92,7 +103,7 @@ describe('Command `weave apply trails`', () => {
         );
 
         // --- Assert: footprint written with session kind & season ---
-        const footprintsDir = REPO_PATHS.FOOTPRINTS(); // adjust if different
+        const footprintsDir = REPO_PATHS.FOOTPRINTS('trails'); // trails domain
         const files = fs.readdirSync(footprintsDir);
         const sessionFoot = files.find((f) => f.includes('S-0001_2025-10-01'));
         expect(sessionFoot).toBeTruthy();
@@ -138,9 +149,20 @@ describe('Command `weave apply trails`', () => {
         fs.writeFileSync(
           REPO_PATHS.META(),
           yaml.stringify({
-            rolledSeasons: [],
+            version: 2,
             nextSessionSeq: 2,
-            appliedSessions: [],
+            state: {
+              trails: {
+                backend: 'meta',
+                applied: {
+                  appliedSessions: [],
+                  rolledSeasons: [],
+                },
+              },
+              ap: {
+                backend: 'ledger',
+              },
+            },
           }),
         );
 
@@ -191,7 +213,7 @@ describe('Command `weave apply trails`', () => {
         );
 
         // --- Assert: rollover footprint written with effects ---
-        const footprintsDir = REPO_PATHS.FOOTPRINTS(); // adjust if different
+        const footprintsDir = REPO_PATHS.FOOTPRINTS('trails'); // trails domain
         const files = fs.readdirSync(footprintsDir);
         const rollFoot = files.find((f) => f.includes('ROLL-1511-autumn'));
         expect(rollFoot).toBeTruthy();
