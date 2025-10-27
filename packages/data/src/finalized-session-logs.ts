@@ -1,4 +1,4 @@
-import { makeSessionId, ScribeEvent } from '@skyreach/schemas';
+import { ScribeEvent, SessionId, makeSessionId } from '@skyreach/schemas';
 import fs from 'fs';
 
 import {
@@ -39,9 +39,9 @@ export function discoverFinalizedLogs(): FinalizedLogInfo[] {
   return parsed;
 }
 
-/** Convenience filter for a specific session number (accepts number or "0001"). */
+/** Convenience filter for a specific session number (accepts number or "0001" or "session-0001"). */
 export function discoverFinalizedLogsFor(
-  sessionNumber: number | string,
+  sessionNumber: SessionId | number | string,
 ): FinalizedLogInfo[] {
   const target = makeSessionId(sessionNumber);
   return discoverFinalizedLogs().filter(
