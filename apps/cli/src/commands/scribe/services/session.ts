@@ -745,12 +745,18 @@ export function updateMetaAndCleanup(
       const { number: sessionIdSeq } = parseSessionId(sessionId);
       const meta = loadMeta();
       if (sessionIdSeq < meta.nextSessionSeq) {
-        // Heal meta.nextSessionSeq to max finalized seq + 1
-        const maxSeq = getLatestSessionNumber() ?? sessionIdSeq;
-        warn(
-          `⚠️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}). Healing meta to ${maxSeq + 1}.`,
-        );
-        saveMeta({ nextSessionSeq: maxSeq + 1 });
+        // Only heal meta.nextSessionSeq for sessions >= 19 (to allow backfilling old logs)
+        if (sessionIdSeq >= 19) {
+          const maxSeq = getLatestSessionNumber() ?? sessionIdSeq;
+          warn(
+            `⚠️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}). Healing meta to ${maxSeq + 1}.`,
+          );
+          saveMeta({ nextSessionSeq: maxSeq + 1 });
+        } else {
+          info(
+            `ℹ️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}), but skipping heal for backfilled session < 19.`,
+          );
+        }
       } else if (meta.nextSessionSeq !== sessionIdSeq + 1) {
         saveMeta({ nextSessionSeq: sessionIdSeq + 1 });
       }
@@ -907,9 +913,10 @@ export function writeSessionFilesAndRollovers(
       },
     };
 
-    // Reassign seq
+    // Reassign seq and remove _origIdx
     const blockEvents = block.events.map((e, idx) => {
-      const ev = { ...e };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { _origIdx, ...ev } = e;
       ev.seq = idx + 1;
       return ev;
     });
