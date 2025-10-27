@@ -1,7 +1,7 @@
 import { getGitHeadCommit, REPO_PATHS, writeYamlAtomic } from '@skyreach/data';
 import path from 'path';
 
-export function writeFootprint(footprint: any) {
+export function writeFootprint(footprint: any, domain: string = 'trails') {
   let fileName: string;
   if (footprint.kind === 'session') {
     // Extract sequence, suffix, and real-world date from sessionId
@@ -38,6 +38,6 @@ export function writeFootprint(footprint: any) {
     footprint.git = { headCommit: gitHead };
   }
 
-  const filePath = path.join(REPO_PATHS.FOOTPRINTS(), fileName);
+  const filePath = path.join(REPO_PATHS.FOOTPRINTS(domain), fileName);
   writeYamlAtomic(filePath, footprint);
 }

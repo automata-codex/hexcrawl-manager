@@ -12,12 +12,15 @@ import {
   FinalizedLogJsonParseError,
   FinalizedLogsNotFoundError,
   HexFileNotFoundError,
+  discoverFinalizedLogs,
+  discoverFinalizedLogsFor,
 } from '@skyreach/data';
 import {
   SessionId,
   SessionIdError,
   assertSessionId,
   isSessionId,
+  makeSessionId,
 } from '@skyreach/schemas';
 
 import {
@@ -32,9 +35,10 @@ import {
   printApplyTrailsResult,
 } from '../lib/printers';
 import { resolveApTarget, resolveTrailsTarget } from '../lib/resolvers';
+import { writeFootprint } from '../lib/state';
 
 import { applyAp } from './apply-ap';
-import { applyHexes } from './apply-hexes';
+import { applyHexes, ApplyHexesRow } from './apply-hexes';
 import { applyTrails } from './apply-trails';
 
 export type ApplyArgs = {
@@ -169,30 +173,91 @@ export async function apply(args: ApplyArgs) {
     if (mode === 'all' || mode === 'hexes') {
       // Decide the sessions in scope:
       // - If user targeted a specific session, just that one.
-      // - Otherwise reuse the same session selection you use for AP.
+      // - Otherwise process ALL finalized sessions (hexes are idempotent).
       const sessionIds: SessionId[] =
         targetType === 'session'
           ? [target as SessionId]
-          : resolveApTarget(undefined).map((t) => t.sessionId);
+          : Array.from(
+              new Set(
+                discoverFinalizedLogs().map((log) => makeSessionId(log.sessionNumber)),
+              ),
+            ).sort();
 
-      // Load all finalized events for those sessions in one go.
-      const events = loadFinalizedEventsForSessions(sessionIds).filter(
-        (event) =>
-          event.kind === 'move' ||
-          event.kind === 'scout' ||
-          event.kind === 'explore',
-      );
+      // Process each session individually to enable per-session footprints
+      let totalChanged = 0;
+      let totalScanned = 0;
+      const allRows: ApplyHexesRow[] = [];
 
-      // Hexes are stateless/idempotent, so we do a single aggregated pass.
-      // When called from `weave apply`, we default to writing (dryRun: false).
-      const dryRun = false;
-      const { changed, rows, scanned } = await applyHexes({
-        dryRun,
-        events,
-        captureDiffs: dryRun,
+      for (const sessionId of sessionIds) {
+        // Load events for this session only
+        const events = loadFinalizedEventsForSessions([sessionId]).filter(
+          (event) =>
+            event.kind === 'move' ||
+            event.kind === 'scout' ||
+            event.kind === 'explore',
+        );
+
+        if (events.length === 0) {
+          continue; // Skip sessions with no hex events
+        }
+
+        const dryRun = false;
+        const { changed, rows, scanned } = await applyHexes({
+          dryRun,
+          events,
+          captureDiffs: dryRun,
+        });
+
+        totalChanged += changed;
+        totalScanned += scanned;
+        allRows.push(...rows);
+
+        // Write footprint for this session's hex changes
+        if (changed > 0 || scanned > 0) {
+          const sessionFiles = discoverFinalizedLogsFor(sessionId);
+          const firstFile = sessionFiles[0]; // Use first file for multi-part sessions
+
+          // Build before/after for changed hexes
+          const before: Record<string, any> = {};
+          const after: Record<string, any> = {};
+          for (const row of rows.filter((r) => r.changed)) {
+            before[row.hex] = row.already;
+            after[row.hex] = {
+              scouted: row.flips.scouted ? true : row.already.scouted,
+              visited: row.flips.visited ? true : row.already.visited,
+              explored: row.flips.explored ? true : row.already.explored,
+              landmarkKnown: row.flips.landmarkKnown
+                ? true
+                : row.already.landmarkKnown,
+            };
+          }
+
+          const footprint = {
+            id: firstFile.filename.replace(/\.jsonl$/, ''),
+            kind: 'session',
+            domain: 'hexes',
+            sessionId,
+            appliedAt: new Date().toISOString(),
+            inputs: { sourceFile: firstFile.fullPath },
+            effects: {
+              hexes: {
+                changed,
+                scanned,
+                hexesModified: rows.filter((r) => r.changed).map((r) => r.hex),
+              },
+            },
+            touched: { before, after },
+          };
+
+          writeFootprint(footprint, 'hexes');
+        }
+      }
+
+      printApplyHexesSummary(allRows, {
+        dryRun: false,
+        changed: totalChanged,
+        scanned: totalScanned,
       });
-
-      printApplyHexesSummary(rows, { dryRun, changed, scanned });
     }
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
