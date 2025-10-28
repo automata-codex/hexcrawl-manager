@@ -104,15 +104,22 @@ export async function withTempRepo<T = string>(
   // Seed required files
   await fs.writeFile(
     REPO_PATHS.META(),
-    JSON.stringify(
-      {
-        appliedSessions: [],
-        nextSessionSeq: 27,
-        rolledSeasons: [],
+    yaml.stringify({
+      version: 2,
+      nextSessionSeq: 27,
+      state: {
+        trails: {
+          backend: 'meta',
+          applied: {
+            sessions: [],
+            seasons: [],
+          },
+        },
+        ap: {
+          backend: 'ledger',
+        },
       },
-      null,
-      2,
-    ),
+    }),
   );
   await fs.writeFile(REPO_PATHS.HAVENS(), yaml.stringify([]));
   await fs.writeFile(REPO_PATHS.TRAILS(), yaml.stringify({}));

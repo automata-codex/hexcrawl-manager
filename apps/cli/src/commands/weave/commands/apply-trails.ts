@@ -255,7 +255,7 @@ export async function applyTrails(
           kind: 'session' as const,
           seasonId: firstSeasonId,
           fileId,
-          message: `No trail changes for ${fileId}`,
+          message: `No changes for ${fileId}`,
         };
       }
 

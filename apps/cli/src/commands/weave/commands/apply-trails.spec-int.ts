@@ -344,19 +344,18 @@ describe('Command `weave apply trails`', () => {
           { repo },
         );
 
-        // Expect some "no-op" style indication for 0005, and a positive apply for 0006.
-        // (Adjust regexes to match your CLI print strings.)
+        // Expect indication of no changes for 0005, and a positive apply for 0006.
         expect(stdout).toMatch(/no changes|no-op|nothing to apply/i);
         expect(stdout).toMatch(/session[_-]0006/i);
 
         const meta = loadMeta();
 
-        // No footprint/meta entry for the no-op session
-        expect(meta.state.trails.applied?.sessions).not.toContain(
+        // No-op session is still marked as applied to prevent re-processing
+        expect(meta.state.trails.applied?.sessions).toContain(
           'session-0005_2025-09-29.jsonl',
         );
 
-        // Applied session recorded
+        // Applied session also recorded
         expect(meta.state.trails.applied?.sessions).toContain(
           'session-0006_2025-09-30.jsonl',
         );

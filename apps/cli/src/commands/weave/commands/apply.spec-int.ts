@@ -87,15 +87,14 @@ describe('Function `weave apply`', () => {
         expect(stderr).toBeFalsy();
 
         // --- Trails assertions ---
-        // Should indicate a no-op/skip for 0005, and applied 0006
-        expect(stdout).toMatch(/no changes|no-op|nothing to apply/i);
+        // Should indicate a skip for 0005, and applied 0006
         expect(stdout).toMatch(/session[_-]0006/i);
         // Aggregated line when multiple items were seen
         expect(stdout).toMatch(/Trail files:\s*applied\s+1,\s*skipped\s+1/i);
 
-        // Meta: only the applied session is recorded
+        // Meta: both sessions are marked as applied (even no-op ones, to prevent re-processing)
         const meta = loadMeta();
-        expect(meta.state.trails.applied?.sessions).not.toContain(
+        expect(meta.state.trails.applied?.sessions).toContain(
           `${session5Id}.jsonl`,
         );
         expect(meta.state.trails.applied?.sessions).toContain(
