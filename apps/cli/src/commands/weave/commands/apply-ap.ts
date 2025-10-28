@@ -31,6 +31,7 @@ import {
   buildSessionApEntries,
 } from '../../../services/ap-ledger.service';
 import { eventsOf } from '../../../services/event-log.service';
+import { isGuest } from '../../../services/party-member.service';
 import {
   firstCalendarDate,
   lastCalendarDate,
@@ -184,11 +185,12 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
 
   // --- Derive Attendance ---
   const party = selectParty(events);
-  // We don't currently have any way to record guests in the session log, so we don't need to worry about that here.
+  // Filter out guest PCs - they don't accumulate AP in the ledger
+  const regularCharacters = party.filter((member) => !isGuest(member)) as string[];
 
   // --- Build characterLevels map ---
   const characterLevels: Record<string, number> = {};
-  for (const characterId of party) {
+  for (const characterId of regularCharacters) {
     let level = 1;
     try {
       const charPathYaml = path.join(
@@ -231,7 +233,7 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   const reportOut = {
     id: sessionId,
     advancementPoints: reportAdvancementPoints,
-    characterIds: party, // Eventually we'll want to include guests here
+    characterIds: regularCharacters, // Only regular PCs tracked for AP (guests filtered out)
     fingerprint,
     gameEndDate,
     gameStartDate,

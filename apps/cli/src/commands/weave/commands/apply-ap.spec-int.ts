@@ -9,6 +9,7 @@ import {
   dayEnd,
   dayStart,
   compileLog,
+  guest,
   partySet,
   runWeave,
   saveCharacters,
@@ -459,7 +460,82 @@ describe('Command `weave apply ap`', () => {
   describe('Parsing logs and deriving session data', () => {
     it.todo('parses all JSONL log parts in sorted order');
     it.todo('derives attendance.characterIds from participation events');
-    it.todo('collects guests from non-character participants');
+
+    it('filters out guest PCs from AP processing and ledger entries', async () => {
+      await withTempRepo(
+        'apply-ap-guest-filtering',
+        { initGit: false },
+        async (repo) => {
+          // Create character files for regular PCs only
+          saveCharacters([{ key: 'alistar' }, { key: 'daemaris' }]);
+
+          // Build session with mixed regular and guest PCs
+          const sessionId = 'session-0001';
+          const sessionDate = '2025-09-25';
+          const regularParty = ['alistar', 'daemaris'];
+          const mixedParty = [
+            'alistar',
+            guest('John', 'Korgath'),
+            'daemaris',
+            guest('Jane', 'Saurana'),
+          ];
+
+          const events = compileLog([
+            sessionStart(sessionId, 'R14', sessionDate),
+            dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
+            partySet(mixedParty),
+            ap('combat', 1, regularParty, 'A1', 'Defeated goblins'),
+            ap('exploration', 2, regularParty, 'B1', 'Found a dungeon'),
+            dayEnd(5, 5),
+            sessionEnd(sessionId),
+          ]);
+
+          const logPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            buildSessionFilename(1, sessionDate),
+          );
+          fs.writeFileSync(
+            logPath,
+            events.map((e) => JSON.stringify(e)).join('\n'),
+          );
+
+          // Apply AP
+          const { exitCode, stderr } = await runWeave(['apply', 'ap', sessionId], {
+            repo,
+          });
+
+          expect(exitCode).toBe(0);
+          expect(stderr).toBeFalsy();
+
+          // Verify session report contains only regular character IDs (guests filtered out)
+          const reportPath = path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml');
+          expect(fs.existsSync(reportPath)).toBe(true);
+          const report: SessionReport = yaml.parse(
+            fs.readFileSync(reportPath, 'utf8'),
+          );
+          expect(report.characterIds).toEqual(['alistar', 'daemaris']);
+          expect(report.characterIds).not.toContain('Korgath');
+          expect(report.characterIds).not.toContain('Saurana');
+
+          // Verify AP ledger contains entries only for regular PCs (no guests)
+          const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
+          const sessionEntries = ledger.filter(
+            (e: any) => e.sessionId === sessionId,
+          );
+
+          expect(sessionEntries.length).toBe(2); // Only alistar and daemaris
+          expect(sessionEntries.some((e: any) => e.characterId === 'alistar')).toBe(true);
+          expect(sessionEntries.some((e: any) => e.characterId === 'daemaris')).toBe(true);
+
+          // Verify no entries for guests
+          expect(sessionEntries.some((e: any) => e.characterId === 'Korgath')).toBe(false);
+          expect(sessionEntries.some((e: any) => e.characterId === 'Saurana')).toBe(false);
+          expect(sessionEntries.some((e: any) => e.characterId === 'John')).toBe(false);
+          expect(sessionEntries.some((e: any) => e.characterId === 'Jane')).toBe(false);
+        },
+      );
+    });
+
     it.todo('collects AP events per character and pillar');
     it.todo('extracts in-world gameStartDate and gameEndDate if present');
   });
