@@ -1,6 +1,4 @@
 import { error, info, makeExitMapper } from '@skyreach/cli-kit';
-import fs from 'node:fs';
-import path from 'node:path';
 import {
   SessionAlreadyAppliedError,
   SessionFingerprintMismatchError,
@@ -17,6 +15,8 @@ import {
   REPO_PATHS,
   discoverFinalizedLogs,
   discoverFinalizedLogsFor,
+  loadMeta,
+  saveMeta,
 } from '@skyreach/data';
 import {
   SessionId,
@@ -174,22 +174,38 @@ export async function apply(args: ApplyArgs) {
     }
 
     if (mode === 'all' || mode === 'hexes') {
+      // Load meta to check which sessions have already been applied
+      const meta = loadMeta();
+      const appliedSessions = meta.state.hexes?.applied?.sessions || [];
+
       // Decide the sessions in scope:
-      // - If user targeted a specific session, just that one.
-      // - Otherwise process ALL finalized sessions (hexes are idempotent).
-      const sessionIds: SessionId[] =
-        targetType === 'session'
-          ? [target as SessionId]
-          : Array.from(
-              new Set(
-                discoverFinalizedLogs().map((log) => makeSessionId(log.sessionNumber)),
-              ),
-            ).sort();
+      // - If user targeted a specific session, just that one (re-apply if needed)
+      // - Otherwise process only unapplied finalized sessions
+      let sessionIds: SessionId[];
+      if (targetType === 'session') {
+        sessionIds = [target as SessionId];
+      } else {
+        // Get all finalized sessions and filter out already-applied ones
+        const allSessionIds = Array.from(
+          new Set(
+            discoverFinalizedLogs().map((log) =>
+              makeSessionId(log.sessionNumber),
+            ),
+          ),
+        ).sort();
+
+        sessionIds = allSessionIds.filter((sessionId) => {
+          const sessionFiles = discoverFinalizedLogsFor(sessionId);
+          const firstFile = sessionFiles[0];
+          return !appliedSessions.includes(firstFile.filename);
+        });
+      }
 
       // Process each session individually to enable per-session footprints
       let totalChanged = 0;
       let totalScanned = 0;
       const allRows: ApplyHexesRow[] = [];
+      const newlyAppliedSessions: string[] = [];
 
       for (const sessionId of sessionIds) {
         // Load events for this session only
@@ -215,22 +231,10 @@ export async function apply(args: ApplyArgs) {
         totalScanned += scanned;
         allRows.push(...rows);
 
-        // Write footprint for this session's hex changes (only if there are actual changes and no footprint exists)
-        if (changed > 0) {
+        // Write footprint for this session's hex changes
+        if (changed > 0 || scanned > 0) {
           const sessionFiles = discoverFinalizedLogsFor(sessionId);
           const firstFile = sessionFiles[0]; // Use first file for multi-part sessions
-
-          // Check if footprint already exists - don't overwrite permanent audit trail
-          const footprintFilename = `S-${firstFile.filename.replace(/^session-(\d+)([a-z]*)_(\d{4}-\d{2}-\d{2})\.jsonl$/, '$1$2_$3')}.yaml`;
-          const footprintPath = path.join(
-            REPO_PATHS.FOOTPRINTS('hexes'),
-            footprintFilename,
-          );
-
-          if (fs.existsSync(footprintPath)) {
-            // Footprint already exists - skip to preserve audit trail
-            continue;
-          }
 
           // Build before/after for changed hexes
           const before: Record<string, any> = {};
@@ -265,7 +269,29 @@ export async function apply(args: ApplyArgs) {
           };
 
           writeFootprint(footprint, 'hexes');
+
+          // Track this session as applied
+          newlyAppliedSessions.push(firstFile.filename);
         }
+      }
+
+      // Update meta with newly applied sessions
+      if (newlyAppliedSessions.length > 0) {
+        if (!meta.state.hexes) {
+          meta.state.hexes = {
+            backend: 'meta',
+            applied: { sessions: [] },
+          };
+        }
+        if (!meta.state.hexes.applied) {
+          meta.state.hexes.applied = { sessions: [] };
+        }
+        if (!meta.state.hexes.applied.sessions) {
+          meta.state.hexes.applied.sessions = [];
+        }
+
+        meta.state.hexes.applied.sessions.push(...newlyAppliedSessions);
+        saveMeta(meta);
       }
 
       printApplyHexesSummary(allRows, {
