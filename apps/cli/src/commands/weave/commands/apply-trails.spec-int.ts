@@ -488,4 +488,117 @@ describe('Command `weave apply trails`', () => {
       },
     );
   });
+
+  it(
+    'automatically applies rollover when seasons list is empty but session footprints exist',
+    async () => {
+        await withTempRepo(
+          'apply-trails-auto-rollover-empty-seasons',
+          { initGit: false },
+          async (repo) => {
+            // --- Seed initial trails (from summer 1511 session) ---
+            fs.writeFileSync(
+              REPO_PATHS.TRAILS(),
+              yaml.stringify({
+                'o17-p17': {
+                  permanent: false,
+                  streak: 1,
+                  lastSeasonTouched: '1511-summer',
+                  usedThisSeason: true,
+                },
+              }),
+            );
+
+            fs.writeFileSync(REPO_PATHS.HAVENS(), yaml.stringify([]));
+
+            // Meta with NO seasons (empty list) but has an applied session
+            fs.writeFileSync(
+              REPO_PATHS.META(),
+              yaml.stringify({
+                version: 2,
+                nextSessionSeq: 3,
+                state: {
+                  trails: {
+                    backend: 'meta',
+                    applied: {
+                      sessions: ['session-0001_2025-09-20.jsonl'],
+                      seasons: [], // EMPTY - this is the key test case
+                    },
+                  },
+                  ap: {
+                    backend: 'ledger',
+                  },
+                },
+              }),
+            );
+
+            // Create footprint for the last applied session (summer 1511)
+            // This will be used to detect the season change
+            const footprintsDir = REPO_PATHS.FOOTPRINTS('trails');
+            fs.mkdirSync(footprintsDir, { recursive: true });
+
+            const summerFootprint = {
+              id: 'session-0001_2025-09-20',
+              kind: 'session',
+              seasonId: '1511-summer',
+              appliedAt: '2025-09-20T10:00:00.000Z',
+              inputs: { sourceFile: 'session-0001_2025-09-20.jsonl' },
+              effects: { session: { created: ['o17-p17'], usedFlags: {}, rediscovered: [] } },
+              touched: { before: {}, after: {} },
+            };
+            fs.writeFileSync(
+              path.join(footprintsDir, 'S-0001_2025-09-20.yaml'),
+              yaml.stringify(summerFootprint),
+            );
+
+            // --- Create autumn session (season change from summer -> autumn) ---
+            const autumnSessionId = 'session-0002_2025-10-15';
+            const autumnSessionFile = path.join(
+              REPO_PATHS.SESSIONS(),
+              `${autumnSessionId}.jsonl`,
+            );
+
+            const events = compileLog([
+              sessionStart(autumnSessionId, 'O17', '2025-10-15'),
+              dayStart({ year: 1511, month: 'Fructara', day: 1 }),
+              partySet(party),
+              move('O17', 'P17'),
+              sessionEnd(autumnSessionId),
+            ]);
+
+            fs.writeFileSync(
+              autumnSessionFile,
+              events.map((e: ScribeEvent) => JSON.stringify(e)).join('\n'),
+            );
+
+            // --- Apply autumn session (should trigger automatic rollover) ---
+            const { exitCode, stderr } = await runWeave(
+              ['apply', 'trails', 'session-0002', '--allow-dirty'],
+              { repo },
+            );
+
+            expect(exitCode).toBe(0);
+            expect(stderr).toBeFalsy();
+
+            // --- Verify automatic rollover was applied ---
+            const meta = loadMeta();
+
+            // Autumn 1511 season should NOW be in seasons (added by auto-rollover)
+            expect(meta.state.trails.applied?.seasons).toContain('1511-autumn');
+
+            // Verify rollover footprint was created
+            const files = fs.readdirSync(footprintsDir);
+            const autoRollFoot = files.find((f) => f.includes('ROLL-1511-autumn'));
+            expect(autoRollFoot).toBeTruthy();
+
+            const rollFootprint = yaml.parse(
+              fs.readFileSync(path.join(footprintsDir, autoRollFoot!), 'utf8'),
+            );
+            expect(rollFootprint.kind).toBe('rollover');
+            expect(rollFootprint.seasonId).toBe('1511-autumn');
+            expect(rollFootprint.inputs.note).toContain('Automatic rollover');
+          },
+        );
+      },
+    );
 });
