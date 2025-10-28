@@ -12,6 +12,17 @@ import { requireSession } from '../services/general';
 import type { Context } from '../types';
 import type { PartyMember } from '@skyreach/schemas';
 
+function parseGuestFlags(argv: string[]) {
+  // Parse flags: --player-name <name> --character-name <name>
+  const out: { playerName?: string; characterName?: string } = {};
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--player-name') out.playerName = argv[++i];
+    else if (a === '--character-name') out.characterName = argv[++i];
+  }
+  return out;
+}
+
 export default function party(ctx: Context) {
   return async (args: string[]) => {
     const sub = (args[0] ?? '').toLowerCase();
@@ -20,39 +31,65 @@ export default function party(ctx: Context) {
       if (!requireSession(ctx)) {
         return;
       }
-      if (!ctx.rl) {
-        return error('❌ Interactive mode required for guest PC prompts');
+
+      // Parse flags from remaining args (after 'guest')
+      const flagArgs = args.slice(1);
+      const flags = parseGuestFlags(flagArgs);
+      const hasAnyFlag = flags.playerName !== undefined || flags.characterName !== undefined;
+      const allProvided = Boolean(flags.playerName && flags.characterName);
+
+      // If flags provided, require both
+      if (hasAnyFlag && !allProvided) {
+        return usage('Usage: party guest --player-name <name> --character-name <name>');
       }
 
-      try {
-        const playerName = await askLine(ctx.rl, 'Enter player name: ');
-        if (!playerName.trim()) {
-          return error('❌ Player name cannot be empty');
+      let playerName: string;
+      let characterName: string;
+
+      if (allProvided) {
+        // Use flag values
+        playerName = flags.playerName!.trim();
+        characterName = flags.characterName!.trim();
+      } else {
+        // Fall back to interactive prompts
+        if (!ctx.rl) {
+          return error('❌ Interactive mode required for guest PC prompts');
         }
 
-        const characterName = await askLine(ctx.rl, 'Enter character name: ');
-        if (!characterName.trim()) {
-          return error('❌ Character name cannot be empty');
-        }
+        try {
+          const inputPlayerName = await askLine(ctx.rl, 'Enter player name: ');
+          if (!inputPlayerName.trim()) {
+            return error('❌ Player name cannot be empty');
+          }
 
-        const evs = readEvents(ctx.file!);
-        const current = selectParty(evs);
-        const guest: PartyMember = {
-          playerName: playerName.trim(),
-          characterName: characterName.trim(),
-        };
-        const next = [...current, guest];
+          const inputCharacterName = await askLine(ctx.rl, 'Enter character name: ');
+          if (!inputCharacterName.trim()) {
+            return error('❌ Character name cannot be empty');
+          }
 
-        appendEvent(ctx.file!, 'party_set', { ids: next });
-        info(
-          `✓ party: ${next.map(formatPartyMember).join(', ') || '∅'}`,
-        );
-      } catch (err) {
-        if (err instanceof Error && err.message.includes('Canceled')) {
-          return info('Canceled');
+          playerName = inputPlayerName.trim();
+          characterName = inputCharacterName.trim();
+        } catch (err) {
+          if (err instanceof Error && err.message.includes('Canceled')) {
+            return info('Canceled');
+          }
+          throw err;
         }
-        throw err;
       }
+
+      // Add guest PC to party
+      const evs = readEvents(ctx.file!);
+      const current = selectParty(evs);
+      const guest: PartyMember = {
+        playerName,
+        characterName,
+      };
+      const next = [...current, guest];
+
+      appendEvent(ctx.file!, 'party_set', { ids: next });
+      info(
+        `✓ party: ${next.map(formatPartyMember).join(', ') || '∅'}`,
+      );
       return;
     }
 

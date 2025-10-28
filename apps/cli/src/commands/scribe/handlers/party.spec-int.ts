@@ -4,6 +4,38 @@ import fs from 'fs';
 import { describe, it, expect } from 'vitest';
 
 describe('Guest PC Support', () => {
+  it('adds guest PC via flags (non-interactive mode)', async () => {
+    await withTempRepo(
+      'party-guest-flags',
+      { initGit: false },
+      async (repo) => {
+        // Run commands including guest PC with flags
+        const { stdout, exitCode } = await runScribe([
+          'start H7',
+          'day start 20 umb 1511',
+          'party guest --player-name John --character-name Korgath',
+        ], { repo });
+
+        expect(exitCode).toBe(0);
+
+        // Verify the guest PC was added successfully
+        const sessionPath = fs.readdirSync(REPO_PATHS.SESSIONS()).find((f) => f.endsWith('.jsonl'));
+        const fullPath = `${REPO_PATHS.SESSIONS()}/${sessionPath}`;
+        const content = fs.readFileSync(fullPath, 'utf8');
+        const events = content.split('\n').filter(Boolean).map((line) => JSON.parse(line));
+
+        // Find party_set event with guest PC
+        const partyEvent = events.find((e) => e.kind === 'party_set');
+
+        expect(partyEvent).toBeDefined();
+        expect(partyEvent.payload.ids).toContainEqual({
+          playerName: 'John',
+          characterName: 'Korgath',
+        });
+      },
+    );
+  });
+
   it('validates party_set events with mixed regular and guest PCs', async () => {
     await withTempRepo(
       'party-guest-schema-validation',
