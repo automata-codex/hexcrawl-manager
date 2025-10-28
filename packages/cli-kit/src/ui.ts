@@ -34,7 +34,7 @@ export function isInteractive(): boolean {
  * Ask a single line via the provided readline.Interface.
  * Handles Ctrl+C as cancel, restoring prior SIGINT behavior.
  */
-async function askLine(
+export async function askLine(
   rl: readline.Interface,
   message: string,
 ): Promise<string> {

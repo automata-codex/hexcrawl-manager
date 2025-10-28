@@ -113,8 +113,22 @@ export const NoteEventPayloadSchema = z.object({
 });
 export type NoteEventPayload = z.infer<typeof NoteEventPayloadSchema>;
 
+/** Guest PC representation */
+export const GuestPcSchema = z.object({
+  playerName: z.string().min(1),
+  characterName: z.string().min(1),
+});
+export type GuestPc = z.infer<typeof GuestPcSchema>;
+
+/** Party member can be either a character ID (string) or a guest PC (object) */
+export const PartyMemberSchema = z.union([
+  z.string().min(1),
+  GuestPcSchema,
+]);
+export type PartyMember = z.infer<typeof PartyMemberSchema>;
+
 export const PartySetEventPayloadSchema = z.object({
-  ids: z.array(z.string().min(1)),
+  ids: z.array(PartyMemberSchema),
 });
 export type PartySetEventPayload = z.infer<typeof PartySetEventPayloadSchema>;
 

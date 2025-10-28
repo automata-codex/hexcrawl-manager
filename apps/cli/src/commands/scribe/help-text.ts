@@ -20,6 +20,7 @@ Commands:
   note "<text...>"               add a note
   party add <id>                 add a character (TAB to autocomplete)
   party clear                    remove all characters
+  party guest                    add a guest PC (prompts for names)
   party list                     list active characters
   party remove <id>              remove one character by id (TAB to autocomplete)
   quit                           leave the shell
