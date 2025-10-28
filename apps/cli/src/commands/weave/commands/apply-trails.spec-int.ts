@@ -362,4 +362,144 @@ describe('Command `weave apply trails`', () => {
       },
     );
   });
+
+  it('automatically applies rollover when season changes between sessions', async () => {
+    await withTempRepo(
+      'apply-trails-auto-rollover',
+      { initGit: false },
+      async (repo) => {
+        // --- Seed initial trails (from summer 1511 session) ---
+        fs.writeFileSync(
+          REPO_PATHS.TRAILS(),
+          yaml.stringify({
+            'o17-p17': {
+              permanent: false,
+              streak: 1,
+              lastSeasonTouched: '1511-summer',
+              usedThisSeason: true,
+            },
+            'p12-p13': {
+              permanent: false,
+              streak: 0,
+              lastSeasonTouched: '1511-summer',
+              usedThisSeason: false, // This one wasn't used and should be subject to decay
+            },
+          }),
+        );
+
+        fs.writeFileSync(REPO_PATHS.HAVENS(), yaml.stringify([]));
+
+        // Meta: summer session has been applied, no explicit autumn rollover yet
+        fs.writeFileSync(
+          REPO_PATHS.META(),
+          yaml.stringify({
+            version: 2,
+            nextSessionSeq: 3,
+            state: {
+              trails: {
+                backend: 'meta',
+                applied: {
+                  sessions: ['session-0001_2025-09-20.jsonl'],
+                  rolledSeasons: ['1511-spring', '1511-summer'],
+                },
+              },
+              ap: {
+                backend: 'ledger',
+              },
+            },
+          }),
+        );
+
+        // Create footprint for the last applied session (summer 1511)
+        const footprintsDir = REPO_PATHS.FOOTPRINTS('trails');
+        fs.mkdirSync(footprintsDir, { recursive: true });
+
+        const summerFootprint = {
+          id: 'session-0001_2025-09-20',
+          kind: 'session',
+          seasonId: '1511-summer',
+          appliedAt: '2025-09-20T10:00:00.000Z',
+          inputs: { sourceFile: 'session-0001_2025-09-20.jsonl' },
+          effects: { session: { created: ['o17-p17'], usedFlags: {}, rediscovered: [] } },
+          touched: { before: {}, after: {} },
+        };
+        fs.writeFileSync(
+          path.join(footprintsDir, '2025-09-20T10-00-00-000Z__session-0001_2025-09-20.yaml'),
+          yaml.stringify(summerFootprint),
+        );
+
+        // --- Create autumn session (season change from summer -> autumn) ---
+        const autumnSessionId = 'session-0002_2025-10-15';
+        const autumnSessionFile = path.join(
+          REPO_PATHS.SESSIONS(),
+          `${autumnSessionId}.jsonl`,
+        );
+
+        const events = compileLog([
+          sessionStart(autumnSessionId, 'O17', '2025-10-15'),
+          dayStart({ year: 1511, month: 'Fructara', day: 1 }), // First month of autumn
+          partySet(party),
+          move('O17', 'P17'), // Use the o17-p17 trail
+          sessionEnd(autumnSessionId),
+        ]);
+        fs.writeFileSync(
+          autumnSessionFile,
+          events.map((e: ScribeEvent) => JSON.stringify(e)).join('\n'),
+        );
+
+        // --- Apply autumn session (should trigger automatic rollover) ---
+        const { exitCode, stderr, stdout } = await runWeave(
+          ['apply', 'trails', 'session-0002', '--allow-dirty'],
+          { repo },
+        );
+
+        if (exitCode !== 0) {
+          console.log('stdout:', stdout);
+          console.log('stderr:', stderr);
+        }
+
+        expect(exitCode).toBe(0);
+        expect(stderr).toBeFalsy();
+
+        // --- Verify automatic rollover was applied ---
+        const meta = loadMeta();
+
+        // Autumn 1511 season should be in rolledSeasons now
+        expect(meta.state.trails.applied?.rolledSeasons).toContain('1511-autumn');
+
+        // --- Verify trail decay logic ran ---
+        const trails = yaml.parse(fs.readFileSync(REPO_PATHS.TRAILS(), 'utf8'));
+
+        // o17-p17 was used in summer, should persist with streak increased
+        expect(trails['o17-p17']).toBeDefined();
+        expect(trails['o17-p17'].streak).toBe(2); // Was 1, now 2 from rollover
+        expect(trails['o17-p17'].usedThisSeason).toBe(true); // Used in autumn session
+
+        // p12-p13 was NOT used in summer, should have been subject to decay roll
+        // It might be deleted (d6 1-3) or persisted with streak reset to 0 (d6 4-6)
+        // We can't predict the dice roll, but we can verify the footprint captured it
+        const files = fs.readdirSync(footprintsDir);
+        const autoRollFoot = files.find((f) => f.includes('ROLL-1511-autumn'));
+        expect(autoRollFoot).toBeTruthy();
+
+        const rollFootprint = yaml.parse(
+          fs.readFileSync(path.join(footprintsDir, autoRollFoot!), 'utf8'),
+        );
+        expect(rollFootprint.id).toBe('AUTO-ROLL-1511-autumn'); // ID indicates auto-rollover
+        expect(rollFootprint.kind).toBe('rollover');
+        expect(rollFootprint.seasonId).toBe('1511-autumn');
+        expect(rollFootprint.inputs.note).toContain('Automatic rollover'); // Verify it was auto-applied
+        expect(rollFootprint.inputs.note).toContain('inter-session season change');
+
+        // The rollover should have processed both trails
+        const rollEffects = rollFootprint.effects.rollover;
+        expect(rollEffects.persisted).toContain('o17-p17');
+        // p12-p13 either in deletedTrails or persisted with streak reset
+        const p12p13Affected =
+          rollEffects.deletedTrails.includes('p12-p13') ||
+          rollEffects.persisted.includes('p12-p13');
+        expect(p12p13Affected).toBe(true);
+      },
+    );
+  });
 });

@@ -1,4 +1,5 @@
 import {
+  compareSeasonIds,
   deriveSeasonId,
   getRolloverSeasonId,
   normalizeSeasonId,
@@ -24,6 +25,7 @@ import {
 } from '../lib/errors';
 import {
   assertCleanGitOrAllowDirty,
+  getLastAppliedSessionSeason,
   getMostRecentRolloverFootprint,
   resolveInputFile,
 } from '../lib/files';
@@ -214,7 +216,72 @@ export async function applyTrails(
       );
     }
 
-    // Ensure required rollovers have been applied
+    // --- Detect inter-session season change ---
+    // If the season changed between the last applied session and this one,
+    // we need to apply rollover logic (trail decay) BEFORE chronology checks
+    const lastSessionSeason = getLastAppliedSessionSeason();
+    let autoRolloverEffects: any = null;
+
+    if (
+      lastSessionSeason &&
+      compareSeasonIds(firstSeasonId, lastSessionSeason) > 0
+    ) {
+      // Season has advanced - apply trail decay for the new season
+      const rolloverResult = applyRolloverToTrails(trails, havens, false);
+
+      // Record this automatic rollover in meta
+      if (!meta.state.trails.applied?.rolledSeasons) {
+        const applied = meta.state.trails.applied || {};
+        applied.rolledSeasons = [];
+        meta.state.trails.applied = applied;
+      }
+      meta.state.trails.applied?.rolledSeasons.push(firstSeasonId);
+
+      // Build footprint for the auto rollover
+      const affectedEdges = new Set([
+        ...rolloverResult.maintained,
+        ...rolloverResult.persisted,
+        ...rolloverResult.deletedTrails,
+      ]);
+      const rolloverBefore: Record<string, any> = {};
+      const rolloverAfter: Record<string, any> = {};
+      for (const edge of affectedEdges) {
+        rolloverBefore[edge] = trails[edge] ? { ...trails[edge] } : undefined;
+        rolloverAfter[edge] = rolloverResult.trails[edge]
+          ? { ...rolloverResult.trails[edge] }
+          : undefined;
+      }
+
+      const autoRolloverFootprint = {
+        id: `AUTO-ROLL-${firstSeasonId}`,
+        kind: 'rollover' as const,
+        seasonId: firstSeasonId,
+        appliedAt: new Date().toISOString(),
+        inputs: {
+          sourceFile: file,
+          note: 'Automatic rollover applied due to inter-session season change',
+        },
+        effects: { rollover: rolloverResult },
+        touched: { before: rolloverBefore, after: rolloverAfter },
+      };
+
+      // Update trails to the rolled-over state
+      Object.assign(trails, rolloverResult.trails);
+
+      // Save meta BEFORE chronology check so the rolled season is recorded
+      saveMeta(meta);
+
+      // Save the auto-rollover footprint and store effects for reporting
+      writeFootprint(autoRolloverFootprint);
+      autoRolloverEffects = {
+        seasonId: firstSeasonId,
+        maintained: rolloverResult.maintained.length,
+        persisted: rolloverResult.persisted.length,
+        deletedTrails: rolloverResult.deletedTrails.length,
+      };
+    }
+
+    // Ensure required rollovers have been applied (after auto-rollover)
     const chrono = isSessionChronologyValid(meta, firstSeasonId);
     if (!chrono.valid) {
       throw new ChronologyValidationError(
@@ -256,6 +323,7 @@ export async function applyTrails(
           seasonId: firstSeasonId,
           fileId,
           message: `No changes for ${fileId}`,
+          autoRollover: autoRolloverEffects,
         };
       }
 
@@ -285,6 +353,7 @@ export async function applyTrails(
           edgesTouched: Object.keys({ ...before, ...after }).length,
         },
         debug: { footprintId: footprint.id },
+        autoRollover: autoRolloverEffects,
       };
     } catch (e) {
       throw new IoApplyError('I/O error during apply: ' + e);

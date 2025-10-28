@@ -30,11 +30,19 @@ export interface ApplyTrailsResult {
   status: ApplyTrailsStatus;
   summary?: ApplyTrailsSummary;
 
-  /** Include when status !== 'ok' for caller’s messaging. */
+  /** Include when status !== 'ok' for caller's messaging. */
   message?: string;
 
   /** Optional rich details (behind `verbose`). */
   debug?: ApplyTrailsDebug;
+
+  /** Info about automatic rollover applied due to inter-session season change. */
+  autoRollover?: {
+    seasonId: string;
+    maintained: number;
+    persisted: number;
+    deletedTrails: number;
+  } | null;
 }
 
 export type ApplyTrailsStatus =
