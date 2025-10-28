@@ -1,4 +1,8 @@
 import { getGitHeadCommit, REPO_PATHS, writeYamlAtomic } from '@skyreach/data';
+import {
+  RolloverFootprintSchema,
+  SessionFootprintSchema,
+} from '@skyreach/schemas';
 import path from 'path';
 
 export function writeFootprint(footprint: any, domain: string = 'trails') {
@@ -36,6 +40,23 @@ export function writeFootprint(footprint: any, domain: string = 'trails') {
   const gitHead = getGitHeadCommit();
   if (gitHead) {
     footprint.git = { headCommit: gitHead };
+  }
+
+  // Validate footprint structure before writing
+  if (footprint.kind === 'rollover') {
+    const result = RolloverFootprintSchema.safeParse(footprint);
+    if (!result.success) {
+      throw new Error(
+        `Invalid rollover footprint structure: ${JSON.stringify(result.error.issues, null, 2)}`,
+      );
+    }
+  } else if (footprint.kind === 'session') {
+    const result = SessionFootprintSchema.safeParse(footprint);
+    if (!result.success) {
+      throw new Error(
+        `Invalid session footprint structure: ${JSON.stringify(result.error.issues, null, 2)}`,
+      );
+    }
   }
 
   // Determine destination directory based on footprint kind

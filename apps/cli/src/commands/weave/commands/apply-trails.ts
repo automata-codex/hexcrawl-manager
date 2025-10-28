@@ -149,7 +149,7 @@ export async function applyTrails(
       seasonId,
       appliedAt: new Date().toISOString(),
       inputs: { sourceFile: file },
-      effects: { rollover: effects },
+      effects: { rollover: { trails: trailsAfter, ...effects } },
       touched: { before, after },
     };
     try {
