@@ -212,13 +212,13 @@ describe('Command `weave apply trails`', () => {
           'rollover_1511-autumn.jsonl',
         );
 
-        // --- Assert: rollover footprint written with effects ---
-        const footprintsDir = REPO_PATHS.FOOTPRINTS('trails'); // trails domain
-        const files = fs.readdirSync(footprintsDir);
+        // --- Assert: rollover footprint written to rollovers directory ---
+        const rolloversDir = REPO_PATHS.ROLLOVERS();
+        const files = fs.readdirSync(rolloversDir);
         const rollFoot = files.find((f) => f.includes('ROLL-1511-autumn'));
         expect(rollFoot).toBeTruthy();
         const foot = yaml.parse(
-          fs.readFileSync(path.join(footprintsDir, rollFoot!), 'utf8'),
+          fs.readFileSync(path.join(rolloversDir, rollFoot!), 'utf8'),
         );
         expect(foot.kind).toBe('rollover');
         expect(foot.seasonId).toBe('1511-autumn');
@@ -410,9 +410,13 @@ describe('Command `weave apply trails`', () => {
           }),
         );
 
-        // Create footprints directory (will be used for auto-rollover footprint)
+        // Create footprints directory (for session footprints)
         const footprintsDir = REPO_PATHS.FOOTPRINTS('trails');
         fs.mkdirSync(footprintsDir, { recursive: true });
+
+        // Create rollovers directory (for rollover footprints)
+        const rolloversDir = REPO_PATHS.ROLLOVERS();
+        fs.mkdirSync(rolloversDir, { recursive: true });
 
         // --- Create autumn session (season change from summer -> autumn) ---
         const autumnSessionId = 'session-0002_2025-10-15';
@@ -464,12 +468,12 @@ describe('Command `weave apply trails`', () => {
         // p12-p13 was NOT used in summer, should have been subject to decay roll
         // It might be deleted (d6 1-3) or persisted with streak reset to 0 (d6 4-6)
         // We can't predict the dice roll, but we can verify the footprint captured it
-        const files = fs.readdirSync(footprintsDir);
-        const autoRollFoot = files.find((f) => f.includes('ROLL-1511-autumn'));
+        const rolloverFiles = fs.readdirSync(rolloversDir);
+        const autoRollFoot = rolloverFiles.find((f) => f.includes('ROLL-1511-autumn'));
         expect(autoRollFoot).toBeTruthy();
 
         const rollFootprint = yaml.parse(
-          fs.readFileSync(path.join(footprintsDir, autoRollFoot!), 'utf8'),
+          fs.readFileSync(path.join(rolloversDir, autoRollFoot!), 'utf8'),
         );
         expect(rollFootprint.id).toBe('ROLL-1511-autumn');
         expect(rollFootprint.kind).toBe('rollover');
@@ -537,6 +541,10 @@ describe('Command `weave apply trails`', () => {
             const footprintsDir = REPO_PATHS.FOOTPRINTS('trails');
             fs.mkdirSync(footprintsDir, { recursive: true });
 
+            // Create rollovers directory (for rollover footprints)
+            const rolloversDir = REPO_PATHS.ROLLOVERS();
+            fs.mkdirSync(rolloversDir, { recursive: true });
+
             const summerFootprint = {
               id: 'session-0001_2025-09-20',
               kind: 'session',
@@ -586,13 +594,13 @@ describe('Command `weave apply trails`', () => {
             // Autumn 1511 season should NOW be in seasons (added by auto-rollover)
             expect(meta.state.trails.applied?.seasons).toContain('1511-autumn');
 
-            // Verify rollover footprint was created
-            const files = fs.readdirSync(footprintsDir);
-            const autoRollFoot = files.find((f) => f.includes('ROLL-1511-autumn'));
+            // Verify rollover footprint was created in rollovers directory
+            const rolloverFiles = fs.readdirSync(rolloversDir);
+            const autoRollFoot = rolloverFiles.find((f) => f.includes('ROLL-1511-autumn'));
             expect(autoRollFoot).toBeTruthy();
 
             const rollFootprint = yaml.parse(
-              fs.readFileSync(path.join(footprintsDir, autoRollFoot!), 'utf8'),
+              fs.readFileSync(path.join(rolloversDir, autoRollFoot!), 'utf8'),
             );
             expect(rollFootprint.kind).toBe('rollover');
             expect(rollFootprint.seasonId).toBe('1511-autumn');

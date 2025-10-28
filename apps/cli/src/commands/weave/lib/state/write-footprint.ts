@@ -38,6 +38,13 @@ export function writeFootprint(footprint: any, domain: string = 'trails') {
     footprint.git = { headCommit: gitHead };
   }
 
-  const filePath = path.join(REPO_PATHS.FOOTPRINTS(domain), fileName);
+  // Determine destination directory based on footprint kind
+  let filePath: string;
+  if (footprint.kind === 'rollover') {
+    filePath = path.join(REPO_PATHS.ROLLOVERS(), fileName);
+  } else {
+    filePath = path.join(REPO_PATHS.FOOTPRINTS(domain), fileName);
+  }
+
   writeYamlAtomic(filePath, footprint);
 }
