@@ -1,5 +1,5 @@
 import { REPO_PATHS } from '@skyreach/data';
-import { runScribe, withTempRepo } from '@skyreach/test-helpers';
+import { runScribe, withTempRepo, saveCharacter } from '@skyreach/test-helpers';
 import fs from 'fs';
 import { describe, it, expect } from 'vitest';
 
@@ -41,47 +41,33 @@ describe('Guest PC Support', () => {
       'party-guest-schema-validation',
       { initGit: false },
       async (repo) => {
-        const commands = [
+        // Create character fixtures
+        saveCharacter('alistar');
+        saveCharacter('daemaris');
+
+        const { stdout, exitCode } = await runScribe([
           'start H7',
           'day start 20 umb 1511',
-        ];
+          'party add alistar',
+          'party guest --player-name John --character-name Korgath',
+          'party add daemaris',
+          'party guest --player-name Jane --character-name Saurana',
+        ], { repo });
 
-        await runScribe(commands, { repo });
+        expect(exitCode).toBe(0);
 
-        // Manually create a party_set event with both regular and guest PCs
+        // Verify the final party_set event has all members (regular and guest)
         const sessionPath = fs.readdirSync(REPO_PATHS.SESSIONS()).find((f) => f.endsWith('.jsonl'));
-        expect(sessionPath).toBeTruthy();
-
         const fullPath = `${REPO_PATHS.SESSIONS()}/${sessionPath}`;
         const content = fs.readFileSync(fullPath, 'utf8');
-        const lines = content.split('\n').filter(Boolean);
+        const events = content.split('\n').filter(Boolean).map((line) => JSON.parse(line));
 
-        const lastSeq = lines.length;
-        const partyEvent = {
-          seq: lastSeq + 1,
-          ts: new Date().toISOString(),
-          kind: 'party_set',
-          payload: {
-            ids: [
-              'alistar',
-              { playerName: 'John', characterName: 'Korgath' },
-              'daemaris',
-              { playerName: 'Jane', characterName: 'Saurana' },
-            ],
-          },
-        };
+        // Find all party_set events
+        const partyEvents = events.filter((e) => e.kind === 'party_set');
+        const finalPartyEvent = partyEvents[partyEvents.length - 1];
 
-        fs.appendFileSync(fullPath, `\n${JSON.stringify(partyEvent)}`);
-
-        // Verify the event was written with correct structure
-        const updatedContent = fs.readFileSync(fullPath, 'utf8');
-        const events = updatedContent.split('\n').filter(Boolean).map((line) => JSON.parse(line));
-        const writtenPartyEvent = events.find(
-          (e) => e.kind === 'party_set' && e.payload.ids.length === 4,
-        );
-
-        expect(writtenPartyEvent).toBeDefined();
-        expect(writtenPartyEvent.payload.ids).toEqual([
+        expect(finalPartyEvent).toBeDefined();
+        expect(finalPartyEvent.payload.ids).toEqual([
           'alistar',
           { playerName: 'John', characterName: 'Korgath' },
           'daemaris',
@@ -96,67 +82,40 @@ describe('Guest PC Support', () => {
       'party-guest-ap-serialization',
       { initGit: false },
       async (repo) => {
-        const commands = [
+        // Create character fixture
+        saveCharacter('alistar');
+
+        const { stdout, exitCode } = await runScribe([
           'start H7',
           'day start 20 umb 1511',
-        ];
+          'party add alistar',
+          'party guest --player-name John --character-name Korgath',
+          'ap combat 1 "Defeated goblins"',
+        ], { repo });
 
-        await runScribe(commands, { repo });
+        expect(exitCode).toBe(0);
 
-        // Add guest PCs and AP event manually
+        // Verify both party_set and AP events
         const sessionPath = fs.readdirSync(REPO_PATHS.SESSIONS()).find((f) => f.endsWith('.jsonl'));
         const fullPath = `${REPO_PATHS.SESSIONS()}/${sessionPath}`;
         const content = fs.readFileSync(fullPath, 'utf8');
-        const lines = content.split('\n').filter(Boolean);
+        const events = content.split('\n').filter(Boolean).map((line) => JSON.parse(line));
 
-        const lastSeq = lines.length;
-        const partyEvent = {
-          seq: lastSeq + 1,
-          ts: new Date().toISOString(),
-          kind: 'party_set',
-          payload: {
-            ids: [
-              'alistar',
-              { playerName: 'John', characterName: 'Korgath' },
-            ],
-          },
-        };
+        // Find the party_set event with mixed regular and guest PCs
+        const partyEvents = events.filter((e) => e.kind === 'party_set');
+        const finalPartyEvent = partyEvents[partyEvents.length - 1];
 
-        // Simulate what the AP handler would create
-        const apEvent = {
-          seq: lastSeq + 2,
-          ts: new Date().toISOString(),
-          kind: 'advancement_point',
-          payload: {
-            pillar: 'combat',
-            tier: 1,
-            note: 'Defeated goblins',
-            at: {
-              hex: 'H7',
-              // Guest PCs converted to "PlayerName:CharacterName" format
-              party: ['alistar', 'John:Korgath'],
-            },
-          },
-        };
+        expect(finalPartyEvent).toBeDefined();
+        expect(finalPartyEvent.payload.ids).toEqual([
+          'alistar',
+          { playerName: 'John', characterName: 'Korgath' },
+        ]);
 
-        fs.appendFileSync(fullPath, `\n${JSON.stringify(partyEvent)}\n${JSON.stringify(apEvent)}`);
+        // Find the AP event and verify guest PC is serialized to string format
+        const apEvent = events.find((e) => e.kind === 'advancement_point');
 
-        // Verify both events
-        const updatedContent = fs.readFileSync(fullPath, 'utf8');
-        const events = updatedContent.split('\n').filter(Boolean).map((line) => JSON.parse(line));
-
-        const writtenPartyEvent = events.find((e) => e.kind === 'party_set' && e.seq === lastSeq + 1);
-        const writtenApEvent = events.find((e) => e.kind === 'advancement_point');
-
-        expect(writtenPartyEvent).toBeDefined();
-        expect(writtenPartyEvent.payload.ids[1]).toEqual({
-          playerName: 'John',
-          characterName: 'Korgath'
-        });
-
-        expect(writtenApEvent).toBeDefined();
-        expect(writtenApEvent.payload.at.party).toContain('alistar');
-        expect(writtenApEvent.payload.at.party).toContain('John:Korgath');
+        expect(apEvent).toBeDefined();
+        expect(apEvent.payload.at.party).toEqual(['alistar', 'John:Korgath']);
       },
     );
   });
