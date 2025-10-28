@@ -87,6 +87,14 @@ export async function plan(args: PlanArgs) {
       for (const item of items) {
         try {
           const result = await planTrails({ allowDirty, file: item.file });
+
+          // Handle no-op results (sessions with no trail changes)
+          if (result.status === 'no-op') {
+            printApplyTrailsResult(result);
+            skipped++;
+            continue;
+          }
+
           printApplyTrailsResult(result);
           applied++;
         } catch (e) {
@@ -96,7 +104,8 @@ export async function plan(args: PlanArgs) {
             continue;
           }
           if (e instanceof NoChangesError) {
-            info(e.message); // benign: continue
+            // Legacy: shouldn't happen anymore but keep for safety
+            info(e.message);
             skipped++;
             continue;
           }

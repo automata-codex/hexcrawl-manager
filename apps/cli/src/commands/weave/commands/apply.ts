@@ -109,6 +109,17 @@ export async function apply(args: ApplyArgs) {
       for (const item of items) {
         try {
           const result = await applyTrails({ allowDirty, file: item.file });
+
+          // Handle no-op results (sessions with no trail changes)
+          if (result.status === 'no-op') {
+            // Only print message in trails-only mode
+            if (mode === 'trails') {
+              printApplyTrailsResult(result);
+            }
+            skipped++;
+            continue;
+          }
+
           printApplyTrailsResult(result);
           applied++;
         } catch (e) {
@@ -118,7 +129,10 @@ export async function apply(args: ApplyArgs) {
             continue;
           }
           if (e instanceof NoChangesError) {
-            info(e.message); // benign: continue
+            // Legacy: shouldn't happen anymore but keep for safety
+            if (mode === 'trails') {
+              info(e.message);
+            }
             skipped++;
             continue;
           }

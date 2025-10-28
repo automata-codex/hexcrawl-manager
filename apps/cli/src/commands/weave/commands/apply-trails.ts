@@ -21,7 +21,6 @@ import {
   ChronologyValidationError,
   CliValidationError,
   IoApplyError,
-  NoChangesError,
 } from '../lib/errors';
 import {
   assertCleanGitOrAllowDirty,
@@ -242,17 +241,27 @@ export async function applyTrails(
       effects.created.length > 0 ||
       effects.rediscovered.length > 0 ||
       Object.keys(effects.usedFlags).length > 0;
-    if (!changed) {
-      throw new NoChangesError();
-    }
 
     // --- Update files ---
     try {
-      saveTrails(trails);
+      // Even if no changes, mark session as applied to prevent re-processing
       appendToMetaAppliedSessions(meta, fileId);
       saveMeta(meta);
 
-      // Write footprint
+      if (!changed) {
+        // No trail changes, but still mark as applied
+        return {
+          status: 'no-op' as const,
+          kind: 'session' as const,
+          seasonId: firstSeasonId,
+          fileId,
+          message: `No trail changes for ${fileId}`,
+        };
+      }
+
+      // Has changes - save trails and write footprint
+      saveTrails(trails);
+
       const footprint = {
         id: `${fileId.replace(/\..*$/, '')}`,
         kind: 'session',
