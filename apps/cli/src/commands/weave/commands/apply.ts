@@ -1,4 +1,6 @@
 import { error, info, makeExitMapper } from '@skyreach/cli-kit';
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   SessionAlreadyAppliedError,
   SessionFingerprintMismatchError,
@@ -12,6 +14,7 @@ import {
   FinalizedLogJsonParseError,
   FinalizedLogsNotFoundError,
   HexFileNotFoundError,
+  REPO_PATHS,
   discoverFinalizedLogs,
   discoverFinalizedLogsFor,
 } from '@skyreach/data';
@@ -212,10 +215,22 @@ export async function apply(args: ApplyArgs) {
         totalScanned += scanned;
         allRows.push(...rows);
 
-        // Write footprint for this session's hex changes
-        if (changed > 0 || scanned > 0) {
+        // Write footprint for this session's hex changes (only if there are actual changes and no footprint exists)
+        if (changed > 0) {
           const sessionFiles = discoverFinalizedLogsFor(sessionId);
           const firstFile = sessionFiles[0]; // Use first file for multi-part sessions
+
+          // Check if footprint already exists - don't overwrite permanent audit trail
+          const footprintFilename = `S-${firstFile.filename.replace(/^session-(\d+)([a-z]*)_(\d{4}-\d{2}-\d{2})\.jsonl$/, '$1$2_$3')}.yaml`;
+          const footprintPath = path.join(
+            REPO_PATHS.FOOTPRINTS('hexes'),
+            footprintFilename,
+          );
+
+          if (fs.existsSync(footprintPath)) {
+            // Footprint already exists - skip to preserve audit trail
+            continue;
+          }
 
           // Build before/after for changed hexes
           const before: Record<string, any> = {};
