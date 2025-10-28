@@ -134,12 +134,12 @@ export async function applyTrails(
     }
 
     // Update meta
-    if (!meta.state.trails.applied?.rolledSeasons) {
+    if (!meta.state.trails.applied?.seasons) {
       const applied = meta.state.trails.applied || {};
-      applied.rolledSeasons = [];
+      applied.seasons = [];
       meta.state.trails.applied = applied;
     }
-    meta.state.trails.applied?.rolledSeasons.push(seasonId);
+    meta.state.trails.applied?.seasons.push(seasonId);
     appendToMetaAppliedSessions(meta, fileId);
 
     // --- Update files ---
@@ -230,12 +230,12 @@ export async function applyTrails(
       const rolloverResult = applyRolloverToTrails(trails, havens, false);
 
       // Record this automatic rollover in meta
-      if (!meta.state.trails.applied?.rolledSeasons) {
+      if (!meta.state.trails.applied?.seasons) {
         const applied = meta.state.trails.applied || {};
-        applied.rolledSeasons = [];
+        applied.seasons = [];
         meta.state.trails.applied = applied;
       }
-      meta.state.trails.applied?.rolledSeasons.push(firstSeasonId);
+      meta.state.trails.applied?.seasons.push(firstSeasonId);
 
       // Build footprint for the auto rollover
       const affectedEdges = new Set([
@@ -253,7 +253,7 @@ export async function applyTrails(
       }
 
       const autoRolloverFootprint = {
-        id: `AUTO-ROLL-${firstSeasonId}`,
+        id: `ROLL-${firstSeasonId}`,
         kind: 'rollover' as const,
         seasonId: firstSeasonId,
         appliedAt: new Date().toISOString(),

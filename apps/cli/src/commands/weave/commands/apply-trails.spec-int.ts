@@ -32,7 +32,7 @@ describe('Command `weave apply trails`', () => {
         // Havens can be empty for this test (adjust if your rollover/session logic needs them)
         fs.writeFileSync(REPO_PATHS.HAVENS(), yaml.stringify([]));
 
-        // Meta: include the season in rolledSeasons so the session passes chronology
+        // Meta: include the season in seasons so the session passes chronology
         fs.writeFileSync(
           REPO_PATHS.META(),
           yaml.stringify({
@@ -43,7 +43,7 @@ describe('Command `weave apply trails`', () => {
                 backend: 'meta',
                 applied: {
                   sessions: [],
-                  rolledSeasons: ['1511-spring', '1511-summer'],
+                  seasons: ['1511-spring', '1511-summer'],
                 },
               },
               ap: {
@@ -156,7 +156,7 @@ describe('Command `weave apply trails`', () => {
                 backend: 'meta',
                 applied: {
                   sessions: [],
-                  rolledSeasons: [],
+                  seasons: [],
                 },
               },
               ap: {
@@ -205,7 +205,7 @@ describe('Command `weave apply trails`', () => {
 
         // --- Assert: meta updated with rolled season and applied session id ---
         const meta = yaml.parse(fs.readFileSync(REPO_PATHS.META(), 'utf8'));
-        expect(meta.state.trails.applied?.rolledSeasons).toContain(
+        expect(meta.state.trails.applied?.seasons).toContain(
           '1511-autumn',
         );
         expect(meta.state.trails.applied?.sessions).toContain(
@@ -400,7 +400,7 @@ describe('Command `weave apply trails`', () => {
                 backend: 'meta',
                 applied: {
                   sessions: ['session-0001_2025-09-20.jsonl'],
-                  rolledSeasons: ['1511-spring', '1511-summer'],
+                  seasons: ['1511-spring', '1511-summer'],
                 },
               },
               ap: {
@@ -410,23 +410,9 @@ describe('Command `weave apply trails`', () => {
           }),
         );
 
-        // Create footprint for the last applied session (summer 1511)
+        // Create footprints directory (will be used for auto-rollover footprint)
         const footprintsDir = REPO_PATHS.FOOTPRINTS('trails');
         fs.mkdirSync(footprintsDir, { recursive: true });
-
-        const summerFootprint = {
-          id: 'session-0001_2025-09-20',
-          kind: 'session',
-          seasonId: '1511-summer',
-          appliedAt: '2025-09-20T10:00:00.000Z',
-          inputs: { sourceFile: 'session-0001_2025-09-20.jsonl' },
-          effects: { session: { created: ['o17-p17'], usedFlags: {}, rediscovered: [] } },
-          touched: { before: {}, after: {} },
-        };
-        fs.writeFileSync(
-          path.join(footprintsDir, '2025-09-20T10-00-00-000Z__session-0001_2025-09-20.yaml'),
-          yaml.stringify(summerFootprint),
-        );
 
         // --- Create autumn session (season change from summer -> autumn) ---
         const autumnSessionId = 'session-0002_2025-10-15';
@@ -464,8 +450,8 @@ describe('Command `weave apply trails`', () => {
         // --- Verify automatic rollover was applied ---
         const meta = loadMeta();
 
-        // Autumn 1511 season should be in rolledSeasons now
-        expect(meta.state.trails.applied?.rolledSeasons).toContain('1511-autumn');
+        // Autumn 1511 season should be in seasons now
+        expect(meta.state.trails.applied?.seasons).toContain('1511-autumn');
 
         // --- Verify trail decay logic ran ---
         const trails = yaml.parse(fs.readFileSync(REPO_PATHS.TRAILS(), 'utf8'));
@@ -485,7 +471,7 @@ describe('Command `weave apply trails`', () => {
         const rollFootprint = yaml.parse(
           fs.readFileSync(path.join(footprintsDir, autoRollFoot!), 'utf8'),
         );
-        expect(rollFootprint.id).toBe('AUTO-ROLL-1511-autumn'); // ID indicates auto-rollover
+        expect(rollFootprint.id).toBe('ROLL-1511-autumn');
         expect(rollFootprint.kind).toBe('rollover');
         expect(rollFootprint.seasonId).toBe('1511-autumn');
         expect(rollFootprint.inputs.note).toContain('Automatic rollover'); // Verify it was auto-applied
