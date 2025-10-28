@@ -95,10 +95,10 @@ describe('Function `weave apply`', () => {
 
         // Meta: only the applied session is recorded
         const meta = loadMeta();
-        expect(meta.state.trails.applied?.appliedSessions).not.toContain(
+        expect(meta.state.trails.applied?.sessions).not.toContain(
           `${session5Id}.jsonl`,
         );
-        expect(meta.state.trails.applied?.appliedSessions).toContain(
+        expect(meta.state.trails.applied?.sessions).toContain(
           `${session6Id}.jsonl`,
         );
 

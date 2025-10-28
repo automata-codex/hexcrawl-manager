@@ -9,7 +9,7 @@ export function isRolloverAlreadyApplied(
   meta: MetaV2Data,
   fileId: string,
 ): boolean {
-  return meta.state.trails.applied?.appliedSessions?.includes(fileId) ?? false;
+  return meta.state.trails.applied?.sessions?.includes(fileId) ?? false;
 }
 
 export function isRolloverChronologyValid(
@@ -31,7 +31,7 @@ export function isSessionAlreadyApplied(
   meta: MetaV2Data,
   fileId: string,
 ): boolean {
-  return meta.state.trails.applied?.appliedSessions?.includes(fileId) ?? false;
+  return meta.state.trails.applied?.sessions?.includes(fileId) ?? false;
 }
 
 /**
