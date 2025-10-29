@@ -29,7 +29,7 @@ import pkg from '../../../../package.json' assert { type: 'json' };
 import {
   appendApEntries,
   buildSessionApEntries,
-} from '../../../services/ap-ledger.service';
+} from '@skyreach/data';
 import { eventsOf } from '../../../services/event-log.service';
 import { isGuest } from '../../../services/party-member.service';
 import {

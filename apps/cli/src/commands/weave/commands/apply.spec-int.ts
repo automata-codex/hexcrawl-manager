@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 
-import { readApLedger } from '../../../services/ap-ledger.service';
+import { readApLedger } from '@skyreach/data';
 
 const party: CharacterKey[] = ['alistar', 'daemaris', 'istavan'];
 

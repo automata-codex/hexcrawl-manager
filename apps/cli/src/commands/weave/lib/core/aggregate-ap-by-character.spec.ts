@@ -1,8 +1,7 @@
+import { aggregateApByCharacter } from '@skyreach/data';
 import { ApLedgerEntry } from '@skyreach/schemas';
 import { makeAbsenceSpend } from '@skyreach/test-helpers';
 import { describe, it, expect } from 'vitest';
-
-import { aggregateApByCharacter } from './aggregate-ap-by-character';
 
 const LEDGER: ApLedgerEntry[] = [
   makeAbsenceSpend({

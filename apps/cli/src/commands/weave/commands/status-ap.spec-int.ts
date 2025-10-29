@@ -13,7 +13,7 @@ import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import { rewriteApLedger } from '../../../services/ap-ledger.service';
+import { rewriteApLedger } from '@skyreach/data';
 
 // AP Status Command Test Suite (specs: ap-workflow-overview.md, ap-status.md)
 describe('Command `weave ap status`', () => {
