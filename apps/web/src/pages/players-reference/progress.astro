@@ -3,10 +3,28 @@ import { getCollection } from 'astro:content';
 
 import ProgressTable from '../../components/ProgressTable/ProgressTable.astro';
 import ComponentLayout from '../../layouts/ComponentLayout.astro';
+import { loadApTotals } from '../../utils/load-ap-totals';
 
+// Load characters from content collection
 const characterData = await getCollection('characters');
+
+// Load AP totals - auto-detects mode based on NODE_ENV
+// Dev (NODE_ENV !== 'production'): reads ledger directly
+// Production (NODE_ENV === 'production'): reads from cache
+const apTotals = await loadApTotals();
+
+// Merge AP totals into character data
 const characters = characterData
-  .map((character) => character.data)
+  .map((character) => {
+    const characterId = character.data.id;
+    const apFromLedger = apTotals[characterId];
+
+    return {
+      ...character.data,
+      // Override AP from YAML with ledger data if available
+      advancementPoints: apFromLedger || character.data.advancementPoints,
+    };
+  })
   .sort((a, b) => a.displayName.localeCompare(b.displayName));
 ---
 
