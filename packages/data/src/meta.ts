@@ -1,3 +1,4 @@
+import { compareSeasonIds } from '@skyreach/core';
 import { type MetaV2Data, MetaV2Schema } from '@skyreach/schemas';
 import { z } from 'zod';
 
@@ -150,7 +151,8 @@ function mergeMeta(
 
 /**
  * Dedupe/sort arrays under `state.*.applied.*` for stability.
- * (Sorting is optional but helps keep YAML diffs clean.)
+ * - sessions: lexicographic sort (works for filenames)
+ * - seasons: chronological sort (using compareSeasonIds)
  */
 function normalizeMeta(meta: MetaV2Data): MetaV2Data {
   const out: MetaV2Data = JSON.parse(JSON.stringify(meta)); // simple deep clone
@@ -162,8 +164,14 @@ function normalizeMeta(meta: MetaV2Data): MetaV2Data {
     for (const col of Object.keys(applied)) {
       const arr = applied[col] ?? [];
       const deduped = Array.from(new Set(arr));
-      // Lexicographic sort for deterministic output
-      deduped.sort();
+
+      // Use chronological sort for seasons, lexicographic for everything else
+      if (col === 'seasons') {
+        deduped.sort((a, b) => compareSeasonIds(a, b));
+      } else {
+        deduped.sort(); // Lexicographic sort
+      }
+
       applied[col] = deduped;
     }
   }
