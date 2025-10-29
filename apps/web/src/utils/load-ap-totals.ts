@@ -19,6 +19,12 @@ export type ApPillarTotals = {
 
 export type ApTotalsMap = Record<string, ApPillarTotals>;
 
+export interface ApTotalsResult {
+  totals: ApTotalsMap;
+  lastUpdated: string | null; // ISO timestamp (null in dev mode for live data)
+  isLive: boolean; // true if reading directly from ledger
+}
+
 /**
  * Load AP totals for all characters.
  * - In dev mode (NODE_ENV !== 'production'): reads and aggregates AP ledger directly (always up-to-date)
@@ -26,7 +32,7 @@ export type ApTotalsMap = Record<string, ApPillarTotals>;
  *
  * Note: Vercel sets NODE_ENV=production for both production and preview deployments.
  */
-export async function loadApTotals(): Promise<ApTotalsMap> {
+export async function loadApTotals(): Promise<ApTotalsResult> {
   const isProduction = process.env.NODE_ENV === 'production';
 
   if (isProduction) {
@@ -39,22 +45,30 @@ export async function loadApTotals(): Promise<ApTotalsMap> {
 /**
  * Dev mode: Read ledger directly and aggregate in real-time
  */
-function loadFromLedger(): ApTotalsMap {
+function loadFromLedger(): ApTotalsResult {
   const ledgerPath = REPO_PATHS.AP_LEDGER();
 
   if (!fs.existsSync(ledgerPath)) {
     console.warn(`⚠️  AP ledger not found at ${ledgerPath}. Returning empty totals.`);
-    return {};
+    return {
+      totals: {},
+      lastUpdated: null,
+      isLive: true,
+    };
   }
 
   const ledgerEntries = readApLedger(ledgerPath);
-  return aggregateApByCharacter(ledgerEntries);
+  return {
+    totals: aggregateApByCharacter(ledgerEntries),
+    lastUpdated: null, // null indicates live/current data
+    isLive: true,
+  };
 }
 
 /**
  * Production mode: Read from pre-computed cache
  */
-function loadFromCache(): ApTotalsMap {
+function loadFromCache(): ApTotalsResult {
   const cacheFilePath = path.join(__dirname, '../../.cache/ap-totals.json');
 
   if (!fs.existsSync(cacheFilePath)) {
@@ -73,5 +87,9 @@ function loadFromCache(): ApTotalsMap {
     totalsMap[entry.characterId] = entry.totals;
   }
 
-  return totalsMap;
+  return {
+    totals: totalsMap,
+    lastUpdated: cache.lastUpdated,
+    isLive: false,
+  };
 }
