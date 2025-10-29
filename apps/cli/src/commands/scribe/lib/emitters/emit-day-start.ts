@@ -10,12 +10,12 @@ export function emitDayStart(
   file: string,
   date: CampaignDate,
   season: string,
-  daylightCapHours: number,
+  daylightCapSegments: number,
 ): number {
   const event = appendEvent(file, 'day_start', {
     calendarDate: date,
     season,
-    daylightCap: daylightCapHours,
+    daylightCapSegments,
   });
   return event.seq;
 }

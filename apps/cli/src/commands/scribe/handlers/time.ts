@@ -48,10 +48,9 @@ export default function time(ctx: Context) {
       warn(`⚠️ Rounded ${input}h → ${roundedHours}h (${STEP_HOURS}h steps).`);
     }
 
-    // Pull daylight cap (in hours) off today's day_start
+    // Pull daylight cap (in segments) off today's day_start
     const dayStart = events[lastStartIdx];
-    const capHours = Number((dayStart as any).payload?.daylightCap ?? 9);
-    const capSegments = Math.round(capHours / STEP_HOURS); // caps are multiples of 1.5h
+    const capSegments = Number((dayStart as any).payload?.daylightCapSegments ?? 18); // default to 18 segments (9h)
     const usedSegments = daylightSegmentsSinceStart(events, lastStartIdx);
 
     // Split newly logged time between daylight and night
