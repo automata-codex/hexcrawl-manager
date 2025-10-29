@@ -64,13 +64,13 @@ export function dateSet(
 }
 
 export function dayEnd(
-  active: number,
-  daylight: number,
+  activeSegments: number,
+  daylightSegments: number,
 ): EventPrototype<'day_end'> {
-  const night = Math.max(active - daylight, 0);
+  const nightSegments = Math.max(activeSegments - daylightSegments, 0);
   return {
     kind: 'day_end',
-    payload: { summary: { active, daylight, night } },
+    payload: { summary: { activeSegments, daylightSegments, nightSegments } },
   };
 }
 
@@ -78,12 +78,13 @@ export function dayStart(
   calendarDate: DayStartEventPayload['calendarDate'],
 ): EventPrototype<'day_start'> {
   const season = getSeasonForDate(calendarDate);
+  const daylightCapHours = getDaylightCapForSeason(season);
   return {
     kind: 'day_start',
     payload: {
       calendarDate,
       season,
-      daylightCap: getDaylightCapForSeason(season),
+      daylightCapSegments: daylightCapHours * 2,
     },
   };
 }

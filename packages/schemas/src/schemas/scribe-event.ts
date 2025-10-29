@@ -68,9 +68,9 @@ export type DateSetEventPayload = z.infer<typeof DateSetEventPayloadSchema>;
 
 export const DayEndEventPayloadSchema = z.object({
   summary: z.object({
-    active: z.number().int(),
-    daylight: z.number().int(),
-    night: z.number().int(),
+    activeSegments: z.number().int(),
+    daylightSegments: z.number().int(),
+    nightSegments: z.number().int(),
   }),
 });
 export type DayEndEventPayload = z.infer<typeof DayEndEventPayloadSchema>;
@@ -78,7 +78,7 @@ export type DayEndEventPayload = z.infer<typeof DayEndEventPayloadSchema>;
 export const DayStartEventPayloadSchema = z.object({
   calendarDate: CampaignDateSchema,
   season: z.string(),
-  daylightCap: z.number().int(),
+  daylightCapSegments: z.number().int(),
 });
 export type DayStartEventPayload = z.infer<typeof DayStartEventPayloadSchema>;
 
