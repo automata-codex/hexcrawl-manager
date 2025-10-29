@@ -1,9 +1,10 @@
 import {
+  REPO_PATHS,
   appendApEntry,
   findLastCompletedSessionSeq,
-  REPO_PATHS,
 } from '@skyreach/data';
 import { ApLedgerEntry, makeSessionId } from '@skyreach/schemas';
+
 import { loadAllCharacters } from '../../../services/characters.service';
 import {
   CliValidationError,

@@ -1,4 +1,5 @@
 import { REPO_PATHS } from '@skyreach/data';
+import { readApLedger, rewriteApLedger } from '@skyreach/data';
 import { ApLedgerEntry, padSessionNum } from '@skyreach/schemas';
 import {
   makeCompletedSessionReport,
@@ -11,8 +12,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import yaml from 'yaml';
-
-import { readApLedger, rewriteApLedger } from '@skyreach/data';
 
 describe('Command `weave allocate ap`', () => {
   beforeEach(() => {

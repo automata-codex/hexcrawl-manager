@@ -20,7 +20,9 @@ export function assertSessionId(value: string): SessionId {
 export const isSessionId = (value: string): boolean =>
   SessionIdSchema.safeParse(value).success;
 
-export const makeSessionId = (number: SessionId | number | string): SessionId => {
+export const makeSessionId = (
+  number: SessionId | number | string,
+): SessionId => {
   // If already a valid SessionId, return it as-is (idempotent)
   if (typeof number === 'string' && isSessionId(number)) {
     return number as SessionId;

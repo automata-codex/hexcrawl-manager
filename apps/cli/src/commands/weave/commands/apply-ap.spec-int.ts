@@ -1,4 +1,5 @@
 import { buildSessionFilename, REPO_PATHS } from '@skyreach/data';
+import { readApLedger } from '@skyreach/data';
 import {
   makeSessionId,
   type ScribeEvent,
@@ -22,11 +23,12 @@ import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import yaml from 'yaml';
 
-import { readApLedger } from '@skyreach/data';
-
 const party = ['alistar', 'daemaris', 'istavan'];
 
-function buildSessionEvents(sessionId: string, sessionDate: string): ScribeEvent[] {
+function buildSessionEvents(
+  sessionId: string,
+  sessionDate: string,
+): ScribeEvent[] {
   return compileLog([
     sessionStart(sessionId, 'R14', sessionDate),
     dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
@@ -500,15 +502,21 @@ describe('Command `weave apply ap`', () => {
           );
 
           // Apply AP
-          const { exitCode, stderr } = await runWeave(['apply', 'ap', sessionId], {
-            repo,
-          });
+          const { exitCode, stderr } = await runWeave(
+            ['apply', 'ap', sessionId],
+            {
+              repo,
+            },
+          );
 
           expect(exitCode).toBe(0);
           expect(stderr).toBeFalsy();
 
           // Verify session report contains only regular character IDs (guests filtered out)
-          const reportPath = path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml');
+          const reportPath = path.join(
+            REPO_PATHS.REPORTS(),
+            'session-0001.yaml',
+          );
           expect(fs.existsSync(reportPath)).toBe(true);
           const report: SessionReport = yaml.parse(
             fs.readFileSync(reportPath, 'utf8'),
@@ -524,14 +532,26 @@ describe('Command `weave apply ap`', () => {
           );
 
           expect(sessionEntries.length).toBe(2); // Only alistar and daemaris
-          expect(sessionEntries.some((e: any) => e.characterId === 'alistar')).toBe(true);
-          expect(sessionEntries.some((e: any) => e.characterId === 'daemaris')).toBe(true);
+          expect(
+            sessionEntries.some((e: any) => e.characterId === 'alistar'),
+          ).toBe(true);
+          expect(
+            sessionEntries.some((e: any) => e.characterId === 'daemaris'),
+          ).toBe(true);
 
           // Verify no entries for guests
-          expect(sessionEntries.some((e: any) => e.characterId === 'Korgath')).toBe(false);
-          expect(sessionEntries.some((e: any) => e.characterId === 'Saurana')).toBe(false);
-          expect(sessionEntries.some((e: any) => e.characterId === 'John')).toBe(false);
-          expect(sessionEntries.some((e: any) => e.characterId === 'Jane')).toBe(false);
+          expect(
+            sessionEntries.some((e: any) => e.characterId === 'Korgath'),
+          ).toBe(false);
+          expect(
+            sessionEntries.some((e: any) => e.characterId === 'Saurana'),
+          ).toBe(false);
+          expect(
+            sessionEntries.some((e: any) => e.characterId === 'John'),
+          ).toBe(false);
+          expect(
+            sessionEntries.some((e: any) => e.characterId === 'Jane'),
+          ).toBe(false);
         },
       );
     });

@@ -1,4 +1,3 @@
-
 import { rollEncounterEntry } from './roll-encounter-entry';
 import { rollEncounterOccurs } from './roll-encounter-occurs';
 import { rollEncounterType } from './roll-encounter-type';

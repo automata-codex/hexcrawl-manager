@@ -31,7 +31,8 @@ export function getLastAppliedSessionSeason(): string | null {
       .map((f) => path.join(footprintsDir, f));
 
     // Find all session footprints, sorted by appliedAt timestamp
-    const sessionFootprints: Array<{ appliedAt: string; seasonId: string }> = [];
+    const sessionFootprints: Array<{ appliedAt: string; seasonId: string }> =
+      [];
 
     for (const file of files) {
       try {

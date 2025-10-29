@@ -121,10 +121,7 @@ export const GuestPcSchema = z.object({
 export type GuestPc = z.infer<typeof GuestPcSchema>;
 
 /** Party member can be either a character ID (string) or a guest PC (object) */
-export const PartyMemberSchema = z.union([
-  z.string().min(1),
-  GuestPcSchema,
-]);
+export const PartyMemberSchema = z.union([z.string().min(1), GuestPcSchema]);
 export type PartyMember = z.infer<typeof PartyMemberSchema>;
 
 export const PartySetEventPayloadSchema = z.object({
