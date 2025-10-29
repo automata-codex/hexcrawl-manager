@@ -116,6 +116,7 @@ This is an npm workspaces monorepo with strict architectural boundaries enforced
 - Rollovers: `data/session-logs/rollovers/` (JSONL format)
 - Footprints: `data/session-logs/footprints/{domain}/` (apply audit trail)
 - Meta tracking: `data/meta.yaml` (appliedSessions, rolledSeasons, nextSessionSeq)
+- AP Ledger: `data/ap-ledger.jsonl` (canonical source of all advancement points)
 - Campaign data: `data/` (YAML files for characters, hexes, trails, etc.)
 
 **File naming conventions:**
@@ -140,6 +141,19 @@ This is an npm workspaces monorepo with strict architectural boundaries enforced
 - Rollovers must be applied in sequential order
 - Already-applied artifacts are idempotent no-ops
 
+**AP Ledger integration with web app:**
+- AP data flows: `data/ap-ledger.jsonl` → web app → ProgressTable component
+- Character YAML files (`data/characters/*.yml`) keep `advancementPoints` at 0 for schema compatibility
+- The AP ledger is the canonical source of truth for all advancement points
+- **Environment-based loading:**
+  - **Dev mode** (`NODE_ENV !== 'production'`): Reads ledger directly via `@skyreach/data` (always up-to-date)
+  - **Production** (`NODE_ENV === 'production'`): Reads from pre-computed cache (fast)
+- **Build-time caching** (`apps/web/scripts/cache-ap-totals.ts`):
+  - Runs before Astro build via `prebuild` script
+  - Aggregates all AP from ledger into `apps/web/.cache/ap-totals.json`
+  - Build fails if ledger is missing (prevents stale deployments)
+- **Verification:** Run `weave status ap` to see CLI totals, compare with web app display
+
 ## Release Process
 
 Skyreach uses a "version-on-develop" workflow:
@@ -162,6 +176,10 @@ Skyreach uses a "version-on-develop" workflow:
 - `docs/specs/` - Command specifications (scribe, weave, data-contracts)
 - `docs/dev/session-lifecycle.md` - Session/rollover/weave lifecycle
 - `data/meta.yaml` - Campaign state index
+- `data/ap-ledger.jsonl` - Canonical AP data (managed by weave commands)
+- `apps/web/scripts/cache-ap-totals.ts` - Build-time AP caching for web app
+- `apps/web/src/utils/load-ap-totals.ts` - Runtime AP loader (dev/prod switching)
+- `packages/data/src/ap-ledger/` - AP ledger utilities (shared by CLI and web)
 
 ## Development Notes
 
@@ -179,6 +197,15 @@ Skyreach uses a "version-on-develop" workflow:
 - Production sessions use sequential IDs from `meta.nextSessionSeq`
 - Dev mode (--dev flag or SKYREACH_DEV=true) uses ISO timestamps
 - Always use `ensureRepoDirs()` from `@skyreach/data` before file operations
+
+**When working with AP (advancement points) data:**
+- NEVER manually edit `data/ap-ledger.jsonl` - it's managed by weave commands
+- NEVER update `advancementPoints` in character YAML files - they're always 0
+- Use `weave apply ap` to add AP entries from finalized session logs
+- Use `weave allocate ap` to grant absence credits to characters
+- Use `weave status ap` to view current AP totals
+- Web app automatically loads AP from ledger (dev) or cache (production)
+- AP ledger aggregation logic is in `@skyreach/data` package (shared by CLI and web)
 
 **Git workflow:**
 - Main branch: `main`
