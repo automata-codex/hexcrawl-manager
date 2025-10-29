@@ -9,9 +9,12 @@ import {
   dayEnd,
   dayStart,
   compileLog,
+  guest,
   partySet,
   runWeave,
   saveCharacters,
+  sessionEnd,
+  sessionStart,
   withTempRepo,
 } from '@skyreach/test-helpers';
 import fs from 'node:fs';
@@ -22,18 +25,23 @@ import yaml from 'yaml';
 import { readApLedger } from '../../../services/ap-ledger.service';
 
 const party = ['alistar', 'daemaris', 'istavan'];
-const events: ScribeEvent[] = compileLog([
-  dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
-  partySet(party),
-  ap('combat', 1, party, 'A1', 'Defeated goblins'),
-  ap('exploration', 2, party, 'B1', 'Found a hidden dungeon'),
-  ap('social', 1, party, 'C1', 'Talked to the alseid'),
-  ap('exploration', 1, party, 'D1', 'Entered a new region'),
-  ap('combat', 1, party, 'E1', 'Fought some baddies'),
-  ap('exploration', 1, party, 'F1', 'Found a hidden temple'),
-  ap('social', 1, party, 'G1', 'Chatted with village elder'),
-  dayEnd(13, 13),
-]);
+
+function buildSessionEvents(sessionId: string, sessionDate: string): ScribeEvent[] {
+  return compileLog([
+    sessionStart(sessionId, 'R14', sessionDate),
+    dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
+    partySet(party),
+    ap('combat', 1, party, 'A1', 'Defeated goblins'),
+    ap('exploration', 2, party, 'B1', 'Found a hidden dungeon'),
+    ap('social', 1, party, 'C1', 'Talked to the alseid'),
+    ap('exploration', 1, party, 'D1', 'Entered a new region'),
+    ap('combat', 1, party, 'E1', 'Fought some baddies'),
+    ap('exploration', 1, party, 'F1', 'Found a hidden temple'),
+    ap('social', 1, party, 'G1', 'Chatted with village elder'),
+    dayEnd(13, 13),
+    sessionEnd(sessionId),
+  ]);
+}
 
 function writeCharacterFiles() {
   saveCharacters([{ key: 'alistar' }, { key: 'daemaris' }, { key: 'istavan' }]);
@@ -53,6 +61,7 @@ describe('Command `weave apply ap`', () => {
             REPO_PATHS.SESSIONS(),
             buildSessionFilename(1, '2025-09-25'),
           );
+          const events = buildSessionEvents('session-0001', '2025-09-25');
           fs.writeFileSync(
             logPath,
             events.map((e) => JSON.stringify(e)).join('\n'),
@@ -166,18 +175,20 @@ describe('Command `weave apply ap`', () => {
             REPO_PATHS.SESSIONS(),
             buildSessionFilename(1, '2025-09-25'),
           );
+          const events1 = buildSessionEvents('session-0001', '2025-09-25');
           fs.writeFileSync(
             logPath1,
-            events.map((e) => JSON.stringify(e)).join('\n'),
+            events1.map((e) => JSON.stringify(e)).join('\n'),
           );
           // session-0002 (pending)
           const logPath2 = path.join(
             REPO_PATHS.SESSIONS(),
             buildSessionFilename(2, '2025-09-26'),
           );
+          const events2 = buildSessionEvents('session-0002', '2025-09-26');
           fs.writeFileSync(
             logPath2,
-            events.map((e) => JSON.stringify(e)).join('\n'),
+            events2.map((e) => JSON.stringify(e)).join('\n'),
           );
 
           // Simulate completed report for session-0001
@@ -285,6 +296,7 @@ describe('Command `weave apply ap`', () => {
           writeCharacterFiles();
 
           // Finalized log for session-0001
+          const events = buildSessionEvents('session-0001', '2025-09-25');
           fs.writeFileSync(
             path.join(
               REPO_PATHS.SESSIONS(),
@@ -338,10 +350,12 @@ describe('Command `weave apply ap`', () => {
           fs.writeFileSync(
             finalizedLogPath,
             compileLog([
+              sessionStart('session-0003', 'R14', '2025-09-27'),
               dayStart({ year: 1511, month: 'Umbraeus', day: 18 }),
               partySet(party),
               ap('exploration', 2, party, 'H1', 'Discovered ancient ruins'),
               dayEnd(14, 14),
+              sessionEnd('session-0003'),
             ])
               .map((e) => JSON.stringify(e))
               .join('\n'),
@@ -355,10 +369,12 @@ describe('Command `weave apply ap`', () => {
           fs.writeFileSync(
             incompleteLogPath,
             compileLog([
+              sessionStart('session-0004', 'R14', '2025-09-28'),
               dayStart({ year: 1511, month: 'Umbraeus', day: 19 }),
               partySet(party),
               ap('exploration', 1, party, 'H2', 'Mapped the path to H3'),
               dayEnd(14, 14),
+              sessionEnd('session-0004'),
             ])
               .map((e) => JSON.stringify(e))
               .join('\n'),
@@ -444,7 +460,82 @@ describe('Command `weave apply ap`', () => {
   describe('Parsing logs and deriving session data', () => {
     it.todo('parses all JSONL log parts in sorted order');
     it.todo('derives attendance.characterIds from participation events');
-    it.todo('collects guests from non-character participants');
+
+    it('filters out guest PCs from AP processing and ledger entries', async () => {
+      await withTempRepo(
+        'apply-ap-guest-filtering',
+        { initGit: false },
+        async (repo) => {
+          // Create character files for regular PCs only
+          saveCharacters([{ key: 'alistar' }, { key: 'daemaris' }]);
+
+          // Build session with mixed regular and guest PCs
+          const sessionId = 'session-0001';
+          const sessionDate = '2025-09-25';
+          const regularParty = ['alistar', 'daemaris'];
+          const mixedParty = [
+            'alistar',
+            guest('John', 'Korgath'),
+            'daemaris',
+            guest('Jane', 'Saurana'),
+          ];
+
+          const events = compileLog([
+            sessionStart(sessionId, 'R14', sessionDate),
+            dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
+            partySet(mixedParty),
+            ap('combat', 1, regularParty, 'A1', 'Defeated goblins'),
+            ap('exploration', 2, regularParty, 'B1', 'Found a dungeon'),
+            dayEnd(5, 5),
+            sessionEnd(sessionId),
+          ]);
+
+          const logPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            buildSessionFilename(1, sessionDate),
+          );
+          fs.writeFileSync(
+            logPath,
+            events.map((e) => JSON.stringify(e)).join('\n'),
+          );
+
+          // Apply AP
+          const { exitCode, stderr } = await runWeave(['apply', 'ap', sessionId], {
+            repo,
+          });
+
+          expect(exitCode).toBe(0);
+          expect(stderr).toBeFalsy();
+
+          // Verify session report contains only regular character IDs (guests filtered out)
+          const reportPath = path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml');
+          expect(fs.existsSync(reportPath)).toBe(true);
+          const report: SessionReport = yaml.parse(
+            fs.readFileSync(reportPath, 'utf8'),
+          );
+          expect(report.characterIds).toEqual(['alistar', 'daemaris']);
+          expect(report.characterIds).not.toContain('Korgath');
+          expect(report.characterIds).not.toContain('Saurana');
+
+          // Verify AP ledger contains entries only for regular PCs (no guests)
+          const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
+          const sessionEntries = ledger.filter(
+            (e: any) => e.sessionId === sessionId,
+          );
+
+          expect(sessionEntries.length).toBe(2); // Only alistar and daemaris
+          expect(sessionEntries.some((e: any) => e.characterId === 'alistar')).toBe(true);
+          expect(sessionEntries.some((e: any) => e.characterId === 'daemaris')).toBe(true);
+
+          // Verify no entries for guests
+          expect(sessionEntries.some((e: any) => e.characterId === 'Korgath')).toBe(false);
+          expect(sessionEntries.some((e: any) => e.characterId === 'Saurana')).toBe(false);
+          expect(sessionEntries.some((e: any) => e.characterId === 'John')).toBe(false);
+          expect(sessionEntries.some((e: any) => e.characterId === 'Jane')).toBe(false);
+        },
+      );
+    });
+
     it.todo('collects AP events per character and pillar');
     it.todo('extracts in-world gameStartDate and gameEndDate if present');
   });
@@ -462,6 +553,7 @@ describe('Command `weave apply ap`', () => {
             REPO_PATHS.SESSIONS(),
             buildSessionFilename(1, '2025-09-25'),
           );
+          const events = buildSessionEvents('session-0001', '2025-09-25');
           fs.writeFileSync(
             logPath,
             events.map((e) => JSON.stringify(e)).join('\n'),

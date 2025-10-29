@@ -1,12 +1,13 @@
 import { normalizeSeasonId, parseSeasonId } from '@skyreach/core';
-import { SEASON_ORDER } from '@skyreach/schemas';
+import { SEASON_ORDER, type MetaV2Data } from '@skyreach/schemas';
 
-export function getNextUnrolledSeason(meta: any): string | null {
-  // meta.rolledSeasons is sorted chronologically; find the next season after the last rolled
-  if (!meta.rolledSeasons || meta.rolledSeasons.length === 0) {
+export function getNextUnrolledSeason(meta: MetaV2Data): string | null {
+  // meta.state.trails.applied.seasons is sorted chronologically; find the next season after the last rolled
+  const seasons = meta.state.trails.applied?.seasons ?? [];
+  if (seasons.length === 0) {
     return null;
   }
-  const last = meta.rolledSeasons[meta.rolledSeasons.length - 1];
+  const last = seasons[seasons.length - 1];
 
   // Next season: increment season (wrap to next year if autumn)
   const { season, year } = parseSeasonId(last);

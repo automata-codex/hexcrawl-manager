@@ -125,11 +125,15 @@ export function note(text: string): EventPrototype<'note'> {
   };
 }
 
-export function partySet(ids: string[]): EventPrototype<'party_set'> {
+export function partySet(ids: import('@skyreach/schemas').PartyMember[]): EventPrototype<'party_set'> {
   return {
     kind: 'party_set',
     payload: { ids },
   };
+}
+
+export function guest(playerName: string, characterName: string): { playerName: string; characterName: string } {
+  return { playerName, characterName };
 }
 
 export function scout(

@@ -12,7 +12,10 @@ export const REPO_PATHS = {
   DEV_ROLLOVERS: () => getRepoPath('data', 'session-logs', '_dev', 'rollovers'), // Dev-mode rollover logs
   DEV_SESSIONS: () => getRepoPath('data', 'session-logs', '_dev', 'sessions'), // Dev-mode finalized session logs
   FAST_TRAVEL: () => getRepoPath('data', 'fast-travel'), // Fast travel plan files
-  FOOTPRINTS: () => getRepoPath('data', 'session-logs', 'footprints'), // Footprint logs
+  FOOTPRINTS: (domain?: string) =>
+    domain
+      ? getRepoPath('data', 'session-logs', 'footprints', domain)
+      : getRepoPath('data', 'session-logs', 'footprints'), // Footprint logs (optionally by domain)
   HAVENS: () => getRepoPath('data', 'havens.yml'),
   HEXES: () => resolveDataPath('hexes'),
   IN_PROGRESS: () => getRepoPath('data', 'session-logs', 'in-progress'), // In-progress session logs

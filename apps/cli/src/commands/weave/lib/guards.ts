@@ -9,7 +9,7 @@ export function isRolloverAlreadyApplied(
   meta: MetaV2Data,
   fileId: string,
 ): boolean {
-  return meta.state.trails.applied?.appliedSessions?.includes(fileId) ?? false;
+  return meta.state.trails.applied?.sessions?.includes(fileId) ?? false;
 }
 
 export function isRolloverChronologyValid(
@@ -31,29 +31,29 @@ export function isSessionAlreadyApplied(
   meta: MetaV2Data,
   fileId: string,
 ): boolean {
-  return meta.state.trails.applied?.appliedSessions?.includes(fileId) ?? false;
+  return meta.state.trails.applied?.sessions?.includes(fileId) ?? false;
 }
 
 /**
- * Check chronology against meta.rolledSeasons.
- * - If rolledSeasons is empty => valid, no missing.
+ * Check chronology against meta.state.trails.applied.seasons.
+ * - If seasons is empty => valid, no missing.
  * - Otherwise, require a contiguous run of rolled seasons ending at `seasonId`.
- *   Walk backward from `seasonId`, matching the tail of rolledSeasons; for any
+ *   Walk backward from `seasonId`, matching the tail of seasons; for any
  *   gaps, push to `missing` and do NOT advance the rolled pointer.
  */
 export function isSessionChronologyValid(
   meta: MetaV2Data,
   seasonId: string,
 ): { valid: boolean; missing: string[] } {
-  const rolledSeasons = meta.state.trails.applied?.rolledSeasons ?? [];
-  const rolled = rolledSeasons.map(normalizeSeasonId);
+  const seasons = meta.state.trails.applied?.seasons ?? [];
+  const rolled = seasons.map(normalizeSeasonId);
   const target = normalizeSeasonId(seasonId);
 
   if (rolled.length === 0) {
     return { valid: true, missing: [] };
   }
 
-  let idx = rolled.length - 1; // pointer into rolledSeasons (tail → head)
+  let idx = rolled.length - 1; // pointer into seasons (tail → head)
   let cursor: string = target; // walk backward from target
   const missing: string[] = [];
 
@@ -73,7 +73,7 @@ export function isSessionChronologyValid(
     }
   }
 
-  // We’ve walked back to the head of rolledSeasons.
+  // We've walked back to the head of seasons.
   const valid = missing.length === 0;
   return { valid, missing };
 }
