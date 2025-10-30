@@ -2,7 +2,6 @@ import { weightedRandomSelection } from './weighted-random-selection';
 
 import type { EncounterTableData, TieredSubtableData } from '@skyreach/schemas';
 
-
 /**
  * Roll on a category's subtable to get a specific encounter.
  * For MVP, always uses tier "1" subtable.

@@ -915,7 +915,7 @@ export function writeSessionFilesAndRollovers(
 
     // Reassign seq and remove _origIdx
     const blockEvents = block.events.map((e, idx) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line no-unused-vars
       const { _origIdx, ...ev } = e;
       ev.seq = idx + 1;
       return ev;

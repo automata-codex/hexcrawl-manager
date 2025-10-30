@@ -5,6 +5,8 @@ import {
 } from '@skyreach/core';
 import {
   REPO_PATHS,
+  appendApEntries,
+  buildSessionApEntries,
   discoverCompletedReports,
   discoverFinalizedLogs,
   discoverFinalizedLogsForOrThrow,
@@ -26,10 +28,6 @@ import yaml from 'yaml';
 import { ZodError } from 'zod';
 
 import pkg from '../../../../package.json' assert { type: 'json' };
-import {
-  appendApEntries,
-  buildSessionApEntries,
-} from '../../../services/ap-ledger.service';
 import { eventsOf } from '../../../services/event-log.service';
 import { isGuest } from '../../../services/party-member.service';
 import {
@@ -186,7 +184,9 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   // --- Derive Attendance ---
   const party = selectParty(events);
   // Filter out guest PCs - they don't accumulate AP in the ledger
-  const regularCharacters = party.filter((member) => !isGuest(member)) as string[];
+  const regularCharacters = party.filter(
+    (member) => !isGuest(member),
+  ) as string[];
 
   // --- Build characterLevels map ---
   const characterLevels: Record<string, number> = {};

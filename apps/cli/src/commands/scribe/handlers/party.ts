@@ -35,12 +35,15 @@ export default function party(ctx: Context) {
       // Parse flags from remaining args (after 'guest')
       const flagArgs = args.slice(1);
       const flags = parseGuestFlags(flagArgs);
-      const hasAnyFlag = flags.playerName !== undefined || flags.characterName !== undefined;
+      const hasAnyFlag =
+        flags.playerName !== undefined || flags.characterName !== undefined;
       const allProvided = Boolean(flags.playerName && flags.characterName);
 
       // If flags provided, require both
       if (hasAnyFlag && !allProvided) {
-        return usage('Usage: party guest --player-name <name> --character-name <name>');
+        return usage(
+          'Usage: party guest --player-name <name> --character-name <name>',
+        );
       }
 
       let playerName: string;
@@ -62,7 +65,10 @@ export default function party(ctx: Context) {
             return error('❌ Player name cannot be empty');
           }
 
-          const inputCharacterName = await askLine(ctx.rl, 'Enter character name: ');
+          const inputCharacterName = await askLine(
+            ctx.rl,
+            'Enter character name: ',
+          );
           if (!inputCharacterName.trim()) {
             return error('❌ Character name cannot be empty');
           }
@@ -87,9 +93,7 @@ export default function party(ctx: Context) {
       const next = [...current, guest];
 
       appendEvent(ctx.file!, 'party_set', { ids: next });
-      info(
-        `✓ party: ${next.map(formatPartyMember).join(', ') || '∅'}`,
-      );
+      info(`✓ party: ${next.map(formatPartyMember).join(', ') || '∅'}`);
       return;
     }
 
@@ -116,9 +120,7 @@ export default function party(ctx: Context) {
         appendEvent(ctx.file!, 'party_set', { ids: next });
       }
       const latest = selectParty(readEvents(ctx.file!));
-      info(
-        `✓ party: ${latest.map(formatPartyMember).join(', ') || '∅'}`,
-      );
+      info(`✓ party: ${latest.map(formatPartyMember).join(', ') || '∅'}`);
       return;
     }
 
@@ -134,7 +136,11 @@ export default function party(ctx: Context) {
     if (sub === 'list') {
       const evs = readEvents(ctx.file!);
       const current = selectParty(evs);
-      info(current.length ? current.map(formatPartyMember).join(', ') : '∅ (no active characters)');
+      info(
+        current.length
+          ? current.map(formatPartyMember).join(', ')
+          : '∅ (no active characters)',
+      );
       return;
     }
 
@@ -156,7 +162,9 @@ export default function party(ctx: Context) {
       }
       appendEvent(ctx.file!, 'party_set', { ids: next });
       const latest = selectParty(readEvents(ctx.file!));
-      info(`✓ removed '${id}'. party: ${latest.map(formatPartyMember).join(', ') || '∅'}`);
+      info(
+        `✓ removed '${id}'. party: ${latest.map(formatPartyMember).join(', ') || '∅'}`,
+      );
       return;
     }
 

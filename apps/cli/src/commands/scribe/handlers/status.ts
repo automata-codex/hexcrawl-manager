@@ -35,7 +35,9 @@ export default function status(ctx: Context) {
 
     const dayStart = events[lastStartIdx] as any;
     const calendarDate = dayStart.payload?.calendarDate;
-    const daylightCapSegments = Number(dayStart.payload?.daylightCapSegments ?? 0);
+    const daylightCapSegments = Number(
+      dayStart.payload?.daylightCapSegments ?? 0,
+    );
     const daylightCapH = segmentsToHours(daylightCapSegments);
 
     const usedDaylightSegments = daylightSegmentsSinceStart(

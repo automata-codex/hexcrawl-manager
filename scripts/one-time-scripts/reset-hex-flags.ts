@@ -71,7 +71,7 @@ async function resetHexFlags(dryRun = false) {
       // Remove landmark-known tag
       if (Array.isArray(doc.tags)) {
         const beforeLength = doc.tags.length;
-        doc.tags = doc.tags.filter(tag => tag !== LANDMARK_TAG);
+        doc.tags = doc.tags.filter((tag) => tag !== LANDMARK_TAG);
 
         if (doc.tags.length < beforeLength) {
           changes.push('landmark-known tag');
@@ -86,7 +86,9 @@ async function resetHexFlags(dryRun = false) {
       if (changes.length > 0) {
         modifiedCount++;
         const hexId = doc.id || path.basename(filePath, path.extname(filePath));
-        console.log(`${dryRun ? '📋' : '✅'} ${hexId}: cleared ${changes.join(', ')}`);
+        console.log(
+          `${dryRun ? '📋' : '✅'} ${hexId}: cleared ${changes.join(', ')}`,
+        );
 
         if (!dryRun) {
           await writeFile(filePath, yaml.stringify(doc), 'utf8');
@@ -95,7 +97,10 @@ async function resetHexFlags(dryRun = false) {
         unchangedCount++;
       }
     } catch (err) {
-      console.error(`❌ Failed to process ${filePath}:`, err instanceof Error ? err.message : err);
+      console.error(
+        `❌ Failed to process ${filePath}:`,
+        err instanceof Error ? err.message : err,
+      );
     }
   }
 
@@ -115,7 +120,7 @@ async function resetHexFlags(dryRun = false) {
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 
-resetHexFlags(dryRun).catch(err => {
+resetHexFlags(dryRun).catch((err) => {
   console.error('💥 Script failed:', err);
   process.exit(1);
 });

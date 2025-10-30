@@ -3,13 +3,54 @@ import { getCollection } from 'astro:content';
 
 import ProgressTable from '../../components/ProgressTable/ProgressTable.astro';
 import ComponentLayout from '../../layouts/ComponentLayout.astro';
+import { loadApTotals } from '../../utils/load-ap-totals';
 
+// Load characters from content collection
 const characterData = await getCollection('characters');
+
+// Load AP totals - auto-detects mode based on NODE_ENV
+// Dev (NODE_ENV !== 'production'): reads ledger directly
+// Production (NODE_ENV === 'production'): reads from cache
+const apResult = await loadApTotals();
+
+// Merge AP totals into character data
 const characters = characterData
-  .map((character) => character.data)
+  .map((character) => {
+    const characterId = character.data.id;
+    const apFromLedger = apResult.totals[characterId];
+
+    return {
+      ...character.data,
+      // Override AP from YAML with ledger data if available
+      advancementPoints: apFromLedger || character.data.advancementPoints,
+    };
+  })
   .sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+// Format last updated timestamp for display
+function formatTimestamp(isoString: string): string {
+  const date = new Date(isoString);
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  });
+}
 ---
 
 <ComponentLayout title="Progress Tracker">
   <ProgressTable characters={characters} />
+
+  <div style="margin-top: 2rem; text-align: center; color: var(--bulma-text-weak); font-size: 0.875rem;">
+    {apResult.isLive ? (
+      <span>Advancement points loaded live from ledger</span>
+    ) : apResult.lastUpdated ? (
+      <span>Advancement points cached at: {formatTimestamp(apResult.lastUpdated)}</span>
+    ) : (
+      <span>Advancement points data unavailable</span>
+    )}
+  </div>
 </ComponentLayout>

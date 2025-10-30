@@ -1,4 +1,5 @@
 export * from './ap-ledger';
+export * from './ap-totals';
 export * from './bounty';
 export * from './campaign-date';
 export * from './character';

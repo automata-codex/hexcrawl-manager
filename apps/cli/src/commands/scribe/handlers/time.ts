@@ -50,7 +50,9 @@ export default function time(ctx: Context) {
 
     // Pull daylight cap (in segments) off today's day_start
     const dayStart = events[lastStartIdx];
-    const capSegments = Number((dayStart as any).payload?.daylightCapSegments ?? 18); // default to 18 segments (9h)
+    const capSegments = Number(
+      (dayStart as any).payload?.daylightCapSegments ?? 18, // default to 18 segments (9h)
+    );
     const usedSegments = daylightSegmentsSinceStart(events, lastStartIdx);
 
     // Split newly logged time between daylight and night
