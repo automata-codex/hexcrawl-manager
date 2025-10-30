@@ -1,4 +1,4 @@
-import * as data from '@skyreach/data';
+import * as core from '@skyreach/core';
 import {
   MockInstance,
   afterEach,
@@ -18,7 +18,7 @@ describe('rollEncounterEntry', () => {
   let rollDiceSpy: MockInstance<(notation: string) => number>;
 
   beforeEach(() => {
-    rollDiceSpy = vi.spyOn(data, 'rollDice');
+    rollDiceSpy = vi.spyOn(core, 'rollDice');
   });
 
   afterEach(() => {

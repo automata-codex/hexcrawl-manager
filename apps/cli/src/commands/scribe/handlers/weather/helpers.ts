@@ -1,5 +1,4 @@
-import { CALENDAR_CONFIG } from '@skyreach/core';
-import { rollDice } from '@skyreach/data';
+import { CALENDAR_CONFIG, rollDice } from '@skyreach/core';
 import { clamp } from 'lodash-es';
 
 import { DESCRIPTOR_LIBRARY } from '../../config/descriptor-library.config';

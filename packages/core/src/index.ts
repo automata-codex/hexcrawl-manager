@@ -4,6 +4,7 @@ export * from './config';
 export * from './errors';
 export * from './hexes';
 export * from './regex';
+export { rollDice } from './roll-dice';
 export * from './rollovers';
 export * from './seasons';
 export * from './sessions';

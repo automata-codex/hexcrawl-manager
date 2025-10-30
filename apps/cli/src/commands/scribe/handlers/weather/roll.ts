@@ -1,5 +1,5 @@
 import { info } from '@skyreach/cli-kit';
-import { rollDice } from '@skyreach/data';
+import { rollDice } from '@skyreach/core';
 import { clamp } from 'lodash-es';
 
 import { readEvents } from '../../../../services/event-log.service';

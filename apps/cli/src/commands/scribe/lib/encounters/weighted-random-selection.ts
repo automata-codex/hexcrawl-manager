@@ -1,4 +1,4 @@
-import { rollDice } from '@skyreach/data';
+import { rollDice } from '@skyreach/core';
 
 /**
  * Perform weighted random selection from a list of entries.
