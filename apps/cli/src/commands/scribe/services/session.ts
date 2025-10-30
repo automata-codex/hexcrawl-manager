@@ -15,6 +15,7 @@ import {
   parseSessionId,
   type CampaignDate,
   type DayStartEvent,
+  type PartyMember,
   type ScribeEvent,
   type SessionContinueEvent,
   type SessionEndEvent,
@@ -591,7 +592,7 @@ export function synthesizeLifecycleEvents(
 } {
   function getSnapshot(upToIdx: number) {
     let currentHex = 'null';
-    let currentParty = ['null'];
+    let currentParty: PartyMember[] = ['null'];
     let currentDate = {} as CampaignDate;
     for (let i = 0; i <= upToIdx; ++i) {
       const e = sortedEvents[i];
@@ -611,7 +612,11 @@ export function synthesizeLifecycleEvents(
         currentHex = e.payload.startHex;
       }
     }
-    return { currentHex, currentParty, currentDate };
+    // Filter currentParty to only include string IDs (exclude guest PC objects)
+    const currentPartyIds = currentParty.filter(
+      (member): member is string => typeof member === 'string',
+    );
+    return { currentHex, currentParty: currentPartyIds, currentDate };
   }
 
   const finalizedBlocks: {
