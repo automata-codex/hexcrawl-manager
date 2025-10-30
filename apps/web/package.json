@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "astro": "astro",
-    "build": "npm run prebuild && npm run --prefix ../.. build:packages && npm run --prefix ../.. build:clue-links && astro check && astro build",
+    "build": "npm run --prefix ../.. build:clue-links && astro check && astro build",
     "check": "astro check",
     "dev": "astro dev --host",
-    "prebuild": "tsx scripts/cache-ap-totals.ts",
+    "prebuild": "npm run --prefix ../.. build:packages && tsx scripts/cache-ap-totals.ts",
     "preview": "astro preview"
   },
   "type": "module",
