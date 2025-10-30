@@ -1,17 +1,21 @@
 import { getGitHeadCommit, REPO_PATHS, writeYamlAtomic } from '@skyreach/data';
+import {
+  RolloverFootprintSchema,
+  SessionFootprintSchema,
+} from '@skyreach/schemas';
 import path from 'path';
 
-export function writeFootprint(footprint: any) {
+export function writeFootprint(footprint: any, domain: string = 'trails') {
   let fileName: string;
   if (footprint.kind === 'session') {
     // Extract sequence, suffix, and real-world date from sessionId
-    // sessionId format: session_<SEQ><suffix>_<DATE>
+    // sessionId format: session-<SEQ><suffix>_<DATE>
     let realWorldDate = '';
     let sequence = 'unknown';
     let suffix = '';
     if (typeof footprint.id === 'string') {
       const match = footprint.id.match(
-        /^session_(\d+)([a-z]*)_(\d{4}-\d{2}-\d{2})$/,
+        /^session[_-](\d+)([a-z]*)_(\d{4}-\d{2}-\d{2})$/, // TODO Replace with SCRIBE_ID_RE when available
       );
       if (match) {
         sequence = match[1];
@@ -38,6 +42,30 @@ export function writeFootprint(footprint: any) {
     footprint.git = { headCommit: gitHead };
   }
 
-  const filePath = path.join(REPO_PATHS.FOOTPRINTS(), fileName);
+  // Validate footprint structure before writing
+  if (footprint.kind === 'rollover') {
+    const result = RolloverFootprintSchema.safeParse(footprint);
+    if (!result.success) {
+      throw new Error(
+        `Invalid rollover footprint structure: ${JSON.stringify(result.error.issues, null, 2)}`,
+      );
+    }
+  } else if (footprint.kind === 'session') {
+    const result = SessionFootprintSchema.safeParse(footprint);
+    if (!result.success) {
+      throw new Error(
+        `Invalid session footprint structure: ${JSON.stringify(result.error.issues, null, 2)}`,
+      );
+    }
+  }
+
+  // Determine destination directory based on footprint kind
+  let filePath: string;
+  if (footprint.kind === 'rollover') {
+    filePath = path.join(REPO_PATHS.ROLLOVERS(), fileName);
+  } else {
+    filePath = path.join(REPO_PATHS.FOOTPRINTS(domain), fileName);
+  }
+
   writeYamlAtomic(filePath, footprint);
 }

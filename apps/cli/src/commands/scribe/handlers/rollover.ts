@@ -6,13 +6,13 @@ import {
   buildRolloverFilename,
   REPO_PATHS,
 } from '@skyreach/data';
+import { ScribeEvent } from '@skyreach/schemas';
 import fs from 'fs';
 import path from 'path';
 
 import { detectDevMode } from '../services/general';
 
 import type { Context } from '../types';
-import { ScribeEvent } from '@skyreach/schemas';
 
 // Helper: Check for session locks
 function hasSessionLock(): boolean {

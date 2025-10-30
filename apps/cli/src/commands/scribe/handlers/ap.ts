@@ -2,6 +2,7 @@ import { info, usage } from '@skyreach/cli-kit';
 import { PILLARS, TIERS } from '@skyreach/schemas';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
+import { partyMemberToString } from '../../../services/party-member.service';
 import {
   selectCurrentHex,
   selectParty,
@@ -43,7 +44,10 @@ export default function ap(ctx: Context) {
 
     const events = ctx.file ? readEvents(ctx.file) : [];
     const hex = selectCurrentHex(events);
-    const party = selectParty(events);
+    const partyMembers = selectParty(events);
+
+    // Convert PartyMember[] to string[] for AP event
+    const party = partyMembers.map(partyMemberToString);
 
     appendEvent(ctx.file!, 'advancement_point', {
       pillar,

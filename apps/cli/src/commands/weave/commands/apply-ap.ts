@@ -5,6 +5,8 @@ import {
 } from '@skyreach/core';
 import {
   REPO_PATHS,
+  appendApEntries,
+  buildSessionApEntries,
   discoverCompletedReports,
   discoverFinalizedLogs,
   discoverFinalizedLogsForOrThrow,
@@ -17,6 +19,7 @@ import {
   padSessionNum,
   type NoteEvent,
   type SessionId,
+  type TodoEvent,
 } from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -25,11 +28,8 @@ import yaml from 'yaml';
 import { ZodError } from 'zod';
 
 import pkg from '../../../../package.json' assert { type: 'json' };
-import {
-  appendApEntries,
-  buildSessionApEntries,
-} from '../../../services/ap-ledger.service';
 import { eventsOf } from '../../../services/event-log.service';
+import { isGuest } from '../../../services/party-member.service';
 import {
   firstCalendarDate,
   lastCalendarDate,
@@ -155,21 +155,42 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   // --- Parse All Parts ---
   const events = readAllFinalizedLogsForSession(paddedSessionNum);
 
+  // --- Validate Events ---
+  if (!events || events.length === 0) {
+    throw new Error(
+      `No events found for session ${sessionId}. The finalized log may be corrupted or empty.`,
+    );
+  }
+
   // --- Derive Session Fields ---
   const gameStartDate = formatDate(firstCalendarDate(events));
   const gameEndDate = formatDate(lastCalendarDate(events));
   const notes = (eventsOf(events, 'note') as NoteEvent[]).map(
     (e) => e.payload.text,
   );
-  const sessionDate = events[0].ts.slice(0, 10); // YYYY-MM-DD from first event timestamp; `finalize` guarantees ordering
+  const todos = (eventsOf(events, 'todo') as TodoEvent[]).map(
+    (e) => e.payload.text,
+  );
+
+  // Get session date from session_start event
+  const sessionStartEvent = events.find((e) => e.kind === 'session_start');
+  if (!sessionStartEvent || !sessionStartEvent.payload?.sessionDate) {
+    throw new Error(
+      `Cannot determine session date for ${sessionId}: session_start event missing or has no sessionDate.`,
+    );
+  }
+  const sessionDate = sessionStartEvent.payload.sessionDate;
 
   // --- Derive Attendance ---
   const party = selectParty(events);
-  // We don't currently have any way to record guests in the session log, so we don't need to worry about that here.
+  // Filter out guest PCs - they don't accumulate AP in the ledger
+  const regularCharacters = party.filter(
+    (member) => !isGuest(member),
+  ) as string[];
 
   // --- Build characterLevels map ---
   const characterLevels: Record<string, number> = {};
-  for (const characterId of party) {
+  for (const characterId of regularCharacters) {
     let level = 1;
     try {
       const charPathYaml = path.join(
@@ -212,11 +233,12 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   const reportOut = {
     id: sessionId,
     advancementPoints: reportAdvancementPoints,
-    characterIds: party, // Eventually we'll want to include guests here
+    characterIds: regularCharacters, // Only regular PCs tracked for AP (guests filtered out)
     fingerprint,
     gameEndDate,
     gameStartDate,
     notes,
+    todo: todos,
     schemaVersion: 2,
     scribeIds,
     sessionDate,

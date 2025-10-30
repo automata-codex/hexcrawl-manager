@@ -1,3 +1,4 @@
+export * from './ap-ledger';
 export * from './atomic-write';
 export * from './errors';
 export * from './filenames';
@@ -11,7 +12,6 @@ export * from './meta';
 export * from './paths';
 export * from './regex';
 export { REPO_PATHS, ensureRepoDirs } from './repo-paths';
-export { rollDice } from './roll-dice';
 export * from './rollover-files';
 export * from './seasons';
 export * from './session-reports';

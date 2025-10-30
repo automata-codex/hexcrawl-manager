@@ -1,6 +1,6 @@
 import { ApLedgerEntry } from '@skyreach/schemas';
 
-type AggregatedAp = Record<
+export type AggregatedAp = Record<
   string,
   { combat: number; exploration: number; social: number }
 >;

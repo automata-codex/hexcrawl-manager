@@ -44,7 +44,7 @@
 **Inputs**
 
 * Legacy session files: `data/sessions/**` (v1) — shape varies.
-* Finalized scribe logs: `data/session-logs/sessions/session_####[a-z]?_YYYY-MM-DD.jsonl` (may be multi-part).
+* Finalized scribe logs: `data/session-logs/sessions/session-####[a-z]?_YYYY-MM-DD.jsonl` (may be multi-part).
 * Character files (for **level**, used to derive tier).
 * (Optional) Any metadata needed to map legacy “attendees/AP” when logs are unavailable.
 
@@ -89,8 +89,8 @@
 * **Enumerate sessions** from legacy `data/sessions/` filenames and/or embedded IDs. Normalize to `session-####`.
 * For each `session-####`, **discover finalized logs** by globbing:
 
-  * `data/session-logs/sessions/session_####_*.jsonl`
-  * `data/session-logs/sessions/session_####[a-z]_*.jsonl`
+  * `data/session-logs/sessions/session-####_*.jsonl`
+  * `data/session-logs/sessions/session-####[a-z]_*.jsonl`
 * Sort parts by filename date (YYYY-MM-DD), tie-break by suffix (none < `a` < `b` …).
 * Compute:
 

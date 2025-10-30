@@ -25,7 +25,7 @@ function listCandidateFiles(meta: MetaV2Data): string[] {
   );
   const allCandidates = [...sessionFiles, ...rolloverFiles].filter((f) => {
     const id = path.basename(f);
-    return !meta.state.trails.applied?.appliedSessions?.includes(id);
+    return !meta.state.trails.applied?.sessions?.includes(id);
   });
   allCandidates.sort((a, b) => a.localeCompare(b));
   return allCandidates;

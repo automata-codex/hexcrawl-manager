@@ -38,7 +38,7 @@ Inspects session-related metadata, in-progress files, and locks to identify pote
   - Report orphaned in-progress files (no lock in prod).
   - If orphaned, print **manual remediation instructions** for recreating a lock:
     ```bash
-    echo '{"seq": <SEQ>, "filename": "session_<SEQ>_<DATE>.jsonl", "createdAt": "'$(date -Iseconds)'", "pid": <PID>}' > data/session-logs/.locks/session_<SEQ>.lock
+    echo '{"seq": <SEQ>, "filename": "session-<SEQ>_<DATE>.jsonl", "createdAt": "'$(date -Iseconds)'", "pid": <PID>}' > data/session-logs/.locks/session-<SEQ>.lock
     ```
 
 4. **Check Sequence Gaps**
@@ -75,7 +75,7 @@ Inspects session-related metadata, in-progress files, and locks to identify pote
   active locks: 1
   orphaned in-progress files: 0
   stale locks: 0
-  gaps: 1 (intentional backfill: session_0012_2023-07-31)
+  gaps: 1 (intentional backfill: session-0012_2023-07-31)
   date mismatches: 0
   ```
 

@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { faSquare, faSquareCheck } from '@fortawesome/pro-light-svg-icons';
-  import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+  import CheckBoxIcon from '../InteractiveMap/CheckBoxIcon.svelte';
 
   import type { HexData } from '@skyreach/schemas';
 
@@ -9,10 +8,8 @@
   }
 
   const { hex }: Props = $props();
-
-  const icon = $derived(hex.isExplored ? faSquareCheck : faSquare);
 </script>
 
 <div class="data-bar-cell">
-  Explored:{' '}<FontAwesomeIcon {icon} />
+  Explored:{' '}<CheckBoxIcon checked={hex.isExplored ?? false} />
 </div>

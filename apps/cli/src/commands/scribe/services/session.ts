@@ -15,6 +15,7 @@ import {
   parseSessionId,
   type CampaignDate,
   type DayStartEvent,
+  type PartyMember,
   type ScribeEvent,
   type SessionContinueEvent,
   type SessionEndEvent,
@@ -36,6 +37,7 @@ import {
   getLockFilePath,
   LockData,
   lockExists,
+  parseLockFileName,
   readLockFile,
   removeLockFile,
 } from './lock-file';
@@ -237,10 +239,10 @@ export function checkSessionSequenceGaps({
     if (parsed) addSeq(parsed.sessionNumber, 'in-progress');
   }
   for (const file of lockFiles) {
-    const parsed = parseSessionFilename(
-      file.replace(/^session_|\.lock$/g, '.jsonl'),
-    );
-    if (parsed) addSeq(parsed.sessionNumber, 'lock');
+    const sessionId = parseLockFileName(file);
+    if (sessionId) {
+      addSeq(parseSessionId(sessionId).number, 'lock');
+    }
   }
 
   const sortedSeqs = Array.from(allSeqs).sort((a, b) => a - b);
@@ -590,7 +592,7 @@ export function synthesizeLifecycleEvents(
 } {
   function getSnapshot(upToIdx: number) {
     let currentHex = 'null';
-    let currentParty = ['null'];
+    let currentParty: PartyMember[] = ['null'];
     let currentDate = {} as CampaignDate;
     for (let i = 0; i <= upToIdx; ++i) {
       const e = sortedEvents[i];
@@ -610,7 +612,11 @@ export function synthesizeLifecycleEvents(
         currentHex = e.payload.startHex;
       }
     }
-    return { currentHex, currentParty, currentDate };
+    // Filter currentParty to only include string IDs (exclude guest PC objects)
+    const currentPartyIds = currentParty.filter(
+      (member): member is string => typeof member === 'string',
+    );
+    return { currentHex, currentParty: currentPartyIds, currentDate };
   }
 
   const finalizedBlocks: {
@@ -744,12 +750,18 @@ export function updateMetaAndCleanup(
       const { number: sessionIdSeq } = parseSessionId(sessionId);
       const meta = loadMeta();
       if (sessionIdSeq < meta.nextSessionSeq) {
-        // Heal meta.nextSessionSeq to max finalized seq + 1
-        const maxSeq = getLatestSessionNumber() ?? sessionIdSeq;
-        warn(
-          `⚠️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}). Healing meta to ${maxSeq + 1}.`,
-        );
-        saveMeta({ nextSessionSeq: maxSeq + 1 });
+        // Only heal meta.nextSessionSeq for sessions >= 19 (to allow backfilling old logs)
+        if (sessionIdSeq >= 19) {
+          const maxSeq = getLatestSessionNumber() ?? sessionIdSeq;
+          warn(
+            `⚠️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}). Healing meta to ${maxSeq + 1}.`,
+          );
+          saveMeta({ nextSessionSeq: maxSeq + 1 });
+        } else {
+          info(
+            `ℹ️ Session sequence (${sessionIdSeq}) is less than meta.nextSessionSeq (${meta.nextSessionSeq}), but skipping heal for backfilled session < 19.`,
+          );
+        }
       } else if (meta.nextSessionSeq !== sessionIdSeq + 1) {
         saveMeta({ nextSessionSeq: sessionIdSeq + 1 });
       }
@@ -906,9 +918,10 @@ export function writeSessionFilesAndRollovers(
       },
     };
 
-    // Reassign seq
+    // Reassign seq and remove _origIdx
     const blockEvents = block.events.map((e, idx) => {
-      const ev = { ...e };
+      // eslint-disable-next-line no-unused-vars
+      const { _origIdx, ...ev } = e;
       ev.seq = idx + 1;
       return ev;
     });

@@ -68,9 +68,9 @@ export type DateSetEventPayload = z.infer<typeof DateSetEventPayloadSchema>;
 
 export const DayEndEventPayloadSchema = z.object({
   summary: z.object({
-    active: z.number().int(),
-    daylight: z.number().int(),
-    night: z.number().int(),
+    activeSegments: z.number().int(),
+    daylightSegments: z.number().int(),
+    nightSegments: z.number().int(),
   }),
 });
 export type DayEndEventPayload = z.infer<typeof DayEndEventPayloadSchema>;
@@ -78,7 +78,7 @@ export type DayEndEventPayload = z.infer<typeof DayEndEventPayloadSchema>;
 export const DayStartEventPayloadSchema = z.object({
   calendarDate: CampaignDateSchema,
   season: z.string(),
-  daylightCap: z.number().int(),
+  daylightCapSegments: z.number().int(),
 });
 export type DayStartEventPayload = z.infer<typeof DayStartEventPayloadSchema>;
 
@@ -88,6 +88,11 @@ export const DeadReckoningEventPayloadSchema = z.object({
 export type DeadReckoningEventPayload = z.infer<
   typeof DeadReckoningEventPayloadSchema
 >;
+
+export const ExploreEventPayloadSchema = z.object({
+  target: z.string(), // The party's current hex
+});
+export type ExploreEventPayload = z.infer<typeof ExploreEventPayloadSchema>;
 
 export const LostEventPayloadSchema = z.object({
   state: z.enum(['on', 'off']),
@@ -108,8 +113,19 @@ export const NoteEventPayloadSchema = z.object({
 });
 export type NoteEventPayload = z.infer<typeof NoteEventPayloadSchema>;
 
+/** Guest PC representation */
+export const GuestPcSchema = z.object({
+  playerName: z.string().min(1),
+  characterName: z.string().min(1),
+});
+export type GuestPc = z.infer<typeof GuestPcSchema>;
+
+/** Party member can be either a character ID (string) or a guest PC (object) */
+export const PartyMemberSchema = z.union([z.string().min(1), GuestPcSchema]);
+export type PartyMember = z.infer<typeof PartyMemberSchema>;
+
 export const PartySetEventPayloadSchema = z.object({
-  ids: z.array(z.string().min(1)),
+  ids: z.array(PartyMemberSchema),
 });
 export type PartySetEventPayload = z.infer<typeof PartySetEventPayloadSchema>;
 
@@ -178,6 +194,11 @@ export const TimeLogEventPayloadSchema = z.object({
 });
 export type TimeLogEventPayload = z.infer<typeof TimeLogEventPayloadSchema>;
 
+export const TodoEventPayloadSchema = z.object({
+  text: z.string(),
+});
+export type TodoEventPayload = z.infer<typeof TodoEventPayloadSchema>;
+
 export const TrailEventPayloadSchema = z.object({
   from: z.string(),
   to: z.string(),
@@ -240,6 +261,12 @@ export const DeadReckoningEventSchema = makeEventSchema(
 );
 export type DeadReckoningEvent = z.infer<typeof DeadReckoningEventSchema>;
 
+export const ExploreEventSchema = makeEventSchema(
+  'explore',
+  ExploreEventPayloadSchema,
+);
+export type ExploreEvent = z.infer<typeof ExploreEventSchema>;
+
 export const LostEventSchema = makeEventSchema('lost', LostEventPayloadSchema);
 export type LostEvent = z.infer<typeof LostEventSchema>;
 
@@ -297,6 +324,9 @@ export const TimeLogEventSchema = makeEventSchema(
 );
 export type TimeLogEvent = z.infer<typeof TimeLogEventSchema>;
 
+export const TodoEventSchema = makeEventSchema('todo', TodoEventPayloadSchema);
+export type TodoEvent = z.infer<typeof TodoEventSchema>;
+
 export const TrailEventSchema = makeEventSchema(
   'trail',
   TrailEventPayloadSchema,
@@ -320,6 +350,7 @@ export const ScribeEventSchema = z.discriminatedUnion('kind', [
   DayEndEventSchema,
   DayStartEventSchema,
   DeadReckoningEventSchema,
+  ExploreEventSchema,
   LostEventSchema,
   MoveEventSchema,
   NoteEventSchema,
@@ -331,6 +362,7 @@ export const ScribeEventSchema = z.discriminatedUnion('kind', [
   SessionPauseEventSchema,
   SessionStartEventSchema,
   TimeLogEventSchema,
+  TodoEventSchema,
   TrailEventSchema,
   WeatherCommittedEventSchema,
 ]);

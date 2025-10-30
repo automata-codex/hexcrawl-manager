@@ -17,7 +17,6 @@ export class SessionFingerprintMismatchError extends Error {
 }
 
 export class SessionReportValidationError extends Error {
-  // eslint-disable-next-line no-unused-vars
   constructor(
     readonly sessionId: string,
     readonly issues: ZodError['issues'],

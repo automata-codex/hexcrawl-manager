@@ -1,11 +1,13 @@
 import { warn } from '@skyreach/cli-kit';
-import { REPO_PATHS } from '@skyreach/data';
+import {
+  aggregateApByCharacter,
+  readApLedger,
+  REPO_PATHS,
+} from '@skyreach/data';
 import { ApLedgerEntry, ApLedgerEntrySchema } from '@skyreach/schemas';
 
-import { readApLedger } from '../../../services/ap-ledger.service';
 import { loadAllCharacters } from '../../../services/characters.service';
 import { loadAllSessionReports } from '../../../services/sessions.service';
-import { aggregateApByCharacter } from '../lib/core/aggregate-ap-by-character';
 import { computeUnclaimedAbsenceAwards } from '../lib/core/compute-unclaimed-absence-awards';
 
 export interface StatusApResult {
@@ -37,15 +39,22 @@ export async function statusAp(): Promise<StatusApResult> {
     }
   }
 
-  // 2) Aggregate AP by character/pillar
-  const apByCharacter = aggregateApByCharacter(ledgerEntries);
+  // 2) Load characters and filter inactive ones
+  const allCharacters = loadAllCharacters();
+  const activeCharacters = allCharacters.filter(c => !c.lifecycle?.retiredAt);
+  const activeCharacterIds = new Set(activeCharacters.map(c => c.id));
 
-  // 3) Compute unclaimed absence awards
-  const characters = loadAllCharacters();
+  // 3) Aggregate AP by character/pillar, then filter to active characters only
+  const allApByCharacter = aggregateApByCharacter(ledgerEntries);
+  const apByCharacter = Object.fromEntries(
+    Object.entries(allApByCharacter).filter(([charId]) => activeCharacterIds.has(charId))
+  );
+
+  // 4) Compute unclaimed absence awards
   const sessionReports = loadAllSessionReports();
   const absenceAwards = computeUnclaimedAbsenceAwards(
     sessionReports,
-    characters,
+    activeCharacters,
     ledgerEntries,
   );
 

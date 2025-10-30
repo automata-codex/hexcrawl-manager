@@ -1,4 +1,4 @@
-import { loadMeta, REPO_PATHS } from '@skyreach/data';
+import { REPO_PATHS, loadMeta, readApLedger } from '@skyreach/data';
 import {
   dayEnd,
   dayStart,
@@ -17,8 +17,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 
-import { readApLedger } from '../../../services/ap-ledger.service';
-
 const party: CharacterKey[] = ['alistar', 'daemaris', 'istavan'];
 
 describe('Function `weave apply`', () => {
@@ -28,8 +26,8 @@ describe('Function `weave apply`', () => {
       { initGit: false },
       async (repo) => {
         // --- Trails setup ---
-        const session5Id = 'session_0005_2025-09-29';
-        const session6Id = 'session_0006_2025-09-30';
+        const session5Id = 'session-0005_2025-09-29';
+        const session6Id = 'session-0006_2025-09-30';
 
         // session-0005: valid envelope, but no trail() -> NoChangesError (benign)
         fs.writeFileSync(
@@ -87,23 +85,22 @@ describe('Function `weave apply`', () => {
         expect(stderr).toBeFalsy();
 
         // --- Trails assertions ---
-        // Should indicate a no-op/skip for 0005, and applied 0006
-        expect(stdout).toMatch(/no changes|no-op|nothing to apply/i);
+        // Should indicate a skip for 0005, and applied 0006
         expect(stdout).toMatch(/session[_-]0006/i);
         // Aggregated line when multiple items were seen
         expect(stdout).toMatch(/Trail files:\s*applied\s+1,\s*skipped\s+1/i);
 
-        // Meta: only the applied session is recorded
+        // Meta: both sessions are marked as applied (even no-op ones, to prevent re-processing)
         const meta = loadMeta();
-        expect(meta.state.trails.applied?.appliedSessions).not.toContain(
+        expect(meta.state.trails.applied?.sessions).toContain(
           `${session5Id}.jsonl`,
         );
-        expect(meta.state.trails.applied?.appliedSessions).toContain(
+        expect(meta.state.trails.applied?.sessions).toContain(
           `${session6Id}.jsonl`,
         );
 
         // --- AP assertions ---
-        // Printed “Applied session_0005” block
+        // Printed “Applied session-0005” block
         expect(stdout).toMatch(/Applied session-0005/i);
 
         // Ledger actually updated -- other tests ensure correctness of AP calc

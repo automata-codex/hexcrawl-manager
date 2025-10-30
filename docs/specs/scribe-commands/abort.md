@@ -46,9 +46,9 @@ Cancels an in-progress scribe session without finalizing it. Deletes the in-prog
 ## Filename Patterns
 
 - **Prod in-progress**:
-  `data/session-logs/in-progress/session_<SEQ>_<YYYY-MM-DD>.jsonl`
+  `data/session-logs/in-progress/session-<SEQ>_<YYYY-MM-DD>.jsonl`
 - **Prod lock**:
-  `data/session-logs/.locks/session_<SEQ>.lock`
+  `data/session-logs/.locks/session-<SEQ>.lock`
 - **Dev in-progress**:
   `data/session-logs/_dev/dev_<ISO>.jsonl`
 

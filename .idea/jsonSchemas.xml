@@ -57,6 +57,22 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="default-encounter-table">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="default-encounter-table" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/encounter-table.schema.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="data/default-encounter-table.yaml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="encounter">
           <value>
             <SchemaInfo>

@@ -9,7 +9,18 @@ import {
 import { requireFile, requireSession } from '../services/general';
 
 import type { Context } from '../types';
-import type { CampaignDate } from '@skyreach/schemas';
+import type { CampaignDate, Season } from '@skyreach/schemas';
+
+/** Map seasons to emojis */
+function getSeasonEmoji(season: Season): string {
+  const emojis: Record<string, string> = {
+    winter: '❄️',
+    spring: '🌸',
+    summer: '☀️',
+    autumn: '🍂',
+  };
+  return emojis[season] || '🌍';
+}
 
 export default function day(ctx: Context) {
   return (args: string[]) => {
@@ -57,16 +68,33 @@ export default function day(ctx: Context) {
 
       // Determine season and daylight cap
       const season = ctx.calendar.seasonFor(calendarDate!);
-      const daylightCap = CALENDAR_CONFIG.daylightCaps[season];
+      const daylightCapHours = CALENDAR_CONFIG.daylightCaps[season];
+      const daylightCapSegments = daylightCapHours * 2;
+
+      // Check for season change
+      const lastDate = lastCalendarDate(events);
+      let seasonChangeMsg: string | null = null;
+      if (lastDate) {
+        const previousSeason = ctx.calendar.seasonFor(lastDate);
+        if (previousSeason !== season) {
+          const emoji = getSeasonEmoji(season);
+          seasonChangeMsg = `${emoji} Season changed from ${previousSeason} to ${season}`;
+        }
+      }
 
       appendEvent(ctx.file!, 'day_start', {
         calendarDate,
         season,
-        daylightCap,
+        daylightCapSegments,
       });
 
+      // Display season change message first, if applicable
+      if (seasonChangeMsg) {
+        info(seasonChangeMsg);
+      }
+
       return info(
-        `📅 Day started: ${ctx.calendar.formatDate(calendarDate!)} (daylight cap ${daylightCap}h)`,
+        `📅 Day started: ${ctx.calendar.formatDate(calendarDate!)} (daylight cap ${daylightCapHours}h)`,
       );
     }
 
@@ -97,15 +125,20 @@ export default function day(ctx: Context) {
         }
       }
 
-      // Convert to hours for stored summary and display
+      // Store segments in the event
+      appendEvent(ctx.file!, 'day_end', {
+        // Checked by `requireFile`
+        summary: {
+          activeSegments,
+          daylightSegments,
+          nightSegments,
+        },
+      });
+
+      // Convert to hours for display
       const activeH = segmentsToHours(activeSegments);
       const daylightH = segmentsToHours(daylightSegments);
       const nightH = segmentsToHours(nightSegments);
-
-      appendEvent(ctx.file!, 'day_end', {
-        // Checked by `requireFile`
-        summary: { active: activeH, daylight: daylightH, night: nightH },
-      });
 
       let msg = `🌙 Day ended (active ${activeH.toFixed(1)}h: daylight ${daylightH.toFixed(1)}h, night ${nightH.toFixed(1)}h)`;
       if (activeH > 12) {

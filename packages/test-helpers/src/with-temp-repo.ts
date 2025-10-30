@@ -2,9 +2,9 @@ import { REPO_PATHS, ensureRepoDirs, getRepoRoot } from '@skyreach/data';
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
+import yaml from 'yaml';
 
 import { getTestRepoBase, TEST_REPO_SENTINEL } from './get-test-repo-base';
-import yaml from 'yaml';
 
 async function fileExists(p: string) {
   try {
@@ -104,15 +104,22 @@ export async function withTempRepo<T = string>(
   // Seed required files
   await fs.writeFile(
     REPO_PATHS.META(),
-    JSON.stringify(
-      {
-        appliedSessions: [],
-        nextSessionSeq: 27,
-        rolledSeasons: [],
+    yaml.stringify({
+      version: 2,
+      nextSessionSeq: 27,
+      state: {
+        trails: {
+          backend: 'meta',
+          applied: {
+            sessions: [],
+            seasons: [],
+          },
+        },
+        ap: {
+          backend: 'ledger',
+        },
       },
-      null,
-      2,
-    ),
+    }),
   );
   await fs.writeFile(REPO_PATHS.HAVENS(), yaml.stringify([]));
   await fs.writeFile(REPO_PATHS.TRAILS(), yaml.stringify({}));

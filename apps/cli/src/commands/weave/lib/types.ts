@@ -1,3 +1,5 @@
+import { ExploreEvent, MoveEvent, ScoutEvent } from '@skyreach/schemas';
+
 export interface ApplyTrailsDebug {
   /** Before/after snapshots for touched edges (subset, not whole file). */
   touched?: {
@@ -28,11 +30,19 @@ export interface ApplyTrailsResult {
   status: ApplyTrailsStatus;
   summary?: ApplyTrailsSummary;
 
-  /** Include when status !== 'ok' for caller’s messaging. */
+  /** Include when status !== 'ok' for caller's messaging. */
   message?: string;
 
   /** Optional rich details (behind `verbose`). */
   debug?: ApplyTrailsDebug;
+
+  /** Info about automatic rollover applied due to inter-session season change. */
+  autoRollover?: {
+    seasonId: string;
+    maintained: number;
+    persisted: number;
+    deletedTrails: number;
+  } | null;
 }
 
 export type ApplyTrailsStatus =
@@ -57,3 +67,16 @@ export interface ApplyTrailsSummary {
   // Aggregate/touch metrics (both paths)
   edgesTouched?: number; // unique keys in before/after set
 }
+
+export type FinalizedHexEvent = ScoutEvent | ExploreEvent | MoveEvent;
+
+export type HexId = string;
+
+export type HexIntent = {
+  scouted?: true;
+  visited?: true;
+  explored?: true;
+  landmarkKnown?: true;
+};
+
+export type HexIntents = Record<HexId, HexIntent>;
