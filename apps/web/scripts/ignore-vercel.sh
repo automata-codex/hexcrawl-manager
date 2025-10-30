@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Prefer Vercel-provided SHAs; fall back to the previous commit if missing.
+# Always build on main branch (production deployments should never be skipped)
+if [[ "${VERCEL_GIT_COMMIT_REF:-}" == "main" ]]; then
+  echo "Building production deployment on main branch"
+  exit 1
+fi
+
+# For preview deployments: check if relevant files changed
 PREV="${VERCEL_GIT_PREVIOUS_SHA:-}"
 CURR="${VERCEL_GIT_COMMIT_SHA:-}"
 
