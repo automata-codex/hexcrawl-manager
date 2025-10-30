@@ -1,3 +1,4 @@
+import { REPO_PATHS } from '@skyreach/data';
 import { KnowledgeNodeSchema } from '@skyreach/schemas';
 import fs from 'fs';
 import path from 'path';
@@ -98,12 +99,11 @@ export function flattenKnowledgeTree(
 const knowledgeTrees: Record<string, KnowledgeNodeData> = {};
 const flatKnowledgeTrees: Record<string, FlatKnowledgeTree> = {};
 
-const dir = path.resolve('data/knowledge-trees');
-const files = fs.readdirSync(dir).filter((file) => /\.ya?ml$/.test(file));
+const files = fs.readdirSync(REPO_PATHS.KNOWLEDGE_TREES()).filter((file) => /\.ya?ml$/.test(file));
 
 for (const file of files) {
   const rootId = file.replace(/\.ya?ml$/, '');
-  const content = fs.readFileSync(path.join(dir, file), 'utf8');
+  const content = fs.readFileSync(path.join(REPO_PATHS.KNOWLEDGE_TREES(), file), 'utf8');
   const parsed = yaml.parse(content);
   knowledgeTrees[rootId] = KnowledgeNodeSchema.parse(parsed);
   flatKnowledgeTrees[rootId] = flattenKnowledgeTree(knowledgeTrees[rootId]);
