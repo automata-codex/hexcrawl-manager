@@ -1,5 +1,6 @@
 import { error, info, usage, warn } from '@skyreach/cli-kit';
 import { getHexNeighbors, isValidHexId, normalizeHexId } from '@skyreach/core';
+import { canonicalTrailId, loadTrails } from '@skyreach/data';
 import { PACES, type Pace } from '@skyreach/schemas';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
@@ -53,6 +54,21 @@ export default function move(ctx: Context) {
       }
     }
 
+    // Check if there's a permanent trail
+    let isPermanentTrail = false;
+    if (from) {
+      try {
+        const trails = loadTrails();
+        const edgeId = canonicalTrailId(from, to);
+        const trail = trails[edgeId];
+        if (trail?.permanent) {
+          isPermanentTrail = true;
+        }
+      } catch (err) {
+        // Silently ignore trail loading errors
+      }
+    }
+
     // Use isPartyLost to determine lost state
     const alreadyLost = isPartyLost(events);
 
@@ -65,6 +81,10 @@ export default function move(ctx: Context) {
       }
     } else {
       info(`Moved to ${to}.`);
+    }
+
+    if (isPermanentTrail) {
+      info('ℹ️  Permanent trail: travel time is halved.');
     }
 
     // Emit move event
