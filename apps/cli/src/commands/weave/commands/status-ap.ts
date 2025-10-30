@@ -39,15 +39,22 @@ export async function statusAp(): Promise<StatusApResult> {
     }
   }
 
-  // 2) Aggregate AP by character/pillar
-  const apByCharacter = aggregateApByCharacter(ledgerEntries);
+  // 2) Load characters and filter inactive ones
+  const allCharacters = loadAllCharacters();
+  const activeCharacters = allCharacters.filter(c => !c.lifecycle?.retiredAt);
+  const activeCharacterIds = new Set(activeCharacters.map(c => c.id));
 
-  // 3) Compute unclaimed absence awards
-  const characters = loadAllCharacters();
+  // 3) Aggregate AP by character/pillar, then filter to active characters only
+  const allApByCharacter = aggregateApByCharacter(ledgerEntries);
+  const apByCharacter = Object.fromEntries(
+    Object.entries(allApByCharacter).filter(([charId]) => activeCharacterIds.has(charId))
+  );
+
+  // 4) Compute unclaimed absence awards
   const sessionReports = loadAllSessionReports();
   const absenceAwards = computeUnclaimedAbsenceAwards(
     sessionReports,
-    characters,
+    activeCharacters,
     ledgerEntries,
   );
 

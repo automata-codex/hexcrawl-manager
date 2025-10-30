@@ -25,6 +25,8 @@ const characters = characterData
       advancementPoints: apFromLedger || character.data.advancementPoints,
     };
   })
+  // Filter out inactive characters (those with lifecycle.retiredAt)
+  .filter((character) => !character.lifecycle?.retiredAt)
   .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
 // Format last updated timestamp for display
