@@ -1,5 +1,29 @@
 # @skyreach/test-helpers
 
+## 3.0.0
+
+### Minor Changes
+
+- ca23cfc: Fix time schemas
+  - explicitly name fields
+  - store segments everywhere
+  - migrate old logs
+- ec8befc: Implement scribe fast-travel command
+- b30babe: Backfill session logs
+
+### Patch Changes
+
+- Updated dependencies [e0d25c5]
+- Updated dependencies [ca23cfc]
+- Updated dependencies [39e37e8]
+- Updated dependencies [d790497]
+- Updated dependencies [ec8befc]
+- Updated dependencies [b30babe]
+- Updated dependencies [20630f5]
+  - @skyreach/schemas@3.0.0
+  - @skyreach/data@3.0.0
+  - @skyreach/core@3.0.0
+
 ## 2.5.0
 
 ### Minor Changes

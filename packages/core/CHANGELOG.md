@@ -1,5 +1,22 @@
 # @skyreach/core
 
+## 3.0.0
+
+### Minor Changes
+
+- 39e37e8: Minor updates:
+  - BREAKING CHANGE: Move `rollDice` to from @skyreach/data to @skyreach/core
+  - Update `scribe move` to display a reminder when moving along permanent trails
+- ec8befc: Implement scribe fast-travel command
+
+### Patch Changes
+
+- Updated dependencies [e0d25c5]
+- Updated dependencies [ca23cfc]
+- Updated dependencies [ec8befc]
+- Updated dependencies [b30babe]
+  - @skyreach/schemas@3.0.0
+
 ## 2.5.0
 
 ### Minor Changes
