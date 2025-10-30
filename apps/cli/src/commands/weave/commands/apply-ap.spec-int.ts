@@ -521,9 +521,12 @@ describe('Command `weave apply ap`', () => {
           const report: SessionReport = yaml.parse(
             fs.readFileSync(reportPath, 'utf8'),
           );
-          expect(report.characterIds).toEqual(['alistar', 'daemaris']);
-          expect(report.characterIds).not.toContain('Korgath');
-          expect(report.characterIds).not.toContain('Saurana');
+          expect(report.status).toBe('completed');
+          if (report.status === 'completed') {
+            expect(report.characterIds).toEqual(['alistar', 'daemaris']);
+            expect(report.characterIds).not.toContain('Korgath');
+            expect(report.characterIds).not.toContain('Saurana');
+          }
 
           // Verify AP ledger contains entries only for regular PCs (no guests)
           const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
