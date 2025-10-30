@@ -1,5 +1,40 @@
 # @skyreach/cli
 
+## 2.6.0
+
+### Minor Changes
+
+- e0d25c5: Add hex processing to `weave apply`
+- 70a2fc7: Hide retired characters in AP status and progress tracker
+- dac07dd: Add more scribe commands
+- ca23cfc: Fix time schemas
+  - explicitly name fields
+  - store segments everywhere
+  - migrate old logs
+- 39e37e8: Minor updates:
+  - BREAKING CHANGE: Move `rollDice` to from @skyreach/data to @skyreach/core
+  - Update `scribe move` to display a reminder when moving along permanent trails
+- ec8befc: Implement scribe fast-travel command
+- b30babe: Backfill session logs
+- 20630f5: Wire web app to read character AP from AP ledger
+
+### Patch Changes
+
+- 4e2c992: Fix type errors; fix bug with "Explored" checkbox in interactive map's detail pane
+- d790497: Update callsites to accept new or old form of session filename
+- Updated dependencies [e0d25c5]
+- Updated dependencies [ca23cfc]
+- Updated dependencies [39e37e8]
+- Updated dependencies [d790497]
+- Updated dependencies [ec8befc]
+- Updated dependencies [b30babe]
+- Updated dependencies [20630f5]
+  - @skyreach/schemas@3.0.0
+  - @skyreach/data@3.0.0
+  - @skyreach/test-helpers@3.0.0
+  - @skyreach/core@3.0.0
+  - @skyreach/cli-kit@3.0.0
+
 ## 2.5.0
 
 ### Minor Changes

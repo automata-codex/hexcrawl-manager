@@ -1,5 +1,24 @@
 # @skyreach/data
 
+## 3.0.0
+
+### Major Changes
+
+- 39e37e8: Minor updates:
+  - BREAKING CHANGE: Move `rollDice` to from @skyreach/data to @skyreach/core
+  - Update `scribe move` to display a reminder when moving along permanent trails
+
+### Minor Changes
+
+- e0d25c5: Add hex processing to `weave apply`
+- b30babe: Backfill session logs
+- 20630f5: Wire web app to read character AP from AP ledger
+
+### Patch Changes
+
+- d790497: Update callsites to accept new or old form of session filename
+- ec8befc: Implement scribe fast-travel command
+
 ## 2.5.0
 
 ### Minor Changes

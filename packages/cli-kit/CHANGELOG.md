@@ -1,5 +1,19 @@
 # @skyreach/cli-kit
 
+## 3.0.0
+
+### Minor Changes
+
+- b30babe: Backfill session logs
+
+### Patch Changes
+
+- Updated dependencies [e0d25c5]
+- Updated dependencies [ca23cfc]
+- Updated dependencies [ec8befc]
+- Updated dependencies [b30babe]
+  - @skyreach/schemas@3.0.0
+
 ## 2.5.0
 
 ### Minor Changes

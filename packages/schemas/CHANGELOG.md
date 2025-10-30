@@ -1,5 +1,20 @@
 # @skyreach/schemas
 
+## 3.0.0
+
+### Minor Changes
+
+- e0d25c5: Add hex processing to `weave apply`
+- ca23cfc: Fix time schemas
+  - explicitly name fields
+  - store segments everywhere
+  - migrate old logs
+- b30babe: Backfill session logs
+
+### Patch Changes
+
+- ec8befc: Implement scribe fast-travel command
+
 ## 2.5.0
 
 ### Minor Changes
