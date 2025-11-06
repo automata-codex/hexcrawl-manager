@@ -1,6 +1,7 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 
+import RoleplayBook from '../../../components/RoleplayBook/RoleplayBook.astro';
 import StatBlock from '../../../components/StatBlock/StatBlock.astro';
 import {
   getFloatingCluePath,
@@ -11,7 +12,6 @@ import SecretLayout from '../../../layouts/SecretLayout.astro';
 import {
   renderBulletMarkdown,
   renderMarkdown,
-  renderSubArticleMarkdown,
 } from '../../../utils/markdown';
 
 import type { FloatingClueEntry, HexEntry, RegionEntry } from '../../../types';
@@ -105,22 +105,14 @@ const floatingClueList = floatingCluesUsingEncounter
   )
   .join(', ');
 
-export const ROLEPLAY_BOOKS = [
-  { keyword: 'bearfolk', slug: 'roleplay-book-bearfolk' },
-  { keyword: 'alseid', slug: 'roleplay-book-alseid' },
-  { keyword: 'gearforged', slug: 'roleplay-book-gearforged' },
-  { keyword: 'kobold', slug: 'roleplay-book-kobolds' },
-];
+// Get all roleplay books
+const allRoleplayBooks = await getCollection('roleplay-books');
 
+// Match roleplay books based on keywords in stat block IDs
 const statBlockIds = encounter.statBlocks ?? [];
-const matchedRoleplayBooks = ROLEPLAY_BOOKS.filter(({ keyword }) =>
-  statBlockIds.some((id) => id.includes(keyword)),
+const matchedRoleplayBooks = allRoleplayBooks.filter((book) =>
+  statBlockIds.some((id) => id.includes(book.data.keyword)),
 );
-const roleplayBookEntries = (
-  await Promise.all(
-    matchedRoleplayBooks.map(({ slug }) => getEntry('articles', slug)),
-  )
-).filter((entry) => entry !== undefined);
 ---
 
 <style is:global>
@@ -189,11 +181,8 @@ const roleplayBookEntries = (
   </div>
   <div class="roleplay-books">
     {
-      roleplayBookEntries.map((entry) => (
-        <div>
-          <h2 class="title is-3">{entry.data.title}</h2>
-          <Fragment set:html={renderSubArticleMarkdown(entry.body ?? '')} />
-        </div>
+      matchedRoleplayBooks.map((entry) => (
+        <RoleplayBook data={entry.data} />
       ))
     }
   </div>
