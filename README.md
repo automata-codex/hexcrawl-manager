@@ -37,3 +37,23 @@ Skyreach uses a **“version-on-develop”** workflow with lightweight automatio
 * `develop` and `main` stay in sync—no post-merge back-merge needed.
 * Each release has clear, permanent tags for every workspace.
 * Repo owner retains full manual control over when releases happen, while routine checks and tagging are automatic.
+
+## Versioning data-only updates
+
+When changes are made only to the `data/` directory (no code changes):
+
+* Bump `@skyreach/web` version to mark the deployment
+  * Use **minor** for new content/features (e.g., new articles, session reports)
+  * Use **patch** for corrections or small updates
+  * Include a clear changeset message indicating it's data-only:
+    ```markdown
+    ---
+    '@skyreach/web': minor
+    ---
+
+    **Content Update:** Add new articles on hex exploration mechanics
+
+    This release contains only content updates with no code changes.
+    ```
+
+**Rationale:** The web app is the public interface users interact with. From a user's perspective, new content changes the web app's behavior/content, making a version bump semantically correct. This also provides clear deployment tracking in the changelog.
