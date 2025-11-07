@@ -47,9 +47,9 @@ intelligenceReports:      # Optional: dynamic content table
   instructions: string    # When/how to use the table (e.g., "Roll d10 or choose...")
   rows:
     - roll: number        # Die result
-      report: string      # Title/summary (may reference encounters)
-      sampleDialogue: string    # In-character delivery
-      relevantConditions: string # When this report is relevant
+      report: string      # Title/summary (supports markdown, including links to encounters/hexes/clues)
+      sampleDialogue: string    # In-character delivery (supports markdown)
+      relevantConditions: string # When this report is relevant (supports markdown)
 ```
 
 ## Intelligence Reports
@@ -64,9 +64,9 @@ Intelligence reports serve as a **dynamic content injection mechanism** that:
 
 **Structure:**
 - **Roll**: Numeric value (GM can roll or choose contextually)
-- **Report**: Brief title, often linking to an encounter type (e.g., "→ Encounter: Dream Sickness")
-- **Sample Dialogue**: How an NPC would describe this in-character
-- **Relevant Conditions**: When this report makes sense (location, recent events, active plots)
+- **Report**: Brief title with optional markdown links to encounters/hexes/clues (e.g., "Dream Sickness Spreading → *Encounter: Dream Sickness*" or with full link: "Dream Sickness Spreading → [Encounter: Dream Sickness](/gm-reference/encounters/dream-sickness)")
+- **Sample Dialogue**: How an NPC would describe this in-character (supports markdown formatting)
+- **Relevant Conditions**: When this report makes sense (location, recent events, active plots; supports markdown)
 
 **Usage workflow:**
 1. GM encounters roleplay book during encounter prep or at the table
@@ -258,6 +258,7 @@ const roleplayBooks = defineCollection({
 **Intelligence reports table:**
 - `apps/web/src/components/RoleplayBook/IntelligenceReportsTable.astro`
 - Standalone component for report table rendering
+- Renders all text fields with markdown processing (enables links to encounters/clues/hexes)
 - Includes instructions display and responsive table layout
 
 ### Styling
@@ -300,16 +301,41 @@ sampleDialogue:
 
 ### Full Example (With Intelligence Reports)
 
-See `data/roleplay-books/bearfolk.yml` in the implementation plan for a complete example with 10 intelligence report rows (d10 table).
+```yaml
+name: "Roleplay Book: Bearfolk"
+keyword: "bearfolk"
+# ... (other fields omitted for brevity) ...
+
+intelligenceReports:
+  instructions: "Roll d10 or choose based on location and recent events. When mentioned, note which hex to add as hidden site during post-session cleanup."
+  rows:
+    - roll: 1
+      report: "Dream Sickness Spreading → *Encounter: Dream Sickness*"
+      sampleDialogue: "Three of our hunters wake screaming. They speak of endless marching, of a voice that commands service."
+      relevantConditions: "Party within 2-3 hexes of black crystal corruption or Revenant Legion activity."
+
+    - roll: 2
+      report: "Dead Ground Found → [Encounter: Crystal Corruption](/gm-reference/encounters/crystal-corruption)"
+      sampleDialogue: "We found a place where nothing grows. The earth is cold."
+      relevantConditions: "Recent Revenant Legion ritual activity."
+```
+
+**Markdown link patterns:**
+- Italic text for placeholder references: `→ *Encounter: Dream Sickness*`
+- Full markdown links when encounter exists: `→ [Encounter: Crystal Corruption](/gm-reference/encounters/crystal-corruption)`
+- Both patterns render properly and keep content author-friendly
+
+See `data/roleplay-books/bearfolk.yml` for a complete example with 10 intelligence report rows (d10 table).
 
 ## Future Considerations
 
 ### Potential Enhancements
 
 **Related content linking:**
-- Link to specific encounters referenced in intelligence reports
-- Cross-reference to world-building articles
-- Ties to specific hexes or regions
+- ✅ **Implemented**: Markdown links in intelligence report fields enable linking to encounters, hexes, and clues
+- Future: Automatic validation of link targets (ensure referenced encounters/hexes exist)
+- Future: Cross-reference to world-building articles
+- Future: Bidirectional links (encounters linking back to roleplay books)
 
 **Mechanical integration:**
 - Reaction tables for different cultures

@@ -1,5 +1,6 @@
 ---
 import type { IntelligenceReportRow } from '@skyreach/schemas';
+import { renderMarkdown } from '../../utils/markdown';
 
 interface Props {
   instructions?: string;
@@ -92,9 +93,15 @@ const { instructions, rows } = Astro.props;
       {rows.map((row) => (
         <tr>
           <td class="roll-column">{row.roll}</td>
-          <td class="report-column">{row.report}</td>
-          <td class="dialogue-column">"{row.sampleDialogue}"</td>
-          <td class="conditions-column">{row.relevantConditions}</td>
+          <td class="report-column">
+            <Fragment set:html={renderMarkdown(row.report)} />
+          </td>
+          <td class="dialogue-column">
+            <Fragment set:html={renderMarkdown(row.sampleDialogue)} />
+          </td>
+          <td class="conditions-column">
+            <Fragment set:html={renderMarkdown(row.relevantConditions)} />
+          </td>
         </tr>
       ))}
     </tbody>
