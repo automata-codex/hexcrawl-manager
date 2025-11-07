@@ -2,7 +2,7 @@
 
 ## Overview
 
-Roleplay books are reference documents that provide cultural context, voice guidance, and dynamic intelligence for roleplaying specific ancestries in the Skyreach campaign. They appear automatically on encounter pages when stat blocks reference the relevant ancestry keyword.
+Roleplay books are reference documents that provide cultural context, voice guidance, and dynamic intelligence for roleplaying specific ancestries in the Skyreach campaign. They appear automatically on encounter pages when either the encounter ID or stat block IDs contain the relevant ancestry keyword.
 
 ## Purpose
 
@@ -12,8 +12,8 @@ Roleplay books are reference documents that provide cultural context, voice guid
 - Reduce prep overhead by surfacing relevant roleplay information when needed
 
 **Design principles:**
-- **Automatic discovery**: Books appear when relevant stat blocks are present—no manual linking required
-- **Scannability**: Structured format optimized for at-the-table reference
+- **Automatic discovery**: Books appear when encounter IDs or stat block IDs contain the keyword—no manual linking required
+- **Scannability**: Structured format optimized for at-the-table reference with markdown rendering for formatting
 - **Dynamic content**: Intelligence reports can introduce new hexes, encounters, and plot threads
 - **Author flexibility**: Intelligence report tables support arbitrary row counts (author ensures die type alignment)
 
@@ -116,22 +116,26 @@ Roleplay books appear on encounter pages through automatic keyword matching:
 // Get all roleplay books
 const allRoleplayBooks = await getCollection('roleplay-books');
 
-// Match based on stat block IDs containing the keyword
+// Match roleplay books based on keywords in encounter ID or stat block IDs
 const statBlockIds = encounter.statBlocks ?? [];
-const matchedRoleplayBooks = allRoleplayBooks.filter((book) =>
-  statBlockIds.some((id) => id.includes(book.data.keyword)),
-);
+const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
+  const keyword = book.data.keyword;
+  // Check if encounter ID contains keyword
+  if (id.includes(keyword)) return true;
+  // Check if any stat block ID contains keyword
+  return statBlockIds.some((statBlockId) => statBlockId.includes(keyword));
+});
 ```
 
 ### Keyword Guidelines
 
 **Keyword selection:**
 - Use lowercase, singular form of ancestry name
-- Should match common patterns in stat block IDs
+- Should match common patterns in encounter IDs and stat block IDs
 - Examples:
-  - `bearfolk` matches `bearfolk-warrior`, `bearfolk-elder`, etc.
-  - `kobold` matches `kobold-inventor`, `kobold-scale-sorcerer`, etc.
-  - `alseid` matches `alseid-scout`, `alseid-hoplite`, etc.
+  - `bearfolk` matches encounter `bearfolk-elder` or stat blocks like `bearfolk-warrior`
+  - `kobold` matches encounter `kobold-ambush` or stat blocks like `kobold-inventor`, `kobold-scale-sorcerer`
+  - `alseid` matches encounter `alseid-patrol` or stat blocks like `alseid-scout`, `alseid-hoplite`
 
 **Multiple matches:**
 - If an encounter includes multiple ancestry types (e.g., bearfolk and kobolds), all relevant roleplay books appear
@@ -144,6 +148,7 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) =>
 - **Focus**: Core cultural values, social structures, key distinguishing traits
 - **Tone**: Descriptive and practical for GM reference
 - **Avoid**: Don't just rehash generic fantasy tropes—capture what makes this culture unique in Baruun Khil
+- **Formatting**: Supports markdown - use `**bold**` for emphasis, bullet lists, etc.
 
 ### Prithara Variants
 - **Purpose**: Show how different groups pronounce/use "Prithara" (ancestral homeland)
@@ -158,6 +163,7 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) =>
   - Cultural communication patterns
   - How they refer to important concepts
 - **Keep concrete**: "Deep, slow cadence" not "speaks wisely"
+- **Formatting**: Rendered as bulleted list; supports markdown in individual items
 
 ### Lore Hooks
 - **Purpose**: Give GM tools to weave this culture into larger plot threads
@@ -167,11 +173,13 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) =>
   - Cultural interpretations of magical phenomena
   - Terms/phrases that could be plot-relevant passwords or keys
   - Cultural practices that tie to campaign mysteries
+- **Formatting**: Rendered as bulleted list; supports markdown in individual items
 
 ### Sample Dialogue
 - **Purpose**: Demonstrate voice in practice
 - **Format**: 1-3 complete dialogue lines that show the voice notes in action
 - **Quality**: Should be table-ready—GM can deliver verbatim or adapt slightly
+- **Formatting**: Rendered with left border and italic styling; supports markdown for emphasis
 
 ### Intelligence Reports
 - **When to include**: Cultures that are:
@@ -230,11 +238,11 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) =>
 
 ### Collection Configuration
 
-Roleplay books use the standard content collection pattern:
+Roleplay books use Astro's glob loader for YAML files:
 
 ```typescript
 const roleplayBooks = defineCollection({
-  loader: getDirectoryYamlLoader<RoleplayBookData>(DIRS.ROLEPLAY_BOOKS),
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.ROLEPLAY_BOOKS }),
   schema: RoleplayBookSchema,
 });
 ```
@@ -242,19 +250,23 @@ const roleplayBooks = defineCollection({
 ### Components
 
 **Primary renderer:**
-- `apps/web/src/components/RoleplayBook.astro`
-- Renders all sections of a roleplay book
+- `apps/web/src/components/RoleplayBook/RoleplayBook.astro`
+- Renders all sections of a roleplay book with markdown processing
+- Uses semantic HTML lists (`<ul>/<li>`) for bullet points
 - Conditionally includes intelligence reports table
 
 **Intelligence reports table:**
-- `apps/web/src/components/IntelligenceReportsTable.astro`
+- `apps/web/src/components/RoleplayBook/IntelligenceReportsTable.astro`
 - Standalone component for report table rendering
 - Includes instructions display and responsive table layout
 
 ### Styling
 
 Roleplay books follow standard component styling:
-- Uses Bulma utilities for base layout
+- Uses Bulma utilities for base layout (title classes, etc.)
+- Markdown rendered via `renderMarkdown()` for all text fields (supports **bold**, *italic*, etc.)
+- Semantic HTML lists for RP notes, lore hooks (native browser styling)
+- Compact spacing between sections for scannability
 - Custom styles scoped to components
 - Responsive table design for intelligence reports
 - Print-friendly (consideration for at-table reference)
