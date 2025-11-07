@@ -108,11 +108,15 @@ const floatingClueList = floatingCluesUsingEncounter
 // Get all roleplay books
 const allRoleplayBooks = await getCollection('roleplay-books');
 
-// Match roleplay books based on keywords in stat block IDs
+// Match roleplay books based on keywords in encounter ID or stat block IDs
 const statBlockIds = encounter.statBlocks ?? [];
-const matchedRoleplayBooks = allRoleplayBooks.filter((book) =>
-  statBlockIds.some((id) => id.includes(book.data.keyword)),
-);
+const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
+  const keyword = book.data.keyword;
+  // Check if encounter ID contains keyword
+  if (id.includes(keyword)) return true;
+  // Check if any stat block ID contains keyword
+  return statBlockIds.some((statBlockId) => statBlockId.includes(keyword));
+});
 ---
 
 <style is:global>
@@ -188,7 +192,7 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) =>
   </div>
   <div class="stat-block-container">
     {
-      encounter.statBlocks.map((statBlockId: string) => {
+      statBlockIds.map((statBlockId: string) => {
         const statBlock = statBlocks.find(
           (statBlock) => statBlock.id === statBlockId,
         );

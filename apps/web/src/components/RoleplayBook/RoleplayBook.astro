@@ -1,6 +1,7 @@
 ---
 import IntelligenceReportsTable from './IntelligenceReportsTable.astro';
 import type { RoleplayBookData } from '@skyreach/schemas';
+import { renderMarkdown } from '../../utils/markdown';
 
 interface Props {
   data: RoleplayBookData;
@@ -14,91 +15,82 @@ const { data } = Astro.props;
     margin-top: 2rem;
   }
 
-  .section {
-    margin-bottom: 2rem;
-  }
-
   .section-title {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
   }
 
   .cultural-overview {
-    white-space: pre-wrap;
     line-height: 1.6;
-  }
-
-  .prithara-variant {
-    margin-bottom: 0.5rem;
   }
 
   .variant-name {
     font-weight: 600;
   }
 
-  .list-item {
-    margin-bottom: 0.5rem;
-    padding-left: 1.5rem;
-    position: relative;
-  }
-
-  .list-item::before {
-    content: "•";
-    position: absolute;
-    left: 0.5rem;
-  }
-
   .dialogue-item {
     font-style: italic;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
     padding-left: 1rem;
-    border-left: 3px solid var(--bulma-grey-light);
+    border-left: 3px solid var(--bulma-link-text);
   }
 </style>
 
 <div class="roleplay-book">
   <h2 class="title is-3">{data.name}</h2>
 
-  <div class="section">
-    <h3 class="title is-4 section-title">Cultural Overview</h3>
-    <div class="cultural-overview">{data.culturalOverview}</div>
+  <h3 class="title is-4 section-title">Cultural Overview</h3>
+  <div class="cultural-overview">
+    <Fragment set:html={renderMarkdown(data.culturalOverview)} />
   </div>
 
-  {data.pritharaVariants.length > 0 && (
-    <div class="section">
-      <h3 class="title is-4 section-title">Prithara Variants</h3>
-      {data.pritharaVariants.map((variant) => (
-        <div class="prithara-variant">
-          <span class="variant-name">{variant.name}</span> – {variant.description}
-        </div>
-      ))}
-    </div>
-  )}
+  <h3 class="title is-4 section-title">Prithara Variants</h3>
+  <ul>
+  {
+    data.pritharaVariants.map((variant) => (
+      <li>
+        <span class="variant-name">{variant.name}</span> – {variant.description}
+      </li>
+    ))
+  }
+  </ul>
 
-  <div class="section">
-    <h3 class="title is-4 section-title">RP & Voice Notes</h3>
-    {data.rpVoiceNotes.map((note) => (
-      <div class="list-item">{note}</div>
-    ))}
-  </div>
+  <h3 class="title is-4 section-title">RP & Voice Notes</h3>
+  <ul>
+  {
+    data.rpVoiceNotes.map((note) => (
+      <li>
+        <Fragment set:html={renderMarkdown(note)} />
+      </li>
+    ))
+  }
+  </ul>
 
-  <div class="section">
-    <h3 class="title is-4 section-title">Lore Hooks & Hints</h3>
-    {data.loreHooks.map((hook) => (
-      <div class="list-item">{hook}</div>
-    ))}
-  </div>
+  <h3 class="title is-4 section-title">Lore Hooks & Hints</h3>
+  <ul>
+  {
+    data.loreHooks.map((hook) => (
+      <li>
+        <Fragment set:html={renderMarkdown(hook)} />
+      </li>
+    ))
+  }
+  </ul>
 
-  <div class="section">
-    <h3 class="title is-4 section-title">Sample Dialogue</h3>
-    {data.sampleDialogue.map((dialogue) => (
-      <div class="dialogue-item">{dialogue}</div>
-    ))}
-  </div>
+  <h3 class="title is-4 section-title">Sample Dialogue</h3>
+  {
+    data.sampleDialogue.map((dialogue) => (
+      <div class="dialogue-item">
+        <Fragment set:html={renderMarkdown(dialogue)} />
+      </div>
+    ))
+  }
 
-  {data.intelligenceReports && (
-    <IntelligenceReportsTable
-      instructions={data.intelligenceReports.instructions}
-      rows={data.intelligenceReports.rows}
-    />
-  )}
+  {
+    data.intelligenceReports && (
+      <IntelligenceReportsTable
+        instructions={data.intelligenceReports.instructions}
+        rows={data.intelligenceReports.rows}
+      />
+    )
+  }
 </div>
