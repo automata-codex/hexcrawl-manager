@@ -56,6 +56,7 @@ export const ROUTES = {
       downtimeActivitiesGm: '/gm-reference/winter-1512/downtime-activities-gm-reference',
       downtimeActivitiesPlayer: '/players-reference/winter-1512/downtime-activities-player-reference',
       huntingSoldierRoster: '/gm-reference/winter-1512/hunting-soldier-roster',
+      huntingSoldierRosterPlayer: '/players-reference/winter-1512/hunting-soldier-roster',
       index: '/gm-reference/winter-1512',
       investigationFramework: '/gm-reference/winter-1512/investigation-framework',
       npcQuickReference: '/gm-reference/winter-1512/npc-quick-reference',
@@ -339,6 +340,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'winter-1512/hunting-soldier-roster',
     path: ROUTES.gmReference.winter1512.huntingSoldierRoster,
+  },
+  {
+    slug: 'winter-1512/hunting-soldier-roster-player-facing',
+    path: ROUTES.gmReference.winter1512.huntingSoldierRosterPlayer,
   },
   {
     slug: 'winter-1512/index',
