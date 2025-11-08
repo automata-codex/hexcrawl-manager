@@ -54,13 +54,14 @@ export const ROUTES = {
     },
     winter1512: {
       downtimeActivitiesGm: '/gm-reference/winter-1512/downtime-activities-gm-reference',
-      downtimeActivitiesPlayer: '/players-guide/winter-1512/downtime-activities-player-reference',
+      downtimeActivitiesPlayer: '/players-reference/winter-1512/downtime-activities-player-reference',
       huntingSoldierRoster: '/gm-reference/winter-1512/hunting-soldier-roster',
       index: '/gm-reference/winter-1512',
       investigationFramework: '/gm-reference/winter-1512/investigation-framework',
       npcQuickReference: '/gm-reference/winter-1512/npc-quick-reference',
       npcRoster: '/gm-reference/winter-1512/npc-roster',
       offSiteGranaries: '/gm-reference/winter-1512/off-site-granaries',
+      playersGuide: '/players-reference/winter-1512',
       rumorSystem: '/gm-reference/winter-1512/rumor-system',
       winterRules: '/gm-reference/winter-1512/winter-rules-outline',
     },
@@ -358,6 +359,10 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'winter-1512/off-site-granaries',
     path: ROUTES.gmReference.winter1512.offSiteGranaries,
+  },
+  {
+    slug: 'winter-1512/players-guide',
+    path: ROUTES.gmReference.winter1512.playersGuide,
   },
   {
     slug: 'winter-1512/rumor-system',

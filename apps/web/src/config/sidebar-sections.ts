@@ -116,6 +116,10 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
               label: 'Third-party Supplements',
               href: ROUTES.playersReference.rules.supplements,
             },
+            {
+              label: 'Winter 1512',
+              href: ROUTES.gmReference.winter1512.playersGuide,
+            },
           ],
         },
         {
@@ -397,6 +401,11 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
           id: 'stat-blocks',
           label: 'Stat Blocks',
           href: ROUTES.gmReference.statBlocks.index,
+        },
+        {
+          id: 'winter-1512',
+          label: 'Winter 1512',
+          href: ROUTES.gmReference.winter1512.index,
         },
       ],
     },
