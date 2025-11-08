@@ -52,6 +52,18 @@ export const ROUTES = {
       id: '/gm-reference/stat-blocks/[id]',
       index: '/gm-reference/stat-blocks',
     },
+    winter1512: {
+      downtimeActivitiesGm: '/gm-reference/winter-1512/downtime-activities-gm-reference',
+      downtimeActivitiesPlayer: '/players-guide/winter-1512/downtime-activities-player-reference',
+      huntingSoldierRoster: '/gm-reference/winter-1512/hunting-soldier-roster',
+      index: '/gm-reference/winter-1512',
+      investigationFramework: '/gm-reference/winter-1512/investigation-framework',
+      npcQuickReference: '/gm-reference/winter-1512/npc-quick-reference',
+      npcRoster: '/gm-reference/winter-1512/npc-roster',
+      offSiteGranaries: '/gm-reference/winter-1512/off-site-granaries',
+      rumorSystem: '/gm-reference/winter-1512/rumor-system',
+      winterRules: '/gm-reference/winter-1512/winter-rules-outline',
+    },
   },
   index: '/',
   playersGuide: {
@@ -314,6 +326,46 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'western-frontier-gms-notes',
     path: ROUTES.gmReference.setting.westernFrontierGmsNotes,
+  },
+  {
+    slug: 'winter-1512/downtime-activities-gm-reference',
+    path: ROUTES.gmReference.winter1512.downtimeActivitiesGm,
+  },
+  {
+    slug: 'winter-1512/downtime-activities-player-reference',
+    path: ROUTES.gmReference.winter1512.downtimeActivitiesPlayer,
+  },
+  {
+    slug: 'winter-1512/hunting-soldier-roster',
+    path: ROUTES.gmReference.winter1512.huntingSoldierRoster,
+  },
+  {
+    slug: 'winter-1512/index',
+    path: ROUTES.gmReference.winter1512.index,
+  },
+  {
+    slug: 'winter-1512/investigation-framework',
+    path: ROUTES.gmReference.winter1512.investigationFramework,
+  },
+  {
+    slug: 'winter-1512/npc-quick-reference',
+    path: ROUTES.gmReference.winter1512.npcQuickReference,
+  },
+  {
+    slug: 'winter-1512/npc-roster',
+    path: ROUTES.gmReference.winter1512.npcRoster,
+  },
+  {
+    slug: 'winter-1512/off-site-granaries',
+    path: ROUTES.gmReference.winter1512.offSiteGranaries,
+  },
+  {
+    slug: 'winter-1512/rumor-system',
+    path: ROUTES.gmReference.winter1512.rumorSystem,
+  },
+  {
+    slug: 'winter-1512/winter-rules-outline',
+    path: ROUTES.gmReference.winter1512.winterRules,
   },
 ];
 
