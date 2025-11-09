@@ -5,11 +5,12 @@ export const IntelligenceReportRowSchema = z
   .object({
     roll: z.number().describe('Die result'),
     report: z.string().describe('Title/summary of the report'),
+    linkText: z.string().describe('Text for the link (e.g., "Encounter: Dream Sickness")'),
+    linkPath: z.string().describe('Path to the linked content'),
     sampleDialogue: z.string().describe('In-character delivery'),
     relevantConditions: z.string().describe('When this report is relevant'),
   })
   .describe('IntelligenceReportRowSchema');
-
 export type IntelligenceReportRow = z.infer<typeof IntelligenceReportRowSchema>;
 
 // Prithara variant schema
