@@ -125,6 +125,8 @@ export const ROUTES = {
       index: '/session-toolkit/regions',
     },
     roleplayBooks: {
+      id: '/session-toolkit/roleplay-books/[id]',
+      index: '/session-toolkit/roleplay-books',
       alseid: '/session-toolkit/roleplay-books/alseid',
       bearfolk: '/session-toolkit/roleplay-books/bearfolk',
       gearforged: '/session-toolkit/roleplay-books/gearforged',
@@ -347,6 +349,12 @@ export function getLootPackPath(lootPackId: string): string {
 
 export function getRegionPath(regionId: string): string {
   return interpolateRoute(ROUTES.sessionToolkit.regions.id, { id: regionId });
+}
+
+export function getRoleplayBookPath(roleplayBookId: string): string {
+  return interpolateRoute(ROUTES.sessionToolkit.roleplayBooks.id, {
+    id: roleplayBookId,
+  });
 }
 
 export function getStatBlockPath(statBlockId: string): string {
