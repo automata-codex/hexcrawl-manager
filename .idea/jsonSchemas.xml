@@ -256,6 +256,24 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="roleplay-book">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="roleplay-book" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/roleplay-book.schema.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/roleplay-books" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="rumor">
           <value>
             <SchemaInfo>

@@ -230,6 +230,10 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
               href: ROUTES.sessionToolkit.roleplayBooks.bearfolk,
             },
             {
+              label: 'Fort Dagaric',
+              href: ROUTES.sessionToolkit.roleplayBooks.fortDagaric,
+            },
+            {
               label: 'Gearforged',
               href: ROUTES.sessionToolkit.roleplayBooks.gearforged,
             },

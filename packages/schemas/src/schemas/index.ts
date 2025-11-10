@@ -20,6 +20,7 @@ export * from './meta-v2';
 export * from './npc';
 export * from './player';
 export * from './region';
+export * from './roleplay-book';
 export * from './rollover-file';
 export * from './rollover-footprint';
 export * from './rumor';

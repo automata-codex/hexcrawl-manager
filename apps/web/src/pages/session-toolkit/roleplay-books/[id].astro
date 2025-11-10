@@ -1,0 +1,35 @@
+---
+import { getEntry } from 'astro:content';
+
+import RoleplayBook from '../../../components/RoleplayBook/RoleplayBook.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+import type { RoleplayBookData } from '@skyreach/schemas';
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Query for the entry directly using the request slug
+const roleplayBookEntry = await getEntry('roleplay-books', id);
+
+// Redirect if the entry does not exist
+if (roleplayBookEntry === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+const roleplayBook: RoleplayBookData = roleplayBookEntry.data;
+const title = roleplayBook.name;
+---
+
+<SecretLayout title={title}>
+  <RoleplayBook data={roleplayBook} />
+</SecretLayout>

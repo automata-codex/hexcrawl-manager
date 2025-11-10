@@ -18,6 +18,7 @@ import {
   type PlayerData,
   PlayerSchema,
   RegionSchema,
+  RoleplayBookSchema,
   type RumorData,
   RumorSchema,
   SessionSchema,
@@ -53,6 +54,7 @@ const DIRS = {
   NPCS: `${DATA_DIR}/npcs`,
   PLAYERS: `${DATA_DIR}/players`,
   REGIONS: `${DATA_DIR}/regions`,
+  ROLEPLAY_BOOKS: `${DATA_DIR}/roleplay-books`,
   RUMORS: `${DATA_DIR}/rumors`,
   SESSIONS: `${DATA_DIR}/sessions`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
@@ -60,6 +62,7 @@ const DIRS = {
   TRAILS: `${DATA_DIR}/trails`,
 } as const;
 
+/** @deprecated */
 function getDirectoryYamlLoader<T>(directory: string): () => T[] {
   return () => {
     const DIRECTORY = path.join(process.cwd(), directory);
@@ -160,6 +163,11 @@ const regions = defineCollection({
   schema: RegionSchema,
 });
 
+const roleplayBooks = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.ROLEPLAY_BOOKS }),
+  schema: RoleplayBookSchema,
+});
+
 const rumors = defineCollection({
   loader: getDirectoryYamlLoader<RumorData>(DIRS.RUMORS),
   schema: RumorSchema,
@@ -205,6 +213,7 @@ export const collections = {
   npcs,
   players,
   regions,
+  'roleplay-books': roleplayBooks,
   rumors,
   sessions,
   statBlocks,
