@@ -1,6 +1,7 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 
+import EncounterContent from '../../../components/EncounterContent.astro';
 import RoleplayBook from '../../../components/RoleplayBook/RoleplayBook.astro';
 import StatBlock from '../../../components/StatBlock/StatBlock.astro';
 import {
@@ -180,9 +181,24 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
       </p>
     )
   }
-  <div class="description">
-    <Fragment set:html={renderMarkdown(encounter.description)} />
-  </div>
+  {
+    encounter.description && (
+      <div class="summary">
+        {encounter.contentPath && <h2 class="title is-4">Summary</h2>}
+        <div class="description">
+          <Fragment set:html={renderMarkdown(encounter.description)} />
+        </div>
+      </div>
+    )
+  }
+  {
+    encounter.contentPath && (
+      <div class="detailed-content">
+        {encounter.description && <h2 class="title is-4">Details</h2>}
+        <EncounterContent encounterId={id} contentPath={encounter.contentPath} />
+      </div>
+    )
+  }
   <div class="roleplay-books">
     {
       matchedRoleplayBooks.map((entry) => (
