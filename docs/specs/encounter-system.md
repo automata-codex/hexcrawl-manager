@@ -20,7 +20,6 @@ export const EncounterSchema = z
     description: z.string().optional(),
     contentPath: z.string().optional(),
     statBlocks: z.array(z.string()),
-    weight: z.number().default(1),
   })
   .refine(
     (data) => data.description || data.contentPath,
@@ -51,8 +50,6 @@ export const EncounterSchema = z
   - Path resolved relative to the YAML file's location (not repo root)
   - Example: `./abandoned-watchtower.md` or `abandoned-watchtower.md`
   - Typically co-located with the YAML file in the same directory
-
-- **`weight`**: Numeric weight for encounter table selection (default: 1)
 
 ### Content Strategy
 
@@ -92,7 +89,6 @@ name: Goblin Patrol
 description: A group of 3-5 goblins on patrol, armed with shortbows and scimitars.
 statBlocks:
   - goblin
-weight: 2
 ```
 
 ### Example: Detailed Encounter
@@ -105,7 +101,6 @@ contentPath: ./abandoned-watchtower.md
 statBlocks:
   - bandit-captain
   - bandit
-weight: 1
 ```
 
 **File location**: `data/encounters/abandoned-watchtower.yaml`
@@ -170,7 +165,7 @@ For bulk-generated encounters:
 
 - Main table with weighted categories
 - Category tables with tiered subtables
-- Encounter references with weights
+- Encounter table entries reference encounters and include weights for selection probability
 
 ### Schema
 
@@ -249,7 +244,6 @@ For bulk-generated encounters:
 
 - Stat block references must exist
 - Content files must exist if referenced
-- Weights must be positive numbers
 
 ### Testing Strategy
 
