@@ -7,8 +7,9 @@
     "build": "npm run --prefix ../.. build:clue-links && astro check && astro build",
     "check": "astro check",
     "dev": "astro dev --host",
-    "prebuild": "npm run --prefix ../.. build:packages && tsx scripts/cache-ap-totals.ts",
-    "preview": "astro preview"
+    "prebuild": "npm run --prefix ../.. build:packages && tsx scripts/validate-encounter-content.ts && tsx scripts/cache-ap-totals.ts",
+    "preview": "astro preview",
+    "validate:encounters": "tsx scripts/validate-encounter-content.ts"
   },
   "type": "module",
   "volta": {
