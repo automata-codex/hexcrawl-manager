@@ -1,4 +1,5 @@
 ---
+import { resolveDataPath } from '@skyreach/data';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { renderMarkdown } from '../utils/markdown';
@@ -11,7 +12,7 @@ interface Props {
 const { encounterId, contentPath } = Astro.props;
 
 // Resolve path relative to encounters directory
-const encountersDir = join(process.cwd(), 'data/encounters');
+const encountersDir = resolveDataPath('encounters');
 const fullPath = join(encountersDir, contentPath);
 
 let content: string;

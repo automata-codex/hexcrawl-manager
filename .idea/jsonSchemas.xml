@@ -117,7 +117,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="floating-clue" />
-              <option name="relativePathToSchema" value="schemas/floating-clue.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/floating-clue.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>
