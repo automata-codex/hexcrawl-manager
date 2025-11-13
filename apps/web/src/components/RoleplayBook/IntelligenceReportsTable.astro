@@ -94,7 +94,11 @@ const { instructions, rows } = Astro.props;
         <tr>
           <td class="roll-column">{row.roll}</td>
           <td class="report-column">
-            {row.report} → <a href={row.linkPath}>{row.linkText}</a>
+            {row.linkText && row.linkPath ? (
+              <>{row.report} → <a href={row.linkPath}>{row.linkText}</a></>
+            ) : (
+              row.report
+            )}
           </td>
           <td class="dialogue-column">
             <Fragment set:html={renderMarkdown(row.sampleDialogue)} />
