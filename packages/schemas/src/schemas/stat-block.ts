@@ -66,6 +66,11 @@ export const SpecialActionSchema = z.object({
   recharge: z.string().optional(),
 });
 
+export const BonusActionSchema = z.object({
+  name: z.string(),
+  desc: z.string().optional(),
+});
+
 export const SkillsSchema = z.object({
   acrobatics: z.number().int().positive().optional(),
   animal_handling: z.number().int().positive().optional(),
@@ -170,7 +175,7 @@ export const StatBlockSchema = z.object({
   challenge_rating: z.string(),
   cr: z.number(),
   actions: z.array(ActionSchema),
-  bonus_actions: z.array(z.string()).nullable().optional(),
+  bonus_actions: z.array(BonusActionSchema).nullable().optional(),
   reactions: z
     .array(
       z.object({
@@ -220,5 +225,6 @@ export type DescriptiveActionData = z.infer<typeof DescriptiveActionSchema>;
 export type MeleeWeaponAttackData = z.infer<typeof MeleeWeaponAttackSchema>;
 export type RangedWeaponAttackData = z.infer<typeof RangedWeaponAttackSchema>;
 export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
+export type BonusActionData = z.infer<typeof BonusActionSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;

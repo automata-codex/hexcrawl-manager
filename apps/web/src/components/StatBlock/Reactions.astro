@@ -1,0 +1,38 @@
+---
+import { renderBulletMarkdown } from '../../utils/markdown';
+
+import type { StatBlockData } from '@skyreach/schemas';
+
+interface Props {
+  reactions: StatBlockData['reactions'];
+}
+
+const { reactions } = Astro.props;
+if (!reactions || reactions.length === 0) {
+  return null;
+}
+---
+
+<style>
+  h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    page-break-after: avoid;
+  }
+
+  .reaction-name {
+    font-style: italic;
+    font-weight: bold;
+  }
+</style>
+<h3>Reactions</h3>
+{
+  reactions.map((reaction) => (
+    <div>
+      <span class="reaction-name">{reaction.name}.</span>{' '}
+      <span class="reaction-description">
+        <Fragment set:html={renderBulletMarkdown(reaction.desc)} />
+      </span>
+    </div>
+  ))
+}
