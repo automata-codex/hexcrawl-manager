@@ -3,8 +3,10 @@ import { formatText } from '../../utils/text';
 
 import Actions from './Actions.astro';
 import Attributes from './Attributes.astro';
+import BonusActions from './BonusActions.astro';
 import ChallengeAndProficiency from './ChallengeAndProficiency.astro';
 import Immunities from './Immunities.astro';
+import Reactions from './Reactions.astro';
 import Skills from './Skills.astro';
 import Speed from './Speed.astro';
 import Subheading from './Subheading.astro';
@@ -74,4 +76,6 @@ const { data } = Astro.props;
   </div>
   <Traits specialAbilities={data.special_abilities} />
   <Actions actions={data.actions} />
+  <BonusActions bonusActions={data.bonus_actions} />
+  <Reactions reactions={data.reactions} />
 </section>

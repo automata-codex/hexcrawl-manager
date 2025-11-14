@@ -1,0 +1,40 @@
+---
+import { renderBulletMarkdown } from '../../utils/markdown';
+
+import type { StatBlockData } from '@skyreach/schemas';
+
+interface Props {
+  bonusActions: StatBlockData['bonus_actions'];
+}
+
+const { bonusActions } = Astro.props;
+if (!bonusActions || bonusActions.length === 0) {
+  return null;
+}
+---
+
+<style>
+  h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    page-break-after: avoid;
+  }
+
+  .bonus-action-name {
+    font-style: italic;
+    font-weight: bold;
+  }
+</style>
+<h3>Bonus Actions</h3>
+{
+  bonusActions.map((bonusAction) => (
+    <div>
+      <span class="bonus-action-name">{bonusAction.name}.</span>{' '}
+      {bonusAction.desc && (
+        <span class="bonus-action-description">
+          <Fragment set:html={renderBulletMarkdown(bonusAction.desc)} />
+        </span>
+      )}
+    </div>
+  ))
+}
