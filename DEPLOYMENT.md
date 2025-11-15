@@ -38,8 +38,9 @@ Skyreach is configured to deploy to Railway, which provides full filesystem acce
 
 The build process is defined in `railway.toml`:
 
-1. Install all dependencies: `npm install`
-2. Build the web app: `npm run build --workspace=@skyreach/web`
+1. **Node.js version:** Railway will use Node.js 22.20.0 as specified in `.nvmrc` and `package.json` engines field
+2. Install all dependencies: `npm install`
+3. Build the web app: `npm run build --workspace=@skyreach/web`
    - This runs `prebuild` script which:
      - Builds all packages
      - Validates encounter content
