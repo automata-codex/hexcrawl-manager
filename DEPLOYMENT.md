@@ -36,16 +36,27 @@ Skyreach is configured to deploy to Railway, which provides full filesystem acce
 
 ### Build Process
 
-The build process is defined in `railway.toml`:
+The build process is defined in `railway.toml` and `nixpacks.toml`:
 
-1. **Node.js version:** Railway will use Node.js 22.20.0 as specified in `.nvmrc` and `package.json` engines field
+1. **Runtime dependencies:** Railway/Nixpacks will install:
+   - Node.js 22.20.0 (from `.nvmrc` and `package.json` engines)
+   - Python 3.11 Full (for clue-linker script)
 2. Install all dependencies: `npm install`
 3. Build the web app: `npm run build --workspace=@skyreach/web`
    - This runs `prebuild` script which:
      - Builds all packages
      - Validates encounter content
+     - **Runs clue-linker** (Python script that generates clue links)
      - Caches AP totals
    - Then builds the Astro site
+
+**Note:** The clue-linker step installs ML dependencies (PyTorch, transformers) which can make the first build slow (~5-10 minutes). Subsequent builds may be faster if Railway caches dependencies.
+
+**Alternative (faster builds):** If build times are too long, you can pre-generate `data/clue-links.yaml` locally and commit it to the repository:
+1. Run `npm run build:clue-links` locally
+2. Remove `data/clue-links.yaml` from `.gitignore`
+3. Commit the generated file
+4. Update `apps/web/package.json` prebuild script to skip `build:clue-links`
 
 ### Directory Structure in Deployment
 
