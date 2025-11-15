@@ -1,5 +1,15 @@
 # @skyreach/schemas
 
+## 3.1.0
+
+### Minor Changes
+
+- 7cf8436: Expand roleplay books:
+  - Add new data type
+  - **Content Update:** Expand roleplay books for various cultures and species, including addition of "intelligence reports"
+- 5177911: Update encounter schema to support content from external markdown file
+- fa083d7: **Content Update:** Add encounters and floating clues for intel reports
+
 ## 3.0.0
 
 ### Minor Changes

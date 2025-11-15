@@ -1,5 +1,23 @@
 # @skyreach/web
 
+## 3.1.0
+
+### Minor Changes
+
+- 86ff396: **Content Update:** Add new articles on bearfolk culture; add outline on alseid culture
+- 7cf8436: Expand roleplay books:
+  - Add new data type
+  - **Content Update:** Expand roleplay books for various cultures and species, including addition of "intelligence reports"
+- 32e7ef4: **Content Update:** Expand existing Revenant Legion encounters to include new troop types
+- 79b6907: Add additional Revenant Legion creature types:
+  - Add display of bonus actions and reactions to stat blocks
+  - **Content Update:** Add and revise Revenant Legion creature types
+- 4deb45c: **Content Update:** Add stat blocks and tier 2 encounters
+- 5177911: Update encounter schema to support content from external markdown file
+- 5a83b39: **Content Update:** Update random encounter tables
+- fa083d7: **Content Update:** Add encounters and floating clues for intel reports
+- eadd665: **Content Update:** Added everything for the "Winter 1512" mini-game
+
 ## 3.0.0
 
 ### Major Changes
