@@ -124,3 +124,132 @@ Before deploying:
 - [ ] Build successful locally (`npm run build:web`)
 - [ ] Environment variables configured in Railway
 - [ ] Clerk domain allowlist updated with Railway URL
+
+---
+
+## Future Improvement: Docker + GitHub Actions
+
+**Status:** Planned for future implementation
+
+This approach would provide faster builds, smaller deployments, and maximum portability.
+
+### Overview
+
+Instead of building on Railway with Python dependencies, use GitHub Actions to build a Docker image and deploy it anywhere.
+
+### Benefits
+
+- ✅ **Fast builds** - 2-3 minutes instead of 10-15 minutes
+- ✅ **Small images** - No Python/ML dependencies needed
+- ✅ **Platform agnostic** - Deploy to Railway, Fly.io, AWS, GCP, Azure, or any VPS
+- ✅ **Automated** - Push to GitHub triggers image build
+- ✅ **Consistent** - Same image for dev/staging/production environments
+- ✅ **Cached builds** - GitHub Actions caches Docker layers
+
+### Workflow
+
+1. **Local development:**
+   - Make changes to code/data
+   - When hex/clue data changes: Run `npm run build:clue-links`
+   - Commit changes including `data/clue-links.yaml`
+   - Push to GitHub
+
+2. **GitHub Actions (automatic):**
+   - Triggered on push to `main` or `develop` branch
+   - Builds Docker image (no Python needed since clue-links is pre-generated)
+   - Pushes image to GitHub Container Registry (ghcr.io)
+   - Tags with branch name and commit SHA
+
+3. **Deployment (Railway or elsewhere):**
+   - Configure Railway to deploy from Docker image
+   - Or deploy to any other platform that supports Docker
+
+### Implementation Checklist
+
+When ready to implement:
+
+- [ ] **Pre-generate clue links:**
+  - Remove `data/clue-links.yaml` from `.gitignore`
+  - Run `npm run build:clue-links` locally
+  - Commit `data/clue-links.yaml` to repository
+
+- [ ] **Update build scripts:**
+  - Modify `apps/web/package.json` prebuild to skip `build:clue-links`
+  - Remove Python from `nixpacks.toml` (or delete file entirely)
+
+- [ ] **Create Docker files:**
+  - `Dockerfile` - Multi-stage build (build stage + production stage)
+  - `.dockerignore` - Exclude unnecessary files from image
+
+- [ ] **Create GitHub Action:**
+  - `.github/workflows/docker-build.yml`
+  - Build and push on push to main/develop
+  - Tag with branch name and commit SHA
+
+- [ ] **Configure Railway:**
+  - Switch from "Deploy from GitHub repo" to "Deploy from Docker image"
+  - Point to GitHub Container Registry image
+  - Set auto-deploy on new image tags
+
+### Dockerfile Structure (Reference)
+
+```dockerfile
+# Build stage
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build --workspace=@skyreach/web
+
+# Production stage
+FROM node:22-alpine
+WORKDIR /app
+COPY --from=builder /app/apps/web/dist ./apps/web/dist
+COPY --from=builder /app/data ./data
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/node_modules ./node_modules
+ENV NODE_ENV=production
+EXPOSE 8080
+CMD ["node", "apps/web/dist/server/entry.mjs"]
+```
+
+### GitHub Action Structure (Reference)
+
+```yaml
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [main, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+```
+
+### Migration Steps
+
+1. Pre-generate and commit clue-links file
+2. Update build scripts to skip clue-linker
+3. Create and test Dockerfile locally
+4. Create GitHub Action workflow
+5. Test automatic image builds
+6. Reconfigure Railway to use Docker image
+7. Verify deployment works
+8. Remove Python dependencies from repository

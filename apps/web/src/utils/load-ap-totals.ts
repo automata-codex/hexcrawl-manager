@@ -69,7 +69,10 @@ function loadFromLedger(): ApTotalsResult {
  * Production mode: Read from pre-computed cache
  */
 function loadFromCache(): ApTotalsResult {
-  const cacheFilePath = path.join(__dirname, '../../.cache/ap-totals.json');
+  // Use process.cwd() to get project root, then navigate to cache file
+  // In production on Railway: process.cwd() = /app
+  // Cache file is at: /app/apps/web/.cache/ap-totals.json
+  const cacheFilePath = path.join(process.cwd(), 'apps/web/.cache/ap-totals.json');
 
   if (!fs.existsSync(cacheFilePath)) {
     throw new Error(
