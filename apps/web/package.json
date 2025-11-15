@@ -19,9 +19,9 @@
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/mdx": "^4.2.6",
+    "@astrojs/node": "^9.1.2",
     "@astrojs/svelte": "^7.0.13",
     "@astrojs/ts-plugin": "^1.10.4",
-    "@astrojs/vercel": "^8.1.4",
     "@clerk/astro": "^2.7.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/pro-light-svg-icons": "^6.7.2",
