@@ -1,10 +1,13 @@
 ---
-import { formatText } from '../../utils/text';
+import { getStatBlockPath } from '../../config/routes';
+import { renderBulletMarkdown } from '../../utils/markdown.ts';
 
 import Actions from './Actions.astro';
 import Attributes from './Attributes.astro';
+import BonusActions from './BonusActions.astro';
 import ChallengeAndProficiency from './ChallengeAndProficiency.astro';
 import Immunities from './Immunities.astro';
+import Reactions from './Reactions.astro';
 import Skills from './Skills.astro';
 import Speed from './Speed.astro';
 import Subheading from './Subheading.astro';
@@ -14,14 +17,26 @@ import type { StatBlockData } from '@skyreach/schemas';
 
 interface Props {
   data: StatBlockData;
+  enableLink?: boolean;
 }
 
-const { data } = Astro.props;
+const { data, enableLink = true } = Astro.props;
+const statBlockPath = getStatBlockPath(data.id);
 ---
 
 <style>
   h2 {
     margin-top: 0;
+  }
+
+  .title-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .title-link:hover {
+    color: inherit;
   }
 
   section {
@@ -40,7 +55,15 @@ const { data } = Astro.props;
 </style>
 <section>
   <h2 class="title is-4" style="margin-bottom: 0.25rem">
-    {formatText(data.name)}
+    {
+      enableLink ? (
+        <a href={statBlockPath} class="title-link">
+          {renderBulletMarkdown(data.name)}
+        </a>
+      ) : (
+        renderBulletMarkdown(data.name)
+      )
+    }
   </h2>
   <Subheading data={data} />
   <div>
@@ -74,4 +97,6 @@ const { data } = Astro.props;
   </div>
   <Traits specialAbilities={data.special_abilities} />
   <Actions actions={data.actions} />
+  <BonusActions bonusActions={data.bonus_actions} />
+  <Reactions reactions={data.reactions} />
 </section>

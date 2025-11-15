@@ -1,0 +1,34 @@
+---
+import { resolveDataPath } from '@skyreach/data';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { renderMarkdown } from '../utils/markdown';
+
+interface Props {
+  encounterId: string;
+  contentPath: string;
+}
+
+const { encounterId, contentPath } = Astro.props;
+
+// Resolve path relative to encounters directory
+const encountersDir = resolveDataPath('encounters');
+const fullPath = join(encountersDir, contentPath);
+
+let content: string;
+try {
+  content = await readFile(fullPath, 'utf-8');
+} catch (error) {
+  const errorMessage =
+    error instanceof Error ? error.message : String(error);
+  throw new Error(
+    `Failed to load content for encounter "${encounterId}" at path "${contentPath}": ${errorMessage}`,
+  );
+}
+
+const rendered = renderMarkdown(content);
+---
+
+<div class="encounter-content">
+  <Fragment set:html={rendered} />
+</div>

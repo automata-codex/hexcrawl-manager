@@ -32,8 +32,7 @@ if (!specialAbilities || specialAbilities.length === 0) {
       <span class="trait-name">
         {trait.recharge
           ? `${trait.name} (Recharge ${trait.recharge})`
-          : trait.name}
-        .
+          : trait.name}.
       </span>{' '}
       <span class="trait-description">
         <Fragment set:html={renderBulletMarkdown(trait.desc)} />

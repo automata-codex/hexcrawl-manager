@@ -5,6 +5,7 @@ import SecretContent from '../../../components/Content/SecretContent.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { renderMarkdown } from '../../../utils/markdown';
 import { formatText } from '../../../utils/text';
+import { getRoleplayBookPath } from '../../../config/routes.ts';
 
 function formatOccupation(
   occupation: string,
@@ -43,9 +44,24 @@ const title = 'NPCs';
       text-indent: var(--skyreach-standard-indent);
     }
   }
+
+  .fort-dagaric-rp-link {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: var(--bulma-scheme-main-bis);
+    border-left: 3px solid var(--bulma-link-text);
+  }
 </style>
 <ComponentLayout title={title}>
   <main>
+    <SecretContent>
+      <div class="fort-dagaric-rp-link">
+        For intel reports from Fort Dagaric denizens, see
+        <a href={getRoleplayBookPath('fort-dagaric')}>
+          the Fort Dagaric Roleplay Book
+        </a>.
+      </div>
+    </SecretContent>
     {
       npcData.map((npc) => (
         <section>

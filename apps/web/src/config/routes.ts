@@ -52,6 +52,20 @@ export const ROUTES = {
       id: '/gm-reference/stat-blocks/[id]',
       index: '/gm-reference/stat-blocks',
     },
+    winter1512: {
+      downtimeActivitiesGm: '/gm-reference/winter-1512/downtime-activities-gm-reference',
+      downtimeActivitiesPlayer: '/players-reference/winter-1512/downtime-activities-player-reference',
+      huntingSoldierRoster: '/gm-reference/winter-1512/hunting-soldier-roster',
+      huntingSoldierRosterPlayer: '/players-reference/winter-1512/hunting-soldier-roster',
+      index: '/gm-reference/winter-1512',
+      investigationFramework: '/gm-reference/winter-1512/investigation-framework',
+      npcQuickReference: '/gm-reference/winter-1512/npc-quick-reference',
+      npcRoster: '/gm-reference/winter-1512/npc-roster',
+      offSiteGranaries: '/gm-reference/winter-1512/off-site-granaries',
+      playersGuide: '/players-reference/winter-1512',
+      rumorSystem: '/gm-reference/winter-1512/rumor-system',
+      winterRules: '/gm-reference/winter-1512/winter-rules-outline',
+    },
   },
   index: '/',
   playersGuide: {
@@ -125,8 +139,11 @@ export const ROUTES = {
       index: '/session-toolkit/regions',
     },
     roleplayBooks: {
+      id: '/session-toolkit/roleplay-books/[id]',
+      index: '/session-toolkit/roleplay-books',
       alseid: '/session-toolkit/roleplay-books/alseid',
       bearfolk: '/session-toolkit/roleplay-books/bearfolk',
+      fortDagaric: '/session-toolkit/roleplay-books/fort-dagaric',
       gearforged: '/session-toolkit/roleplay-books/gearforged',
       kobolds: '/session-toolkit/roleplay-books/kobolds',
     },
@@ -280,22 +297,6 @@ export const ARTICLE_ROUTES: RouteData[] = [
     path: ROUTES.playersReference.retcons,
   },
   {
-    slug: 'roleplay-book-alseid',
-    path: ROUTES.sessionToolkit.roleplayBooks.alseid,
-  },
-  {
-    slug: 'roleplay-book-bearfolk',
-    path: ROUTES.sessionToolkit.roleplayBooks.bearfolk,
-  },
-  {
-    slug: 'roleplay-book-gearforged',
-    path: ROUTES.sessionToolkit.roleplayBooks.gearforged,
-  },
-  {
-    slug: 'roleplay-book-kobolds',
-    path: ROUTES.sessionToolkit.roleplayBooks.kobolds,
-  },
-  {
     slug: 'scaling-encounters',
     path: ROUTES.sessionToolkit.scalingEncounters,
   },
@@ -314,6 +315,54 @@ export const ARTICLE_ROUTES: RouteData[] = [
   {
     slug: 'western-frontier-gms-notes',
     path: ROUTES.gmReference.setting.westernFrontierGmsNotes,
+  },
+  {
+    slug: 'winter-1512/downtime-activities-gm-reference',
+    path: ROUTES.gmReference.winter1512.downtimeActivitiesGm,
+  },
+  {
+    slug: 'winter-1512/downtime-activities-player-reference',
+    path: ROUTES.gmReference.winter1512.downtimeActivitiesPlayer,
+  },
+  {
+    slug: 'winter-1512/hunting-soldier-roster',
+    path: ROUTES.gmReference.winter1512.huntingSoldierRoster,
+  },
+  {
+    slug: 'winter-1512/hunting-soldier-roster-player-facing',
+    path: ROUTES.gmReference.winter1512.huntingSoldierRosterPlayer,
+  },
+  {
+    slug: 'winter-1512/index',
+    path: ROUTES.gmReference.winter1512.index,
+  },
+  {
+    slug: 'winter-1512/investigation-framework',
+    path: ROUTES.gmReference.winter1512.investigationFramework,
+  },
+  {
+    slug: 'winter-1512/npc-quick-reference',
+    path: ROUTES.gmReference.winter1512.npcQuickReference,
+  },
+  {
+    slug: 'winter-1512/npc-roster',
+    path: ROUTES.gmReference.winter1512.npcRoster,
+  },
+  {
+    slug: 'winter-1512/off-site-granaries',
+    path: ROUTES.gmReference.winter1512.offSiteGranaries,
+  },
+  {
+    slug: 'winter-1512/players-guide',
+    path: ROUTES.gmReference.winter1512.playersGuide,
+  },
+  {
+    slug: 'winter-1512/rumor-system',
+    path: ROUTES.gmReference.winter1512.rumorSystem,
+  },
+  {
+    slug: 'winter-1512/winter-rules-outline',
+    path: ROUTES.gmReference.winter1512.winterRules,
   },
 ];
 
@@ -347,6 +396,12 @@ export function getLootPackPath(lootPackId: string): string {
 
 export function getRegionPath(regionId: string): string {
   return interpolateRoute(ROUTES.sessionToolkit.regions.id, { id: regionId });
+}
+
+export function getRoleplayBookPath(roleplayBookId: string): string {
+  return interpolateRoute(ROUTES.sessionToolkit.roleplayBooks.id, {
+    id: roleplayBookId,
+  });
 }
 
 export function getStatBlockPath(statBlockId: string): string {

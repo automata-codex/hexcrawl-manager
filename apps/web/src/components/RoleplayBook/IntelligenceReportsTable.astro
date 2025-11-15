@@ -1,0 +1,113 @@
+---
+import type { IntelligenceReportRow } from '@skyreach/schemas';
+import { renderMarkdown } from '../../utils/markdown';
+
+interface Props {
+  instructions?: string;
+  rows: IntelligenceReportRow[];
+}
+
+const { instructions, rows } = Astro.props;
+---
+
+<style>
+  .intelligence-reports {
+    margin-top: 2rem;
+  }
+
+  .instructions {
+    font-style: italic;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: var(--bulma-scheme-main-bis);
+    border-left: 3px solid var(--bulma-link-text);
+  }
+
+  .reports-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+
+  .reports-table th {
+    background-color: var(--bulma-scheme-main-ter);
+    border: 1px solid var(--bulma-border);
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .reports-table td {
+    border: 1px solid var(--bulma-border);
+    padding: 0.75rem;
+    vertical-align: top;
+  }
+
+  .reports-table tbody tr:nth-child(even) {
+    background-color: var(--bulma-scheme-main-bis);
+  }
+
+  .reports-table tbody tr:hover {
+    background-color: var(--bulma-scheme-main-ter);
+  }
+
+  .roll-column {
+    width: 5%;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .report-column {
+    width: 25%;
+  }
+
+  .dialogue-column {
+    width: 40%;
+    font-style: italic;
+  }
+
+  .conditions-column {
+    width: 30%;
+  }
+</style>
+
+<div class="intelligence-reports">
+  <h2 class="title is-4">Intelligence Reports</h2>
+
+  {instructions && (
+    <div class="instructions">
+      {instructions}
+    </div>
+  )}
+
+  <table class="reports-table">
+    <thead>
+      <tr>
+        <th class="roll-column">Roll</th>
+        <th class="report-column">Report</th>
+        <th class="dialogue-column">Sample Dialogue</th>
+        <th class="conditions-column">Relevant Conditions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          <td class="roll-column">{row.roll}</td>
+          <td class="report-column">
+            {row.linkText && row.linkPath ? (
+              <>{row.report} → <a href={row.linkPath}>{row.linkText}</a></>
+            ) : (
+              row.report
+            )}
+          </td>
+          <td class="dialogue-column">
+            <Fragment set:html={renderMarkdown(row.sampleDialogue)} />
+          </td>
+          <td class="conditions-column">
+            <Fragment set:html={renderMarkdown(row.relevantConditions)} />
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

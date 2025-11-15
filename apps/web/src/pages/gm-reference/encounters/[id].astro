@@ -1,6 +1,8 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 
+import EncounterContent from '../../../components/EncounterContent.astro';
+import RoleplayBook from '../../../components/RoleplayBook/RoleplayBook.astro';
 import StatBlock from '../../../components/StatBlock/StatBlock.astro';
 import {
   getFloatingCluePath,
@@ -11,7 +13,6 @@ import SecretLayout from '../../../layouts/SecretLayout.astro';
 import {
   renderBulletMarkdown,
   renderMarkdown,
-  renderSubArticleMarkdown,
 } from '../../../utils/markdown';
 
 import type { FloatingClueEntry, HexEntry, RegionEntry } from '../../../types';
@@ -105,22 +106,18 @@ const floatingClueList = floatingCluesUsingEncounter
   )
   .join(', ');
 
-export const ROLEPLAY_BOOKS = [
-  { keyword: 'bearfolk', slug: 'roleplay-book-bearfolk' },
-  { keyword: 'alseid', slug: 'roleplay-book-alseid' },
-  { keyword: 'gearforged', slug: 'roleplay-book-gearforged' },
-  { keyword: 'kobold', slug: 'roleplay-book-kobolds' },
-];
+// Get all roleplay books
+const allRoleplayBooks = await getCollection('roleplay-books');
 
+// Match roleplay books based on keywords in encounter ID or stat block IDs
 const statBlockIds = encounter.statBlocks ?? [];
-const matchedRoleplayBooks = ROLEPLAY_BOOKS.filter(({ keyword }) =>
-  statBlockIds.some((id) => id.includes(keyword)),
-);
-const roleplayBookEntries = (
-  await Promise.all(
-    matchedRoleplayBooks.map(({ slug }) => getEntry('articles', slug)),
-  )
-).filter((entry) => entry !== undefined);
+const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
+  const keyword = book.data.keyword;
+  // Check if encounter ID contains keyword
+  if (id.includes(keyword)) return true;
+  // Check if any stat block ID contains keyword
+  return statBlockIds.some((statBlockId) => statBlockId.includes(keyword));
+});
 ---
 
 <style is:global>
@@ -184,22 +181,34 @@ const roleplayBookEntries = (
       </p>
     )
   }
-  <div class="description">
-    <Fragment set:html={renderMarkdown(encounter.description)} />
-  </div>
+  {
+    encounter.description && (
+      <div class="summary">
+        {encounter.contentPath && <h2 class="title is-4">Summary</h2>}
+        <div class="description">
+          <Fragment set:html={renderMarkdown(encounter.description)} />
+        </div>
+      </div>
+    )
+  }
+  {
+    encounter.contentPath && (
+      <div class="detailed-content">
+        {encounter.description && <h2 class="title is-4">Details</h2>}
+        <EncounterContent encounterId={id} contentPath={encounter.contentPath} />
+      </div>
+    )
+  }
   <div class="roleplay-books">
     {
-      roleplayBookEntries.map((entry) => (
-        <div>
-          <h2 class="title is-3">{entry.data.title}</h2>
-          <Fragment set:html={renderSubArticleMarkdown(entry.body ?? '')} />
-        </div>
+      matchedRoleplayBooks.map((entry) => (
+        <RoleplayBook data={entry.data} />
       ))
     }
   </div>
   <div class="stat-block-container">
     {
-      encounter.statBlocks.map((statBlockId: string) => {
+      statBlockIds.map((statBlockId: string) => {
         const statBlock = statBlocks.find(
           (statBlock) => statBlock.id === statBlockId,
         );
