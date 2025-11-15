@@ -10,7 +10,13 @@ import svgSymbolsPlugin from './src/plugins/svg-symbols-plugin.mjs';
 
 // https://astro.build/config
 export default defineConfig({
-  adapter: node({ mode: 'standalone' }),
+  adapter: node({
+    mode: 'standalone',
+  }),
+  server: {
+    host: '0.0.0.0', // Listen on all network interfaces for Railway
+    port: Number(process.env.PORT) || 4321, // Use Railway's PORT env var
+  },
   integrations: [clerk(), mdx(), svelte()],
   markdown: {
     rehypePlugins: [

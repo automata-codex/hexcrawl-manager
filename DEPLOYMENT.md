@@ -73,7 +73,10 @@ All data files are part of the Git repository and are deployed with the applicat
 |----------|----------|-------------|
 | `PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk publishable key for client-side auth |
 | `CLERK_SECRET_KEY` | Yes | Clerk secret key for server-side auth |
+| `PORT` | Auto-set | Railway sets this automatically (usually 8080) |
 | `NODE_ENV` | Auto-set | Set to `production` by Railway automatically |
+
+**Note:** The app is configured to listen on `0.0.0.0:$PORT` to work with Railway's networking.
 
 ### Monitoring
 
