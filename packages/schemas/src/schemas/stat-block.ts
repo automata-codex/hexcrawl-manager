@@ -13,6 +13,7 @@ const DamageTypeSchema = z.enum([
   'psychic',
   'radiant',
   'slashing',
+  'special',
   'thunder',
 ]);
 

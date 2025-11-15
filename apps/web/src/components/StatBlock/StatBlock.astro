@@ -1,6 +1,6 @@
 ---
-import { formatText } from '../../utils/text';
 import { getStatBlockPath } from '../../config/routes';
+import { renderBulletMarkdown } from '../../utils/markdown.ts';
 
 import Actions from './Actions.astro';
 import Attributes from './Attributes.astro';
@@ -58,10 +58,10 @@ const statBlockPath = getStatBlockPath(data.id);
     {
       enableLink ? (
         <a href={statBlockPath} class="title-link">
-          {formatText(data.name)}
+          {renderBulletMarkdown(data.name)}
         </a>
       ) : (
-        formatText(data.name)
+        renderBulletMarkdown(data.name)
       )
     }
   </h2>

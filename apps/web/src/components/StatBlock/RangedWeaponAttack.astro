@@ -11,6 +11,10 @@ interface Props {
 
 const { action } = Astro.props;
 const {
+  additional_damage_dice,
+  additional_damage_type,
+  additional_default_damage,
+  additional_text,
   attack_bonus,
   damage_bonus,
   damage_dice,
@@ -20,6 +24,28 @@ const {
   recharge,
   use_desc = false,
 } = action;
+
+let additionalText = '.';
+if (
+  additional_default_damage &&
+  additional_damage_dice &&
+  additional_damage_type
+) {
+  additionalText = ` plus ${additional_default_damage} (${additional_damage_dice}) ${toLower(additional_damage_type)} damage`;
+  if (additional_text) {
+    // If additional_text starts with a period, append it directly
+    // Otherwise, add a period and space before it
+    if (additional_text.startsWith('.')) {
+      additionalText += additional_text;
+    } else {
+      additionalText += `. ${additional_text}`;
+    }
+  } else {
+    additionalText += '.';
+  }
+} else if (additional_text) {
+  additionalText = additional_text;
+}
 
 const nameText = recharge ? `${name} (Recharge ${recharge})` : name;
 ---
@@ -52,5 +78,5 @@ const nameText = recharge ? `${name} (Recharge ${recharge})` : name;
   range {action.range}, one target.
   {' '}
   <span class="attack-type">Hit:</span>&nbsp;{default_damage}
-  ({damage_dice}+{damage_bonus}) {toLower(damage_type)} damage.
+  ({damage_dice}+{damage_bonus}) {toLower(damage_type)} damage{additionalText}
 </div>
