@@ -315,7 +315,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="stat-block" />
-              <option name="relativePathToSchema" value="schemas/stat-block.json" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/stat-block.schema.json" />
               <option name="patterns">
                 <list>
                   <Item>

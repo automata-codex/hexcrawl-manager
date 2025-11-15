@@ -74,5 +74,5 @@ const title = `Stat Block: ${await renderBulletMarkdown(statBlock.name)}`;
     )
   }
   <Fragment set:html={renderBulletMarkdown(statBlock.desc ?? '')} />
-  <StatBlock data={statBlock} />
+  <StatBlock data={statBlock} enableLink={false} />
 </SecretLayout>
