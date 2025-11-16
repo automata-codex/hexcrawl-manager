@@ -44,6 +44,10 @@
     "typecheck": "tsc -b tsconfig.workspace.json"
   },
   "type": "module",
+  "engines": {
+    "node": ">=22.20.0",
+    "npm": ">=11.6.1"
+  },
   "volta": {
     "node": "22.20.0",
     "npm": "11.6.1"

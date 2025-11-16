@@ -21,7 +21,7 @@ Skyreach uses a **“version-on-develop”** workflow with lightweight automatio
    * **TODO** Add a check so the action doesn't run on `release-` branches.
 
 3. **Open a PR** from `develop` → `main`.
-   * The “Require Version Bump” action will fail the PR if you forgot to run `changeset version`.
+   * The “Require Version Bump” action will fail the PR if you forgot to run `npm run release:version`.
    * Review and merge when you’re ready to ship.
 
 ### What happens automatically
