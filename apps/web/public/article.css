@@ -6,6 +6,12 @@ p:last-child {
   margin-bottom: 0;
 }
 
+/* Remove space between paragraph and following list */
+p + ul,
+p + ol {
+  margin-top: -1rem;
+}
+
 .container table {
   border-spacing: 0;
   margin-top: 1rem;

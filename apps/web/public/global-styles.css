@@ -67,7 +67,7 @@ ul {
 }
 
 .inline-heading {
-  color: inherit;
+  color: var(--bulma-strong-color);
   font-weight: bold;
 }
 
