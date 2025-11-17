@@ -11,5 +11,5 @@
 </script>
 
 <div class="data-bar-cell">
-  Explored:{' '}<CheckBoxIcon checked={hex.isExplored ?? false} />
+  <span class="inline-heading">Explored:</span>{' '}<CheckBoxIcon checked={hex.isExplored ?? false} />
 </div>
