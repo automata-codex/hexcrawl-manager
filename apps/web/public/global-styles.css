@@ -20,7 +20,6 @@ blockquote {
 
 blockquote p {
   margin-bottom: 1rem;
-  text-indent: 0;
 }
 
 blockquote p:last-child {
@@ -57,7 +56,6 @@ ul {
 
   li {
     padding-left: 0;
-    text-indent: 0;
   }
 }
 

@@ -1,5 +1,9 @@
 p {
-  text-indent: var(--skyreach-standard-indent);
+  margin-bottom: 1rem;
+}
+
+p:last-child {
+  margin-bottom: 0;
 }
 
 .container table {
@@ -20,15 +24,7 @@ p {
   border-top: 1px solid var(--bulma-border);
 }
 
-p.first-child,
-p:first-child,
-h2 + p,
-h3 + p,
-h4 + p,
-h5 + p,
-h6 + p {
-  text-indent: 0;
-}
+/* Paragraph spacing handled by margin-bottom above */
 
 /* --- STYLES FOR SPECIFIC ARTICLES --- */
 
