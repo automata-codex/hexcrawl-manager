@@ -22,6 +22,7 @@ COPY apps/web/package.json ./apps/web/
 COPY packages/core/package.json ./packages/core/
 COPY packages/data/package.json ./packages/data/
 COPY packages/schemas/package.json ./packages/schemas/
+COPY packages/test-helpers/package.json ./packages/test-helpers/
 
 # Install all dependencies
 RUN npm ci
