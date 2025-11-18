@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - dockerize
   workflow_dispatch: # Allow manual triggering
 
 env:
