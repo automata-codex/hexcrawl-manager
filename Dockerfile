@@ -7,6 +7,12 @@ FROM node:22-alpine AS builder
 ARG FONTAWESOME_NPM_AUTH_TOKEN
 ENV FONTAWESOME_NPM_AUTH_TOKEN=${FONTAWESOME_NPM_AUTH_TOKEN}
 
+# Build arguments for Clerk (needed at build time for SSR)
+ARG PUBLIC_CLERK_PUBLISHABLE_KEY
+ARG CLERK_SECRET_KEY
+ENV PUBLIC_CLERK_PUBLISHABLE_KEY=${PUBLIC_CLERK_PUBLISHABLE_KEY}
+ENV CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+
 # Set repository root for @skyreach/data package
 ENV REPO_ROOT=/app
 
@@ -45,10 +51,14 @@ WORKDIR /app
 
 # Copy built artifacts from builder
 COPY --from=builder /app/apps/web/dist ./apps/web/dist
+COPY --from=builder /app/apps/web/.cache ./apps/web/.cache
 COPY --from=builder /app/data ./data
 COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
+
+# Create symlink for JSON schemas (needed by /gm-reference/schemas page)
+RUN ln -s /app/packages/schemas/dist /app/apps/web/schemas
 
 # Set production environment
 ENV NODE_ENV=production
