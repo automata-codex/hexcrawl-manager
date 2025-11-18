@@ -14,5 +14,5 @@
 </script>
 
 <div class="data-bar-cell">
-  Visited:{' '}<FontAwesomeIcon {icon} />
+  <span class="inline-heading">Visited:</span>{' '}<FontAwesomeIcon {icon} />
 </div>

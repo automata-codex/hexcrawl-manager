@@ -10,10 +10,8 @@ interface Props {
 const { title } = Astro.props;
 ---
 
-<slot name="head">
-  <link rel="stylesheet" href="/article.css" />
-</slot>
 <Layout title={title}>
+  <link slot="stylesheet" rel="stylesheet" href="/article.css" />
   <section class="section">
     <div class="container is-max-desktop">
       <h1 class="title is-2">{formatText(title)}</h1>
