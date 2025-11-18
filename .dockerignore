@@ -45,3 +45,6 @@ nixpacks.toml
 
 # Local config (contains absolute paths)
 skyreach.config.json
+
+# Misc
+*.zip
