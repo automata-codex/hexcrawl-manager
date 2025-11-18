@@ -3,6 +3,13 @@
 # =============================================================================
 FROM node:22-alpine AS builder
 
+# Build arguments for private npm packages
+ARG FONTAWESOME_NPM_AUTH_TOKEN
+ENV FONTAWESOME_NPM_AUTH_TOKEN=${FONTAWESOME_NPM_AUTH_TOKEN}
+
+# Set repository root for @skyreach/data package
+ENV REPO_ROOT=/app
+
 # Install build dependencies
 RUN apk add --no-cache git
 
@@ -10,6 +17,7 @@ WORKDIR /app
 
 # Copy package files first for better layer caching
 COPY package*.json ./
+COPY .npmrc ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/core/package.json ./packages/core/
 COPY packages/data/package.json ./packages/data/
@@ -28,6 +36,9 @@ RUN npm run build --workspace=@skyreach/web
 # Production Stage - Minimal runtime image
 # =============================================================================
 FROM node:22-alpine
+
+# Set repository root for @skyreach/data package
+ENV REPO_ROOT=/app
 
 WORKDIR /app
 

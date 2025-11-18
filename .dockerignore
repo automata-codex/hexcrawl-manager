@@ -42,3 +42,6 @@ nixpacks.toml
 
 # Changesets
 .changeset
+
+# Local config (contains absolute paths)
+skyreach.config.json
