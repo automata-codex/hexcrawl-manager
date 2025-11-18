@@ -6,11 +6,15 @@ Skyreach uses a **“version-on-develop”** workflow with lightweight automatio
 
 ### Manual steps
 
+> **⚠️ Pre-flight check:** If you've updated hex descriptions or floating clue data, run `npm run build:clue-links` and commit the updated `data/clue-links.yaml` before starting the release process.
+
 1. **On `develop`**, prepare a release:
 
    ```bash
    git switch develop
    git co -b release-YYYY-MM-DD # create a release branch
+   npm run build:clue-links     # if applicable
+   git commit -am "Build clue links"
    npm run release:version      # applies version bumps + changelogs
    git commit -am "Set new versions; update changelogs"
    git push
@@ -42,6 +46,7 @@ Skyreach uses a **“version-on-develop”** workflow with lightweight automatio
 
 When changes are made only to the `data/` directory (no code changes):
 
+* **If you updated hex descriptions or floating clues**, run `npm run build:clue-links` and commit `data/clue-links.yaml`
 * Bump `@skyreach/web` version to mark the deployment
   * Use **minor** for new content/features (e.g., new articles, session reports)
   * Use **patch** for corrections or small updates
