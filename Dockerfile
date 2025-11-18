@@ -51,10 +51,14 @@ WORKDIR /app
 
 # Copy built artifacts from builder
 COPY --from=builder /app/apps/web/dist ./apps/web/dist
+COPY --from=builder /app/apps/web/.cache ./apps/web/.cache
 COPY --from=builder /app/data ./data
 COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
+
+# Create symlink for JSON schemas (needed by /gm-reference/schemas page)
+RUN ln -s /app/packages/schemas/dist /app/apps/web/schemas
 
 # Set production environment
 ENV NODE_ENV=production
