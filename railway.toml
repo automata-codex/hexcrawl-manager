@@ -1,0 +1,12 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install && npm run build --workspace=@skyreach/web"
+
+[deploy]
+startCommand = "cd apps/web && node ./dist/server/entry.mjs"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[deploy.healthcheck]
+path = "/"
+timeout = 300

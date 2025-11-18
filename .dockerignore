@@ -1,0 +1,47 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Build outputs
+dist
+.astro
+*.tsbuildinfo
+
+# Development
+.env
+.env.local
+.env.production
+
+# Testing
+.test-repos
+_reports
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# OS
+.DS_Store
+
+# Documentation (not needed in image)
+docs/api
+
+# Python environments (not needed since we pre-generate)
+scripts/clue-linker/.venv-clue-linker
+scripts/elevation-solver/.venv-elevation-solver
+
+# Vercel/Railway configs (not needed in Docker)
+.vercel
+railway.toml
+nixpacks.toml
+
+# Changesets
+.changeset
+
+# Local config (contains absolute paths)
+skyreach.config.json

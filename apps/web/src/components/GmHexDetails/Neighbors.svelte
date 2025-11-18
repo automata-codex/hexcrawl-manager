@@ -13,7 +13,7 @@
   const neighbors = $derived(getHexNeighbors(hex.id));
 </script>
 
-<div class="data-bar-cell">Neighbors:</div>
+<div class="data-bar-cell"><span class="inline-heading">Neighbors:</span></div>
 {#each neighbors as neighbor (neighbor)}
   <div class="data-bar-cell">
     <a href={getHexPath(neighbor)}>{neighbor}</a>

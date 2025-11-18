@@ -1,6 +1,6 @@
 import mdx from '@astrojs/mdx';
 import svelte from '@astrojs/svelte';
-import vercel from '@astrojs/vercel';
+import node from '@astrojs/node';
 import clerk from '@clerk/astro';
 import { defineConfig } from 'astro/config';
 import rehypeAddClasses from 'rehype-add-classes';
@@ -10,7 +10,13 @@ import svgSymbolsPlugin from './src/plugins/svg-symbols-plugin.mjs';
 
 // https://astro.build/config
 export default defineConfig({
-  adapter: vercel(),
+  adapter: node({
+    mode: 'standalone',
+  }),
+  server: {
+    host: '0.0.0.0', // Listen on all network interfaces for Railway
+    port: Number(process.env.PORT) || 4321, // Use Railway's PORT env var
+  },
   integrations: [clerk(), mdx(), svelte()],
   markdown: {
     rehypePlugins: [

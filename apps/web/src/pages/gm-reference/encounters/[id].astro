@@ -9,7 +9,7 @@ import {
   getHexPath,
   getRegionPath,
 } from '../../../config/routes';
-import SecretLayout from '../../../layouts/SecretLayout.astro';
+import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
 import {
   renderBulletMarkdown,
   renderMarkdown,
@@ -121,10 +121,6 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
 ---
 
 <style is:global>
-  strong.inline-heading {
-    color: var(--bulma-strong-color);
-  }
-
   .description table {
     border-spacing: 0;
     margin-top: 1rem;
@@ -143,6 +139,10 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   }
 </style>
 <style>
+  .cross-reference-list {
+    margin-bottom: 1rem;
+  }
+
   .description {
     margin-top: 1rem;
 
@@ -157,30 +157,32 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
     padding-bottom: 1rem;
   }
 </style>
-<SecretLayout title={title}>
+<SecretArticleLayout title={title}>
+  <ul class="cross-reference-list">
   {
     floatingClueList.length > 0 && (
-      <p>
+      <li>
         <strong>Floating Clues</strong> using this encounter:{' '}
         <Fragment set:html={floatingClueList} />
-      </p>
+      </li>
     )
   }
 
   {
     regionList.length > 0 && (
-      <p>
-        Regions with this encounter: <Fragment set:html={regionList} />
-      </p>
+      <li>
+        <strong>Regions</strong> with this encounter: <Fragment set:html={regionList} />
+      </li>
     )
   }
   {
     hexList.length > 0 && (
-      <p>
-        Hexes with this encounter: <Fragment set:html={hexList} />
-      </p>
+      <li>
+        <strong>Hexes</strong> with this encounter: <Fragment set:html={hexList} />
+      </li>
     )
   }
+  </ul>
   {
     encounter.description && (
       <div class="summary">
@@ -219,4 +221,4 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
       })
     }
   </div>
-</SecretLayout>
+</SecretArticleLayout>

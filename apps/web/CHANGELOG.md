@@ -1,5 +1,17 @@
 # @skyreach/web
 
+## 3.2.0
+
+### Minor Changes
+
+- 899d5d6: Dockerize web app for deployment
+- 3705dce: **Content Update:** Add updates for session 20
+- ba9d99f: **Content Update:** Update styles and layouts
+
+### Patch Changes
+
+- d8696db: Configure web app for deployment to Railway
+
 ## 3.1.0
 
 ### Minor Changes

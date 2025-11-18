@@ -38,7 +38,7 @@
   <div class="box updates">
     <p class="warning">⚠️ Updates ⚠️</p>
     <ul>
-      {#each hex.renderedUpdates as update}
+      {#each hex.renderedUpdates as update (update)}
         <li>{@html update}</li>
       {/each}
     </ul>
@@ -73,7 +73,7 @@
     <span class="inline-heading">GM&rsquo;s Notes:</span>
   </p>
   <ul>
-    {#each hex.renderedNotes as note}
+    {#each hex.renderedNotes as note (note)}
       <li>{@html note}</li>
     {/each}
   </ul>

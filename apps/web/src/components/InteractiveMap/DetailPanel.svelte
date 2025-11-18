@@ -139,7 +139,7 @@
       {/if}
       <div class="hex-data-bar">
         <div>
-          Visited:{' '}
+          <span class="inline-heading">Visited:</span>{' '}
           <CheckBoxIcon checked={currentHex?.isVisited ?? false} />
         </div>
         {#if currentHex}
