@@ -28,7 +28,6 @@ pnpm-debug.log*
 *.zip
 /.vercel/
 /scripts/clue-linker/.venv-clue-linker/
-/data/clue-links.yaml
 /scripts/elevation-solver/.venv-elevation-solver/
 /data/session-logs/_dev
 /.test-repos/
