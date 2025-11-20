@@ -38,6 +38,21 @@ export const DungeonDataSchema = z
       .optional()
       .describe('IDs of knowledge nodes that are unlocked by this site'),
   })
+  .refine(
+    (data) => {
+      if (!data.treasure) return true;
+
+      const slugs = data.treasure
+        .map((item) => item.slug)
+        .filter((slug): slug is string => slug !== undefined);
+
+      const uniqueSlugs = new Set(slugs);
+      return slugs.length === uniqueSlugs.size;
+    },
+    {
+      message: 'Treasure items must have unique slugs',
+    },
+  )
   .describe('Data for a dungeon on a hex map');
 
 export type DungeonData = z.infer<typeof DungeonDataSchema>;
