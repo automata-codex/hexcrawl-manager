@@ -49,14 +49,22 @@ h1 {
 
 ol {
   padding-inline-start: 2rem;
+  margin-bottom: 1rem;
 }
 
 ul {
   padding-inline-start: 2rem;
+  margin-bottom: 1rem;
 
   li {
     padding-left: 0;
   }
+}
+
+/* Remove bottom margin from nested lists */
+li ul,
+li ol {
+  margin-bottom: 0;
 }
 
 .callout {
