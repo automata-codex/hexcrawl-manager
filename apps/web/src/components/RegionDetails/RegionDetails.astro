@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 
+import { hexSort } from '@skyreach/core';
 import { getHexPath, getRegionPath } from '../../config/routes';
 import { renderMarkdown } from '../../utils/markdown';
 import SecretContent from '../Content/SecretContent.astro';
@@ -29,7 +30,7 @@ const hexData = await getCollection('hexes');
 const hexes = hexData
   .filter((hex) => hex.data.regionId === region.id)
   .map((hex) => hex.data.id.toUpperCase())
-  .sort((a, b) => a.localeCompare(b));
+  .sort((a, b) => hexSort(a, b));
 ---
 
 <style>
