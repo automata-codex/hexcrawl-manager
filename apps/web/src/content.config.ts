@@ -124,7 +124,7 @@ const encounters = defineCollection({
 });
 
 const factions = defineCollection({
-  loader: getDirectoryYamlLoader<FactionData>(DIRS.FACTIONS),
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.FACTIONS }),
   schema: FactionSchema,
 });
 
