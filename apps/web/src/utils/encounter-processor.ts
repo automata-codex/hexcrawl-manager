@@ -1,6 +1,9 @@
 import type {
   CreatureType,
   EncounterData,
+  HexData,
+  HiddenSite,
+  LinkType,
   RoleplayBookData,
   StatBlockData,
 } from '@skyreach/schemas';
@@ -44,7 +47,7 @@ export function buildStatBlockMap(
  * Detects which encounters are "leads" by scanning roleplay book intelligence reports.
  *
  * An encounter is a "lead" if it's referenced in any roleplay book's intelligence report
- * via the linkPath field (e.g., "/gm-reference/encounters/gibbering-mouther-pit").
+ * via linkType='encounter' and linkId fields.
  *
  * @param roleplayBooks - Array of roleplay book entries from the collection
  * @returns Set of encounter IDs that are leads
@@ -54,23 +57,74 @@ export function detectLeadEncounters(
 ): Set<string> {
   const leadEncounterIds = new Set<string>();
 
-  // Path pattern to match encounter links
-  const encounterPathPattern = '/gm-reference/encounters/';
-
   for (const book of roleplayBooks) {
     const reports = book.data.intelligenceReports?.rows || [];
 
     for (const report of reports) {
-      // Check if linkPath points to an encounter
-      if (report.linkPath?.includes(encounterPathPattern)) {
-        // Extract encounter ID from path like "/gm-reference/encounters/gibbering-mouther-pit"
-        const encounterId = report.linkPath.split('/').pop();
-        if (encounterId) {
-          leadEncounterIds.add(encounterId);
-        }
+      // Check if this report links to an encounter
+      if (report.linkType === 'encounter' && report.linkId) {
+        leadEncounterIds.add(report.linkId);
       }
     }
   }
 
   return leadEncounterIds;
+}
+
+/**
+ * Type guard to check if a hidden site has link fields.
+ */
+function isHiddenSiteWithLink(
+  site: string | HiddenSite,
+): site is HiddenSite & { linkType: LinkType; linkId: string } {
+  return (
+    typeof site === 'object' &&
+    'linkType' in site &&
+    'linkId' in site &&
+    !!site.linkType &&
+    !!site.linkId
+  );
+}
+
+export interface HiddenSiteBacklink {
+  hexId: string;
+  hexName: string;
+}
+
+/**
+ * Finds hexes that have hidden sites linking to a specific target.
+ *
+ * @param hexes - Array of hex entries from the collection
+ * @param targetLinkType - The link type to search for (e.g., 'encounter', 'dungeon')
+ * @param targetLinkId - The link ID to search for (e.g., 'missing-patrol')
+ * @returns Array of hex references that have hidden sites linking to the target
+ */
+export function findHexesWithHiddenSiteLink(
+  hexes: Array<{ id: string; data: HexData }>,
+  targetLinkType: LinkType,
+  targetLinkId: string,
+): HiddenSiteBacklink[] {
+  const results: HiddenSiteBacklink[] = [];
+
+  for (const hex of hexes) {
+    const hiddenSites = hex.data.hiddenSites;
+    if (!hiddenSites || !Array.isArray(hiddenSites)) continue;
+
+    for (const site of hiddenSites) {
+      if (
+        isHiddenSiteWithLink(site) &&
+        site.linkType === targetLinkType &&
+        site.linkId === targetLinkId
+      ) {
+        results.push({
+          hexId: hex.id,
+          hexName: hex.data.name,
+        });
+        // Only add each hex once, even if it has multiple matching hidden sites
+        break;
+      }
+    }
+  }
+
+  return results;
 }

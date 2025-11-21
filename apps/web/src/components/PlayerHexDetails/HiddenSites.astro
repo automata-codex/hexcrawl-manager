@@ -5,7 +5,7 @@ import { SCOPES } from '../../utils/constants';
 import HiddenSitesDetailList from './HiddenSitesDetailList.astro';
 import HiddenSitesStringList from './HiddenSitesStringList.astro';
 
-import type { HexData } from '@skyreach/schemas';
+import type { HexData, HiddenSite } from '@skyreach/schemas';
 
 interface Props {
   hex: HexData;
@@ -30,8 +30,8 @@ if (
   return null;
 }
 
-function isObjectArray(arr: any[]): arr is { description: string }[] {
-  return typeof arr[0] === 'object' && 'description' in arr[0];
+function isObjectArray(arr: string[] | HiddenSite[]): arr is HiddenSite[] {
+  return arr.length > 0 && typeof arr[0] === 'object' && 'description' in arr[0];
 }
 ---
 

@@ -10,11 +10,12 @@ import {
   getRegionPath,
 } from '../../../config/routes';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+import { findHexesWithHiddenSiteLink } from '../../../utils/encounter-processor';
+import { loadAugmentedEncounter } from '../../../utils/load-augmented-encounters';
 import {
   renderBulletMarkdown,
   renderMarkdown,
 } from '../../../utils/markdown';
-import { loadAugmentedEncounter } from '../../../utils/load-augmented-encounters';
 
 import type { FloatingClueEntry } from '../../../types';
 import type { EncounterData } from '@skyreach/schemas';
@@ -47,6 +48,7 @@ const creatureTypes = augmentedEncounter?.data.creatureTypes || [];
 const usedIn = augmentedEncounter?.data.usedIn || [];
 const statBlocks = await getCollection('statBlocks');
 const floatingClues = await getCollection('floatingClues');
+const allHexes = await getCollection('hexes');
 
 const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
 
@@ -60,6 +62,12 @@ const regionList = regionsUsing
   .join(', ');
 const hexList = hexesUsing
   .map((ref) => `<a href=${getHexPath(ref.id)}>${ref.name}</a>`)
+  .join(', ');
+
+// Find hexes with hidden sites that link to this encounter
+const hiddenSiteBacklinks = findHexesWithHiddenSiteLink(allHexes, 'encounter', id);
+const hiddenSiteHexList = hiddenSiteBacklinks
+  .map((ref) => `<a href=${getHexPath(ref.hexId)}>${ref.hexName}</a>`)
   .join(', ');
 
 // Floating clues are not tracked in usedIn, so check manually
@@ -310,6 +318,13 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
     hexList.length > 0 && (
       <li>
         <strong>Hexes</strong> with this encounter: <Fragment set:html={hexList} />
+      </li>
+    )
+  }
+  {
+    hiddenSiteHexList.length > 0 && (
+      <li>
+        <strong>Hidden Sites</strong> linking to this encounter: <Fragment set:html={hiddenSiteHexList} />
       </li>
     )
   }
