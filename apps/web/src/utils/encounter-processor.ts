@@ -44,7 +44,7 @@ export function buildStatBlockMap(
  * Detects which encounters are "leads" by scanning roleplay book intelligence reports.
  *
  * An encounter is a "lead" if it's referenced in any roleplay book's intelligence report
- * via the linkPath field (e.g., "/gm-reference/encounters/gibbering-mouther-pit").
+ * via linkType='encounter' and linkId fields.
  *
  * @param roleplayBooks - Array of roleplay book entries from the collection
  * @returns Set of encounter IDs that are leads
@@ -54,20 +54,13 @@ export function detectLeadEncounters(
 ): Set<string> {
   const leadEncounterIds = new Set<string>();
 
-  // Path pattern to match encounter links
-  const encounterPathPattern = '/gm-reference/encounters/';
-
   for (const book of roleplayBooks) {
     const reports = book.data.intelligenceReports?.rows || [];
 
     for (const report of reports) {
-      // Check if linkPath points to an encounter
-      if (report.linkPath?.includes(encounterPathPattern)) {
-        // Extract encounter ID from path like "/gm-reference/encounters/gibbering-mouther-pit"
-        const encounterId = report.linkPath.split('/').pop();
-        if (encounterId) {
-          leadEncounterIds.add(encounterId);
-        }
+      // Check if this report links to an encounter
+      if (report.linkType === 'encounter' && report.linkId) {
+        leadEncounterIds.add(report.linkId);
       }
     }
   }

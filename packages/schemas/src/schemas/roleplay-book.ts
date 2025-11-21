@@ -16,22 +16,10 @@ export const LinkTypeEnum = z.enum([
 export type LinkType = z.infer<typeof LinkTypeEnum>;
 
 // Intelligence report row schema
-// Supports both legacy (linkText/linkPath) and new (linkType/linkId) formats
-// for backward compatibility during migration
 export const IntelligenceReportRowSchema = z
   .object({
     roll: z.number().describe('Die result'),
     report: z.string().describe('Title/summary of the report'),
-    // Legacy fields (deprecated, will be removed after migration)
-    linkText: z
-      .string()
-      .optional()
-      .describe('DEPRECATED: Text for the link (e.g., "Encounter: Dream Sickness")'),
-    linkPath: z
-      .string()
-      .optional()
-      .describe('DEPRECATED: Path to the linked content'),
-    // New fields
     linkType: LinkTypeEnum.optional().describe('Type of the linked content'),
     linkId: z.string().optional().describe('ID of the linked content'),
     sampleDialogue: z.string().describe('In-character delivery'),
@@ -39,10 +27,10 @@ export const IntelligenceReportRowSchema = z
   })
   .refine(
     (data) => {
-      // New fields must be both present or both absent
-      const hasNewLinkType = data.linkType !== undefined;
-      const hasNewLinkId = data.linkId !== undefined;
-      return (hasNewLinkType && hasNewLinkId) || (!hasNewLinkType && !hasNewLinkId);
+      // linkType and linkId must be both present or both absent
+      const hasLinkType = data.linkType !== undefined;
+      const hasLinkId = data.linkId !== undefined;
+      return (hasLinkType && hasLinkId) || (!hasLinkType && !hasLinkId);
     },
     { message: 'linkType and linkId must both be present or both be absent' },
   )

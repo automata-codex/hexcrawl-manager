@@ -1,5 +1,12 @@
 ---
-import type { IntelligenceReportRow } from '@skyreach/schemas';
+import type { IntelligenceReportRow, LinkType } from '@skyreach/schemas';
+import {
+  getDungeonPath,
+  getEncounterPath,
+  getFloatingCluePath,
+  getHexPath,
+  getRegionPath,
+} from '../../config/routes';
 import { renderMarkdown } from '../../utils/markdown';
 
 interface Props {
@@ -8,6 +15,54 @@ interface Props {
 }
 
 const { instructions, rows } = Astro.props;
+
+/**
+ * Generate the URL path for a link based on its type and ID.
+ */
+function getLinkPath(linkType: LinkType, linkId: string): string {
+  switch (linkType) {
+    case 'encounter':
+      return getEncounterPath(linkId);
+    case 'dungeon':
+      return getDungeonPath(linkId);
+    case 'clue':
+      return getFloatingCluePath(linkId);
+    case 'hex':
+      return getHexPath(linkId);
+    case 'region':
+      return getRegionPath(linkId);
+    case 'faction':
+      return `/gm-reference/factions#${linkId}`;
+    case 'knowledge-node':
+      return `/gm-reference/knowledge-trees/${linkId}`;
+    default:
+      return '#';
+  }
+}
+
+/**
+ * Generate display text for a link based on its type and ID.
+ * Formats the type nicely and uses the ID as the label.
+ */
+function getLinkText(linkType: LinkType, linkId: string): string {
+  const typeLabels: Record<LinkType, string> = {
+    'clue': 'Clue',
+    'dungeon': 'Dungeon',
+    'encounter': 'Encounter',
+    'faction': 'Faction',
+    'hex': 'Hex',
+    'knowledge-node': 'Knowledge',
+    'region': 'Region',
+  };
+
+  // Format the ID nicely (convert kebab-case to Title Case)
+  const formattedId = linkId
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
+  return `${typeLabels[linkType]}: ${formattedId}`;
+}
 ---
 
 <style>
@@ -94,8 +149,8 @@ const { instructions, rows } = Astro.props;
         <tr>
           <td class="roll-column">{row.roll}</td>
           <td class="report-column">
-            {row.linkText && row.linkPath ? (
-              <>{row.report} → <a href={row.linkPath}>{row.linkText}</a></>
+            {row.linkType && row.linkId ? (
+              <>{row.report} → <a href={getLinkPath(row.linkType, row.linkId)}>{getLinkText(row.linkType, row.linkId)}</a></>
             ) : (
               row.report
             )}

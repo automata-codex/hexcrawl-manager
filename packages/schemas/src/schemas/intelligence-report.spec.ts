@@ -27,19 +27,7 @@ describe('LinkTypeEnum', () => {
 });
 
 describe('IntelligenceReportRowSchema', () => {
-  describe('legacy format (linkText/linkPath)', () => {
-    it('validates a report with legacy link fields', () => {
-      const report = {
-        roll: 1,
-        report: 'Patrol Three Days Overdue',
-        linkText: 'Encounter: Missing Patrol',
-        linkPath: '/gm-reference/encounters/missing-patrol',
-        sampleDialogue: 'Patrol Seven hasn\'t reported back.',
-        relevantConditions: 'Fort Dagaric patrol missing',
-      };
-      expect(IntelligenceReportRowSchema.safeParse(report).success).toBe(true);
-    });
-
+  describe('basic validation', () => {
     it('validates a report without any link fields', () => {
       const report = {
         roll: 5,
@@ -49,10 +37,8 @@ describe('IntelligenceReportRowSchema', () => {
       };
       expect(IntelligenceReportRowSchema.safeParse(report).success).toBe(true);
     });
-  });
 
-  describe('new format (linkType/linkId)', () => {
-    it('validates a report with new link fields', () => {
+    it('validates a report with link fields', () => {
       const report = {
         roll: 1,
         report: 'Patrol Three Days Overdue',
@@ -134,21 +120,4 @@ describe('IntelligenceReportRowSchema', () => {
     });
   });
 
-  describe('backward compatibility (both formats allowed)', () => {
-    it('allows legacy and new fields to coexist during migration', () => {
-      // During migration, a report might have both old and new fields
-      // This is allowed to support incremental migration
-      const report = {
-        roll: 1,
-        report: 'Test Report',
-        linkText: 'Encounter: Test',
-        linkPath: '/gm-reference/encounters/test',
-        linkType: 'encounter',
-        linkId: 'test',
-        sampleDialogue: 'Test dialogue',
-        relevantConditions: 'Test conditions',
-      };
-      expect(IntelligenceReportRowSchema.safeParse(report).success).toBe(true);
-    });
-  });
 });
