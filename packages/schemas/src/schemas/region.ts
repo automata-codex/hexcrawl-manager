@@ -10,6 +10,12 @@ export const RegionSchema = z
     haven: z.string(),
     encounterChance: z.number().int().min(1).max(20),
     encounters: EncounterTableSchema.optional(),
+    encounterIds: z
+      .array(z.string())
+      .optional()
+      .describe(
+        'Explicit list of encounters for this region, derived from encounter tables or specified directly',
+      ),
     type: z.enum([
       'skyreach',
       'starting',

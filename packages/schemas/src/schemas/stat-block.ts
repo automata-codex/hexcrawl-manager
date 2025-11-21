@@ -100,28 +100,30 @@ const ActionSchema = z.union([
   SpecialActionSchema,
 ]);
 
+export const CreatureTypeEnum = z.enum([
+  'aberration',
+  'beast',
+  'celestial',
+  'construct',
+  'dragon',
+  'elemental',
+  'fey',
+  'fiend',
+  'giant',
+  'humanoid',
+  'monstrosity',
+  'ooze',
+  'plant',
+  'undead',
+]);
+
 export const StatBlockSchema = z.object({
   id: z.string(),
   slug: z.string().optional(),
   desc: z.string().optional(),
   name: z.string(),
   size: z.enum(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan']),
-  type: z.enum([
-    'aberration',
-    'beast',
-    'celestial',
-    'construct',
-    'dragon',
-    'elemental',
-    'fey',
-    'fiend',
-    'giant',
-    'humanoid',
-    'monstrosity',
-    'ooze',
-    'plant',
-    'undead',
-  ]),
+  type: CreatureTypeEnum,
   subtype: z.string().optional(),
   group: z.string().nullable().optional(),
   family: z.string().nullable().optional(),
@@ -229,3 +231,4 @@ export type SpecialActionData = z.infer<typeof SpecialActionSchema>;
 export type BonusActionData = z.infer<typeof BonusActionSchema>;
 export type StatBlockData = z.infer<typeof StatBlockSchema>;
 export type StatBlockSkillsData = z.infer<typeof SkillsSchema>;
+export type CreatureType = z.infer<typeof CreatureTypeEnum>;

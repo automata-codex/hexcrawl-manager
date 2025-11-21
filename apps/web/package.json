@@ -9,6 +9,7 @@
     "dev": "astro dev --host",
     "prebuild": "npm run --prefix ../.. build:packages && tsx scripts/validate-encounter-content.ts && tsx scripts/cache-ap-totals.ts",
     "preview": "astro preview",
+    "validate:dungeons": "tsx scripts/validate-dungeon-encounters.ts",
     "validate:encounters": "tsx scripts/validate-encounter-content.ts"
   },
   "type": "module",

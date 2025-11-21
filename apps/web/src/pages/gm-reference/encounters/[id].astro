@@ -14,8 +14,9 @@ import {
   renderBulletMarkdown,
   renderMarkdown,
 } from '../../../utils/markdown';
+import { loadAugmentedEncounter } from '../../../utils/load-augmented-encounters';
 
-import type { FloatingClueEntry, HexEntry, RegionEntry } from '../../../types';
+import type { FloatingClueEntry } from '../../../types';
 import type { EncounterData } from '@skyreach/schemas';
 
 // Get the ID from the incoming server request
@@ -39,66 +40,31 @@ if (encounterData === undefined) {
 }
 
 const encounter: EncounterData = encounterData.data;
+
+// Get augmented data with derived fields
+const augmentedEncounter = await loadAugmentedEncounter(id);
+const creatureTypes = augmentedEncounter?.data.creatureTypes || [];
+const usedIn = augmentedEncounter?.data.usedIn || [];
 const statBlocks = await getCollection('statBlocks');
-const regions = await getCollection('regions');
-const hexes = await getCollection('hexes');
 const floatingClues = await getCollection('floatingClues');
 
 const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
 
-function clueUsesEncounter(
-  clue: FloatingClueEntry,
-  encounterId: string,
-): boolean {
-  return !!clue.data.encounters?.includes(encounterId);
-}
+// Build usage lists from augmented encounter data
+const regionsUsing = usedIn.filter((ref) => ref.type === 'region');
+const hexesUsing = usedIn.filter((ref) => ref.type === 'hex');
+const dungeonsUsing = usedIn.filter((ref) => ref.type === 'dungeon');
 
-function encounterIsInRegion(
-  region: RegionEntry,
-  encounterId: string,
-): boolean {
-  for (const categoryTable of Object.values(
-    region.data.encounters?.categoryTables ?? {},
-  )) {
-    for (const entries of Object.values(categoryTable ?? {})) {
-      if (entries.some((entry) => entry.encounterId === encounterId)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-function encounterIsInHex(hex: HexEntry, encounterId: string): boolean {
-  const overrides = hex.data.encounterOverrides;
-  if (!overrides || !('categoryTables' in overrides)) return false;
-
-  for (const category of Object.values(overrides.categoryTables ?? {})) {
-    for (const entries of Object.values(category ?? {})) {
-      if (entries.some((entry) => entry.encounterId === encounterId)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-const regionsUsingEncounter = regions.filter((region) =>
-  encounterIsInRegion(region, id),
-);
-const regionList = regionsUsingEncounter
-  .map(
-    (region) => `<a href=${getRegionPath(region.id)}>${region.data.name}</a>`,
-  )
+const regionList = regionsUsing
+  .map((ref) => `<a href=${getRegionPath(ref.id)}>${ref.name}</a>`)
   .join(', ');
-const hexesUsingEncounter = hexes.filter((hex) => encounterIsInHex(hex, id));
-const hexList = hexesUsingEncounter
-  .map((hex) => `<a href=${getHexPath(hex.id)}>${hex.data.name}</a>`)
+const hexList = hexesUsing
+  .map((ref) => `<a href=${getHexPath(ref.id)}>${ref.name}</a>`)
   .join(', ');
 
+// Floating clues are not tracked in usedIn, so check manually
 const floatingCluesUsingEncounter = floatingClues.filter((clue) =>
-  clueUsesEncounter(clue, id),
+  clue.data.encounters?.includes(id),
 );
 const floatingClueList = floatingCluesUsingEncounter
   .map(
@@ -139,16 +105,106 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   }
 </style>
 <style>
+  .taxonomy-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--bulma-scheme-main-bis);
+    border-radius: 6px;
+    border: 1px solid var(--bulma-border);
+  }
+
+  .taxonomy-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: baseline;
+  }
+
+  .taxonomy-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .taxonomy-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--bulma-text-weak);
+  }
+
+  .taxonomy-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    background: var(--bulma-scheme-main-ter);
+    border-radius: 3px;
+    font-size: 0.875rem;
+  }
+
+  .badge.scope {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .badge.location {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .badge.faction {
+    background: #ffedd5;
+    color: #c2410c;
+  }
+
+  .badge.creature {
+    background: #f3e8ff;
+    color: #7e22ce;
+  }
+
+  .badge.lead {
+    background: #fce7f3;
+    color: #9d174d;
+    font-weight: 600;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .badge.scope {
+      background: #1e3a5f;
+      color: #93c5fd;
+    }
+
+    .badge.location {
+      background: #14532d;
+      color: #86efac;
+    }
+
+    .badge.faction {
+      background: #7c2d12;
+      color: #fdba74;
+    }
+
+    .badge.creature {
+      background: #581c87;
+      color: #d8b4fe;
+    }
+
+    .badge.lead {
+      background: #831843;
+      color: #fbcfe8;
+    }
+  }
+
   .cross-reference-list {
     margin-bottom: 1rem;
   }
 
   .description {
     margin-top: 1rem;
-
-    p:not(:first-child) {
-      text-indent: var(--skyreach-standard-indent);
-    }
   }
 
   .stat-block-container section:not(:last-child) {
@@ -158,6 +214,58 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   }
 </style>
 <SecretArticleLayout title={title}>
+  {(encounter.scope || encounter.isLead || encounter.locationTypes || encounter.factions || creatureTypes.length > 0) && (
+    <div class="taxonomy-section">
+      <div class="taxonomy-row">
+        {encounter.scope && (
+          <div class="taxonomy-item">
+            <span class="taxonomy-label">Scope:</span>
+            <span class="badge scope">{encounter.scope}</span>
+          </div>
+        )}
+
+        {encounter.isLead && (
+          <div class="taxonomy-item">
+            <span class="badge lead">Lead</span>
+          </div>
+        )}
+
+        {encounter.locationTypes && encounter.locationTypes.length > 0 && (
+          <div class="taxonomy-item">
+            <span class="taxonomy-label">Location:</span>
+            <div class="taxonomy-badges">
+              {encounter.locationTypes.map((type) => (
+                <span class="badge location">{type}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {encounter.factions && encounter.factions.length > 0 && (
+          <div class="taxonomy-item">
+            <span class="taxonomy-label">Factions:</span>
+            <div class="taxonomy-badges">
+              {encounter.factions.map((faction) => (
+                <span class="badge faction">{faction}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {creatureTypes.length > 0 && (
+          <div class="taxonomy-item">
+            <span class="taxonomy-label">Creatures:</span>
+            <div class="taxonomy-badges">
+              {creatureTypes.map((type) => (
+                <span class="badge creature">{type}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )}
+
   <ul class="cross-reference-list">
   {
     floatingClueList.length > 0 && (

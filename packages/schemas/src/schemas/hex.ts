@@ -82,6 +82,10 @@ export const HexSchema = z
     isVisited: z.boolean().optional(),
     isExplored: z.boolean().optional(),
     isScouted: z.boolean().optional(),
+    encounters: z
+      .array(z.string())
+      .optional()
+      .describe('Array of encounter IDs that can occur in this hex'),
     encounterChance: z.number().int().min(1).max(20).optional(),
     encounterOverrides: EncounterOverrideSchema.optional(),
     notes: z
