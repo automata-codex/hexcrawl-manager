@@ -1,294 +1,33 @@
 ---
+import EncounterList from '../../../components/EncounterList.svelte';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import {
   extractFilterOptions,
   loadAugmentedEncounters,
 } from '../../../utils/load-augmented-encounters';
 
-const { encounters } = await loadAugmentedEncounters();
-const sortedEncounters = encounters.sort((a, b) =>
+const { encounters: augmentedEncounters } = await loadAugmentedEncounters();
+
+// Sort by name
+const sortedEncounters = augmentedEncounters.sort((a, b) =>
   a.data.name.localeCompare(b.data.name),
 );
+
+// Transform to serializable format for Svelte
+const encounters = sortedEncounters.map((enc) => ({
+  id: enc.id,
+  name: enc.data.name,
+  scope: enc.data.scope,
+  locationTypes: enc.data.locationTypes || [],
+  factions: enc.data.factions || [],
+  creatureTypes: enc.data.creatureTypes || [],
+  isUsed: enc.data.usedIn.length > 0,
+}));
 
 const filterOptions = extractFilterOptions(sortedEncounters);
 const title = 'Encounters';
 ---
 
-<style is:global>
-  .unused-encounter {
-    color: var(--bulma-text);
-    font-style: italic;
-  }
-</style>
-<style>
-  .encounter-filters {
-    background: var(--bulma-scheme-main-bis);
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    border-radius: 6px;
-    border: 1px solid var(--bulma-border);
-  }
-
-  .filter-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: flex-end;
-  }
-
-  .filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .filter-group label {
-    font-weight: 600;
-    font-size: 0.875rem;
-  }
-
-  .filter-group select {
-    min-width: 140px;
-    padding: 0.375rem 0.5rem;
-    border-radius: 4px;
-    border: 1px solid var(--bulma-border);
-    background: var(--bulma-scheme-main);
-    color: var(--bulma-text);
-  }
-
-  .filter-actions {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .filter-count {
-    font-size: 0.875rem;
-    color: var(--bulma-text-weak);
-  }
-
-  .encounter-list {
-    columns: 3;
-    margin-top: 0;
-  }
-
-  @media (max-width: 768px) {
-    .encounter-list {
-      columns: 1;
-    }
-    .filter-row {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .filter-group select {
-      width: 100%;
-    }
-  }
-
-  .encounter-item {
-    break-inside: avoid;
-    margin-bottom: 0.25rem;
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 0.125rem 0.375rem;
-    margin-left: 0.25rem;
-    background: var(--bulma-scheme-main-ter);
-    border-radius: 3px;
-    font-size: 0.75rem;
-    vertical-align: middle;
-  }
-
-  .badge.scope-dungeon {
-    background: #ffccbc;
-    color: #bf360c;
-  }
-
-  .badge.scope-hex {
-    background: #c8e6c9;
-    color: #1b5e20;
-  }
-
-  .badge.scope-region {
-    background: #bbdefb;
-    color: #0d47a1;
-  }
-
-  .legend {
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
-    color: var(--bulma-text-weak);
-  }
-</style>
-
 <SecretLayout title={title}>
-  <div class="encounter-filters">
-    <div class="filter-row">
-      <div class="filter-group">
-        <label for="filter-scope">Scope</label>
-        <select id="filter-scope">
-          <option value="">All</option>
-          {filterOptions.scopes.map((scope) => (
-            <option value={scope}>{scope}</option>
-          ))}
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="filter-location">Location</label>
-        <select id="filter-location">
-          <option value="">All</option>
-          {filterOptions.locationTypes.map((type) => (
-            <option value={type}>{type}</option>
-          ))}
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="filter-faction">Faction</label>
-        <select id="filter-faction">
-          <option value="">All</option>
-          <option value="__none__">No Faction</option>
-          {filterOptions.factions.map((faction) => (
-            <option value={faction}>{faction}</option>
-          ))}
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="filter-creature">Creature Type</label>
-        <select id="filter-creature">
-          <option value="">All</option>
-          {filterOptions.creatureTypes.map((type) => (
-            <option value={type}>{type}</option>
-          ))}
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="filter-status">Usage</label>
-        <select id="filter-status">
-          <option value="">All</option>
-          <option value="used">Used</option>
-          <option value="unused">Unused</option>
-        </select>
-      </div>
-
-      <div class="filter-actions">
-        <button id="clear-filters" class="button is-small">Clear</button>
-        <span class="filter-count">
-          Showing <span id="visible-count">{sortedEncounters.length}</span> of {sortedEncounters.length}
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <p class="legend">
-    <span class="unused-encounter">Italic</span> = unused |
-    <span class="badge scope-dungeon">dungeon</span>
-    <span class="badge scope-hex">hex</span>
-    <span class="badge scope-region">region</span> = specific scope
-  </p>
-
-  <ul class="encounter-list">
-    {sortedEncounters.map((encounter) => {
-      const isUsed = encounter.data.usedIn.length > 0;
-      const showScopeBadge = encounter.data.scope && encounter.data.scope !== 'general';
-      return (
-        <li
-          class="encounter-item"
-          data-scope={encounter.data.scope || ''}
-          data-locations={JSON.stringify(encounter.data.locationTypes || [])}
-          data-factions={JSON.stringify(encounter.data.factions || [])}
-          data-creatures={JSON.stringify(encounter.data.creatureTypes || [])}
-          data-used={isUsed ? 'true' : 'false'}
-        >
-          <a
-            href={`/gm-reference/encounters/${encounter.id}`}
-            class={!isUsed ? 'unused-encounter' : ''}
-          >
-            {encounter.data.name}
-          </a>
-          {showScopeBadge && (
-            <span class={`badge scope-${encounter.data.scope}`}>
-              {encounter.data.scope}
-            </span>
-          )}
-        </li>
-      );
-    })}
-  </ul>
+  <EncounterList client:load {encounters} {filterOptions} />
 </SecretLayout>
-
-<script>
-  function applyFilters() {
-    const scopeFilter = (document.getElementById('filter-scope') as HTMLSelectElement).value;
-    const locationFilter = (document.getElementById('filter-location') as HTMLSelectElement).value;
-    const factionFilter = (document.getElementById('filter-faction') as HTMLSelectElement).value;
-    const creatureFilter = (document.getElementById('filter-creature') as HTMLSelectElement).value;
-    const statusFilter = (document.getElementById('filter-status') as HTMLSelectElement).value;
-
-    let visibleCount = 0;
-
-    document.querySelectorAll('.encounter-item').forEach((item) => {
-      const el = item as HTMLElement;
-      let visible = true;
-
-      // Scope filter
-      if (scopeFilter && el.dataset.scope !== scopeFilter) {
-        visible = false;
-      }
-
-      // Location filter
-      if (visible && locationFilter) {
-        const locations = JSON.parse(el.dataset.locations || '[]');
-        if (!locations.includes(locationFilter)) {
-          visible = false;
-        }
-      }
-
-      // Faction filter
-      if (visible && factionFilter) {
-        const factions = JSON.parse(el.dataset.factions || '[]');
-        if (factionFilter === '__none__') {
-          if (factions.length > 0) visible = false;
-        } else {
-          if (!factions.includes(factionFilter)) visible = false;
-        }
-      }
-
-      // Creature filter
-      if (visible && creatureFilter) {
-        const creatures = JSON.parse(el.dataset.creatures || '[]');
-        if (!creatures.includes(creatureFilter)) {
-          visible = false;
-        }
-      }
-
-      // Status filter
-      if (visible && statusFilter) {
-        const isUsed = el.dataset.used === 'true';
-        if (statusFilter === 'used' && !isUsed) visible = false;
-        if (statusFilter === 'unused' && isUsed) visible = false;
-      }
-
-      el.style.display = visible ? '' : 'none';
-      if (visible) visibleCount++;
-    });
-
-    const countEl = document.getElementById('visible-count');
-    if (countEl) countEl.textContent = String(visibleCount);
-  }
-
-  document.querySelectorAll('.encounter-filters select').forEach((select) => {
-    select.addEventListener('change', applyFilters);
-  });
-
-  document.getElementById('clear-filters')?.addEventListener('click', () => {
-    document.querySelectorAll('.encounter-filters select').forEach((select) => {
-      (select as HTMLSelectElement).value = '';
-    });
-    applyFilters();
-  });
-</script>
