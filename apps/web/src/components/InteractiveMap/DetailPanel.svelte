@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { faSidebar, faXmark } from '@fortawesome/pro-light-svg-icons';
+  import {
+    faMountainSun,
+    faSidebar,
+    faXmark,
+  } from '@fortawesome/pro-light-svg-icons';
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { parseTrailId } from '@skyreach/core';
@@ -19,6 +23,7 @@
   } from '../../utils/interactive-map.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
   import Explored from '../GmHexDetails/Explored.svelte';
+  import ThemeToggle from '../ThemeToggle.svelte';
 
   import CheckBoxIcon from './CheckBoxIcon.svelte';
 
@@ -98,20 +103,31 @@
   /* eslint-disable svelte/no-useless-mustaches */
 </script>
 
-<!-- Toggle Button -->
-<button class="button open-panel-button" onclick={() => (isOpen = !isOpen)}>
-  <FontAwesomeIcon icon={faSidebar} />
-</button>
+<!-- Floating Controls -->
+<div class="floating-controls">
+  <a href="/" class="button control-button" aria-label="Home">
+    <FontAwesomeIcon icon={faMountainSun} />
+  </a>
+  <div class="button theme-toggle-wrapper">
+    <ThemeToggle />
+  </div>
+  <button class="button control-button" onclick={() => (isOpen = !isOpen)} aria-label="Toggle detail panel">
+    <FontAwesomeIcon icon={faSidebar} />
+  </button>
+</div>
 
 <!-- Sliding Panel -->
 <aside class:open={isOpen} class="hex-panel">
-  <button
-    class="hex-panel-close"
-    onclick={() => (isOpen = false)}
-    aria-label="Close menu"
-  >
-    <FontAwesomeIcon icon={faXmark} />
-  </button>
+  <header class="panel-header">
+    <span class="panel-title">Hex Details</span>
+    <button
+      class="panel-close-button"
+      onclick={() => (isOpen = false)}
+      aria-label="Close panel"
+    >
+      <FontAwesomeIcon icon={faXmark} />
+    </button>
+  </header>
   {#if $selectedHex}
     <h2 class="title is-5" style="text-align: center">
       {$selectedHex?.toUpperCase()}: {currentHex?.name}
@@ -236,29 +252,74 @@
     transform: translateX(0%);
   }
 
-  .open-panel-button {
+  .floating-controls {
     position: absolute;
     top: 1rem;
     left: 1rem;
     z-index: 900;
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  .control-button {
     height: 2.5rem;
     width: 2.5rem;
   }
 
-  .open-panel-button:hover {
+  .control-button:hover {
     background: #888;
   }
 
-  .hex-panel-close {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.75rem;
+  .theme-toggle-wrapper {
+    height: 2.5rem;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Light mode - explicit theme selection */
+  :global(html[data-theme='light']) .control-button:hover {
+    background: #ddd;
+  }
+
+  /* Light mode - system preference when no explicit theme */
+  @media (prefers-color-scheme: light) {
+    :global(html:not([data-theme])) .control-button:hover {
+      background: #ddd;
+    }
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--bulma-border);
+  }
+
+  .panel-title {
+    font-weight: 600;
+    color: var(--bulma-text-weak);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .panel-close-button {
     background: none;
     border: none;
-    font-size: 1.5rem;
-    color: #ccc;
+    font-size: 1.25rem;
+    color: var(--bulma-text-weak);
     cursor: pointer;
     padding: 0.25rem;
-    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .panel-close-button:hover {
+    color: var(--bulma-text);
   }
 </style>

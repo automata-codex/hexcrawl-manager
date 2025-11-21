@@ -151,4 +151,20 @@
     height: 2.5rem;
     width: 2.5rem;
   }
+
+  .open-panel-button:hover {
+    background: #888;
+  }
+
+  /* Light mode - explicit theme selection */
+  :global(html[data-theme='light']) .open-panel-button:hover {
+    background: #ddd;
+  }
+
+  /* Light mode - system preference when no explicit theme */
+  @media (prefers-color-scheme: light) {
+    :global(html:not([data-theme])) .open-panel-button:hover {
+      background: #ddd;
+    }
+  }
 </style>

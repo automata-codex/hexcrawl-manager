@@ -109,7 +109,7 @@
     border: none;
     padding: 0.5rem 0.75rem;
     font-size: 1rem;
-    color: white;
+    color: var(--sidebar-text);
     width: 100%;
     text-align: left;
     display: flex;
@@ -119,7 +119,7 @@
   }
 
   .accordion-header:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--sidebar-hover);
   }
 
   .accordion-header span:last-child,
@@ -148,7 +148,7 @@
     align-items: center;
     background: none;
     border: none;
-    color: #ccc;
+    color: var(--sidebar-text-muted);
     cursor: pointer;
     display: flex;
     font: inherit;
@@ -161,8 +161,8 @@
   .accordion-body a:hover,
   .accordion-sub a:hover,
   .accordion-link:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: white;
+    background-color: var(--sidebar-hover);
+    color: var(--sidebar-text);
   }
 
   .accordion-sub a {
@@ -176,11 +176,11 @@
 
   a {
     text-decoration: none;
-    color: #ccc;
+    color: var(--sidebar-text-muted);
   }
 
   a:hover {
-    color: white;
+    color: var(--sidebar-text);
   }
 
   .rotated {
@@ -203,18 +203,41 @@
   }
 
   .sidebar {
+    --sidebar-bg: #222;
+    --sidebar-text: white;
+    --sidebar-text-muted: #ccc;
+    --sidebar-hover: rgba(255, 255, 255, 0.05);
+
     position: absolute;
     top: 0;
     left: 0;
     width: 250px;
     max-width: 80vw;
     height: 100%;
-    background: #222;
-    color: white;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
     padding: 1rem;
     z-index: 1001;
+  }
+
+  /* Light mode - explicit theme selection */
+  :global(html[data-theme='light']) .sidebar {
+    --sidebar-bg: #f5f5f5;
+    --sidebar-text: #222;
+    --sidebar-text-muted: #555;
+    --sidebar-hover: rgba(0, 0, 0, 0.05);
+  }
+
+  /* Light mode - system preference when no explicit theme */
+  @media (prefers-color-scheme: light) {
+    :global(html:not([data-theme])) .sidebar {
+      --sidebar-bg: #f5f5f5;
+      --sidebar-text: #222;
+      --sidebar-text-muted: #555;
+      --sidebar-hover: rgba(0, 0, 0, 0.05);
+    }
   }
 
   .sidebar-wrapper.open .sidebar {
@@ -228,14 +251,14 @@
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: #ccc;
+    color: var(--sidebar-text-muted);
     cursor: pointer;
     padding: 0.25rem;
     z-index: 1001;
   }
 
   .sidebar-close:hover {
-    color: white;
+    color: var(--sidebar-text);
   }
 
   .sidebar-content {

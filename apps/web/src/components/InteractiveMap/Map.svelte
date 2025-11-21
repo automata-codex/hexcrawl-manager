@@ -286,7 +286,7 @@
   <button class="button" onclick={handleZoomReset}>
     <FontAwesomeIcon icon={faMagnifyingGlassArrowsRotate} />
   </button>
-  <div class="button">
+  <div class="button zoom-display">
     Zoom: {Math.round($mapView.zoom * 100)}%
   </div>
 </div>
@@ -302,7 +302,7 @@
 
 <div class="map-container">
   <svg
-    class="map"
+    class="map map-background"
     id="map"
     role="presentation"
     bind:this={svgEl}
@@ -313,7 +313,6 @@
     onwheel={handleWheel}
     {viewBox}
     xmlns="http://www.w3.org/2000/svg"
-    style="background: #fafafa;"
   >
     {@html svgDefs}
 
@@ -519,6 +518,10 @@
     height: 100%;
   }
 
+  .map-background {
+    background: #fafafa;
+  }
+
   .map-container {
     width: 100vw;
     height: 100vh;
@@ -557,5 +560,22 @@
 
   .zoom-controls button:hover {
     background: #888;
+  }
+
+  /* Light mode - explicit theme selection */
+  :global(html[data-theme='light']) .zoom-controls button:hover {
+    background: #ddd;
+  }
+
+  /* Light mode - system preference when no explicit theme */
+  @media (prefers-color-scheme: light) {
+    :global(html:not([data-theme])) .zoom-controls button:hover {
+      background: #ddd;
+    }
+  }
+
+  .zoom-display {
+    cursor: default;
+    pointer-events: none;
   }
 </style>

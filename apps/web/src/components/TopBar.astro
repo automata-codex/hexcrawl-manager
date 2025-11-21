@@ -9,6 +9,8 @@ import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faMountainSun } from '@fortawesome/pro-light-svg-icons';
 import { faBars } from '@fortawesome/pro-regular-svg-icons';
 
+import ThemeToggle from './ThemeToggle.svelte';
+
 const menuIcon = icon(faBars);
 const skyreachIcon = icon(faMountainSun);
 ---
@@ -25,10 +27,36 @@ const skyreachIcon = icon(faMountainSun);
     padding: 0.25rem 0.5rem;
     height: fit-content;
     align-self: center;
+    background-color: #222;
+    color: white;
+    border: none;
+    cursor: pointer;
   }
 
   .sidebar-toggle:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: #333;
+  }
+
+  /* Light mode - explicit theme selection */
+  :global(html[data-theme='light']) .sidebar-toggle {
+    background-color: #f5f5f5;
+    color: #222;
+  }
+
+  :global(html[data-theme='light']) .sidebar-toggle:hover {
+    background-color: #e5e5e5;
+  }
+
+  /* Light mode - system preference when no explicit theme */
+  @media (prefers-color-scheme: light) {
+    :global(html:not([data-theme])) .sidebar-toggle {
+      background-color: #f5f5f5;
+      color: #222;
+    }
+
+    :global(html:not([data-theme])) .sidebar-toggle:hover {
+      background-color: #e5e5e5;
+    }
   }
 
   @media screen and (min-width: 768px) and (max-width: 1023px) {
@@ -53,7 +81,7 @@ const skyreachIcon = icon(faMountainSun);
   <nav class="navbar" role="navigation">
     <div class="navbar-brand">
       <button
-        class="button is-dark is-small sidebar-toggle"
+        class="sidebar-toggle"
         onclick="window.dispatchEvent(new CustomEvent('toggle-sidebar'))"
         aria-label="Toggle sidebar"
       >
@@ -65,6 +93,9 @@ const skyreachIcon = icon(faMountainSun);
       </a>
     </div>
     <div class="navbar-end">
+      <div class="navbar-item">
+        <ThemeToggle client:load />
+      </div>
       <div class="navbar-item clerk-icon">
         <SignedOut>
           <SignInButton mode="modal" />

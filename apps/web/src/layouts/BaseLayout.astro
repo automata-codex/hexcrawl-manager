@@ -21,6 +21,18 @@ const sections = getSidebarSections(role);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <script is:inline>
+      // Prevent flash of wrong theme (FOUC) by applying theme before CSS loads
+      (function () {
+        const stored = localStorage.getItem('theme-preference');
+        if (stored === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        } else if (stored === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        // 'system' or missing: no attribute, let Bulma use prefers-color-scheme
+      })();
+    </script>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
