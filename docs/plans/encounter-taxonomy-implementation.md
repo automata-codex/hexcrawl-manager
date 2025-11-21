@@ -51,7 +51,13 @@ This plan implements the spec at `docs/specs/encounter-taxonomy.md` in phases, a
 
 **Review focus:** Inference heuristics, faction keyword mappings, report format
 
-**Status:** Not started
+**Status:** Complete
+
+**Dry-run results:**
+- 104 encounters processed
+- 29 high confidence, 34 medium, 41 low confidence
+- All encounters classified as "general" scope (expected - no dungeon/hex encounter references exist yet)
+- Faction detection working (21 kobold encounters, 12 alseid, etc.)
 
 ---
 
