@@ -9,6 +9,8 @@ import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faMountainSun } from '@fortawesome/pro-light-svg-icons';
 import { faBars } from '@fortawesome/pro-regular-svg-icons';
 
+import ThemeToggle from './ThemeToggle.svelte';
+
 const menuIcon = icon(faBars);
 const skyreachIcon = icon(faMountainSun);
 ---
@@ -65,6 +67,9 @@ const skyreachIcon = icon(faMountainSun);
       </a>
     </div>
     <div class="navbar-end">
+      <div class="navbar-item">
+        <ThemeToggle client:load />
+      </div>
       <div class="navbar-item clerk-icon">
         <SignedOut>
           <SignInButton mode="modal" />
