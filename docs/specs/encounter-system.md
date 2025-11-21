@@ -25,9 +25,9 @@ export const EncounterSchema = z
     scope: z.enum(['general', 'hex', 'region', 'dungeon']),
     locationTypes: z.array(z.enum(['wilderness', 'dungeon'])).optional(),
     factions: z.array(FactionEnum).optional(),
-    isLead: z.boolean().optional(),
 
     // Derived fields (populated at build time)
+    isLead: z.boolean().optional(),
     creatureTypes: z.array(CreatureTypeEnum).optional(),
     usedIn: z.array(UsageReferenceSchema).optional(),
   })
@@ -55,9 +55,10 @@ export const EncounterSchema = z
 
 - **`locationTypes`**: Array of `wilderness` and/or `dungeon` (required for general-scope)
 - **`factions`**: Array of faction IDs involved (optional, omit for wildlife encounters)
-- **`isLead`**: Boolean flag marking faction intelligence encounters (always considered "used")
 
 #### Derived Fields (populated at build time)
+
+- **`isLead`**: Automatically set if encounter is referenced in roleplay book intelligence reports
 
 - **`creatureTypes`**: Automatically derived from stat block creature types
 - **`usedIn`**: Automatically populated by scanning dungeons, hexes, and regions
@@ -228,12 +229,17 @@ Valid factions:
 
 #### Is Lead
 
-Optional boolean flag that marks an encounter as a "lead" - faction intelligence that points players toward content. Lead encounters:
+**Automatically derived field** - set to `true` during build process if the encounter is referenced in any roleplay book intelligence report (via the `linkPath` field).
+
+Lead encounters:
 - Display a "Lead" badge in the UI
 - Are always considered "used" (never show as unused)
-- Can be filtered with "Leads only" checkbox
+- Can be filtered with the Leads dropdown (All / Leads / Non-leads)
+- Represent faction intelligence that points players toward content
 
-This is used for encounters where factions provide information about threats or opportunities in the region.
+**How it works**: The build process scans all roleplay books for intelligence report entries where `linkPath` contains `/gm-reference/encounters/`. Any encounter found this way is automatically marked as a lead.
+
+**No manual tagging needed** - simply link to an encounter from an intelligence report and it becomes a lead automatically.
 
 #### Creature Types
 
@@ -260,7 +266,7 @@ The encounter list page supports filtering by:
 - **Factions**: Any faction or "No Faction"
 - **Creature Types**: Any D&D creature type
 - **Status**: Used or Unused (leads always count as "used")
-- **Leads Only**: Checkbox to show only lead encounters
+- **Leads**: All / Leads / Non-leads
 
 All filters can be combined (AND logic) for precise queries like "show me all unused general-purpose wilderness encounters involving the Revenant Legion."
 

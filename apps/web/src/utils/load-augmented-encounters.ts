@@ -5,7 +5,11 @@ import type {
 } from '@skyreach/schemas';
 import { getCollection } from 'astro:content';
 
-import { buildStatBlockMap, deriveCreatureTypes } from './encounter-processor';
+import {
+  buildStatBlockMap,
+  deriveCreatureTypes,
+  detectLeadEncounters,
+} from './encounter-processor';
 import {
   buildEncounterUsageMap,
   type EncounterUsageMap,
@@ -19,6 +23,7 @@ export interface AugmentedEncounter {
   data: EncounterData & {
     creatureTypes: CreatureType[];
     usedIn: UsageReference[];
+    isLead: boolean;
   };
 }
 
@@ -34,23 +39,27 @@ export interface AugmentedEncountersResult {
  * Loads all encounters with derived fields populated:
  * - creatureTypes: derived from stat blocks
  * - usedIn: derived from dungeons, hexes, and regions
+ * - isLead: derived from roleplay book intelligence reports
  *
  * This function fetches all necessary collections and computes derived data.
  * Use this in pages that need the full augmented encounter data.
  */
 export async function loadAugmentedEncounters(): Promise<AugmentedEncountersResult> {
   // Load all necessary collections in parallel
-  const [encounters, statBlocks, dungeons, hexes, regions] = await Promise.all([
-    getCollection('encounters'),
-    getCollection('statBlocks'),
-    getCollection('dungeons'),
-    getCollection('hexes'),
-    getCollection('regions'),
-  ]);
+  const [encounters, statBlocks, dungeons, hexes, regions, roleplayBooks] =
+    await Promise.all([
+      getCollection('encounters'),
+      getCollection('statBlocks'),
+      getCollection('dungeons'),
+      getCollection('hexes'),
+      getCollection('regions'),
+      getCollection('roleplay-books'),
+    ]);
 
   // Build lookup maps
   const statBlockMap = buildStatBlockMap(statBlocks);
   const usageMap = buildEncounterUsageMap(dungeons, hexes, regions);
+  const leadEncounterIds = detectLeadEncounters(roleplayBooks);
 
   // Augment each encounter with derived fields
   const augmentedEncounters: AugmentedEncounter[] = encounters.map(
@@ -60,6 +69,7 @@ export async function loadAugmentedEncounters(): Promise<AugmentedEncountersResu
         ...encounter.data,
         creatureTypes: deriveCreatureTypes(encounter.data, statBlockMap),
         usedIn: usageMap.get(encounter.id) || [],
+        isLead: leadEncounterIds.has(encounter.id),
       },
     }),
   );

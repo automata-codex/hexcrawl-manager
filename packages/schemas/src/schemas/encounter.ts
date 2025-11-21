@@ -44,14 +44,14 @@ export const EncounterSchema = z
 
     factions: z.array(FactionEnum).optional(),
 
+    // Derived fields (populated at build time)
     isLead: z
       .boolean()
       .optional()
       .describe(
-        'Marks this encounter as a lead (faction intelligence). Leads are considered "used" even if not referenced elsewhere.',
+        'Automatically set to true if encounter is referenced in any roleplay book intelligence report. Leads are considered "used" even if not referenced elsewhere.',
       ),
 
-    // Derived fields (populated at build time)
     creatureTypes: z
       .array(CreatureTypeEnum)
       .optional()

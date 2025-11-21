@@ -58,10 +58,9 @@ export const EncounterSchema = z
       'veil-shepherds',
     ])).optional(),
 
-    isLead: z.boolean().optional()
-      .describe('Marks this encounter as a lead (faction intelligence). Leads are considered "used" even if not referenced elsewhere.'),
-
     // DERIVED FIELDS (populated at build time)
+    isLead: z.boolean().optional()
+      .describe('Automatically set to true if encounter is referenced in any roleplay book intelligence report. Leads are considered "used" even if not referenced elsewhere.'),
     creatureTypes: z.array(z.enum([
       'aberration',
       'beast',
@@ -112,7 +111,7 @@ export const EncounterSchema = z
 - `scope`: Design intent - whether encounter is general-purpose or specific to a location type
 - `locationTypes`: Where encounter can be used (wilderness/dungeon). Required for general encounters.
 - `factions`: Which factions are involved (optional, omitted when not applicable)
-- `isLead`: Boolean flag for lead encounters. Leads are always considered "used" in UI.
+- `isLead`: Derived boolean - automatically set if encounter is referenced in roleplay book intelligence reports
 - `creatureTypes`: Derived from stat block types during build process
 - `usedIn`: Populated during build by scanning dungeon/hex/region encounter references
 
@@ -229,6 +228,50 @@ export async function deriveCreatureTypes(encounter: EncounterData): Promise<str
 
   return Array.from(creatureTypes).sort();
 }
+
+export async function detectLeadEncounters(): Promise<Set<string>> {
+  const roleplayBooks = await getCollection('roleplay-books');
+  const leadEncounterIds = new Set<string>();
+
+  // Path pattern to match - should be configurable if URL structure changes
+  const encounterPathPattern = '/gm-reference/encounters/';
+
+  for (const book of roleplayBooks) {
+    const reports = book.data.intelligenceReports?.rows || [];
+
+    for (const report of reports) {
+      // Check if linkPath points to an encounter
+      if (report.linkPath?.includes(encounterPathPattern)) {
+        // Extract encounter ID from path like "/gm-reference/encounters/gibbering-mouther-pit"
+        const encounterId = report.linkPath.split('/').pop();
+        if (encounterId) {
+          leadEncounterIds.add(encounterId);
+        }
+      }
+    }
+  }
+
+  return leadEncounterIds;
+}
+```
+
+**Note**: The `encounterPathPattern` should ideally be pulled from a config file (e.g., where route paths are defined) to ensure consistency if URL structure changes.
+
+**Roleplay Book Schema Requirements**: This processor assumes roleplay books have an `intelligenceReports` field with a `rows` array, where each row has a `linkPath` string field. Example structure:
+
+```typescript
+intelligenceReports: {
+  rows: [
+    {
+      roll: number,
+      report: string,
+      linkText: string,
+      linkPath: string,  // e.g., "/gm-reference/encounters/gibbering-mouther-pit"
+      sampleDialogue: string,
+      relevantConditions: string
+    }
+  ]
+}
 ```
 
 ### Usage Tracking
@@ -332,17 +375,21 @@ function extractEncounterIdsFromRegion(regionData: any): string[] {
 
 ```typescript
 // This should run during the build process
-import { deriveCreatureTypes } from '@skyreach/schemas/processors/encounter-processor';
+import { deriveCreatureTypes, detectLeadEncounters } from '@skyreach/schemas/processors/encounter-processor';
 import { buildEncounterUsageMap } from '@skyreach/schemas/processors/encounter-usage-tracker';
 
 // Augment encounter data during build
 export async function processEncounters() {
   const encounters = await getCollection('encounters');
   const usageMap = await buildEncounterUsageMap();
+  const leadEncounterIds = await detectLeadEncounters();
 
   for (const encounter of encounters) {
     // Derive creature types
     encounter.data.creatureTypes = await deriveCreatureTypes(encounter.data);
+
+    // Set isLead flag
+    encounter.data.isLead = leadEncounterIds.has(encounter.id);
 
     // Add usage information
     encounter.data.usedIn = usageMap.get(encounter.id) || [];
@@ -1127,12 +1174,17 @@ Valid factions:
 
 #### Is Lead
 
-Optional boolean flag that marks an encounter as a "lead" - faction intelligence that points players toward content. Lead encounters:
+**Automatically derived field** - set to `true` during build process if the encounter is referenced in any roleplay book intelligence report (via the `linkPath` field).
+
+Lead encounters:
 - Display a "Lead" badge in the UI
 - Are always considered "used" (never show as unused)
 - Can be filtered with "Show leads only" checkbox
+- Represent faction intelligence that points players toward content
 
-This is used for encounters where factions provide information about threats or opportunities in the region.
+**How it works**: The build process scans all roleplay books for intelligence report entries where `linkPath` contains `/gm-reference/encounters/`. Any encounter found this way is automatically marked as a lead.
+
+**No manual tagging needed** - simply link to an encounter from an intelligence report and it becomes a lead automatically.
 
 #### Creature Types
 
@@ -1190,21 +1242,24 @@ usedIn:
 
 ### Example Lead Encounter
 
-```yaml
-id: bearfolk-intelligence-undead-camp
-name: Bearfolk Intelligence - Undead Camp
+\`\`\`yaml
+id: gibbering-mouther-pit
+name: Gibbering Mouther Pit
 scope: general
 locationTypes: [wilderness]
-factions: [bearfolk, revenant-legion]
-isLead: true
-description: Bearfolk scouts report seeing an undead encampment three hexes to the west.
+factions: [alseid]  # Alseid report this location
+description: A hole in the ground where mad voices scream in unison.
 statBlocks:
-  - bearfolk-scout
+  - gibbering-mouther
 
-# This encounter is not referenced anywhere but isLead: true marks it as "used"
-creatureTypes: [humanoid]
-usedIn: []
-```
+# These fields are auto-populated at build time:
+# isLead is set to true because this encounter is referenced in the Alseid roleplay book
+creatureTypes: [aberration]
+isLead: true  # Derived from roleplay book reference
+usedIn: []    # Not in any encounter tables, but still "used" because isLead=true
+\`\`\`
+
+**Note**: The `isLead` field is never authored in the YAML file - it's automatically set during the build process by scanning roleplay book intelligence reports.
 ```
 
 ---
