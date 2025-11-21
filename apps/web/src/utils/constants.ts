@@ -18,6 +18,7 @@ export const STORAGE_KEYS = {
   LAYER_VISIBILITY: 'layer-visibility-state',
   MAP_VIEW: 'map-view-state',
   SELECTED_HEX: 'selected-hex-state',
+  THEME_PREFERENCE: 'theme-preference',
 } as const;
 
 export const UNKNOWN_CONTENT = 'Unknown';
