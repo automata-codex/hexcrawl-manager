@@ -120,4 +120,28 @@ This plan implements the spec at `docs/specs/encounter-taxonomy.md` in phases, a
 
 **Review focus:** Documentation accuracy, completeness
 
-**Status:** Not started
+**Status:** Complete
+
+**Notes:**
+- Updated `docs/specs/encounter-system.md` with new Encounter Taxonomy section
+- Updated schema documentation to include taxonomy fields
+- Updated Fields section with taxonomy and derived fields
+- All success criteria verified and met
+- Final build passes successfully
+
+**Bonus: Dungeon Encounter Validation**
+- Created `apps/web/scripts/validate-dungeon-encounters.ts` to validate frontmatter/content sync
+- Run with `npm run validate:dungeons` from apps/web
+- Ensures `encounters` array in dungeon frontmatter matches `getEncounterPath()` calls in content
+
+---
+
+## Summary
+
+All 6 phases complete. The encounter taxonomy system is fully implemented:
+
+- **104 encounters** migrated with scope, locationTypes, and factions
+- **Build-time processors** derive creature types and track usage
+- **Svelte-based filter UI** with scope, location, faction, creature type, and usage filters
+- **Detail pages** show taxonomy badges and cross-references
+- **Validation script** ensures dungeon encounter references stay in sync
