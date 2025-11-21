@@ -146,9 +146,7 @@ export const HexSchema = z
     slug: z.string(),
     name: z.string(),
     landmark: z.union([z.string(), LandmarkSchema]),
-    hiddenSites: z
-      .union([z.array(z.string()), z.array(HiddenSitesSchema)])
-      .optional(),
+    hiddenSites: HiddenSitesSchema.optional(),
     secretSite: z.string().optional(),
     regionId: z.string(),
     hideInCatalog: z.boolean().optional(),

@@ -1,7 +1,7 @@
 import type {
   EncounterEntryData,
   HexData,
-  HiddenSitesData,
+  HiddenSite,
   KnowledgeNodeData,
   TreasureData,
 } from '@skyreach/schemas';
@@ -14,7 +14,7 @@ export type ExtendedHexData = HexData & {
   renderedSecretSite: string;
   renderedUpdates: string[];
 };
-export type ExtendedHiddenSites = HiddenSitesData & {
+export type ExtendedHiddenSites = HiddenSite & {
   description: string;
   treasure?: ExtendedTreasureData[];
 };

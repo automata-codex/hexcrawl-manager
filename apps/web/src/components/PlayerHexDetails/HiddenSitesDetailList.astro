@@ -1,10 +1,10 @@
 ---
 import { renderBulletMarkdown } from '../../utils/markdown';
 
-import type { HiddenSitesData } from '@skyreach/schemas';
+import type { HiddenSite } from '@skyreach/schemas';
 
 interface Props {
-  sites: HiddenSitesData[];
+  sites: HiddenSite[];
 }
 
 const { sites } = Astro.props;
