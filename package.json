@@ -16,6 +16,7 @@
     "check:web": "npm run -w @skyreach/web check",
     "check:docs-clean": "git diff --quiet -- docs/api || (echo \"Docs are stale. Run 'npm run docs'.\" && exit 1)",
     "clean": "npm run clean:packages",
+    "clean:branches": "git fetch --prune && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D || true",
     "clean:packages": "tsc -b tsconfig.workspace.json --clean && rimraf packages/*/dist",
     "clean:tests": "rm -rf .test-repos",
     "cli": "tsx apps/cli/src/skyreach.ts",
