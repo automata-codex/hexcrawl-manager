@@ -14,6 +14,7 @@ import {
   renderBulletMarkdown,
   renderMarkdown,
 } from '../../../utils/markdown';
+import { loadAugmentedEncounter } from '../../../utils/load-augmented-encounters';
 
 import type { FloatingClueEntry, HexEntry, RegionEntry } from '../../../types';
 import type { EncounterData } from '@skyreach/schemas';
@@ -39,6 +40,11 @@ if (encounterData === undefined) {
 }
 
 const encounter: EncounterData = encounterData.data;
+
+// Get augmented data with derived fields
+const augmentedEncounter = await loadAugmentedEncounter(id);
+const creatureTypes = augmentedEncounter?.data.creatureTypes || [];
+const usedIn = augmentedEncounter?.data.usedIn || [];
 const statBlocks = await getCollection('statBlocks');
 const regions = await getCollection('regions');
 const hexes = await getCollection('hexes');
@@ -139,6 +145,67 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   }
 </style>
 <style>
+  .taxonomy-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--bulma-scheme-main-bis);
+    border-radius: 6px;
+    border: 1px solid var(--bulma-border);
+  }
+
+  .taxonomy-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: baseline;
+  }
+
+  .taxonomy-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .taxonomy-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--bulma-text-weak);
+  }
+
+  .taxonomy-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    background: var(--bulma-scheme-main-ter);
+    border-radius: 3px;
+    font-size: 0.875rem;
+  }
+
+  .badge.scope {
+    background: #e3f2fd;
+    color: #1565c0;
+  }
+
+  .badge.location {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  .badge.faction {
+    background: #fff3e0;
+    color: #e65100;
+  }
+
+  .badge.creature {
+    background: #f3e5f5;
+    color: #7b1fa2;
+  }
+
   .cross-reference-list {
     margin-bottom: 1rem;
   }
@@ -154,6 +221,52 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   }
 </style>
 <SecretArticleLayout title={title}>
+  {(encounter.scope || encounter.locationTypes || encounter.factions || creatureTypes.length > 0) && (
+    <div class="taxonomy-section">
+      <div class="taxonomy-row">
+        {encounter.scope && (
+          <div class="taxonomy-item">
+            <span class="taxonomy-label">Scope:</span>
+            <span class="badge scope">{encounter.scope}</span>
+          </div>
+        )}
+
+        {encounter.locationTypes && encounter.locationTypes.length > 0 && (
+          <div class="taxonomy-item">
+            <span class="taxonomy-label">Location:</span>
+            <div class="taxonomy-badges">
+              {encounter.locationTypes.map((type) => (
+                <span class="badge location">{type}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {encounter.factions && encounter.factions.length > 0 && (
+          <div class="taxonomy-item">
+            <span class="taxonomy-label">Factions:</span>
+            <div class="taxonomy-badges">
+              {encounter.factions.map((faction) => (
+                <span class="badge faction">{faction}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {creatureTypes.length > 0 && (
+          <div class="taxonomy-item">
+            <span class="taxonomy-label">Creatures:</span>
+            <div class="taxonomy-badges">
+              {creatureTypes.map((type) => (
+                <span class="badge creature">{type}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )}
+
   <ul class="cross-reference-list">
   {
     floatingClueList.length > 0 && (

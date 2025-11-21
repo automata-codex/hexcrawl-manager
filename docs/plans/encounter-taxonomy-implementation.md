@@ -97,7 +97,15 @@ This plan implements the spec at `docs/specs/encounter-taxonomy.md` in phases, a
 
 **Review focus:** UI/UX, filter behavior, styling
 
-**Status:** Not started
+**Status:** Complete
+
+**Features implemented:**
+- List page: Filter dropdowns for scope, location type, faction, creature type, usage status
+- List page: Real-time count of visible encounters
+- List page: Scope badges on non-general encounters
+- List page: Italic styling for unused encounters
+- Detail page: Taxonomy section showing scope, location types, factions, creature types
+- Color-coded badges for different taxonomy categories
 
 ---
 
