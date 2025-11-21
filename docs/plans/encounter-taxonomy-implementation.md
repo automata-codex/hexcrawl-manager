@@ -30,12 +30,12 @@ This plan implements the spec at `docs/specs/encounter-taxonomy.md` in phases, a
 **Work:**
 - Create `apps/web/src/utils/encounter-processor.ts` (creature type derivation)
 - Create `apps/web/src/utils/encounter-usage-tracker.ts` (usage mapping)
-- Hook into Astro content processing to augment encounter data at build time
+- Create `apps/web/src/utils/load-augmented-encounters.ts` (main loader combining both)
 - Test with `npm run build:web` to verify processors run without errors
 
 **Review focus:** Processing logic correctness, integration approach
 
-**Status:** Not started
+**Status:** Complete
 
 ---
 
