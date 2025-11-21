@@ -173,11 +173,8 @@
       </div>
     </div>
 
-    <div class="field filter-actions">
-      <label class="label">&nbsp;</label>
-      <div class="control">
-        <button class="button" onclick={clearFilters}>Clear</button>
-      </div>
+    <div class="filter-actions">
+      <button class="button" onclick={clearFilters}>Clear</button>
     </div>
   </div>
 
@@ -188,9 +185,9 @@
 
 <p class="legend">
   <span class="unused-text">Italic</span> = unused |
-  <span class="tag is-info is-light">dungeon</span>
-  <span class="tag is-success is-light">hex</span>
-  <span class="tag is-warning is-light">region</span> = specific scope
+  <span class="scope-tag scope-dungeon">dungeon</span>
+  <span class="scope-tag scope-hex">hex</span>
+  <span class="scope-tag scope-region">region</span> = specific scope
 </p>
 
 <ul class="encounter-list">
@@ -204,10 +201,10 @@
       </a>
       {#if encounter.scope && encounter.scope !== 'general'}
         <span
-          class="tag is-light"
-          class:is-info={encounter.scope === 'dungeon'}
-          class:is-success={encounter.scope === 'hex'}
-          class:is-warning={encounter.scope === 'region'}
+          class="scope-tag"
+          class:scope-dungeon={encounter.scope === 'dungeon'}
+          class:scope-hex={encounter.scope === 'hex'}
+          class:scope-region={encounter.scope === 'region'}
         >
           {encounter.scope}
         </span>
@@ -218,7 +215,7 @@
 
 <style>
   .encounter-filters {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
   }
 
   .filter-row {
@@ -238,7 +235,8 @@
   }
 
   .filter-actions {
-    margin-left: auto;
+    display: flex;
+    align-items: flex-end;
   }
 
   .filter-count {
@@ -261,23 +259,55 @@
   .encounter-list {
     columns: 3;
     column-gap: 2rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
+    margin-top: 0;
   }
 
   .encounter-item {
     break-inside: avoid;
-    margin-bottom: 0.375rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
   }
 
-  .encounter-item .tag {
+  .encounter-item .scope-tag {
+    margin-left: 0.25rem;
+  }
+
+  .scope-tag {
+    display: inline-block;
     font-size: 0.7rem;
     padding: 0.125rem 0.375rem;
-    height: auto;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .scope-dungeon {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+
+  .scope-hex {
+    background-color: #dcfce7;
+    color: #166534;
+  }
+
+  .scope-region {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .scope-dungeon {
+      background-color: #1e3a5f;
+      color: #93c5fd;
+    }
+
+    .scope-hex {
+      background-color: #14532d;
+      color: #86efac;
+    }
+
+    .scope-region {
+      background-color: #78350f;
+      color: #fcd34d;
+    }
   }
 
   @media (max-width: 1024px) {
