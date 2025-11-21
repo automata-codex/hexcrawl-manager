@@ -286,7 +286,7 @@
   <button class="button" onclick={handleZoomReset}>
     <FontAwesomeIcon icon={faMagnifyingGlassArrowsRotate} />
   </button>
-  <div class="button">
+  <div class="button zoom-display">
     Zoom: {Math.round($mapView.zoom * 100)}%
   </div>
 </div>
@@ -572,5 +572,10 @@
     :global(html:not([data-theme])) .zoom-controls button:hover {
       background: #ddd;
     }
+  }
+
+  .zoom-display {
+    cursor: default;
+    pointer-events: none;
   }
 </style>
