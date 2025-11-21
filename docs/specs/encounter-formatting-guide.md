@@ -14,18 +14,19 @@ This document captures the formatting standards for creating encounters in the D
 ```
 
 ### Stage Headers
-Use sentence case with "or" alternatives:
-- `## Evidence Stage (Aftermath or Clue)`
-- `## In-progress Stage (Active Encounter)`
-- `## Consequence Stage (Follow-up/Escalation)`
+Use h3 headings with sentence case and "or" alternatives:
+- `### Evidence Stage (Aftermath or Clue)`
+- `### In-progress Stage (Active Encounter)`
+- `### Consequence Stage (Follow-up/Escalation)`
 
 ### GM Notes Section
-- `## GM Notes`
+- `### GM Notes`
 - **Use bullets for ALL items** in this section
 - Each bullet should be a complete thought or guideline
 - Use bold for emphasis on key terms: `**term**`
 
 ### General Formatting
+- **Heading hierarchy:** h3 (`###`) for stage headers, h4 (`####`) for subsections, h5 (`#####`) for sub-subsections
 - Use `**bold**` for emphasized terms and section labels within prose
 - Use proper em-dashes where appropriate
 - Maintain consistent voice (direct, GM-facing)
@@ -88,60 +89,62 @@ statBlocks:
 ```markdown
 **Core Concept:** One sentence describing the encounter's essence.
 
-## Evidence Stage (Aftermath or Clue)
+### Evidence Stage (Aftermath or Clue)
 
 Opening paragraph establishing what players discover.
 
-**What they find:**
+#### What they find
 - Bullet points of physical evidence
 - Observable details
 - Environmental clues
 
-**What it reveals:** Analysis paragraph.
+#### What it reveals
+Analysis paragraph.
 
-**Investigation opportunities:**
+#### Investigation opportunities
 - Skill checks and DCs
 - Information gathering paths
 
-**Potential follow-up:** Next steps available to party.
+#### Potential follow-up
+Next steps available to party.
 
-## In-progress Stage (Active Encounter)
+### In-progress Stage (Active Encounter)
 
 Scene-setting paragraph.
 
-**Immediate choices:**
+#### Immediate choices
 - **Choice 1** (outcome)
 - **Choice 2** (outcome)
 - **Choice 3** (outcome)
 
-**Scaling:**
+#### Scaling
 - **Small party (3-4 players):** Enemy composition
 - **Medium party (5-6 players):** Enemy composition
 - **Large party (6-7 players):** Enemy composition
 
-**Tactical notes:**
+#### Tactical notes
 - Combat behavior patterns
 - Environmental factors
 
-## Consequence Stage (Follow-up/Escalation)
+### Consequence Stage (Follow-up/Escalation)
 
 Current state description.
 
-**If the party previously encountered this:**
+#### If the party previously encountered this
 - **If they did X:** Consequence
 - **If they did Y:** Consequence
 - **If they did nothing:** Consequence
 
-**Regional impact:**
+#### Regional impact
 - Broader consequences
 
-**Changed faction relations:**
+#### Changed faction relations
 - Specific reputation changes
 
-**Escalation possibilities:**
+#### Escalation possibilities
 - Future complications
 
-## GM Notes
+### GM Notes
 
 - **First consideration:** Explanation with mechanical details
 - **Second consideration:** Table advice

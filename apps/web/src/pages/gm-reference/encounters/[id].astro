@@ -203,10 +203,6 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
     margin-bottom: 1rem;
   }
 
-  .description {
-    margin-top: 1rem;
-  }
-
   .stat-block-container section:not(:last-child) {
     border-bottom: 1px solid var(--bulma-body-color);
     margin-bottom: 1rem;
@@ -294,7 +290,7 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   {
     encounter.description && (
       <div class="summary">
-        {encounter.contentPath && <h2 class="title is-4">Summary</h2>}
+        {encounter.contentPath && <h2 class="title is-3">Summary</h2>}
         <div class="description">
           <Fragment set:html={renderMarkdown(encounter.description)} />
         </div>
@@ -304,7 +300,7 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   {
     encounter.contentPath && (
       <div class="detailed-content">
-        {encounter.description && <h2 class="title is-4">Details</h2>}
+        {encounter.description && <h2 class="title is-3">Details</h2>}
         <EncounterContent encounterId={id} contentPath={encounter.contentPath} />
       </div>
     )
