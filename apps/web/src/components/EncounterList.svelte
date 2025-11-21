@@ -8,6 +8,7 @@
     locationTypes: LocationType[];
     factions: Faction[];
     creatureTypes: CreatureType[];
+    isLead: boolean;
     isUsed: boolean;
   }
 
@@ -30,6 +31,7 @@
   let factionFilter = $state('');
   let creatureFilter = $state('');
   let usageFilter = $state('');
+  let leadsOnly = $state(false);
   let searchQuery = $state('');
 
   let filtered = $derived(() => {
@@ -63,9 +65,15 @@
         return false;
       }
 
-      // Usage filter
-      if (usageFilter === 'used' && !enc.isUsed) return false;
-      if (usageFilter === 'unused' && enc.isUsed) return false;
+      // Leads filter
+      if (leadsOnly && !enc.isLead) {
+        return false;
+      }
+
+      // Usage filter - leads are always considered "used"
+      const effectivelyUsed = enc.isUsed || enc.isLead;
+      if (usageFilter === 'used' && !effectivelyUsed) return false;
+      if (usageFilter === 'unused' && effectivelyUsed) return false;
 
       return true;
     });
@@ -77,6 +85,7 @@
     factionFilter = '';
     creatureFilter = '';
     usageFilter = '';
+    leadsOnly = false;
     searchQuery = '';
   }
 
@@ -173,6 +182,13 @@
       </div>
     </div>
 
+    <div class="field leads-checkbox">
+      <label class="checkbox">
+        <input type="checkbox" bind:checked={leadsOnly} />
+        Leads only
+      </label>
+    </div>
+
     <div class="filter-actions">
       <button class="button" onclick={clearFilters}>Clear</button>
     </div>
@@ -187,7 +203,8 @@
   <span class="unused-text">Italic</span> = unused |
   <span class="scope-tag scope-dungeon">dungeon</span>
   <span class="scope-tag scope-hex">hex</span>
-  <span class="scope-tag scope-region">region</span> = specific scope
+  <span class="scope-tag scope-region">region</span> = specific scope |
+  <span class="scope-tag scope-lead">lead</span> = faction intelligence
 </p>
 
 <ul class="encounter-list">
@@ -195,10 +212,13 @@
     <li class="encounter-item">
       <a
         href={`/gm-reference/encounters/${encounter.id}`}
-        class={encounter.isUsed ? '' : 'unused-text'}
+        class={encounter.isUsed || encounter.isLead ? '' : 'unused-text'}
       >
         {encounter.name}
       </a>
+      {#if encounter.isLead}
+        <span class="scope-tag scope-lead">lead</span>
+      {/if}
       {#if encounter.scope && encounter.scope !== 'general'}
         <span
           class="scope-tag"
@@ -293,6 +313,23 @@
     color: #92400e;
   }
 
+  .scope-lead {
+    background-color: #fce7f3;
+    color: #9d174d;
+  }
+
+  .leads-checkbox {
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .leads-checkbox .checkbox {
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
   @media (prefers-color-scheme: dark) {
     .scope-dungeon {
       background-color: #1e3a5f;
@@ -307,6 +344,11 @@
     .scope-region {
       background-color: #78350f;
       color: #fcd34d;
+    }
+
+    .scope-lead {
+      background-color: #831843;
+      color: #fbcfe8;
     }
   }
 

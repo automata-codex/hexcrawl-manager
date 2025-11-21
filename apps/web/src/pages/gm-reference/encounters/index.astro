@@ -21,6 +21,7 @@ const encounters = sortedEncounters.map((enc) => ({
   locationTypes: enc.data.locationTypes || [],
   factions: enc.data.factions || [],
   creatureTypes: enc.data.creatureTypes || [],
+  isLead: enc.data.isLead || false,
   isUsed: enc.data.usedIn.length > 0,
 }));
 

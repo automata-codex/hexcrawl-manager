@@ -25,6 +25,7 @@ export const EncounterSchema = z
     scope: z.enum(['general', 'hex', 'region', 'dungeon']),
     locationTypes: z.array(z.enum(['wilderness', 'dungeon'])).optional(),
     factions: z.array(FactionEnum).optional(),
+    isLead: z.boolean().optional(),
 
     // Derived fields (populated at build time)
     creatureTypes: z.array(CreatureTypeEnum).optional(),
@@ -54,6 +55,7 @@ export const EncounterSchema = z
 
 - **`locationTypes`**: Array of `wilderness` and/or `dungeon` (required for general-scope)
 - **`factions`**: Array of faction IDs involved (optional, omit for wildlife encounters)
+- **`isLead`**: Boolean flag marking faction intelligence encounters (always considered "used")
 
 #### Derived Fields (populated at build time)
 
@@ -224,6 +226,15 @@ Valid factions:
 - `three-dukes`
 - `veil-shepherds`
 
+#### Is Lead
+
+Optional boolean flag that marks an encounter as a "lead" - faction intelligence that points players toward content. Lead encounters:
+- Display a "Lead" badge in the UI
+- Are always considered "used" (never show as unused)
+- Can be filtered with "Leads only" checkbox
+
+This is used for encounters where factions provide information about threats or opportunities in the region.
+
 #### Creature Types
 
 Automatically derived from stat blocks during build process. Includes D&D creature types like:
@@ -248,7 +259,8 @@ The encounter list page supports filtering by:
 - **Location Types**: wilderness, dungeon
 - **Factions**: Any faction or "No Faction"
 - **Creature Types**: Any D&D creature type
-- **Status**: Used or Unused
+- **Status**: Used or Unused (leads always count as "used")
+- **Leads Only**: Checkbox to show only lead encounters
 
 All filters can be combined (AND logic) for precise queries like "show me all unused general-purpose wilderness encounters involving the Revenant Legion."
 

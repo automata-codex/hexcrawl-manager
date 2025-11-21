@@ -58,6 +58,9 @@ export const EncounterSchema = z
       'veil-shepherds',
     ])).optional(),
 
+    isLead: z.boolean().optional()
+      .describe('Marks this encounter as a lead (faction intelligence). Leads are considered "used" even if not referenced elsewhere.'),
+
     // DERIVED FIELDS (populated at build time)
     creatureTypes: z.array(z.enum([
       'aberration',
@@ -109,6 +112,7 @@ export const EncounterSchema = z
 - `scope`: Design intent - whether encounter is general-purpose or specific to a location type
 - `locationTypes`: Where encounter can be used (wilderness/dungeon). Required for general encounters.
 - `factions`: Which factions are involved (optional, omitted when not applicable)
+- `isLead`: Boolean flag for lead encounters. Leads are always considered "used" in UI.
 - `creatureTypes`: Derived from stat block types during build process
 - `usedIn`: Populated during build by scanning dungeon/hex/region encounter references
 
@@ -766,6 +770,13 @@ const allCreatureTypes = [...new Set(encounters.flatMap(e => e.data.creatureType
     </select>
   </div>
 
+  <div class="filter-group">
+    <label>
+      <input type="checkbox" id="filter-leads-only" />
+      Show leads only
+    </label>
+  </div>
+
   <button id="clear-filters">Clear All Filters</button>
 </div>
 
@@ -777,11 +788,15 @@ const allCreatureTypes = [...new Set(encounters.flatMap(e => e.data.creatureType
       data-locations={JSON.stringify(encounter.data.locationTypes || [])}
       data-factions={JSON.stringify(encounter.data.factions || [])}
       data-creatures={JSON.stringify(encounter.data.creatureTypes || [])}
+      data-is-lead={encounter.data.isLead || false}
       data-used={encounter.data.usedIn && encounter.data.usedIn.length > 0}
     >
       <h3><a href={`/gm-reference/encounters/${encounter.id}`}>{encounter.data.name}</a></h3>
       <div class="encounter-meta">
         <span class="badge">{encounter.data.scope}</span>
+        {encounter.data.isLead && (
+          <span class="badge lead">Lead</span>
+        )}
         {(encounter.data.locationTypes || []).map(type => (
           <span class="badge location">{type}</span>
         ))}
@@ -795,7 +810,12 @@ const allCreatureTypes = [...new Set(encounters.flatMap(e => e.data.creatureType
           Used in: {encounter.data.usedIn.map(ref => ref.name).join(', ')}
         </div>
       )}
-      {(!encounter.data.usedIn || encounter.data.usedIn.length === 0) && (
+      {encounter.data.isLead && (
+        <div class="usage-info lead-info">
+          ✓ Lead encounter (always used)
+        </div>
+      )}
+      {(!encounter.data.usedIn || encounter.data.usedIn.length === 0) && !encounter.data.isLead && (
         <div class="usage-info unused">⚠️ Unused</div>
       )}
     </div>
@@ -810,6 +830,7 @@ const allCreatureTypes = [...new Set(encounters.flatMap(e => e.data.creatureType
     const factionFilter = Array.from(document.querySelectorAll('#filter-faction option:checked')).map(o => o.value);
     const creatureFilter = Array.from(document.querySelectorAll('#filter-creature option:checked')).map(o => o.value);
     const statusFilter = document.querySelector('#filter-status').value;
+    const leadsOnly = document.querySelector('#filter-leads-only').checked;
 
     document.querySelectorAll('.encounter-card').forEach(card => {
       let visible = true;
@@ -841,9 +862,17 @@ const allCreatureTypes = [...new Set(encounters.flatMap(e => e.data.creatureType
         if (!creatureFilter.some(f => creatures.includes(f))) visible = false;
       }
 
-      // Status filter
-      if (statusFilter === 'used' && card.dataset.used !== 'true') visible = false;
-      if (statusFilter === 'unused' && card.dataset.used === 'true') visible = false;
+      // Leads filter
+      if (leadsOnly && card.dataset.isLead !== 'true') {
+        visible = false;
+      }
+
+      // Status filter - leads are always considered "used"
+      const isLead = card.dataset.isLead === 'true';
+      const isUsed = card.dataset.used === 'true' || isLead;
+
+      if (statusFilter === 'used' && !isUsed) visible = false;
+      if (statusFilter === 'unused' && isUsed) visible = false;
 
       card.style.display = visible ? 'block' : 'none';
     });
@@ -853,10 +882,13 @@ const allCreatureTypes = [...new Set(encounters.flatMap(e => e.data.creatureType
     select.addEventListener('change', applyFilters);
   });
 
+  document.querySelector('#filter-leads-only').addEventListener('change', applyFilters);
+
   document.querySelector('#clear-filters').addEventListener('click', () => {
     document.querySelectorAll('select').forEach(select => {
       select.selectedIndex = 0;
     });
+    document.querySelector('#filter-leads-only').checked = false;
     applyFilters();
   });
 </script>
@@ -912,6 +944,11 @@ const allCreatureTypes = [...new Set(encounters.flatMap(e => e.data.creatureType
     background: #c8e6c9;
   }
 
+  .badge.lead {
+    background: #fff9c4;
+    font-weight: bold;
+  }
+
   .usage-info {
     margin-top: 0.5rem;
     font-size: 0.875rem;
@@ -920,6 +957,11 @@ const allCreatureTypes = [...new Set(encounters.flatMap(e => e.data.creatureType
 
   .usage-info.unused {
     color: #f57c00;
+    font-weight: bold;
+  }
+
+  .usage-info.lead-info {
+    color: #558b2f;
     font-weight: bold;
   }
 </style>
@@ -948,6 +990,13 @@ const usedIn = encounter.data.usedIn || [];
   <dl>
     <dt>Scope:</dt>
     <dd><span class="badge">{encounter.data.scope}</span></dd>
+
+    {encounter.data.isLead && (
+      <>
+        <dt>Type:</dt>
+        <dd><span class="badge lead">Lead</span></dd>
+      </>
+    )}
 
     {encounter.data.locationTypes && encounter.data.locationTypes.length > 0 && (
       <>
@@ -1005,7 +1054,13 @@ const usedIn = encounter.data.usedIn || [];
   </div>
 )}
 
-{usedIn.length === 0 && (
+{encounter.data.isLead && usedIn.length === 0 && (
+  <div class="encounter-usage">
+    <p>✓ This is a lead encounter (faction intelligence).</p>
+  </div>
+)}
+
+{usedIn.length === 0 && !encounter.data.isLead && (
   <div class="encounter-usage unused">
     <p>⚠️ This encounter is not currently used anywhere.</p>
   </div>
@@ -1070,6 +1125,15 @@ Valid factions:
 - `three-dukes`
 - `veil-shepherds`
 
+#### Is Lead
+
+Optional boolean flag that marks an encounter as a "lead" - faction intelligence that points players toward content. Lead encounters:
+- Display a "Lead" badge in the UI
+- Are always considered "used" (never show as unused)
+- Can be filtered with "Show leads only" checkbox
+
+This is used for encounters where factions provide information about threats or opportunities in the region.
+
 #### Creature Types
 
 Automatically derived from stat blocks during build process. Includes D&D creature types like:
@@ -1094,7 +1158,8 @@ The encounter list page supports filtering by:
 - **Location Types**: wilderness, dungeon
 - **Factions**: Any faction or "No Faction"
 - **Creature Types**: Any D&D creature type
-- **Status**: Used or Unused
+- **Status**: Used or Unused (leads always count as "used")
+- **Leads Only**: Checkbox to show only lead encounters
 
 All filters can be combined (AND logic) for precise queries like "show me all unused general-purpose wilderness encounters involving the Revenant Legion."
 
@@ -1122,6 +1187,24 @@ usedIn:
     id: s18
     name: Misty Hollow
 \`\`\`
+
+### Example Lead Encounter
+
+```yaml
+id: bearfolk-intelligence-undead-camp
+name: Bearfolk Intelligence - Undead Camp
+scope: general
+locationTypes: [wilderness]
+factions: [bearfolk, revenant-legion]
+isLead: true
+description: Bearfolk scouts report seeing an undead encampment three hexes to the west.
+statBlocks:
+  - bearfolk-scout
+
+# This encounter is not referenced anywhere but isLead: true marks it as "used"
+creatureTypes: [humanoid]
+usedIn: []
+```
 ```
 
 ---

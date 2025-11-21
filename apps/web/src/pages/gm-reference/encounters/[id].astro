@@ -166,6 +166,12 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
     color: #7e22ce;
   }
 
+  .badge.lead {
+    background: #fce7f3;
+    color: #9d174d;
+    font-weight: 600;
+  }
+
   @media (prefers-color-scheme: dark) {
     .badge.scope {
       background: #1e3a5f;
@@ -186,6 +192,11 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
       background: #581c87;
       color: #d8b4fe;
     }
+
+    .badge.lead {
+      background: #831843;
+      color: #fbcfe8;
+    }
   }
 
   .cross-reference-list {
@@ -203,13 +214,19 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   }
 </style>
 <SecretArticleLayout title={title}>
-  {(encounter.scope || encounter.locationTypes || encounter.factions || creatureTypes.length > 0) && (
+  {(encounter.scope || encounter.isLead || encounter.locationTypes || encounter.factions || creatureTypes.length > 0) && (
     <div class="taxonomy-section">
       <div class="taxonomy-row">
         {encounter.scope && (
           <div class="taxonomy-item">
             <span class="taxonomy-label">Scope:</span>
             <span class="badge scope">{encounter.scope}</span>
+          </div>
+        )}
+
+        {encounter.isLead && (
+          <div class="taxonomy-item">
+            <span class="badge lead">Lead</span>
           </div>
         )}
 
