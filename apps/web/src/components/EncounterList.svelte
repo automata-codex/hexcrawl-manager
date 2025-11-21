@@ -323,23 +323,45 @@
     color: #9d174d;
   }
 
+  /* Dark mode - explicit theme selection */
+  :global(html[data-theme='dark']) .scope-dungeon {
+    background-color: #1e3a5f;
+    color: #93c5fd;
+  }
+
+  :global(html[data-theme='dark']) .scope-hex {
+    background-color: #14532d;
+    color: #86efac;
+  }
+
+  :global(html[data-theme='dark']) .scope-region {
+    background-color: #78350f;
+    color: #fcd34d;
+  }
+
+  :global(html[data-theme='dark']) .scope-lead {
+    background-color: #831843;
+    color: #fbcfe8;
+  }
+
+  /* Dark mode - system preference when no explicit theme */
   @media (prefers-color-scheme: dark) {
-    .scope-dungeon {
+    :global(html:not([data-theme])) .scope-dungeon {
       background-color: #1e3a5f;
       color: #93c5fd;
     }
 
-    .scope-hex {
+    :global(html:not([data-theme])) .scope-hex {
       background-color: #14532d;
       color: #86efac;
     }
 
-    .scope-region {
+    :global(html:not([data-theme])) .scope-region {
       background-color: #78350f;
       color: #fcd34d;
     }
 
-    .scope-lead {
+    :global(html:not([data-theme])) .scope-lead {
       background-color: #831843;
       color: #fbcfe8;
     }
