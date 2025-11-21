@@ -1,6 +1,9 @@
 import type {
   CreatureType,
   EncounterData,
+  HexData,
+  HiddenSite,
+  LinkType,
   RoleplayBookData,
   StatBlockData,
 } from '@skyreach/schemas';
@@ -66,4 +69,62 @@ export function detectLeadEncounters(
   }
 
   return leadEncounterIds;
+}
+
+/**
+ * Type guard to check if a hidden site has link fields.
+ */
+function isHiddenSiteWithLink(
+  site: string | HiddenSite,
+): site is HiddenSite & { linkType: LinkType; linkId: string } {
+  return (
+    typeof site === 'object' &&
+    'linkType' in site &&
+    'linkId' in site &&
+    !!site.linkType &&
+    !!site.linkId
+  );
+}
+
+export interface HiddenSiteBacklink {
+  hexId: string;
+  hexName: string;
+}
+
+/**
+ * Finds hexes that have hidden sites linking to a specific target.
+ *
+ * @param hexes - Array of hex entries from the collection
+ * @param targetLinkType - The link type to search for (e.g., 'encounter', 'dungeon')
+ * @param targetLinkId - The link ID to search for (e.g., 'missing-patrol')
+ * @returns Array of hex references that have hidden sites linking to the target
+ */
+export function findHexesWithHiddenSiteLink(
+  hexes: Array<{ id: string; data: HexData }>,
+  targetLinkType: LinkType,
+  targetLinkId: string,
+): HiddenSiteBacklink[] {
+  const results: HiddenSiteBacklink[] = [];
+
+  for (const hex of hexes) {
+    const hiddenSites = hex.data.hiddenSites;
+    if (!hiddenSites || !Array.isArray(hiddenSites)) continue;
+
+    for (const site of hiddenSites) {
+      if (
+        isHiddenSiteWithLink(site) &&
+        site.linkType === targetLinkType &&
+        site.linkId === targetLinkId
+      ) {
+        results.push({
+          hexId: hex.id,
+          hexName: hex.data.name,
+        });
+        // Only add each hex once, even if it has multiple matching hidden sites
+        break;
+      }
+    }
+  }
+
+  return results;
 }
