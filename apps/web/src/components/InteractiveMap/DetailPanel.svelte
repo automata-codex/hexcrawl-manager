@@ -249,6 +249,18 @@
     background: #888;
   }
 
+  /* Light mode - explicit theme selection */
+  :global(html[data-theme='light']) .open-panel-button:hover {
+    background: #ddd;
+  }
+
+  /* Light mode - system preference when no explicit theme */
+  @media (prefers-color-scheme: light) {
+    :global(html:not([data-theme])) .open-panel-button:hover {
+      background: #ddd;
+    }
+  }
+
   .hex-panel-close {
     position: absolute;
     top: 0.5rem;
@@ -256,9 +268,13 @@
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: #ccc;
+    color: var(--bulma-text-weak);
     cursor: pointer;
     padding: 0.25rem;
     z-index: 1001;
+  }
+
+  .hex-panel-close:hover {
+    color: var(--bulma-text);
   }
 </style>
