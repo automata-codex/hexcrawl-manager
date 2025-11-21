@@ -17,6 +17,27 @@ export type { UsageReference };
 export type EncounterUsageMap = Map<string, UsageReference[]>;
 
 /**
+ * Extracts encounter IDs from category tables (used by both regions and hex overrides).
+ */
+function extractEncounterIdsFromCategoryTables(
+  categoryTables: Record<string, Record<string, Array<{ encounterId: string }>>>,
+): string[] {
+  const encounterIds = new Set<string>();
+
+  for (const categoryTable of Object.values(categoryTables)) {
+    for (const tierEntries of Object.values(categoryTable)) {
+      for (const entry of tierEntries) {
+        if (entry.encounterId) {
+          encounterIds.add(entry.encounterId);
+        }
+      }
+    }
+  }
+
+  return Array.from(encounterIds);
+}
+
+/**
  * Extracts encounter IDs from a region's encounter tables.
  */
 function extractEncounterIdsFromRegion(regionData: RegionData): string[] {
@@ -25,20 +46,40 @@ function extractEncounterIdsFromRegion(regionData: RegionData): string[] {
   // Extract from encounter tables
   const encounters = regionData.encounters as EncounterTableData | undefined;
   if (encounters?.categoryTables) {
-    for (const categoryTable of Object.values(encounters.categoryTables)) {
-      for (const tierEntries of Object.values(categoryTable)) {
-        for (const entry of tierEntries) {
-          if (entry.encounterId) {
-            encounterIds.add(entry.encounterId);
-          }
-        }
-      }
+    for (const id of extractEncounterIdsFromCategoryTables(encounters.categoryTables)) {
+      encounterIds.add(id);
     }
   }
 
   // Also include explicit encounterIds if present
   if (regionData.encounterIds) {
     for (const id of regionData.encounterIds) {
+      encounterIds.add(id);
+    }
+  }
+
+  return Array.from(encounterIds);
+}
+
+/**
+ * Extracts encounter IDs from a hex's encounter overrides and explicit encounters array.
+ */
+function extractEncounterIdsFromHex(hexData: HexData): string[] {
+  const encounterIds = new Set<string>();
+
+  // Extract from explicit encounters array (new field)
+  if (hexData.encounters) {
+    for (const id of hexData.encounters) {
+      encounterIds.add(id);
+    }
+  }
+
+  // Extract from encounter overrides (existing field)
+  const overrides = hexData.encounterOverrides;
+  if (overrides && 'categoryTables' in overrides && overrides.categoryTables) {
+    for (const id of extractEncounterIdsFromCategoryTables(
+      overrides.categoryTables as Record<string, Record<string, Array<{ encounterId: string }>>>,
+    )) {
       encounterIds.add(id);
     }
   }
@@ -81,9 +122,9 @@ export function buildEncounterUsageMap(
     }
   }
 
-  // Scan hexes
+  // Scan hexes (both explicit encounters array and encounter overrides)
   for (const hex of hexes) {
-    const encounterIds = hex.data.encounters || [];
+    const encounterIds = extractEncounterIdsFromHex(hex.data);
     for (const encounterId of encounterIds) {
       addUsage(encounterId, {
         type: 'hex',

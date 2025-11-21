@@ -16,7 +16,7 @@ import {
 } from '../../../utils/markdown';
 import { loadAugmentedEncounter } from '../../../utils/load-augmented-encounters';
 
-import type { FloatingClueEntry, HexEntry, RegionEntry } from '../../../types';
+import type { FloatingClueEntry } from '../../../types';
 import type { EncounterData } from '@skyreach/schemas';
 
 // Get the ID from the incoming server request
@@ -46,65 +46,25 @@ const augmentedEncounter = await loadAugmentedEncounter(id);
 const creatureTypes = augmentedEncounter?.data.creatureTypes || [];
 const usedIn = augmentedEncounter?.data.usedIn || [];
 const statBlocks = await getCollection('statBlocks');
-const regions = await getCollection('regions');
-const hexes = await getCollection('hexes');
 const floatingClues = await getCollection('floatingClues');
 
 const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
 
-function clueUsesEncounter(
-  clue: FloatingClueEntry,
-  encounterId: string,
-): boolean {
-  return !!clue.data.encounters?.includes(encounterId);
-}
+// Build usage lists from augmented encounter data
+const regionsUsing = usedIn.filter((ref) => ref.type === 'region');
+const hexesUsing = usedIn.filter((ref) => ref.type === 'hex');
+const dungeonsUsing = usedIn.filter((ref) => ref.type === 'dungeon');
 
-function encounterIsInRegion(
-  region: RegionEntry,
-  encounterId: string,
-): boolean {
-  for (const categoryTable of Object.values(
-    region.data.encounters?.categoryTables ?? {},
-  )) {
-    for (const entries of Object.values(categoryTable ?? {})) {
-      if (entries.some((entry) => entry.encounterId === encounterId)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-function encounterIsInHex(hex: HexEntry, encounterId: string): boolean {
-  const overrides = hex.data.encounterOverrides;
-  if (!overrides || !('categoryTables' in overrides)) return false;
-
-  for (const category of Object.values(overrides.categoryTables ?? {})) {
-    for (const entries of Object.values(category ?? {})) {
-      if (entries.some((entry) => entry.encounterId === encounterId)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-const regionsUsingEncounter = regions.filter((region) =>
-  encounterIsInRegion(region, id),
-);
-const regionList = regionsUsingEncounter
-  .map(
-    (region) => `<a href=${getRegionPath(region.id)}>${region.data.name}</a>`,
-  )
+const regionList = regionsUsing
+  .map((ref) => `<a href=${getRegionPath(ref.id)}>${ref.name}</a>`)
   .join(', ');
-const hexesUsingEncounter = hexes.filter((hex) => encounterIsInHex(hex, id));
-const hexList = hexesUsingEncounter
-  .map((hex) => `<a href=${getHexPath(hex.id)}>${hex.data.name}</a>`)
+const hexList = hexesUsing
+  .map((ref) => `<a href=${getHexPath(ref.id)}>${ref.name}</a>`)
   .join(', ');
 
+// Floating clues are not tracked in usedIn, so check manually
 const floatingCluesUsingEncounter = floatingClues.filter((clue) =>
-  clueUsesEncounter(clue, id),
+  clue.data.encounters?.includes(id),
 );
 const floatingClueList = floatingCluesUsingEncounter
   .map(
