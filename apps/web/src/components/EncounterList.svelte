@@ -31,7 +31,7 @@
   let factionFilter = $state('');
   let creatureFilter = $state('');
   let usageFilter = $state('');
-  let leadsOnly = $state(false);
+  let leadFilter = $state('');
   let searchQuery = $state('');
 
   let filtered = $derived(() => {
@@ -65,10 +65,9 @@
         return false;
       }
 
-      // Leads filter
-      if (leadsOnly && !enc.isLead) {
-        return false;
-      }
+      // Lead filter
+      if (leadFilter === 'leads' && !enc.isLead) return false;
+      if (leadFilter === 'non-leads' && enc.isLead) return false;
 
       // Usage filter - leads are always considered "used"
       const effectivelyUsed = enc.isUsed || enc.isLead;
@@ -85,7 +84,7 @@
     factionFilter = '';
     creatureFilter = '';
     usageFilter = '';
-    leadsOnly = false;
+    leadFilter = '';
     searchQuery = '';
   }
 
@@ -182,11 +181,17 @@
       </div>
     </div>
 
-    <div class="field leads-checkbox">
-      <label class="checkbox">
-        <input type="checkbox" bind:checked={leadsOnly} />
-        Leads only
-      </label>
+    <div class="field">
+      <label class="label" for="lead">Leads</label>
+      <div class="control">
+        <div class="select">
+          <select id="lead" bind:value={leadFilter}>
+            <option value="">All</option>
+            <option value="leads">Leads</option>
+            <option value="non-leads">Non-leads</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <div class="filter-actions">
@@ -316,18 +321,6 @@
   .scope-lead {
     background-color: #fce7f3;
     color: #9d174d;
-  }
-
-  .leads-checkbox {
-    display: flex;
-    align-items: flex-end;
-  }
-
-  .leads-checkbox .checkbox {
-    font-size: 0.875rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
   }
 
   @media (prefers-color-scheme: dark) {
