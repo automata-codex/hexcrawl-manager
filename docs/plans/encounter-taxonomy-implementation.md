@@ -74,7 +74,13 @@ This plan implements the spec at `docs/specs/encounter-taxonomy.md` in phases, a
 
 **Review focus:** Actual data changes, low-confidence cases needing manual adjustment
 
-**Status:** Not started
+**Status:** Complete
+
+**Results:**
+- 104 encounters modified
+- All encounters now have `scope` and `locationTypes` fields
+- Faction detection applied where keywords matched
+- Known issue: "vok" keyword causes false positives (e.g., "provoked" -> beldrunn-vok)
 
 ---
 

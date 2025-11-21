@@ -130,9 +130,39 @@ async function readYamlFile<T = unknown>(filePath: string): Promise<T> {
   return yaml.parse(raw) as T;
 }
 
-async function writeYamlFile(filePath: string, data: unknown): Promise<void> {
-  const doc = new yaml.Document(data);
-  await fs.writeFile(filePath, String(doc), 'utf8');
+/**
+ * Appends new taxonomy fields to an existing YAML file without re-formatting.
+ * This preserves the original file's formatting (line breaks, block scalars, etc.)
+ */
+async function appendTaxonomyFields(
+  filePath: string,
+  fields: { scope: string; locationTypes?: string[]; factions?: string[] },
+): Promise<void> {
+  let content = await fs.readFile(filePath, 'utf8');
+
+  // Ensure file ends with newline
+  if (!content.endsWith('\n')) {
+    content += '\n';
+  }
+
+  // Append new fields
+  content += `scope: ${fields.scope}\n`;
+
+  if (fields.locationTypes && fields.locationTypes.length > 0) {
+    content += `locationTypes:\n`;
+    for (const lt of fields.locationTypes) {
+      content += `  - ${lt}\n`;
+    }
+  }
+
+  if (fields.factions && fields.factions.length > 0) {
+    content += `factions:\n`;
+    for (const f of fields.factions) {
+      content += `  - ${f}\n`;
+    }
+  }
+
+  await fs.writeFile(filePath, content, 'utf8');
 }
 
 async function listYamlFiles(dir: string, recursive = false): Promise<string[]> {
@@ -477,7 +507,11 @@ async function migrate(dryRun: boolean): Promise<MigrationReport> {
 
       // Write if not dry run
       if (!dryRun) {
-        await writeYamlFile(filePath, updatedData);
+        await appendTaxonomyFields(filePath, {
+          scope: inference.scope,
+          locationTypes: inference.locationTypes,
+          factions: inference.factions,
+        });
       }
 
       report.modified++;
