@@ -19,7 +19,7 @@ This plan implements the spec at `docs/specs/encounter-taxonomy.md` in phases, a
 
 **Review focus:** Schema correctness, enum values, validation rules
 
-**Status:** Not started
+**Status:** Complete
 
 ---
 

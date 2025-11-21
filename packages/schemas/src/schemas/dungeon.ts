@@ -31,7 +31,16 @@ export const DungeonDataSchema = z
       .optional(),
     source: z.string().optional(),
     summary: z.string().optional(),
-    statBlocks: z.array(z.string()).optional(),
+    statBlocks: z
+      .array(z.string())
+      .optional()
+      .describe(
+        'DEPRECATED: Use encounters array with full encounter files instead. Still supported for backward compatibility.',
+      ),
+    encounters: z
+      .array(z.string())
+      .optional()
+      .describe('Array of encounter IDs used in this dungeon'),
     treasure: z.array(TreasureSchema).optional(),
     unlocks: z
       .array(z.string())
