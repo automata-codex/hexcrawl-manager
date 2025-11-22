@@ -5,7 +5,19 @@ import { ROUTES } from './routes.ts';
 
 import type { SidebarSection } from '../types.ts';
 
-export function getSidebarSections(role: string | null): SidebarSection[] {
+interface GetSidebarSectionsOptions {
+  /**
+   * When true, returns all sections regardless of role.
+   * WARNING: This option is for build-time validation scripts only.
+   * Do not use in production code - it bypasses access control.
+   */
+  includeAll?: boolean;
+}
+
+export function getSidebarSections(
+  role: string | null,
+  options: GetSidebarSectionsOptions = {},
+): SidebarSection[] {
   const shared: SidebarSection[] = [
     {
       id: 'players-guide',
@@ -438,6 +450,9 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
       ],
     },
   ];
+
+  // For build-time validation only - bypasses access control
+  if (options.includeAll) return [...shared, ...gmOnly];
 
   if (canAccess(role, [SCOPES.GM])) return [...shared, ...gmOnly];
   if (canAccess(role, [SCOPES.PUBLIC, SCOPES.PLAYER])) return shared;
