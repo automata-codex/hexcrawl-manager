@@ -9,9 +9,10 @@
     "dev": "astro dev --host",
     "predev": "tsx scripts/generate-config.ts",
     "generate:config": "tsx scripts/generate-config.ts",
-    "prebuild": "npm run --prefix ../.. build:packages && tsx scripts/generate-config.ts && tsx scripts/validate-articles.ts && tsx scripts/validate-encounter-content.ts && tsx scripts/validate-toc-config.ts && tsx scripts/cache-ap-totals.ts",
+    "prebuild": "npm run --prefix ../.. build:packages && tsx scripts/validate-yaml-config.ts && tsx scripts/generate-config.ts && tsx scripts/validate-articles.ts && tsx scripts/validate-encounter-content.ts && tsx scripts/validate-toc-config.ts && tsx scripts/cache-ap-totals.ts",
     "preview": "astro preview",
     "validate:articles": "tsx scripts/validate-articles.ts",
+    "validate:config": "tsx scripts/validate-yaml-config.ts",
     "validate:dungeons": "tsx scripts/validate-dungeon-encounters.ts",
     "validate:encounters": "tsx scripts/validate-encounter-content.ts",
     "validate:toc": "tsx scripts/validate-toc-config.ts"
