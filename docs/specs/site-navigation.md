@@ -383,6 +383,7 @@ Create `apps/web/src/components/TableOfContents.astro`:
 ### Goals
 - Move `ROUTES` configuration from TypeScript to YAML
 - Move sidebar configuration from TypeScript to YAML
+- Implement route-level security defaults to reduce repetition
 - Enable future repository separation (code vs. campaign data)
 - Keep all campaign-specific data in `data/` directory
 
@@ -391,11 +392,12 @@ Create `apps/web/src/components/TableOfContents.astro`:
 All configuration in TypeScript:
 - `apps/web/src/config/routes.ts` - Route definitions
 - `apps/web/src/config/sidebar-sections.ts` - Navigation structure
+- Each article manually specifies `secure: true` in frontmatter
 
 ### Target State
 
 All configuration in YAML:
-- `data/routes.yml` - Route definitions
+- `data/routes.yml` - Route definitions with security defaults
 - `data/sidebar.yml` - Navigation structure
 
 ### Implementation Requirements
@@ -405,6 +407,8 @@ All configuration in YAML:
 ```yaml
 # data/routes.yml
 gmReference:
+  _defaultSecure: true  # All articles under gmReference default to secure: true
+
   biomes:
     type: article
     id: biomes
@@ -420,6 +424,7 @@ gmReference:
     idPath: /gm-reference/encounters/[id]
 
   firstCivilization:
+    _defaultSecure: true  # Can also set at nested levels
     velari:
       type: article
       id: velari
@@ -432,17 +437,9 @@ gmReference:
       type: composite
       id: cosmology
 
-playersReference:
-  setting:
-    westernFrontier:
-      type: article
-      id: western-frontier
-    bountyBoard:
-      type: collection
-      path: /players-reference/setting/bounty-board
-      idPath: /players-reference/setting/bounty-board/[id]
-
 sessionToolkit:
+  _defaultSecure: true  # GM-only session prep content
+
   clues:
     floatingClues:
       type: collection
@@ -453,7 +450,26 @@ sessionToolkit:
     type: collection
     path: /session-toolkit/hexes
     idPath: /session-toolkit/hexes/[id]
+
+playersReference:
+  # No _defaultSecure means public by default
+
+  setting:
+    westernFrontier:
+      type: article
+      id: western-frontier
+    bountyBoard:
+      type: collection
+      path: /players-reference/setting/bounty-board
+      idPath: /players-reference/setting/bounty-board/[id]
 ```
+
+**Security Default Rules:**
+- `_defaultSecure` is a special key (prefixed with `_` to distinguish from route definitions)
+- Can be set at any level of the route hierarchy
+- Inherited by all child routes unless overridden
+- Article frontmatter `secure` field takes precedence over route defaults
+- If no `_defaultSecure` is found in the route hierarchy, defaults to `false` (public)
 
 **Route Types:**
 - `article`: Single markdown article (resolved via `id`)
@@ -566,7 +582,81 @@ gmOnly:
 - Object with `type: collection` and `path`: Resolved using route helpers
 - Plain string: Direct path (for special cases)
 
-#### 3. Update TypeScript to Load YAML
+#### 3. Implement Security Resolution Logic
+
+Create security resolution function that respects the hierarchy:
+
+```typescript
+// apps/web/src/utils/security.ts
+
+/**
+ * Determines if a route should be secure based on:
+ * 1. Article frontmatter (highest priority)
+ * 2. Route config _defaultSecure (middle priority)
+ * 3. Global default of false (lowest priority)
+ */
+export function isSecureRoute(path: string, articleSecure?: boolean): boolean {
+  // Article explicit setting takes precedence
+  if (articleSecure !== undefined) {
+    return articleSecure;
+  }
+
+  // Check route config for _defaultSecure
+  const defaultSecure = findDefaultSecureForPath(path, ROUTES);
+  if (defaultSecure !== undefined) {
+    return defaultSecure;
+  }
+
+  // Default to public
+  return false;
+}
+
+/**
+ * Walks the route config tree to find the nearest _defaultSecure value
+ */
+function findDefaultSecureForPath(path: string, routes: any): boolean | undefined {
+  const pathParts = path.split('/').filter(Boolean);
+  let current = routes;
+  let defaultSecure: boolean | undefined = undefined;
+
+  // Walk down the path, collecting _defaultSecure values
+  for (const part of pathParts) {
+    if (current?._defaultSecure !== undefined) {
+      defaultSecure = current._defaultSecure;
+    }
+    current = current?.[part];
+    if (!current) break;
+  }
+
+  // Check final node
+  if (current?._defaultSecure !== undefined) {
+    defaultSecure = current._defaultSecure;
+  }
+
+  return defaultSecure;
+}
+```
+
+**Security Resolution Examples:**
+
+```yaml
+# Article: /gm-reference/biomes
+# Route has: gmReference._defaultSecure: true
+# Article frontmatter: (no secure field)
+# Result: secure = true (inherited from route)
+
+# Article: /gm-reference/public-teaser
+# Route has: gmReference._defaultSecure: true
+# Article frontmatter: secure: false
+# Result: secure = false (article overrides)
+
+# Article: /players-reference/progress
+# Route has: (no _defaultSecure)
+# Article frontmatter: (no secure field)
+# Result: secure = false (global default)
+```
+
+#### 4. Update TypeScript to Load YAML
 
 ```typescript
 // apps/web/src/config/routes.ts
@@ -597,7 +687,7 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
 }
 ```
 
-#### 4. Update Path Resolution
+#### 5. Update Path Resolution
 
 Enhance `resolvePath()` to handle YAML-based route configs:
 
@@ -627,7 +717,7 @@ export function resolvePath(route: string | RouteConfig): string {
 }
 ```
 
-#### 5. Update Sidebar Rendering
+#### 6. Update Sidebar Rendering
 
 Update `SideNav.svelte` to use `resolvePath()` for all href values:
 
@@ -635,23 +725,45 @@ Update `SideNav.svelte` to use `resolvePath()` for all href values:
 <a href={resolvePath(item.href)}>{item.label}</a>
 ```
 
-#### 6. Migration Strategy
+#### 7. Update Article Rendering to Use Security Resolution
+
+Update catch-all and layout components to use `isSecureRoute()`:
+
+```typescript
+// In article rendering logic
+const article = await findArticle(path);
+const isSecure = isSecureRoute(path, article.data.secure);
+
+// Use isSecure to determine which layout to use
+if (isSecure) {
+  return <SecretArticleLayout>...</SecretArticleLayout>;
+} else {
+  return <ArticleLayout>...</ArticleLayout>;
+}
+```
+
+#### 8. Migration Strategy
 
 1. Generate `data/routes.yml` from current `ROUTES` TypeScript object
-2. Generate `data/sidebar.yml` from current sidebar configuration
-3. Update imports to load from YAML files
-4. Test that all routes resolve correctly
-5. Test that sidebar renders correctly
-6. Delete TypeScript configuration objects (keep helper functions)
-7. Update `.gitignore` to prepare for future repo split
+2. Add `_defaultSecure: true` to `gmReference` and `sessionToolkit` sections
+3. Generate `data/sidebar.yml` from current sidebar configuration
+4. Update imports to load from YAML files
+5. Remove redundant `secure: true` from article frontmatter (where inherited from routes)
+6. Test that all routes resolve correctly
+7. Test that security works correctly (both inherited and explicit)
+8. Test that sidebar renders correctly
+9. Delete TypeScript configuration objects (keep helper functions)
+10. Update `.gitignore` to prepare for future repo split
 
 ### Success Criteria
 
-- [ ] `data/routes.yml` exists and defines all routes
+- [ ] `data/routes.yml` exists and defines all routes with security defaults
 - [ ] `data/sidebar.yml` exists and defines navigation structure
+- [ ] Security resolution works correctly (article > route > default)
 - [ ] All routes resolve correctly from YAML config
 - [ ] Sidebar renders correctly from YAML config
 - [ ] TypeScript helper functions work with YAML-loaded data
+- [ ] Articles can omit `secure` field when inherited from route defaults
 - [ ] All campaign-specific data lives in `data/` directory
 - [ ] Code repository has no hardcoded campaign-specific paths
 - [ ] Future repo split is now feasible
@@ -689,6 +801,7 @@ After each stage:
 - [ ] Article pages render with correct content
 - [ ] Composite article pages render with correct sections
 - [ ] Secure content shows/hides correctly based on user role
+- [ ] Security defaults work correctly (inherited vs. explicit)
 - [ ] No console errors or warnings
 - [ ] Build completes successfully
 - [ ] No broken links in generated site
@@ -700,6 +813,15 @@ After each stage:
 1. **Incremental approach**: Complete and test each stage fully before moving to the next
 2. **Backward compatibility**: Maintain existing URLs throughout refactoring
 3. **Type safety**: Generate TypeScript types from YAML schemas where possible
-4. **Validation**: Add build-time validation for route references and article IDs
-5. **Error messages**: Provide clear error messages for missing articles, invalid routes, etc.
-6. **Migration scripts**: Create one-time migration scripts to generate initial YAML configs
+4. **Validation**: Add build-time validation for:
+  - Route references and article IDs
+  - Security configuration consistency
+  - No circular references in route hierarchy
+5. **Error messages**: Provide clear error messages for:
+  - Missing articles
+  - Invalid routes
+  - Security configuration conflicts
+6. **Migration scripts**: Create one-time migration scripts to:
+  - Generate initial YAML configs
+  - Extract and remove redundant `secure: true` from articles
+  - Validate security inheritance is working correctly
