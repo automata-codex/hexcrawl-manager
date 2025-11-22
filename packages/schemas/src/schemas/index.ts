@@ -5,6 +5,7 @@ export * from './campaign-date';
 export * from './character';
 export * from './class';
 export * from './class-enum';
+export * from './composite-article';
 export * from './dungeon';
 export * from './encounter';
 export * from './encounter-override';
