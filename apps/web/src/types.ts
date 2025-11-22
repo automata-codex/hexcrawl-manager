@@ -56,15 +56,36 @@ export interface PlacementRef {
 
 export type PlacementType = PlacementRef['type'];
 
+/**
+ * Typed href that references content by type and ID/path
+ */
+export interface ArticleHref {
+  type: 'article';
+  id: string;
+}
+
+export interface CompositeHref {
+  type: 'composite';
+  id: string;
+}
+
+export interface CollectionHref {
+  type: 'collection';
+  path: string;
+}
+
+export type TypedHref = ArticleHref | CompositeHref | CollectionHref;
+export type SidebarHref = TypedHref | string;
+
 export interface SidebarSubItem {
   label: string;
-  href: string;
+  href: SidebarHref;
 }
 
 export interface SidebarItem {
-  id: string;
+  id?: string;
   label: string;
-  href?: string;
+  href?: SidebarHref;
   expandable?: boolean;
   hasToC?: boolean; // Indicates this item has a ToC page
   tocHref?: string; // Path to ToC page (used when hasToC is true)
@@ -74,6 +95,6 @@ export interface SidebarItem {
 export interface SidebarSection {
   id: string;
   label: string;
-  href?: string; // Link to section's ToC page
+  href?: SidebarHref; // Link to section's ToC page
   items: SidebarItem[];
 }

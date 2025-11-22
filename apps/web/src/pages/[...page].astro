@@ -8,6 +8,7 @@ import SecretArticleLayout from '../layouts/SecretArticleLayout.astro';
 import { getSidebarSections } from '../config/sidebar-sections';
 import { findToCPage, type ToCPageData } from '../utils/toc-helpers';
 import { isSecureRoute } from '../utils/security';
+import { resolveSidebarSections } from '../utils/resolve-sidebar-hrefs';
 import { SCOPES } from '../utils/constants';
 
 const currentPath = Astro.url.pathname;
@@ -34,8 +35,9 @@ let isSecure = false;
 let articleTitle = '';
 
 // 0. Try ToC pages first (from sidebar config)
-// Use GM role to get all sections (shared + gmOnly)
-const allSections = getSidebarSections(SCOPES.GM);
+// Use GM role to get all sections (shared + gmOnly) and resolve hrefs
+const rawSections = getSidebarSections(SCOPES.GM);
+const allSections = await resolveSidebarSections(rawSections);
 tocData = findToCPage(currentPath, allSections);
 
 if (tocData) {

@@ -3,6 +3,7 @@ import SideNav from '../components/SideNav.svelte';
 import TopBar from '../components/TopBar.astro';
 import { getSidebarSections } from '../config/sidebar-sections';
 import { getCurrentUserRole } from '../utils/auth';
+import { resolveSidebarSections } from '../utils/resolve-sidebar-hrefs';
 
 interface Props {
   title: string;
@@ -11,7 +12,8 @@ interface Props {
 const { title } = Astro.props;
 
 const role = getCurrentUserRole(Astro.locals);
-const sections = getSidebarSections(role);
+const rawSections = getSidebarSections(role);
+const sections = await resolveSidebarSections(rawSections);
 ---
 
 <!doctype html>

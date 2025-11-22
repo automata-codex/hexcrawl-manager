@@ -1,9 +1,11 @@
 /**
  * Helper functions for Table of Contents page resolution.
  * Used by the catch-all route handler to detect and render ToC pages.
+ *
+ * IMPORTANT: These functions expect RESOLVED sidebar sections where all
+ * typed hrefs have been converted to URL strings. Call resolveSidebarSections()
+ * before passing sections to these functions.
  */
-
-import type { SidebarSection, SidebarItem } from '../types';
 
 export interface ToCPageData {
   title: string;
@@ -11,16 +13,41 @@ export interface ToCPageData {
 }
 
 /**
+ * Resolved sidebar types - after href resolution, all hrefs are strings
+ */
+export interface ResolvedSubItem {
+  label: string;
+  href: string;
+}
+
+export interface ResolvedItem {
+  id?: string;
+  label: string;
+  href?: string;
+  expandable?: boolean;
+  hasToC?: boolean;
+  tocHref?: string;
+  items?: ResolvedSubItem[];
+}
+
+export interface ResolvedSection {
+  id: string;
+  label: string;
+  href?: string;
+  items: ResolvedItem[];
+}
+
+/**
  * Find a ToC page configuration for a given path.
  * Checks both top-level section hrefs and item tocHrefs.
  *
  * @param path - The URL path to check (e.g., '/gm-reference/first-civilization')
- * @param sections - The sidebar sections configuration
+ * @param sections - The sidebar sections configuration (must be resolved)
  * @returns ToC page data if path matches a ToC page, null otherwise
  */
 export function findToCPage(
   path: string,
-  sections: SidebarSection[],
+  sections: ResolvedSection[],
 ): ToCPageData | null {
   for (const section of sections) {
     // Check if this is a top-level section ToC page
@@ -55,7 +82,7 @@ export function findToCPage(
  * Flattens expandable items to include their sub-items.
  */
 function collectToCItems(
-  items: SidebarItem[],
+  items: ResolvedItem[],
 ): { label: string; href: string }[] {
   const result: { label: string; href: string }[] = [];
 

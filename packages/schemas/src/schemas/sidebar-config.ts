@@ -12,12 +12,56 @@ import { z } from 'zod';
  */
 
 /**
+ * Typed href that references an article by ID
+ */
+export const ArticleHrefSchema = z
+  .object({
+    type: z.literal('article'),
+    id: z.string(),
+  })
+  .describe('ArticleHrefSchema');
+
+/**
+ * Typed href that references a composite article by ID
+ */
+export const CompositeHrefSchema = z
+  .object({
+    type: z.literal('composite'),
+    id: z.string(),
+  })
+  .describe('CompositeHrefSchema');
+
+/**
+ * Typed href that references a collection's index path
+ */
+export const CollectionHrefSchema = z
+  .object({
+    type: z.literal('collection'),
+    path: z.string(),
+  })
+  .describe('CollectionHrefSchema');
+
+/**
+ * A sidebar href can be:
+ * - A typed reference (article, composite, collection)
+ * - A direct string path (for ToC pages, images, special cases)
+ */
+export const SidebarHrefSchema = z.union([
+  ArticleHrefSchema,
+  CompositeHrefSchema,
+  CollectionHrefSchema,
+  z.string(),
+]);
+
+export type SidebarHrefData = z.infer<typeof SidebarHrefSchema>;
+
+/**
  * Base shape for sidebar items (used for recursive definition)
  */
 const SidebarItemBaseSchema = z.object({
   id: z.string().optional().describe('Unique identifier (required for expandable items)'),
   label: z.string().describe('Display label'),
-  href: z.string().optional().describe('Direct link URL'),
+  href: SidebarHrefSchema.optional().describe('Link URL (typed reference or direct path)'),
   expandable: z.boolean().optional().describe('Whether item can expand in sidebar'),
   hasToC: z.boolean().optional().describe('Whether item has a ToC page'),
   tocHref: z
