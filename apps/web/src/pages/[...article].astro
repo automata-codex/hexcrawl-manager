@@ -7,6 +7,7 @@ import ArticleLayout from '../layouts/ArticleLayout.astro';
 import SecretArticleLayout from '../layouts/SecretArticleLayout.astro';
 import { getSidebarSections } from '../config/sidebar-sections';
 import { findToCPage, type ToCPageData } from '../utils/toc-helpers';
+import { isSecureRoute } from '../utils/security';
 import { SCOPES } from '../utils/constants';
 
 const currentPath = Astro.url.pathname;
@@ -72,7 +73,8 @@ if (tocData) {
       pageType = 'article';
       const rendered = await render(article);
       SimpleContent = rendered.Content;
-      isSecure = article.data.secure ?? false;
+      // Use security resolution: article.secure > route._defaultSecure > false
+      isSecure = isSecureRoute(currentPath, article.data.secure);
       articleTitle = article.data.title;
     }
   }
