@@ -34,50 +34,50 @@ function generateRoutes(): void {
 
 export const ROUTES = ${JSON.stringify(content, null, 2)} as const;
 
-export function getDungeonPath(dungeonId: string): string {
-  return interpolateRoute(ROUTES.gmReference.dungeons.id, { id: dungeonId });
+/**
+ * Route type definitions
+ */
+export interface ArticleRoute {
+  type: 'article';
+  id: string;
 }
 
-export function getEncounterPath(encounterId: string): string {
-  return interpolateRoute(ROUTES.gmReference.encounters.id, {
-    id: encounterId,
-  });
+export interface CompositeRoute {
+  type: 'composite';
+  id: string;
 }
 
-export function getFloatingCluePath(floatingClueId: string): string {
-  return interpolateRoute(ROUTES.sessionToolkit.clues.floatingClues.id, {
-    id: floatingClueId,
-  });
+export interface CollectionRoute {
+  type: 'collection';
+  path: string;
+  idPath: string;
+  allPath?: string;
 }
 
-export function getHexPath(hexId: string): string {
-  return interpolateRoute(ROUTES.sessionToolkit.hexes.id, {
-    id: hexId,
-  }).toLowerCase();
+export type TypedRoute = ArticleRoute | CompositeRoute | CollectionRoute;
+
+/**
+ * Type guard to check if a value is a typed route object
+ */
+export function isTypedRoute(value: unknown): value is TypedRoute {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'type' in value &&
+    (value.type === 'article' || value.type === 'composite' || value.type === 'collection')
+  );
 }
 
-export function getLootPackPath(lootPackId: string): string {
-  return interpolateRoute(ROUTES.sessionToolkit.lootPacks.id, {
-    id: lootPackId,
-  });
+/**
+ * Type guard for collection routes
+ */
+export function isCollectionRoute(value: unknown): value is CollectionRoute {
+  return isTypedRoute(value) && value.type === 'collection';
 }
 
-export function getRegionPath(regionId: string): string {
-  return interpolateRoute(ROUTES.sessionToolkit.regions.id, { id: regionId });
-}
-
-export function getRoleplayBookPath(roleplayBookId: string): string {
-  return interpolateRoute(ROUTES.sessionToolkit.roleplayBooks.id, {
-    id: roleplayBookId,
-  });
-}
-
-export function getStatBlockPath(statBlockId: string): string {
-  return interpolateRoute(ROUTES.gmReference.statBlocks.id, {
-    id: statBlockId,
-  });
-}
-
+/**
+ * Interpolate a route template with parameters
+ */
 export function interpolateRoute(
   route: string,
   params: Record<string, string>,
@@ -86,6 +86,62 @@ export function interpolateRoute(
     (acc, [key, value]) => acc.replace(\`[\${key}]\`, value),
     route,
   );
+}
+
+/**
+ * Get the path for a collection item by its ID
+ */
+export function getCollectionItemPath(route: CollectionRoute, itemId: string): string {
+  return interpolateRoute(route.idPath, { id: itemId });
+}
+
+// Collection path helpers
+export function getDungeonPath(dungeonId: string): string {
+  return getCollectionItemPath(ROUTES.gmReference.dungeons as CollectionRoute, dungeonId);
+}
+
+export function getEncounterPath(encounterId: string): string {
+  return getCollectionItemPath(ROUTES.gmReference.encounters as CollectionRoute, encounterId);
+}
+
+export function getFloatingCluePath(floatingClueId: string): string {
+  return getCollectionItemPath(ROUTES.sessionToolkit.clues.floatingClues as CollectionRoute, floatingClueId);
+}
+
+export function getHexPath(hexId: string): string {
+  return getCollectionItemPath(ROUTES.sessionToolkit.hexes as CollectionRoute, hexId).toLowerCase();
+}
+
+export function getLootPackPath(lootPackId: string): string {
+  return getCollectionItemPath(ROUTES.sessionToolkit.lootPacks as CollectionRoute, lootPackId);
+}
+
+export function getRegionPath(regionId: string): string {
+  return getCollectionItemPath(ROUTES.sessionToolkit.regions as CollectionRoute, regionId);
+}
+
+export function getRoleplayBookPath(roleplayBookId: string): string {
+  return getCollectionItemPath(ROUTES.sessionToolkit.roleplayBooks as CollectionRoute, roleplayBookId);
+}
+
+export function getRumorPath(rumorId: string): string {
+  return getCollectionItemPath(ROUTES.sessionToolkit.rumors as CollectionRoute, rumorId);
+}
+
+export function getStatBlockPath(statBlockId: string): string {
+  return getCollectionItemPath(ROUTES.gmReference.statBlocks as CollectionRoute, statBlockId);
+}
+
+export function getCharacterPath(characterId: string): string {
+  return getCollectionItemPath(ROUTES.gmReference.characters as CollectionRoute, characterId);
+}
+
+export function getKnowledgeTreePath(treeId: string): string {
+  return getCollectionItemPath(ROUTES.gmReference.knowledgeTrees as CollectionRoute, treeId);
+}
+
+export function getBountyPath(bountyId: string): string {
+  return getCollectionItemPath(ROUTES.playersReference.setting.bountyBoard as CollectionRoute, bountyId);
 }
 
 // Note: Server-side path resolution helpers (getArticlePath, getCompositePath, resolvePath)
