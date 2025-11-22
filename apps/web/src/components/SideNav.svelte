@@ -139,6 +139,7 @@
 
   .section-link:hover {
     text-decoration: underline;
+    text-decoration-style: dotted;
   }
 
   .toggle-btn,
@@ -191,6 +192,8 @@
   .accordion-sub a:hover {
     background-color: var(--sidebar-hover);
     color: var(--sidebar-text);
+    text-decoration: underline;
+    text-decoration-style: dotted;
   }
 
   .accordion-link-wrapper {
@@ -214,6 +217,7 @@
   .item-link:hover {
     color: var(--sidebar-text);
     text-decoration: underline;
+    text-decoration-style: dotted;
   }
 
   .accordion-sub a {
