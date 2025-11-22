@@ -6,39 +6,39 @@ import { z } from 'zod';
  * The sidebar is organized into:
  * - shared: sections visible to all users
  * - gmOnly: sections visible only to GMs
+ *
+ * Items can be nested to arbitrary depth for ToC pages,
+ * though the sidebar UI only displays 2 levels.
  */
 
 /**
- * A sub-item within a sidebar item (third level of nesting)
+ * Base shape for sidebar items (used for recursive definition)
  */
-export const SidebarSubItemSchema = z
-  .object({
-    label: z.string().describe('Display label'),
-    href: z.string().describe('URL path'),
-  })
-  .describe('SidebarSubItemSchema');
+const SidebarItemBaseSchema = z.object({
+  id: z.string().optional().describe('Unique identifier (required for expandable items)'),
+  label: z.string().describe('Display label'),
+  href: z.string().optional().describe('Direct link URL'),
+  expandable: z.boolean().optional().describe('Whether item can expand in sidebar'),
+  hasToC: z.boolean().optional().describe('Whether item has a ToC page'),
+  tocHref: z
+    .string()
+    .optional()
+    .describe('Path to ToC page (when hasToC is true)'),
+});
 
 /**
- * A sidebar item (second level of nesting)
- * Can be a simple link or an expandable section with sub-items
+ * A sidebar item with recursive nesting support.
+ * Items can contain sub-items to arbitrary depth.
  */
-export const SidebarItemSchema = z
-  .object({
-    id: z.string().describe('Unique identifier'),
-    label: z.string().describe('Display label'),
-    href: z.string().optional().describe('Direct link URL'),
-    expandable: z.boolean().optional().describe('Whether item can expand'),
-    hasToC: z.boolean().optional().describe('Whether item has a ToC page'),
-    tocHref: z
-      .string()
-      .optional()
-      .describe('Path to ToC page (when hasToC is true)'),
-    items: z
-      .array(SidebarSubItemSchema)
-      .optional()
-      .describe('Sub-items (shown when expanded or on ToC page)'),
-  })
-  .describe('SidebarItemSchema');
+export type SidebarItemData = z.infer<typeof SidebarItemBaseSchema> & {
+  items?: SidebarItemData[];
+};
+
+export const SidebarItemSchema: z.ZodType<SidebarItemData> = SidebarItemBaseSchema.extend({
+  items: z.lazy(() => z.array(SidebarItemSchema).optional()).describe(
+    'Sub-items (shown when expanded or on ToC page)',
+  ),
+});
 
 /**
  * A sidebar section (top level)
@@ -68,7 +68,5 @@ export const SidebarConfigSchema = z
   })
   .describe('SidebarConfigSchema');
 
-export type SidebarSubItemData = z.infer<typeof SidebarSubItemSchema>;
-export type SidebarItemData = z.infer<typeof SidebarItemSchema>;
 export type SidebarSectionData = z.infer<typeof SidebarSectionSchema>;
 export type SidebarConfigData = z.infer<typeof SidebarConfigSchema>;
