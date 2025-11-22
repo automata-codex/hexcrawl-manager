@@ -54,30 +54,44 @@
       <div class="sidebar-content">
         {#each sections as section}
           <div class="accordion-section">
-            <button
-              class="accordion-header"
-              onclick={() => toggleSection(section.id)}
-            >
-              <span>{section.label}</span>
-              <span class:rotated={sectionState[section.id]}>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </span>
-            </button>
+            <div class="accordion-header">
+              {#if section.href}
+                <a href={section.href} class="section-link">{section.label}</a>
+              {:else}
+                <span class="section-label">{section.label}</span>
+              {/if}
+              <button
+                class="toggle-btn"
+                onclick={() => toggleSection(section.id)}
+                aria-label={sectionState[section.id] ? 'Collapse section' : 'Expand section'}
+              >
+                <span class:rotated={sectionState[section.id]}>
+                  <FontAwesomeIcon icon={faChevronRight} />
+                </span>
+              </button>
+            </div>
 
             {#if sectionState[section.id]}
               <ul class="accordion-body" transition:slide>
                 {#each section.items as item}
                   {#if item.expandable}
                     <li>
-                      <button
-                        class="accordion-link"
-                        onclick={() => toggleSection(item.id)}
-                      >
-                        <span>{item.label}</span>
-                        <span class:rotated={sectionState[item.id]}>
-                          <FontAwesomeIcon icon={faChevronRight} />
-                        </span>
-                      </button>
+                      <div class="accordion-link-wrapper">
+                        {#if item.hasToC && item.tocHref}
+                          <a href={item.tocHref} class="item-link">{item.label}</a>
+                        {:else}
+                          <span class="item-label">{item.label}</span>
+                        {/if}
+                        <button
+                          class="toggle-btn-small"
+                          onclick={() => toggleSection(item.id)}
+                          aria-label={sectionState[item.id] ? 'Collapse' : 'Expand'}
+                        >
+                          <span class:rotated={sectionState[item.id]}>
+                            <FontAwesomeIcon icon={faChevronRight} />
+                          </span>
+                        </button>
+                      </div>
                       {#if sectionState[item.id]}
                         <ul class="accordion-sub" transition:slide>
                           {#if item.items}
@@ -105,26 +119,47 @@
 
 <style>
   .accordion-header {
-    background: none;
-    border: none;
-    padding: 0.5rem 0.75rem;
-    font-size: 1rem;
-    color: var(--sidebar-text);
-    width: 100%;
-    text-align: left;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    cursor: pointer;
+    padding: 0.5rem 0.75rem;
   }
 
   .accordion-header:hover {
     background-color: var(--sidebar-hover);
   }
 
-  .accordion-header span:last-child,
-  .accordion-link span:last-child {
-    margin-left: auto;
+  .section-link,
+  .section-label {
+    color: var(--sidebar-text);
+    font-size: 1rem;
+    text-decoration: none;
+    flex: 1;
+  }
+
+  .section-link:hover {
+    text-decoration: underline;
+  }
+
+  .toggle-btn,
+  .toggle-btn-small {
+    background: none;
+    border: none;
+    color: var(--sidebar-text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .toggle-btn:hover,
+  .toggle-btn-small:hover {
+    color: var(--sidebar-text);
+  }
+
+  .toggle-btn span,
+  .toggle-btn-small span {
     transition: transform 0.2s;
   }
 
@@ -142,27 +177,43 @@
     padding-left: 0;
   }
 
-  .accordion-body a,
-  .accordion-sub a,
-  .accordion-link {
+  .accordion-body > li > a,
+  .accordion-sub a {
     align-items: center;
-    background: none;
-    border: none;
     color: var(--sidebar-text-muted);
-    cursor: pointer;
     display: flex;
-    font: inherit;
-    justify-content: space-between;
     padding: 0 0.75rem 0 2rem;
     text-decoration: none;
     width: 100%;
   }
 
-  .accordion-body a:hover,
-  .accordion-sub a:hover,
-  .accordion-link:hover {
+  .accordion-body > li > a:hover,
+  .accordion-sub a:hover {
     background-color: var(--sidebar-hover);
     color: var(--sidebar-text);
+  }
+
+  .accordion-link-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.75rem 0 2rem;
+  }
+
+  .accordion-link-wrapper:hover {
+    background-color: var(--sidebar-hover);
+  }
+
+  .item-link,
+  .item-label {
+    color: var(--sidebar-text-muted);
+    text-decoration: none;
+    flex: 1;
+  }
+
+  .item-link:hover {
+    color: var(--sidebar-text);
+    text-decoration: underline;
   }
 
   .accordion-sub a {
