@@ -71,7 +71,7 @@ export function bfsTrailPath(
   const startNorm = normalizeHexId(start);
   const destNorm = normalizeHexId(dest);
 
-  if (startNorm === destNorm) return [startNorm];
+  if (startNorm === destNorm) return []; // Already at destination, no moves needed
   if (!graph.has(startNorm) || !graph.has(destNorm)) return null;
 
   const queue: string[] = [startNorm];
@@ -82,14 +82,15 @@ export function bfsTrailPath(
     const current = queue.shift()!;
 
     if (current === destNorm) {
-      // Reconstruct path
+      // Reconstruct path (excluding start hex)
       const path: string[] = [];
       let node: string | undefined = destNorm;
       while (node !== undefined) {
         path.unshift(node);
         node = parent.get(node);
       }
-      return path;
+      // Remove the starting hex - route represents "where to go", not "where we are"
+      return path.slice(1);
     }
 
     const neighbors = graph.get(current) || [];

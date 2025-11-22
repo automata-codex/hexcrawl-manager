@@ -73,12 +73,12 @@ describe('buildTrailGraph', () => {
 });
 
 describe('bfsTrailPath', () => {
-  it('returns single-node path when start equals dest', () => {
+  it('returns empty array when start equals dest', () => {
     const trails: TrailMap = {};
     const graph = buildTrailGraph(trails);
 
     const path = bfsTrailPath(graph, trails, 'P12', 'P12');
-    expect(path).toEqual(['P12']);
+    expect(path).toEqual([]); // No moves needed
   });
 
   it('returns null when no path exists', () => {
@@ -141,7 +141,8 @@ describe('bfsTrailPath', () => {
     const graph = buildTrailGraph(trails);
 
     const path = bfsTrailPath(graph, trails, 'P12', 'R14');
-    expect(path).toEqual(['P12', 'P13', 'Q13', 'R14']);
+    // Route excludes starting hex - represents "where to go", not "where we are"
+    expect(path).toEqual(['P13', 'Q13', 'R14']);
   });
 
   it('finds shortest path when multiple routes exist', () => {
@@ -182,7 +183,7 @@ describe('bfsTrailPath', () => {
     const graph = buildTrailGraph(trails);
 
     const path = bfsTrailPath(graph, trails, 'P12', 'Q13');
-    expect(path).toEqual(['P12', 'P13', 'Q13']);
+    expect(path).toEqual(['P13', 'Q13']);
   });
 
   it('prefers permanent trails when tie-breaking', () => {
@@ -217,7 +218,7 @@ describe('bfsTrailPath', () => {
 
     const path = bfsTrailPath(graph, trails, 'P12', 'Q13');
     // Should prefer the path with permanent trail
-    expect(path).toEqual(['P12', 'P13', 'Q13']);
+    expect(path).toEqual(['P13', 'Q13']);
   });
 
   it('prefers usedThisSeason trails when tie-breaking (no permanent)', () => {
@@ -250,7 +251,7 @@ describe('bfsTrailPath', () => {
     const graph = buildTrailGraph(trails);
 
     const path = bfsTrailPath(graph, trails, 'P12', 'Q13');
-    expect(path).toEqual(['P12', 'P13', 'Q13']);
+    expect(path).toEqual(['P13', 'Q13']);
   });
 
   it('prefers higher streak when tie-breaking (no permanent or used)', () => {
@@ -283,7 +284,7 @@ describe('bfsTrailPath', () => {
     const graph = buildTrailGraph(trails);
 
     const path = bfsTrailPath(graph, trails, 'P12', 'Q13');
-    expect(path).toEqual(['P12', 'P13', 'Q13']);
+    expect(path).toEqual(['P13', 'Q13']);
   });
 
   it('handles complex network with cycles', () => {
@@ -322,6 +323,6 @@ describe('bfsTrailPath', () => {
     const graph = buildTrailGraph(trails);
 
     const path = bfsTrailPath(graph, trails, 'P12', 'R14');
-    expect(path).toEqual(['P12', 'P13', 'Q13', 'R14']);
+    expect(path).toEqual(['P13', 'Q13', 'R14']);
   });
 });
