@@ -23,6 +23,8 @@ export * from './player';
 export * from './region';
 export * from './roleplay-book';
 export * from './rollover-file';
+export * from './routes-config';
+export * from './sidebar-config';
 export * from './rollover-footprint';
 export * from './rumor';
 export * from './scopes';
