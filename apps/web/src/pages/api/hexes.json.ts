@@ -21,7 +21,9 @@ export type HexPlayerData = Pick<
   | 'isScouted'
   | 'renderedLandmark'
   | 'tags'
->;
+> & {
+  hasHiddenSites: boolean;
+};
 
 export const GET: APIRoute = async ({ locals }) => {
   const hexEntries = await getCollection('hexes');
@@ -32,8 +34,10 @@ export const GET: APIRoute = async ({ locals }) => {
   const hexes: HexPlayerData[] = await Promise.all(
     fullHexes.map(async (hex) => {
       const data = await processHex(hex);
+      const hasHiddenSites = data.renderedHiddenSites.length > 0;
+
       if (role === SECURITY_ROLE.GM) {
-        return data;
+        return { ...data, hasHiddenSites };
       }
 
       // Redact fields for players
@@ -49,6 +53,7 @@ export const GET: APIRoute = async ({ locals }) => {
           isVisited: data.isVisited,
           isExplored: data.isExplored,
           renderedLandmark: data.renderedLandmark,
+          hasHiddenSites,
         };
       }
 
@@ -71,6 +76,7 @@ export const GET: APIRoute = async ({ locals }) => {
           renderedLandmark: data.tags?.includes('landmark-known')
             ? data.renderedLandmark
             : UNKNOWN_CONTENT,
+          hasHiddenSites,
         };
       }
 
@@ -85,6 +91,7 @@ export const GET: APIRoute = async ({ locals }) => {
         isVisited: data.isVisited,
         isExplored: data.isExplored,
         renderedLandmark: UNKNOWN_CONTENT,
+        hasHiddenSites,
       };
     }),
   );
