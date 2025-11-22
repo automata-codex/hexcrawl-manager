@@ -158,7 +158,7 @@
           <span class="inline-heading">Visited:</span>{' '}
           <CheckBoxIcon checked={currentHex?.isVisited ?? false} />
         </div>
-        {#if currentHex}
+        {#if currentHex && (!currentHex.isExplored || currentHex.hasHiddenSites)}
           <Explored hex={currentHex} />
         {/if}
       </div>
