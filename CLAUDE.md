@@ -100,8 +100,9 @@ This is an npm workspaces monorepo with strict architectural boundaries enforced
 **Session lifecycle:**
 1. **Scribe** - Interactive REPL for in-session logging
    - Creates JSONL session logs: `session-<SEQ>_<YYYY-MM-DD>.jsonl`
-   - Dev mode: `dev_<ISO>.jsonl` in `sessions/_dev/`
-   - Commands: start, move, note, party, weather, finalize, etc.
+   - Key commands: `start`, `move`, `note`, `party`, `weather`, `finalize`
+   - Travel commands: `fast` (automated trail travel), `day` (day management)
+   - Utility: `todo` (in-session task tracking), `abort` (discard session)
    - `scribe finalize` splits multi-season sessions and ensures season-homogeneous outputs
 
 2. **Weave** - Campaign state applier
@@ -117,11 +118,12 @@ This is an npm workspaces monorepo with strict architectural boundaries enforced
 - Footprints: `data/session-logs/footprints/{domain}/` (apply audit trail)
 - Meta tracking: `data/meta.yaml` (appliedSessions, rolledSeasons, nextSessionSeq)
 - AP Ledger: `data/ap-ledger.jsonl` (canonical source of all advancement points)
-- Campaign data: `data/` (YAML files for characters, hexes, trails, etc.)
+- Trails: `data/trails.yml` (trail network between hexes)
+- Encounters: `data/encounters/` (encounter YAML + optional markdown content)
+- Campaign data: `data/` (YAML files for characters, hexes, regions, etc.)
 
 **File naming conventions:**
-- Production sessions: `session-<SEQ>_<YYYY-MM-DD>.jsonl` (zero-padded SEQ)
-- Dev sessions: `dev_<ISO>.jsonl` (never touches meta.nextSessionSeq)
+- Sessions: `session-<SEQ>_<YYYY-MM-DD>.jsonl` (zero-padded SEQ)
 - Rollovers: `rollover_<seasonId>_<YYYY-MM-DD>.jsonl`
 - Footprints: `<ISO-timestamp>__<sessionId>.yaml`
 
@@ -154,15 +156,27 @@ This is an npm workspaces monorepo with strict architectural boundaries enforced
   - Build fails if ledger is missing (prevents stale deployments)
 - **Verification:** Run `weave status ap` to see CLI totals, compare with web app display
 
+**Encounter system:**
+- Encounters live in `data/encounters/` as YAML files with optional co-located markdown
+- **Taxonomy fields** (manual): `scope` (general/hex/region/dungeon), `locationTypes` (wilderness/dungeon), `factions`
+- **Derived fields** (build-time): `creatureTypes` (from stat blocks), `usedIn` (from dungeons/hexes/regions), `isLead` (from roleplay book intel reports)
+- **Intel reports**: Roleplay books contain faction intelligence that links to encounters as "leads"
+- **Staging system**: Each encounter has three stages (evidence, in-progress, consequence) for GM flexibility
+- See `docs/specs/encounter-system.md` and `docs/specs/encounter-taxonomy.md` for details
+
 ## Release Process
 
 Skyreach uses a "version-on-develop" workflow:
 
 1. Create release branch from `develop`: `git co -b release-YYYY-MM-DD`
-2. Run `npm run release:version` to apply changesets
-3. Commit: `git commit -am "Set new versions; update changelogs"`
-4. PR to `develop`, then `develop` → `main`
-5. On merge to `main`, CI creates git tags: `<package-name>@<version>`
+2. Rebuild clue links if needed (committed to repo)
+3. Run `npm run release:version` to apply changesets
+4. Commit: `git commit -am "Set new versions; update changelogs"`
+5. PR to `develop`, then `develop` → `main`
+6. On merge to `main`:
+   - CI creates git tags: `<package-name>@<version>`
+   - GitHub Actions builds Docker image
+   - Deploys to DigitalOcean droplet via Docker Compose
 
 **Changesets:**
 - Add changeset: `npm run changeset`
@@ -174,9 +188,12 @@ Skyreach uses a "version-on-develop" workflow:
 - `tsconfig.workspace.json` - TypeScript project references
 - `vitest.config.ts` - Test configuration (unit vs integration modes)
 - `docs/specs/` - Command specifications (scribe, weave, data-contracts)
+- `docs/specs/encounter-system.md` - Encounter content and taxonomy spec
 - `docs/dev/session-lifecycle.md` - Session/rollover/weave lifecycle
 - `data/meta.yaml` - Campaign state index
+- `data/trails.yml` - Trail network data (managed by weave apply trails)
 - `data/ap-ledger.jsonl` - Canonical AP data (managed by weave commands)
+- `data/encounters/` - Encounter definitions and content
 - `apps/web/scripts/cache-ap-totals.ts` - Build-time AP caching for web app
 - `apps/web/src/utils/load-ap-totals.ts` - Runtime AP loader (dev/prod switching)
 - `packages/data/src/ap-ledger/` - AP ledger utilities (shared by CLI and web)
@@ -194,8 +211,8 @@ Skyreach uses a "version-on-develop" workflow:
 - Update related types if needed
 
 **When working with session data:**
-- Production sessions use sequential IDs from `meta.nextSessionSeq`
-- Dev mode (--dev flag or SKYREACH_DEV=true) uses ISO timestamps
+- Sessions use sequential IDs from `meta.nextSessionSeq`
+- Use `abort` command to discard test sessions without affecting state
 - Always use `ensureRepoDirs()` from `@skyreach/data` before file operations
 
 **When working with AP (advancement points) data:**
@@ -216,14 +233,10 @@ Skyreach uses a "version-on-develop" workflow:
 ## D&D House Rules
 
 The Astro web app (`apps/web`) includes D&D house rules stored as:
-- Markdown and MDX files in `data/articles` (sometimes in multiple parts, assembled by an Astro component under `apps/web/src`--see `apps/web/src/config/routes.ts` for routing)
+- Markdown and MDX files in `data/articles` (sometimes in multiple parts, assembled by an Astro component under `apps/web/src`)
+- See `apps/web/src/config/routes.ts` for routing configuration
 - Astro pages/components for displaying rules
-
-**Recent changes:**
-- Rule handling code was recently modified
-- Rule content files may need updating to match new code structure
 
 **When working with rules:**
 - Preserve existing D&D content and terminology
 - Maintain rule formatting and structure
-- Check git history for recent changes to rule handling logic
