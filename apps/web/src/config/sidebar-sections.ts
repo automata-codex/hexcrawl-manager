@@ -9,7 +9,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
   const shared: SidebarSection[] = [
     {
       id: 'players-guide',
-      label: 'Player’s Guide',
+      label: "Player's Guide",
+      href: '/players-guide',
       items: [
         {
           id: 'heritage',
@@ -27,7 +28,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
     },
     {
       id: 'players-reference',
-      label: 'Player’s Reference',
+      label: "Player's Reference",
+      href: '/players-reference',
       items: [
         {
           id: 'progress',
@@ -38,6 +40,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
           id: 'player-setting',
           label: 'Setting',
           expandable: true,
+          hasToC: true,
+          tocHref: '/players-reference/setting',
           items: [
             {
               label: 'The Known World',
@@ -70,6 +74,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
           id: 'player-maps',
           label: 'Maps',
           expandable: true,
+          hasToC: true,
+          tocHref: '/players-reference/maps',
           items: [
             {
               label: 'The Known World',
@@ -98,6 +104,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
           id: 'player-rules',
           label: 'Rules',
           expandable: true,
+          hasToC: true,
+          tocHref: '/players-reference/rules',
           items: [
             {
               label: 'House Rules',
@@ -135,6 +143,7 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
     {
       id: 'session-toolkit',
       label: 'Session Toolkit',
+      href: '/session-toolkit',
       items: [
         {
           id: 'map-regions',
@@ -160,6 +169,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
           id: 'clues',
           label: 'Clues',
           expandable: true,
+          hasToC: true,
+          tocHref: '/session-toolkit/clues',
           items: [
             {
               label: 'Floating Clues',
@@ -196,6 +207,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
           id: 'gm-maps',
           label: 'Maps',
           expandable: true,
+          hasToC: true,
+          tocHref: '/session-toolkit/maps',
           items: [
             {
               label: 'Baruun Khil (Locations)',
@@ -220,6 +233,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
           id: 'roleplay-books',
           label: 'Roleplay Books',
           expandable: true,
+          hasToC: true,
+          tocHref: '/session-toolkit/roleplay-books',
           items: [
             {
               label: 'Alseid',
@@ -262,6 +277,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
           id: 'minigames',
           label: 'Minigames',
           expandable: true,
+          hasToC: true,
+          tocHref: '/session-toolkit/minigames',
           items: [
             {
               label: 'Griffon Hunt',
@@ -274,6 +291,7 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
     {
       id: 'gm-reference',
       label: 'GM Reference',
+      href: '/gm-reference',
       items: [
         { id: 'biomes', label: 'Biomes', href: ROUTES.gmReference.biomes },
         {
@@ -305,6 +323,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
           id: 'first-civilization',
           label: 'First Civilization',
           expandable: true,
+          hasToC: true,
+          tocHref: '/gm-reference/first-civilization',
           items: [
             {
               label: 'The Velari',
@@ -369,6 +389,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
           id: 'puzzles',
           label: 'Puzzles',
           expandable: true,
+          hasToC: true,
+          tocHref: '/gm-reference/puzzles',
           items: [
             {
               label: 'Gearforged Hermit',
@@ -390,6 +412,8 @@ export function getSidebarSections(role: string | null): SidebarSection[] {
           id: 'gm-setting',
           label: 'Setting',
           expandable: true,
+          hasToC: true,
+          tocHref: '/gm-reference/setting',
           items: [
             {
               label: 'Early Frontier',
