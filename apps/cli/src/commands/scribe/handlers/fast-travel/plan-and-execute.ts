@@ -64,7 +64,7 @@ export default function fastTravelPlanAndExecute(
     return;
   }
 
-  info(`Found route: ${route.join(' → ')}`);
+  info(`Found route: ${currentHex} → ${route.join(' → ')}`);
 
   // Load session state for planning
   const segmentsUsedToday = selectSegmentsUsedToday(events);
