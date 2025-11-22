@@ -56,14 +56,24 @@ export interface PlacementRef {
 
 export type PlacementType = PlacementRef['type'];
 
+export interface SidebarSubItem {
+  label: string;
+  href: string;
+}
+
+export interface SidebarItem {
+  id: string;
+  label: string;
+  href?: string;
+  expandable?: boolean;
+  hasToC?: boolean; // Indicates this item has a ToC page
+  tocHref?: string; // Path to ToC page (used when hasToC is true)
+  items?: SidebarSubItem[];
+}
+
 export interface SidebarSection {
   id: string;
   label: string;
-  items: {
-    id: string;
-    label: string;
-    href?: string;
-    expandable?: boolean;
-    items?: { label: string; href: string }[];
-  }[];
+  href?: string; // Link to section's ToC page
+  items: SidebarItem[];
 }
