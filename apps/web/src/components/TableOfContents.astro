@@ -35,54 +35,33 @@ const { title, items } = Astro.props;
 <style>
   .toc-nav {
     margin-top: 1rem;
+    columns: 2;
   }
 
   .toc-list {
-    list-style: none;
-    padding: 0;
+    list-style: disc;
+    padding-left: 2rem;
     margin: 0;
   }
 
   .toc-item {
     margin: 0;
     padding: 0;
-    border-bottom: 1px solid var(--border-color, #e0e0e0);
-  }
-
-  .toc-item:last-child {
-    border-bottom: none;
+    break-inside: avoid;
   }
 
   .toc-link {
-    display: block;
-    padding: 0.75rem 0.5rem;
-    color: var(--link-color, #3273dc);
     text-decoration: none;
-    font-size: 1.1rem;
-    transition: background-color 0.15s ease;
   }
 
   .toc-link:hover {
-    background-color: var(--hover-bg, #f5f5f5);
-    color: var(--link-hover-color, #363636);
+    text-decoration: underline;
   }
 
-  /* Dark mode support */
-  :global(html[data-theme='dark']) .toc-item {
-    border-color: #444;
-  }
-
-  :global(html[data-theme='dark']) .toc-link:hover {
-    background-color: #333;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :global(html:not([data-theme])) .toc-item {
-      border-color: #444;
-    }
-
-    :global(html:not([data-theme])) .toc-link:hover {
-      background-color: #333;
+  /* Single column on small screens */
+  @media (max-width: 600px) {
+    .toc-nav {
+      columns: 1;
     }
   }
 
