@@ -21,20 +21,6 @@ import type {
   ResolvedSubItem,
 } from './toc-helpers';
 
-// Collection path mappings - maps collection path shorthand to actual URL
-const COLLECTION_PATHS: Record<string, string> = {
-  'bounty-board': '/players-reference/setting/bounty-board',
-  characters: '/gm-reference/characters',
-  dungeons: '/gm-reference/dungeons',
-  encounters: '/gm-reference/encounters',
-  'floating-clues': '/session-toolkit/clues/floating-clues',
-  hexes: '/session-toolkit/hexes',
-  'loot-packs': '/session-toolkit/loot-packs',
-  regions: '/session-toolkit/regions',
-  rumors: '/session-toolkit/rumors',
-  'stat-blocks': '/gm-reference/stat-blocks',
-};
-
 // Cache for article/composite slug lookups
 let articleSlugMap: Map<string, string> | null = null;
 let compositeSlugMap: Map<string, string> | null = null;
@@ -126,12 +112,8 @@ async function resolveHref(
       }
 
       case 'collection': {
-        const path = COLLECTION_PATHS[href.path];
-        if (!path) {
-          console.warn(`Unknown collection path: ${href.path}`);
-          return '#';
-        }
-        return path;
+        // Collection paths are now full paths in sidebar.yml
+        return href.path;
       }
     }
   }
