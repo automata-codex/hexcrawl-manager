@@ -1,5 +1,26 @@
 # @skyreach/web
 
+## 3.3.0
+
+### Minor Changes
+
+- c54fe00: Update and expand hidden sites schema
+  - Add new hidden site sources
+  - **Content Update:** Add hidden sites based on clues and faction leads
+- 416f5dd: **Content Update:** Add new guidelines for awarding Advancement Points
+- 648c3d2: Add light/dark mode toggle; improve map naviagtion
+- c8ebbab: **Content Update:** Add an outline for the Dragon Empire
+- 9e92518: Add encounter taxonomy and filtering
+- 24b6f34: **Content Update:** Update encounters and dungeons
+- 72a2ade: **Content Update:** Add details for region 18
+- 468d136: **Content Update:** Remove duplicate encounters
+- e3ef0c9: Made the side nav menu and article routes configurable from YAML rather than hard-coded into the web app's logic. This allows for easier updates and customization of the navigation structure without needing to modify the application code directly.
+- e56f556: **Content Update:** Update list of factions
+
+### Patch Changes
+
+- 5fe6daa: Clean up and unify logic around rendering the "explored" checkbox
+
 ## 3.2.0
 
 ### Minor Changes

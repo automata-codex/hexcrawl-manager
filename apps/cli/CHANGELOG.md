@@ -1,5 +1,17 @@
 # @skyreach/cli
 
+## 2.6.1
+
+### Patch Changes
+
+- 385eaa3: Fix bugs in fast travel command
+- Updated dependencies [c54fe00]
+- Updated dependencies [9e92518]
+- Updated dependencies [72a2ade]
+- Updated dependencies [e3ef0c9]
+  - @skyreach/schemas@3.2.0
+  - @skyreach/data@3.2.0
+
 ## 2.6.0
 
 ### Minor Changes
