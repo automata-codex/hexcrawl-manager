@@ -54,22 +54,16 @@
       <div class="sidebar-content">
         {#each sections as section}
           <div class="accordion-section">
-            <div class="accordion-header">
-              {#if section.href}
-                <a href={section.href} class="section-link">{section.label}</a>
-              {:else}
-                <span class="section-label">{section.label}</span>
-              {/if}
-              <button
-                class="toggle-btn"
-                onclick={() => toggleSection(section.id)}
-                aria-label={sectionState[section.id] ? 'Collapse section' : 'Expand section'}
-              >
-                <span class:rotated={sectionState[section.id]}>
-                  <FontAwesomeIcon icon={faChevronRight} />
-                </span>
-              </button>
-            </div>
+            <button
+              class="accordion-header"
+              onclick={() => toggleSection(section.id)}
+              aria-label={sectionState[section.id] ? 'Collapse section' : 'Expand section'}
+            >
+              <span class="section-label">{section.label}</span>
+              <span class="toggle-icon" class:rotated={sectionState[section.id]}>
+                <FontAwesomeIcon icon={faChevronRight} />
+              </span>
+            </button>
 
             {#if sectionState[section.id]}
               <ul class="accordion-body" transition:slide>
@@ -91,41 +85,28 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0.75rem;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
   }
 
   .accordion-header:hover {
     background-color: var(--sidebar-hover);
   }
 
-  .section-link,
   .section-label {
     color: var(--sidebar-text);
     font-size: 1rem;
-    text-decoration: none;
     flex: 1;
   }
 
-  .section-link:hover {
-    text-decoration: underline;
-    text-decoration-style: dotted;
-  }
-
-  .toggle-btn {
-    background: none;
-    border: none;
+  .toggle-icon {
     color: var(--sidebar-text-muted);
-    cursor: pointer;
-    padding: 0.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .toggle-btn:hover {
-    color: var(--sidebar-text);
-  }
-
-  .toggle-btn span {
     transition: transform 0.2s;
   }
 
@@ -147,8 +128,6 @@
   .accordion-body > li > a:hover {
     background-color: var(--sidebar-hover);
     color: var(--sidebar-text);
-    text-decoration: underline;
-    text-decoration-style: dotted;
   }
 
   .accordion-body li {
