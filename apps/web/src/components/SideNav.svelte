@@ -105,7 +105,7 @@
                       {/if}
                     </li>
                   {:else}
-                    <li><a href={item.href}>{item.label}</a></li>
+                    <li><a href={item.hasToC && item.tocHref ? item.tocHref : item.href}>{item.label}</a></li>
                   {/if}
                 {/each}
               </ul>

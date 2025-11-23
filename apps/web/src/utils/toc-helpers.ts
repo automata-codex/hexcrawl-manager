@@ -18,7 +18,10 @@ export interface ToCPageData {
  */
 export interface ResolvedSubItem {
   label: string;
-  href: string;
+  href?: string;
+  hasToC?: boolean;
+  tocHref?: string;
+  items?: ResolvedSubItem[];
 }
 
 export interface ResolvedItem {
@@ -40,7 +43,7 @@ export interface ResolvedSection {
 
 /**
  * Find a ToC page configuration for a given path.
- * Checks both top-level section hrefs and item tocHrefs.
+ * Checks section hrefs, item tocHrefs, and sub-item tocHrefs recursively.
  *
  * @param path - The URL path to check (e.g., '/gm-reference/first-civilization')
  * @param sections - The sidebar sections configuration (must be resolved)
@@ -66,20 +69,89 @@ export function findToCPage(
       if (item.hasToC && item.tocHref === path && item.items) {
         return {
           title: item.label,
-          items: item.items.map((subItem) => ({
-            label: subItem.label,
-            href: subItem.href,
-          })),
+          items: collectToCItemsFromSubItems(item.items),
           // Sub-section ToCs have the section as their parent
           parent: section.href
             ? { label: section.label, href: section.href }
             : undefined,
         };
       }
+
+      // Check sub-items for nested ToC pages
+      if (item.items) {
+        const subItemResult = findToCInSubItems(
+          path,
+          item.items,
+          item.hasToC && item.tocHref
+            ? { label: item.label, href: item.tocHref }
+            : section.href
+              ? { label: section.label, href: section.href }
+              : undefined,
+        );
+        if (subItemResult) {
+          return subItemResult;
+        }
+      }
     }
   }
 
   return null;
+}
+
+/**
+ * Recursively search sub-items for a ToC page match
+ */
+function findToCInSubItems(
+  path: string,
+  subItems: ResolvedSubItem[],
+  parent?: { label: string; href: string },
+): ToCPageData | null {
+  for (const subItem of subItems) {
+    if (subItem.hasToC && subItem.tocHref === path && subItem.items) {
+      return {
+        title: subItem.label,
+        items: collectToCItemsFromSubItems(subItem.items),
+        parent,
+      };
+    }
+
+    // Recurse into nested sub-items
+    if (subItem.items) {
+      const result = findToCInSubItems(
+        path,
+        subItem.items,
+        subItem.hasToC && subItem.tocHref
+          ? { label: subItem.label, href: subItem.tocHref }
+          : parent,
+      );
+      if (result) {
+        return result;
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Collect ToC items from sub-items array
+ */
+function collectToCItemsFromSubItems(
+  subItems: ResolvedSubItem[],
+): { label: string; href: string }[] {
+  const result: { label: string; href: string }[] = [];
+
+  for (const subItem of subItems) {
+    if (subItem.hasToC && subItem.tocHref) {
+      // Sub-item with ToC page - link to the ToC page
+      result.push({ label: subItem.label, href: subItem.tocHref });
+    } else if (subItem.href) {
+      // Direct link sub-item
+      result.push({ label: subItem.label, href: subItem.href });
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -102,9 +174,7 @@ function collectToCItems(
       result.push({ label: item.label, href: item.tocHref });
     } else if (item.expandable && item.items) {
       // Expandable item without ToC - include sub-items directly
-      for (const subItem of item.items) {
-        result.push({ label: subItem.label, href: subItem.href });
-      }
+      result.push(...collectToCItemsFromSubItems(item.items));
     }
   }
 

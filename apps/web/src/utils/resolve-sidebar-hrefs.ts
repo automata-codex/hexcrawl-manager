@@ -122,13 +122,20 @@ async function resolveHref(
 }
 
 /**
- * Resolve all hrefs in a subitem
+ * Resolve all hrefs in a subitem (recursively handles nested sub-items)
  */
 async function resolveSubItem(item: SidebarSubItem): Promise<ResolvedSubItem> {
   const resolved = await resolveHref(item.href);
+  const resolvedItems = item.items
+    ? await Promise.all(item.items.map(resolveSubItem))
+    : undefined;
+
   return {
     label: item.label,
-    href: resolved ?? '#',
+    href: resolved,
+    hasToC: item.hasToC,
+    tocHref: item.tocHref,
+    items: resolvedItems,
   };
 }
 

@@ -79,7 +79,10 @@ export type SidebarHref = TypedHref | string;
 
 export interface SidebarSubItem {
   label: string;
-  href: SidebarHref;
+  href?: SidebarHref;
+  hasToC?: boolean;
+  tocHref?: string;
+  items?: SidebarSubItem[];
 }
 
 export interface SidebarItem {
