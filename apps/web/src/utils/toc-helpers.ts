@@ -20,6 +20,7 @@ export interface ResolvedItem {
   id?: string;
   label: string;
   href?: string;
+  expandable?: boolean;
   hasToC?: boolean;
   tocHref?: string;
   items?: ResolvedItem[];

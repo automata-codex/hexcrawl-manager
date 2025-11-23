@@ -129,6 +129,7 @@ async function resolveItem(item: SidebarItem): Promise<ResolvedItem> {
     id: item.id,
     label: item.label,
     href: resolvedHref,
+    expandable: item.expandable,
     hasToC: item.hasToC,
     tocHref: item.tocHref,
     items: resolvedItems,

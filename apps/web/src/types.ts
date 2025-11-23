@@ -81,6 +81,7 @@ export interface SidebarItem {
   id?: string;
   label: string;
   href?: SidebarHref;
+  expandable?: boolean;
   hasToC?: boolean;
   tocHref?: string;
   items?: SidebarItem[];

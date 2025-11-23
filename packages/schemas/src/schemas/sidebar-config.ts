@@ -62,6 +62,7 @@ const SidebarItemBaseSchema = z.object({
   id: z.string().optional().describe('Unique identifier'),
   label: z.string().describe('Display label'),
   href: SidebarHrefSchema.optional().describe('Link URL (typed reference or direct path)'),
+  expandable: z.boolean().optional().describe('Whether item expands in sidebar to show sub-items'),
   hasToC: z.boolean().optional().describe('Whether item has a ToC page'),
   tocHref: z
     .string()

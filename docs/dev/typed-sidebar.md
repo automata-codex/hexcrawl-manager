@@ -80,6 +80,33 @@ Items that link to a Table of Contents page listing sub-items. Have `hasToC: tru
 
 The `tocHref` is the path to a Table of Contents page that lists all sub-items. Items can be nested to arbitrary depth for ToC pages.
 
+### Expandable Items
+
+Items that expand inline in the sidebar to reveal sub-items. Have `expandable: true`, `id`, and `items`.
+
+```yaml
+- id: rules
+  label: Rules
+  expandable: true
+  items:
+    - label: House Rules
+      href:
+        type: composite
+        id: house-rules
+    - label: Hexcrawl Rules
+      href:
+        type: article
+        id: hexcrawl-rules/hexcrawl-rules
+```
+
+Expandable items display a chevron toggle. When clicked, they expand to show their sub-items directly in the sidebar. The `id` is required for tracking expand/collapse state in localStorage.
+
+**Note:** `expandable` and `hasToC` serve different purposes:
+- `expandable` controls inline sidebar expansion
+- `hasToC` controls linking to a separate Table of Contents page
+
+An item can have both if you want it to expand in the sidebar AND link to a ToC page.
+
 ## Href Types
 
 Hrefs can be typed references or plain strings:

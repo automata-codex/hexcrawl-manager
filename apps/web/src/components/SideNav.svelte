@@ -68,7 +68,29 @@
             {#if sectionState[section.id]}
               <ul class="accordion-body" transition:slide>
                 {#each section.items as item}
-                  <li><a href={item.hasToC && item.tocHref ? item.tocHref : item.href}>{item.label}</a></li>
+                  {#if item.expandable && item.id}
+                    <li class="expandable-item">
+                      <button
+                        class="item-toggle"
+                        onclick={() => toggleSection(item.id)}
+                        aria-label={sectionState[item.id] ? 'Collapse' : 'Expand'}
+                      >
+                        <span class="item-label">{item.label}</span>
+                        <span class="toggle-icon" class:rotated={sectionState[item.id]}>
+                          <FontAwesomeIcon icon={faChevronRight} />
+                        </span>
+                      </button>
+                      {#if sectionState[item.id] && item.items}
+                        <ul class="sub-items" transition:slide>
+                          {#each item.items as subItem}
+                            <li><a href={subItem.hasToC && subItem.tocHref ? subItem.tocHref : subItem.href}>{subItem.label}</a></li>
+                          {/each}
+                        </ul>
+                      {/if}
+                    </li>
+                  {:else}
+                    <li><a href={item.hasToC && item.tocHref ? item.tocHref : item.href}>{item.label}</a></li>
+                  {/if}
                 {/each}
               </ul>
             {/if}
@@ -117,12 +139,10 @@
   }
 
   .accordion-body > li > a {
-    align-items: center;
     color: var(--sidebar-text-muted);
-    display: flex;
+    display: block;
     padding: 0 0.75rem 0 2rem;
     text-decoration: none;
-    width: 100%;
   }
 
   .accordion-body > li > a:hover {
@@ -132,6 +152,51 @@
 
   .accordion-body li {
     margin: 0.25rem 0;
+  }
+
+  .item-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.25rem 0.75rem 0.25rem 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .item-toggle:hover {
+    background-color: var(--sidebar-hover);
+  }
+
+  .item-label {
+    color: var(--sidebar-text-muted);
+    flex: 1;
+  }
+
+  .item-toggle:hover .item-label {
+    color: var(--sidebar-text);
+  }
+
+  .sub-items {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+  }
+
+  .sub-items li {
+    margin: 0.375rem 0;
+  }
+
+  .sub-items a {
+    display: block;
+    padding: 0 0.75rem 0 3rem;
+  }
+
+  .sub-items a:hover {
+    background-color: var(--sidebar-hover);
+    color: var(--sidebar-text);
   }
 
   a {
