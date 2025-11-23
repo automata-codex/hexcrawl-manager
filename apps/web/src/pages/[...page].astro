@@ -1,0 +1,128 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+
+import SecretContent from '../components/Content/SecretContent.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+import ArticleLayout from '../layouts/ArticleLayout.astro';
+import SecretArticleLayout from '../layouts/SecretArticleLayout.astro';
+import { getSidebarSections } from '../config/sidebar-sections';
+import { findToCPage, type ToCPageData } from '../utils/toc-helpers';
+import { isSecureRoute } from '../utils/security';
+import { resolveSidebarSections } from '../utils/resolve-sidebar-hrefs';
+import { SECURITY_ROLE } from '../utils/constants';
+
+const currentPath = Astro.url.pathname;
+
+// Page type tracking
+let pageType: 'toc' | 'composite' | 'article' | 'not-found' = 'not-found';
+
+// ToC page data
+let tocData: ToCPageData | null = null;
+
+// Composite article data
+type RenderedContent = Awaited<ReturnType<typeof render>>['Content'];
+type SectionData = {
+  Content: RenderedContent;
+  secure: boolean;
+  heading?: string;
+};
+let compositeTitle = '';
+let compositeSections: SectionData[] = [];
+
+// Simple article data
+let SimpleContent: RenderedContent | null = null;
+let isSecure = false;
+let articleTitle = '';
+
+// 0. Try ToC pages first (from sidebar config)
+// Use GM role to get all sections (shared + gmOnly) and resolve hrefs
+const rawSections = getSidebarSections(SECURITY_ROLE.GM);
+const allSections = await resolveSidebarSections(rawSections);
+tocData = findToCPage(currentPath, allSections);
+
+if (tocData) {
+  pageType = 'toc';
+} else {
+  // 1. Try composite articles (by slug)
+  const composites = await getCollection('composite-articles');
+  const composite = composites.find((c) => c.data.slug === currentPath);
+
+  if (composite) {
+    pageType = 'composite';
+    compositeTitle = composite.data.title;
+    compositeSections = await Promise.all(
+      composite.data.sections.map(async (section) => {
+        const article = await getEntry('articles', section.articleId);
+        if (!article) {
+          throw new Error(
+            `Composite "${composite.data.id}" references unknown article: ${section.articleId}`,
+          );
+        }
+        const { Content } = await render(article);
+        return {
+          Content,
+          secure: section.secure,
+          heading: section.heading,
+        };
+      }),
+    );
+  } else {
+    // 2. Try simple articles (by slug)
+    const articles = await getCollection('articles');
+    const article = articles.find((a) => a.data.slug === currentPath);
+
+    if (article) {
+      pageType = 'article';
+      const rendered = await render(article);
+      SimpleContent = rendered.Content;
+      // Use security resolution: article.secure > route._defaultSecure > false
+      isSecure = isSecureRoute(currentPath, article.data.secure);
+      articleTitle = article.data.title;
+    }
+  }
+}
+
+// 3. Return 404 if nothing found
+if (pageType === 'not-found') {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+---
+
+{
+  pageType === 'toc' && tocData ? (
+    <TableOfContents title={tocData.title} items={tocData.items} parent={tocData.parent} />
+  ) : pageType === 'composite' ? (
+    <ArticleLayout title={compositeTitle}>
+      <article>
+        {compositeSections.map(({ Content: SectionContent, secure, heading }) =>
+          secure ? (
+            <SecretContent>
+              {heading && <h2 class="title is-3">{heading}</h2>}
+              <SectionContent />
+            </SecretContent>
+          ) : (
+            <div>
+              {heading && <h2 class="title is-3">{heading}</h2>}
+              <SectionContent />
+            </div>
+          ),
+        )}
+      </article>
+    </ArticleLayout>
+  ) : pageType === 'article' && isSecure ? (
+    <SecretArticleLayout title={articleTitle}>
+      <article>
+        {SimpleContent && <SimpleContent />}
+      </article>
+    </SecretArticleLayout>
+  ) : (
+    <ArticleLayout title={articleTitle}>
+      <article>
+        {SimpleContent && <SimpleContent />}
+      </article>
+    </ArticleLayout>
+  )
+}

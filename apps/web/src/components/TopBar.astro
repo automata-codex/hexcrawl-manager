@@ -59,22 +59,31 @@ const skyreachIcon = icon(faMountainSun);
     }
   }
 
-  @media screen and (min-width: 768px) and (max-width: 1023px) {
-    .clerk-icon {
-      padding-right: 0.75rem;
-    }
+
+  .navbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    padding-inline: 1rem;
   }
 
-  @media screen and (min-width: 768px) {
-    .navbar {
-      display: flex;
-      align-items: center;
-    }
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
 
-    .navbar-end {
-      justify-content: flex-end;
-      margin-inline-start: auto;
-    }
+  .navbar-end {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-inline-start: auto;
+    flex-shrink: 0;
+  }
+
+  .navbar-item {
+    display: flex;
+    align-items: center;
   }
 </style>
 <div class="container is-max-desktop">

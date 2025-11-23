@@ -13,6 +13,8 @@ export * from './paths';
 export * from './regex';
 export { REPO_PATHS, ensureRepoDirs } from './repo-paths';
 export * from './rollover-files';
+export * from './routes-config';
 export * from './seasons';
+export * from './sidebar-config';
 export * from './session-reports';
 export * from './trails';

@@ -72,6 +72,14 @@ li ol {
   border: 1px solid var(--bulma-text);
   margin: 1rem 0;
   padding: 1rem;
+
+  h2 {
+    margin-top: 0;
+  }
+
+  ol, ul {
+    margin-bottom: 0;
+  }
 }
 
 .inline-heading {

@@ -57,9 +57,10 @@
             <button
               class="accordion-header"
               onclick={() => toggleSection(section.id)}
+              aria-label={sectionState[section.id] ? 'Collapse section' : 'Expand section'}
             >
-              <span>{section.label}</span>
-              <span class:rotated={sectionState[section.id]}>
+              <span class="section-label">{section.label}</span>
+              <span class="toggle-icon" class:rotated={sectionState[section.id]}>
                 <FontAwesomeIcon icon={faChevronRight} />
               </span>
             </button>
@@ -67,31 +68,28 @@
             {#if sectionState[section.id]}
               <ul class="accordion-body" transition:slide>
                 {#each section.items as item}
-                  {#if item.expandable}
-                    <li>
+                  {#if item.expandable && item.id}
+                    <li class="expandable-item">
                       <button
-                        class="accordion-link"
+                        class="item-toggle"
                         onclick={() => toggleSection(item.id)}
+                        aria-label={sectionState[item.id] ? 'Collapse' : 'Expand'}
                       >
-                        <span>{item.label}</span>
-                        <span class:rotated={sectionState[item.id]}>
+                        <span class="item-label">{item.label}</span>
+                        <span class="toggle-icon" class:rotated={sectionState[item.id]}>
                           <FontAwesomeIcon icon={faChevronRight} />
                         </span>
                       </button>
-                      {#if sectionState[item.id]}
-                        <ul class="accordion-sub" transition:slide>
-                          {#if item.items}
-                            {#each item.items as subitem}
-                              <li>
-                                <a href={subitem.href}>{subitem.label}</a>
-                              </li>
-                            {/each}
-                          {/if}
+                      {#if sectionState[item.id] && item.items}
+                        <ul class="sub-items" transition:slide>
+                          {#each item.items as subItem}
+                            <li><a href={subItem.hasToC && subItem.tocHref ? subItem.tocHref : subItem.href}>{subItem.label}</a></li>
+                          {/each}
                         </ul>
                       {/if}
                     </li>
                   {:else}
-                    <li><a href={item.href}>{item.label}</a></li>
+                    <li><a href={item.hasToC && item.tocHref ? item.tocHref : item.href}>{item.label}</a></li>
                   {/if}
                 {/each}
               </ul>
@@ -105,73 +103,100 @@
 
 <style>
   .accordion-header {
-    background: none;
-    border: none;
-    padding: 0.5rem 0.75rem;
-    font-size: 1rem;
-    color: var(--sidebar-text);
-    width: 100%;
-    text-align: left;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+    background: none;
+    border: none;
     cursor: pointer;
+    text-align: left;
   }
 
   .accordion-header:hover {
     background-color: var(--sidebar-hover);
   }
 
-  .accordion-header span:last-child,
-  .accordion-link span:last-child {
-    margin-left: auto;
+  .section-label {
+    color: var(--sidebar-text);
+    font-size: 1rem;
+    flex: 1;
+  }
+
+  .toggle-icon {
+    color: var(--sidebar-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: transform 0.2s;
   }
 
   .accordion-body {
-    overflow: hidden;
-    padding-left: 1.5rem;
-    margin: 0;
-    list-style: none;
-  }
-
-  .accordion-body,
-  .accordion-sub {
     list-style: none;
     margin: 0;
     padding-left: 0;
   }
 
-  .accordion-body a,
-  .accordion-sub a,
-  .accordion-link {
-    align-items: center;
-    background: none;
-    border: none;
+  .accordion-body > li > a {
     color: var(--sidebar-text-muted);
-    cursor: pointer;
-    display: flex;
-    font: inherit;
-    justify-content: space-between;
+    display: block;
     padding: 0 0.75rem 0 2rem;
     text-decoration: none;
-    width: 100%;
   }
 
-  .accordion-body a:hover,
-  .accordion-sub a:hover,
-  .accordion-link:hover {
+  .accordion-body > li > a:hover {
     background-color: var(--sidebar-hover);
     color: var(--sidebar-text);
   }
 
-  .accordion-sub a {
-    padding-left: 3.5rem;
+  .accordion-body li {
+    margin: 0.25rem 0;
   }
 
-  .accordion-body li,
-  .accordion-sub li {
-    margin: 0.25rem 0;
+  .item-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.25rem 0.75rem 0.25rem 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .item-toggle:hover {
+    background-color: var(--sidebar-hover);
+  }
+
+  .item-label {
+    color: var(--sidebar-text-muted);
+    flex: 1;
+  }
+
+  .item-toggle:hover .item-label {
+    color: var(--sidebar-text);
+  }
+
+  .sub-items {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+  }
+
+  .sub-items li {
+    margin: 0.375rem 0;
+  }
+
+  .sub-items a {
+    display: block;
+    padding: 0 0.75rem 0 3rem;
+  }
+
+  .sub-items a:hover {
+    background-color: var(--sidebar-hover);
+    color: var(--sidebar-text);
   }
 
   a {
