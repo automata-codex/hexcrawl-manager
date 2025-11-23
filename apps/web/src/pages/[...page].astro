@@ -93,7 +93,7 @@ if (pageType === 'not-found') {
 
 {
   pageType === 'toc' && tocData ? (
-    <TableOfContents title={tocData.title} items={tocData.items} />
+    <TableOfContents title={tocData.title} items={tocData.items} parent={tocData.parent} />
   ) : pageType === 'composite' ? (
     <ArticleLayout title={compositeTitle}>
       <article>

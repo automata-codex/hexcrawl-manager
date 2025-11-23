@@ -10,15 +10,26 @@ interface ToCItem {
   href: string;
 }
 
+interface ToCParent {
+  label: string;
+  href: string;
+}
+
 interface Props {
   title: string;
   items: ToCItem[];
+  parent?: ToCParent;
 }
 
-const { title, items } = Astro.props;
+const { title, items, parent } = Astro.props;
 ---
 
 <ArticleLayout title={title}>
+  {parent && (
+    <p class="parent-link">
+      <a href={parent.href}>&uarr; {parent.label}</a>
+    </p>
+  )}
   <nav class="toc-nav" aria-label="Table of contents">
     <ul class="toc-list">
       {items.map((item) => (
@@ -33,6 +44,10 @@ const { title, items } = Astro.props;
 </ArticleLayout>
 
 <style>
+  .parent-link {
+    margin-bottom: 1rem;
+  }
+
   .toc-nav {
     margin-top: 1rem;
     columns: 2;

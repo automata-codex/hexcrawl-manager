@@ -10,6 +10,7 @@
 export interface ToCPageData {
   title: string;
   items: { label: string; href: string }[];
+  parent?: { label: string; href: string };
 }
 
 /**
@@ -69,6 +70,10 @@ export function findToCPage(
             label: subItem.label,
             href: subItem.href,
           })),
+          // Sub-section ToCs have the section as their parent
+          parent: section.href
+            ? { label: section.label, href: section.href }
+            : undefined,
         };
       }
     }
