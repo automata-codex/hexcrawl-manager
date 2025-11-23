@@ -74,39 +74,7 @@
             {#if sectionState[section.id]}
               <ul class="accordion-body" transition:slide>
                 {#each section.items as item}
-                  {#if item.expandable}
-                    <li>
-                      <div class="accordion-link-wrapper">
-                        {#if item.hasToC && item.tocHref}
-                          <a href={item.tocHref} class="item-link">{item.label}</a>
-                        {:else}
-                          <span class="item-label">{item.label}</span>
-                        {/if}
-                        <button
-                          class="toggle-btn-small"
-                          onclick={() => toggleSection(item.id)}
-                          aria-label={sectionState[item.id] ? 'Collapse' : 'Expand'}
-                        >
-                          <span class:rotated={sectionState[item.id]}>
-                            <FontAwesomeIcon icon={faChevronRight} />
-                          </span>
-                        </button>
-                      </div>
-                      {#if sectionState[item.id]}
-                        <ul class="accordion-sub" transition:slide>
-                          {#if item.items}
-                            {#each item.items as subitem}
-                              <li>
-                                <a href={subitem.href}>{subitem.label}</a>
-                              </li>
-                            {/each}
-                          {/if}
-                        </ul>
-                      {/if}
-                    </li>
-                  {:else}
-                    <li><a href={item.hasToC && item.tocHref ? item.tocHref : item.href}>{item.label}</a></li>
-                  {/if}
+                  <li><a href={item.hasToC && item.tocHref ? item.tocHref : item.href}>{item.label}</a></li>
                 {/each}
               </ul>
             {/if}
@@ -142,8 +110,7 @@
     text-decoration-style: dotted;
   }
 
-  .toggle-btn,
-  .toggle-btn-small {
+  .toggle-btn {
     background: none;
     border: none;
     color: var(--sidebar-text-muted);
@@ -154,32 +121,21 @@
     justify-content: center;
   }
 
-  .toggle-btn:hover,
-  .toggle-btn-small:hover {
+  .toggle-btn:hover {
     color: var(--sidebar-text);
   }
 
-  .toggle-btn span,
-  .toggle-btn-small span {
+  .toggle-btn span {
     transition: transform 0.2s;
   }
 
   .accordion-body {
-    overflow: hidden;
-    padding-left: 1.5rem;
-    margin: 0;
-    list-style: none;
-  }
-
-  .accordion-body,
-  .accordion-sub {
     list-style: none;
     margin: 0;
     padding-left: 0;
   }
 
-  .accordion-body > li > a,
-  .accordion-sub a {
+  .accordion-body > li > a {
     align-items: center;
     color: var(--sidebar-text-muted);
     display: flex;
@@ -188,44 +144,14 @@
     width: 100%;
   }
 
-  .accordion-body > li > a:hover,
-  .accordion-sub a:hover {
+  .accordion-body > li > a:hover {
     background-color: var(--sidebar-hover);
     color: var(--sidebar-text);
     text-decoration: underline;
     text-decoration-style: dotted;
   }
 
-  .accordion-link-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 0.75rem 0 2rem;
-  }
-
-  .accordion-link-wrapper:hover {
-    background-color: var(--sidebar-hover);
-  }
-
-  .item-link,
-  .item-label {
-    color: var(--sidebar-text-muted);
-    text-decoration: none;
-    flex: 1;
-  }
-
-  .item-link:hover {
-    color: var(--sidebar-text);
-    text-decoration: underline;
-    text-decoration-style: dotted;
-  }
-
-  .accordion-sub a {
-    padding-left: 3.5rem;
-  }
-
-  .accordion-body li,
-  .accordion-sub li {
+  .accordion-body li {
     margin: 0.25rem 0;
   }
 

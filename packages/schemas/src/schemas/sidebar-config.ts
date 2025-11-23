@@ -59,10 +59,9 @@ export type SidebarHrefData = z.infer<typeof SidebarHrefSchema>;
  * Base shape for sidebar items (used for recursive definition)
  */
 const SidebarItemBaseSchema = z.object({
-  id: z.string().optional().describe('Unique identifier (required for expandable items)'),
+  id: z.string().optional().describe('Unique identifier'),
   label: z.string().describe('Display label'),
   href: SidebarHrefSchema.optional().describe('Link URL (typed reference or direct path)'),
-  expandable: z.boolean().optional().describe('Whether item can expand in sidebar'),
   hasToC: z.boolean().optional().describe('Whether item has a ToC page'),
   tocHref: z
     .string()

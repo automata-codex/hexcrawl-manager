@@ -77,22 +77,13 @@ export interface CollectionHref {
 export type TypedHref = ArticleHref | CompositeHref | CollectionHref;
 export type SidebarHref = TypedHref | string;
 
-export interface SidebarSubItem {
-  label: string;
-  href?: SidebarHref;
-  hasToC?: boolean;
-  tocHref?: string;
-  items?: SidebarSubItem[];
-}
-
 export interface SidebarItem {
   id?: string;
   label: string;
   href?: SidebarHref;
-  expandable?: boolean;
-  hasToC?: boolean; // Indicates this item has a ToC page
-  tocHref?: string; // Path to ToC page (used when hasToC is true)
-  items?: SidebarSubItem[];
+  hasToC?: boolean;
+  tocHref?: string;
+  items?: SidebarItem[];
 }
 
 export interface SidebarSection {

@@ -62,14 +62,13 @@ Simple navigation links. Have `href` (typed or string).
     id: ancestries-and-cultures
 ```
 
-### Expandable Items (Groups)
+### Items with ToC Pages
 
-Collapsible groups with sub-items. Have `expandable: true`, `hasToC: true`, `tocHref`, and `items`.
+Items that link to a Table of Contents page listing sub-items. Have `hasToC: true`, `tocHref`, and `items`.
 
 ```yaml
 - id: player-setting
   label: Setting
-  expandable: true
   hasToC: true
   tocHref: /players-reference/setting
   items:
@@ -79,7 +78,7 @@ Collapsible groups with sub-items. Have `expandable: true`, `hasToC: true`, `toc
         id: known-world
 ```
 
-The `tocHref` is the path to a Table of Contents page that lists all sub-items.
+The `tocHref` is the path to a Table of Contents page that lists all sub-items. Items can be nested to arbitrary depth for ToC pages.
 
 ## Href Types
 
@@ -138,8 +137,9 @@ There are **unresolved** types (before resolution) and **resolved** types (after
 |---------------------------------------|---------------------------|
 | `SidebarSection`                      | `ResolvedSection`         |
 | `SidebarItem`                         | `ResolvedItem`            |
-| `SidebarSubItem`                      | `ResolvedSubItem`         |
 | `href: SidebarHref` (typed or string) | `href: string`            |
+
+`SidebarItem` is recursive - items can contain nested `items` to arbitrary depth.
 
 The client component (`SideNav.svelte`) receives `ResolvedSection[]` where all hrefs are plain strings.
 

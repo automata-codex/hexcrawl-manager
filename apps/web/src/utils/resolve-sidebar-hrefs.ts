@@ -12,14 +12,9 @@ import type {
   SidebarHref,
   SidebarItem,
   SidebarSection,
-  SidebarSubItem,
   TypedHref,
 } from '../types';
-import type {
-  ResolvedItem,
-  ResolvedSection,
-  ResolvedSubItem,
-} from './toc-helpers';
+import type { ResolvedItem, ResolvedSection } from './toc-helpers';
 
 // Cache for article/composite slug lookups
 let articleSlugMap: Map<string, string> | null = null;
@@ -122,37 +117,18 @@ async function resolveHref(
 }
 
 /**
- * Resolve all hrefs in a subitem (recursively handles nested sub-items)
- */
-async function resolveSubItem(item: SidebarSubItem): Promise<ResolvedSubItem> {
-  const resolved = await resolveHref(item.href);
-  const resolvedItems = item.items
-    ? await Promise.all(item.items.map(resolveSubItem))
-    : undefined;
-
-  return {
-    label: item.label,
-    href: resolved,
-    hasToC: item.hasToC,
-    tocHref: item.tocHref,
-    items: resolvedItems,
-  };
-}
-
-/**
- * Resolve all hrefs in a sidebar item
+ * Resolve all hrefs in a sidebar item (recursively handles nested items)
  */
 async function resolveItem(item: SidebarItem): Promise<ResolvedItem> {
   const resolvedHref = await resolveHref(item.href);
   const resolvedItems = item.items
-    ? await Promise.all(item.items.map(resolveSubItem))
+    ? await Promise.all(item.items.map(resolveItem))
     : undefined;
 
   return {
     id: item.id,
     label: item.label,
     href: resolvedHref,
-    expandable: item.expandable,
     hasToC: item.hasToC,
     tocHref: item.tocHref,
     items: resolvedItems,
