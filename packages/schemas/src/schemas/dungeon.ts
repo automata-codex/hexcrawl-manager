@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { BuilderEnum } from './dungeon-builder';
+import { ImageSchema } from './dungeon-image';
 import { TreasureSchema } from './treasure';
 
 export const DungeonDataSchema = z
@@ -8,27 +10,8 @@ export const DungeonDataSchema = z
     slug: z.string(),
     hexId: z.string(),
     name: z.string(),
-    builders: z.array(
-      z.enum([
-        'alseid',
-        'bearfolk',
-        'cultists',
-        'dragons',
-        'dwarves',
-        'first-civilization',
-        'goblins',
-        'natural',
-      ]),
-    ),
-    images: z
-      .array(
-        z.object({
-          filename: z.string(),
-          description: z.string(),
-          display: z.boolean().optional(),
-        }),
-      )
-      .optional(),
+    builders: z.array(BuilderEnum),
+    images: z.array(ImageSchema).optional(),
     source: z.string().optional(),
     summary: z.string().optional(),
     statBlocks: z

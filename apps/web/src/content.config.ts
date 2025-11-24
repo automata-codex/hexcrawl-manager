@@ -18,6 +18,9 @@ import {
   NpcSchema,
   type PlayerData,
   PlayerSchema,
+  PointcrawlEdgeSchema,
+  PointcrawlNodeSchema,
+  PointcrawlSchema,
   RegionSchema,
   RoleplayBookSchema,
   type RumorData,
@@ -55,6 +58,9 @@ const DIRS = {
   MAP_PATHS: `${DATA_DIR}/map-paths`,
   NPCS: `${DATA_DIR}/npcs`,
   PLAYERS: `${DATA_DIR}/players`,
+  POINTCRAWLS: `${DATA_DIR}/pointcrawls`,
+  POINTCRAWL_EDGES: `${DATA_DIR}/pointcrawl-edges`,
+  POINTCRAWL_NODES: `${DATA_DIR}/pointcrawl-nodes`,
   REGIONS: `${DATA_DIR}/regions`,
   ROLEPLAY_BOOKS: `${DATA_DIR}/roleplay-books`,
   RUMORS: `${DATA_DIR}/rumors`,
@@ -166,6 +172,21 @@ const players = defineCollection({
   schema: PlayerSchema,
 });
 
+const pointcrawls = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.POINTCRAWLS }),
+  schema: PointcrawlSchema,
+});
+
+const pointcrawlEdges = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.POINTCRAWL_EDGES }),
+  schema: PointcrawlEdgeSchema,
+});
+
+const pointcrawlNodes = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.POINTCRAWL_NODES }),
+  schema: PointcrawlNodeSchema,
+});
+
 const regions = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.REGIONS }),
   schema: RegionSchema,
@@ -221,6 +242,9 @@ export const collections = {
   'map-paths': mapPaths,
   npcs,
   players,
+  pointcrawls,
+  'pointcrawl-edges': pointcrawlEdges,
+  'pointcrawl-nodes': pointcrawlNodes,
   regions,
   'roleplay-books': roleplayBooks,
   rumors,
