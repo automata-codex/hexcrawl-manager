@@ -23,4 +23,4 @@ export const ZoneSchema = z.object({
     .array(z.string())
     .optional()
     .describe('List of knowledge keys or "unlocks"'),
-});
+}).describe('DEPRECATED');
