@@ -1,11 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
 
+import { hexSort } from '@skyreach/core';
 import DungeonDetails from '../../../components/DungeonDetails.astro';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
 
 const dungeonData = await getCollection('dungeons');
-const dungeons = dungeonData.sort((a, b) => a.id.localeCompare(b.id));
+const dungeons = dungeonData.sort((a, b) => hexSort(a.data.hexId, b.data.hexId));
 
 const title = 'Dungeons';
 ---

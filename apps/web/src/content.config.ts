@@ -4,6 +4,7 @@ import {
   CharacterSchema,
   type ClassData,
   ClassSchema,
+  CompositeArticleSchema,
   DungeonDataSchema,
   EncounterSchema,
   type FactionData,
@@ -43,6 +44,7 @@ const DIRS = {
   BOUNTIES: `${DATA_DIR}/bounties`,
   CHARACTERS: `${DATA_DIR}/characters`,
   CLASSES: `${DATA_DIR}/classes`,
+  COMPOSITE_ARTICLES: `${DATA_DIR}/composite-articles`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   FACTIONS: `${DATA_DIR}/factions`,
@@ -89,9 +91,10 @@ export function trailsMapToEntries(input: unknown): TrailEntry[] {
 const articles = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.ARTICLES }),
   schema: z.object({
+    id: z.string(), // Unique identifier for the article
     secure: z.boolean().optional(),
-    slug: z.string().optional(),
     showToc: z.boolean().optional(),
+    slug: z.string().optional(), // Full URL path; optional for composite article parts
     title: z.string(),
     treasure: z.record(z.string(), TreasureSchema).optional(),
     treasureRegionId: z.string().optional(),
@@ -113,6 +116,11 @@ const classes = defineCollection({
   schema: ClassSchema,
 });
 
+const compositeArticles = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.COMPOSITE_ARTICLES }),
+  schema: CompositeArticleSchema,
+});
+
 const dungeons = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.DUNGEONS }),
   schema: DungeonDataSchema,
@@ -124,7 +132,7 @@ const encounters = defineCollection({
 });
 
 const factions = defineCollection({
-  loader: getDirectoryYamlLoader<FactionData>(DIRS.FACTIONS),
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.FACTIONS }),
   schema: FactionSchema,
 });
 
@@ -203,6 +211,7 @@ export const collections = {
   bounties,
   characters,
   classes,
+  'composite-articles': compositeArticles,
   dungeons,
   encounters,
   factions,

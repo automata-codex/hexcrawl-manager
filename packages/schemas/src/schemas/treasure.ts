@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const TreasureSchema = z.object({
   name: z.string(),
+  slug: z.string().optional(),
   value: z.number().optional(), // only for non-magic treasure
   type: z.enum(['art', 'currency', 'magic-item', 'relic', 'salvage']),
   rarity: z

@@ -16,7 +16,7 @@ const exploredIcon = hex.isExplored ? squareCheckIcon : squareIcon;
 ---
 
 {
-  hex.hiddenSites && hex.hiddenSites.length > 0 ? (
+  !hex.isExplored || (hex.hiddenSites && hex.hiddenSites.length > 0) ? (
     <div>
       Explored: <Fragment set:html={exploredIcon.html} />
     </div>

@@ -4,7 +4,7 @@ import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
 
 import type { ExtendedHexData, ExtendedTreasureData } from '../types.ts';
-import type { HexData, HiddenSitesData } from '@skyreach/schemas';
+import type { HexData, HiddenSite } from '@skyreach/schemas';
 
 export function getHexSvgPath(x: number, y: number, hexWidth: number): string {
   const size = hexWidth / 2;
@@ -60,7 +60,7 @@ function isStringArray(arr: any[]): arr is string[] {
 }
 
 function renderHiddenSites(
-  hiddenSites: HiddenSitesData[] | string[],
+  hiddenSites: HiddenSite[] | string[],
 ): Promise<{ description: string; treasure?: ExtendedTreasureData[] }>[] {
   if (isStringArray(hiddenSites)) {
     return hiddenSites.map(async (site) => ({

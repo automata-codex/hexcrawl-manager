@@ -1,7 +1,7 @@
 import type {
   EncounterEntryData,
   HexData,
-  HiddenSitesData,
+  HiddenSite,
   KnowledgeNodeData,
   TreasureData,
 } from '@skyreach/schemas';
@@ -14,7 +14,7 @@ export type ExtendedHexData = HexData & {
   renderedSecretSite: string;
   renderedUpdates: string[];
 };
-export type ExtendedHiddenSites = HiddenSitesData & {
+export type ExtendedHiddenSites = HiddenSite & {
   description: string;
   treasure?: ExtendedTreasureData[];
 };
@@ -56,14 +56,40 @@ export interface PlacementRef {
 
 export type PlacementType = PlacementRef['type'];
 
+/**
+ * Typed href that references content by type and ID/path
+ */
+export interface ArticleHref {
+  type: 'article';
+  id: string;
+}
+
+export interface CompositeHref {
+  type: 'composite';
+  id: string;
+}
+
+export interface CollectionHref {
+  type: 'collection';
+  path: string;
+}
+
+export type TypedHref = ArticleHref | CompositeHref | CollectionHref;
+export type SidebarHref = TypedHref | string;
+
+export interface SidebarItem {
+  id?: string;
+  label: string;
+  href?: SidebarHref;
+  expandable?: boolean;
+  hasToC?: boolean;
+  tocHref?: string;
+  items?: SidebarItem[];
+}
+
 export interface SidebarSection {
   id: string;
   label: string;
-  items: {
-    id: string;
-    label: string;
-    href?: string;
-    expandable?: boolean;
-    items?: { label: string; href: string }[];
-  }[];
+  href?: SidebarHref; // Link to section's ToC page
+  items: SidebarItem[];
 }

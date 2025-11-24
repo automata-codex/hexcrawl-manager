@@ -1,8 +1,11 @@
 <script lang="ts">
+  import type { LinkType } from '@skyreach/schemas';
+
+  import { getLinkPath, getLinkText } from '../../utils/link-generator';
   import TreasureTable from '../TreasureTable/TreasureTable.svelte';
   import Unlocks from '../Unlocks.svelte';
 
-  import type { ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
+  import type { ExtendedHexData, ExtendedHiddenSites, FlatKnowledgeTree } from '../../types.ts';
 
   interface Props {
     hex: ExtendedHexData;
@@ -10,25 +13,36 @@
   }
 
   const { hex, knowledgeTrees }: Props = $props();
+
+  /**
+   * Type guard to check if a hidden site has link fields.
+   */
+  function hasLink(site: ExtendedHiddenSites): site is ExtendedHiddenSites & { linkType: LinkType; linkId: string } {
+    return 'linkType' in site && 'linkId' in site && !!site.linkType && !!site.linkId;
+  }
 </script>
 
 {#if hex.renderedHiddenSites && hex.renderedHiddenSites.length > 0}
   {#if hex.renderedHiddenSites.length === 1}
+    {@const site = hex.renderedHiddenSites[0]}
     <div>
       <p class="hanging-indent">
         <span class="inline-heading">Hidden Site:</span>{' '}
-        {@html hex.renderedHiddenSites[0].description}
+        {@html site.description}
+        {#if hasLink(site)}
+          &rarr; <a href={getLinkPath(site.linkType, site.linkId)}>{getLinkText(site.linkType, site.linkId)}</a>
+        {/if}
       </p>
       <div style="margin-left: 1rem">
-        {#if hex.renderedHiddenSites[0].unlocks}
+        {#if site.unlocks}
           <Unlocks
             {knowledgeTrees}
-            unlocks={hex.renderedHiddenSites[0].unlocks}
+            unlocks={site.unlocks}
           />
         {/if}
       </div>
-      {#if hex.renderedHiddenSites[0].treasure}
-        <TreasureTable treasure={hex.renderedHiddenSites[0].treasure} />
+      {#if site.treasure}
+        <TreasureTable treasure={site.treasure} />
       {/if}
     </div>
   {:else}
@@ -39,6 +53,9 @@
       {#each hex.renderedHiddenSites as site}
         <li>
           {@html site.description}
+          {#if hasLink(site)}
+            &rarr; <a href={getLinkPath(site.linkType, site.linkId)}>{getLinkText(site.linkType, site.linkId)}</a>
+          {/if}
           <div>
             {#if site.unlocks}
               <Unlocks {knowledgeTrees} unlocks={site.unlocks} />

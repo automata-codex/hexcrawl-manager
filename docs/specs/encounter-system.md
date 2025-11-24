@@ -20,12 +20,24 @@ export const EncounterSchema = z
     description: z.string().optional(),
     contentPath: z.string().optional(),
     statBlocks: z.array(z.string()),
+
+    // Taxonomy fields (see "Encounter Taxonomy" section)
+    scope: z.enum(['general', 'hex', 'region', 'dungeon']),
+    locationTypes: z.array(z.enum(['wilderness', 'dungeon'])).optional(),
+    factions: z.array(FactionEnum).optional(),
+
+    // Derived fields (populated at build time)
+    isLead: z.boolean().optional(),
+    creatureTypes: z.array(CreatureTypeEnum).optional(),
+    usedIn: z.array(UsageReferenceSchema).optional(),
   })
   .refine(
     (data) => data.description || data.contentPath,
-    {
-      message: "Either 'description' or 'contentPath' must be provided",
-    }
+    { message: "Either 'description' or 'contentPath' must be provided" }
+  )
+  .refine(
+    (data) => data.scope !== 'general' || (data.locationTypes && data.locationTypes.length > 0),
+    { message: "locationTypes is required for general-scope encounters", path: ['locationTypes'] }
   )
   .describe('EncounterSchema');
 ```
@@ -37,6 +49,19 @@ export const EncounterSchema = z
 - **`id`**: Unique identifier for the encounter (kebab-case)
 - **`name`**: Display name of the encounter
 - **`statBlocks`**: Array of stat block IDs referenced by this encounter
+- **`scope`**: Design intent - `general`, `hex`, `region`, or `dungeon`
+
+#### Taxonomy Fields
+
+- **`locationTypes`**: Array of `wilderness` and/or `dungeon` (required for general-scope)
+- **`factions`**: Array of faction IDs involved (optional, omit for wildlife encounters)
+
+#### Derived Fields (populated at build time)
+
+- **`isLead`**: Automatically set if encounter is referenced in roleplay book intelligence reports
+
+- **`creatureTypes`**: Automatically derived from stat block creature types
+- **`usedIn`**: Automatically populated by scanning dungeons, hexes, and regions
 
 #### Optional Fields
 
@@ -154,6 +179,138 @@ For bulk-generated encounters:
 2. Create YAML files with `contentPath` references
 3. Optionally add `description` summaries later for UI purposes
 4. No breaking changes - both fields optional individually
+
+---
+
+## Encounter Taxonomy
+
+### Overview
+
+Encounters are classified using a two-axis system:
+
+1. **Manual taxonomy** - contextual tags for filtering
+2. **Automated usage tracking** - where encounters are referenced
+
+### Taxonomy Fields
+
+#### Scope
+
+Indicates design intent and coupling:
+
+- `general`: Usable anywhere, generic design
+- `hex`: Specific to a particular hex
+- `region`: Specific to regional themes/factions
+- `dungeon`: Tightly coupled to a specific dungeon's narrative
+
+#### Location Types
+
+Where the encounter can be used (required for general-scope encounters):
+
+- `wilderness`: Outdoor hex exploration
+- `dungeon`: Structured interior locations
+
+Encounters can have multiple location types (e.g., `[wilderness, dungeon]` for encounters that work in both contexts).
+
+#### Factions
+
+Optional array of faction IDs involved in the encounter. Omitted when not applicable (e.g., wildlife encounters).
+
+Valid factions:
+- `alseid`
+- `bearfolk`
+- `beldrunn-vok`
+- `blackthorns`
+- `flamehold-dwarves`
+- `kobolds`
+- `revenant-legion`
+- `servitors`
+- `three-dukes`
+- `veil-shepherds`
+
+#### Is Lead
+
+**Automatically derived field** - set to `true` during build process if the encounter is referenced in any roleplay book intelligence report (via the `linkPath` field).
+
+Lead encounters:
+- Display a "Lead" badge in the UI
+- Are always considered "used" (never show as unused)
+- Can be filtered with the Leads dropdown (All / Leads / Non-leads)
+- Represent faction intelligence that points players toward content
+
+**How it works**: The build process scans all roleplay books for intelligence report entries where `linkPath` contains `/gm-reference/encounters/`. Any encounter found this way is automatically marked as a lead.
+
+**No manual tagging needed** - simply link to an encounter from an intelligence report and it becomes a lead automatically.
+
+#### Creature Types
+
+Automatically derived from stat blocks during build process. Includes D&D creature types like:
+- `aberration`, `beast`, `celestial`, `construct`, `dragon`, `elemental`, `fey`, `fiend`, `giant`, `humanoid`, `monstrosity`, `ooze`, `plant`, `undead`
+
+### Usage Tracking
+
+The `usedIn` field is automatically populated during build by scanning:
+- Dungeon `encounters` arrays
+- Hex `encounters` arrays and `encounterOverrides`
+- Region encounter tables
+
+Each usage reference includes:
+- `type`: 'hex', 'region', or 'dungeon'
+- `id`: The content ID
+- `name`: Display name
+
+### Filtering Encounters
+
+The encounter list page supports filtering by:
+- **Scope**: general, hex, region, dungeon
+- **Location Types**: wilderness, dungeon
+- **Factions**: Any faction or "No Faction"
+- **Creature Types**: Any D&D creature type
+- **Status**: Used or Unused (leads always count as "used")
+- **Leads**: All / Leads / Non-leads
+
+All filters can be combined (AND logic) for precise queries like "show me all unused general-purpose wilderness encounters involving the Revenant Legion."
+
+### Example Encounter with Taxonomy
+
+```yaml
+id: legion-patrol
+name: Legion Patrol
+scope: general
+locationTypes: [wilderness]
+factions: [revenant-legion]
+description: A patrol of Legion soldiers investigating reports in the area.
+contentPath: ./legion-patrol.md
+statBlocks:
+  - legion-soldier
+  - legion-lieutenant
+
+# These fields are auto-populated at build time:
+# creatureTypes: [undead]
+# usedIn:
+#   - type: region
+#     id: region-7
+#     name: The Floating Fen
+```
+
+### Build-Time Processing
+
+Taxonomy processing happens in `apps/web/src/utils/`:
+
+- **`encounter-processor.ts`**: Derives creature types from stat blocks
+- **`encounter-usage-tracker.ts`**: Builds usage map by scanning dungeons, hexes, regions
+- **`load-augmented-encounters.ts`**: Main loader combining both processors
+
+### Dungeon Encounter Validation
+
+For dungeons with encounter content, a validation script ensures frontmatter stays in sync with content:
+
+```bash
+npm run validate:dungeons  # from apps/web
+```
+
+This checks that:
+- All encounters in frontmatter are linked in content via `getEncounterPath()`
+- All `getEncounterPath()` calls have corresponding frontmatter entries
 
 ---
 

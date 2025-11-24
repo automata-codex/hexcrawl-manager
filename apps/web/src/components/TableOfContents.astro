@@ -1,0 +1,95 @@
+---
+/**
+ * Table of Contents component for section overview pages.
+ * Renders a list of links from sidebar configuration.
+ */
+import ArticleLayout from '../layouts/ArticleLayout.astro';
+
+interface ToCItem {
+  label: string;
+  href: string;
+}
+
+interface ToCParent {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  title: string;
+  items: ToCItem[];
+  parent?: ToCParent;
+}
+
+const { title, items, parent } = Astro.props;
+---
+
+<ArticleLayout title={title}>
+  {parent && (
+    <p class="parent-link">
+      <a href={parent.href}>&uarr; {parent.label}</a>
+    </p>
+  )}
+  <nav class="toc-nav" aria-label="Table of contents">
+    <ul class="toc-list">
+      {items.map((item) => (
+        <li class="toc-item">
+          <a href={item.href} class="toc-link">
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</ArticleLayout>
+
+<style>
+  .parent-link {
+    margin-bottom: 1rem;
+  }
+
+  .toc-nav {
+    margin-top: 1rem;
+    columns: 2;
+  }
+
+  .toc-list {
+    list-style: disc;
+    padding-left: 2rem;
+    margin: 0;
+  }
+
+  .toc-item {
+    margin: 0;
+    padding: 0;
+    break-inside: avoid;
+  }
+
+  .toc-link {
+    text-decoration: none;
+  }
+
+  .toc-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Single column on small screens */
+  @media (max-width: 600px) {
+    .toc-nav {
+      columns: 1;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .toc-link {
+      color: black;
+    }
+
+    .toc-link::after {
+      content: ' (' attr(href) ')';
+      font-size: 0.9em;
+      color: #666;
+    }
+  }
+</style>

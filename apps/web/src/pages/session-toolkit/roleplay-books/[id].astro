@@ -2,7 +2,7 @@
 import { getEntry } from 'astro:content';
 
 import RoleplayBook from '../../../components/RoleplayBook/RoleplayBook.astro';
-import SecretLayout from '../../../layouts/SecretLayout.astro';
+import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
 
 import type { RoleplayBookData } from '@skyreach/schemas';
 
@@ -30,6 +30,6 @@ const roleplayBook: RoleplayBookData = roleplayBookEntry.data;
 const title = roleplayBook.name;
 ---
 
-<SecretLayout title={title}>
+<SecretArticleLayout title={title}>
   <RoleplayBook data={roleplayBook} />
-</SecretLayout>
+</SecretArticleLayout>

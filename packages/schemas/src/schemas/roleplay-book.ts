@@ -1,15 +1,39 @@
 import { z } from 'zod';
 
+/**
+ * Enum for link types used in intelligence reports and hidden sites.
+ * Maps to route helper functions in apps/web/src/config/routes.ts
+ */
+export const LinkTypeEnum = z.enum([
+  'clue',
+  'dungeon',
+  'encounter',
+  'faction',
+  'hex',
+  'knowledge-node',
+  'region',
+]);
+export type LinkType = z.infer<typeof LinkTypeEnum>;
+
 // Intelligence report row schema
 export const IntelligenceReportRowSchema = z
   .object({
     roll: z.number().describe('Die result'),
     report: z.string().describe('Title/summary of the report'),
-    linkText: z.string().optional().describe('Text for the link (e.g., "Encounter: Dream Sickness")'),
-    linkPath: z.string().optional().describe('Path to the linked content'),
+    linkType: LinkTypeEnum.optional().describe('Type of the linked content'),
+    linkId: z.string().optional().describe('ID of the linked content'),
     sampleDialogue: z.string().describe('In-character delivery'),
     relevantConditions: z.string().describe('When this report is relevant'),
   })
+  .refine(
+    (data) => {
+      // linkType and linkId must be both present or both absent
+      const hasLinkType = data.linkType !== undefined;
+      const hasLinkId = data.linkId !== undefined;
+      return (hasLinkType && hasLinkId) || (!hasLinkType && !hasLinkId);
+    },
+    { message: 'linkType and linkId must both be present or both be absent' },
+  )
   .describe('IntelligenceReportRowSchema');
 export type IntelligenceReportRow = z.infer<typeof IntelligenceReportRowSchema>;
 

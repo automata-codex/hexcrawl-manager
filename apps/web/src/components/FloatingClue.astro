@@ -3,7 +3,8 @@ import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faCircleInfo } from '@fortawesome/pro-solid-svg-icons';
 import { getCollection } from 'astro:content';
 
-import { getEncounterPath, getFloatingCluePath } from '../config/routes';
+import { getEncounterPath, getFloatingCluePath, getHexPath } from '../config/routes';
+import { findHexesWithHiddenSiteLink } from '../utils/encounter-processor';
 import { flatKnowledgeTrees } from '../utils/knowledge-trees';
 import { renderBulletMarkdown, renderMarkdown } from '../utils/markdown';
 
@@ -34,6 +35,13 @@ const encounterList = linkedEncounters
   </a>
 `,
   )
+  .join(', ');
+
+// Find hexes with hidden sites that link to this clue
+const allHexes = await getCollection('hexes');
+const hiddenSiteBacklinks = findHexesWithHiddenSiteLink(allHexes, 'clue', clue.id);
+const hiddenSiteHexList = hiddenSiteBacklinks
+  .map((ref) => `<a href="${getHexPath(ref.hexId)}">${ref.hexName}</a>`)
   .join(', ');
 ---
 
@@ -66,13 +74,21 @@ const encounterList = linkedEncounters
   }
 </h2>
 {
-  showDetail && encounterList.length > 0 && (
-    <div style="margin-bottom: 1rem;">
-      <p class="hanging-indent">
-        <span class="inline-heading">Encounters with this clue:</span>{' '}
-        <Fragment set:html={encounterList} />
-      </p>
-    </div>
+  showDetail && (encounterList.length > 0 || hiddenSiteHexList.length > 0) && (
+    <ul style="margin-bottom: 1rem;">
+      {encounterList.length > 0 && (
+        <li>
+          <strong>Encounters</strong> with this clue:{' '}
+          <Fragment set:html={encounterList} />
+        </li>
+      )}
+      {hiddenSiteHexList.length > 0 && (
+        <li>
+          <strong>Hidden Sites</strong> linking to this clue:{' '}
+          <Fragment set:html={hiddenSiteHexList} />
+        </li>
+      )}
+    </ul>
   )
 }
 <p style="margin-bottom: 1rem;">

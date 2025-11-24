@@ -4,6 +4,7 @@ dist/
 # generated types & files
 .astro/
 *.tsbuildinfo
+apps/web/src/config/generated/
 
 # dependencies
 node_modules/

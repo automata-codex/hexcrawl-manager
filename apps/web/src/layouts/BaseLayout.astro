@@ -3,6 +3,7 @@ import SideNav from '../components/SideNav.svelte';
 import TopBar from '../components/TopBar.astro';
 import { getSidebarSections } from '../config/sidebar-sections';
 import { getCurrentUserRole } from '../utils/auth';
+import { resolveSidebarSections } from '../utils/resolve-sidebar-hrefs';
 
 interface Props {
   title: string;
@@ -11,7 +12,8 @@ interface Props {
 const { title } = Astro.props;
 
 const role = getCurrentUserRole(Astro.locals);
-const sections = getSidebarSections(role);
+const rawSections = getSidebarSections(role);
+const sections = await resolveSidebarSections(rawSections);
 ---
 
 <!doctype html>
@@ -21,6 +23,18 @@ const sections = getSidebarSections(role);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <script is:inline>
+      // Prevent flash of wrong theme (FOUC) by applying theme before CSS loads
+      (function () {
+        const stored = localStorage.getItem('theme-preference');
+        if (stored === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        } else if (stored === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        // 'system' or missing: no attribute, let Bulma use prefers-color-scheme
+      })();
+    </script>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"

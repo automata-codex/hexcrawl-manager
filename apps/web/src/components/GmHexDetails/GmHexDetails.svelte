@@ -46,7 +46,9 @@
 {/if}
 <div class="data-bar">
   <Visited {hex} />
-  <Explored {hex} />
+  {#if hex.renderedHiddenSites.length > 0}
+    <Explored {hex} />
+  {/if}
   {#if showSelfLink}
     <div class="data-bar-cell">
       <a href={getHexPath(hex.id)}>View Hex</a>

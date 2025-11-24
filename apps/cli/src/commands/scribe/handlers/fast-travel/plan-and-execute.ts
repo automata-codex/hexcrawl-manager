@@ -2,7 +2,6 @@ import { error, info } from '@skyreach/cli-kit';
 import { getDaylightCapSegments, getSeasonForDate } from '@skyreach/core';
 import { REPO_PATHS, readAndValidateYaml } from '@skyreach/data';
 import { TrailMapSchema, type Pace } from '@skyreach/schemas';
-import path from 'path';
 
 import { readEvents } from '../../../../services/event-log.service';
 import {
@@ -46,8 +45,7 @@ export default function fastTravelPlanAndExecute(
   }
 
   // Load trails
-  const trailsPath = path.join(REPO_PATHS.TRAILS(), 'trails.yaml');
-  const trails = readAndValidateYaml(trailsPath, TrailMapSchema);
+  const trails = readAndValidateYaml(REPO_PATHS.TRAILS(), TrailMapSchema);
 
   // Load current session state
   const events = readEvents(ctx.file!);
