@@ -9,6 +9,8 @@
   } from '../config/routes.js';
   import { renderBulletMarkdown } from '../utils/markdown.js';
 
+  import KnowledgeTree from './KnowledgeTree.svelte';
+
   import type { PlacementRef } from '../types';
   import type { KnowledgeNodeData } from '@skyreach/schemas';
 
@@ -64,7 +66,7 @@
 </script>
 
 <div class:heading={node.children?.length}>
-  <div style="display: flex">
+  <div style="display: flex; align-items: flex-start">
     {#if node.children?.length}
       <button onclick={() => (isExpanded = !isExpanded)}>
         <span class="chevron" class:rotated={isExpanded}>
@@ -73,7 +75,7 @@
       </button>
     {/if}
     {#if !node.children?.length}
-      <ul>
+      <ul class="leaf-node">
         <li>
           <span
             class="leaf-node-name"
@@ -86,15 +88,15 @@
                 <span class="chevron" class:rotated={isDetailsExpanded}>
                   <FontAwesomeIcon icon={faChevronRight} />
                 </span>
-                Details
+                <strong>Details</strong>
               </button>
               {#if isDetailsExpanded}
-                <p>{@html renderedDetails}</p>
+                <div class="details-text-container">{@html renderedDetails}</div>
               {/if}
             </div>
           {/if}
           {#if placementMap[fullId]?.length}
-            <ul>
+            <ul class="placement-list">
               {#each placementMap[fullId] as ref}
                 <li>
                   <a href={generateLink(ref)}>{ref.label}</a>
@@ -104,12 +106,12 @@
               {/each}
             </ul>
           {:else}
-            <ul><li>❌ Not placed</li></ul>
+            <ul class="placement-list"><li>❌ Not placed</li></ul>
           {/if}
         </li>
       </ul>
     {:else}
-      <div>
+      <div class="node-content">
         <span class="parent-node-text">
           <span class="leaf-node-name">{node.name}:</span>
           {' '}
@@ -121,15 +123,15 @@
               <span class="chevron" class:rotated={isDetailsExpanded}>
                 <FontAwesomeIcon icon={faChevronRight} />
               </span>
-              Details
+              <strong>Details</strong>
             </button>
             {#if isDetailsExpanded}
-              <p>{@html renderedDetails}</p>
+              <div class="details-text-container">{@html renderedDetails}</div>
             {/if}
           </div>
         {/if}
         {#if placementMap[fullId]?.length}
-          <ul>
+          <ul class="placement-list">
             {#each placementMap[fullId] as ref}
               <li>
                 <a href={generateLink(ref)}>{ref.label}</a>
@@ -139,7 +141,7 @@
             {/each}
           </ul>
         {:else if !node.children?.length}
-          <ul><li>❌ Not placed</li></ul>
+          <ul class="placement-list"><li>❌ Not placed</li></ul>
         {/if}
       </div>
     {/if}
@@ -148,7 +150,7 @@
   {#if isExpanded && node.children?.length}
     <div style="margin-left: 1.5em;">
       {#each node.children as child}
-        <svelte:self
+        <KnowledgeTree
           node={child}
           fullId={`${fullId}.${child.id}`}
           {placementMap}
@@ -176,15 +178,40 @@
 
   span.chevron {
     display: inline-block;
+    width: 1em;
+    text-align: center;
     transition: transform 0.2s ease;
   }
 
+  .details-text-container {
+    padding-left: 1.5rem;
+  }
+
+  :global(.details-text-container p) {
+      margin-top: 1rem;
+    }
+
+  :global(.details-text-container p:first-child) {
+      margin-top: 0;
+    }
+
+  .leaf-node {
+    padding-inline-start: 1.5rem;
+    margin-bottom: 0;
+  }
+
   .leaf-node-name {
+    color: var(--bulma-strong-color);
     font-weight: bold;
   }
 
-  .parent-node-text {
-    color: var(--bulma-strong-color);
+  .node-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .placement-list {
+    padding-inline-start: 1.5rem;
   }
 
   .unused {
@@ -192,6 +219,7 @@
   }
 
   .node-details {
+    display: block;
   }
 
   .node-details button {
@@ -200,13 +228,14 @@
     gap: 0.5em;
     background: none;
     border: none;
-    font-size: 0.9em;
     padding: 0;
     cursor: pointer;
     color: var(--bulma-text);
+    width: auto;
   }
 
-  .node-details p {
-    margin: 0.25em 0 0 1.5em;
+  .node-details button .chevron {
+    width: 1em;
+    text-align: center;
   }
 </style>
