@@ -44,6 +44,9 @@
         return getHexPath(ref.id);
       case 'hidden-site':
         return getHexPath(ref.id);
+      case 'pointcrawl-node':
+        // TODO: Add getPointcrawlNodePath when available
+        return '#';
       default:
         throw new Error(`Unknown reference type: ${ref.type}`);
     }
@@ -58,7 +61,9 @@
       case 'hex':
         return '(Landmark)';
       case 'hidden-site':
-        return `(Hidden Site)`;
+        return '(Hidden Site)';
+      case 'pointcrawl-node':
+        return '(Pointcrawl)';
       default:
         throw new Error(`Unknown reference type: ${ref.type}`);
     }
