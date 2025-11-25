@@ -117,9 +117,9 @@ const flatKnowledgeTrees: Record<string, FlatKnowledgeTree> = {};
 const files = fs.readdirSync(REPO_PATHS.KNOWLEDGE_TREES()).filter((file) => /\.ya?ml$/.test(file));
 
 for (const file of files) {
+  const rootId = file.replace(/\.ya?ml$/, '');
   const content = fs.readFileSync(path.join(REPO_PATHS.KNOWLEDGE_TREES(), file), 'utf8');
   const parsed = yaml.parse(content);
-  const rootId = parsed.id;
   knowledgeTrees[rootId] = KnowledgeNodeSchema.parse(parsed);
   flatKnowledgeTrees[rootId] = flattenKnowledgeTree(knowledgeTrees[rootId]);
 }
