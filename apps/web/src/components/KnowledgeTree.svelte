@@ -87,6 +87,9 @@
             class:unused={!placementMap[fullId]?.length}>{node.name}:{' '}</span
           >
           <span class="node-description">{node.description}</span>
+          {#if node.isUnlocked}
+            <span class="unlocked-indicator">✓ Unlocked</span>
+          {/if}
           {#if node.details}
             <div class="node-details">
               <button onclick={() => (isDetailsExpanded = !isDetailsExpanded)}>
@@ -121,6 +124,9 @@
           <span class="leaf-node-name">{node.name}:</span>
           {' '}
           {node.description}
+          {#if node.isUnlocked}
+            <span class="unlocked-indicator">✓ Unlocked</span>
+          {/if}
         </span>
         {#if node.details}
           <div class="node-details">
@@ -242,5 +248,10 @@
   .node-details button .chevron {
     width: 1em;
     text-align: center;
+  }
+
+  .unlocked-indicator {
+    color: var(--bulma-success);
+    margin-left: 0.5em;
   }
 </style>

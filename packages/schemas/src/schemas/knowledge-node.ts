@@ -5,6 +5,7 @@ export type KnowledgeNodeData = {
   children?: KnowledgeNodeData[];
   description: string;
   isKnown?: boolean;
+  isUnlocked?: boolean;
   name: string;
   details?: string;
 };
@@ -17,6 +18,10 @@ export const KnowledgeNodeSchema: z.ZodType<KnowledgeNodeData> = z.lazy(() =>
     children: z.array(KnowledgeNodeSchema).optional(),
     description: z.string(),
     isKnown: z.boolean().optional(),
+    isUnlocked: z
+      .boolean()
+      .optional()
+      .describe('Whether this knowledge node has been unlocked by the party'),
     name: z.string(),
     details: z
       .string()
