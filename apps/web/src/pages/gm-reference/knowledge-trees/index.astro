@@ -13,49 +13,35 @@ const trees = Object.entries(knowledgeTrees)
 ---
 
 <style>
-  .tree-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+  h2.title.is-3 {
+    margin-top: 0;
+    margin-bottom: 0.25rem;
+    text-align: center;
   }
 
-  .tree-item {
-    padding: 1rem;
-    border-left: 3px solid var(--color-primary);
-    background: var(--color-background-secondary, #f5f5f5);
+  .box {
+    text-align: center;
   }
 
-  .tree-item h2 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.25rem;
-  }
-
-  .tree-item p {
-    margin: 0;
-    color: var(--color-text-secondary, #666);
-  }
-
-  .tree-item a {
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .tree-item a:hover h2 {
-    color: var(--color-primary);
+  .box a {
+    margin-top: 1rem;
   }
 </style>
 
 <SecretLayout title="Knowledge Trees">
-  <div class="tree-list">
+  <section class="columns is-multiline">
     {
       trees.map((tree) => (
-        <div class="tree-item">
-          <a href={`/gm-reference/knowledge-trees/${tree.id}`}>
-            <h2>{tree.name}</h2>
+        <div class="column is-one-third">
+          <div class="box">
+            <h2 class="title is-3">{tree.name}</h2>
             <p>{tree.description}</p>
-          </a>
+            <a href={`/gm-reference/knowledge-trees/${tree.id}`}>
+              View Knowledge Tree
+            </a>
+          </div>
         </div>
       ))
     }
-  </div>
+  </section>
 </SecretLayout>
