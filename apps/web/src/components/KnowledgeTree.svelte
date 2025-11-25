@@ -7,15 +7,30 @@
     getFloatingCluePath,
     getHexPath,
   } from '../config/routes.js';
+  import { renderBulletMarkdown } from '../utils/markdown.js';
 
   import type { PlacementRef } from '../types';
   import type { KnowledgeNodeData } from '@skyreach/schemas';
 
-  export let node: KnowledgeNodeData;
-  export let fullId: string = node.id;
-  export let placementMap: Record<string, PlacementRef[]> = {};
+  interface Props {
+    node: KnowledgeNodeData;
+    fullId?: string;
+    placementMap?: Record<string, PlacementRef[]>;
+  }
 
-  let isExpanded = true;
+  let { node, fullId = node.id, placementMap = {} }: Props = $props();
+
+  let isExpanded = $state(true);
+  let isDetailsExpanded = $state(false);
+  let renderedDetails = $state('');
+
+  $effect(() => {
+    if (node.details) {
+      renderBulletMarkdown(node.details).then((html) => {
+        renderedDetails = html;
+      });
+    }
+  });
 
   function generateLink(ref: PlacementRef): string {
     switch (ref.type) {
@@ -51,7 +66,7 @@
 <div class:heading={node.children?.length}>
   <div style="display: flex">
     {#if node.children?.length}
-      <button on:click={() => (isExpanded = !isExpanded)}>
+      <button onclick={() => (isExpanded = !isExpanded)}>
         <span class="chevron" class:rotated={isExpanded}>
           <FontAwesomeIcon icon={faChevronRight} />
         </span>
@@ -65,6 +80,19 @@
             class:unused={!placementMap[fullId]?.length}>{node.name}:{' '}</span
           >
           <span class="node-description">{node.description}</span>
+          {#if node.details}
+            <div class="node-details">
+              <button onclick={() => (isDetailsExpanded = !isDetailsExpanded)}>
+                <span class="chevron" class:rotated={isDetailsExpanded}>
+                  <FontAwesomeIcon icon={faChevronRight} />
+                </span>
+                Details
+              </button>
+              {#if isDetailsExpanded}
+                <p>{@html renderedDetails}</p>
+              {/if}
+            </div>
+          {/if}
           {#if placementMap[fullId]?.length}
             <ul>
               {#each placementMap[fullId] as ref}
@@ -87,6 +115,19 @@
           {' '}
           {node.description}
         </span>
+        {#if node.details}
+          <div class="node-details">
+            <button onclick={() => (isDetailsExpanded = !isDetailsExpanded)}>
+              <span class="chevron" class:rotated={isDetailsExpanded}>
+                <FontAwesomeIcon icon={faChevronRight} />
+              </span>
+              Details
+            </button>
+            {#if isDetailsExpanded}
+              <p>{@html renderedDetails}</p>
+            {/if}
+          </div>
+        {/if}
         {#if placementMap[fullId]?.length}
           <ul>
             {#each placementMap[fullId] as ref}
@@ -148,5 +189,24 @@
 
   .unused {
     color: var(--bulma-strong-color);
+  }
+
+  .node-details {
+  }
+
+  .node-details button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    background: none;
+    border: none;
+    font-size: 0.9em;
+    padding: 0;
+    cursor: pointer;
+    color: var(--bulma-text);
+  }
+
+  .node-details p {
+    margin: 0.25em 0 0 1.5em;
   }
 </style>
