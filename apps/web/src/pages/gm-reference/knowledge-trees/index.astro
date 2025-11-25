@@ -1,0 +1,47 @@
+---
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { knowledgeTrees } from '../../../utils/knowledge-trees';
+
+// Convert the knowledge trees object to an array and sort by name
+const trees = Object.entries(knowledgeTrees)
+  .map(([id, tree]) => ({
+    id,
+    name: tree.name,
+    description: tree.description,
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<style>
+  h2.title.is-3 {
+    margin-top: 0;
+    margin-bottom: 0.25rem;
+    text-align: center;
+  }
+
+  .box {
+    text-align: center;
+  }
+
+  .box a {
+    margin-top: 1rem;
+  }
+</style>
+
+<SecretLayout title="Knowledge Trees">
+  <section class="columns is-multiline">
+    {
+      trees.map((tree) => (
+        <div class="column is-one-third">
+          <div class="box">
+            <h2 class="title is-3">{tree.name}</h2>
+            <p>{tree.description}</p>
+            <a href={`/gm-reference/knowledge-trees/${tree.id}`}>
+              View Knowledge Tree
+            </a>
+          </div>
+        </div>
+      ))
+    }
+  </section>
+</SecretLayout>
