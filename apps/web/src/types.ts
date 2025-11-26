@@ -39,6 +39,11 @@ export type ClueLink = {
   }[];
 };
 
+export type PointcrawlLink = {
+  slug: string;
+  name: string;
+};
+
 export type EncounterCategoryTables = Record<
   string,
   Record<string, EncounterEntryData[]>

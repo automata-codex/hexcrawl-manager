@@ -45,6 +45,12 @@ const dungeons = await getCollection('dungeons');
 const hex: HexData = hexEntry.data;
 const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
 
+// Find pointcrawls accessible from this hex
+const allPointcrawls = await getCollection('pointcrawls');
+const pointcrawls = allPointcrawls
+  .filter((p) => p.data.hexIds?.includes(hex.id.toLowerCase()))
+  .map((p) => ({ slug: p.data.slug, name: p.data.name }));
+
 // Build the random encounter table
 let encounters: EncounterTableData | undefined = undefined;
 let encounterChance = 8;
@@ -107,6 +113,7 @@ const extendedHexData = await processHex(hex);
       dungeons={dungeons}
       hex={extendedHexData}
       knowledgeTrees={flatKnowledgeTrees}
+      pointcrawls={pointcrawls}
       showSelfLink={false}
     />
     <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>

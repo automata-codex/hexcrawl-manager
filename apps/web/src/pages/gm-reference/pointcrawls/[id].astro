@@ -1,0 +1,320 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+
+import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+import type { ImageData } from '@skyreach/schemas';
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Query for the pointcrawl by slug
+const allPointcrawls = await getCollection('pointcrawls');
+const pointcrawl = allPointcrawls.find((p) => p.data.slug === id);
+
+if (!pointcrawl) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Fetch related nodes and edges
+const allNodes = await getCollection('pointcrawl-nodes');
+const allEdges = await getCollection('pointcrawl-edges');
+
+const nodes = allNodes
+  .filter((n) => n.data.pointcrawlId === pointcrawl.data.id)
+  .sort((a, b) => a.data.label.localeCompare(b.data.label, undefined, { numeric: true }));
+
+const edges = allEdges
+  .filter((e) => e.data.pointcrawlId === pointcrawl.data.id)
+  .sort((a, b) => a.data.label.localeCompare(b.data.label, undefined, { numeric: true }));
+
+// Entry points
+const entryPoints = nodes.filter((n) => n.data.isEntry === true);
+
+// Group nodes by level
+const levels = [...new Set(nodes.map((n) => n.data.level))].filter(
+  (l) => l !== undefined
+) as number[];
+const hasMultipleLevels = levels.length > 1;
+const sortedLevels = levels.sort((a, b) => a - b);
+
+// Get display image
+function getImageFileName(images?: ImageData[]): string | null {
+  if (!images || images.length === 0) return null;
+  const displayImage = images.find((img) => img.display === true) || images[0];
+  return displayImage.filename;
+}
+
+const displayImage = getImageFileName(pointcrawl.data.images);
+
+const title = pointcrawl.data.name;
+---
+
+<style>
+  .pointcrawl-map {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .pointcrawl-map img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .hex-links {
+    margin-bottom: 1rem;
+  }
+
+  .builders {
+    margin-bottom: 1rem;
+  }
+
+  .builder-tag {
+    display: inline-block;
+    background: var(--bulma-primary);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .nodes-accordion {
+    margin-top: 1.5rem;
+  }
+
+  .nodes-accordion details {
+    border: 1px solid var(--bulma-border);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+  }
+
+  .nodes-accordion summary {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    background: var(--bulma-scheme-main-bis);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nodes-accordion summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .nodes-accordion summary:hover {
+    background: var(--bulma-scheme-main-ter);
+  }
+
+  .chevron {
+    display: inline-block;
+    width: 0.75em;
+    height: 0.75em;
+    transition: transform 0.2s ease;
+  }
+
+  .nodes-accordion details[open] .chevron {
+    transform: rotate(90deg);
+  }
+
+  .nodes-accordion .node-list {
+    padding: 0.5rem 1rem 1rem;
+  }
+
+  .level-group {
+    margin-bottom: 1rem;
+  }
+
+  .level-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .level-header {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--bulma-text-strong);
+  }
+
+  .map-links {
+    margin-bottom: 1rem;
+  }
+
+  .map-links ul {
+    margin-top: 0.25rem;
+  }
+</style>
+
+<SecretLayout title={title}>
+  {
+    displayImage && (
+      <div class="pointcrawl-map">
+        <img
+          src={`/images/maps/pointcrawls/${displayImage}`}
+          alt={`Map of ${title}`}
+        />
+      </div>
+    )
+  }
+
+  {pointcrawl.data.summary && <p class="mb-4">{pointcrawl.data.summary}</p>}
+
+  {
+    pointcrawl.data.hexIds && pointcrawl.data.hexIds.length > 0 && (
+      <div class="hex-links">
+        <strong>Accessible from: </strong>
+        {pointcrawl.data.hexIds.map((hexId, index) => (
+          <>
+            <a href={`/session-toolkit/hexes/${hexId}`}>{hexId.toUpperCase()}</a>
+            {index < pointcrawl.data.hexIds.length - 1 && ', '}
+          </>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    pointcrawl.data.images && pointcrawl.data.images.length > 0 && (
+      <div class="map-links">
+        <strong>Maps:</strong>
+        <ul>
+          {pointcrawl.data.images.map((image) => (
+            <li>
+              <a
+                href={`/images/maps/pointcrawls/${image.filename}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {image.description}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  {
+    pointcrawl.data.builders && pointcrawl.data.builders.length > 0 && (
+      <div class="builders">
+        <strong>Builders: </strong>
+        {pointcrawl.data.builders.map((builder) => (
+          <span class="builder-tag">{builder}</span>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    pointcrawl.data.encounters && (
+      <div class="encounters-section mb-4">
+        <h2 class="title is-4">Random Encounters</h2>
+        <RandomEncounterTable data={pointcrawl.data.encounters} />
+      </div>
+    )
+  }
+
+  <div class="entry-points">
+    <h2 class="title is-4">Entry Points</h2>
+    {
+      entryPoints.length === 0 ? (
+        <p>No entry points defined.</p>
+      ) : (
+        <ul>
+          {entryPoints.map((node) => (
+            <li class="entry-point-item">
+              <a
+                href={`/gm-reference/pointcrawls/${pointcrawl.data.slug}/${node.data.id}`}
+              >
+                {node.data.label}: {node.data.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+
+  <div class="nodes-accordion">
+    <details>
+      <summary>
+        <svg class="chevron" viewBox="0 0 320 512" fill="currentColor">
+          <path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z" />
+        </svg>
+        All Nodes ({nodes.length})
+      </summary>
+      <div class="node-list">
+        {
+          hasMultipleLevels ? (
+            sortedLevels.map((level) => {
+              const levelNodes = nodes.filter((n) => n.data.level === level);
+              return (
+                <div class="level-group">
+                  <div class="level-header">Level {level}</div>
+                  <ul>
+                    {levelNodes.map((node) => (
+                      <li class="node-item">
+                        <a
+                          href={`/gm-reference/pointcrawls/${pointcrawl.data.slug}/${node.data.id}`}
+                        >
+                          {node.data.label}: {node.data.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })
+          ) : (
+            <ul>
+              {nodes.map((node) => (
+                <li class="node-item">
+                  <a
+                    href={`/gm-reference/pointcrawls/${pointcrawl.data.slug}/${node.data.id}`}
+                  >
+                    {node.data.label}: {node.data.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        <svg class="chevron" viewBox="0 0 320 512" fill="currentColor">
+          <path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z" />
+        </svg>
+        All Edges ({edges.length})
+      </summary>
+      <div class="node-list">
+        <ul>
+          {
+            edges.map((edge) => (
+              <li class="node-item">
+                <a
+                  href={`/gm-reference/pointcrawls/${pointcrawl.data.slug}/${edge.data.id}`}
+                >
+                  Edge {edge.data.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </details>
+  </div>
+</SecretLayout>
