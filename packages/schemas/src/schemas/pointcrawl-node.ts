@@ -16,6 +16,10 @@ export const PointcrawlNodeSchema = z
       .int()
       .optional()
       .describe('Level/deck number for multi-level pointcrawls'),
+    isEntry: z
+      .boolean()
+      .optional()
+      .describe('Whether this node is an entry point accessible from outside the pointcrawl'),
     encounters: z
       .array(z.string())
       .optional()
