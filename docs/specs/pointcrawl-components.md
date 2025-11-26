@@ -173,6 +173,7 @@ apps/web/src/utils/
 4. Implement list page (`index.astro`)
 5. Implement pointcrawl detail page (`[id].astro`)
 6. Implement node/edge detail page (`[id]/[nodeOrEdgeId].astro`)
+7. Add pointcrawl links to hex detail pages
 
 ## Validation Script
 
@@ -361,3 +362,28 @@ Add to `apps/web/package.json`:
 - **Missing connected node/edge**: Log warning but don't crash; show "Unknown" placeholder
 - **No images**: Skip map image section entirely
 - **Empty encounters**: Don't render `RandomEncounterTable` component
+
+## Hex Page Integration
+
+Add a "Pointcrawls" section to hex detail pages that displays any pointcrawls accessible from that hex.
+
+### Implementation
+
+On the hex detail page (likely in `GmHexDetails.svelte` or similar):
+
+1. Query all pointcrawls from the `pointcrawls` collection
+2. Filter to those where `hexIds` array includes the current hex ID
+3. If any matches, display a "Pointcrawls" section with links to each pointcrawl detail page
+
+### Display
+
+```
+## Pointcrawls
+
+- [Skyspire Base Station](/gm-reference/pointcrawls/skyspire-base)
+```
+
+### Notes
+
+- Only show the section if there are matching pointcrawls
+- This creates a bidirectional navigation: hex → pointcrawl and pointcrawl → hex

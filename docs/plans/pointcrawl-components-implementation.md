@@ -240,19 +240,52 @@ Commit message: "Add pointcrawl node/edge detail page"
 
 ---
 
+## Phase 7: Hex Page Integration
+
+### Tasks
+
+1. **Identify hex detail component**
+   - Find where hex details are rendered (likely `GmHexDetails.svelte` or similar)
+   - Understand how data is passed to the component
+
+2. **Add pointcrawl lookup**
+   - Query pointcrawls collection
+   - Filter to those where `hexIds` includes current hex ID
+   - Pass matching pointcrawls to the component
+
+3. **Add Pointcrawls section to hex display**
+   - Only show section if there are matching pointcrawls
+   - Display as list of links to pointcrawl detail pages
+   - Example: "Pointcrawls: [Skyspire Base Station](/gm-reference/pointcrawls/skyspire-base)"
+
+4. **Test with dev server**
+   ```bash
+   npm run dev
+   # Visit hex page that has a pointcrawl (e.g., /session-toolkit/hexes/skyspire)
+   ```
+
+### Deliverables
+- Hex pages show links to accessible pointcrawls
+- Bidirectional navigation: hex → pointcrawl and pointcrawl → hex
+
+### Commit Point
+Commit message: "Add pointcrawl links to hex detail pages"
+
+---
+
 ## Post-Implementation
 
 ### Verification Checklist
-- [ ] All three pages render without errors
+- [ ] All three pointcrawl pages render without errors
 - [ ] Navigation between pages works (list → detail → node/edge)
 - [ ] Entry points display correctly on detail page
 - [ ] Accordion groups nodes by level (or flat list if single level)
 - [ ] Traversal time formats correctly (symmetric and asymmetric)
 - [ ] Connected edges/nodes show proper links
 - [ ] Validation script catches duplicate IDs
+- [ ] Hex pages show pointcrawl links when applicable
 
 ### Optional Follow-up
-- Add validation to CI/build process
 - Add pointcrawls to GM Reference navigation/sidebar
 - Create additional pointcrawl data as needed
 
@@ -281,4 +314,5 @@ data/pointcrawl-edges/skyspire-base/*.mdx
 packages/schemas/src/schemas/pointcrawl-node.ts  (add isEntry field)
 packages/schemas/src/index.ts                     (verify exports)
 apps/web/package.json                             (add validate script)
+apps/web/src/components/GmHexDetails.svelte       (add pointcrawl links - Phase 7)
 ```
