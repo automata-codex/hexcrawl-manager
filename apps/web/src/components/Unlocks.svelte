@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getKnowledgeTreePath } from '../config/generated/routes.js';
+  import { getKnowledgeTreePath } from '../config/routes.js';
 
   import type { FlatKnowledgeTree } from '../types.ts';
 

@@ -8,6 +8,7 @@
   import Landmark from './Landmark.svelte';
   import LinkedClues from './LinkedClues.svelte';
   import Neighbors from './Neighbors.svelte';
+  import Pointcrawls from './Pointcrawls.svelte';
   import Visited from './Visited.svelte';
 
   import type {
@@ -61,6 +62,7 @@
     <a href={getRegionPath(hex.regionId)}>{getRegionTitle(hex.regionId)}</a>
   </div>
   <Dungeon {dungeons} {hex} />
+  <Pointcrawls {pointcrawls} />
 </div>
 <div class="data-bar">
   <Neighbors {hex} />
@@ -85,14 +87,6 @@
 {/if}
 {#if clueLinks}
   <LinkedClues {clueLinks} hexId={hex.id} />
-{/if}
-{#if pointcrawls && pointcrawls.length > 0}
-  <div class="hanging-indent">
-    <span class="inline-heading">Pointcrawls:</span>{' '}
-    {#each pointcrawls as pc, i (pc.slug)}
-      <a href={`/gm-reference/pointcrawls/${pc.slug}`}>{pc.name}</a>{#if i < pointcrawls.length - 1}, {/if}
-    {/each}
-  </div>
 {/if}
 
 <style>

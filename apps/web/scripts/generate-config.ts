@@ -140,6 +140,10 @@ export function getKnowledgeTreePath(treeId: string): string {
   return getCollectionItemPath(ROUTES.gmReference.knowledgeTrees as CollectionRoute, treeId);
 }
 
+export function getPointcrawlPath(pointcrawlSlug: string): string {
+  return getCollectionItemPath(ROUTES.gmReference.pointcrawls as CollectionRoute, pointcrawlSlug);
+}
+
 export function getBountyPath(bountyId: string): string {
   return getCollectionItemPath(ROUTES.playersReference.setting.bountyBoard as CollectionRoute, bountyId);
 }
