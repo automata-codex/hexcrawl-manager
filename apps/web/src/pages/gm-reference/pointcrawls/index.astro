@@ -1,6 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 
+import Card from '../../../components/Card.astro';
+import CardGrid from '../../../components/CardGrid.astro';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 
 const pointcrawls = await getCollection('pointcrawls');
@@ -14,35 +16,16 @@ const title = 'Pointcrawls';
 <SecretLayout title={title}>
   {sortedPointcrawls.length === 0 && <p>No pointcrawls found.</p>}
 
-  <div class="pointcrawl-list">
+  <CardGrid>
     {
       sortedPointcrawls.map((pointcrawl) => (
-        <div class="box mb-4">
-          <h2 class="title is-4 mb-2">
-            <a href={`/gm-reference/pointcrawls/${pointcrawl.data.slug}`}>
-              {pointcrawl.data.name}
-            </a>
-          </h2>
-
-          {pointcrawl.data.summary && (
-            <p class="mb-3">{pointcrawl.data.summary}</p>
-          )}
-
-          {pointcrawl.data.hexIds && pointcrawl.data.hexIds.length > 0 && (
-            <p class="is-size-7">
-              <strong>Accessible from: </strong>
-              {pointcrawl.data.hexIds.map((hexId, index) => (
-                <>
-                  <a href={`/session-toolkit/hexes/${hexId}`}>
-                    {hexId.toUpperCase()}
-                  </a>
-                  {index < pointcrawl.data.hexIds.length - 1 && ', '}
-                </>
-              ))}
-            </p>
-          )}
-        </div>
+        <Card
+          title={pointcrawl.data.name}
+          href={`/gm-reference/pointcrawls/${pointcrawl.data.slug}`}
+        >
+          {pointcrawl.data.summary && <p>{pointcrawl.data.summary}</p>}
+        </Card>
       ))
     }
-  </div>
+  </CardGrid>
 </SecretLayout>

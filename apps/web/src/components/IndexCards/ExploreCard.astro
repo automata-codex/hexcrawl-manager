@@ -1,10 +1,10 @@
 ---
-import IndexCard from './IndexCard.astro';
+import Card from '../Card.astro';
 import SideMenuButton from './SideMenuButton.svelte';
 ---
 
-<IndexCard title="Explore">
+<Card title="Explore" gridItem={false}>
   <p>
     Ready for more? Open the <SideMenuButton client:load /> to explore our content.
   </p>
-</IndexCard>
+</Card>
