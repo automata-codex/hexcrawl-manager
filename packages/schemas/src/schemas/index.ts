@@ -38,6 +38,7 @@ export * from './session';
 export * from './session-footprint';
 export * from './session-id';
 export * from './session-report';
+export * from './spell';
 export * from './stat-block';
 export * from './supplement-list';
 // export * from './trail'; Unused/deprecated
