@@ -89,14 +89,6 @@ const title = pointcrawl.data.name;
     font-size: 0.875rem;
   }
 
-  .entry-points {
-    margin-bottom: 1.5rem;
-  }
-
-  .entry-point-item {
-    margin-bottom: 0.5rem;
-  }
-
   .nodes-accordion {
     margin-top: 1.5rem;
   }
@@ -112,10 +104,29 @@ const title = pointcrawl.data.name;
     cursor: pointer;
     font-weight: 600;
     background: var(--bulma-scheme-main-bis);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nodes-accordion summary::-webkit-details-marker {
+    display: none;
   }
 
   .nodes-accordion summary:hover {
     background: var(--bulma-scheme-main-ter);
+  }
+
+  .chevron {
+    display: inline-block;
+    width: 0.75em;
+    height: 0.75em;
+    transition: transform 0.2s ease;
+  }
+
+  .nodes-accordion details[open] .chevron {
+    transform: rotate(90deg);
   }
 
   .nodes-accordion .node-list {
@@ -134,10 +145,6 @@ const title = pointcrawl.data.name;
     font-weight: 600;
     margin-bottom: 0.5rem;
     color: var(--bulma-text-strong);
-  }
-
-  .node-item {
-    margin-bottom: 0.25rem;
   }
 
   .map-links {
@@ -241,7 +248,12 @@ const title = pointcrawl.data.name;
 
   <div class="nodes-accordion">
     <details>
-      <summary>All Nodes ({nodes.length})</summary>
+      <summary>
+        <svg class="chevron" viewBox="0 0 320 512" fill="currentColor">
+          <path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z" />
+        </svg>
+        All Nodes ({nodes.length})
+      </summary>
       <div class="node-list">
         {
           hasMultipleLevels ? (
@@ -282,7 +294,12 @@ const title = pointcrawl.data.name;
     </details>
 
     <details>
-      <summary>All Edges ({edges.length})</summary>
+      <summary>
+        <svg class="chevron" viewBox="0 0 320 512" fill="currentColor">
+          <path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z" />
+        </svg>
+        All Edges ({edges.length})
+      </summary>
       <div class="node-list">
         <ul>
           {
