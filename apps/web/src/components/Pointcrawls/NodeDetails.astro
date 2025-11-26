@@ -1,0 +1,166 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+import Unlocks from '../Unlocks.svelte';
+import { flatKnowledgeTrees } from '../../utils/knowledge-trees';
+
+interface ConnectedEdgeInfo {
+  id: string;
+  label: string;
+  direction: 'to' | 'from';
+  otherNode?: {
+    id: string;
+    label: string;
+    name: string;
+  };
+  otherNodeId: string;
+}
+
+interface Props {
+  node: CollectionEntry<'pointcrawl-nodes'>;
+  pointcrawlSlug: string;
+  connectedEdges: ConnectedEdgeInfo[];
+}
+
+const { node, pointcrawlSlug, connectedEdges } = Astro.props;
+---
+
+<style>
+  .entry-badge {
+    display: inline-block;
+    background: var(--bulma-success);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    margin-left: 0.5rem;
+  }
+
+  .node-meta {
+    margin-bottom: 1rem;
+  }
+
+  .level-info {
+    color: var(--bulma-text-light);
+  }
+
+  .content-section {
+    margin: 1rem 0;
+  }
+
+  .connections-section {
+    margin-top: 1rem;
+  }
+
+  .encounters-list {
+    margin-bottom: 1rem;
+  }
+
+  .treasure-section {
+    margin: 1.5rem 0;
+  }
+
+  .treasure-item {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: var(--bulma-scheme-main-bis);
+    border-radius: 4px;
+  }
+
+  .treasure-name {
+    font-weight: 600;
+  }
+
+  .treasure-details {
+    font-size: 0.875rem;
+    color: var(--bulma-text-light);
+  }
+</style>
+
+<p class="node-meta">
+  {node.data.level !== undefined && <span class="level-info">Level {node.data.level}</span>}
+  {node.data.isEntry && <span class="entry-badge">Entry Point</span>}
+</p>
+
+<div class="content-section">
+  <slot />
+</div>
+
+{
+  node.data.encounters && node.data.encounters.length > 0 && (
+    <div class="encounters-list">
+      <h2 class="title is-4">Set Encounters</h2>
+      <ul>
+        {node.data.encounters.map((encId) => (
+          <li>
+            <a href={`/gm-reference/encounters/${encId}`}>{encId}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+{
+  node.data.encounterOverrides && (
+    <div class="encounters-section">
+      <h2 class="title is-4">Random Encounter Overrides</h2>
+      <p class="is-size-7 has-text-grey">
+        This location has custom encounter table overrides. See parent pointcrawl
+        for base table.
+      </p>
+    </div>
+  )
+}
+
+{
+  node.data.treasure && node.data.treasure.length > 0 && (
+    <div class="treasure-section">
+      <h2 class="title is-4">Treasure</h2>
+      {node.data.treasure.map((item) => (
+        <div class="treasure-item">
+          <span class="treasure-name">{item.name}</span>
+          <div class="treasure-details">
+            {item.type}
+            {item.rarity && ` (${item.rarity})`}
+            {item.value && ` - ${item.value} gp`}
+            {item.notes && ` - ${item.notes}`}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+<Unlocks
+  client:load
+  knowledgeTrees={flatKnowledgeTrees}
+  unlocks={node.data.unlocks ?? []}
+/>
+
+{
+  connectedEdges.length > 0 && (
+    <div class="connections-section">
+      <h2 class="title is-4">Connections</h2>
+      <ul>
+        {connectedEdges.map((conn) => (
+          <li class="connection-item">
+            <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.id}`}>
+              Edge {conn.label}
+            </a>{' '}
+            {conn.direction}{' '}
+            {conn.otherNode ? (
+              <a
+                href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.otherNode.id}`}
+              >
+                {conn.otherNode.label}: {conn.otherNode.name}
+              </a>
+            ) : (
+              <span>Unknown node ({conn.otherNodeId})</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
