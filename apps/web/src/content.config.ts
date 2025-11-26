@@ -26,6 +26,7 @@ import {
   type RumorData,
   RumorSchema,
   SessionSchema,
+  SpellSchema,
   StatBlockSchema,
   type SupplementData,
   SupplementSchema,
@@ -65,6 +66,7 @@ const DIRS = {
   ROLEPLAY_BOOKS: `${DATA_DIR}/roleplay-books`,
   RUMORS: `${DATA_DIR}/rumors`,
   SESSIONS: `${DATA_DIR}/sessions`,
+  SPELLS: `${DATA_DIR}/spells`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
   SUPPLEMENTS: `${DATA_DIR}/supplements`,
   TRAILS: `${DATA_DIR}/trails`,
@@ -207,6 +209,11 @@ const sessions = defineCollection({
   schema: SessionSchema,
 });
 
+const spells = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.SPELLS }),
+  schema: SpellSchema,
+});
+
 const statBlocks = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.STAT_BLOCKS }),
   schema: StatBlockSchema,
@@ -249,6 +256,7 @@ export const collections = {
   'roleplay-books': roleplayBooks,
   rumors,
   sessions,
+  spells,
   statBlocks,
   supplements,
   trails,
