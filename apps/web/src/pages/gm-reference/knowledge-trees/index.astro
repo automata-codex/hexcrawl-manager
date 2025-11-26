@@ -1,4 +1,6 @@
 ---
+import Card from '../../../components/Card.astro';
+import CardGrid from '../../../components/CardGrid.astro';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import { knowledgeTrees } from '../../../utils/knowledge-trees';
 
@@ -12,36 +14,14 @@ const trees = Object.entries(knowledgeTrees)
   .sort((a, b) => a.name.localeCompare(b.name));
 ---
 
-<style>
-  h2.title.is-3 {
-    margin-top: 0;
-    margin-bottom: 0.25rem;
-    text-align: center;
-  }
-
-  .box {
-    text-align: center;
-  }
-
-  .box a {
-    margin-top: 1rem;
-  }
-</style>
-
 <SecretLayout title="Knowledge Trees">
-  <section class="columns is-multiline">
+  <CardGrid>
     {
       trees.map((tree) => (
-        <div class="column is-one-third">
-          <div class="box">
-            <h2 class="title is-3">{tree.name}</h2>
-            <p>{tree.description}</p>
-            <a href={`/gm-reference/knowledge-trees/${tree.id}`}>
-              View Knowledge Tree
-            </a>
-          </div>
-        </div>
+        <Card title={tree.name} href={`/gm-reference/knowledge-trees/${tree.id}`}>
+          <p>{tree.description}</p>
+        </Card>
       ))
     }
-  </section>
+  </CardGrid>
 </SecretLayout>
