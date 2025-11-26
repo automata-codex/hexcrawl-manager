@@ -13,9 +13,14 @@ const spells = spellsData
   .all-link {
     margin-top: 1rem;
   }
+
+  .list-container {
+    columns: 2;
+  }
+
 </style>
 <ComponentLayout title="Spells">
-  <div>
+  <div class="list-container">
     <ul>
       {
         spells.map((spell) => (
@@ -26,8 +31,8 @@ const spells = spellsData
         ))
       }
     </ul>
+  </div>
     <p class="all-link">
       View <a href="/gm-reference/spells/all">all spells</a> on one page.
     </p>
-  </div>
 </ComponentLayout>
