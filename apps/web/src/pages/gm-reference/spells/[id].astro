@@ -1,0 +1,32 @@
+---
+import { getEntry } from 'astro:content';
+
+import SpellDetails from '../../../components/SpellDetails.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Query for the entry directly using the request slug
+const spellData = await getEntry('spells', id);
+
+// Redirect if the entry does not exist
+if (spellData === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+const spell = spellData.data;
+---
+
+<SecretLayout title={spell.name}>
+  <SpellDetails spell={spell} />
+</SecretLayout>
