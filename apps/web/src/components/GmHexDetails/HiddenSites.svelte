@@ -1,11 +1,10 @@
 <script lang="ts">
-  import type { LinkType } from '@skyreach/schemas';
-
   import { getLinkPath, getLinkText } from '../../utils/link-generator';
   import TreasureTable from '../TreasureTable/TreasureTable.svelte';
   import Unlocks from '../Unlocks.svelte';
 
   import type { ExtendedHexData, ExtendedHiddenSites, FlatKnowledgeTree } from '../../types.ts';
+  import type { LinkType } from '@skyreach/schemas';
 
   interface Props {
     hex: ExtendedHexData;
@@ -27,7 +26,7 @@
     {@const site = hex.renderedHiddenSites[0]}
     <div>
       <p class="hanging-indent">
-        <span class="inline-heading">Hidden Site:</span>{' '}
+        <span class="inline-heading">Hidden Site:</span>
         {@html site.description}
         {#if hasLink(site)}
           &rarr; <a href={getLinkPath(site.linkType, site.linkId)}>{getLinkText(site.linkType, site.linkId)}</a>
@@ -50,7 +49,7 @@
       <span class="inline-heading keep-with-next">Hidden Sites:</span>
     </div>
     <ul>
-      {#each hex.renderedHiddenSites as site}
+      {#each hex.renderedHiddenSites as site (site.id)}
         <li>
           {@html site.description}
           {#if hasLink(site)}

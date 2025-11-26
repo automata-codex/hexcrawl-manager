@@ -14,12 +14,14 @@ import type {
   FloatingClueData,
   HexData,
   KnowledgeNodeData,
+  PointcrawlNodeData,
 } from '@skyreach/schemas';
 
 export function buildPlacementMap(
   hexes: HexData[],
   dungeons: DungeonData[],
   floatingClues: FloatingClueData[],
+  pointcrawlNodes: PointcrawlNodeData[],
 ): PlacementMap {
   const placementMap: PlacementMap = {};
 
@@ -69,6 +71,19 @@ export function buildPlacementMap(
       label: clue.name,
     };
     for (const unlockKey of clue.unlocks ?? []) {
+      placementMap[unlockKey] ||= [];
+      placementMap[unlockKey].push(ref);
+    }
+  }
+
+  // Pointcrawl nodes
+  for (const node of pointcrawlNodes) {
+    const ref = {
+      type: 'pointcrawl-node' as PlacementType,
+      id: node.id,
+      label: node.name,
+    };
+    for (const unlockKey of node.unlocks ?? []) {
       placementMap[unlockKey] ||= [];
       placementMap[unlockKey].push(ref);
     }

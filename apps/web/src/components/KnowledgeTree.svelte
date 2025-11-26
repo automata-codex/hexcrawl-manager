@@ -7,15 +7,32 @@
     getFloatingCluePath,
     getHexPath,
   } from '../config/routes.js';
+  import { renderBulletMarkdown } from '../utils/markdown.js';
+
+  import KnowledgeTree from './KnowledgeTree.svelte';
 
   import type { PlacementRef } from '../types';
   import type { KnowledgeNodeData } from '@skyreach/schemas';
 
-  export let node: KnowledgeNodeData;
-  export let fullId: string = node.id;
-  export let placementMap: Record<string, PlacementRef[]> = {};
+  interface Props {
+    node: KnowledgeNodeData;
+    fullId?: string;
+    placementMap?: Record<string, PlacementRef[]>;
+  }
 
-  let isExpanded = true;
+  let { node, fullId = node.id, placementMap = {} }: Props = $props();
+
+  let isExpanded = $state(true);
+  let isDetailsExpanded = $state(false);
+  let renderedDetails = $state('');
+
+  $effect(() => {
+    if (node.details) {
+      renderBulletMarkdown(node.details).then((html) => {
+        renderedDetails = html;
+      });
+    }
+  });
 
   function generateLink(ref: PlacementRef): string {
     switch (ref.type) {
@@ -27,6 +44,9 @@
         return getHexPath(ref.id);
       case 'hidden-site':
         return getHexPath(ref.id);
+      case 'pointcrawl-node':
+        // TODO: Add getPointcrawlNodePath when available
+        return '#';
       default:
         throw new Error(`Unknown reference type: ${ref.type}`);
     }
@@ -41,7 +61,9 @@
       case 'hex':
         return '(Landmark)';
       case 'hidden-site':
-        return `(Hidden Site)`;
+        return '(Hidden Site)';
+      case 'pointcrawl-node':
+        return '(Pointcrawl)';
       default:
         throw new Error(`Unknown reference type: ${ref.type}`);
     }
@@ -49,24 +71,40 @@
 </script>
 
 <div class:heading={node.children?.length}>
-  <div style="display: flex">
+  <div style="display: flex; align-items: flex-start">
     {#if node.children?.length}
-      <button on:click={() => (isExpanded = !isExpanded)}>
+      <button onclick={() => (isExpanded = !isExpanded)}>
         <span class="chevron" class:rotated={isExpanded}>
           <FontAwesomeIcon icon={faChevronRight} />
         </span>
       </button>
     {/if}
     {#if !node.children?.length}
-      <ul>
+      <ul class="leaf-node">
         <li>
           <span
             class="leaf-node-name"
             class:unused={!placementMap[fullId]?.length}>{node.name}:{' '}</span
           >
           <span class="node-description">{node.description}</span>
+          {#if node.isUnlocked}
+            <span class="unlocked-indicator">✓ Unlocked</span>
+          {/if}
+          {#if node.details}
+            <div class="node-details">
+              <button onclick={() => (isDetailsExpanded = !isDetailsExpanded)}>
+                <span class="chevron" class:rotated={isDetailsExpanded}>
+                  <FontAwesomeIcon icon={faChevronRight} />
+                </span>
+                <strong>Details</strong>
+              </button>
+              {#if isDetailsExpanded}
+                <div class="details-text-container">{@html renderedDetails}</div>
+              {/if}
+            </div>
+          {/if}
           {#if placementMap[fullId]?.length}
-            <ul>
+            <ul class="placement-list">
               {#each placementMap[fullId] as ref}
                 <li>
                   <a href={generateLink(ref)}>{ref.label}</a>
@@ -76,19 +114,35 @@
               {/each}
             </ul>
           {:else}
-            <ul><li>❌ Not placed</li></ul>
+            <ul class="placement-list"><li>❌ Not placed</li></ul>
           {/if}
         </li>
       </ul>
     {:else}
-      <div>
+      <div class="node-content">
         <span class="parent-node-text">
           <span class="leaf-node-name">{node.name}:</span>
           {' '}
           {node.description}
+          {#if node.isUnlocked}
+            <span class="unlocked-indicator">✓ Unlocked</span>
+          {/if}
         </span>
+        {#if node.details}
+          <div class="node-details">
+            <button onclick={() => (isDetailsExpanded = !isDetailsExpanded)}>
+              <span class="chevron" class:rotated={isDetailsExpanded}>
+                <FontAwesomeIcon icon={faChevronRight} />
+              </span>
+              <strong>Details</strong>
+            </button>
+            {#if isDetailsExpanded}
+              <div class="details-text-container">{@html renderedDetails}</div>
+            {/if}
+          </div>
+        {/if}
         {#if placementMap[fullId]?.length}
-          <ul>
+          <ul class="placement-list">
             {#each placementMap[fullId] as ref}
               <li>
                 <a href={generateLink(ref)}>{ref.label}</a>
@@ -98,7 +152,7 @@
             {/each}
           </ul>
         {:else if !node.children?.length}
-          <ul><li>❌ Not placed</li></ul>
+          <ul class="placement-list"><li>❌ Not placed</li></ul>
         {/if}
       </div>
     {/if}
@@ -107,7 +161,7 @@
   {#if isExpanded && node.children?.length}
     <div style="margin-left: 1.5em;">
       {#each node.children as child}
-        <svelte:self
+        <KnowledgeTree
           node={child}
           fullId={`${fullId}.${child.id}`}
           {placementMap}
@@ -135,18 +189,69 @@
 
   span.chevron {
     display: inline-block;
+    width: 1em;
+    text-align: center;
     transition: transform 0.2s ease;
   }
 
+  .details-text-container {
+    padding-left: 1.5rem;
+  }
+
+  :global(.details-text-container p) {
+      margin-top: 1rem;
+    }
+
+  :global(.details-text-container p:first-child) {
+      margin-top: 0;
+    }
+
+  .leaf-node {
+    padding-inline-start: 1.5rem;
+    margin-bottom: 0;
+  }
+
   .leaf-node-name {
+    color: var(--bulma-strong-color);
     font-weight: bold;
   }
 
-  .parent-node-text {
-    color: var(--bulma-strong-color);
+  .node-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .placement-list {
+    padding-inline-start: 1.5rem;
   }
 
   .unused {
     color: var(--bulma-strong-color);
+  }
+
+  .node-details {
+    display: block;
+  }
+
+  .node-details button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--bulma-text);
+    width: auto;
+  }
+
+  .node-details button .chevron {
+    width: 1em;
+    text-align: center;
+  }
+
+  .unlocked-indicator {
+    color: var(--bulma-success);
+    margin-left: 0.5em;
   }
 </style>
