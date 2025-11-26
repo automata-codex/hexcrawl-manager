@@ -15,6 +15,7 @@
     DungeonEntry,
     ExtendedHexData,
     FlatKnowledgeTree,
+    PointcrawlLink,
   } from '../../types.ts';
 
   interface Props {
@@ -22,6 +23,7 @@
     dungeons: DungeonEntry[];
     hex: ExtendedHexData;
     knowledgeTrees: Record<string, FlatKnowledgeTree>;
+    pointcrawls?: PointcrawlLink[];
     showSelfLink?: boolean;
   }
 
@@ -30,6 +32,7 @@
     dungeons,
     hex,
     knowledgeTrees,
+    pointcrawls,
     showSelfLink = true,
   }: Props = $props();
 </script>
@@ -82,6 +85,14 @@
 {/if}
 {#if clueLinks}
   <LinkedClues {clueLinks} hexId={hex.id} />
+{/if}
+{#if pointcrawls && pointcrawls.length > 0}
+  <div class="hanging-indent">
+    <span class="inline-heading">Pointcrawls:</span>{' '}
+    {#each pointcrawls as pc, i (pc.slug)}
+      <a href={`/gm-reference/pointcrawls/${pc.slug}`}>{pc.name}</a>{#if i < pointcrawls.length - 1}, {/if}
+    {/each}
+  </div>
 {/if}
 
 <style>

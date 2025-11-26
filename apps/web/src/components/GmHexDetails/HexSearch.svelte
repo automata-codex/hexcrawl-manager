@@ -7,15 +7,17 @@
     DungeonEntry,
     ExtendedHexData,
     FlatKnowledgeTree,
+    PointcrawlLink,
   } from '../../types';
 
   interface Props {
     dungeons: DungeonEntry[];
     hexes: ExtendedHexData[];
     knowledgeTrees: Record<string, FlatKnowledgeTree>;
+    pointcrawlsByHex?: Record<string, PointcrawlLink[]>;
   }
 
-  const { dungeons, hexes, knowledgeTrees }: Props = $props();
+  const { dungeons, hexes, knowledgeTrees, pointcrawlsByHex = {} }: Props = $props();
 
   let query = $state('');
   let results: ExtendedHexData[] = $state([]);
@@ -77,7 +79,13 @@
   {#if results.length > 0}
     {#each results as hex (hex.id)}
       <h2 class="title is-3">{hex.id.toUpperCase()}: {hex.name}</h2>
-      <GmHexDetails {dungeons} {hex} {knowledgeTrees} showSelfLink={true} />
+      <GmHexDetails
+        {dungeons}
+        {hex}
+        {knowledgeTrees}
+        pointcrawls={pointcrawlsByHex[hex.id.toLowerCase()]}
+        showSelfLink={true}
+      />
     {/each}
   {/if}
 </div>
