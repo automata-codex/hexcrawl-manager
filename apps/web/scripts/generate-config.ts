@@ -144,6 +144,10 @@ export function getPointcrawlPath(pointcrawlSlug: string): string {
   return getCollectionItemPath(ROUTES.gmReference.pointcrawls as CollectionRoute, pointcrawlSlug);
 }
 
+export function getSpellPath(spellId: string): string {
+  return getCollectionItemPath(ROUTES.gmReference.spells as CollectionRoute, spellId);
+}
+
 export function getBountyPath(bountyId: string): string {
   return getCollectionItemPath(ROUTES.playersReference.setting.bountyBoard as CollectionRoute, bountyId);
 }
