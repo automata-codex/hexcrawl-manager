@@ -20,7 +20,7 @@ export const FactionEnum = z.enum([
 ]);
 
 export const UsageReferenceSchema = z.object({
-  type: z.enum(['hex', 'region', 'dungeon']),
+  type: z.enum(['hex', 'region', 'dungeon', 'pointcrawl', 'pointcrawl-node', 'pointcrawl-edge']),
   id: z.string(),
   name: z.string(),
 });

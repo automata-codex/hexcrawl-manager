@@ -2,6 +2,9 @@ import type {
   DungeonData,
   EncounterTableData,
   HexData,
+  PointcrawlData,
+  PointcrawlEdgeData,
+  PointcrawlNodeData,
   RegionData,
   UsageReference,
 } from '@skyreach/schemas';
@@ -88,18 +91,92 @@ function extractEncounterIdsFromHex(hexData: HexData): string[] {
 }
 
 /**
+ * Extracts encounter IDs from a pointcrawl's encounter tables.
+ */
+function extractEncounterIdsFromPointcrawl(pointcrawlData: PointcrawlData): string[] {
+  const encounterIds = new Set<string>();
+
+  const encounters = pointcrawlData.encounters as EncounterTableData | undefined;
+  if (encounters?.categoryTables) {
+    for (const id of extractEncounterIdsFromCategoryTables(encounters.categoryTables)) {
+      encounterIds.add(id);
+    }
+  }
+
+  return Array.from(encounterIds);
+}
+
+/**
+ * Extracts encounter IDs from a pointcrawl node's set encounters and encounter overrides.
+ */
+function extractEncounterIdsFromPointcrawlNode(nodeData: PointcrawlNodeData): string[] {
+  const encounterIds = new Set<string>();
+
+  // Extract from set encounters
+  if (nodeData.encounters) {
+    for (const id of nodeData.encounters) {
+      encounterIds.add(id);
+    }
+  }
+
+  // Extract from encounter overrides
+  const overrides = nodeData.encounterOverrides;
+  if (overrides && 'categoryTables' in overrides && overrides.categoryTables) {
+    for (const id of extractEncounterIdsFromCategoryTables(
+      overrides.categoryTables as Record<string, Record<string, Array<{ encounterId: string }>>>,
+    )) {
+      encounterIds.add(id);
+    }
+  }
+
+  return Array.from(encounterIds);
+}
+
+/**
+ * Extracts encounter IDs from a pointcrawl edge's set encounters and encounter overrides.
+ */
+function extractEncounterIdsFromPointcrawlEdge(edgeData: PointcrawlEdgeData): string[] {
+  const encounterIds = new Set<string>();
+
+  // Extract from set encounters
+  if (edgeData.encounters) {
+    for (const id of edgeData.encounters) {
+      encounterIds.add(id);
+    }
+  }
+
+  // Extract from encounter overrides
+  const overrides = edgeData.encounterOverrides;
+  if (overrides && 'categoryTables' in overrides && overrides.categoryTables) {
+    for (const id of extractEncounterIdsFromCategoryTables(
+      overrides.categoryTables as Record<string, Record<string, Array<{ encounterId: string }>>>,
+    )) {
+      encounterIds.add(id);
+    }
+  }
+
+  return Array.from(encounterIds);
+}
+
+/**
  * Builds a map of encounter IDs to their usage locations by scanning
- * dungeons, hexes, and regions.
+ * dungeons, hexes, regions, pointcrawls, and pointcrawl nodes/edges.
  *
  * @param dungeons - Array of dungeon entries from the collection
  * @param hexes - Array of hex entries from the collection
  * @param regions - Array of region entries from the collection
+ * @param pointcrawls - Array of pointcrawl entries from the collection
+ * @param pointcrawlNodes - Array of pointcrawl node entries from the collection
+ * @param pointcrawlEdges - Array of pointcrawl edge entries from the collection
  * @returns Map of encounter IDs to arrays of usage references
  */
 export function buildEncounterUsageMap(
   dungeons: Array<{ id: string; data: DungeonData }>,
   hexes: Array<{ id: string; data: HexData }>,
   regions: Array<{ id: string; data: RegionData }>,
+  pointcrawls: Array<{ id: string; data: PointcrawlData }>,
+  pointcrawlNodes: Array<{ id: string; data: PointcrawlNodeData }>,
+  pointcrawlEdges: Array<{ id: string; data: PointcrawlEdgeData }>,
 ): EncounterUsageMap {
   const usageMap: EncounterUsageMap = new Map();
 
@@ -142,6 +219,49 @@ export function buildEncounterUsageMap(
         type: 'region',
         id: region.data.id,
         name: region.data.name,
+      });
+    }
+  }
+
+  // Build a lookup map for pointcrawl names (needed for edge labels)
+  const pointcrawlNameMap = new Map<string, string>();
+  for (const pointcrawl of pointcrawls) {
+    pointcrawlNameMap.set(pointcrawl.data.id, pointcrawl.data.name);
+  }
+
+  // Scan pointcrawls (encounter tables)
+  for (const pointcrawl of pointcrawls) {
+    const encounterIds = extractEncounterIdsFromPointcrawl(pointcrawl.data);
+    for (const encounterId of encounterIds) {
+      addUsage(encounterId, {
+        type: 'pointcrawl',
+        id: pointcrawl.data.id,
+        name: pointcrawl.data.name,
+      });
+    }
+  }
+
+  // Scan pointcrawl nodes
+  for (const node of pointcrawlNodes) {
+    const encounterIds = extractEncounterIdsFromPointcrawlNode(node.data);
+    for (const encounterId of encounterIds) {
+      addUsage(encounterId, {
+        type: 'pointcrawl-node',
+        id: node.data.id,
+        name: node.data.name,
+      });
+    }
+  }
+
+  // Scan pointcrawl edges
+  for (const edge of pointcrawlEdges) {
+    const encounterIds = extractEncounterIdsFromPointcrawlEdge(edge.data);
+    const pointcrawlName = pointcrawlNameMap.get(edge.data.pointcrawlId) || edge.data.pointcrawlId;
+    for (const encounterId of encounterIds) {
+      addUsage(encounterId, {
+        type: 'pointcrawl-edge',
+        id: edge.data.id,
+        name: `${pointcrawlName} - Edge ${edge.data.label}`,
       });
     }
   }
