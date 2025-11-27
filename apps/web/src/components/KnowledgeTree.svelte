@@ -22,9 +22,10 @@
     node: KnowledgeNodeData;
     fullId?: string;
     placementMap?: Record<string, PlacementRef[]>;
+    depth?: number;
   }
 
-  let { node, fullId = node.id, placementMap = {} }: Props = $props();
+  let { node, fullId = node.id, placementMap = {}, depth = 0 }: Props = $props();
 
   let isExpanded = $state(true);
   let isDetailsExpanded = $state(false);
@@ -85,115 +86,110 @@
   }
 </script>
 
-<div class:heading={node.children?.length}>
-  <div style="display: flex; align-items: flex-start">
+<div class="node-row" style="padding-left: {depth * 1.5}rem">
+  <div class="icon-column">
     {#if node.children?.length}
       <button onclick={() => (isExpanded = !isExpanded)}>
         <span class="chevron" class:rotated={isExpanded}>
           <FontAwesomeIcon icon={faChevronRight} />
         </span>
       </button>
-    {/if}
-    {#if !node.children?.length}
-      <ul class="leaf-node">
-        <li>
-          <span
-            class="leaf-node-name"
-            class:unused={!placementMap[fullId]?.length}>{node.name}:{' '}</span
-          >
-          <span class="node-description">{node.description}</span>
-          {#if node.isUnlocked}
-            <span class="unlocked-indicator">✓ Unlocked</span>
-          {/if}
-          {#if node.details}
-            <div class="node-details">
-              <button onclick={() => (isDetailsExpanded = !isDetailsExpanded)}>
-                <span class="chevron" class:rotated={isDetailsExpanded}>
-                  <FontAwesomeIcon icon={faChevronRight} />
-                </span>
-                <strong>Details</strong>
-              </button>
-              {#if isDetailsExpanded}
-                <div class="details-text-container">{@html renderedDetails}</div>
-              {/if}
-            </div>
-          {/if}
-          {#if placementMap[fullId]?.length}
-            <ul class="placement-list">
-              {#each placementMap[fullId] as ref}
-                <li>
-                  <a href={generateLink(ref)}>{ref.label}</a>
-                  {' '}
-                  {generateLabelAppendix(ref)}
-                </li>
-              {/each}
-            </ul>
-          {:else}
-            <ul class="placement-list"><li>❌ Not placed</li></ul>
-          {/if}
-        </li>
-      </ul>
     {:else}
-      <div class="node-content">
-        <span class="parent-node-text">
-          <span class="leaf-node-name">{node.name}:</span>
-          {' '}
-          {node.description}
-          {#if node.isUnlocked}
-            <span class="unlocked-indicator">✓ Unlocked</span>
-          {/if}
-        </span>
-        {#if node.details}
-          <div class="node-details">
-            <button onclick={() => (isDetailsExpanded = !isDetailsExpanded)}>
-              <span class="chevron" class:rotated={isDetailsExpanded}>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </span>
-              <strong>Details</strong>
-            </button>
-            {#if isDetailsExpanded}
-              <div class="details-text-container">{@html renderedDetails}</div>
-            {/if}
-          </div>
-        {/if}
-        {#if placementMap[fullId]?.length}
-          <ul class="placement-list">
-            {#each placementMap[fullId] as ref}
-              <li>
-                <a href={generateLink(ref)}>{ref.label}</a>
-                {' '}
-                {generateLabelAppendix(ref)}
-              </li>
-            {/each}
-          </ul>
-        {:else if !node.children?.length}
-          <ul class="placement-list"><li>❌ Not placed</li></ul>
+      <span class="bullet">●</span>
+    {/if}
+  </div>
+  <div class="content-column">
+    <span class="node-name" class:unused={!node.children?.length && !placementMap[fullId]?.length}
+      >{node.name}:</span
+    >
+    {' '}
+    <span class="node-description">{node.description}</span>
+    {#if node.isUnlocked}
+      <span class="unlocked-indicator">✓ Unlocked</span>
+    {/if}
+    {#if node.details}
+      <div class="details-section">
+        <button class="details-toggle" onclick={() => (isDetailsExpanded = !isDetailsExpanded)}>
+          <span class="chevron" class:rotated={isDetailsExpanded}>
+            <FontAwesomeIcon icon={faChevronRight} />
+          </span>
+          <strong>Details</strong>
+        </button>
+        {#if isDetailsExpanded}
+          <div class="details-content">{@html renderedDetails}</div>
         {/if}
       </div>
     {/if}
+    {#if placementMap[fullId]?.length}
+      <ul class="placement-list">
+        {#each placementMap[fullId] as ref}
+          <li>
+            <a href={generateLink(ref)}>{ref.label}</a>
+            {' '}
+            {generateLabelAppendix(ref)}
+          </li>
+        {/each}
+      </ul>
+    {:else if !node.children?.length}
+      <span class="not-placed">❌ Not placed</span>
+    {/if}
   </div>
-
-  {#if isExpanded && node.children?.length}
-    <div style="margin-left: 1.5em;">
-      {#each node.children as child}
-        <KnowledgeTree
-          node={child}
-          fullId={`${fullId}.${child.id}`}
-          {placementMap}
-        />
-      {/each}
-    </div>
-  {/if}
 </div>
 
+{#if isExpanded && node.children?.length}
+  <div class="children-container">
+    {#each node.children as child}
+      <KnowledgeTree
+        node={child}
+        fullId={`${fullId}.${child.id}`}
+        {placementMap}
+        depth={depth + 1}
+      />
+    {/each}
+  </div>
+{/if}
+
 <style>
-  button {
+  /* Layout structure */
+  .node-row {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .icon-column {
+    width: 1.5rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 0.1em;
+  }
+
+  .icon-column button {
     background: none;
     border: none;
-    font-size: 1em;
     padding: 0;
     cursor: pointer;
-    width: 1.5em;
+    font-size: 1em;
+  }
+
+  .icon-column .bullet {}
+
+  .content-column {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .children-container {
+    /* No margin-left — depth-based padding handles indentation */
+  }
+
+  /* Chevron animation */
+  span.chevron {
+    display: inline-block;
+    width: 1em;
+    text-align: center;
+    transition: transform 0.2s ease;
   }
 
   span.rotated {
@@ -202,71 +198,67 @@
     transition: transform 0.2s ease;
   }
 
-  span.chevron {
-    display: inline-block;
-    width: 1em;
-    text-align: center;
-    transition: transform 0.2s ease;
-  }
-
-  .details-text-container {
-    padding-left: 1.5rem;
-  }
-
-  :global(.details-text-container p) {
-      margin-top: 1rem;
-    }
-
-  :global(.details-text-container p:first-child) {
-      margin-top: 0;
-    }
-
-  .leaf-node {
-    padding-inline-start: 1.5rem;
-    margin-bottom: 0;
-  }
-
-  .leaf-node-name {
+  /* Node content styling */
+  .node-name {
     color: var(--bulma-strong-color);
     font-weight: bold;
   }
 
-  .node-content {
-    flex: 1;
-    min-width: 0;
+  .unused {}
+
+  .unlocked-indicator {
+    color: var(--bulma-success);
+    margin-left: 0.5em;
   }
 
-  .placement-list {
-    padding-inline-start: 1.5rem;
-  }
-
-  .unused {
-    color: var(--bulma-strong-color);
-  }
-
-  .node-details {
+  /* Details section - indented to align with child nodes */
+  .details-section {
     display: block;
+    margin-left: 1.5rem;
   }
 
-  .node-details button {
+  .details-toggle {
     display: inline-flex;
     align-items: center;
-    gap: 0.5em;
+    gap: 0.25rem;
     background: none;
     border: none;
     padding: 0;
     cursor: pointer;
     color: var(--bulma-text);
-    width: auto;
   }
 
-  .node-details button .chevron {
+  .details-toggle .chevron {
     width: 1em;
-    text-align: center;
+    font-size: 0.85em;
   }
 
-  .unlocked-indicator {
-    color: var(--bulma-success);
-    margin-left: 0.5em;
+  .details-content {
+    margin-left: 1.125rem;
+    margin-bottom: 1rem;
+  }
+
+  :global(.details-content p) {
+    margin-top: 1rem;
+  }
+
+  :global(.details-content p:first-child) {
+    margin-top: 0;
+  }
+
+  /* Placement list */
+  .placement-list {
+    list-style: disc;
+    margin: 0.25rem 0 0 1.25rem;
+    padding: 0;
+  }
+
+  .placement-list li {
+    margin: 0.125rem 0;
+  }
+
+  .not-placed {
+    display: block;
+    margin-top: 0.25rem;
   }
 </style>
