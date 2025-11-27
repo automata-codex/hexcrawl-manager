@@ -15,7 +15,7 @@ import {
 } from '../../../config/routes';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
 import { findHexesWithHiddenSiteLink } from '../../../utils/encounter-processor';
-import { flatKnowledgeTrees } from '../../../utils/knowledge-trees';
+import { getFlatKnowledgeTrees } from '../../../utils/knowledge-trees';
 import { loadAugmentedEncounter } from '../../../utils/load-augmented-encounters';
 import {
   renderBulletMarkdown,
@@ -24,6 +24,8 @@ import {
 
 import type { FloatingClueEntry } from '../../../types';
 import type { EncounterData } from '@skyreach/schemas';
+
+const flatKnowledgeTrees = await getFlatKnowledgeTrees();
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;

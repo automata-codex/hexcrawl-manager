@@ -2,7 +2,9 @@
 import Card from '../../../components/Card.astro';
 import CardGrid from '../../../components/CardGrid.astro';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
-import { knowledgeTrees } from '../../../utils/knowledge-trees';
+import { getKnowledgeTrees } from '../../../utils/knowledge-trees';
+
+const knowledgeTrees = await getKnowledgeTrees();
 
 // Convert the knowledge trees object to an array and sort by name
 const trees = Object.entries(knowledgeTrees)

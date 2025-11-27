@@ -10,7 +10,7 @@ import RandomEncounterTable from '../../../components/RandomEncounterTable/Rando
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { loadClueLinks } from '../../../utils/clue-links';
 import { processHex } from '../../../utils/hexes';
-import { flatKnowledgeTrees } from '../../../utils/knowledge-trees';
+import { getFlatKnowledgeTrees } from '../../../utils/knowledge-trees';
 
 import type {
   CategoryTableData,
@@ -19,6 +19,7 @@ import type {
   HexData,
 } from '@skyreach/schemas';
 
+const flatKnowledgeTrees = await getFlatKnowledgeTrees();
 const clueLinks = await loadClueLinks();
 
 // Get the ID from the incoming server request
