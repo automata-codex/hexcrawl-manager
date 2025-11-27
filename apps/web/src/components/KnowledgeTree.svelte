@@ -99,7 +99,9 @@
     {/if}
   </div>
   <div class="content-column">
-    <span class="node-name" class:unused={!node.children?.length && !placementMap[fullId]?.length}
+    <span
+      class="node-name"
+      class:unused={!node.children?.length && !node.notPlaced && !placementMap[fullId]?.length}
       >{node.name}:</span
     >
     {' '}
@@ -120,18 +122,20 @@
         {/if}
       </div>
     {/if}
-    {#if placementMap[fullId]?.length}
-      <ul class="placement-list">
-        {#each placementMap[fullId] as ref}
-          <li>
-            <a href={generateLink(ref)}>{ref.label}</a>
-            {' '}
-            {generateLabelAppendix(ref)}
-          </li>
-        {/each}
-      </ul>
-    {:else if !node.children?.length}
-      <span class="not-placed">❌ Not placed</span>
+    {#if !node.notPlaced}
+      {#if placementMap[fullId]?.length}
+        <ul class="placement-list">
+          {#each placementMap[fullId] as ref}
+            <li>
+              <a href={generateLink(ref)}>{ref.label}</a>
+              {' '}
+              {generateLabelAppendix(ref)}
+            </li>
+          {/each}
+        </ul>
+      {:else if !node.children?.length}
+        <span class="not-placed">❌ Not placed</span>
+      {/if}
     {/if}
   </div>
 </div>
