@@ -1,8 +1,9 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 
 import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { renderBulletMarkdown } from '../../../utils/markdown.ts';
 
 import type { ImageData } from '@skyreach/schemas';
 
@@ -168,7 +169,9 @@ const title = pointcrawl.data.name;
     )
   }
 
-  {pointcrawl.data.summary && <p class="mb-4">{pointcrawl.data.summary}</p>}
+  {pointcrawl.data.summary && <p class="mb-4">
+    <Fragment set:html={renderBulletMarkdown(pointcrawl.data.summary)} />
+  </p>}
 
   {
     pointcrawl.data.hexIds && pointcrawl.data.hexIds.length > 0 && (
