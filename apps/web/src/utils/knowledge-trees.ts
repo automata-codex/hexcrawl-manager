@@ -11,6 +11,7 @@ import type {
 } from '../types.ts';
 import type {
   DungeonData,
+  EncounterData,
   FloatingClueData,
   HexData,
   KnowledgeNodeData,
@@ -22,6 +23,7 @@ export function buildPlacementMap(
   dungeons: DungeonData[],
   floatingClues: FloatingClueData[],
   pointcrawlNodes: PointcrawlNodeData[],
+  encounters: EncounterData[],
 ): PlacementMap {
   const placementMap: PlacementMap = {};
 
@@ -84,6 +86,19 @@ export function buildPlacementMap(
       label: node.name,
     };
     for (const unlockKey of node.unlocks ?? []) {
+      placementMap[unlockKey] ||= [];
+      placementMap[unlockKey].push(ref);
+    }
+  }
+
+  // Encounters
+  for (const encounter of encounters) {
+    const ref = {
+      type: 'encounter' as PlacementType,
+      id: encounter.id,
+      label: encounter.name,
+    };
+    for (const unlockKey of encounter.unlocks ?? []) {
       placementMap[unlockKey] ||= [];
       placementMap[unlockKey].push(ref);
     }

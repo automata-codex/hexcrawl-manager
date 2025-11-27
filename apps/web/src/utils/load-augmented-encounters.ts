@@ -46,19 +46,38 @@ export interface AugmentedEncountersResult {
  */
 export async function loadAugmentedEncounters(): Promise<AugmentedEncountersResult> {
   // Load all necessary collections in parallel
-  const [encounters, statBlocks, dungeons, hexes, regions, roleplayBooks] =
-    await Promise.all([
-      getCollection('encounters'),
-      getCollection('statBlocks'),
-      getCollection('dungeons'),
-      getCollection('hexes'),
-      getCollection('regions'),
-      getCollection('roleplay-books'),
-    ]);
+  const [
+    encounters,
+    statBlocks,
+    dungeons,
+    hexes,
+    regions,
+    roleplayBooks,
+    pointcrawls,
+    pointcrawlNodes,
+    pointcrawlEdges,
+  ] = await Promise.all([
+    getCollection('encounters'),
+    getCollection('statBlocks'),
+    getCollection('dungeons'),
+    getCollection('hexes'),
+    getCollection('regions'),
+    getCollection('roleplay-books'),
+    getCollection('pointcrawls'),
+    getCollection('pointcrawl-nodes'),
+    getCollection('pointcrawl-edges'),
+  ]);
 
   // Build lookup maps
   const statBlockMap = buildStatBlockMap(statBlocks);
-  const usageMap = buildEncounterUsageMap(dungeons, hexes, regions);
+  const usageMap = buildEncounterUsageMap(
+    dungeons,
+    hexes,
+    regions,
+    pointcrawls,
+    pointcrawlNodes,
+    pointcrawlEdges,
+  );
   const leadEncounterIds = detectLeadEncounters(roleplayBooks);
 
   // Augment each encounter with derived fields

@@ -144,6 +144,24 @@ export function getPointcrawlPath(pointcrawlSlug: string): string {
   return getCollectionItemPath(ROUTES.gmReference.pointcrawls as CollectionRoute, pointcrawlSlug);
 }
 
+/**
+ * Get path for a pointcrawl node detail page.
+ * @param compoundId - Format: "pointcrawlSlug/nodeId"
+ */
+export function getPointcrawlNodePath(compoundId: string): string {
+  const [pointcrawlSlug, nodeId] = compoundId.split('/');
+  return \`\${getPointcrawlPath(pointcrawlSlug)}/\${nodeId}\`;
+}
+
+/**
+ * Get path for a pointcrawl edge detail page.
+ * @param compoundId - Format: "pointcrawlSlug/edgeId"
+ */
+export function getPointcrawlEdgePath(compoundId: string): string {
+  const [pointcrawlSlug, edgeId] = compoundId.split('/');
+  return \`\${getPointcrawlPath(pointcrawlSlug)}/\${edgeId}\`;
+}
+
 export function getSpellPath(spellId: string): string {
   return getCollectionItemPath(ROUTES.gmReference.spells as CollectionRoute, spellId);
 }

@@ -54,7 +54,7 @@ export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
 export type PlacementMap = Record<string, PlacementRef[]>;
 
 export interface PlacementRef {
-  type: 'hex' | 'hidden-site' | 'dungeon' | 'floating-clue' | 'pointcrawl-node';
+  type: 'hex' | 'hidden-site' | 'dungeon' | 'floating-clue' | 'pointcrawl-node' | 'encounter';
   id: string;
   label: string;
 }
