@@ -223,44 +223,51 @@ export function buildEncounterUsageMap(
     }
   }
 
-  // Build a lookup map for pointcrawl names (needed for edge labels)
+  // Build lookup maps for pointcrawl names and slugs (needed for nodes/edges)
   const pointcrawlNameMap = new Map<string, string>();
+  const pointcrawlSlugMap = new Map<string, string>();
   for (const pointcrawl of pointcrawls) {
     pointcrawlNameMap.set(pointcrawl.data.id, pointcrawl.data.name);
+    pointcrawlSlugMap.set(pointcrawl.data.id, pointcrawl.data.slug);
   }
 
   // Scan pointcrawls (encounter tables)
+  // Store slug for routing (getPointcrawlPath expects slug, not id)
   for (const pointcrawl of pointcrawls) {
     const encounterIds = extractEncounterIdsFromPointcrawl(pointcrawl.data);
     for (const encounterId of encounterIds) {
       addUsage(encounterId, {
         type: 'pointcrawl',
-        id: pointcrawl.data.id,
+        id: pointcrawl.data.slug,
         name: pointcrawl.data.name,
       });
     }
   }
 
   // Scan pointcrawl nodes
+  // Store compound id as "pointcrawlSlug/nodeId" for routing to node detail page
   for (const node of pointcrawlNodes) {
     const encounterIds = extractEncounterIdsFromPointcrawlNode(node.data);
+    const pointcrawlSlug = pointcrawlSlugMap.get(node.data.pointcrawlId) || node.data.pointcrawlId;
     for (const encounterId of encounterIds) {
       addUsage(encounterId, {
         type: 'pointcrawl-node',
-        id: node.data.id,
+        id: `${pointcrawlSlug}/${node.data.id}`,
         name: node.data.name,
       });
     }
   }
 
   // Scan pointcrawl edges
+  // Store compound id as "pointcrawlSlug/edgeId" for routing to edge detail page
   for (const edge of pointcrawlEdges) {
     const encounterIds = extractEncounterIdsFromPointcrawlEdge(edge.data);
     const pointcrawlName = pointcrawlNameMap.get(edge.data.pointcrawlId) || edge.data.pointcrawlId;
+    const pointcrawlSlug = pointcrawlSlugMap.get(edge.data.pointcrawlId) || edge.data.pointcrawlId;
     for (const encounterId of encounterIds) {
       addUsage(encounterId, {
         type: 'pointcrawl-edge',
-        id: edge.data.id,
+        id: `${pointcrawlSlug}/${edge.data.id}`,
         name: `${pointcrawlName} - Edge ${edge.data.label}`,
       });
     }

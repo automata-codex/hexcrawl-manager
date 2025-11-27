@@ -7,6 +7,9 @@ import StatBlock from '../../../components/StatBlock/StatBlock.astro';
 import {
   getFloatingCluePath,
   getHexPath,
+  getPointcrawlEdgePath,
+  getPointcrawlNodePath,
+  getPointcrawlPath,
   getRegionPath,
 } from '../../../config/routes';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
@@ -56,12 +59,24 @@ const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
 const regionsUsing = usedIn.filter((ref) => ref.type === 'region');
 const hexesUsing = usedIn.filter((ref) => ref.type === 'hex');
 const dungeonsUsing = usedIn.filter((ref) => ref.type === 'dungeon');
+const pointcrawlsUsing = usedIn.filter((ref) => ref.type === 'pointcrawl');
+const pointcrawlNodesUsing = usedIn.filter((ref) => ref.type === 'pointcrawl-node');
+const pointcrawlEdgesUsing = usedIn.filter((ref) => ref.type === 'pointcrawl-edge');
 
 const regionList = regionsUsing
   .map((ref) => `<a href=${getRegionPath(ref.id)}>${ref.name}</a>`)
   .join(', ');
 const hexList = hexesUsing
   .map((ref) => `<a href=${getHexPath(ref.id)}>${ref.name}</a>`)
+  .join(', ');
+const pointcrawlList = pointcrawlsUsing
+  .map((ref) => `<a href=${getPointcrawlPath(ref.id)}>${ref.name}</a>`)
+  .join(', ');
+const pointcrawlNodeList = pointcrawlNodesUsing
+  .map((ref) => `<a href=${getPointcrawlNodePath(ref.id)}>${ref.name}</a>`)
+  .join(', ');
+const pointcrawlEdgeList = pointcrawlEdgesUsing
+  .map((ref) => `<a href=${getPointcrawlEdgePath(ref.id)}>${ref.name}</a>`)
   .join(', ');
 
 // Find hexes with hidden sites that link to this encounter
@@ -325,6 +340,27 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
     hiddenSiteHexList.length > 0 && (
       <li>
         <strong>Hidden Sites</strong> linking to this encounter: <Fragment set:html={hiddenSiteHexList} />
+      </li>
+    )
+  }
+  {
+    pointcrawlList.length > 0 && (
+      <li>
+        <strong>Pointcrawls</strong> with this encounter: <Fragment set:html={pointcrawlList} />
+      </li>
+    )
+  }
+  {
+    pointcrawlNodeList.length > 0 && (
+      <li>
+        <strong>Pointcrawl Nodes</strong> with this encounter: <Fragment set:html={pointcrawlNodeList} />
+      </li>
+    )
+  }
+  {
+    pointcrawlEdgeList.length > 0 && (
+      <li>
+        <strong>Pointcrawl Edges</strong> with this encounter: <Fragment set:html={pointcrawlEdgeList} />
       </li>
     )
   }
