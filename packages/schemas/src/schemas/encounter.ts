@@ -44,6 +44,11 @@ export const EncounterSchema = z
 
     factions: z.array(FactionEnum).optional(),
 
+    unlocks: z
+      .array(z.string())
+      .optional()
+      .describe('IDs of knowledge nodes that are unlocked by this encounter'),
+
     // Derived fields (populated at build time)
     isLead: z
       .boolean()
