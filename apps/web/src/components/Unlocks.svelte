@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getKnowledgeTreePath } from '../config/routes.js';
+  import { renderBulletMarkdown } from '../utils/markdown.js';
 
   import type { FlatKnowledgeTree } from '../types.ts';
 
@@ -29,7 +30,9 @@
         {#if node}
           <li>
             <span class="inline-heading">{node.name}</span>:
-            <span class="text-muted">{node.description}</span>
+            {#await renderBulletMarkdown(node.description) then html}
+              <span class="text-muted">{@html html}</span>
+            {/await}
             <a href={getKnowledgeTreePath(getTreeRoot(key))}>[Tree]</a>
           </li>
         {:else}
