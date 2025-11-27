@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { CreatureTypeEnum } from './stat-block';
 
-export const EncounterScopeEnum = z.enum(['general', 'hex', 'region', 'dungeon']);
+export const EncounterScopeEnum = z.enum(['general', 'hex', 'region', 'dungeon', 'pointcrawl']);
 
 export const LocationTypeEnum = z.enum(['wilderness', 'dungeon']);
 

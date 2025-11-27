@@ -208,6 +208,7 @@
   <span class="unused-text">Italic</span> = unused |
   <span class="scope-tag scope-dungeon">dungeon</span>
   <span class="scope-tag scope-hex">hex</span>
+  <span class="scope-tag scope-pointcrawl">pointcrawl</span>
   <span class="scope-tag scope-region">region</span> = specific scope |
   <span class="scope-tag scope-lead">lead</span> = faction intelligence
 </p>
@@ -229,6 +230,7 @@
           class="scope-tag"
           class:scope-dungeon={encounter.scope === 'dungeon'}
           class:scope-hex={encounter.scope === 'hex'}
+          class:scope-pointcrawl={encounter.scope === 'pointcrawl'}
           class:scope-region={encounter.scope === 'region'}
         >
           {encounter.scope}
@@ -318,6 +320,11 @@
     color: #92400e;
   }
 
+  .scope-pointcrawl {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+  }
+
   .scope-lead {
     background-color: #fce7f3;
     color: #9d174d;
@@ -337,6 +344,11 @@
   :global(html[data-theme='dark']) .scope-region {
     background-color: #78350f;
     color: #fcd34d;
+  }
+
+  :global(html[data-theme='dark']) .scope-pointcrawl {
+    background-color: #581c87;
+    color: #d8b4fe;
   }
 
   :global(html[data-theme='dark']) .scope-lead {
@@ -359,6 +371,11 @@
     :global(html:not([data-theme])) .scope-region {
       background-color: #78350f;
       color: #fcd34d;
+    }
+
+    :global(html:not([data-theme])) .scope-pointcrawl {
+      background-color: #581c87;
+      color: #d8b4fe;
     }
 
     :global(html:not([data-theme])) .scope-lead {
