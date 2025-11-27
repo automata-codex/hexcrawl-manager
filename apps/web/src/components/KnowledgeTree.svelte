@@ -29,7 +29,14 @@
 
   let isExpanded = $state(true);
   let isDetailsExpanded = $state(false);
+  let renderedDescription = $state('');
   let renderedDetails = $state('');
+
+  $effect(() => {
+    renderBulletMarkdown(node.description).then((html) => {
+      renderedDescription = html;
+    });
+  });
 
   $effect(() => {
     if (node.details) {
@@ -105,7 +112,7 @@
       >{node.name}:</span
     >
     {' '}
-    <span class="node-description">{node.description}</span>
+    <span class="node-description">{@html renderedDescription}</span>
     {#if node.isUnlocked}
       <span class="unlocked-indicator">✓ Unlocked</span>
     {/if}
