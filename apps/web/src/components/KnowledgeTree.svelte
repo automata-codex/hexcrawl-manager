@@ -4,9 +4,19 @@
 
   import {
     getDungeonPath,
+    getEncounterPath,
     getFloatingCluePath,
     getHexPath,
+    getPointcrawlEdgePath,
+    getPointcrawlNodePath,
+    getPointcrawlPath,
   } from '../config/routes.js';
+  import {
+    knowledgeTreeDetails,
+    knowledgeTreeExpanded,
+    toggleNodeDetails,
+    toggleNodeExpanded,
+  } from '../stores/knowledge-tree-state.js';
   import { renderBulletMarkdown } from '../utils/markdown.js';
 
   import KnowledgeTree from './KnowledgeTree.svelte';
@@ -23,9 +33,17 @@
 
   let { node, fullId = node.id, placementMap = {}, depth = 0 }: Props = $props();
 
-  let isExpanded = $state(true);
-  let isDetailsExpanded = $state(false);
+  // Subscribe to stores for reactivity, derive expanded states
+  let isExpanded = $derived($knowledgeTreeExpanded[fullId] ?? true);
+  let isDetailsExpanded = $derived($knowledgeTreeDetails[fullId] ?? false);
+  let renderedDescription = $state('');
   let renderedDetails = $state('');
+
+  $effect(() => {
+    renderBulletMarkdown(node.description).then((html) => {
+      renderedDescription = html;
+    });
+  });
 
   $effect(() => {
     if (node.details) {
@@ -39,15 +57,20 @@
     switch (ref.type) {
       case 'dungeon':
         return getDungeonPath(ref.id);
+      case 'encounter':
+        return getEncounterPath(ref.id);
       case 'floating-clue':
         return getFloatingCluePath(ref.id);
       case 'hex':
         return getHexPath(ref.id);
       case 'hidden-site':
         return getHexPath(ref.id);
+      case 'pointcrawl':
+        return getPointcrawlPath(ref.id);
       case 'pointcrawl-node':
-        // TODO: Add getPointcrawlNodePath when available
-        return '#';
+        return getPointcrawlNodePath(ref.id);
+      case 'pointcrawl-edge':
+        return getPointcrawlEdgePath(ref.id);
       default:
         throw new Error(`Unknown reference type: ${ref.type}`);
     }
@@ -57,14 +80,20 @@
     switch (ref.type) {
       case 'dungeon':
         return '(Dungeon)';
+      case 'encounter':
+        return '(Encounter)';
       case 'floating-clue':
         return '(Floating Clue)';
       case 'hex':
         return '(Landmark)';
       case 'hidden-site':
         return '(Hidden Site)';
-      case 'pointcrawl-node':
+      case 'pointcrawl':
         return '(Pointcrawl)';
+      case 'pointcrawl-node':
+        return '(Pointcrawl Node)';
+      case 'pointcrawl-edge':
+        return '(Pointcrawl Edge)';
       default:
         throw new Error(`Unknown reference type: ${ref.type}`);
     }
@@ -74,7 +103,7 @@
 <div class="node-row" style="padding-left: {depth * 1.5}rem">
   <div class="icon-column">
     {#if node.children?.length}
-      <button onclick={() => (isExpanded = !isExpanded)}>
+      <button onclick={() => toggleNodeExpanded(fullId)}>
         <span class="chevron" class:rotated={isExpanded}>
           <FontAwesomeIcon icon={faChevronRight} />
         </span>
@@ -84,17 +113,19 @@
     {/if}
   </div>
   <div class="content-column">
-    <span class="node-name" class:unused={!node.children?.length && !placementMap[fullId]?.length}
+    <span
+      class="node-name"
+      class:unused={!node.children?.length && !node.notPlaced && !placementMap[fullId]?.length}
       >{node.name}:</span
     >
     {' '}
-    <span class="node-description">{node.description}</span>
+    <span class="node-description">{@html renderedDescription}</span>
     {#if node.isUnlocked}
       <span class="unlocked-indicator">✓ Unlocked</span>
     {/if}
     {#if node.details}
       <div class="details-section">
-        <button class="details-toggle" onclick={() => (isDetailsExpanded = !isDetailsExpanded)}>
+        <button class="details-toggle" onclick={() => toggleNodeDetails(fullId)}>
           <span class="chevron" class:rotated={isDetailsExpanded}>
             <FontAwesomeIcon icon={faChevronRight} />
           </span>
@@ -105,18 +136,20 @@
         {/if}
       </div>
     {/if}
-    {#if placementMap[fullId]?.length}
-      <ul class="placement-list">
-        {#each placementMap[fullId] as ref}
-          <li>
-            <a href={generateLink(ref)}>{ref.label}</a>
-            {' '}
-            {generateLabelAppendix(ref)}
-          </li>
-        {/each}
-      </ul>
-    {:else if !node.children?.length}
-      <span class="not-placed">❌ Not placed</span>
+    {#if !node.notPlaced}
+      {#if placementMap[fullId]?.length}
+        <ul class="placement-list">
+          {#each placementMap[fullId] as ref}
+            <li>
+              <a href={generateLink(ref)}>{ref.label}</a>
+              {' '}
+              {generateLabelAppendix(ref)}
+            </li>
+          {/each}
+        </ul>
+      {:else if !node.children?.length}
+        <span class="not-placed">❌ Not placed</span>
+      {/if}
     {/if}
   </div>
 </div>

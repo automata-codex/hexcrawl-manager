@@ -1,8 +1,4 @@
-import { REPO_PATHS } from '@skyreach/data';
-import { KnowledgeNodeSchema } from '@skyreach/schemas';
-import fs from 'fs';
-import path from 'path';
-import yaml from 'yaml';
+import { getCollection } from 'astro:content';
 
 import type {
   FlatKnowledgeTree,
@@ -126,17 +122,51 @@ export function flattenKnowledgeTree(
   return result;
 }
 
-const knowledgeTrees: Record<string, KnowledgeNodeData> = {};
-const flatKnowledgeTrees: Record<string, FlatKnowledgeTree> = {};
-
-const files = fs.readdirSync(REPO_PATHS.KNOWLEDGE_TREES()).filter((file) => /\.ya?ml$/.test(file));
-
-for (const file of files) {
-  const rootId = file.replace(/\.ya?ml$/, '');
-  const content = fs.readFileSync(path.join(REPO_PATHS.KNOWLEDGE_TREES(), file), 'utf8');
-  const parsed = yaml.parse(content);
-  knowledgeTrees[rootId] = KnowledgeNodeSchema.parse(parsed);
-  flatKnowledgeTrees[rootId] = flattenKnowledgeTree(knowledgeTrees[rootId]);
+/**
+ * Get all knowledge trees as a record keyed by tree ID.
+ */
+export async function getKnowledgeTrees(): Promise<
+  Record<string, KnowledgeNodeData>
+> {
+  const entries = await getCollection('knowledge-trees');
+  const trees: Record<string, KnowledgeNodeData> = {};
+  for (const entry of entries) {
+    trees[entry.id] = entry.data;
+  }
+  return trees;
 }
 
-export { flatKnowledgeTrees, knowledgeTrees };
+/**
+ * Get a single knowledge tree by ID.
+ */
+export async function getKnowledgeTree(
+  id: string,
+): Promise<KnowledgeNodeData | undefined> {
+  const trees = await getKnowledgeTrees();
+  return trees[id];
+}
+
+/**
+ * Get all knowledge trees as flattened lookup maps.
+ */
+export async function getFlatKnowledgeTrees(): Promise<
+  Record<string, FlatKnowledgeTree>
+> {
+  const trees = await getKnowledgeTrees();
+  const flatTrees: Record<string, FlatKnowledgeTree> = {};
+  for (const [id, tree] of Object.entries(trees)) {
+    flatTrees[id] = flattenKnowledgeTree(tree);
+  }
+  return flatTrees;
+}
+
+/**
+ * Get a single flattened knowledge tree by ID.
+ */
+export async function getFlatKnowledgeTree(
+  id: string,
+): Promise<FlatKnowledgeTree | undefined> {
+  const tree = await getKnowledgeTree(id);
+  if (!tree) return undefined;
+  return flattenKnowledgeTree(tree);
+}
