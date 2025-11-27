@@ -12,7 +12,9 @@
     getPointcrawlPath,
   } from '../config/routes.js';
   import {
+    knowledgeTreeDetails,
     knowledgeTreeExpanded,
+    toggleNodeDetails,
     toggleNodeExpanded,
   } from '../stores/knowledge-tree-state.js';
   import { renderBulletMarkdown } from '../utils/markdown.js';
@@ -31,9 +33,9 @@
 
   let { node, fullId = node.id, placementMap = {}, depth = 0 }: Props = $props();
 
-  // Subscribe to store for reactivity, derive expanded state
+  // Subscribe to stores for reactivity, derive expanded states
   let isExpanded = $derived($knowledgeTreeExpanded[fullId] ?? true);
-  let isDetailsExpanded = $state(false);
+  let isDetailsExpanded = $derived($knowledgeTreeDetails[fullId] ?? false);
   let renderedDescription = $state('');
   let renderedDetails = $state('');
 
@@ -123,7 +125,7 @@
     {/if}
     {#if node.details}
       <div class="details-section">
-        <button class="details-toggle" onclick={() => (isDetailsExpanded = !isDetailsExpanded)}>
+        <button class="details-toggle" onclick={() => toggleNodeDetails(fullId)}>
           <span class="chevron" class:rotated={isDetailsExpanded}>
             <FontAwesomeIcon icon={faChevronRight} />
           </span>

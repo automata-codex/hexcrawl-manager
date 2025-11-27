@@ -1,71 +1,65 @@
-import { writable, get } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 import { STORAGE_KEYS } from '../utils/constants.ts';
 
-type ExpandedState = Record<string, boolean>;
+type BooleanState = Record<string, boolean>;
 
 const SAVE_DEBOUNCE_MS = 300;
 
-let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+/**
+ * Create a persisted boolean state store with debounced localStorage saves.
+ */
+function createPersistedBooleanStore(storageKey: string, defaultValue: boolean) {
+  let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
-function loadInitialState(): ExpandedState {
-  if (typeof localStorage === 'undefined') return {};
-
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.KNOWLEDGE_TREE_EXPANDED);
-    if (!raw) return {};
-    return JSON.parse(raw) as ExpandedState;
-  } catch {
-    return {};
-  }
-}
-
-function saveState(state: ExpandedState): void {
-  if (typeof localStorage === 'undefined') return;
-
-  // Debounce saves to avoid thrashing localStorage
-  if (saveTimeout) clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(() => {
+  function loadInitialState(): BooleanState {
+    if (typeof localStorage === 'undefined') return {};
     try {
-      localStorage.setItem(
-        STORAGE_KEYS.KNOWLEDGE_TREE_EXPANDED,
-        JSON.stringify(state),
-      );
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return {};
+      return JSON.parse(raw) as BooleanState;
     } catch {
-      // Storage full or unavailable - ignore
+      return {};
     }
-  }, SAVE_DEBOUNCE_MS);
+  }
+
+  function saveState(state: BooleanState): void {
+    if (typeof localStorage === 'undefined') return;
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(state));
+      } catch {
+        // Storage full or unavailable - ignore
+      }
+    }, SAVE_DEBOUNCE_MS);
+  }
+
+  const store = writable<BooleanState>(loadInitialState());
+  store.subscribe(saveState);
+
+  function toggle(id: string): void {
+    store.update((state) => ({
+      ...state,
+      [id]: !(state[id] ?? defaultValue),
+    }));
+  }
+
+  return { store, toggle, defaultValue };
 }
 
-export const knowledgeTreeExpanded = writable<ExpandedState>(loadInitialState());
+// Node children expanded state (defaults to expanded)
+const expanded = createPersistedBooleanStore(
+  STORAGE_KEYS.KNOWLEDGE_TREE_EXPANDED,
+  true,
+);
+export const knowledgeTreeExpanded = expanded.store;
+export const toggleNodeExpanded = expanded.toggle;
 
-// Save on every change (debounced)
-knowledgeTreeExpanded.subscribe(saveState);
-
-/**
- * Check if a node is expanded. Defaults to true if not explicitly set.
- */
-export function isNodeExpanded(fullId: string): boolean {
-  const state = get(knowledgeTreeExpanded);
-  return state[fullId] ?? true;
-}
-
-/**
- * Toggle a node's expanded state.
- */
-export function toggleNodeExpanded(fullId: string): void {
-  knowledgeTreeExpanded.update((state) => ({
-    ...state,
-    [fullId]: !(state[fullId] ?? true),
-  }));
-}
-
-/**
- * Set a node's expanded state explicitly.
- */
-export function setNodeExpanded(fullId: string, expanded: boolean): void {
-  knowledgeTreeExpanded.update((state) => ({
-    ...state,
-    [fullId]: expanded,
-  }));
-}
+// Details section expanded state (defaults to collapsed)
+const details = createPersistedBooleanStore(
+  STORAGE_KEYS.KNOWLEDGE_TREE_DETAILS,
+  false,
+);
+export const knowledgeTreeDetails = details.store;
+export const toggleNodeDetails = details.toggle;
