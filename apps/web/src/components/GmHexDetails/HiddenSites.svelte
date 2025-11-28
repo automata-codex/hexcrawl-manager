@@ -25,13 +25,13 @@
   {#if hex.renderedHiddenSites.length === 1}
     {@const site = hex.renderedHiddenSites[0]}
     <div>
-      <p class="hanging-indent">
+      <div class="inline-heading-block">
         <span class="inline-heading">Hidden Site:</span>
         {@html site.description}
         {#if hasLink(site)}
-          &rarr; <a href={getLinkPath(site.linkType, site.linkId)}>{getLinkText(site.linkType, site.linkId)}</a>
+          <p>&rarr; <a href={getLinkPath(site.linkType, site.linkId)}>{getLinkText(site.linkType, site.linkId)}</a></p>
         {/if}
-      </p>
+      </div>
       <div style="margin-left: 1rem">
         {#if site.unlocks}
           <Unlocks
