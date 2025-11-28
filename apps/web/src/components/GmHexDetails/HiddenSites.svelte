@@ -49,7 +49,7 @@
       <span class="inline-heading keep-with-next">Hidden Sites:</span>
     </div>
     <ul>
-      {#each hex.renderedHiddenSites as site (site.id)}
+      {#each hex.renderedHiddenSites as site (site.description)}
         <li>
           {@html site.description}
           {#if hasLink(site)}
