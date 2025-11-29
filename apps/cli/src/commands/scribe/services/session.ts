@@ -682,9 +682,10 @@ export function synthesizeLifecycleEvents(
       // Intermediate blocks: must end with session_pause after last day event
       const hasPause = afterLastDay.find((e) => e.kind === 'session_pause');
       if (!hasPause) {
+        const lastBlockEvent = block.events[block.events.length - 1];
         blockEvents.push({
           kind: 'session_pause',
-          ts: block.events[lastDayIdx]?.ts || timeNowISO(),
+          ts: lastBlockEvent?.ts || timeNowISO(),
           seq: Number.MAX_SAFE_INTEGER,
           payload: { status: 'paused', id: sessionId },
           _origIdx: Number.MAX_SAFE_INTEGER,

@@ -187,6 +187,50 @@ describe('Session Service', () => {
       expect(moveIdx).toBeLessThan(sessionPauseIdx);
       expect(dayEndIdx).toBeLessThan(sessionPauseIdx);
     });
+
+    it('uses timestamp from last block event for session_pause', () => {
+      // session_pause should get its timestamp from the last event in the block
+      // (typically day_end), not from the last day_start
+      const sessionDate = '2025-10-15';
+      const sessionId = makeSessionId(27);
+      const dayStartTs = '2025-10-15T10:00:00.000Z';
+      const dayEndTs = '2025-10-15T18:00:00.000Z';
+
+      const events = compileLog(
+        [
+          sessionStart(sessionId, 'R14', sessionDate),
+          dayStart({ year: 1511, month: 'Hibernum', day: 30 }),
+          move('R14', 'R15'),
+          dayEnd(0, 0),
+          dayStart({ year: 1511, month: 'Umbraeus', day: 1 }),
+          move('R15', 'R16'),
+          dayEnd(0, 0),
+        ],
+        { startTime: '2025-10-15T08:00:00.000Z' },
+      );
+
+      // Set distinct timestamps for day_start and day_end
+      events[1].ts = dayStartTs; // day_start
+      events[3].ts = dayEndTs; // day_end (last event in first block)
+
+      const expandedEvents = events.map((e, i) => ({ ...e, _origIdx: i }));
+      const { blocks } = buildSeasonBlocks(expandedEvents);
+
+      const result = synthesizeLifecycleEvents(
+        blocks,
+        expandedEvents,
+        sessionId,
+        sessionDate,
+      );
+
+      const firstBlockEvents = result.finalizedBlocks[0].events;
+      const sessionPause = firstBlockEvents.find(
+        (e) => e.kind === 'session_pause',
+      );
+
+      // session_pause should have the day_end timestamp, not day_start
+      expect(sessionPause?.ts).toBe(dayEndTs);
+    });
   });
 
   describe('Function `validateEventLog`', () => {
