@@ -946,6 +946,8 @@ export function writeSessionFilesAndRollovers(
         : path.join(rolloverDir, `rollover_${nextSeasonId}.jsonl`);
       if (!existsSync(rolloverFile)) {
         const rolloverEvent = {
+          seq: 1,
+          ts: new Date().toISOString(),
           kind: 'season_rollover',
           payload: { seasonId: nextSeasonId },
         };
