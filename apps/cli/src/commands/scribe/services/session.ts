@@ -685,9 +685,9 @@ export function synthesizeLifecycleEvents(
         blockEvents.push({
           kind: 'session_pause',
           ts: block.events[lastDayIdx]?.ts || timeNowISO(),
-          seq: 0,
+          seq: Number.MAX_SAFE_INTEGER,
           payload: { status: 'paused', id: sessionId },
-          _origIdx: -1,
+          _origIdx: Number.MAX_SAFE_INTEGER,
         } satisfies SessionPauseEvent & { _origIdx: number });
       }
     } else {
