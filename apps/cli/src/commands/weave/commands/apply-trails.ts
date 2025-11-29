@@ -24,7 +24,6 @@ import {
   IoApplyError,
 } from '../lib/errors';
 import {
-  assertCleanGitOrAllowDirty,
   getLastAppliedSessionSeason,
   getMostRecentRolloverFootprint,
   resolveInputFile,
@@ -54,11 +53,8 @@ export interface ApplyTrailsOptions {
   /** Force one branch of logic (otherwise detect from file). */
   mode?: ApplyTrailsMode;
 
-  /** Don’t write trails/meta/footprint; still compute effects. */
+  /** Don't write trails/meta/footprint; still compute effects. */
   dryRun?: boolean;
-
-  /** Allow running with dirty git state (parity with legacy guard). */
-  allowDirty?: boolean;
 
   /** Emit richer change details in `debug` field (costly to build). */
   verbose?: boolean;
@@ -67,8 +63,6 @@ export interface ApplyTrailsOptions {
 export async function applyTrails(
   opts: ApplyTrailsOptions,
 ): Promise<ApplyTrailsResult> {
-  assertCleanGitOrAllowDirty(opts);
-
   const trails = loadTrails();
   const meta = loadMeta();
   const havens = loadHavens();
