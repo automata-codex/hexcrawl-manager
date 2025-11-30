@@ -63,7 +63,7 @@ export interface ApplyTrailsOptions {
 export async function applyTrails(
   opts: ApplyTrailsOptions,
 ): Promise<ApplyTrailsResult> {
-  const trails = loadTrails();
+  let trails = loadTrails();
   const meta = loadMeta();
   const havens = loadHavens();
 
@@ -259,8 +259,9 @@ export async function applyTrails(
         touched: { before: rolloverBefore, after: rolloverAfter },
       };
 
-      // Update trails to the rolled-over state
-      Object.assign(trails, rolloverResult.trails);
+      // Replace trails with the rolled-over state (must replace, not merge,
+      // so that deleted trails are actually removed)
+      trails = rolloverResult.trails;
 
       // Save trails and meta BEFORE chronology check so the rolled season is recorded
       saveTrails(trails);
