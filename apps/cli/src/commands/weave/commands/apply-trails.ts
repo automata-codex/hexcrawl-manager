@@ -24,7 +24,6 @@ import {
   IoApplyError,
 } from '../lib/errors';
 import {
-  assertCleanGitOrAllowDirty,
   getLastAppliedSessionSeason,
   getMostRecentRolloverFootprint,
   resolveInputFile,
@@ -54,11 +53,8 @@ export interface ApplyTrailsOptions {
   /** Force one branch of logic (otherwise detect from file). */
   mode?: ApplyTrailsMode;
 
-  /** Don’t write trails/meta/footprint; still compute effects. */
+  /** Don't write trails/meta/footprint; still compute effects. */
   dryRun?: boolean;
-
-  /** Allow running with dirty git state (parity with legacy guard). */
-  allowDirty?: boolean;
 
   /** Emit richer change details in `debug` field (costly to build). */
   verbose?: boolean;
@@ -67,9 +63,7 @@ export interface ApplyTrailsOptions {
 export async function applyTrails(
   opts: ApplyTrailsOptions,
 ): Promise<ApplyTrailsResult> {
-  assertCleanGitOrAllowDirty(opts);
-
-  const trails = loadTrails();
+  let trails = loadTrails();
   const meta = loadMeta();
   const havens = loadHavens();
 
@@ -265,10 +259,12 @@ export async function applyTrails(
         touched: { before: rolloverBefore, after: rolloverAfter },
       };
 
-      // Update trails to the rolled-over state
-      Object.assign(trails, rolloverResult.trails);
+      // Replace trails with the rolled-over state (must replace, not merge,
+      // so that deleted trails are actually removed)
+      trails = rolloverResult.trails;
 
-      // Save meta BEFORE chronology check so the rolled season is recorded
+      // Save trails and meta BEFORE chronology check so the rolled season is recorded
+      saveTrails(trails);
       saveMeta(meta);
 
       // Save the auto-rollover footprint and store effects for reporting

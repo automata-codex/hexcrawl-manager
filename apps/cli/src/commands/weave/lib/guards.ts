@@ -1,5 +1,5 @@
 import { normalizeSeasonId, prevSeasonId } from '@skyreach/core';
-import { SESSION_FILE_RE } from '@skyreach/data';
+import { parseRolloverFilename, SESSION_FILE_RE } from '@skyreach/data';
 import { MetaV2Data } from '@skyreach/schemas';
 import path from 'node:path';
 
@@ -9,7 +9,16 @@ export function isRolloverAlreadyApplied(
   meta: MetaV2Data,
   fileId: string,
 ): boolean {
-  return meta.state.trails.applied?.sessions?.includes(fileId) ?? false;
+  // Extract seasonId from rollover filename (e.g., "rollover_1512-winter.jsonl" -> "1512-winter")
+  const parsed = parseRolloverFilename(fileId);
+  if (!parsed) {
+    // If it doesn't match rollover pattern, fall back to checking sessions list
+    return meta.state.trails.applied?.sessions?.includes(fileId) ?? false;
+  }
+  const appliedSeasons = (meta.state.trails.applied?.seasons ?? []).map(
+    normalizeSeasonId,
+  );
+  return appliedSeasons.includes(normalizeSeasonId(parsed.seasonId));
 }
 
 export function isRolloverChronologyValid(

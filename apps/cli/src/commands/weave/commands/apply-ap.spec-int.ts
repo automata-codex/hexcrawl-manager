@@ -72,7 +72,7 @@ describe('Command `weave apply ap`', () => {
           // Run weave ap apply explicitly for session-0001
           // eslint-disable-next-line no-unused-vars
           const { exitCode, stderr, stdout } = await runWeave(
-            ['apply', 'ap', 'session-0001'],
+            ['apply', 'ap', 'session-0001', '--allow-dirty'],
             { repo },
           );
 
@@ -213,9 +213,10 @@ describe('Command `weave apply ap`', () => {
 
           // Run weave ap apply in auto-mode (Option R)
           // eslint-disable-next-line no-unused-vars
-          const { exitCode, stderr, stdout } = await runWeave(['apply', 'ap'], {
-            repo,
-          });
+          const { exitCode, stderr, stdout } = await runWeave(
+            ['apply', 'ap', '--allow-dirty'],
+            { repo },
+          );
 
           expect(exitCode).toBe(0);
           expect(stderr).toBeFalsy();
@@ -324,9 +325,10 @@ describe('Command `weave apply ap`', () => {
 
           // Run weave ap apply in auto-mode (Option R) with no pending sessions
           // eslint-disable-next-line no-unused-vars
-          const { exitCode, stderr, stdout } = await runWeave(['apply', 'ap'], {
-            repo,
-          });
+          const { exitCode, stderr, stdout } = await runWeave(
+            ['apply', 'ap', '--allow-dirty'],
+            { repo },
+          );
 
           // Benign no-op
           expect(exitCode).toBe(0);
@@ -503,10 +505,8 @@ describe('Command `weave apply ap`', () => {
 
           // Apply AP
           const { exitCode, stderr } = await runWeave(
-            ['apply', 'ap', sessionId],
-            {
-              repo,
-            },
+            ['apply', 'ap', sessionId, '--allow-dirty'],
+            { repo },
           );
 
           expect(exitCode).toBe(0);
@@ -583,9 +583,10 @@ describe('Command `weave apply ap`', () => {
           );
 
           // First run: apply AP for session-0001
-          const resultFirst = await runWeave(['apply', 'ap', 'session-0001'], {
-            repo,
-          });
+          const resultFirst = await runWeave(
+            ['apply', 'ap', 'session-0001', '--allow-dirty'],
+            { repo },
+          );
           expect(resultFirst.exitCode).toBe(0);
           expect(resultFirst.stderr).toBeFalsy();
 
@@ -601,9 +602,10 @@ describe('Command `weave apply ap`', () => {
           const ledgerFirst = fs.readFileSync(ledgerPath, 'utf8');
 
           // Second run: re-apply AP for session-0001 (should be a no-op)
-          const resultSecond = await runWeave(['apply', 'ap', 'session-0001'], {
-            repo,
-          });
+          const resultSecond = await runWeave(
+            ['apply', 'ap', 'session-0001', '--allow-dirty'],
+            { repo },
+          );
           expect(resultSecond.exitCode).toBe(0);
           expect(resultSecond.stderr).toBeFalsy();
           expect(resultSecond.stdout).toMatch(/no changes made/i);

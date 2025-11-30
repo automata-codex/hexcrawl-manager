@@ -40,10 +40,8 @@ import {
   sortScribeIds,
 } from '../../../services/sessions.service';
 import { computeApForSession } from '../lib/core/compute-ap-for-session';
-import { assertCleanGitOrAllowDirty } from '../lib/files';
 
 interface ApplyApOptions {
-  allowDirty?: boolean;
   sessionId?: SessionId;
 }
 
@@ -98,11 +96,6 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
         throw new Error(`Failed to parse report for ${sessionId}: ${err}`);
       }
       createdAt = reportYaml.createdAt ?? '';
-
-      // Check for Planned Report and Dirty Git
-      if (reportYaml.status === 'planned') {
-        assertCleanGitOrAllowDirty(opts);
-      }
 
       // Check for Existing Completed Report (idempotency Check)
       const existingStatus = reportYaml.status;

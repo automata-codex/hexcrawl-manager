@@ -32,6 +32,7 @@ import {
   CliValidationError,
   NoChangesError,
 } from '../lib/errors';
+import { assertCleanGitOrAllowDirty } from '../lib/files/assert-git-clean-or-allow-dirty';
 import { loadFinalizedEventsForSessions } from '../lib/files';
 import {
   printApplyHexesSummary,
@@ -84,6 +85,9 @@ export async function apply(args: ApplyArgs) {
     const { allowDirty, mode: rawMode, target: rawTarget } = args;
     const mode: ApplyMode = rawMode ?? 'all';
 
+    // Check git state once at the top level
+    assertCleanGitOrAllowDirty({ allowDirty });
+
     let targetType: 'session' | 'season' | 'undefined' = 'undefined';
     let target: SessionId | string | undefined = undefined;
     if (rawTarget) {
@@ -108,7 +112,7 @@ export async function apply(args: ApplyArgs) {
 
       for (const item of items) {
         try {
-          const result = await applyTrails({ allowDirty, file: item.file });
+          const result = await applyTrails({ file: item.file });
 
           // Handle no-op results (sessions with no trail changes)
           if (result.status === 'no-op') {
@@ -157,10 +161,7 @@ export async function apply(args: ApplyArgs) {
 
       for (const item of targets) {
         try {
-          const result = await applyAp({
-            sessionId: item.sessionId,
-            allowDirty,
-          });
+          const result = await applyAp({ sessionId: item.sessionId });
           if (result.alreadyApplied) {
             console.log(
               `✅ ${result.sessionId} was already applied (no changes made).`,
