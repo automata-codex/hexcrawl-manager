@@ -262,7 +262,8 @@ export async function applyTrails(
       // Update trails to the rolled-over state
       Object.assign(trails, rolloverResult.trails);
 
-      // Save meta BEFORE chronology check so the rolled season is recorded
+      // Save trails and meta BEFORE chronology check so the rolled season is recorded
+      saveTrails(trails);
       saveMeta(meta);
 
       // Save the auto-rollover footprint and store effects for reporting
