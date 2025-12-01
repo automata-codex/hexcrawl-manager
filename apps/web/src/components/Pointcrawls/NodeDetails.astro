@@ -84,6 +84,39 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
   {node.data.isEntry && <span class="entry-badge">Entry Point</span>}
 </p>
 
+{
+  connectedEdges.length > 0 && (
+  <div class="connections-section">
+    <p><strong>Connections:</strong></p>
+    <ul>
+      {connectedEdges.map((conn) => (
+        <li class="connection-item">
+          <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.id}`}>
+            Edge {conn.label}
+          </a>{' '}
+          {conn.direction}{' '}
+          {conn.otherNode ? (
+            <a
+              href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.otherNode.id}`}
+            >
+              {conn.otherNode.label}: {conn.otherNode.name}
+            </a>
+          ) : (
+            <span>Unknown node ({conn.otherNodeId})</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  </div>
+  )
+}
+
+<Unlocks
+  client:load
+  knowledgeTrees={flatKnowledgeTrees}
+  unlocks={node.data.unlocks ?? []}
+/>
+
 <div class="content-section">
   <slot />
 </div>
@@ -130,39 +163,6 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
           </div>
         </div>
       ))}
-    </div>
-  )
-}
-
-<Unlocks
-  client:load
-  knowledgeTrees={flatKnowledgeTrees}
-  unlocks={node.data.unlocks ?? []}
-/>
-
-{
-  connectedEdges.length > 0 && (
-    <div class="connections-section">
-      <h2 class="title is-4">Connections</h2>
-      <ul>
-        {connectedEdges.map((conn) => (
-          <li class="connection-item">
-            <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.id}`}>
-              Edge {conn.label}
-            </a>{' '}
-            {conn.direction}{' '}
-            {conn.otherNode ? (
-              <a
-                href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.otherNode.id}`}
-              >
-                {conn.otherNode.label}: {conn.otherNode.name}
-              </a>
-            ) : (
-              <span>Unknown node ({conn.otherNodeId})</span>
-            )}
-          </li>
-        ))}
-      </ul>
     </div>
   )
 }
