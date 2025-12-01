@@ -78,7 +78,7 @@ export function buildPlacementMap(
   for (const node of pointcrawlNodes) {
     const ref = {
       type: 'pointcrawl-node' as PlacementType,
-      id: node.id,
+      id: `${node.pointcrawlId}/${node.id}`,
       label: node.name,
     };
     for (const unlockKey of node.unlocks ?? []) {

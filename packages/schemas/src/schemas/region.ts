@@ -25,6 +25,7 @@ export const RegionSchema = z
     ]),
     contentDensity: z.number().int().min(1).max(5),
     treasureRating: z.number().int().min(1).max(5),
+    story: z.string().optional().describe('Story or lore associated with this region'),
   })
   .describe('Data for a region on a hex map');
 

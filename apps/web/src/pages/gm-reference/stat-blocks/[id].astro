@@ -57,22 +57,24 @@ const title = `Stat Block: ${await renderBulletMarkdown(statBlock.name)}`;
 ---
 
 <SecretLayout title={title}>
+  <ul>
   {
     dungeons.length > 0 && (
-      <p>
-        Dungeons with this stat block:
+      <li>
+        ⚠️ <strong>DEPRECATED</strong> ⚠️ <strong>Dungeons</strong> with this stat block:
         <Fragment set:html={dungeonList} />
-      </p>
+      </li>
     )
   }
   {
     encounters.length > 0 && (
-      <p>
-        Encounters with this stat block:
+      <li>
+        <strong>Encounters</strong> with this stat block:
         <Fragment set:html={encounterList} />
-      </p>
+      </li>
     )
   }
+  </ul>
   <Fragment set:html={renderBulletMarkdown(statBlock.desc ?? '')} />
   <StatBlock data={statBlock} enableLink={false} />
 </SecretLayout>

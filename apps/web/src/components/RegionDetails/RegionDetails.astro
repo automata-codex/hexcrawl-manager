@@ -19,9 +19,9 @@ interface Props {
 
 const { region, isSubcomponent = false } = Astro.props;
 
-function getRecHeading() {
+function getHeading(text: string) {
   const element = isSubcomponent ? 'h3' : 'h2';
-  return `<${element} class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</${element}>`;
+  return `<${element} class="title is-3" style="margin-bottom: 0.25rem">${text}</${element}>`;
 }
 
 const articles = await getCollection('articles');
@@ -83,7 +83,13 @@ const hexes = hexData
     <div class="description-container">
       <Fragment set:html={renderMarkdown(region.description)} />
     </div>
-    <Fragment set:html={getRecHeading()} />
+    {(region.story) && (
+      <Fragment set:html={getHeading('Story')} />
+      <div class="story-container">
+        <Fragment set:html={renderMarkdown(region.story)} />
+      </div>
+    )}
+    <Fragment set:html={getHeading('Random Encounters')} />
     <p class="hanging-indent">
       <span class="inline-heading">Chance of encounter:</span>
       {' '}

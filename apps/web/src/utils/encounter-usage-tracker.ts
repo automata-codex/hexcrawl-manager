@@ -65,7 +65,8 @@ function extractEncounterIdsFromRegion(regionData: RegionData): string[] {
 }
 
 /**
- * Extracts encounter IDs from a hex's encounter overrides and explicit encounters array.
+ * Extracts encounter IDs from a hex's encounter overrides, explicit encounters array,
+ * and hidden sites with encounter links.
  */
 function extractEncounterIdsFromHex(hexData: HexData): string[] {
   const encounterIds = new Set<string>();
@@ -84,6 +85,19 @@ function extractEncounterIdsFromHex(hexData: HexData): string[] {
       overrides.categoryTables as Record<string, Record<string, Array<{ encounterId: string }>>>,
     )) {
       encounterIds.add(id);
+    }
+  }
+
+  // Extract from hidden sites with encounter links
+  if (hexData.hiddenSites && Array.isArray(hexData.hiddenSites)) {
+    for (const site of hexData.hiddenSites) {
+      // Skip legacy string format (just descriptions)
+      if (typeof site === 'string') continue;
+
+      // Check for encounter links in object format
+      if (site.linkType === 'encounter' && site.linkId) {
+        encounterIds.add(site.linkId);
+      }
     }
   }
 

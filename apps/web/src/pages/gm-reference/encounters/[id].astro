@@ -6,6 +6,7 @@ import RoleplayBook from '../../../components/RoleplayBook/RoleplayBook.astro';
 import StatBlock from '../../../components/StatBlock/StatBlock.astro';
 import Unlocks from '../../../components/Unlocks.svelte';
 import {
+  getDungeonPath,
   getFloatingCluePath,
   getHexPath,
   getPointcrawlEdgePath,
@@ -14,7 +15,6 @@ import {
   getRegionPath,
 } from '../../../config/routes';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
-import { findHexesWithHiddenSiteLink } from '../../../utils/encounter-processor';
 import { getFlatKnowledgeTrees } from '../../../utils/knowledge-trees';
 import { loadAugmentedEncounter } from '../../../utils/load-augmented-encounters';
 import {
@@ -55,7 +55,6 @@ const creatureTypes = augmentedEncounter?.data.creatureTypes || [];
 const usedIn = augmentedEncounter?.data.usedIn || [];
 const statBlocks = await getCollection('statBlocks');
 const floatingClues = await getCollection('floatingClues');
-const allHexes = await getCollection('hexes');
 
 const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
 
@@ -73,6 +72,9 @@ const regionList = regionsUsing
 const hexList = hexesUsing
   .map((ref) => `<a href=${getHexPath(ref.id)}>${ref.name}</a>`)
   .join(', ');
+const dungeonList = dungeonsUsing
+  .map((ref) => `<a href=${getDungeonPath(ref.id)}>${ref.name}</a>`)
+  .join(', ');
 const pointcrawlList = pointcrawlsUsing
   .map((ref) => `<a href=${getPointcrawlPath(ref.id)}>${ref.name}</a>`)
   .join(', ');
@@ -81,12 +83,6 @@ const pointcrawlNodeList = pointcrawlNodesUsing
   .join(', ');
 const pointcrawlEdgeList = pointcrawlEdgesUsing
   .map((ref) => `<a href=${getPointcrawlEdgePath(ref.id)}>${ref.name}</a>`)
-  .join(', ');
-
-// Find hexes with hidden sites that link to this encounter
-const hiddenSiteBacklinks = findHexesWithHiddenSiteLink(allHexes, 'encounter', id);
-const hiddenSiteHexList = hiddenSiteBacklinks
-  .map((ref) => `<a href=${getHexPath(ref.hexId)}>${ref.hexName}</a>`)
   .join(', ');
 
 // Floating clues are not tracked in usedIn, so check manually
@@ -341,9 +337,9 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
     )
   }
   {
-    hiddenSiteHexList.length > 0 && (
+    dungeonList.length > 0 && (
       <li>
-        <strong>Hidden Sites</strong> linking to this encounter: <Fragment set:html={hiddenSiteHexList} />
+        <strong>Dungeons</strong> with this encounter: <Fragment set:html={dungeonList} />
       </li>
     )
   }

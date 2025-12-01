@@ -92,6 +92,31 @@ li ol {
   text-indent: calc(-1 * var(--skyreach-standard-indent));
 }
 
+/* Multi-paragraph content with inline heading (hanging indent style) */
+.inline-heading-block {
+  margin-left: var(--skyreach-standard-indent);
+  text-indent: calc(-1 * var(--skyreach-standard-indent));
+
+  > .inline-heading {
+    display: inline;
+  }
+
+  > p:first-of-type {
+    display: inline;
+  }
+
+  > p + p {
+    display: block;
+    margin-top: 1rem;
+    text-indent: 0;
+  }
+}
+
+/* Multi-paragraph content in list items */
+li > p + p {
+  margin-top: 1rem;
+}
+
 /* Nav Bar */
 
 .navbar-brand {
