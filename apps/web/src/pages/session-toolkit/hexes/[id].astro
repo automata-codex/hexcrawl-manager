@@ -117,13 +117,17 @@ const extendedHexData = await processHex(hex);
       pointcrawls={pointcrawls}
       showSelfLink={false}
     />
-    <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
-    <p>
-      <span class="inline-heading">Chance of encounter:</span>
-      {' '}
-      {encounterChance * 5}% (&le;{encounterChance})
-    </p>
-    <RandomEncounterTable data={encounters} />
+    {!hex.hideRandomEncounters && (
+      <>
+        <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
+        <p>
+          <span class="inline-heading">Chance of encounter:</span>
+          {' '}
+          {encounterChance * 5}% (&le;{encounterChance})
+        </p>
+        <RandomEncounterTable data={encounters} />
+      </>
+    )}
     <GhostlyEchoes isScarSite={hex.tags?.includes('scar-site')} />
   </SecretContent>
 </ComponentLayout>

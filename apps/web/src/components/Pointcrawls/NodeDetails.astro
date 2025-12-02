@@ -1,10 +1,12 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 
 import Unlocks from '../Unlocks.svelte';
 import { getFlatKnowledgeTrees } from '../../utils/knowledge-trees';
 
 const flatKnowledgeTrees = await getFlatKnowledgeTrees();
+const allEncounters = await getCollection('encounters');
 
 interface ConnectedEdgeInfo {
   id: string;
@@ -83,6 +85,42 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
   {node.data.level !== undefined && <span class="level-info">Level {node.data.level}</span>}
   {node.data.isEntry && <span class="entry-badge">Entry Point</span>}
 </p>
+{node.data.entryConditions && (
+  <p class="entry-conditions"><strong>Entry Conditions:</strong> {node.data.entryConditions}</p>
+)}
+
+{
+  connectedEdges.length > 0 && (
+  <div class="connections-section">
+    <p><strong>Connections:</strong></p>
+    <ul>
+      {connectedEdges.map((conn) => (
+        <li class="connection-item">
+          <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.id}`}>
+            Edge {conn.label}
+          </a>{' '}
+          {conn.direction}{' '}
+          {conn.otherNode ? (
+            <a
+              href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.otherNode.id}`}
+            >
+              {conn.otherNode.label}: {conn.otherNode.name}
+            </a>
+          ) : (
+            <span>Unknown node ({conn.otherNodeId})</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  </div>
+  )
+}
+
+<Unlocks
+  client:load
+  knowledgeTrees={flatKnowledgeTrees}
+  unlocks={node.data.unlocks ?? []}
+/>
 
 <div class="content-section">
   <slot />
@@ -91,13 +129,17 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
 {
   node.data.encounters && node.data.encounters.length > 0 && (
     <div class="encounters-list">
-      <h2 class="title is-4">Set Encounters</h2>
+      <h2 class="title is-4">Encounters</h2>
       <ul>
-        {node.data.encounters.map((encId) => (
-          <li>
-            <a href={`/gm-reference/encounters/${encId}`}>{encId}</a>
-          </li>
-        ))}
+        {node.data.encounters.map((encId) => {
+          const encounter = allEncounters.find((e) => e.id === encId);
+          const displayName = encounter?.data.name ?? encId;
+          return (
+            <li>
+              <a href={`/gm-reference/encounters/${encId}`}>{displayName}</a>
+            </li>
+          );
+        })}
       </ul>
     </div>
   )
@@ -130,39 +172,6 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
           </div>
         </div>
       ))}
-    </div>
-  )
-}
-
-<Unlocks
-  client:load
-  knowledgeTrees={flatKnowledgeTrees}
-  unlocks={node.data.unlocks ?? []}
-/>
-
-{
-  connectedEdges.length > 0 && (
-    <div class="connections-section">
-      <h2 class="title is-4">Connections</h2>
-      <ul>
-        {connectedEdges.map((conn) => (
-          <li class="connection-item">
-            <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.id}`}>
-              Edge {conn.label}
-            </a>{' '}
-            {conn.direction}{' '}
-            {conn.otherNode ? (
-              <a
-                href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.otherNode.id}`}
-              >
-                {conn.otherNode.label}: {conn.otherNode.name}
-              </a>
-            ) : (
-              <span>Unknown node ({conn.otherNodeId})</span>
-            )}
-          </li>
-        ))}
-      </ul>
     </div>
   )
 }

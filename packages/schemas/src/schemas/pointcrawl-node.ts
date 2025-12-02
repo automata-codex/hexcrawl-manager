@@ -20,6 +20,10 @@ export const PointcrawlNodeSchema = z
       .boolean()
       .optional()
       .describe('Whether this node is an entry point accessible from outside the pointcrawl'),
+    entryConditions: z
+      .string()
+      .optional()
+      .describe('Conditions when this node functions as an entry point and when it does not'),
     encounters: z
       .array(z.string())
       .optional()
