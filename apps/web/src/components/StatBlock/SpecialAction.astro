@@ -19,7 +19,9 @@ const { action } = Astro.props;
   }
 </style>
 <div>
-  <span class="action-name">{action.name}.</span>
+  <span class="action-name">
+    {action.name}{action.recharge && ` (Recharge ${action.recharge})`}.
+  </span>
   {' '}
   {action.desc}
 </div>
