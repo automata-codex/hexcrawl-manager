@@ -165,6 +165,10 @@ export const HexSchema = z
       .describe('Array of encounter IDs that can occur in this hex'),
     encounterChance: z.number().int().min(1).max(20).optional(),
     encounterOverrides: EncounterOverrideSchema.optional(),
+    hideRandomEncounters: z
+      .boolean()
+      .optional()
+      .describe('When true, hides the random encounter table in the hex detail display'),
     notes: z
       .array(z.string())
       .optional()
