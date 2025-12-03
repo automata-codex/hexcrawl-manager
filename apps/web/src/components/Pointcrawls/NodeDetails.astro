@@ -48,6 +48,10 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
     color: var(--bulma-text-light);
   }
 
+  .light-info {
+    margin-bottom: 0;
+  }
+
   .content-section {
     margin: 1rem 0;
   }
@@ -89,6 +93,19 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
   <p class="entry-conditions"><strong>Entry Conditions:</strong> {node.data.entryConditions}</p>
 )}
 
+{(node.data.naturalLight || node.data.internalLight) && (
+  <p class="light-info">
+    {node.data.naturalLight && (
+      <span><strong>Natural Light:</strong> {node.data.naturalLight}</span>
+    )}
+  </p>
+  <p>
+    {node.data.internalLight && (
+      <span><strong>Internal Light:</strong> {node.data.internalLight}</span>
+    )}
+  </p>
+)}
+
 {
   connectedEdges.length > 0 && (
   <div class="connections-section">
@@ -122,14 +139,29 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
   unlocks={node.data.unlocks ?? []}
 />
 
-<div class="content-section">
-  <slot />
-</div>
+{
+  node.data.treasure && node.data.treasure.length > 0 && (
+  <div class="treasure-section">
+    <p><strong>Treasure</strong></p>
+    {node.data.treasure.map((item) => (
+      <div class="treasure-item">
+        <span class="treasure-name">{item.name}</span>
+        <div class="treasure-details">
+          {item.type}
+          {item.rarity && ` (${item.rarity})`}
+          {item.value && ` - ${item.value} gp`}
+          {item.notes && ` - ${item.notes}`}
+        </div>
+      </div>
+    ))}
+  </div>
+  )
+}
 
 {
   node.data.encounters && node.data.encounters.length > 0 && (
     <div class="encounters-list">
-      <h2 class="title is-4">Encounters</h2>
+      <h2 class="title is-3">Keyed Encounters</h2>
       <ul>
         {node.data.encounters.map((encId) => {
           const encounter = allEncounters.find((e) => e.id === encId);
@@ -148,7 +180,7 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
 {
   node.data.encounterOverrides && (
     <div class="encounters-section">
-      <h2 class="title is-4">Random Encounter Overrides</h2>
+      <h2 class="title is-3">Random Encounters</h2>
       <p class="is-size-7 has-text-grey">
         This location has custom encounter table overrides. See parent pointcrawl
         for base table.
@@ -157,21 +189,7 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
   )
 }
 
-{
-  node.data.treasure && node.data.treasure.length > 0 && (
-    <div class="treasure-section">
-      <h2 class="title is-4">Treasure</h2>
-      {node.data.treasure.map((item) => (
-        <div class="treasure-item">
-          <span class="treasure-name">{item.name}</span>
-          <div class="treasure-details">
-            {item.type}
-            {item.rarity && ` (${item.rarity})`}
-            {item.value && ` - ${item.value} gp`}
-            {item.notes && ` - ${item.notes}`}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
+<div class="content-section">
+  <slot />
+</div>
+
