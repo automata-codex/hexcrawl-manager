@@ -36,6 +36,16 @@ export const PointcrawlNodeSchema = z
       .array(z.string())
       .optional()
       .describe('IDs of knowledge nodes that are unlocked at this location'),
+    naturalLight: z
+      .enum(['bright', 'dim', 'none'])
+      .optional()
+      .describe('Light from sky exposure; degrades with time of day'),
+    internalLight: z
+      .enum(['dim', 'none'])
+      .optional()
+      .describe(
+        'Light from kashra crystals, bioluminescence, or other persistent sources',
+      ),
   })
   .describe('A node (location) in a pointcrawl');
 
