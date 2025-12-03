@@ -219,15 +219,6 @@ const title = pointcrawl.data.name;
     )
   }
 
-  {
-    pointcrawl.data.encounters && (
-      <div class="encounters-section mb-4">
-        <h2 class="title is-4">Random Encounters</h2>
-        <RandomEncounterTable data={pointcrawl.data.encounters} />
-      </div>
-    )
-  }
-
   <div class="entry-points">
     <h2 class="title is-4">Entry Points</h2>
     {
@@ -319,5 +310,15 @@ const title = pointcrawl.data.name;
         </ul>
       </div>
     </details>
+
+    {
+      pointcrawl.data.encounters && (
+        <div class="encounters-section mb-4">
+          <h2 class="title is-4">Random Encounters</h2>
+          <RandomEncounterTable data={pointcrawl.data.encounters} />
+        </div>
+      )
+    }
+
   </div>
 </SecretLayout>
