@@ -47,6 +47,18 @@ encounterChance = node.data.encounterChance ?? encounterChance;
 ---
 
 <style>
+  .node-header {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .node-meta {
+    flex: 1;
+    min-width: 200px;
+  }
+
   .entry-badge {
     display: inline-block;
     background: var(--bulma-success);
@@ -55,10 +67,6 @@ encounterChance = node.data.encounterChance ?? encounterChance;
     border-radius: 4px;
     font-size: 0.875rem;
     margin-left: 0.5rem;
-  }
-
-  .node-meta {
-    margin-bottom: 1rem;
   }
 
   .level-info {
@@ -74,7 +82,12 @@ encounterChance = node.data.encounterChance ?? encounterChance;
   }
 
   .connections-section {
-    margin-top: 1rem;
+    flex: 1;
+    min-width: 200px;
+
+    ul {
+      margin-bottom: 0;
+    }
   }
 
   .encounters-list {
@@ -102,53 +115,50 @@ encounterChance = node.data.encounterChance ?? encounterChance;
   }
 </style>
 
-<p class="node-meta">
-  {node.data.level !== undefined && <span class="level-info">Level {node.data.level}</span>}
-  {node.data.isEntry && <span class="entry-badge">Entry Point</span>}
-</p>
-{node.data.entryConditions && (
-  <p class="entry-conditions"><strong>Entry Conditions:</strong> {node.data.entryConditions}</p>
-)}
-
-{(node.data.naturalLight || node.data.internalLight) && (
-  <p class="light-info">
-    {node.data.naturalLight && (
-      <span><strong>Natural Light:</strong> {node.data.naturalLight}</span>
+<div class="node-header">
+  <div class="node-meta">
+    <p>
+      {node.data.level !== undefined && <span class="level-info">Level {node.data.level}</span>}
+      {node.data.isEntry && <span class="entry-badge">Entry Point</span>}
+    </p>
+    {node.data.entryConditions && (
+      <p class="entry-conditions"><strong>Entry Conditions:</strong> {node.data.entryConditions}</p>
     )}
-  </p>
-  <p>
-    {node.data.internalLight && (
-      <span><strong>Internal Light:</strong> {node.data.internalLight}</span>
+    {(node.data.naturalLight || node.data.internalLight) && (
+      <>
+        {node.data.naturalLight && (
+          <p class="light-info"><strong>Natural Light:</strong> {node.data.naturalLight}</p>
+        )}
+        {node.data.internalLight && (
+          <p><strong>Internal Light:</strong> {node.data.internalLight}</p>
+        )}
+      </>
     )}
-  </p>
-)}
-
-{
-  connectedEdges.length > 0 && (
-  <div class="connections-section">
-    <p><strong>Connections:</strong></p>
-    <ul>
-      {connectedEdges.map((conn) => (
-        <li class="connection-item">
-          <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.id}`}>
-            Edge {conn.label}
-          </a>{' '}
-          {conn.direction}{' '}
-          {conn.otherNode ? (
-            <a
-              href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.otherNode.id}`}
-            >
-              {conn.otherNode.label}: {conn.otherNode.name}
-            </a>
-          ) : (
-            <span>Unknown node ({conn.otherNodeId})</span>
-          )}
-        </li>
-      ))}
-    </ul>
   </div>
-  )
-}
+
+  {connectedEdges.length > 0 && (
+    <div class="connections-section">
+      <p><strong>Connections:</strong></p>
+      <ul>
+        {connectedEdges.map((conn) => (
+          <li class="connection-item">
+            <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.id}`}>
+              Edge {conn.label}
+            </a>{' '}
+            {conn.direction}{' '}
+            {conn.otherNode ? (
+              <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.otherNode.id}`}>
+                {conn.otherNode.label}: {conn.otherNode.name}
+              </a>
+            ) : (
+              <span>Unknown node ({conn.otherNodeId})</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+</div>
 
 <Unlocks
   client:load
