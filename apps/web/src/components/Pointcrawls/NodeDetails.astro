@@ -128,9 +128,6 @@ encounterChance = node.data.encounterChance ?? encounterChance;
       {node.data.level !== undefined && <span class="level-info">Level {node.data.level}</span>}
       {node.data.isEntry && <span class="entry-badge">Entry Point</span>}
     </p>
-    {node.data.entryConditions && (
-      <p class="entry-conditions"><strong>Entry Conditions:</strong> {node.data.entryConditions}</p>
-    )}
     {(node.data.naturalLight || node.data.internalLight) && (
       <>
         {node.data.naturalLight && (
@@ -166,6 +163,10 @@ encounterChance = node.data.encounterChance ?? encounterChance;
     </div>
   )}
 </div>
+
+{node.data.entryConditions && (
+  <p class="entry-conditions"><strong>Entry Conditions:</strong> {node.data.entryConditions}</p>
+)}
 
 <Unlocks
   client:load
@@ -212,7 +213,7 @@ encounterChance = node.data.encounterChance ?? encounterChance;
 }
 
 {
-  encounters && (
+  encounters && !node.data.hideRandomEncounters && (
     <div class="encounters-section">
       <h2 class="title is-3">Random Encounters</h2>
       <p>

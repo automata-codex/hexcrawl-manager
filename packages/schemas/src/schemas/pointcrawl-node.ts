@@ -40,6 +40,10 @@ export const PointcrawlNodeSchema = z
       .describe(
         'Encounter check threshold on d20 (roll this or lower triggers encounter). Default inherited from pointcrawl.',
       ),
+    hideRandomEncounters: z
+      .boolean()
+      .optional()
+      .describe('If true, suppress random encounter table display for this node'),
     treasure: z.array(TreasureSchema).optional(),
     unlocks: z
       .array(z.string())

@@ -169,10 +169,6 @@ const title = pointcrawl.data.name;
     )
   }
 
-  {pointcrawl.data.summary && <p class="mb-4">
-    <Fragment set:html={renderBulletMarkdown(pointcrawl.data.summary)} />
-  </p>}
-
   {
     pointcrawl.data.hexIds && pointcrawl.data.hexIds.length > 0 && (
       <div class="hex-links">
@@ -188,9 +184,24 @@ const title = pointcrawl.data.name;
   }
 
   {
+    pointcrawl.data.builders && pointcrawl.data.builders.length > 0 && (
+      <div class="builders">
+        <strong>Builders: </strong>
+        {pointcrawl.data.builders.map((builder) => (
+          <span class="builder-tag">{builder}</span>
+        ))}
+      </div>
+    )
+  }
+
+  {pointcrawl.data.summary && <p class="mb-4">
+    <Fragment set:html={renderBulletMarkdown(pointcrawl.data.summary)} />
+  </p>}
+
+  {
     pointcrawl.data.images && pointcrawl.data.images.length > 0 && (
       <div class="map-links">
-        <strong>Maps:</strong>
+        <h2 class="title is-3">Maps</h2>
         <ul>
           {pointcrawl.data.images.map((image) => (
             <li>
@@ -208,19 +219,8 @@ const title = pointcrawl.data.name;
     )
   }
 
-  {
-    pointcrawl.data.builders && pointcrawl.data.builders.length > 0 && (
-      <div class="builders">
-        <strong>Builders: </strong>
-        {pointcrawl.data.builders.map((builder) => (
-          <span class="builder-tag">{builder}</span>
-        ))}
-      </div>
-    )
-  }
-
   <div class="entry-points">
-    <h2 class="title is-4">Entry Points</h2>
+    <h2 class="title is-3">Entry Points</h2>
     {
       entryPoints.length === 0 ? (
         <p>No entry points defined.</p>
@@ -314,7 +314,7 @@ const title = pointcrawl.data.name;
     {
       pointcrawl.data.encounters && (
         <div class="encounters-section mb-4">
-          <h2 class="title is-4">Random Encounters</h2>
+          <h2 class="title is-3">Random Encounters</h2>
           <RandomEncounterTable data={pointcrawl.data.encounters} />
         </div>
       )
