@@ -1,0 +1,42 @@
+---
+import { getEntry } from 'astro:content';
+
+import type { EncounterCategoryTableData } from '@skyreach/schemas';
+
+interface Props {
+  label: string;
+  tableId: string;
+  weight: number;
+}
+
+const { label, tableId, weight } = Astro.props;
+
+const tableEntry = await getEntry('encounter-category-tables', tableId);
+const table: EncounterCategoryTableData | undefined = tableEntry?.data;
+---
+
+<h3 class="title is-4">{label}</h3>
+{
+  !table ? (
+    <p style="color: red;">External table "{tableId}" not found</p>
+  ) : (
+    <table class="encounter-table">
+      <thead>
+        <tr>
+          <th class="col-1">{table.dieType}</th>
+          <th class="col-2">Result</th>
+          <th class="col-3">Probability</th>
+        </tr>
+      </thead>
+      <tbody>
+        {table.entries.map((entry) => (
+          <tr>
+            <td class="col-1">{entry.roll}</td>
+            <td class="col-2">{entry.description}</td>
+            <td class="col-3">{((1 / table.entries.length) * (weight / 20) * 100).toFixed(1)}%</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}

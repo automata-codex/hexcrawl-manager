@@ -2,7 +2,11 @@
 import type { CollectionEntry } from 'astro:content';
 import { getCollection } from 'astro:content';
 
+import type { EncounterTableData } from '@skyreach/schemas';
+
+import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
 import Unlocks from '../Unlocks.svelte';
+import { mergeEncounterOverrides } from '../../utils/encounters';
 import { getFlatKnowledgeTrees } from '../../utils/knowledge-trees';
 
 const flatKnowledgeTrees = await getFlatKnowledgeTrees();
@@ -22,14 +26,39 @@ interface ConnectedEdgeInfo {
 
 interface Props {
   node: CollectionEntry<'pointcrawl-nodes'>;
+  pointcrawl: CollectionEntry<'pointcrawls'>;
   pointcrawlSlug: string;
   connectedEdges: ConnectedEdgeInfo[];
 }
 
-const { node, pointcrawlSlug, connectedEdges } = Astro.props;
+const { node, pointcrawl, pointcrawlSlug, connectedEdges } = Astro.props;
+
+// Build encounter table if pointcrawl has one
+let encounters: EncounterTableData | undefined = pointcrawl.data.encounters;
+let encounterChance = pointcrawl.data.encounterChance ?? 8;
+
+// Apply node-level overrides
+if (encounters && node.data.encounterOverrides) {
+  encounters = mergeEncounterOverrides(encounters, node.data.encounterOverrides);
+}
+
+// Node-specific encounter chance takes precedence
+encounterChance = node.data.encounterChance ?? encounterChance;
 ---
 
 <style>
+  .node-header {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .node-meta {
+    flex: 1;
+    min-width: 200px;
+  }
+
   .entry-badge {
     display: inline-block;
     background: var(--bulma-success);
@@ -38,10 +67,6 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
     border-radius: 4px;
     font-size: 0.875rem;
     margin-left: 0.5rem;
-  }
-
-  .node-meta {
-    margin-bottom: 1rem;
   }
 
   .level-info {
@@ -56,8 +81,20 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
     margin: 1rem 0;
   }
 
+  .slot-content {
+    h2 { font-size: var(--bulma-size-4); }
+    h3 { font-size: var(--bulma-size-5); }
+    h4 { font-size: var(--bulma-size-6); }
+    h5 { font-size: var(--bulma-size-7); }
+  }
+
   .connections-section {
-    margin-top: 1rem;
+    flex: 1;
+    min-width: 200px;
+
+    ul {
+      margin-bottom: 0;
+    }
   }
 
   .encounters-list {
@@ -85,53 +122,51 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
   }
 </style>
 
-<p class="node-meta">
-  {node.data.level !== undefined && <span class="level-info">Level {node.data.level}</span>}
-  {node.data.isEntry && <span class="entry-badge">Entry Point</span>}
-</p>
+<div class="node-header">
+  <div class="node-meta">
+    <p>
+      {node.data.level !== undefined && <span class="level-info">Level {node.data.level}</span>}
+      {node.data.isEntry && <span class="entry-badge">Entry Point</span>}
+    </p>
+    {(node.data.naturalLight || node.data.internalLight) && (
+      <>
+        {node.data.naturalLight && (
+          <p class="light-info"><strong>Natural Light:</strong> {node.data.naturalLight}</p>
+        )}
+        {node.data.internalLight && (
+          <p><strong>Internal Light:</strong> {node.data.internalLight}</p>
+        )}
+      </>
+    )}
+  </div>
+
+  {connectedEdges.length > 0 && (
+    <div class="connections-section">
+      <p><strong>Connections:</strong></p>
+      <ul>
+        {connectedEdges.map((conn) => (
+          <li class="connection-item">
+            <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.id}`}>
+              Edge {conn.label}
+            </a>{' '}
+            {conn.direction}{' '}
+            {conn.otherNode ? (
+              <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.otherNode.id}`}>
+                {conn.otherNode.label}: {conn.otherNode.name}
+              </a>
+            ) : (
+              <span>Unknown node ({conn.otherNodeId})</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+</div>
+
 {node.data.entryConditions && (
   <p class="entry-conditions"><strong>Entry Conditions:</strong> {node.data.entryConditions}</p>
 )}
-
-{(node.data.naturalLight || node.data.internalLight) && (
-  <p class="light-info">
-    {node.data.naturalLight && (
-      <span><strong>Natural Light:</strong> {node.data.naturalLight}</span>
-    )}
-  </p>
-  <p>
-    {node.data.internalLight && (
-      <span><strong>Internal Light:</strong> {node.data.internalLight}</span>
-    )}
-  </p>
-)}
-
-{
-  connectedEdges.length > 0 && (
-  <div class="connections-section">
-    <p><strong>Connections:</strong></p>
-    <ul>
-      {connectedEdges.map((conn) => (
-        <li class="connection-item">
-          <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.id}`}>
-            Edge {conn.label}
-          </a>{' '}
-          {conn.direction}{' '}
-          {conn.otherNode ? (
-            <a
-              href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${conn.otherNode.id}`}
-            >
-              {conn.otherNode.label}: {conn.otherNode.name}
-            </a>
-          ) : (
-            <span>Unknown node ({conn.otherNodeId})</span>
-          )}
-        </li>
-      ))}
-    </ul>
-  </div>
-  )
-}
 
 <Unlocks
   client:load
@@ -178,18 +213,22 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
 }
 
 {
-  node.data.encounterOverrides && (
+  encounters && !node.data.hideRandomEncounters && (
     <div class="encounters-section">
       <h2 class="title is-3">Random Encounters</h2>
-      <p class="is-size-7 has-text-grey">
-        This location has custom encounter table overrides. See parent pointcrawl
-        for base table.
+      <p>
+        <span class="inline-heading">Chance of encounter:</span>{' '}
+        {encounterChance * 5}% (&le;{encounterChance})
       </p>
+      <RandomEncounterTable data={encounters} />
     </div>
   )
 }
 
 <div class="content-section">
-  <slot />
+  <h2 class="title is-3">Description</h2>
+  <div class="slot-content">
+    <slot />
+  </div>
 </div>
 

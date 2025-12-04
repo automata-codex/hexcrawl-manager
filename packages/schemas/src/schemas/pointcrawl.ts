@@ -17,6 +17,15 @@ export const PointcrawlSchema = z
     encounters: EncounterTableSchema.optional().describe(
       'Default encounter table inherited by nodes and edges',
     ),
+    encounterChance: z
+      .number()
+      .int()
+      .min(0)
+      .max(20)
+      .optional()
+      .describe(
+        'Default encounter check threshold on d20 (roll this or lower triggers encounter). Nodes can override.',
+      ),
     summary: z.string().optional(),
   })
   .describe('A pointcrawl map with nodes and edges');

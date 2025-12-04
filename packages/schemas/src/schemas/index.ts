@@ -12,6 +12,7 @@ export * from './dungeon-image';
 export * from './encounter';
 export * from './encounter-override';
 export * from './encounter-table';
+export * from './encounter-category-table';
 export * from './faction';
 export * from './floating-clue';
 export * from './hex';
