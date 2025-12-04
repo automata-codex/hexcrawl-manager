@@ -189,20 +189,3 @@ export function getNodeFromTree(
 
   return current;
 }
-
-/**
- * Build ancestry chain for a node (for breadcrumbs).
- */
-export function getAncestry(
-  flatTree: FlatKnowledgeTree,
-  nodeKey: string,
-): Array<{ key: string; name: string }> {
-  const segments = nodeKey.split('.');
-  return segments.map((_, index) => {
-    const key = segments.slice(0, index + 1).join('.');
-    return {
-      key,
-      name: flatTree[key]?.name ?? key,
-    };
-  });
-}
