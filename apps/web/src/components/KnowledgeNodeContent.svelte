@@ -82,7 +82,6 @@
           {#each placements as ref (ref.id)}
             <li>
               <a href={generateLink(ref)}>{ref.label}</a>
-              {' '}
               {generateLabelAppendix(ref)}
             </li>
           {/each}
