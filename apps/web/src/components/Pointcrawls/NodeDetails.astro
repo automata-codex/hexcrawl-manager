@@ -2,7 +2,11 @@
 import type { CollectionEntry } from 'astro:content';
 import { getCollection } from 'astro:content';
 
+import type { EncounterTableData } from '@skyreach/schemas';
+
+import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
 import Unlocks from '../Unlocks.svelte';
+import { mergeEncounterOverrides } from '../../utils/encounters';
 import { getFlatKnowledgeTrees } from '../../utils/knowledge-trees';
 
 const flatKnowledgeTrees = await getFlatKnowledgeTrees();
@@ -22,11 +26,24 @@ interface ConnectedEdgeInfo {
 
 interface Props {
   node: CollectionEntry<'pointcrawl-nodes'>;
+  pointcrawl: CollectionEntry<'pointcrawls'>;
   pointcrawlSlug: string;
   connectedEdges: ConnectedEdgeInfo[];
 }
 
-const { node, pointcrawlSlug, connectedEdges } = Astro.props;
+const { node, pointcrawl, pointcrawlSlug, connectedEdges } = Astro.props;
+
+// Build encounter table if pointcrawl has one
+let encounters: EncounterTableData | undefined = pointcrawl.data.encounters;
+let encounterChance = pointcrawl.data.encounterChance ?? 8;
+
+// Apply node-level overrides
+if (encounters && node.data.encounterOverrides) {
+  encounters = mergeEncounterOverrides(encounters, node.data.encounterOverrides);
+}
+
+// Node-specific encounter chance takes precedence
+encounterChance = node.data.encounterChance ?? encounterChance;
 ---
 
 <style>
@@ -178,13 +195,14 @@ const { node, pointcrawlSlug, connectedEdges } = Astro.props;
 }
 
 {
-  node.data.encounterOverrides && (
+  encounters && (
     <div class="encounters-section">
       <h2 class="title is-3">Random Encounters</h2>
-      <p class="is-size-7 has-text-grey">
-        This location has custom encounter table overrides. See parent pointcrawl
-        for base table.
+      <p>
+        <span class="inline-heading">Chance of encounter:</span>{' '}
+        {encounterChance * 5}% (&le;{encounterChance})
       </p>
+      <RandomEncounterTable data={encounters} />
     </div>
   )
 }
