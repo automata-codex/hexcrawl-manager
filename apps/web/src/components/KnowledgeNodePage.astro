@@ -1,6 +1,7 @@
 ---
 import Breadcrumbs from './Breadcrumbs.astro';
 import KnowledgeNodeContent from './KnowledgeNodeContent.svelte';
+import KnowledgeTreeDrawer from './KnowledgeTreeDrawer.svelte';
 
 import type { PlacementRef } from '../types';
 import type { KnowledgeNodeData } from '@skyreach/schemas';
@@ -26,7 +27,12 @@ const { node, nodeKey, treeId, tree, breadcrumbs, placements } = Astro.props;
 <div class="knowledge-node-page">
   <div class="page-header">
     <Breadcrumbs items={breadcrumbs} />
-    <!-- Tree drawer will be added in Phase 4 -->
+    <KnowledgeTreeDrawer
+      client:load
+      tree={tree}
+      treeId={treeId}
+      currentNodeKey={nodeKey}
+    />
   </div>
 
   <KnowledgeNodeContent
