@@ -27,9 +27,10 @@ const mainRolls = buildWeightedRanges(data.mainTable, (e) => e.weight ?? 1);
 ---
 
 <style is:global>
-  table {
+  table.encounter-table {
     border-spacing: 0;
     margin-top: 1rem;
+    margin-bottom: 0;
   }
   td,
   th {
@@ -78,28 +79,22 @@ const mainRolls = buildWeightedRanges(data.mainTable, (e) => e.weight ?? 1);
     }
   </tbody>
 </table>
-{/* Render external tables (categories with tableId) */}
+{/* Render category tables alphabetically */}
 {
-  data.mainTable
-    .filter((cat) => cat.tableId)
+  [...data.mainTable]
     .sort((a, b) => a.category.localeCompare(b.category))
-    .map((categoryData) => (
-      <ExternalTableContainer
-        label={categoryData.label}
-        tableId={categoryData.tableId!}
-        weight={categoryData.weight ?? 1}
-      />
-    ))
-}
-{/* Render internal category tables */}
-{
-  Object.entries(structuredClone(data.categoryTables))
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([category, table]) => {
-      const categoryData = data.mainTable.find((c) => c.category === category);
-      if (!categoryData || categoryData.tableId) {
-        return null;
+    .map((categoryData) => {
+      if (categoryData.tableId) {
+        return (
+          <ExternalTableContainer
+            label={categoryData.label}
+            tableId={categoryData.tableId}
+            weight={categoryData.weight ?? 1}
+          />
+        );
       }
+      const table = data.categoryTables[categoryData.category];
+      if (!table) return null;
       return (
         <CategoryContainer
           label={categoryData.label}
