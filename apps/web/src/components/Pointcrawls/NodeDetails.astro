@@ -81,6 +81,13 @@ encounterChance = node.data.encounterChance ?? encounterChance;
     margin: 1rem 0;
   }
 
+  .slot-content {
+    h2 { font-size: var(--bulma-size-4); }
+    h3 { font-size: var(--bulma-size-5); }
+    h4 { font-size: var(--bulma-size-6); }
+    h5 { font-size: var(--bulma-size-7); }
+  }
+
   .connections-section {
     flex: 1;
     min-width: 200px;
@@ -218,6 +225,9 @@ encounterChance = node.data.encounterChance ?? encounterChance;
 }
 
 <div class="content-section">
-  <slot />
+  <h2 class="title is-3">Description</h2>
+  <div class="slot-content">
+    <slot />
+  </div>
 </div>
 
