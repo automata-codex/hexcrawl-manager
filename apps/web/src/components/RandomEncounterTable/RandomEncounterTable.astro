@@ -8,6 +8,7 @@ import {
 import { buildWeightedRanges } from '../../utils/encounters';
 
 import CategoryContainer from './CategoryContainer.astro';
+import ExternalTableContainer from './ExternalTableContainer.astro';
 
 interface Props {
   data?: EncounterTableData;
@@ -77,12 +78,26 @@ const mainRolls = buildWeightedRanges(data.mainTable, (e) => e.weight ?? 1);
     }
   </tbody>
 </table>
+{/* Render external tables (categories with tableId) */}
+{
+  data.mainTable
+    .filter((cat) => cat.tableId)
+    .sort((a, b) => a.category.localeCompare(b.category))
+    .map((categoryData) => (
+      <ExternalTableContainer
+        label={categoryData.label}
+        tableId={categoryData.tableId!}
+        weight={categoryData.weight ?? 1}
+      />
+    ))
+}
+{/* Render internal category tables */}
 {
   Object.entries(structuredClone(data.categoryTables))
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([category, table]) => {
       const categoryData = data.mainTable.find((c) => c.category === category);
-      if (!categoryData) {
+      if (!categoryData || categoryData.tableId) {
         return null;
       }
       return (

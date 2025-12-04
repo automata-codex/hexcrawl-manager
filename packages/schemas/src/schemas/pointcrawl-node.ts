@@ -31,6 +31,15 @@ export const PointcrawlNodeSchema = z
     encounterOverrides: EncounterOverrideSchema.optional().describe(
       'Overrides for random encounter tables',
     ),
+    encounterChance: z
+      .number()
+      .int()
+      .min(0)
+      .max(20)
+      .optional()
+      .describe(
+        'Encounter check threshold on d20 (roll this or lower triggers encounter). Default inherited from pointcrawl.',
+      ),
     treasure: z.array(TreasureSchema).optional(),
     unlocks: z
       .array(z.string())

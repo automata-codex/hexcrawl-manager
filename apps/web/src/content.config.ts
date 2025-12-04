@@ -6,6 +6,7 @@ import {
   ClassSchema,
   CompositeArticleSchema,
   DungeonDataSchema,
+  EncounterCategoryTableSchema,
   EncounterSchema,
   type FactionData,
   FactionSchema,
@@ -51,6 +52,7 @@ const DIRS = {
   CLASSES: `${DATA_DIR}/classes`,
   COMPOSITE_ARTICLES: `${DATA_DIR}/composite-articles`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
+  ENCOUNTER_CATEGORY_TABLES: `${DATA_DIR}/encounter-category-tables`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   FACTIONS: `${DATA_DIR}/factions`,
   FLOATING_CLUES: `${DATA_DIR}/floating-clues`,
@@ -134,6 +136,11 @@ const compositeArticles = defineCollection({
 const dungeons = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.DUNGEONS }),
   schema: DungeonDataSchema,
+});
+
+const encounterCategoryTables = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.ENCOUNTER_CATEGORY_TABLES }),
+  schema: EncounterCategoryTableSchema,
 });
 
 const encounters = defineCollection({
@@ -248,6 +255,7 @@ export const collections = {
   classes,
   'composite-articles': compositeArticles,
   dungeons,
+  'encounter-category-tables': encounterCategoryTables,
   encounters,
   factions,
   floatingClues,
