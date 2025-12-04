@@ -70,9 +70,15 @@ const placementMap = buildPlacementMap(
 );
 
 const placements = placementMap[nodeKey] ?? [];
+
+// Root nodes get "Knowledge Tree:", child nodes get "KT Node:"
+const isRootNode = segments.length === 1;
+const pageTitle = isRootNode
+  ? `Knowledge Tree: ${node.name}`
+  : `KT Node: ${node.name}`;
 ---
 
-<SecretLayout title={`Knowledge: ${node.name}`}>
+<SecretLayout title={pageTitle}>
   <KnowledgeNodePage
     node={node}
     nodeKey={nodeKey}
