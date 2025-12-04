@@ -11,11 +11,13 @@
   interface Props {
     node: KnowledgeNodeData;
     nodeKey: string;
-    children: KnowledgeNodeData[];
     placements: PlacementRef[];
   }
 
-  let { node, nodeKey, children, placements }: Props = $props();
+  let { node, nodeKey, placements }: Props = $props();
+
+  // Use node's children directly (passed through Astro serialization)
+  const children = node.children ?? [];
 
   let isDetailsExpanded = $state(false);
   let renderedDescription = $state('');
@@ -77,7 +79,7 @@
       <h2>Placements</h2>
       {#if placements.length > 0}
         <ul class="placement-list">
-          {#each placements as ref}
+          {#each placements as ref (ref.id)}
             <li>
               <a href={generateLink(ref)}>{ref.label}</a>
               {' '}
@@ -95,7 +97,7 @@
     <section class="children-section">
       <h2>Children</h2>
       <ul class="children-list">
-        {#each children as child}
+        {#each children as child (child.id)}
           <li>
             <a href={getChildPath(child.id)}>{child.name}</a>
             {#if child.isUnlocked}

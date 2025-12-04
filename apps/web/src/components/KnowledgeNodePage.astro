@@ -1,0 +1,53 @@
+---
+import Breadcrumbs from './Breadcrumbs.astro';
+import KnowledgeNodeContent from './KnowledgeNodeContent.svelte';
+
+import type { PlacementRef } from '../types';
+import type { KnowledgeNodeData } from '@skyreach/schemas';
+
+interface BreadcrumbItem {
+  key: string;
+  name: string;
+  path: string;
+}
+
+interface Props {
+  node: KnowledgeNodeData;
+  nodeKey: string;
+  treeId: string;
+  tree: KnowledgeNodeData;
+  breadcrumbs: BreadcrumbItem[];
+  placements: PlacementRef[];
+}
+
+const { node, nodeKey, treeId, tree, breadcrumbs, placements } = Astro.props;
+---
+
+<div class="knowledge-node-page">
+  <div class="page-header">
+    <Breadcrumbs items={breadcrumbs} />
+    <!-- Tree drawer will be added in Phase 4 -->
+  </div>
+
+  <KnowledgeNodeContent
+    client:load
+    node={node}
+    nodeKey={nodeKey}
+    placements={placements}
+  />
+</div>
+
+<style>
+  .knowledge-node-page {
+    max-width: 48rem;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+</style>
