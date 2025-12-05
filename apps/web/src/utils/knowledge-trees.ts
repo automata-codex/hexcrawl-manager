@@ -170,3 +170,22 @@ export async function getFlatKnowledgeTree(
   if (!tree) return undefined;
   return flattenKnowledgeTree(tree);
 }
+
+/**
+ * Navigate to a specific node in the tree by path segments and return it (with children intact).
+ */
+export function getNodeFromTree(
+  tree: KnowledgeNodeData,
+  segments: string[],
+): KnowledgeNodeData | undefined {
+  let current = tree;
+
+  // Skip first segment (it's the tree root ID, which matches tree.id)
+  for (let i = 1; i < segments.length; i++) {
+    const child = current.children?.find((c) => c.id === segments[i]);
+    if (!child) return undefined;
+    current = child;
+  }
+
+  return current;
+}
