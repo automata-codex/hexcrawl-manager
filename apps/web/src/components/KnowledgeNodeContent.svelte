@@ -155,12 +155,13 @@
     border-left: 2px solid var(--bulma-border);
   }
 
+  .details-content :global(p + p) {
+    margin-top: 1rem;
+  }
+
   h2 {
-    /*font-size: 1rem;*/
     font-weight: 600;
     margin: 1rem 0 0.5rem;
-    /*color: var(--bulma-text-weak);*/
-    /*text-transform: uppercase;*/
     letter-spacing: 0.05em;
   }
 
