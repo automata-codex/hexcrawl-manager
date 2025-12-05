@@ -112,18 +112,6 @@
     padding: 1.5rem;
   }
 
-  header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  header h1 {
-    margin: 0;
-    font-size: 1.5rem;
-  }
-
   .unlocked-badge {
     background: var(--bulma-success);
     color: var(--bulma-success-invert);

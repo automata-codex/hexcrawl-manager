@@ -37,10 +37,10 @@
 
   $effect(() => {
     if (isOpen && currentNodeRef) {
-      // Auto-scroll to current node after drawer opens
+      // Auto-scroll to current node after drawer animation completes
       setTimeout(() => {
         currentNodeRef?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
+      }, 350);
     }
   });
 
@@ -70,7 +70,7 @@
   <span>View Tree</span>
 </button>
 
-{#if isOpen}
+<div class="drawer-wrapper" class:open={isOpen}>
   <div class="drawer-backdrop" aria-hidden="true" onclick={handleBackdropClick}></div>
   <aside class="drawer" bind:this={drawerRef} onclick={(e) => e.stopPropagation()}>
     <header class="drawer-header">
@@ -105,7 +105,7 @@
       {@render treeNode(tree, tree.id, 0)}
     </nav>
   </aside>
-{/if}
+</div>
 
 <style>
   .toggle-button {
@@ -125,15 +125,31 @@
     background: var(--bulma-scheme-main-ter);
   }
 
-  .drawer-backdrop {
+  .drawer-wrapper {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.3);
+    pointer-events: none;
     z-index: 40;
   }
 
+  .drawer-wrapper.open {
+    pointer-events: auto;
+  }
+
+  .drawer-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .drawer-wrapper.open .drawer-backdrop {
+    opacity: 1;
+  }
+
   .drawer {
-    position: fixed;
+    position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
@@ -145,6 +161,12 @@
     display: flex;
     flex-direction: column;
     box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .drawer-wrapper.open .drawer {
+    transform: translateX(0);
   }
 
   .drawer-header {
