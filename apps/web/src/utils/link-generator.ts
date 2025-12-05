@@ -11,6 +11,7 @@ import {
   getEncounterPath,
   getFloatingCluePath,
   getHexPath,
+  getKnowledgeNodePath,
   getRegionPath,
 } from '../config/routes';
 
@@ -32,7 +33,7 @@ export function getLinkPath(linkType: LinkType, linkId: string): string {
     case 'faction':
       return `/gm-reference/factions#${linkId}`;
     case 'knowledge-node':
-      return `/gm-reference/knowledge-trees/${linkId}`;
+      return getKnowledgeNodePath(linkId);
     default:
       return '#';
   }

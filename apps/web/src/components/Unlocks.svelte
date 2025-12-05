@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getKnowledgeTreePath } from '../config/routes.js';
+  import { getKnowledgeNodePath } from '../config/routes.js';
   import { renderBulletMarkdown } from '../utils/markdown.js';
 
   import type { FlatKnowledgeTree } from '../types.ts';
@@ -15,10 +15,6 @@
     const [root] = key.split('.');
     return knowledgeTrees[root]?.[key];
   }
-
-  function getTreeRoot(key: string): string {
-    return key.split('.')[0];
-  }
 </script>
 
 {#if unlocks.length > 0}
@@ -33,7 +29,7 @@
             {#await renderBulletMarkdown(node.description) then html}
               <span class="text-muted">{@html html}</span>
             {/await}
-            <a href={getKnowledgeTreePath(getTreeRoot(key))}>[Tree]</a>
+            <a href={getKnowledgeNodePath(key)}>[KT Node]</a>
           </li>
         {:else}
           <li><em>Unknown knowledge key:</em> {key}</li>
