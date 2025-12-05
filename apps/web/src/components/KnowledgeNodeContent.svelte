@@ -44,14 +44,10 @@
 </script>
 
 <article class="node-content">
-  <header>
-    <h1>{node.name}</h1>
+  <div class="description">
     {#if node.isUnlocked}
       <span class="unlocked-badge">&#10003; Unlocked</span>
     {/if}
-  </header>
-
-  <div class="description">
     {@html renderedDescription}
   </div>
 
@@ -74,9 +70,9 @@
     </section>
   {/if}
 
-  {#if !node.notPlaced}
+  {#if !node.notPlaced && (placements.length > 0 || children.length === 0)}
     <section class="placements-section">
-      <h2>Placements</h2>
+      <h2 class="title is-3">Placements</h2>
       {#if placements.length > 0}
         <ul class="placement-list">
           {#each placements as ref (ref.id)}
@@ -94,7 +90,7 @@
 
   {#if children.length > 0}
     <section class="children-section">
-      <h2>Children</h2>
+      <h2 class="title is-3">Children</h2>
       <ul class="children-list">
         {#each children as child (child.id)}
           <li>
@@ -172,11 +168,11 @@
   }
 
   h2 {
-    font-size: 1rem;
+    /*font-size: 1rem;*/
     font-weight: 600;
     margin: 1rem 0 0.5rem;
-    color: var(--bulma-text-weak);
-    text-transform: uppercase;
+    /*color: var(--bulma-text-weak);*/
+    /*text-transform: uppercase;*/
     letter-spacing: 0.05em;
   }
 
