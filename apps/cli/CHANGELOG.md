@@ -1,5 +1,18 @@
 # @skyreach/cli
 
+## 2.6.2
+
+### Patch Changes
+
+- 3957613: **Content Update:** Record session 21; fix CLI bugs
+- Updated dependencies [91b7478]
+- Updated dependencies [934bdd5]
+- Updated dependencies [31a2356]
+- Updated dependencies [0712fd6]
+- Updated dependencies [d844fc0]
+- Updated dependencies [7bcc551]
+  - @skyreach/schemas@3.3.0
+
 ## 2.6.1
 
 ### Patch Changes
