@@ -1,0 +1,22 @@
+---
+import { getCollection } from 'astro:content';
+
+import SpellDetails from '../../../components/SpellDetails.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+const spellsData = await getCollection('spells');
+const spells = spellsData
+  .map((spell) => spell.data)
+  .sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<SecretLayout title="All Spells">
+  {
+    spells.map((spell) => (
+      <>
+        <h2 class="title is-3">{spell.name}</h2>
+        <SpellDetails spell={spell} isSubcomponent={true} />
+      </>
+    ))
+  }
+</SecretLayout>

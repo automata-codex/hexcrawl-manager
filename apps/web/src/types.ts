@@ -39,6 +39,11 @@ export type ClueLink = {
   }[];
 };
 
+export type PointcrawlLink = {
+  slug: string;
+  name: string;
+};
+
 export type EncounterCategoryTables = Record<
   string,
   Record<string, EncounterEntryData[]>
@@ -49,7 +54,7 @@ export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
 export type PlacementMap = Record<string, PlacementRef[]>;
 
 export interface PlacementRef {
-  type: 'hex' | 'hidden-site' | 'dungeon' | 'floating-clue';
+  type: 'hex' | 'hidden-site' | 'dungeon' | 'floating-clue' | 'pointcrawl' | 'pointcrawl-node' | 'pointcrawl-edge' | 'encounter';
   id: string;
   label: string;
 }

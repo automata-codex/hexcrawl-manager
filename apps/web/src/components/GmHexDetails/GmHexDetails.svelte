@@ -8,6 +8,7 @@
   import Landmark from './Landmark.svelte';
   import LinkedClues from './LinkedClues.svelte';
   import Neighbors from './Neighbors.svelte';
+  import Pointcrawls from './Pointcrawls.svelte';
   import Visited from './Visited.svelte';
 
   import type {
@@ -15,6 +16,7 @@
     DungeonEntry,
     ExtendedHexData,
     FlatKnowledgeTree,
+    PointcrawlLink,
   } from '../../types.ts';
 
   interface Props {
@@ -22,6 +24,7 @@
     dungeons: DungeonEntry[];
     hex: ExtendedHexData;
     knowledgeTrees: Record<string, FlatKnowledgeTree>;
+    pointcrawls?: PointcrawlLink[];
     showSelfLink?: boolean;
   }
 
@@ -30,6 +33,7 @@
     dungeons,
     hex,
     knowledgeTrees,
+    pointcrawls,
     showSelfLink = true,
   }: Props = $props();
 </script>
@@ -58,6 +62,7 @@
     <a href={getRegionPath(hex.regionId)}>{getRegionTitle(hex.regionId)}</a>
   </div>
   <Dungeon {dungeons} {hex} />
+  <Pointcrawls {pointcrawls} />
 </div>
 <div class="data-bar">
   <Neighbors {hex} />

@@ -1,8 +1,4 @@
-import { REPO_PATHS } from '@skyreach/data';
-import { KnowledgeNodeSchema } from '@skyreach/schemas';
-import fs from 'fs';
-import path from 'path';
-import yaml from 'yaml';
+import { getCollection } from 'astro:content';
 
 import type {
   FlatKnowledgeTree,
@@ -11,15 +7,19 @@ import type {
 } from '../types.ts';
 import type {
   DungeonData,
+  EncounterData,
   FloatingClueData,
   HexData,
   KnowledgeNodeData,
+  PointcrawlNodeData,
 } from '@skyreach/schemas';
 
 export function buildPlacementMap(
   hexes: HexData[],
   dungeons: DungeonData[],
   floatingClues: FloatingClueData[],
+  pointcrawlNodes: PointcrawlNodeData[],
+  encounters: EncounterData[],
 ): PlacementMap {
   const placementMap: PlacementMap = {};
 
@@ -74,6 +74,32 @@ export function buildPlacementMap(
     }
   }
 
+  // Pointcrawl nodes
+  for (const node of pointcrawlNodes) {
+    const ref = {
+      type: 'pointcrawl-node' as PlacementType,
+      id: `${node.pointcrawlId}/${node.id}`,
+      label: node.name,
+    };
+    for (const unlockKey of node.unlocks ?? []) {
+      placementMap[unlockKey] ||= [];
+      placementMap[unlockKey].push(ref);
+    }
+  }
+
+  // Encounters
+  for (const encounter of encounters) {
+    const ref = {
+      type: 'encounter' as PlacementType,
+      id: encounter.id,
+      label: encounter.name,
+    };
+    for (const unlockKey of encounter.unlocks ?? []) {
+      placementMap[unlockKey] ||= [];
+      placementMap[unlockKey].push(ref);
+    }
+  }
+
   return placementMap;
 }
 
@@ -96,17 +122,70 @@ export function flattenKnowledgeTree(
   return result;
 }
 
-const knowledgeTrees: Record<string, KnowledgeNodeData> = {};
-const flatKnowledgeTrees: Record<string, FlatKnowledgeTree> = {};
-
-const files = fs.readdirSync(REPO_PATHS.KNOWLEDGE_TREES()).filter((file) => /\.ya?ml$/.test(file));
-
-for (const file of files) {
-  const rootId = file.replace(/\.ya?ml$/, '');
-  const content = fs.readFileSync(path.join(REPO_PATHS.KNOWLEDGE_TREES(), file), 'utf8');
-  const parsed = yaml.parse(content);
-  knowledgeTrees[rootId] = KnowledgeNodeSchema.parse(parsed);
-  flatKnowledgeTrees[rootId] = flattenKnowledgeTree(knowledgeTrees[rootId]);
+/**
+ * Get all knowledge trees as a record keyed by tree ID.
+ */
+export async function getKnowledgeTrees(): Promise<
+  Record<string, KnowledgeNodeData>
+> {
+  const entries = await getCollection('knowledge-trees');
+  const trees: Record<string, KnowledgeNodeData> = {};
+  for (const entry of entries) {
+    trees[entry.id] = entry.data;
+  }
+  return trees;
 }
 
-export { flatKnowledgeTrees, knowledgeTrees };
+/**
+ * Get a single knowledge tree by ID.
+ */
+export async function getKnowledgeTree(
+  id: string,
+): Promise<KnowledgeNodeData | undefined> {
+  const trees = await getKnowledgeTrees();
+  return trees[id];
+}
+
+/**
+ * Get all knowledge trees as flattened lookup maps.
+ */
+export async function getFlatKnowledgeTrees(): Promise<
+  Record<string, FlatKnowledgeTree>
+> {
+  const trees = await getKnowledgeTrees();
+  const flatTrees: Record<string, FlatKnowledgeTree> = {};
+  for (const [id, tree] of Object.entries(trees)) {
+    flatTrees[id] = flattenKnowledgeTree(tree);
+  }
+  return flatTrees;
+}
+
+/**
+ * Get a single flattened knowledge tree by ID.
+ */
+export async function getFlatKnowledgeTree(
+  id: string,
+): Promise<FlatKnowledgeTree | undefined> {
+  const tree = await getKnowledgeTree(id);
+  if (!tree) return undefined;
+  return flattenKnowledgeTree(tree);
+}
+
+/**
+ * Navigate to a specific node in the tree by path segments and return it (with children intact).
+ */
+export function getNodeFromTree(
+  tree: KnowledgeNodeData,
+  segments: string[],
+): KnowledgeNodeData | undefined {
+  let current = tree;
+
+  // Skip first segment (it's the tree root ID, which matches tree.id)
+  for (let i = 1; i < segments.length; i++) {
+    const child = current.children?.find((c) => c.id === segments[i]);
+    if (!child) return undefined;
+    current = child;
+  }
+
+  return current;
+}

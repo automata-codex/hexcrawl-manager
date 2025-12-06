@@ -3,7 +3,7 @@ import { hexSort as hexIdSort } from '@skyreach/core';
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
 
-import type { ExtendedHexData, ExtendedTreasureData } from '../types.ts';
+import type { ExtendedHexData, ExtendedHiddenSites, ExtendedTreasureData } from '../types.ts';
 import type { HexData, HiddenSite } from '@skyreach/schemas';
 
 export function getHexSvgPath(x: number, y: number, hexWidth: number): string {
@@ -61,7 +61,7 @@ function isStringArray(arr: any[]): arr is string[] {
 
 function renderHiddenSites(
   hiddenSites: HiddenSite[] | string[],
-): Promise<{ description: string; treasure?: ExtendedTreasureData[] }>[] {
+): Promise<ExtendedHiddenSites>[] {
   if (isStringArray(hiddenSites)) {
     return hiddenSites.map(async (site) => ({
       description: await renderBulletMarkdown(site),

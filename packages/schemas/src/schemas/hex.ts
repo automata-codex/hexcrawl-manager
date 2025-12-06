@@ -89,11 +89,17 @@ export type ClueHiddenSite = z.infer<typeof ClueHiddenSiteSchema>;
 
 /**
  * Pre-placed hidden site (original format, no source field).
- * Used for sites that were designed into the campaign from the start.
+ * Used for general purpose sites, such as those that were designed into the campaign from the start.
  */
-export const PreplacedHiddenSiteSchema = BaseHiddenSiteSchema.describe(
-  'PreplacedHiddenSiteSchema',
-);
+export const PreplacedHiddenSiteSchema = BaseHiddenSiteSchema.extend({
+  linkType: LinkTypeEnum.optional().describe('Type of the linked content'),
+  linkId: z.string().optional().describe('ID of the linked content (encounter, dungeon, etc.)'),
+})
+  .refine(
+    (data) => (data.linkType && data.linkId) || (!data.linkType && !data.linkId),
+    { message: 'linkType and linkId must both be present or both be absent' },
+  )
+  .describe('PreplacedHiddenSiteSchema');
 export type PreplacedHiddenSite = z.infer<typeof PreplacedHiddenSiteSchema>;
 
 /**
@@ -159,6 +165,10 @@ export const HexSchema = z
       .describe('Array of encounter IDs that can occur in this hex'),
     encounterChance: z.number().int().min(1).max(20).optional(),
     encounterOverrides: EncounterOverrideSchema.optional(),
+    hideRandomEncounters: z
+      .boolean()
+      .optional()
+      .describe('When true, hides the random encounter table in the hex detail display'),
     notes: z
       .array(z.string())
       .optional()

@@ -1,5 +1,39 @@
 # @skyreach/web
 
+## 3.4.0
+
+### Minor Changes
+
+- 91b7478: Expand encounter taxonomy and cross-referencing
+- 2a27e3d: Add an index page to list all knowledge trees
+- 6a734eb: Refactor the knowledge tree viewer to display just one node at a time
+- ef14220: **Content Update:** Add new creatures and encounters
+- 98ead0b: Add components for viewing pointcrawls
+- 934bdd5: Add pointcrawl rules
+  - Expand pointcrawl node schema to include light sources
+  - **Content Update:** Add pointcrawl rules
+- a8e02cf: **Content Update:** Add content for region 15
+- 3957613: **Content Update:** Record session 21; fix CLI bugs
+- 0712fd6: Minor updates:
+  - Add optional flag ot hide random encounters for a specific hex
+  - **Content Update:** Add locations and connections for the Skyspire deck 1
+- dd8d2c0: **Content Update:** Add locations and passages for deck 2
+- d844fc0: **Content Update:** Add random encounters for Skyspire
+- 62d635b: **Content Update:** Place some knowledge nodes for the Skyspire
+- 0fff456: **Content Update:** Add & expand articles on crystals; add & expand Skyspire knowledge trees
+- c2afc28: **Content Update:** Add pointcrawl locations and connections for the Skyspire base station
+- 7bcc551: Add spell collection and new spells
+  - Add spell schema to `@skyreach/schemas`
+  - Add spell catalog to `@skyreach/web`
+  - **Content Update**: New spells added to the spell catalog
+- dd832d6: Create reusable card and card grid components
+- fd19378: **Content Update:** Record results of the _Winter of 1512_ minigame
+- e0820d9: **Content Update:** Add worldbuilding articles on materials and architecture for both F.C. and Dragon Empire
+
+### Patch Changes
+
+- 98eace4: Refactor `KnowledgeTree` component for better display alignment
+
 ## 3.3.0
 
 ### Minor Changes

@@ -1,3 +1,41 @@
+import type {
+  CategoryTableData,
+  EncounterOverrideData,
+  EncounterTableData,
+} from '@skyreach/schemas';
+
+/**
+ * Merges encounter table overrides with a base table.
+ * Used by both hex and pointcrawl node pages.
+ */
+export function mergeEncounterOverrides(
+  base: EncounterTableData,
+  overrides?: EncounterOverrideData,
+): EncounterTableData {
+  if (!overrides) return base;
+
+  // Use the override mainTable if provided, otherwise keep base
+  const mainTable = overrides.mainTable ?? base.mainTable;
+
+  const categoryTables: CategoryTableData = structuredClone(base.categoryTables);
+
+  if (overrides.categoryTables) {
+    for (const [category, tierOverrides] of Object.entries(
+      overrides.categoryTables,
+    )) {
+      categoryTables[category] = categoryTables[category] || {};
+
+      for (const [tier, overrideEntries] of Object.entries(
+        tierOverrides ?? {},
+      )) {
+        categoryTables[category][tier] = overrideEntries;
+      }
+    }
+  }
+
+  return { mainTable, categoryTables };
+}
+
 export function buildWeightedRanges<T>(
   entries: T[],
   getWeight: (entry: T) => number = () => 1,

@@ -682,12 +682,13 @@ export function synthesizeLifecycleEvents(
       // Intermediate blocks: must end with session_pause after last day event
       const hasPause = afterLastDay.find((e) => e.kind === 'session_pause');
       if (!hasPause) {
+        const lastBlockEvent = block.events[block.events.length - 1];
         blockEvents.push({
           kind: 'session_pause',
-          ts: block.events[lastDayIdx]?.ts || timeNowISO(),
-          seq: 0,
+          ts: lastBlockEvent?.ts || timeNowISO(),
+          seq: Number.MAX_SAFE_INTEGER,
           payload: { status: 'paused', id: sessionId },
-          _origIdx: -1,
+          _origIdx: Number.MAX_SAFE_INTEGER,
         } satisfies SessionPauseEvent & { _origIdx: number });
       }
     } else {
@@ -945,6 +946,8 @@ export function writeSessionFilesAndRollovers(
         : path.join(rolloverDir, `rollover_${nextSeasonId}.jsonl`);
       if (!existsSync(rolloverFile)) {
         const rolloverEvent = {
+          seq: 1,
+          ts: new Date().toISOString(),
           kind: 'season_rollover',
           payload: { seasonId: nextSeasonId },
         };

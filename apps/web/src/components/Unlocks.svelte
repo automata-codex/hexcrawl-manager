@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { getKnowledgeNodePath } from '../config/routes.js';
+  import { renderBulletMarkdown } from '../utils/markdown.js';
+
   import type { FlatKnowledgeTree } from '../types.ts';
 
   interface Props {
@@ -18,12 +21,15 @@
   <section class="knowledge-unlocks">
     <p class="inline-heading">Knowledge Unlocked:</p>
     <ul>
-      {#each unlocks as key}
+      {#each unlocks as key (key)}
         {@const node = resolveNode(key)}
         {#if node}
           <li>
-            <span class="inline-heading">{node.name}</span>:{' '}
-            <span class="text-muted">{node.description}</span>
+            <span class="inline-heading">{node.name}</span>:
+            {#await renderBulletMarkdown(node.description) then html}
+              <span class="text-muted">{@html html}</span>
+            {/await}
+            <a href={getKnowledgeNodePath(key)}>[KT Node]</a>
           </li>
         {:else}
           <li><em>Unknown knowledge key:</em> {key}</li>

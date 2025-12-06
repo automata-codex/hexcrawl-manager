@@ -1,0 +1,145 @@
+---
+import { getCollection, render } from 'astro:content';
+
+import EdgeDetails from '../../../../components/Pointcrawls/EdgeDetails.astro';
+import NodeDetails from '../../../../components/Pointcrawls/NodeDetails.astro';
+import SecretArticleLayout from '../../../../layouts/SecretArticleLayout.astro';
+
+// Get the IDs from the incoming server request
+const { id: pointcrawlSlug, nodeOrEdgeId } = Astro.params;
+if (!pointcrawlSlug || !nodeOrEdgeId) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Find the parent pointcrawl
+const allPointcrawls = await getCollection('pointcrawls');
+const pointcrawl = allPointcrawls.find((p) => p.data.slug === pointcrawlSlug);
+
+if (!pointcrawl) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Try to find as a node first, then as an edge
+const allNodes = await getCollection('pointcrawl-nodes');
+const allEdges = await getCollection('pointcrawl-edges');
+
+const node = allNodes.find(
+  (n) => n.data.pointcrawlId === pointcrawl.data.id && n.data.id === nodeOrEdgeId
+);
+
+const edge = node
+  ? null
+  : allEdges.find(
+      (e) => e.data.pointcrawlId === pointcrawl.data.id && e.data.id === nodeOrEdgeId
+    );
+
+// 404 if neither found
+if (!node && !edge) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+const isNode = !!node;
+const entry = node || edge!;
+
+// Render MDX content
+const { Content } = await render(entry);
+
+// Helper to get node info by ID
+const pointcrawlId = pointcrawl.data.id;
+function getNodeInfo(nodeId: string) {
+  const n = allNodes.find(
+    (n) => n.data.pointcrawlId === pointcrawlId && n.data.id === nodeId
+  );
+  if (!n) return undefined;
+  return { id: n.data.id, label: n.data.label, name: n.data.name };
+}
+
+// Build connected edges info for nodes
+let connectedEdges: {
+  id: string;
+  label: string;
+  direction: 'to' | 'from';
+  otherNode?: { id: string; label: string; name: string };
+  otherNodeId: string;
+}[] = [];
+
+if (isNode && node) {
+  const edges = allEdges.filter(
+    (e) =>
+      e.data.pointcrawlId === pointcrawl.data.id &&
+      (e.data.from === node.data.id || e.data.to === node.data.id)
+  );
+
+  connectedEdges = edges.map((e) => {
+    const isFrom = e.data.from === node.data.id;
+    const otherNodeId = isFrom ? e.data.to : e.data.from;
+    return {
+      id: e.data.id,
+      label: e.data.label,
+      direction: isFrom ? ('to' as const) : ('from' as const),
+      otherNode: getNodeInfo(otherNodeId),
+      otherNodeId,
+    };
+  });
+}
+
+// Build node info for edges
+let fromNodeInfo: { id: string; label: string; name: string } | undefined;
+let toNodeInfo: { id: string; label: string; name: string } | undefined;
+
+if (!isNode && edge) {
+  fromNodeInfo = getNodeInfo(edge.data.from);
+  toNodeInfo = getNodeInfo(edge.data.to);
+}
+
+const title = isNode
+  ? `${node!.data.label}: ${node!.data.name}`
+  : `Edge ${edge!.data.label}`;
+---
+
+<style>
+  .back-link {
+    margin-bottom: 1rem;
+  }
+</style>
+
+<SecretArticleLayout title={title}>
+  <div class="back-link">
+    <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}`}>
+      &larr; Back to {pointcrawl.data.name}
+    </a>
+  </div>
+
+  {
+    isNode && node ? (
+      <NodeDetails
+        node={node}
+        pointcrawl={pointcrawl}
+        pointcrawlSlug={pointcrawlSlug}
+        connectedEdges={connectedEdges}
+      >
+        <Content />
+      </NodeDetails>
+    ) : (
+      edge && (
+        <EdgeDetails
+          edge={edge}
+          pointcrawlSlug={pointcrawlSlug}
+          fromNode={fromNodeInfo}
+          toNode={toNodeInfo}
+        >
+          <Content />
+        </EdgeDetails>
+      )
+    )
+  }
+</SecretArticleLayout>

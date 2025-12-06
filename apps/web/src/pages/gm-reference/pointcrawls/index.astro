@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+
+import Card from '../../../components/Card.astro';
+import CardGrid from '../../../components/CardGrid.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+const pointcrawls = await getCollection('pointcrawls');
+const sortedPointcrawls = pointcrawls.sort((a, b) =>
+  a.data.name.localeCompare(b.data.name)
+);
+
+const title = 'Pointcrawls';
+---
+
+<SecretLayout title={title}>
+  {sortedPointcrawls.length === 0 && <p>No pointcrawls found.</p>}
+
+  <CardGrid>
+    {
+      sortedPointcrawls.map((pointcrawl) => (
+        <Card
+          title={pointcrawl.data.name}
+          href={`/gm-reference/pointcrawls/${pointcrawl.data.slug}`}
+        >
+          {pointcrawl.data.summary && <p>{pointcrawl.data.summary}</p>}
+        </Card>
+      ))
+    }
+  </CardGrid>
+</SecretLayout>

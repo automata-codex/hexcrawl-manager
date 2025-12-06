@@ -9,16 +9,13 @@ import PlayerHexDetails from '../../../components/PlayerHexDetails/PlayerHexDeta
 import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { loadClueLinks } from '../../../utils/clue-links';
+import { mergeEncounterOverrides } from '../../../utils/encounters';
 import { processHex } from '../../../utils/hexes';
-import { flatKnowledgeTrees } from '../../../utils/knowledge-trees';
+import { getFlatKnowledgeTrees } from '../../../utils/knowledge-trees';
 
-import type {
-  CategoryTableData,
-  EncounterOverrideData,
-  EncounterTableData,
-  HexData,
-} from '@skyreach/schemas';
+import type { EncounterTableData, HexData } from '@skyreach/schemas';
 
+const flatKnowledgeTrees = await getFlatKnowledgeTrees();
 const clueLinks = await loadClueLinks();
 
 // Get the ID from the incoming server request
@@ -45,6 +42,12 @@ const dungeons = await getCollection('dungeons');
 const hex: HexData = hexEntry.data;
 const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
 
+// Find pointcrawls accessible from this hex
+const allPointcrawls = await getCollection('pointcrawls');
+const pointcrawls = allPointcrawls
+  .filter((p) => p.data.hexIds?.includes(hex.id.toLowerCase()))
+  .map((p) => ({ slug: p.data.slug, name: p.data.name }));
+
 // Build the random encounter table
 let encounters: EncounterTableData | undefined = undefined;
 let encounterChance = 8;
@@ -56,41 +59,8 @@ if (region) {
 }
 encounterChance = hex.encounterChance ?? encounterChance;
 
-export function mergeHexOverrides(
-  base: EncounterTableData,
-  overrides?: EncounterOverrideData,
-): EncounterTableData {
-  if (!overrides) return base;
-
-  // Use the override mainTable if provided, otherwise keep base
-  const mainTable = overrides.mainTable ?? base.mainTable;
-
-  const categoryTables: CategoryTableData = structuredClone(
-    base.categoryTables,
-  );
-
-  if (overrides.categoryTables) {
-    for (const [category, tierOverrides] of Object.entries(
-      overrides.categoryTables,
-    )) {
-      categoryTables[category] = categoryTables[category] || {};
-
-      for (const [tier, overrideEntries] of Object.entries(
-        tierOverrides ?? {},
-      )) {
-        categoryTables[category][tier] = overrideEntries;
-      }
-    }
-  }
-
-  return {
-    mainTable,
-    categoryTables,
-  };
-}
-
 if (encounters && hex.encounterOverrides) {
-  encounters = mergeHexOverrides(encounters, hex.encounterOverrides);
+  encounters = mergeEncounterOverrides(encounters, hex.encounterOverrides);
 }
 
 const extendedHexData = await processHex(hex);
@@ -107,15 +77,20 @@ const extendedHexData = await processHex(hex);
       dungeons={dungeons}
       hex={extendedHexData}
       knowledgeTrees={flatKnowledgeTrees}
+      pointcrawls={pointcrawls}
       showSelfLink={false}
     />
-    <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
-    <p>
-      <span class="inline-heading">Chance of encounter:</span>
-      {' '}
-      {encounterChance * 5}% (&le;{encounterChance})
-    </p>
-    <RandomEncounterTable data={encounters} />
+    {!hex.hideRandomEncounters && (
+      <>
+        <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
+        <p>
+          <span class="inline-heading">Chance of encounter:</span>
+          {' '}
+          {encounterChance * 5}% (&le;{encounterChance})
+        </p>
+        <RandomEncounterTable data={encounters} />
+      </>
+    )}
     <GhostlyEchoes isScarSite={hex.tags?.includes('scar-site')} />
   </SecretContent>
 </ComponentLayout>

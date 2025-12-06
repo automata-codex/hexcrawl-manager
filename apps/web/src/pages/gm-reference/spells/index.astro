@@ -1,0 +1,38 @@
+---
+import { getCollection } from 'astro:content';
+
+import ComponentLayout from '../../../layouts/ComponentLayout.astro';
+
+const spellsData = await getCollection('spells');
+const spells = spellsData
+  .map((spell) => spell.data)
+  .sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<style>
+  .all-link {
+    margin-top: 1rem;
+  }
+
+  .list-container {
+    columns: 2;
+  }
+
+</style>
+<ComponentLayout title="Spells">
+  <div class="list-container">
+    <ul>
+      {
+        spells.map((spell) => (
+          <li>
+            <a href={`/gm-reference/spells/${spell.id}`}>{spell.name}</a>
+            <span class="has-text-grey"> - {spell.type}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+    <p class="all-link">
+      View <a href="/gm-reference/spells/all">all spells</a> on one page.
+    </p>
+</ComponentLayout>

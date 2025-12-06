@@ -1,0 +1,107 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+import { formatTraversalTime } from '../../utils/pointcrawl';
+
+interface NodeInfo {
+  id: string;
+  label: string;
+  name: string;
+}
+
+interface Props {
+  edge: CollectionEntry<'pointcrawl-edges'>;
+  pointcrawlSlug: string;
+  fromNode?: NodeInfo;
+  toNode?: NodeInfo;
+}
+
+const { edge, pointcrawlSlug, fromNode, toNode } = Astro.props;
+---
+
+<style>
+  .content-section {
+    margin: 1rem 0;
+  }
+
+  .connections-section {
+    margin-top: 1rem;
+  }
+
+  .traversal-time {
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+
+  .encounters-list {
+    margin-bottom: 1rem;
+  }
+</style>
+
+<div class="content-section">
+  <slot />
+</div>
+
+<p class="traversal-time">
+  <strong>Traversal time:</strong>{' '}
+  {formatTraversalTime(edge.data.traversalTime)}
+</p>
+
+<div class="connections-section">
+  <h2 class="title is-4">Connects</h2>
+  <ul>
+    <li class="connection-item">
+      <strong>From:</strong>{' '}
+      {
+        fromNode ? (
+          <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${fromNode.id}`}>
+            {fromNode.label}: {fromNode.name}
+          </a>
+        ) : (
+          <span>Unknown node ({edge.data.from})</span>
+        )
+      }
+      {edge.data.fromLevel !== undefined && ` (Level ${edge.data.fromLevel})`}
+    </li>
+    <li class="connection-item">
+      <strong>To:</strong>{' '}
+      {
+        toNode ? (
+          <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}/${toNode.id}`}>
+            {toNode.label}: {toNode.name}
+          </a>
+        ) : (
+          <span>Unknown node ({edge.data.to})</span>
+        )
+      }
+      {edge.data.toLevel !== undefined && ` (Level ${edge.data.toLevel})`}
+    </li>
+  </ul>
+</div>
+
+{
+  edge.data.encounters && edge.data.encounters.length > 0 && (
+    <div class="encounters-list">
+      <h2 class="title is-4">Set Encounters</h2>
+      <ul>
+        {edge.data.encounters.map((encId) => (
+          <li>
+            <a href={`/gm-reference/encounters/${encId}`}>{encId}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+{
+  edge.data.encounterOverrides && (
+    <div class="encounters-section">
+      <h2 class="title is-4">Random Encounter Overrides</h2>
+      <p class="is-size-7 has-text-grey">
+        This edge has custom encounter table overrides. See parent pointcrawl for
+        base table.
+      </p>
+    </div>
+  )
+}

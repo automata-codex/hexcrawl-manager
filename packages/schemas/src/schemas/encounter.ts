@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { CreatureTypeEnum } from './stat-block';
 
-export const EncounterScopeEnum = z.enum(['general', 'hex', 'region', 'dungeon']);
+export const EncounterScopeEnum = z.enum(['general', 'hex', 'region', 'dungeon', 'pointcrawl']);
 
 export const LocationTypeEnum = z.enum(['wilderness', 'dungeon']);
 
@@ -20,7 +20,7 @@ export const FactionEnum = z.enum([
 ]);
 
 export const UsageReferenceSchema = z.object({
-  type: z.enum(['hex', 'region', 'dungeon']),
+  type: z.enum(['hex', 'region', 'dungeon', 'pointcrawl', 'pointcrawl-node', 'pointcrawl-edge']),
   id: z.string(),
   name: z.string(),
 });
@@ -43,6 +43,11 @@ export const EncounterSchema = z
       .describe('Required for general-scope encounters, optional for others'),
 
     factions: z.array(FactionEnum).optional(),
+
+    unlocks: z
+      .array(z.string())
+      .optional()
+      .describe('IDs of knowledge nodes that are unlocked by this encounter'),
 
     // Derived fields (populated at build time)
     isLead: z

@@ -6,11 +6,13 @@ import {
   ClassSchema,
   CompositeArticleSchema,
   DungeonDataSchema,
+  EncounterCategoryTableSchema,
   EncounterSchema,
   type FactionData,
   FactionSchema,
   FloatingClueSchema,
   HexSchema,
+  KnowledgeNodeSchema,
   type LootPackData,
   LootPackSchema,
   MapPathSchema,
@@ -18,11 +20,15 @@ import {
   NpcSchema,
   type PlayerData,
   PlayerSchema,
+  PointcrawlEdgeSchema,
+  PointcrawlNodeSchema,
+  PointcrawlSchema,
   RegionSchema,
   RoleplayBookSchema,
   type RumorData,
   RumorSchema,
   SessionSchema,
+  SpellSchema,
   StatBlockSchema,
   type SupplementData,
   SupplementSchema,
@@ -46,19 +52,25 @@ const DIRS = {
   CLASSES: `${DATA_DIR}/classes`,
   COMPOSITE_ARTICLES: `${DATA_DIR}/composite-articles`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
+  ENCOUNTER_CATEGORY_TABLES: `${DATA_DIR}/encounter-category-tables`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   FACTIONS: `${DATA_DIR}/factions`,
   FLOATING_CLUES: `${DATA_DIR}/floating-clues`,
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
+  KNOWLEDGE_TREES: `${DATA_DIR}/knowledge-trees`,
   LOOT_PACKS: `${DATA_DIR}/loot-packs`,
   MAP_PATHS: `${DATA_DIR}/map-paths`,
   NPCS: `${DATA_DIR}/npcs`,
   PLAYERS: `${DATA_DIR}/players`,
+  POINTCRAWLS: `${DATA_DIR}/pointcrawls`,
+  POINTCRAWL_EDGES: `${DATA_DIR}/pointcrawl-edges`,
+  POINTCRAWL_NODES: `${DATA_DIR}/pointcrawl-nodes`,
   REGIONS: `${DATA_DIR}/regions`,
   ROLEPLAY_BOOKS: `${DATA_DIR}/roleplay-books`,
   RUMORS: `${DATA_DIR}/rumors`,
   SESSIONS: `${DATA_DIR}/sessions`,
+  SPELLS: `${DATA_DIR}/spells`,
   STAT_BLOCKS: `${DATA_DIR}/stat-blocks`,
   SUPPLEMENTS: `${DATA_DIR}/supplements`,
   TRAILS: `${DATA_DIR}/trails`,
@@ -126,6 +138,11 @@ const dungeons = defineCollection({
   schema: DungeonDataSchema,
 });
 
+const encounterCategoryTables = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.ENCOUNTER_CATEGORY_TABLES }),
+  schema: EncounterCategoryTableSchema,
+});
+
 const encounters = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.ENCOUNTERS }),
   schema: EncounterSchema,
@@ -144,6 +161,11 @@ const floatingClues = defineCollection({
 const hexes = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.HEXES }),
   schema: HexSchema,
+});
+
+const knowledgeTrees = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.KNOWLEDGE_TREES }),
+  schema: KnowledgeNodeSchema,
 });
 
 const lootPacks = defineCollection({
@@ -166,6 +188,21 @@ const players = defineCollection({
   schema: PlayerSchema,
 });
 
+const pointcrawls = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.POINTCRAWLS }),
+  schema: PointcrawlSchema,
+});
+
+const pointcrawlEdges = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.POINTCRAWL_EDGES }),
+  schema: PointcrawlEdgeSchema,
+});
+
+const pointcrawlNodes = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.POINTCRAWL_NODES }),
+  schema: PointcrawlNodeSchema,
+});
+
 const regions = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.REGIONS }),
   schema: RegionSchema,
@@ -184,6 +221,11 @@ const rumors = defineCollection({
 const sessions = defineCollection({
   loader: glob({ pattern: '**/*.yml', base: DIRS.SESSIONS }),
   schema: SessionSchema,
+});
+
+const spells = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.SPELLS }),
+  schema: SpellSchema,
 });
 
 const statBlocks = defineCollection({
@@ -213,18 +255,24 @@ export const collections = {
   classes,
   'composite-articles': compositeArticles,
   dungeons,
+  'encounter-category-tables': encounterCategoryTables,
   encounters,
   factions,
   floatingClues,
   hexes,
+  'knowledge-trees': knowledgeTrees,
   'loot-packs': lootPacks,
   'map-paths': mapPaths,
   npcs,
   players,
+  pointcrawls,
+  'pointcrawl-edges': pointcrawlEdges,
+  'pointcrawl-nodes': pointcrawlNodes,
   regions,
   'roleplay-books': roleplayBooks,
   rumors,
   sessions,
+  spells,
   statBlocks,
   supplements,
   trails,

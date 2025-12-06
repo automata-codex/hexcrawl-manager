@@ -1,0 +1,123 @@
+---
+import type { SpellData } from '@skyreach/schemas';
+
+import { renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
+
+interface Props {
+  spell: SpellData;
+  isSubcomponent?: boolean;
+}
+
+const { spell, isSubcomponent = false } = Astro.props;
+
+// Format subheadings
+const subheading = (text: string) => {
+  if (isSubcomponent) {
+    return `<h3 class="title is-4">${text}</h3>`;
+  }
+  return `<h2 class="title is-3">${text}</h2>`;
+};
+
+// Format components string
+const componentsStr = [
+  spell.components.verbal && 'V',
+  spell.components.somatic && 'S',
+  spell.components.material && `M (${spell.components.material})`,
+]
+  .filter(Boolean)
+  .join(', ');
+
+// Render markdown content
+function getMarkdownText(markdown: string): Promise<string> {
+  return isSubcomponent
+    ? renderSubArticleMarkdown(markdown)
+    : renderMarkdown(markdown);
+}
+---
+
+<style>
+  .spell-meta {
+    margin-bottom: 1rem;
+  }
+
+  .spell-meta p {
+    text-indent: 0;
+  }
+
+  .spell-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .spell-tag {
+    background-color: var(--bulma-scheme-main-ter);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .related-spells {
+    list-style: disc;
+    margin-left: 1.5rem;
+  }
+</style>
+
+<div class="spell-meta">
+  <p><strong>{spell.type}</strong></p>
+  <p><strong>Casting Time:</strong> {spell.castingTime}</p>
+  <p><strong>Range:</strong> {spell.range}</p>
+  <p><strong>Components:</strong> {componentsStr}</p>
+  <p><strong>Duration:</strong> {spell.concentration ? `Concentration, ${spell.duration}` : spell.duration}</p>
+  {spell.classes.length > 0 && <p><strong>Classes:</strong> {spell.classes.join(', ')}</p>}
+  <p><strong>Source:</strong> {spell.source}</p>
+  {spell.ritual && <p><em>Ritual</em></p>}
+</div>
+
+<p style="margin-bottom: 1rem"><em>{spell.summary}</em></p>
+
+<Fragment set:html={getMarkdownText(spell.description)} />
+
+{
+  spell.atHigherLevels && (
+    <div>
+      <Fragment set:html={subheading('At Higher Levels')} />
+      <Fragment set:html={getMarkdownText(spell.atHigherLevels)} />
+    </div>
+  )
+}
+
+{
+  spell.mechanicalNotes && (
+    <div>
+      <Fragment set:html={subheading('Mechanical Notes')} />
+      <Fragment set:html={getMarkdownText(spell.mechanicalNotes)} />
+    </div>
+  )
+}
+
+{
+  spell.relatedSpells && spell.relatedSpells.length > 0 && (
+    <div>
+      <Fragment set:html={subheading('Related Spells')} />
+      <ul class="related-spells">
+        {spell.relatedSpells.map((spellId) => (
+          <li>
+            <a href={`/gm-reference/spells/${spellId}`}>{spellId}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+{
+  spell.tags.length > 0 && (
+    <div class="spell-tags">
+      {spell.tags.map((tag) => (
+        <span class="spell-tag">{tag}</span>
+      ))}
+    </div>
+  )
+}
