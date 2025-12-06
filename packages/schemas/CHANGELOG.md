@@ -1,5 +1,23 @@
 # @skyreach/schemas
 
+## 3.3.0
+
+### Minor Changes
+
+- 91b7478: Expand encounter taxonomy and cross-referencing
+- 934bdd5: Add pointcrawl rules
+  - Expand pointcrawl node schema to include light sources
+  - **Content Update:** Add pointcrawl rules
+- 31a2356: Add schemas for pointcrawls
+- 0712fd6: Minor updates:
+  - Add optional flag ot hide random encounters for a specific hex
+  - **Content Update:** Add locations and connections for the Skyspire deck 1
+- d844fc0: **Content Update:** Add random encounters for Skyspire
+- 7bcc551: Add spell collection and new spells
+  - Add spell schema to `@skyreach/schemas`
+  - Add spell catalog to `@skyreach/web`
+  - **Content Update**: New spells added to the spell catalog
+
 ## 3.2.0
 
 ### Minor Changes
