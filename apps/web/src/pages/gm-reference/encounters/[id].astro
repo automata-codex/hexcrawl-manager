@@ -107,6 +107,17 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   // Check if any stat block ID contains keyword
   return statBlockIds.some((statBlockId) => statBlockId.includes(keyword));
 });
+
+// Resolve and sort stat blocks by CR (lowest to highest)
+const resolvedStatBlocks = statBlockIds
+  .map((statBlockId: string) => {
+    const statBlock = statBlocks.find((sb) => sb.id === statBlockId);
+    if (!statBlock) {
+      throw new Error(`Stat block not found: ${statBlockId}`);
+    }
+    return statBlock;
+  })
+  .sort((a, b) => (a.data.cr ?? 0) - (b.data.cr ?? 0));
 ---
 
 <style is:global>
@@ -396,15 +407,9 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   </div>
   <div class="stat-block-container">
     {
-      statBlockIds.map((statBlockId: string) => {
-        const statBlock = statBlocks.find(
-          (statBlock) => statBlock.id === statBlockId,
-        );
-        if (!statBlock) {
-          throw new Error(`Stat block not found: ${statBlockId}`);
-        }
-        return <StatBlock data={statBlock.data} />;
-      })
+      resolvedStatBlocks.map((statBlock) => (
+        <StatBlock data={statBlock.data} />
+      ))
     }
   </div>
 </SecretArticleLayout>
