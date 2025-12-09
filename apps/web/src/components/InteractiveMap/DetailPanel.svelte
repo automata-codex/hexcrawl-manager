@@ -186,11 +186,6 @@
         {' '}
         {getFavoredTerrain(currentHex?.biome, currentHex?.terrain)}
       </p>
-      <p class="hanging-indent">
-        <span class="inline-heading">Elevation:</span>
-        {' '}
-        {currentHex?.elevation.toLocaleString()} ft.
-      </p>
       {#if trailsInHex.length > 0}
         <h3 class="title is-5">Trails</h3>
         <ul>
