@@ -25,7 +25,14 @@ export const RegionSchema = z
     ]),
     contentDensity: z.number().int().min(1).max(5),
     treasureRating: z.number().int().min(1).max(5),
-    story: z.string().optional().describe('Story or lore associated with this region'),
+    story: z
+      .string()
+      .optional()
+      .describe('Story or lore associated with this region'),
+    topography: z
+      .string()
+      .optional()
+      .describe('Free-text description of regional elevation trends and notable terrain features'),
   })
   .describe('Data for a region on a hex map');
 
