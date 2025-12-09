@@ -13,8 +13,6 @@ export type HexPlayerData = Pick<
   | 'name'
   | 'landmark'
   | 'regionId'
-  | 'terrain'
-  | 'biome'
   | 'topography'
   | 'isVisited'
   | 'isExplored'
@@ -23,6 +21,8 @@ export type HexPlayerData = Pick<
   | 'tags'
 > & {
   hasHiddenSites: boolean;
+  terrain: ExtendedHexData['terrain'] | 'Unknown';
+  biome: ExtendedHexData['biome'] | 'Unknown';
 };
 
 export const GET: APIRoute = async ({ locals }) => {
