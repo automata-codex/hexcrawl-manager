@@ -65,6 +65,11 @@ const hexes = hexData
       <div>|</div>
       <div><a href=`${getRegionPath(region.id)}/hexes`>View all</a></div>
     </div>
+    {region.topography && (
+      <div class="hanging-indent">
+        <span class="inline-heading">Topography:</span>{' '}{region.topography}
+      </div>
+    )}
     <div class="hanging-indent">
       <span class="inline-heading">Haven:</span>{' '}{region.haven}
     </div>
