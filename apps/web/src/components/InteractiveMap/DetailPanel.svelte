@@ -186,6 +186,13 @@
         {' '}
         {getFavoredTerrain(currentHex?.biome, currentHex?.terrain)}
       </p>
+      {#if currentHex?.topography}
+        <p class="hanging-indent">
+          <span class="inline-heading">Topography:</span>
+          {' '}
+          {currentHex.topography}
+        </p>
+      {/if}
       {#if trailsInHex.length > 0}
         <h3 class="title is-5">Trails</h3>
         <ul>
