@@ -67,6 +67,13 @@
 <div class="data-bar">
   <Neighbors {hex} />
 </div>
+{#if hex.topography}
+  <p class="hanging-indent">
+    <span class="inline-heading">Topography:</span>
+    {' '}
+    {hex.topography}
+  </p>
+{/if}
 <Landmark {hex} {knowledgeTrees} />
 <HiddenSites {hex} {knowledgeTrees} />
 {#if hex.secretSite}

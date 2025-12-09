@@ -33,6 +33,13 @@ const { hex } = Astro.props;
   <div class="data-bar">
     <Neighbors hex={hex} />
   </div>
+  {hex.topography && (
+    <p class="hanging-indent">
+      <span class="inline-heading">Topography:</span>
+      {' '}
+      {hex.topography}
+    </p>
+  )}
   <Landmark hex={hex} />
   <HiddenSites hex={hex} />
 </section>

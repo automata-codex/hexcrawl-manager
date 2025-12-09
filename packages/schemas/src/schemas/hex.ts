@@ -28,6 +28,20 @@ const BiomeEnum = z.enum([
   'Unknown',
 ]);
 
+export const TerrainEnum = z.enum([
+  'glacier',
+  'highland-bog',
+  'hills',
+  'marsh',
+  'moors',
+  'mountains',
+  'peak',
+  'plains',
+  'rocky-highland',
+  'swamp',
+  'water',
+]);
+
 export const HexId = z
   .string()
   .toLowerCase()
@@ -181,13 +195,12 @@ export const HexSchema = z
       .array(TagSchema)
       .optional()
       .describe('Tags for filtering hexes, matching clues, etc.'),
-    terrain: z.string(),
-    vegetation: z
+    terrain: TerrainEnum,
+    biome: BiomeEnum,
+    topography: z
       .string()
       .optional()
-      .describe('Deprecated: use `biome` instead'),
-    biome: BiomeEnum,
-    elevation: z.number().int().describe('Weighted average elevation in feet'),
+      .describe('Free-text description of elevation and terrain features'),
   })
   .describe('HexSchema');
 
