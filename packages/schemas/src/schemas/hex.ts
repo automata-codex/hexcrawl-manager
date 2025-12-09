@@ -196,16 +196,7 @@ export const HexSchema = z
       .optional()
       .describe('Tags for filtering hexes, matching clues, etc.'),
     terrain: TerrainEnum,
-    vegetation: z
-      .string()
-      .optional()
-      .describe('Deprecated: use `biome` instead'),
     biome: BiomeEnum,
-    elevation: z
-      .number()
-      .int()
-      .optional()
-      .describe('Deprecated: not a reliable value. Weighted average elevation in feet'),
     topography: z
       .string()
       .optional()
