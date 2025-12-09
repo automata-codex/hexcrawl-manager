@@ -59,8 +59,13 @@ if (region) {
 }
 encounterChance = hex.encounterChance ?? encounterChance;
 
-if (encounters && hex.encounterOverrides) {
-  encounters = mergeEncounterOverrides(encounters, hex.encounterOverrides);
+if (hex.encounterOverrides) {
+  if (encounters) {
+    encounters = mergeEncounterOverrides(encounters, hex.encounterOverrides);
+  } else {
+    // Use hex overrides as the full table when no region base exists
+    encounters = hex.encounterOverrides;
+  }
 }
 
 const extendedHexData = await processHex(hex);
