@@ -2,7 +2,7 @@
 import { getEntry } from 'astro:content';
 
 import FloatingClue from '../../../../components/FloatingClue.astro';
-import SecretLayout from '../../../../layouts/SecretLayout.astro';
+import SecretArticleLayout from '../../../../layouts/SecretArticleLayout.astro';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -33,6 +33,6 @@ const title = `Floating Clue: ${clue.name}`;
     margin-bottom: 0.25rem;
   }
 </style>
-<SecretLayout title={title}>
+<SecretArticleLayout title={title}>
   <FloatingClue clue={clue} showDetail={true} showName={false} />
-</SecretLayout>
+</SecretArticleLayout>

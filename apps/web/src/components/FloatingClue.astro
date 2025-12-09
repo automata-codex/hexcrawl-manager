@@ -94,7 +94,7 @@ const hiddenSiteHexList = hiddenSiteBacklinks
   )
 }
 <p style="margin-bottom: 1rem;">
-  {renderBulletMarkdown(clue.summary)}
+  <Fragment set:html={renderBulletMarkdown(clue.summary)} />
 </p>
 <Unlocks knowledgeTrees={flatKnowledgeTrees} unlocks={clue.unlocks ?? []} />
 {
