@@ -331,7 +331,7 @@
   }
 
   .todo-toggle:hover .todo-icon {
-    color: var(--bulma-primary);
+    color: var(--bulma-link-text);
   }
 
   .todo-toggle:disabled {
