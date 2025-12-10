@@ -86,7 +86,7 @@
   <p class="hanging-indent">
     <span class="inline-heading">GM&rsquo;s Notes:</span>
   </p>
-  <ul>
+  <ul class="gm-notes">
     {#each hex.renderedNotes as note (note)}
       <li>{@html note}</li>
     {/each}
@@ -104,6 +104,10 @@
 
   :global(.data-bar-cell) {
     margin-right: 1rem;
+  }
+
+  .gm-notes {
+    margin-bottom: 0;
   }
 
   .updates {
