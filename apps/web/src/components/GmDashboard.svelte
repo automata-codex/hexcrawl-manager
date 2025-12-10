@@ -14,13 +14,25 @@
   // Local state for todos (allows optimistic updates)
   let localTodos = $state<AggregatedTodoItem[]>([...initialTodos]);
   let showCompleted = $state(false);
+  let sessionFilter = $state(''); // Empty string = all sessions
   let updating = $state<string | null>(null); // Track which todo is being updated
+  let errorMessage = $state<string | null>(null); // Error message for failed updates
 
-  // Group todos by session
+  // Get unique session IDs for filter dropdown
+  let sessionIds = $derived(() => {
+    const ids = new Set<string>();
+    for (const todo of localTodos) {
+      ids.add(todo.sessionId);
+    }
+    return [...ids].sort((a, b) => b.localeCompare(a)); // Most recent first
+  });
+
+  // Group todos by session, applying filters
   let groupedTodos = $derived(() => {
     const groups = new Map<string, AggregatedTodoItem[]>();
     for (const todo of localTodos) {
       if (!showCompleted && todo.status === 'done') continue;
+      if (sessionFilter && todo.sessionId !== sessionFilter) continue;
       const list = groups.get(todo.sessionId) || [];
       list.push(todo);
       groups.set(todo.sessionId, list);
@@ -42,12 +54,17 @@
     return localTodos.filter((t) => t.status === 'pending').length;
   });
 
+  function clearError() {
+    errorMessage = null;
+  }
+
   async function toggleTodo(todo: AggregatedTodoItem) {
     const todoKey = `${todo.sessionId}-${todo.index}`;
     if (updating === todoKey) return; // Prevent double-clicks
 
     const newStatus = todo.status === 'pending' ? 'done' : 'pending';
     updating = todoKey;
+    errorMessage = null; // Clear any previous error
 
     // Optimistic update
     const todoIndex = localTodos.findIndex(
@@ -73,7 +90,8 @@
         if (todoIndex !== -1) {
           localTodos[todoIndex] = { ...localTodos[todoIndex], status: todo.status };
         }
-        console.error('Failed to update todo');
+        const data = await response.json().catch(() => ({}));
+        errorMessage = data.error || 'Failed to update todo. Please try again.';
       } else {
         // Dispatch event to notify navbar to refresh
         window.dispatchEvent(new CustomEvent('todo-updated'));
@@ -83,6 +101,7 @@
       if (todoIndex !== -1) {
         localTodos[todoIndex] = { ...localTodos[todoIndex], status: todo.status };
       }
+      errorMessage = 'Network error. Please check your connection and try again.';
       console.error('Failed to update todo:', error);
     } finally {
       updating = null;
@@ -99,19 +118,47 @@
       {/if}
     </h2>
 
-    <div class="field">
-      <label class="checkbox">
-        <input type="checkbox" bind:checked={showCompleted} />
-        Show completed items
-      </label>
+    {#if errorMessage}
+      <div class="notification is-danger is-light">
+        <button class="delete" onclick={clearError}></button>
+        {errorMessage}
+      </div>
+    {/if}
+
+    <div class="filters">
+      <div class="field">
+        <label class="label is-small" for="session-filter">Filter by session</label>
+        <div class="control">
+          <div class="select is-small">
+            <select id="session-filter" bind:value={sessionFilter}>
+              <option value="">All sessions</option>
+              {#each sessionIds() as id}
+                <option value={id}>{id}</option>
+              {/each}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="checkbox">
+          <input type="checkbox" bind:checked={showCompleted} />
+          Show completed
+        </label>
+      </div>
     </div>
 
-    {#if groupedTodos().size === 0}
+    {#if localTodos.length === 0}
       <p class="has-text-grey-light">
-        {#if showCompleted}
-          No todos found.
-        {:else}
+        No todos found. Todos will appear here after running <code>weave apply ap</code>.
+      </p>
+    {:else if groupedTodos().size === 0}
+      <p class="has-text-grey-light">
+        {#if sessionFilter}
+          No matching todos for this session.
+        {:else if !showCompleted}
           All caught up! No pending todos.
+        {:else}
+          No todos found.
         {/if}
       </p>
     {:else}
@@ -194,6 +241,22 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+    margin-bottom: 1rem;
+  }
+
+  .filters .field {
+    margin-bottom: 0;
+  }
+
+  .filters .label {
+    margin-bottom: 0.25rem;
   }
 
   .session-group {
