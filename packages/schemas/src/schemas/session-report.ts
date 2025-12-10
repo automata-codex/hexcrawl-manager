@@ -54,6 +54,7 @@ const SessionHeader = z.object({
   sessionDate: z.string().default(''), // real-world YYYY-MM-DD; blank in planned, set on completion
   source: z.enum(['scribe', 'import']).default('scribe'),
   createdAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime().optional(),
 });
 
 // Planning-time fields (no AP, no characterIds)

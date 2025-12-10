@@ -1,8 +1,19 @@
 <script lang="ts">
   import { faCircle, faCircleCheck } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+  import { parseSessionId, type SessionId } from '@skyreach/schemas';
+  import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
   import type { AggregatedTodoItem, NextSessionAgenda } from '../utils/load-todos';
+
+  function formatSessionId(sessionId: string): string {
+    try {
+      const { number } = parseSessionId(sessionId as SessionId);
+      return `Session ${number}`;
+    } catch {
+      return sessionId;
+    }
+  }
 
   interface Props {
     todos: AggregatedTodoItem[];
@@ -20,7 +31,7 @@
 
   // Get unique session IDs for filter dropdown
   let sessionIds = $derived(() => {
-    const ids = new Set<string>();
+    const ids = new SvelteSet<string>();
     for (const todo of localTodos) {
       ids.add(todo.sessionId);
     }
@@ -29,7 +40,7 @@
 
   // Group todos by session, applying filters
   let groupedTodos = $derived(() => {
-    const groups = new Map<string, AggregatedTodoItem[]>();
+    const groups = new SvelteMap<string, AggregatedTodoItem[]>();
     for (const todo of localTodos) {
       if (!showCompleted && todo.status === 'done') continue;
       if (sessionFilter && todo.sessionId !== sessionFilter) continue;
@@ -41,7 +52,7 @@
   });
 
   let incompleteCounts = $derived(() => {
-    const counts = new Map<string, number>();
+    const counts = new SvelteMap<string, number>();
     for (const todo of localTodos) {
       if (todo.status === 'pending') {
         counts.set(todo.sessionId, (counts.get(todo.sessionId) || 0) + 1);
@@ -111,7 +122,7 @@
 
 <div class="gm-dashboard">
   <section class="dashboard-section">
-    <h2 class="title is-4">
+    <h2 class="title is-3">
       Post-Session Todos
       {#if totalIncomplete() > 0}
         <span class="tag is-warning is-light">{totalIncomplete()} pending</span>
@@ -132,8 +143,8 @@
           <div class="select is-small">
             <select id="session-filter" bind:value={sessionFilter}>
               <option value="">All sessions</option>
-              {#each sessionIds() as id}
-                <option value={id}>{id}</option>
+              {#each sessionIds() as id (id)}
+                <option value={id}>{formatSessionId(id)}</option>
               {/each}
             </select>
           </div>
@@ -162,10 +173,10 @@
         {/if}
       </p>
     {:else}
-      {#each [...groupedTodos()].sort((a, b) => b[0].localeCompare(a[0])) as [sessionId, sessionTodos]}
+      {#each [...groupedTodos()].sort((a, b) => b[0].localeCompare(a[0])) as [sessionId, sessionTodos] (sessionId)}
         <div class="session-group box">
-          <h3 class="subtitle is-6 session-header">
-            <a href={`/gm-reference/sessions/${sessionId}`}>{sessionId}</a>
+          <h3 class="subtitle is-4 session-header">
+            {formatSessionId(sessionId)}
             {#if incompleteCounts().get(sessionId)}
               <span class="tag is-small is-warning is-light">
                 {incompleteCounts().get(sessionId)} pending
@@ -173,7 +184,7 @@
             {/if}
           </h3>
           <ul class="todo-list">
-            {#each sessionTodos as todo}
+            {#each sessionTodos as todo (`${todo.sessionId}-${todo.index}`)}
               <li
                 class="todo-item"
                 class:is-done={todo.status === 'done'}
@@ -207,18 +218,16 @@
 
   {#if nextSession}
     <section class="dashboard-section">
-      <h2 class="title is-4">Next Session</h2>
+      <h2 class="title is-3">Next Session</h2>
       <div class="box">
         <h3 class="subtitle is-6">
-          <a href={`/gm-reference/sessions/${nextSession.sessionId}`}>
-            {nextSession.sessionId}
-          </a>
+          {formatSessionId(nextSession.sessionId)}
           {#if nextSession.sessionDate}
             <span class="has-text-grey-light"> &mdash; {nextSession.sessionDate}</span>
           {/if}
         </h3>
         <ul class="agenda-list">
-          {#each nextSession.agenda as item}
+          {#each nextSession.agenda as item, i (i)}
             <li class="agenda-item">{item}</li>
           {/each}
         </ul>
@@ -268,6 +277,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-top: 0;
     margin-bottom: 0.75rem;
   }
 
