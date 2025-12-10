@@ -12,7 +12,7 @@ export interface AggregatedTodoItem extends TodoItem {
 export interface NextSessionAgenda {
   sessionId: string;
   sessionDate: string;
-  agenda: string[];
+  agenda: string; // Markdown text
 }
 
 export interface TodosResult {
@@ -71,8 +71,8 @@ export function loadTodos(): TodosResult {
         }
       } else if (report.status === 'planned') {
         // Collect planned sessions with agendas
-        const agenda = report.agenda || [];
-        if (agenda.length > 0) {
+        const agenda = report.agenda || '';
+        if (agenda) {
           plannedSessions.push({
             sessionId: report.id,
             sessionDate: report.sessionDate || '',

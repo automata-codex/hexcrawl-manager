@@ -60,7 +60,7 @@ const SessionHeader = z.object({
 // Planning-time fields (no AP, no characterIds)
 const PlannedSessionReport = SessionHeader.extend({
   status: z.literal('planned'),
-  agenda: z.array(z.string()).default([]).optional(),
+  agenda: z.string().optional(), // Markdown text with bullet lists
   gmNotes: z.string().optional(),
 });
 

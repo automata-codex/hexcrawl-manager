@@ -2,7 +2,8 @@
   import { faCircle, faCircleCheck } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { parseSessionId, type SessionId } from '@skyreach/schemas';
-  import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+
+  import { renderMarkdown } from '../utils/markdown';
 
   import type { AggregatedTodoItem, NextSessionAgenda } from '../utils/load-todos';
 
@@ -31,7 +32,8 @@
 
   // Get unique session IDs for filter dropdown
   let sessionIds = $derived(() => {
-    const ids = new SvelteSet<string>();
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- creating fresh Set inside derived
+    const ids = new Set<string>();
     for (const todo of localTodos) {
       ids.add(todo.sessionId);
     }
@@ -40,7 +42,8 @@
 
   // Group todos by session, applying filters
   let groupedTodos = $derived(() => {
-    const groups = new SvelteMap<string, AggregatedTodoItem[]>();
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- creating fresh Map inside derived
+    const groups = new Map<string, AggregatedTodoItem[]>();
     for (const todo of localTodos) {
       if (!showCompleted && todo.status === 'done') continue;
       if (sessionFilter && todo.sessionId !== sessionFilter) continue;
@@ -52,7 +55,8 @@
   });
 
   let incompleteCounts = $derived(() => {
-    const counts = new SvelteMap<string, number>();
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- creating fresh Map inside derived
+    const counts = new Map<string, number>();
     for (const todo of localTodos) {
       if (todo.status === 'pending') {
         counts.set(todo.sessionId, (counts.get(todo.sessionId) || 0) + 1);
@@ -131,7 +135,7 @@
 
     {#if errorMessage}
       <div class="notification is-danger is-light">
-        <button class="delete" onclick={clearError}></button>
+        <button aria-label="Clear" class="delete" onclick={clearError}></button>
         {errorMessage}
       </div>
     {/if}
@@ -219,18 +223,18 @@
   {#if nextSession}
     <section class="dashboard-section">
       <h2 class="title is-3">Next Session</h2>
-      <div class="box">
-        <h3 class="subtitle is-6">
+      <div class="agenda box">
+        <h3 class="subtitle is-4 next-session-id">
           {formatSessionId(nextSession.sessionId)}
           {#if nextSession.sessionDate}
             <span class="has-text-grey-light"> &mdash; {nextSession.sessionDate}</span>
           {/if}
         </h3>
-        <ul class="agenda-list">
-          {#each nextSession.agenda as item, i (i)}
-            <li class="agenda-item">{item}</li>
-          {/each}
-        </ul>
+        <div class="agenda-content">
+          {#await renderMarkdown(nextSession.agenda) then html}
+            {@html html}
+          {/await}
+        </div>
       </div>
     </section>
   {/if}
@@ -268,6 +272,11 @@
     margin-bottom: 0.25rem;
   }
 
+  .next-session-id {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+
   .session-group {
     margin-bottom: 1rem;
     padding: 1rem;
@@ -278,7 +287,7 @@
     align-items: center;
     gap: 0.5rem;
     margin-top: 0;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
   }
 
   .todo-list {
@@ -345,12 +354,21 @@
     font-size: 0.65rem;
   }
 
-  .agenda-list {
-    margin: 0;
-    padding-left: 1.5rem;
+  .agenda {
+    padding: 1rem;
   }
 
-  .agenda-item {
+  .agenda-content :global(ul),
+  .agenda-content :global(ol) {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .agenda-content :global(li) {
     margin-bottom: 0.25rem;
+  }
+
+  .agenda-content :global(li:last-child) {
+    margin-bottom: 0;
   }
 </style>

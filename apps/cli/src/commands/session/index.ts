@@ -48,7 +48,7 @@ export const sessionCommand = new Command('session')
       scribeIds: [],
       sessionDate: '',
       gameStartDate: '',
-      agenda: [],
+      agenda: '',
       downtime: [],
       absenceAllocations: [],
       schemaVersion: 2,
