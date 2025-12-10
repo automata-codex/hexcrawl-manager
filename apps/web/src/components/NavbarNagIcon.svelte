@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { faBell } from '@fortawesome/pro-light-svg-icons';
+  import { faListCheck } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
   import { onMount } from 'svelte';
 
@@ -44,12 +44,9 @@
   <a
     href="/"
     class="nag-icon"
-    class:has-pending={incompleteCount > 0}
     title={incompleteCount > 0 ? `${incompleteCount} pending todos` : 'All todos complete'}
   >
-    <span class="icon-wrapper">
-      <FontAwesomeIcon icon={faBell} />
-    </span>
+    <FontAwesomeIcon icon={faListCheck} />
     {#if incompleteCount > 0}
       <span class="badge">{incompleteCount}</span>
     {/if}
@@ -69,15 +66,6 @@
 
   .nag-icon:hover {
     color: var(--bulma-primary);
-  }
-
-  .icon-wrapper {
-    display: inline-block;
-    transition: transform 0.2s ease;
-  }
-
-  .nag-icon.has-pending .icon-wrapper {
-    transform: rotate(30deg);
   }
 
   .badge {
