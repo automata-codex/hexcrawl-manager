@@ -139,12 +139,12 @@ export const HiddenSitesSchema = z.union([
 export const KnownTagEnum = z.enum([
   'crystal-bounty',
   'dungeon',
-  'settlement',
+  'settlement', // A settlement with the infrastructure to potentially become a haven
   'dragon-ruins',
   'fc-city',
   'fc-ruins',
   'goblin-ruins',
-  'haven',
+  'haven', // An established haven that is available to the party
   'landmark-known',
   'scar-site',
 ]);
