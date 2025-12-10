@@ -27,6 +27,7 @@ export const REPO_PATHS = {
   REPORTS: () => getRepoPath('data', 'session-reports'), // Generated reports
   ROLLOVERS: () => getRepoPath('data', 'session-logs', 'rollovers'), // Root for all session logs
   SESSIONS: () => getRepoPath('data', 'session-logs', 'sessions'), // Finalized session files
+  TEMPLATES: () => getRepoPath('data', 'templates'), // Template files (e.g., post-session checklist)
   TRAILS: () => getRepoPath('data', 'trails.yml'),
 };
 

@@ -20,6 +20,7 @@ import {
   type NoteEvent,
   type SessionId,
   type TodoEvent,
+  type TodoItem,
 } from '@skyreach/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -161,9 +162,38 @@ export async function applyAp(opts: ApplyApOptions): Promise<ApplyApResult> {
   const notes = (eventsOf(events, 'note') as NoteEvent[]).map(
     (e) => e.payload.text,
   );
-  const todos = (eventsOf(events, 'todo') as TodoEvent[]).map(
-    (e) => e.payload.text,
+
+  // --- Build Todo List ---
+  // Read template items
+  const templatePath = path.join(
+    REPO_PATHS.TEMPLATES(),
+    'post-session-checklist.yaml',
   );
+  let templateTodos: TodoItem[] = [];
+  if (fs.existsSync(templatePath)) {
+    const template = yaml.parse(fs.readFileSync(templatePath, 'utf8'));
+    templateTodos = (template.items || []).map(
+      (item: { text: string }) =>
+        ({
+          text: item.text,
+          status: 'pending',
+          source: 'template',
+        }) satisfies TodoItem,
+    );
+  }
+
+  // Convert scribe todos to object format
+  const scribeTodos: TodoItem[] = (eventsOf(events, 'todo') as TodoEvent[]).map(
+    (e) =>
+      ({
+        text: e.payload.text,
+        status: 'pending',
+        source: 'scribe',
+      }) satisfies TodoItem,
+  );
+
+  // Combine: template items first, then scribe items
+  const todos: TodoItem[] = [...templateTodos, ...scribeTodos];
 
   // Get session date from session_start event
   const sessionStartEvent = events.find((e) => e.kind === 'session_start');
