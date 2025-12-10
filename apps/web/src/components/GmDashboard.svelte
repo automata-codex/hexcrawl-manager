@@ -9,14 +9,17 @@
     nextSession: NextSessionAgenda | null;
   }
 
-  const { todos, nextSession }: Props = $props();
+  const { todos: initialTodos, nextSession }: Props = $props();
 
+  // Local state for todos (allows optimistic updates)
+  let localTodos = $state<AggregatedTodoItem[]>([...initialTodos]);
   let showCompleted = $state(false);
+  let updating = $state<string | null>(null); // Track which todo is being updated
 
   // Group todos by session
   let groupedTodos = $derived(() => {
-    const groups = new Map<string, TodoItem[]>();
-    for (const todo of todos) {
+    const groups = new Map<string, AggregatedTodoItem[]>();
+    for (const todo of localTodos) {
       if (!showCompleted && todo.status === 'done') continue;
       const list = groups.get(todo.sessionId) || [];
       list.push(todo);
@@ -27,7 +30,7 @@
 
   let incompleteCounts = $derived(() => {
     const counts = new Map<string, number>();
-    for (const todo of todos) {
+    for (const todo of localTodos) {
       if (todo.status === 'pending') {
         counts.set(todo.sessionId, (counts.get(todo.sessionId) || 0) + 1);
       }
@@ -36,8 +39,55 @@
   });
 
   let totalIncomplete = $derived(() => {
-    return todos.filter((t) => t.status === 'pending').length;
+    return localTodos.filter((t) => t.status === 'pending').length;
   });
+
+  async function toggleTodo(todo: AggregatedTodoItem) {
+    const todoKey = `${todo.sessionId}-${todo.index}`;
+    if (updating === todoKey) return; // Prevent double-clicks
+
+    const newStatus = todo.status === 'pending' ? 'done' : 'pending';
+    updating = todoKey;
+
+    // Optimistic update
+    const todoIndex = localTodos.findIndex(
+      (t) => t.sessionId === todo.sessionId && t.index === todo.index,
+    );
+    if (todoIndex !== -1) {
+      localTodos[todoIndex] = { ...localTodos[todoIndex], status: newStatus };
+    }
+
+    try {
+      const response = await fetch('/api/todo/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: todo.sessionId,
+          todoIndex: todo.index,
+          status: newStatus,
+        }),
+      });
+
+      if (!response.ok) {
+        // Revert on error
+        if (todoIndex !== -1) {
+          localTodos[todoIndex] = { ...localTodos[todoIndex], status: todo.status };
+        }
+        console.error('Failed to update todo');
+      } else {
+        // Dispatch event to notify navbar to refresh
+        window.dispatchEvent(new CustomEvent('todo-updated'));
+      }
+    } catch (error) {
+      // Revert on error
+      if (todoIndex !== -1) {
+        localTodos[todoIndex] = { ...localTodos[todoIndex], status: todo.status };
+      }
+      console.error('Failed to update todo:', error);
+    } finally {
+      updating = null;
+    }
+  }
 </script>
 
 <div class="gm-dashboard">
@@ -77,15 +127,26 @@
           </h3>
           <ul class="todo-list">
             {#each sessionTodos as todo}
-              <li class="todo-item" class:is-done={todo.status === 'done'}>
-                <span class="todo-icon">
-                  {#if todo.status === 'done'}
-                    <FontAwesomeIcon icon={faCircleCheck} />
-                  {:else}
-                    <FontAwesomeIcon icon={faCircle} />
-                  {/if}
-                </span>
-                <span class="todo-text">{todo.text}</span>
+              <li
+                class="todo-item"
+                class:is-done={todo.status === 'done'}
+                class:is-updating={updating === `${todo.sessionId}-${todo.index}`}
+              >
+                <button
+                  class="todo-toggle"
+                  onclick={() => toggleTodo(todo)}
+                  disabled={updating === `${todo.sessionId}-${todo.index}`}
+                  aria-label={todo.status === 'done' ? 'Mark as pending' : 'Mark as done'}
+                >
+                  <span class="todo-icon">
+                    {#if todo.status === 'done'}
+                      <FontAwesomeIcon icon={faCircleCheck} />
+                    {:else}
+                      <FontAwesomeIcon icon={faCircle} />
+                    {/if}
+                  </span>
+                  <span class="todo-text">{todo.text}</span>
+                </button>
                 {#if todo.source === 'template'}
                   <span class="tag is-small is-info is-light source-tag">template</span>
                 {/if}
@@ -166,6 +227,33 @@
 
   .todo-item.is-done .todo-text {
     text-decoration: line-through;
+  }
+
+  .todo-item.is-updating {
+    opacity: 0.5;
+  }
+
+  .todo-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+    flex-grow: 1;
+  }
+
+  .todo-toggle:hover .todo-icon {
+    color: var(--bulma-primary);
+  }
+
+  .todo-toggle:disabled {
+    cursor: wait;
   }
 
   .todo-icon {
