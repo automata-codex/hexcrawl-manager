@@ -95,9 +95,12 @@ const HeadingTag = headingLevel;
 <div class="encounters-header">
   <HeadingTag class="title is-3">Random Encounters</HeadingTag>
   {heraldActive && (
-    <div class="herald-banner">
-      <span class="herald-banner-text">Herald Phase Active</span>
-    </div>
+    <>
+      <div class="herald-banner">
+        <span class="herald-banner-text">Herald Phase Active</span>
+      </div>
+      <HeraldCompleteButton client:load regionId={region.id} />
+    </>
   )}
 </div>
 {heraldActive ? (
@@ -115,7 +118,6 @@ const HeadingTag = headingLevel;
         </li>
       ))}
     </ul>
-    <HeraldCompleteButton client:load regionId={region.id} />
   </>
 ) : (
   <>
