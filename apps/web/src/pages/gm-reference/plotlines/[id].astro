@@ -1,0 +1,35 @@
+---
+import { getCollection, render } from 'astro:content';
+
+import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Query for the entry by slug
+const plotlines = await getCollection('plotlines');
+const plotline = plotlines.find((p) => p.data.slug === id);
+
+// Redirect if the entry does not exist
+if (plotline === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+const { Content } = await render(plotline);
+const title = plotline.data.title;
+---
+
+<SecretArticleLayout title={title}>
+  <p><strong>Status:</strong> {plotline.data.status}</p>
+  {plotline.data.summary && <p><em>{plotline.data.summary}</em></p>}
+  <Content />
+</SecretArticleLayout>

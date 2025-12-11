@@ -63,6 +63,7 @@ const DIRS = {
   MAP_PATHS: `${DATA_DIR}/map-paths`,
   NPCS: `${DATA_DIR}/npcs`,
   PLAYERS: `${DATA_DIR}/players`,
+  PLOTLINES: `${DATA_DIR}/plotlines`,
   POINTCRAWLS: `${DATA_DIR}/pointcrawls`,
   POINTCRAWL_EDGES: `${DATA_DIR}/pointcrawl-edges`,
   POINTCRAWL_NODES: `${DATA_DIR}/pointcrawl-nodes`,
@@ -188,6 +189,17 @@ const players = defineCollection({
   schema: PlayerSchema,
 });
 
+// in your content config
+const plotlines = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.PLOTLINES }),
+  schema: z.object({
+    slug: z.string(),
+    status: z.enum(['active', 'dormant', 'resolved']).default('active'),
+    summary: z.string().optional(),
+    title: z.string(),
+  }),
+});
+
 const pointcrawls = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.POINTCRAWLS }),
   schema: PointcrawlSchema,
@@ -265,6 +277,7 @@ export const collections = {
   'map-paths': mapPaths,
   npcs,
   players,
+  plotlines,
   pointcrawls,
   'pointcrawl-edges': pointcrawlEdges,
   'pointcrawl-nodes': pointcrawlNodes,

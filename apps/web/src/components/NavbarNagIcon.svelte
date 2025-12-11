@@ -65,7 +65,7 @@
   }
 
   .nag-icon:hover {
-    color: var(--bulma-primary);
+    color: var(--bulma-link-text);
   }
 
   .badge {
