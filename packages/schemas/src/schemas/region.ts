@@ -33,6 +33,14 @@ export const RegionSchema = z
       .string()
       .optional()
       .describe('Free-text description of regional elevation trends and notable terrain features'),
+    heraldEncounters: z
+      .array(z.string())
+      .optional()
+      .describe('Array of encounter IDs for herald encounters shown when first entering this region'),
+    heraldComplete: z
+      .boolean()
+      .optional()
+      .describe('When true, herald phase is complete and normal encounters are shown'),
   })
   .describe('Data for a region on a hex map');
 

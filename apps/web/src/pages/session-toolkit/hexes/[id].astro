@@ -6,6 +6,7 @@ import SecretContent from '../../../components/Content/SecretContent.astro';
 import GhostlyEchoes from '../../../components/GhostlyEchoes.astro';
 import GmHexDetails from '../../../components/GmHexDetails/GmHexDetails.svelte';
 import PlayerHexDetails from '../../../components/PlayerHexDetails/PlayerHexDetails.astro';
+import RandomEncountersSection from '../../../components/RandomEncountersSection.astro';
 import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { loadClueLinks } from '../../../utils/clue-links';
@@ -88,7 +89,14 @@ const extendedHexData = await processHex(hex);
       pointcrawls={pointcrawls}
       showSelfLink={false}
     />
-    {!hex.hideRandomEncounters && (
+    {!hex.hideRandomEncounters && region && (
+      <RandomEncountersSection
+        region={region.data}
+        encounters={encounters}
+        encounterChance={encounterChance}
+      />
+    )}
+    {!hex.hideRandomEncounters && !region && encounters && (
       <>
         <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
         <p>

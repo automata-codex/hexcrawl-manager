@@ -150,6 +150,6 @@ const totalTreasureValue =
     Object.entries(totalItemCounts)
       .filter(([_, count]) => count > 0)
       .map(([rarity, count]) => `${count} ${rarity}`)
-      .join(', ')
+      .join(', ') || 'None'
   }
 </p>

@@ -207,6 +207,7 @@
 <p class="legend">
   <span class="unused-text">Italic</span> = unused |
   <span class="scope-tag scope-dungeon">dungeon</span>
+  <span class="scope-tag scope-herald">herald</span>
   <span class="scope-tag scope-hex">hex</span>
   <span class="scope-tag scope-pointcrawl">pointcrawl</span>
   <span class="scope-tag scope-region">region</span> = specific scope |
@@ -229,6 +230,7 @@
         <span
           class="scope-tag"
           class:scope-dungeon={encounter.scope === 'dungeon'}
+          class:scope-herald={encounter.scope === 'herald'}
           class:scope-hex={encounter.scope === 'hex'}
           class:scope-pointcrawl={encounter.scope === 'pointcrawl'}
           class:scope-region={encounter.scope === 'region'}
@@ -310,6 +312,11 @@
     color: #1e40af;
   }
 
+  .scope-herald {
+    background-color: #cffafe;
+    color: #0e7490;
+  }
+
   .scope-hex {
     background-color: #dcfce7;
     color: #166534;
@@ -334,6 +341,11 @@
   :global(html[data-theme='dark']) .scope-dungeon {
     background-color: #1e3a5f;
     color: #93c5fd;
+  }
+
+  :global(html[data-theme='dark']) .scope-herald {
+    background-color: #164e63;
+    color: #67e8f9;
   }
 
   :global(html[data-theme='dark']) .scope-hex {
@@ -361,6 +373,11 @@
     :global(html:not([data-theme])) .scope-dungeon {
       background-color: #1e3a5f;
       color: #93c5fd;
+    }
+
+    :global(html:not([data-theme])) .scope-herald {
+      background-color: #164e63;
+      color: #67e8f9;
     }
 
     :global(html:not([data-theme])) .scope-hex {
