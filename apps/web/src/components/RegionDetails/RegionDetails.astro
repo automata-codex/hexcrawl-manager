@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 
 import { hexSort } from '@skyreach/core';
-import { getHexPath, getRegionPath } from '../../config/routes';
+import { getEncounterPath, getHexPath, getRegionPath } from '../../config/routes';
 import { renderMarkdown } from '../../utils/markdown';
 import SecretContent from '../Content/SecretContent.astro';
 import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
@@ -31,6 +31,19 @@ const hexes = hexData
   .filter((hex) => hex.data.regionId === region.id)
   .map((hex) => hex.data.id.toUpperCase())
   .sort((a, b) => hexSort(a, b));
+
+// Herald encounter logic
+const allEncounters = await getCollection('encounters');
+const heraldActive = !region.heraldComplete && (region.heraldEncounters?.length ?? 0) > 0;
+const heraldEncounters = heraldActive
+  ? (region.heraldEncounters ?? []).map((id) => {
+      const encounter = allEncounters.find((e) => e.data.id === id)?.data;
+      if (!encounter) {
+        throw new Error(`Region "${region.id}" references unknown herald encounter: "${id}"`);
+      }
+      return encounter;
+    })
+  : [];
 ---
 
 <style>
@@ -57,6 +70,59 @@ const hexes = hexData
 
   :global(.story-container p:first-child) {
     margin-top: 0;
+  }
+
+  .encounters-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .encounters-header :global(.title) {
+    margin-bottom: 0;
+  }
+
+  .herald-banner {
+    background-color: #dcfce7;
+    border: 1px solid #86efac;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+
+  .herald-banner-text {
+    font-weight: 600;
+    color: #166534;
+  }
+
+  /* Dark mode - explicit theme */
+  :global(html[data-theme='dark']) .herald-banner {
+    background-color: #14532d;
+    border-color: #166534;
+  }
+
+  :global(html[data-theme='dark']) .herald-banner-text {
+    color: #86efac;
+  }
+
+  /* Dark mode - system preference when no explicit theme */
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .herald-banner {
+      background-color: #14532d;
+      border-color: #166534;
+    }
+
+    :global(html:not([data-theme])) .herald-banner-text {
+      color: #86efac;
+    }
+  }
+
+  .herald-encounter-list {
+    list-style: disc;
+    margin-left: 1.5rem;
   }
 </style>
 <SecretContent>
@@ -102,12 +168,39 @@ const hexes = hexData
         <Fragment set:html={renderMarkdown(region.story)} />
       </div>
     )}
-    <Fragment set:html={getHeading('Random Encounters')} />
-    <p class="hanging-indent">
-      <span class="inline-heading">Chance of encounter:</span>
-      {' '}
-      {region.encounterChance * 5}% (&le;{region.encounterChance})
-    </p>
-    <RandomEncounterTable data={region.encounters} />
+    <div class="encounters-header">
+      <Fragment set:html={getHeading('Random Encounters')} />
+      {heraldActive && (
+        <div class="herald-banner">
+          <span class="herald-banner-text">Herald Phase Active</span>
+        </div>
+      )}
+    </div>
+    {heraldActive ? (
+      <>
+        <p class="hanging-indent">
+          <span class="inline-heading">Chance of encounter:</span>
+          {' '}
+          50% (&le;10)
+        </p>
+        <p><strong>Herald Encounters:</strong></p>
+        <ul class="herald-encounter-list">
+          {heraldEncounters.map((encounter) => (
+            <li>
+              <a href={getEncounterPath(encounter.id)}>{encounter.name}</a>
+            </li>
+          ))}
+        </ul>
+      </>
+    ) : (
+      <>
+        <p class="hanging-indent">
+          <span class="inline-heading">Chance of encounter:</span>
+          {' '}
+          {region.encounterChance * 5}% (&le;{region.encounterChance})
+        </p>
+        <RandomEncounterTable data={region.encounters} />
+      </>
+    )}
   </div>
 </SecretContent>
