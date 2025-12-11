@@ -34,7 +34,7 @@
 
 <div class="herald-complete-container">
   <button
-    class="herald-complete-btn"
+    class="button herald-complete-btn"
     onclick={handleClick}
     disabled={loading}
   >
@@ -52,21 +52,7 @@
 
   .herald-complete-btn {
     padding: 0.5rem 1rem;
-    background-color: #166534;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
     font-size: 0.9rem;
-  }
-
-  .herald-complete-btn:hover:not(:disabled) {
-    background-color: #14532d;
-  }
-
-  .herald-complete-btn:disabled {
-    background-color: #9ca3af;
-    cursor: not-allowed;
   }
 
   .error-message {
