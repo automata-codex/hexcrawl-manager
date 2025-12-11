@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 
 import { getEncounterPath } from '../config/routes';
+import HeraldCompleteButton from './HeraldCompleteButton.svelte';
 import RandomEncounterTable from './RandomEncounterTable/RandomEncounterTable.astro';
 
 import type { EncounterTableData, RegionData } from '@skyreach/schemas';
@@ -89,26 +90,6 @@ const HeadingTag = headingLevel;
     list-style: disc;
     margin-left: 1.5rem;
   }
-
-  .herald-complete-btn {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #166534;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-
-  .herald-complete-btn:hover {
-    background-color: #14532d;
-  }
-
-  .herald-complete-btn:disabled {
-    background-color: #9ca3af;
-    cursor: not-allowed;
-  }
 </style>
 
 <div class="encounters-header">
@@ -134,13 +115,7 @@ const HeadingTag = headingLevel;
         </li>
       ))}
     </ul>
-    <button
-      class="herald-complete-btn"
-      data-region-id={region.id}
-      id="herald-complete-btn"
-    >
-      Mark Herald Complete
-    </button>
+    <HeraldCompleteButton client:load regionId={region.id} />
   </>
 ) : (
   <>
@@ -152,36 +127,3 @@ const HeadingTag = headingLevel;
     <RandomEncounterTable data={encounters} />
   </>
 )}
-
-<script>
-  const btn = document.getElementById('herald-complete-btn');
-  if (btn) {
-    btn.addEventListener('click', async () => {
-      const regionId = btn.getAttribute('data-region-id');
-      if (!regionId) return;
-
-      btn.setAttribute('disabled', 'true');
-      btn.textContent = 'Completing...';
-
-      try {
-        const response = await fetch(`/api/regions/${regionId}/complete-herald`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        });
-
-        if (response.ok) {
-          window.location.reload();
-        } else {
-          const data = await response.json();
-          alert(`Error: ${data.error || 'Failed to complete herald'}`);
-          btn.removeAttribute('disabled');
-          btn.textContent = 'Mark Herald Complete';
-        }
-      } catch (error) {
-        alert('Network error. Please try again.');
-        btn.removeAttribute('disabled');
-        btn.textContent = 'Mark Herald Complete';
-      }
-    });
-  }
-</script>
