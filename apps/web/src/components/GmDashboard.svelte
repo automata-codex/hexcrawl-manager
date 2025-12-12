@@ -5,6 +5,8 @@
 
   import { renderMarkdown } from '../utils/markdown';
 
+  import Badge from './Badge.svelte';
+
   import type { AggregatedTodoItem, NextSessionAgenda } from '../utils/load-todos';
 
   function formatSessionId(sessionId: string): string {
@@ -129,7 +131,7 @@
     <h2 class="title is-3">
       Post-Session Todos
       {#if totalIncomplete() > 0}
-        <span class="tag is-warning is-light">{totalIncomplete()} pending</span>
+        <Badge color="warning">{totalIncomplete()} pending</Badge>
       {/if}
     </h2>
 
@@ -182,9 +184,7 @@
           <h3 class="subtitle is-4 session-header">
             {formatSessionId(sessionId)}
             {#if incompleteCounts().get(sessionId)}
-              <span class="tag is-small is-warning is-light">
-                {incompleteCounts().get(sessionId)} pending
-              </span>
+              <Badge color="warning">{incompleteCounts().get(sessionId)} pending</Badge>
             {/if}
           </h3>
           <ul class="todo-list">
@@ -210,7 +210,7 @@
                   <span class="todo-text">{todo.text}</span>
                 </button>
                 {#if todo.source === 'template'}
-                  <span class="tag is-small is-info is-light source-tag">template</span>
+                  <Badge color="info" class="source-tag">template</Badge>
                 {/if}
               </li>
             {/each}
@@ -347,11 +347,6 @@
 
   .todo-text {
     flex-grow: 1;
-  }
-
-  .source-tag {
-    flex-shrink: 0;
-    font-size: 0.65rem;
   }
 
   .agenda {
