@@ -1,50 +1,61 @@
 ---
 import { getCollection } from 'astro:content';
+import { sortIgnoringArticles } from '@skyreach/core';
+import type { EncounterData } from '@skyreach/schemas';
 
-import Clue from '../../../components/Clue.astro';
-import { ROUTES } from '../../../config/routes';
+import ClueList from '../../../components/ClueList.svelte';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { buildClueUsageMap } from '../../../utils/clue-usage-tracker';
 
-const cluesData = await getCollection('clues');
+// Fetch clues and collections needed for usage tracking
+const [cluesData, encounters, hexes, dungeons, pointcrawlNodes, plotlines] = await Promise.all([
+  getCollection('clues'),
+  getCollection('encounters'),
+  getCollection('hexes'),
+  getCollection('dungeons'),
+  getCollection('pointcrawl-nodes'),
+  getCollection('plotlines'),
+]);
+
+// Build encounter map for resolving keyed encounter references
+const encounterMap = new Map<string, EncounterData>();
+for (const encounter of encounters) {
+  encounterMap.set(encounter.id, encounter.data);
+}
+
+// Build usage map
+const usageMap = buildClueUsageMap(encounters, hexes, dungeons, pointcrawlNodes, encounterMap);
+
+// Transform to list items
 const clues = cluesData
-  .map((c) => c.data)
-  .sort((a, b) => a.name.localeCompare(b.name));
+  .map((c) => ({
+    id: c.id,
+    name: c.data.name,
+    summary: c.data.summary,
+    status: c.data.status,
+    factions: c.data.factions ?? [],
+    plotlines: c.data.plotlines ?? [],
+    tags: c.data.tags ?? [],
+    isUsed: (usageMap.get(c.id) ?? []).length > 0,
+  }))
+  .sort((a, b) => sortIgnoringArticles(a.name, b.name));
 
-const title = 'Clues';
+// Extract unique filter options
+const filterOptions = {
+  factions: [...new Set(clues.flatMap((c) => c.factions))].sort(),
+  plotlines: [...new Set(clues.flatMap((c) => c.plotlines))].sort(),
+  tags: [...new Set(clues.flatMap((c) => c.tags))].sort(),
+};
+
+// Create plotline ID to name map for display
+const plotlineNames = Object.fromEntries(plotlines.map((p) => [p.id, p.data.title]));
 ---
 
-<style>
-  .clue-list {
-    margin-top: 1rem;
-  }
-
-  .clue-item {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--bulma-border);
-  }
-
-  .clue-item:last-child {
-    border-bottom: none;
-  }
-
-  .all-link {
-    margin-top: 2rem;
-  }
-</style>
-
-<SecretLayout title={title}>
-  <div class="clue-list">
-    {
-      clues.map((clue) => (
-        <div class="clue-item">
-          <Clue clue={clue} />
-        </div>
-      ))
-    }
-  </div>
-  <p class="all-link">
-    View <a href={ROUTES.sessionToolkit.clues.unified.allPath}>all clues</a> in one
-    page.
-  </p>
+<SecretLayout title="Clues">
+  <ClueList
+    client:load
+    clues={clues}
+    filterOptions={filterOptions}
+    plotlineNames={plotlineNames}
+  />
 </SecretLayout>

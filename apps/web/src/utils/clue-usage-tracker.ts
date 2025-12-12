@@ -139,7 +139,7 @@ export function buildClueUsageMap(
         addUsage(clueId, {
           type: 'encounter',
           id: encounter.data.id,
-          name: encounter.data.name,
+          name: `${encounter.data.name} (Encounter)`,
         });
       }
     }
@@ -153,7 +153,7 @@ export function buildClueUsageMap(
       addUsage(clueId, {
         type: 'hex-landmark',
         id: hex.data.id,
-        name: hex.data.name,
+        name: `${hex.data.name} (Hex)`,
         hexId: hex.data.id,
       });
     }
@@ -175,7 +175,7 @@ export function buildClueUsageMap(
       addUsage(clueId, {
         type: 'hex-dream',
         id: hex.data.id,
-        name: `${hex.data.name} (hex)`,
+        name: `${hex.data.name} (Hex)`,
         hexId: hex.data.id,
       });
     }
@@ -189,7 +189,7 @@ export function buildClueUsageMap(
             addUsage(clueId, {
               type: 'hex-keyed-encounter',
               id: hex.data.id,
-              name: `${hex.data.name} - ${encounter.name}`,
+              name: `${hex.data.name} (Encounter)`,
               hexId: hex.data.id,
             });
           }
@@ -205,7 +205,7 @@ export function buildClueUsageMap(
         addUsage(clueId, {
           type: 'dungeon',
           id: dungeon.data.id,
-          name: dungeon.data.name,
+          name: `${dungeon.data.name} (Dungeon)`,
         });
       }
     }
@@ -218,7 +218,7 @@ export function buildClueUsageMap(
         addUsage(clueId, {
           type: 'pointcrawl-node',
           id: `${node.data.pointcrawlId}/${node.data.id}`,
-          name: node.data.name,
+          name: `${node.data.name} (Pointcrawl Node)`,
         });
       }
     }
