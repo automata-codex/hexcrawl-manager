@@ -4,6 +4,7 @@ import {
   CharacterSchema,
   type ClassData,
   ClassSchema,
+  ClueSchema,
   CompositeArticleSchema,
   DungeonDataSchema,
   EncounterCategoryTableSchema,
@@ -50,6 +51,7 @@ const DIRS = {
   BOUNTIES: `${DATA_DIR}/bounties`,
   CHARACTERS: `${DATA_DIR}/characters`,
   CLASSES: `${DATA_DIR}/classes`,
+  CLUES: `${DATA_DIR}/clues`,
   COMPOSITE_ARTICLES: `${DATA_DIR}/composite-articles`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTER_CATEGORY_TABLES: `${DATA_DIR}/encounter-category-tables`,
@@ -127,6 +129,11 @@ const characters = defineCollection({
 const classes = defineCollection({
   loader: getDirectoryYamlLoader<ClassData>(DIRS.CLASSES),
   schema: ClassSchema,
+});
+
+const clues = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.CLUES }),
+  schema: ClueSchema,
 });
 
 const compositeArticles = defineCollection({
@@ -265,6 +272,7 @@ export const collections = {
   bounties,
   characters,
   classes,
+  clues,
   'composite-articles': compositeArticles,
   dungeons,
   'encounter-category-tables': encounterCategoryTables,
