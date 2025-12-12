@@ -1,0 +1,199 @@
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+
+  type BadgeColor =
+    | 'blue'
+    | 'green'
+    | 'orange'
+    | 'purple'
+    | 'pink'
+    | 'cyan'
+    | 'amber'
+    | 'gray'
+    | 'success'
+    | 'warning'
+    | 'info'
+    | 'danger';
+
+  interface Props {
+    color?: BadgeColor;
+    bold?: boolean;
+    class?: string;
+    children: Snippet;
+  }
+
+  const { color = 'gray', bold = false, class: className = '', children }: Props = $props();
+
+  const classes = $derived(
+    ['badge', color, bold ? 'bold' : '', className].filter(Boolean).join(' ')
+  );
+</script>
+
+<span class={classes}>{@render children()}</span>
+
+<style>
+  .badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .badge.bold {
+    font-weight: 600;
+  }
+
+  /* Gray (default) - uses Bulma variables for automatic theme support */
+  .badge.gray {
+    background: var(--bulma-scheme-main-ter);
+    color: var(--bulma-text);
+  }
+
+  /* Blue */
+  .badge.blue {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  :global(html[data-theme='dark']) .badge.blue {
+    background: #1e3a8a;
+    color: #bfdbfe;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .badge.blue {
+      background: #1e3a8a;
+      color: #bfdbfe;
+    }
+  }
+
+  /* Green */
+  .badge.green {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  :global(html[data-theme='dark']) .badge.green {
+    background: #14532d;
+    color: #86efac;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .badge.green {
+      background: #14532d;
+      color: #86efac;
+    }
+  }
+
+  /* Orange */
+  .badge.orange {
+    background: #ffedd5;
+    color: #c2410c;
+  }
+
+  :global(html[data-theme='dark']) .badge.orange {
+    background: #9a3412;
+    color: #fb923c;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .badge.orange {
+      background: #9a3412;
+      color: #fb923c;
+    }
+  }
+
+  /* Purple */
+  .badge.purple {
+    background: #f3e8ff;
+    color: #7e22ce;
+  }
+
+  :global(html[data-theme='dark']) .badge.purple {
+    background: #581c87;
+    color: #d8b4fe;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .badge.purple {
+      background: #581c87;
+      color: #d8b4fe;
+    }
+  }
+
+  /* Pink */
+  .badge.pink {
+    background: #fce7f3;
+    color: #9d174d;
+  }
+
+  :global(html[data-theme='dark']) .badge.pink {
+    background: #831843;
+    color: #fbcfe8;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .badge.pink {
+      background: #831843;
+      color: #fbcfe8;
+    }
+  }
+
+  /* Cyan */
+  .badge.cyan {
+    background: #cffafe;
+    color: #0e7490;
+  }
+
+  :global(html[data-theme='dark']) .badge.cyan {
+    background: #164e63;
+    color: #67e8f9;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .badge.cyan {
+      background: #164e63;
+      color: #67e8f9;
+    }
+  }
+
+  /* Amber */
+  .badge.amber {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  :global(html[data-theme='dark']) .badge.amber {
+    background: #854d0e;
+    color: #fde047;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .badge.amber {
+      background: #854d0e;
+      color: #fde047;
+    }
+  }
+
+  /* Semantic colors using Bulma variables */
+  .badge.success {
+    background: var(--bulma-success);
+    color: var(--bulma-success-invert);
+  }
+
+  .badge.warning {
+    background: var(--bulma-warning);
+    color: var(--bulma-warning-invert);
+  }
+
+  .badge.info {
+    background: var(--bulma-info);
+    color: var(--bulma-info-invert);
+  }
+
+  .badge.danger {
+    background: var(--bulma-danger);
+    color: var(--bulma-danger-invert);
+  }
+</style>

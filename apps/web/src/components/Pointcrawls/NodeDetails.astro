@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 
 import type { EncounterTableData } from '@skyreach/schemas';
 
+import Badge from '../Badge.astro';
 import { getCluePath } from '../../config/routes';
 import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
 import Unlocks from '../Unlocks.svelte';
@@ -72,16 +73,6 @@ const clueList = nodeClueIds.map((clueId) => {
     min-width: 200px;
   }
 
-  .entry-badge {
-    display: inline-block;
-    background: var(--bulma-success);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    margin-left: 0.5rem;
-  }
-
   .level-info {
     color: var(--bulma-text-light);
   }
@@ -139,7 +130,7 @@ const clueList = nodeClueIds.map((clueId) => {
   <div class="node-meta">
     <p>
       {node.data.level !== undefined && <span class="level-info">Level {node.data.level}</span>}
-      {node.data.isEntry && <span class="entry-badge">Entry Point</span>}
+      {node.data.isEntry && <Badge color="success">Entry Point</Badge>}
     </p>
     {(node.data.naturalLight || node.data.internalLight) && (
       <>

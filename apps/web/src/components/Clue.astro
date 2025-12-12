@@ -6,6 +6,7 @@ import { getCollection } from 'astro:content';
 
 import type { ClueData } from '@skyreach/schemas';
 
+import Badge from './Badge.astro';
 import {
   getDungeonPath,
   getEncounterPath,
@@ -35,8 +36,7 @@ const plotlineLinks = (clue.plotlines ?? []).map((plotlineId) => ({
   isValid: plotlineMap.has(plotlineId),
 }));
 
-// Status badge styling
-const statusColor = clue.status === 'known' ? 'is-success' : 'is-warning';
+// Status badge
 const statusLabel = clue.status === 'known' ? 'Known' : 'Unknown';
 
 // Helper to get the URL for a usage reference
@@ -65,11 +65,10 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
 <style>
   .clue-meta {
     margin-bottom: 1rem;
-  }
-
-  .clue-meta .tag {
-    margin-right: 0.5rem;
-    margin-bottom: 0.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
   }
 
   .clue-summary {
@@ -99,25 +98,21 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
 
 <div class="clue">
   <div class="clue-meta">
-    <span class={`tag ${statusColor}`}>{statusLabel}</span>
+    <Badge color={clue.status === 'known' ? 'success' : 'warning'}>{statusLabel}</Badge>
 
     {
       clue.factions && clue.factions.length > 0 && (
-        <span class="meta-section">
-          {clue.factions.map((faction) => (
-            <span class="tag is-info">{faction}</span>
-          ))}
-        </span>
+        clue.factions.map((faction) => (
+          <Badge color="orange">{faction}</Badge>
+        ))
       )
     }
 
     {
       clue.tags && clue.tags.length > 0 && (
-        <span class="meta-section">
-          {clue.tags.map((tag) => (
-            <span class="tag is-light">{tag}</span>
-          ))}
-        </span>
+        clue.tags.map((tag) => (
+          <Badge color="gray">{tag}</Badge>
+        ))
       )
     }
   </div>

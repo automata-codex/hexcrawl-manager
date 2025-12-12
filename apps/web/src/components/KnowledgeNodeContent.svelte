@@ -2,6 +2,7 @@
   import { faChevronRight } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 
+  import Badge from './Badge.svelte';
   import { renderBulletMarkdown } from '../utils/markdown.js';
   import { generateLink, generateLabelAppendix } from '../utils/placement-links.js';
 
@@ -46,7 +47,7 @@
 <article class="node-content">
   <div class="description">
     {#if node.isUnlocked}
-      <span class="unlocked-badge">&#10003; Unlocked</span>
+      <Badge color="success">&#10003; Unlocked</Badge>
     {/if}
     {@html renderedDescription}
   </div>
@@ -110,14 +111,6 @@
     background: var(--bulma-scheme-main-bis);
     border-radius: 0.5rem;
     padding: 1.5rem;
-  }
-
-  .unlocked-badge {
-    background: var(--bulma-success);
-    color: var(--bulma-success-invert);
-    padding: 0.125rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
   }
 
   .description {
