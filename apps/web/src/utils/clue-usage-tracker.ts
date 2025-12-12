@@ -47,11 +47,14 @@ function extractClueIdsFromLandmark(
 
 /**
  * Extracts clue IDs from a hex's hidden sites.
+ * This includes both:
+ * - clues array: clues that can be discovered at this site
+ * - clueId field: the clue that revealed/led to this site (for source: 'clue' sites)
  */
 function extractClueIdsFromHiddenSites(
   hexData: HexData,
-): Array<{ clueId: string; siteName: string }> {
-  const results: Array<{ clueId: string; siteName: string }> = [];
+): Array<{ clueId: string }> {
+  const results: Array<{ clueId: string }> = [];
 
   if (!hexData.hiddenSites || !Array.isArray(hexData.hiddenSites)) {
     return results;
@@ -62,10 +65,17 @@ function extractClueIdsFromHiddenSites(
     if (typeof site === 'string') continue;
 
     const hiddenSite = site as HiddenSite;
+
+    // Check for clues array (clues discoverable at this site)
     if (hiddenSite.clues) {
       for (const clueId of hiddenSite.clues) {
-        results.push({ clueId, siteName: hiddenSite.description });
+        results.push({ clueId });
       }
+    }
+
+    // Check for clueId field (clue that revealed this site, for source: 'clue' sites)
+    if ('clueId' in hiddenSite && typeof hiddenSite.clueId === 'string') {
+      results.push({ clueId: hiddenSite.clueId });
     }
   }
 
@@ -150,11 +160,11 @@ export function buildClueUsageMap(
 
     // Check hidden site clues
     const hiddenSiteClues = extractClueIdsFromHiddenSites(hex.data);
-    for (const { clueId, siteName } of hiddenSiteClues) {
+    for (const { clueId } of hiddenSiteClues) {
       addUsage(clueId, {
         type: 'hex-hidden-site',
         id: hex.data.id,
-        name: `${hex.data.name} - ${siteName}`,
+        name: `${hex.data.name} (Hidden Site)`,
         hexId: hex.data.id,
       });
     }
