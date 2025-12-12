@@ -1,16 +1,10 @@
 ---
-import { getCollection } from 'astro:content';
+import { ROUTES } from '../../../../config/routes';
 
-import FloatingClue from '../../../../components/FloatingClue.astro';
-import SecretLayout from '../../../../layouts/SecretLayout.astro';
+/**
+ * Redirect from legacy floating clues all page to unified clues all page.
+ * /session-toolkit/clues/floating-clues/all → /session-toolkit/clues/all
+ */
 
-const cluesData = await getCollection('floatingClues');
-const clues = cluesData.sort((a, b) => a.data.name.localeCompare(b.data.name));
-const title = 'Floating Clues';
+return Astro.redirect(ROUTES.sessionToolkit.clues.unified.allPath!, 301);
 ---
-
-<SecretLayout title={title}>
-  <ul>
-    {clues.map((clue) => <FloatingClue clue={clue.data} showDetail={true} />)}
-  </ul>
-</SecretLayout>
