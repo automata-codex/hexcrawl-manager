@@ -1,6 +1,7 @@
 ---
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faCircleInfo, faTriangleExclamation } from '@fortawesome/pro-solid-svg-icons';
+import { sortIgnoringArticles } from '@skyreach/core';
 import { getCollection } from 'astro:content';
 
 import type { ClueData } from '@skyreach/schemas';
@@ -61,7 +62,7 @@ function getUsageUrl(ref: ClueUsageReference): string {
 }
 
 // Sort usedIn alphabetically by name
-const sortedUsedIn = [...usedIn].sort((a, b) => a.name.localeCompare(b.name));
+const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.name));
 ---
 
 <style>
