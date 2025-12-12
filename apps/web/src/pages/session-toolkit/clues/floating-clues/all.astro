@@ -2,9 +2,9 @@
 import { ROUTES } from '../../../../config/routes';
 
 /**
- * Redirect from legacy floating clues all page to unified clues all page.
- * /session-toolkit/clues/floating-clues/all → /session-toolkit/clues/all
+ * Redirect from legacy floating clues all page to unified clues index.
+ * /session-toolkit/clues/floating-clues/all → /session-toolkit/clues
  */
 
-return Astro.redirect(ROUTES.sessionToolkit.clues.unified.allPath!, 301);
+return Astro.redirect(ROUTES.sessionToolkit.clues.unified.path, 301);
 ---
