@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 
 import { getCluePath } from '../../../config/routes';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+import { sortIgnoringArticles } from '@skyreach/core';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -30,7 +31,7 @@ const allClues = await getCollection('clues');
 const linkedClues = allClues
   .filter((c) => c.data.plotlines?.includes(plotline.data.slug))
   .map((c) => ({ id: c.id, name: c.data.name, status: c.data.status }))
-  .sort((a, b) => a.name.localeCompare(b.name));
+  .sort((a, b) => sortIgnoringArticles(a.name, b.name));
 
 const { Content } = await render(plotline);
 const title = plotline.data.title;
