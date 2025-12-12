@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 
 import type { EncounterTableData } from '@skyreach/schemas';
 
+import { getCluePath } from '../../config/routes';
 import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
 import Unlocks from '../Unlocks.svelte';
 import { mergeEncounterOverrides } from '../../utils/encounters';
@@ -11,6 +12,7 @@ import { getFlatKnowledgeTrees } from '../../utils/knowledge-trees';
 
 const flatKnowledgeTrees = await getFlatKnowledgeTrees();
 const allEncounters = await getCollection('encounters');
+const allClues = await getCollection('clues');
 
 interface ConnectedEdgeInfo {
   id: string;
@@ -44,6 +46,17 @@ if (encounters && node.data.encounterOverrides) {
 
 // Node-specific encounter chance takes precedence
 encounterChance = node.data.encounterChance ?? encounterChance;
+
+// Build clue list
+const nodeClueIds = node.data.clues ?? [];
+const clueList = nodeClueIds.map((clueId) => {
+  const clue = allClues.find((c) => c.id === clueId);
+  return {
+    id: clueId,
+    name: clue?.data.name ?? clueId,
+    found: !!clue,
+  };
+});
 ---
 
 <style>
@@ -173,6 +186,24 @@ encounterChance = node.data.encounterChance ?? encounterChance;
   knowledgeTrees={flatKnowledgeTrees}
   unlocks={node.data.unlocks ?? []}
 />
+
+{
+  clueList.length > 0 && (
+    <p>
+      <strong>Clues</strong> at this location:{' '}
+      {clueList.map((clue, i) => (
+        <>
+          {clue.found ? (
+            <a href={getCluePath(clue.id)}>{clue.name}</a>
+          ) : (
+            <span class="has-text-danger">{clue.name} (not found)</span>
+          )}
+          {i < clueList.length - 1 && ', '}
+        </>
+      ))}
+    </p>
+  )
+}
 
 {
   node.data.treasure && node.data.treasure.length > 0 && (

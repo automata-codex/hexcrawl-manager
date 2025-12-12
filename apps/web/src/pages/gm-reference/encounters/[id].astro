@@ -6,6 +6,7 @@ import RoleplayBook from '../../../components/RoleplayBook/RoleplayBook.astro';
 import StatBlock from '../../../components/StatBlock/StatBlock.astro';
 import Unlocks from '../../../components/Unlocks.svelte';
 import {
+  getCluePath,
   getDungeonPath,
   getFloatingCluePath,
   getHexPath,
@@ -55,6 +56,7 @@ const creatureTypes = augmentedEncounter?.data.creatureTypes || [];
 const usedIn = augmentedEncounter?.data.usedIn || [];
 const statBlocks = await getCollection('statBlocks');
 const floatingClues = await getCollection('floatingClues');
+const clues = await getCollection('clues');
 
 const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
 
@@ -93,6 +95,16 @@ const floatingClueList = floatingCluesUsingEncounter
   .map(
     (clue) => `<a href=${getFloatingCluePath(clue.id)}>${clue.data.name}</a>`,
   )
+  .join(', ');
+
+// Build list of clues that can be revealed by this encounter
+const encounterClueIds = encounter.clues ?? [];
+const clueList = encounterClueIds
+  .map((clueId) => {
+    const clue = clues.find((c) => c.id === clueId);
+    if (!clue) return `<span class="has-text-danger">${clueId} (not found)</span>`;
+    return `<a href="${getCluePath(clueId)}">${clue.data.name}</a>`;
+  })
   .join(', ');
 
 // Get all roleplay books
@@ -324,6 +336,15 @@ const resolvedStatBlocks = statBlockIds
   )}
 
   <ul class="cross-reference-list">
+  {
+    clueList.length > 0 && (
+      <li>
+        <strong>Clues</strong> in this encounter:{' '}
+        <Fragment set:html={clueList} />
+      </li>
+    )
+  }
+
   {
     floatingClueList.length > 0 && (
       <li>
