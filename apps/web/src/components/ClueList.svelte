@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Badge from './Badge.svelte';
+
   interface ClueListItem {
     id: string;
     name: string;
@@ -193,7 +195,7 @@
 
 <p class="legend">
   <span class="unused-text">Italic</span> = unused |
-  <span class="status-badge">Known</span> = discovered by players
+  <Badge color="green">Known</Badge> = discovered by players
 </p>
 
 <ul class="clue-list">
@@ -206,7 +208,7 @@
         {clue.name}
       </a>
       {#if clue.status === 'known'}
-        <span class="status-badge">Known</span>
+        <Badge color="green">Known</Badge>
       {/if}
     </li>
   {/each}
@@ -263,34 +265,6 @@
 
   .clue-item {
     break-inside: avoid;
-  }
-
-  .clue-item .status-badge {
-    margin-left: 0.25rem;
-  }
-
-  .status-badge {
-    display: inline-block;
-    font-size: 0.7rem;
-    padding: 0.125rem 0.375rem;
-    border-radius: 4px;
-    font-weight: 500;
-    background-color: #dcfce7;
-    color: #166534;
-  }
-
-  /* Dark mode - explicit theme selection */
-  :global(html[data-theme='dark']) .status-badge {
-    background-color: #14532d;
-    color: #86efac;
-  }
-
-  /* Dark mode - system preference when no explicit theme */
-  @media (prefers-color-scheme: dark) {
-    :global(html:not([data-theme])) .status-badge {
-      background-color: #14532d;
-      color: #86efac;
-    }
   }
 
   @media (max-width: 1024px) {
