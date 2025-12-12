@@ -77,33 +77,24 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
     font-style: italic;
   }
 
+  .meta-section {
+    margin-bottom: 1rem;
+
+    p {
+      margin-bottom: 0;
+    }
+  }
+
   .warning-icon {
     color: var(--bulma-warning);
     margin-left: 0.25rem;
   }
 
-  .meta-section {
-    margin-bottom: 1rem;
+  .meta-label {
+    font-weight: bold;
     color: var(--bulma-strong-color);
   }
 
-  .meta-label {
-    font-weight: bold;
-  }
-
-  .used-in-section {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--bulma-border);
-  }
-
-  .used-in-section h3 {
-    margin-bottom: 0.75rem;
-  }
-
-  .used-in-section ul {
-    margin-left: 0;
-  }
 </style>
 
 <div class="clue">
@@ -135,48 +126,49 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
     {clue.summary}
   </p>
 
-  {
-    plotlineLinks.length > 0 && (
-      <div class="meta-section">
-        <span class="meta-label">Plotlines:</span>
-        {plotlineLinks.map((link, index) => (
-          <>
-            {link.isValid ? (
-              <a href={getPlotlinePath(link.id)}>{link.title}</a>
-            ) : (
-              <span>
-                {link.id}
-                <span class="warning-icon" title="Plotline not found">
-                  <Fragment set:html={warningIcon.html} />
+  <div class="meta-section">
+    {
+      plotlineLinks.length > 0 && (
+        <p>
+          <span class="meta-label">Plotlines:</span>
+          {plotlineLinks.map((link, index) => (
+            <>
+              {link.isValid ? (
+                <a href={getPlotlinePath(link.id)}>{link.title}</a>
+              ) : (
+                <span>
+                  {link.id}
+                  <span class="warning-icon" title="Plotline not found">
+                    <Fragment set:html={warningIcon.html} />
+                  </span>
                 </span>
-              </span>
-            )}
-            {index < plotlineLinks.length - 1 && ', '}
-          </>
-        ))}
-      </div>
-    )
-  }
+              )}
+              {index < plotlineLinks.length - 1 && ', '}
+            </>
+          ))}
+        </p>
+      )
+    }
+
+    {
+      sortedUsedIn.length > 0 && (
+        <p>
+          <span class="meta-label">Located in:</span>
+          {sortedUsedIn.map((ref, index) => (
+            <>
+              <a href={getUsageUrl(ref)}>{ref.name}</a>
+              {index < sortedUsedIn.length - 1 && ', '}
+            </>
+          ))}
+        </p>
+      )
+    }
+  </div>
 
   {
     clue.details && (
       <div>
         <Fragment set:html={renderMarkdown(clue.details)} />
-      </div>
-    )
-  }
-
-  {
-    sortedUsedIn.length > 0 && (
-      <div class="used-in-section">
-        <h3 class="title is-5">Can be discovered in:</h3>
-        <ul>
-          {sortedUsedIn.map((ref) => (
-            <li>
-              <a href={getUsageUrl(ref)}>{ref.name}</a>
-            </li>
-          ))}
-        </ul>
       </div>
     )
   }
