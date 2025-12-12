@@ -4,55 +4,137 @@
 
 A **clue** is any fact the party can learn through play.
 
-There is no meaningful distinction between "clues," "knowledge," and "facts." They are all the same thing: discoverable information. The word "clue" suggests a larger context — something is a clue *to* something else — but that context comes from tagging and linking, not from the data type itself. "The gruelith have many tiefling slaves" is a fact that becomes a clue when viewed through the lens of Milly's search for her brother. "Dewberry moss grows blue crystals" is a fact about the world that might never connect to a larger mystery. Both are stored the same way.
+There is no meaningful distinction between "clues," "knowledge," and "facts." They are all the same thing: discoverable information. The word "clue" suggests a larger context — something is a clue *to* something else — but that context comes from structured taxonomy and linking, not from the data type itself. "The gruelith have many tiefling slaves" is a fact that becomes a clue when viewed through the lens of Milly's search for her brother. "Dewberry moss grows blue crystals" is a fact about the world that might never connect to a larger mystery. Both are stored the same way.
 
-This simplification eliminates the need for separate collections for fixed clues, floating clues, and knowledge tree nodes. One collection of clues, with good tagging and linking, serves all purposes.
+This simplification eliminates the need for separate collections for fixed clues, floating clues, and knowledge tree nodes. One collection of clues, with good taxonomy and linking, serves all purposes.
 
-## Architecture
-
-### Clues
+## Clue Schema
 
 Clues are the **canonical source of truth** for discoverable facts. Each clue has:
 
-- An identifier
-- A name and summary
-- Optional detailed information for GM reference
-- Tags connecting it to plotlines, factions, characters, or themes
-- A status indicating whether the party has discovered it
+### Core Fields
+- **id**: Unique identifier
+- **name**: Display name
+- **summary**: Brief description of the fact
+- **details**: Extended GM-facing information (optional)
+- **status**: `unknown` or `known`
 
-Clues live in a master list. During prep, this list shows what the party knows and what remains hidden. Filtering by tag produces a "clue list" for any given plotline or topic.
+### Structured Taxonomy
+- **factions**: Array of faction enums (reuses `FactionEnum` from encounters) — for clues tied to specific factions the party can interact with
+- **plotlines**: Array of plotline IDs (e.g., `"milly-and-baz"`) — connects clues to character arcs and ongoing storylines
 
-### Delivery Mechanisms
+### Flexible Categorization
+- **tags**: Array of strings — for everything else: themes, creature types, locations, etc.
 
-Clues can be discovered in four types of locations:
+The structured fields enable reliable filtering and querying. Tags remain flexible for ad-hoc categorization.
 
-- **Encounters** — a clue delivered through interaction with NPCs, events, or situations
-- **Hexes** — a clue embedded in a location's description, landmarks, or hidden sites
-- **Dungeons** — a clue found in a keyed room or area
-- **Pointcrawl nodes** — a clue placed at a specific node in a pointcrawl
+## Delivery Mechanisms
 
-The delivery mechanism describes **how** the clue appears in context — who knows it, what it looks like, what check reveals it, how an NPC phrases it. The clue itself is just the fact. The encounter or location provides the flavor.
+Clues can be discovered in six types of locations:
 
-This separation means a single clue can have multiple delivery points. If the party can learn that "the gruelith target tieflings" from an orc patrol, a rescued slave, or a gearforged's memory, all three encounters link to the same clue. When any one of them fires, the clue is marked known.
+### 1. Encounters
+An encounter's `clues` field lists the clue IDs it can reveal. The encounter write-up describes how the information surfaces — who knows it, how they phrase it, what prompts them to share.
 
-### Plotline Outlines
+Encounters can be:
+- **Random**: In regional encounter tables, can happen anywhere in the region
+- **Keyed**: Attached to specific hexes with trigger conditions
 
-Plotline outlines serve the **truth layer** — what's actually happening, what the antagonists want, why events are unfolding. This is GM-only narrative context that helps with prep and improvisation.
+### 2. Keyed Encounters
+Keyed encounters are attached to hexes and fire under specific conditions:
+- **Entry**: Happens when the party enters the hex
+- **Exploration**: Happens when the party spends time investigating
 
-Outlines link to clues for the **evidence layer** — the traces those events leave in the world. Not everything in an outline becomes a clue. Only facts that have discoverable evidence get clue entries.
+Each keyed encounter specifies an `encounterId` and a `trigger` type, plus optional GM notes about timing.
 
-The workflow:
+### 3. Hex Landmarks
+A landmark's `clues` field lists clue IDs discoverable at that location. The landmark description provides the context — what the party sees, what investigation reveals.
+
+### 4. Hex Hidden Sites
+A hidden site's `clues` field works the same as landmarks. Hidden sites must be discovered before their clues become accessible.
+
+### 5. Dream-Clues (via GM Notes)
+Hex GM notes support a polymorphic format:
+- Simple strings for regular notes
+- Objects with `description` and optional `clueId` for dreams
+
+```yaml
+notes:
+  - "The party camped here in session 12"
+  - description: "Sleeping here triggers visions of crystal conduits"
+    clueId: velari-conduit-network
+```
+
+Dreams don't need encounter machinery — they're lightweight delivery for clues revealed through rest.
+
+### 6. Dungeon Rooms and Pointcrawl Nodes
+Both support a `clues` field listing discoverable clue IDs, with the room/node description providing context.
+
+## The Separation Principle
+
+The clue is the **canonical fact** — what's true and whether it's known.
+
+The delivery mechanism describes **how** the clue appears in context — the NPC who knows it, the inscription that reveals it, the dream that shows it.
+
+This separation means:
+- A single clue can have multiple delivery points
+- When any delivery point fires, the clue is marked known
+- "Used in" derivation shows everywhere a clue can be discovered
+
+## Plotline Outlines
+
+Plotline outlines serve the **truth layer** — what's actually happening, what the antagonists want, why events are unfolding. This is GM-only narrative context for prep and improvisation.
+
+There are three layers of information:
+
+1. **The truth** (GM-only): What antagonists are doing, their plans, their timeline. Never directly surfaces to players.
+
+2. **Evidence** (discoverable): The traces those actions leave. Clues, signs, encounters, NPC testimony. What players can interact with.
+
+3. **Player knowledge** (tracked): What they've actually discovered. The `status` field on clues.
+
+### Workflow
 - During prep, read the outline to understand the big picture
-- Links to clues let you drill into specific discoverable content
+- When antagonist actions leave discoverable evidence, create clues and link them from relevant locations
+- Links from outline to clues let you drill into specific discoverable content
 - At the table, you're in clues and encounters, not outlines
 
-### Knowledge Trees vs. Objective Trees
+Not everything in the outline becomes a clue. Only facts with discoverable evidence get clue entries.
 
-Knowledge trees were originally conceived as an organizational view over clues — a way to see "here's everything you need to know about X, and here's what you've learned." The hierarchy is a presentation choice, not a mechanical feature.
+## Knowledge Trees vs. Objective Trees
 
-With the unified clue model, knowledge trees can become **filtered views** over tagged clues rather than a separate data structure.
+**Knowledge trees** were originally conceived as an organizational view over clues — a way to see "here's everything you need to know about X, and here's what you've learned." The hierarchy is a presentation choice, not a mechanical feature.
+
+With the unified clue model, knowledge trees can become **filtered views** over tagged/categorized clues rather than a separate data structure.
 
 **Objective trees** are different. Something like "Skyspire Reactivation" tracks tasks to complete, not facts to discover. These are better handled as articles with checklist-style structure, linked from relevant locations. If a second use case emerges that needs structured objective tracking, that would warrant its own schema — but not until then.
+
+## "Used In" Derivation
+
+At build time, scan all delivery mechanisms and populate a `usedIn` array on each clue:
+
+1. Encounters with `clues` field references
+2. Hex landmarks with `clues` field references
+3. Hex hidden sites with `clues` field references
+4. Hex GM notes with `clueId` references (dream-clues)
+5. Hexes with `keyedEncounters` referencing encounters that have clues
+6. Dungeon rooms with `clues` field references
+7. Pointcrawl nodes with `clues` field references
+
+Output structure:
+```typescript
+usedIn: Array<{
+  type: 'encounter' | 'hex-landmark' | 'hex-hidden-site' | 'hex-dream' | 'dungeon-room' | 'pointcrawl-node';
+  id: string;
+  name: string;
+  hexId?: string; // For hex-based types
+}>
+```
+
+## Validation
+
+The clue display page should show a **warning icon** next to any plotline ID that doesn't match an actual plotline file. This catches typos and orphaned references.
+
+At build time, collect all plotline IDs from `data/plotlines/` and compare against each clue's `plotlines` array.
 
 ## Migration Path
 
@@ -70,6 +152,7 @@ With the unified clue model, knowledge trees can become **filtered views** over 
 
 - One source of truth for each fact
 - Multiple delivery points are fine; they all link to the same clue
-- Tags provide flexible grouping without forcing hierarchy
+- Structured taxonomy (factions, plotlines) for reliable filtering
+- Tags for flexible categorization
 - Build the minimal version first; add complexity only when friction demands it
 - Duplicate code during migration is acceptable; a broken state is not
