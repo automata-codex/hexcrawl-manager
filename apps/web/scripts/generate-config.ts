@@ -180,6 +180,14 @@ export function getBountyPath(bountyId: string): string {
   return getCollectionItemPath(ROUTES.playersReference.setting.bountyBoard as CollectionRoute, bountyId);
 }
 
+export function getCluePath(clueId: string): string {
+  return getCollectionItemPath(ROUTES.sessionToolkit.clues.unified as CollectionRoute, clueId);
+}
+
+export function getPlotlinePath(plotlineId: string): string {
+  return getCollectionItemPath(ROUTES.gmReference.plotlines as CollectionRoute, plotlineId);
+}
+
 // Note: Server-side path resolution helpers (getArticlePath, getCompositePath, resolvePath)
 // are in src/utils/article-paths.ts since they require astro:content which is server-only.
 `;
