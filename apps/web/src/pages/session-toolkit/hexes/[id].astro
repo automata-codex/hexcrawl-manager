@@ -9,7 +9,6 @@ import PlayerHexDetails from '../../../components/PlayerHexDetails/PlayerHexDeta
 import RandomEncountersSection from '../../../components/RandomEncountersSection.astro';
 import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
-import { loadClueLinks } from '../../../utils/clue-links';
 import { mergeEncounterOverrides } from '../../../utils/encounters';
 import { processHex } from '../../../utils/hexes';
 import { getFlatKnowledgeTrees } from '../../../utils/knowledge-trees';
@@ -17,7 +16,6 @@ import { getFlatKnowledgeTrees } from '../../../utils/knowledge-trees';
 import type { EncounterTableData, HexData } from '@skyreach/schemas';
 
 const flatKnowledgeTrees = await getFlatKnowledgeTrees();
-const clueLinks = await loadClueLinks();
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -88,7 +86,6 @@ const extendedHexData = await processHex(hex);
   <SecretContent>
     <GmHexDetails
       client:load
-      clueLinks={clueLinks}
       clueMap={clueMap}
       dungeons={dungeons}
       hex={extendedHexData}

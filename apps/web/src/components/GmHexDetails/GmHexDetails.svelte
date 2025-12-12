@@ -6,13 +6,11 @@
   import Explored from './Explored.svelte';
   import HiddenSites from './HiddenSites.svelte';
   import Landmark from './Landmark.svelte';
-  import LinkedClues from './LinkedClues.svelte';
   import Neighbors from './Neighbors.svelte';
   import Pointcrawls from './Pointcrawls.svelte';
   import Visited from './Visited.svelte';
 
   import type {
-    ClueLink,
     ClueMapEntry,
     DungeonEntry,
     ExtendedHexData,
@@ -21,7 +19,6 @@
   } from '../../types.ts';
 
   interface Props {
-    clueLinks?: ClueLink[];
     clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
     hex: ExtendedHexData;
@@ -31,7 +28,6 @@
   }
 
   const {
-    clueLinks,
     clueMap = {},
     dungeons,
     hex,
@@ -94,9 +90,6 @@
       <li>{@html note}</li>
     {/each}
   </ul>
-{/if}
-{#if clueLinks}
-  <LinkedClues {clueLinks} hexId={hex.id} />
 {/if}
 
 <style>
