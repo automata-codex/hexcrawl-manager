@@ -57,14 +57,14 @@
   }
 
   :global(html[data-theme='dark']) .badge.blue {
-    background: #1e3a5f;
-    color: #93c5fd;
+    background: #1e3a8a;
+    color: #bfdbfe;
   }
 
   @media (prefers-color-scheme: dark) {
     :global(html:not([data-theme])) .badge.blue {
-      background: #1e3a5f;
-      color: #93c5fd;
+      background: #1e3a8a;
+      color: #bfdbfe;
     }
   }
 
@@ -93,14 +93,14 @@
   }
 
   :global(html[data-theme='dark']) .badge.orange {
-    background: #7c2d12;
-    color: #fdba74;
+    background: #9a3412;
+    color: #fb923c;
   }
 
   @media (prefers-color-scheme: dark) {
     :global(html:not([data-theme])) .badge.orange {
-      background: #7c2d12;
-      color: #fdba74;
+      background: #9a3412;
+      color: #fb923c;
     }
   }
 
@@ -165,14 +165,14 @@
   }
 
   :global(html[data-theme='dark']) .badge.amber {
-    background: #78350f;
-    color: #fcd34d;
+    background: #854d0e;
+    color: #fde047;
   }
 
   @media (prefers-color-scheme: dark) {
     :global(html:not([data-theme])) .badge.amber {
-      background: #78350f;
-      color: #fcd34d;
+      background: #854d0e;
+      color: #fde047;
     }
   }
 
