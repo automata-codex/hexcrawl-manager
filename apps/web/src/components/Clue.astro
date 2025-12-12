@@ -1,0 +1,204 @@
+---
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import { faCircleInfo, faTriangleExclamation } from '@fortawesome/pro-solid-svg-icons';
+import { sortIgnoringArticles } from '@skyreach/core';
+import { getCollection } from 'astro:content';
+
+import type { ClueData } from '@skyreach/schemas';
+
+import {
+  getCluePath,
+  getDungeonPath,
+  getEncounterPath,
+  getHexPath,
+  getPlotlinePath,
+  getPointcrawlNodePath,
+} from '../config/routes';
+import type { ClueUsageReference } from '../utils/clue-usage-tracker';
+import { renderMarkdown } from '../utils/markdown';
+
+interface Props {
+  clue: ClueData;
+  showDetail?: boolean;
+  showName?: boolean;
+  usedIn?: ClueUsageReference[];
+}
+
+const { clue, showDetail = false, showName = true, usedIn = [] } = Astro.props;
+const infoIcon = icon(faCircleInfo);
+const warningIcon = icon(faTriangleExclamation);
+
+// Get all plotline IDs to validate references
+const plotlines = await getCollection('plotlines');
+const plotlineIds = new Set(plotlines.map((p) => p.id));
+
+// Check which plotline references are valid
+const plotlineLinks = (clue.plotlines ?? []).map((plotlineId) => ({
+  id: plotlineId,
+  isValid: plotlineIds.has(plotlineId),
+}));
+
+// Status badge styling
+const statusColor = clue.status === 'known' ? 'is-success' : 'is-warning';
+const statusLabel = clue.status === 'known' ? 'Known' : 'Unknown';
+
+// Helper to get the URL for a usage reference
+function getUsageUrl(ref: ClueUsageReference): string {
+  switch (ref.type) {
+    case 'encounter':
+      return getEncounterPath(ref.id);
+    case 'hex-landmark':
+    case 'hex-hidden-site':
+    case 'hex-dream':
+    case 'hex-keyed-encounter':
+      return getHexPath(ref.hexId || ref.id);
+    case 'dungeon':
+      return getDungeonPath(ref.id);
+    case 'pointcrawl-node':
+      return getPointcrawlNodePath(ref.id);
+    default:
+      return '#';
+  }
+}
+
+// Sort usedIn alphabetically by name
+const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.name));
+---
+
+<style>
+  h2.title.is-3 {
+    color: var(--bulma-text-strong);
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  .icon {
+    margin-left: 0.5rem;
+  }
+
+  .clue-meta {
+    margin-bottom: 1rem;
+  }
+
+  .clue-meta .tag {
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .warning-icon {
+    color: var(--bulma-warning);
+    margin-left: 0.25rem;
+  }
+
+  .meta-section {
+    margin-bottom: 0.5rem;
+  }
+
+  .meta-label {
+    font-weight: bold;
+    margin-right: 0.5rem;
+  }
+
+  .used-in-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--bulma-border);
+  }
+
+  .used-in-section h3 {
+    margin-bottom: 0.75rem;
+  }
+
+  .used-in-section ul {
+    margin-left: 0;
+  }
+</style>
+
+<div class="clue">
+  <h2 class="title is-3">
+    {showName && clue.name}
+    {
+      !showDetail && clue.details && (
+        <span class="icon">
+          <a href={getCluePath(clue.id)}>
+            <span set:html={infoIcon.html} />
+          </a>
+        </span>
+      )
+    }
+  </h2>
+
+  <div class="clue-meta">
+    <span class={`tag ${statusColor}`}>{statusLabel}</span>
+
+    {
+      clue.factions && clue.factions.length > 0 && (
+        <span class="meta-section">
+          {clue.factions.map((faction) => (
+            <span class="tag is-info">{faction}</span>
+          ))}
+        </span>
+      )
+    }
+
+    {
+      clue.tags && clue.tags.length > 0 && (
+        <span class="meta-section">
+          {clue.tags.map((tag) => (
+            <span class="tag is-light">{tag}</span>
+          ))}
+        </span>
+      )
+    }
+  </div>
+
+  <p style="margin-bottom: 1rem;">
+    {clue.summary}
+  </p>
+
+  {
+    showDetail && plotlineLinks.length > 0 && (
+      <div class="meta-section">
+        <span class="meta-label">Plotlines:</span>
+        {plotlineLinks.map((link, index) => (
+          <>
+            {link.isValid ? (
+              <a href={getPlotlinePath(link.id)}>{link.id}</a>
+            ) : (
+              <span>
+                {link.id}
+                <span class="warning-icon" title="Plotline not found">
+                  <Fragment set:html={warningIcon.html} />
+                </span>
+              </span>
+            )}
+            {index < plotlineLinks.length - 1 && ', '}
+          </>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    showDetail && clue.details && (
+      <div class="content">
+        <Fragment set:html={renderMarkdown(clue.details)} />
+      </div>
+    )
+  }
+
+  {
+    showDetail && sortedUsedIn.length > 0 && (
+      <div class="used-in-section">
+        <h3 class="title is-5">Can be discovered in:</h3>
+        <ul>
+          {sortedUsedIn.map((ref) => (
+            <li>
+              <a href={getUsageUrl(ref)}>{ref.name}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+</div>

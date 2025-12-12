@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 
+import { getCluePath } from '../../../config/routes';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
 
 // Get the ID from the incoming server request
@@ -24,12 +25,60 @@ if (plotline === undefined) {
   });
 }
 
+// Get clues linked to this plotline
+const allClues = await getCollection('clues');
+const linkedClues = allClues
+  .filter((c) => c.data.plotlines?.includes(plotline.data.slug))
+  .map((c) => ({ id: c.id, name: c.data.name, status: c.data.status }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
 const { Content } = await render(plotline);
 const title = plotline.data.title;
 ---
 
 <SecretArticleLayout title={title}>
-  <p><strong>Status:</strong> {plotline.data.status}</p>
-  {plotline.data.summary && <p><em>{plotline.data.summary}</em></p>}
+  <div class="clue-header">
+    <p><strong>Status:</strong> {plotline.data.status}</p>
+    {plotline.data.summary && <p class="hanging-indent"><strong>Summary:</strong> {plotline.data.summary}</p>}
+    {linkedClues.length > 0 && (
+      <>
+        <p><strong>Clues:</strong></p>
+        <ul class="linked-clues">
+          {linkedClues.map((clue) => (
+            <li>
+              <a href={getCluePath(clue.id)}>{clue.name}</a>
+              {clue.status === 'known' && <span class="checkmark">✓</span>}
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+  </div>
   <Content />
 </SecretArticleLayout>
+
+<style>
+  .clue-header {
+    margin-bottom: 1rem;
+
+    p {
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+
+    ul {
+      margin: 0;
+    }
+  }
+
+  .linked-clues {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .checkmark {
+    color: var(--bulma-success);
+    margin-left: 0.25rem;
+    font-weight: bold;
+  }
+</style>

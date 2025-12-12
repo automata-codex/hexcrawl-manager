@@ -49,6 +49,11 @@ export const EncounterSchema = z
       .optional()
       .describe('IDs of knowledge nodes that are unlocked by this encounter'),
 
+    clues: z
+      .array(z.string())
+      .optional()
+      .describe('IDs of clues that this encounter can reveal'),
+
     // Derived fields (populated at build time)
     isLead: z
       .boolean()

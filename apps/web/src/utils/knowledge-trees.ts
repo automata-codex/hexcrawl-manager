@@ -8,7 +8,6 @@ import type {
 import type {
   DungeonData,
   EncounterData,
-  FloatingClueData,
   HexData,
   KnowledgeNodeData,
   PointcrawlNodeData,
@@ -17,7 +16,6 @@ import type {
 export function buildPlacementMap(
   hexes: HexData[],
   dungeons: DungeonData[],
-  floatingClues: FloatingClueData[],
   pointcrawlNodes: PointcrawlNodeData[],
   encounters: EncounterData[],
 ): PlacementMap {
@@ -56,19 +54,6 @@ export function buildPlacementMap(
       label: dungeon.name,
     };
     for (const unlockKey of dungeon.unlocks ?? []) {
-      placementMap[unlockKey] ||= [];
-      placementMap[unlockKey].push(ref);
-    }
-  }
-
-  // Floating clues
-  for (const clue of floatingClues) {
-    const ref = {
-      type: 'floating-clue' as PlacementType,
-      id: clue.id,
-      label: clue.name,
-    };
-    for (const unlockKey of clue.unlocks ?? []) {
       placementMap[unlockKey] ||= [];
       placementMap[unlockKey].push(ref);
     }

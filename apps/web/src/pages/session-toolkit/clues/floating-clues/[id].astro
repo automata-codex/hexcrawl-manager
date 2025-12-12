@@ -1,10 +1,11 @@
 ---
-import { getEntry } from 'astro:content';
+import { getCluePath } from '../../../../config/routes';
 
-import FloatingClue from '../../../../components/FloatingClue.astro';
-import SecretArticleLayout from '../../../../layouts/SecretArticleLayout.astro';
+/**
+ * Redirect from legacy floating clue URLs to new unified clue URLs.
+ * /session-toolkit/clues/floating-clues/[id] → /session-toolkit/clues/[id]
+ */
 
-// Get the ID from the incoming server request
 const { id } = Astro.params;
 if (!id) {
   return new Response(null, {
@@ -13,26 +14,5 @@ if (!id) {
   });
 }
 
-// Query for the entry directly using the request slug
-const clueData = await getEntry('floatingClues', id);
-
-// Redirect if the entry does not exist
-if (clueData === undefined) {
-  return new Response(null, {
-    status: 404,
-    statusText: 'Not found',
-  });
-}
-
-const clue = clueData.data;
-const title = `Floating Clue: ${clue.name}`;
+return Astro.redirect(getCluePath(id), 301);
 ---
-
-<style is:global>
-  h3.title.is-4 {
-    margin-bottom: 0.25rem;
-  }
-</style>
-<SecretArticleLayout title={title}>
-  <FloatingClue clue={clue} showDetail={true} showName={false} />
-</SecretArticleLayout>

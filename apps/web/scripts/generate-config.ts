@@ -104,10 +104,6 @@ export function getEncounterPath(encounterId: string): string {
   return getCollectionItemPath(ROUTES.gmReference.encounters as CollectionRoute, encounterId);
 }
 
-export function getFloatingCluePath(floatingClueId: string): string {
-  return getCollectionItemPath(ROUTES.sessionToolkit.clues.floatingClues as CollectionRoute, floatingClueId);
-}
-
 export function getHexPath(hexId: string): string {
   return getCollectionItemPath(ROUTES.sessionToolkit.hexes as CollectionRoute, hexId).toLowerCase();
 }
@@ -178,6 +174,14 @@ export function getSpellPath(spellId: string): string {
 
 export function getBountyPath(bountyId: string): string {
   return getCollectionItemPath(ROUTES.playersReference.setting.bountyBoard as CollectionRoute, bountyId);
+}
+
+export function getCluePath(clueId: string): string {
+  return getCollectionItemPath(ROUTES.sessionToolkit.clues.unified as CollectionRoute, clueId);
+}
+
+export function getPlotlinePath(plotlineId: string): string {
+  return getCollectionItemPath(ROUTES.gmReference.plotlines as CollectionRoute, plotlineId);
 }
 
 // Note: Server-side path resolution helpers (getArticlePath, getCompositePath, resolvePath)

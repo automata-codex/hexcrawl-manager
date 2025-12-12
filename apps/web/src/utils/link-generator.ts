@@ -7,9 +7,9 @@
 import type { LinkType } from '@skyreach/schemas';
 
 import {
+  getCluePath,
   getDungeonPath,
   getEncounterPath,
-  getFloatingCluePath,
   getHexPath,
   getKnowledgeNodePath,
   getRegionPath,
@@ -25,7 +25,7 @@ export function getLinkPath(linkType: LinkType, linkId: string): string {
     case 'dungeon':
       return getDungeonPath(linkId);
     case 'clue':
-      return getFloatingCluePath(linkId);
+      return getCluePath(linkId);
     case 'hex':
       return getHexPath(linkId);
     case 'region':

@@ -6,8 +6,8 @@ import RoleplayBook from '../../../components/RoleplayBook/RoleplayBook.astro';
 import StatBlock from '../../../components/StatBlock/StatBlock.astro';
 import Unlocks from '../../../components/Unlocks.svelte';
 import {
+  getCluePath,
   getDungeonPath,
-  getFloatingCluePath,
   getHexPath,
   getPointcrawlEdgePath,
   getPointcrawlNodePath,
@@ -22,7 +22,6 @@ import {
   renderMarkdown,
 } from '../../../utils/markdown';
 
-import type { FloatingClueEntry } from '../../../types';
 import type { EncounterData } from '@skyreach/schemas';
 
 const flatKnowledgeTrees = await getFlatKnowledgeTrees();
@@ -54,7 +53,7 @@ const augmentedEncounter = await loadAugmentedEncounter(id);
 const creatureTypes = augmentedEncounter?.data.creatureTypes || [];
 const usedIn = augmentedEncounter?.data.usedIn || [];
 const statBlocks = await getCollection('statBlocks');
-const floatingClues = await getCollection('floatingClues');
+const clues = await getCollection('clues');
 
 const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
 
@@ -85,14 +84,14 @@ const pointcrawlEdgeList = pointcrawlEdgesUsing
   .map((ref) => `<a href=${getPointcrawlEdgePath(ref.id)}>${ref.name}</a>`)
   .join(', ');
 
-// Floating clues are not tracked in usedIn, so check manually
-const floatingCluesUsingEncounter = floatingClues.filter((clue) =>
-  clue.data.encounters?.includes(id),
-);
-const floatingClueList = floatingCluesUsingEncounter
-  .map(
-    (clue) => `<a href=${getFloatingCluePath(clue.id)}>${clue.data.name}</a>`,
-  )
+// Build list of clues that can be revealed by this encounter
+const encounterClueIds = encounter.clues ?? [];
+const clueList = encounterClueIds
+  .map((clueId) => {
+    const clue = clues.find((c) => c.id === clueId);
+    if (!clue) return `<span class="has-text-danger">${clueId} (not found)</span>`;
+    return `<a href="${getCluePath(clueId)}">${clue.data.name}</a>`;
+  })
   .join(', ');
 
 // Get all roleplay books
@@ -325,10 +324,10 @@ const resolvedStatBlocks = statBlockIds
 
   <ul class="cross-reference-list">
   {
-    floatingClueList.length > 0 && (
+    clueList.length > 0 && (
       <li>
-        <strong>Floating Clues</strong> using this encounter:{' '}
-        <Fragment set:html={floatingClueList} />
+        <strong>Clues</strong> in this encounter:{' '}
+        <Fragment set:html={clueList} />
       </li>
     )
   }

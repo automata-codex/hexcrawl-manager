@@ -6,7 +6,6 @@ import { getRepoPath, resolveDataPath } from './paths';
 export const REPO_PATHS = {
   AP_LEDGER: () => resolveDataPath('ap-ledger.jsonl'),
   CHARACTERS: () => getRepoPath('data', 'characters'),
-  CLUE_LINKS: () => resolveDataPath('clue-links.yaml'),
   DEV: () => getRepoPath('data', 'session-logs', '_dev'), // Dev-mode root
   DEV_IN_PROGRESS: () =>
     getRepoPath('data', 'session-logs', '_dev', 'in-progress'), // Dev-mode in-progress logs

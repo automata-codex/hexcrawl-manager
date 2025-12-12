@@ -7,9 +7,14 @@ import type {
 } from '@skyreach/schemas';
 import type { CollectionEntry } from 'astro:content';
 
+export type ExtendedGmNote = {
+  content: string;
+  clueId?: string;
+};
+
 export type ExtendedHexData = HexData & {
   renderedHiddenSites: ExtendedHiddenSites[];
-  renderedNotes: string[];
+  renderedNotes: ExtendedGmNote[];
   renderedLandmark: string;
   renderedSecretSite: string;
   renderedUpdates: string[];
@@ -22,22 +27,16 @@ export type ExtendedTreasureData = TreasureData & {
   renderedNotes: string;
 };
 
+export type ClueMapEntry = {
+  id: string;
+  name: string;
+};
+
 export type ArticleEntry = CollectionEntry<'articles'>;
 export type DungeonEntry = CollectionEntry<'dungeons'>;
-export type FloatingClueEntry = CollectionEntry<'floatingClues'>;
 export type HexEntry = CollectionEntry<'hexes'>;
 export type RegionEntry = CollectionEntry<'regions'>;
 export type RoleplayBookEntry = CollectionEntry<'roleplay-books'>;
-
-export type ClueLink = {
-  clueId: string;
-  name: string;
-  summary: string;
-  linkedHexes: {
-    hexId: string;
-    score: number;
-  }[];
-};
 
 export type PointcrawlLink = {
   slug: string;
@@ -54,7 +53,7 @@ export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
 export type PlacementMap = Record<string, PlacementRef[]>;
 
 export interface PlacementRef {
-  type: 'hex' | 'hidden-site' | 'dungeon' | 'floating-clue' | 'pointcrawl' | 'pointcrawl-node' | 'pointcrawl-edge' | 'encounter';
+  type: 'hex' | 'hidden-site' | 'dungeon' | 'pointcrawl' | 'pointcrawl-node' | 'pointcrawl-edge' | 'encounter';
   id: string;
   label: string;
 }

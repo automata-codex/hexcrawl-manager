@@ -54,8 +54,6 @@ const hexes = hexEntries
   .filter((hex) => !hex.hideInCatalog);
 const dungeonEntries = await getCollection('dungeons');
 const dungeons = dungeonEntries.map((entry) => entry.data);
-const floatingClueEntries = await getCollection('floatingClues');
-const floatingClues = floatingClueEntries.map((entry) => entry.data);
 const pointcrawlNodeEntries = await getCollection('pointcrawl-nodes');
 const pointcrawlNodes = pointcrawlNodeEntries.map((entry) => entry.data);
 const encounterEntries = await getCollection('encounters');
@@ -64,7 +62,6 @@ const encounters = encounterEntries.map((entry) => entry.data);
 const placementMap = buildPlacementMap(
   hexes,
   dungeons,
-  floatingClues,
   pointcrawlNodes,
   encounters,
 );

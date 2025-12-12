@@ -1,7 +1,6 @@
 import {
   getDungeonPath,
   getEncounterPath,
-  getFloatingCluePath,
   getHexPath,
   getPointcrawlEdgePath,
   getPointcrawlNodePath,
@@ -19,8 +18,6 @@ export function generateLink(ref: PlacementRef): string {
       return getDungeonPath(ref.id);
     case 'encounter':
       return getEncounterPath(ref.id);
-    case 'floating-clue':
-      return getFloatingCluePath(ref.id);
     case 'hex':
       return getHexPath(ref.id);
     case 'hidden-site':
@@ -45,8 +42,6 @@ export function generateLabelAppendix(ref: PlacementRef): string {
       return '(Dungeon)';
     case 'encounter':
       return '(Encounter)';
-    case 'floating-clue':
-      return '(Floating Clue)';
     case 'hex':
       return '(Landmark)';
     case 'hidden-site':

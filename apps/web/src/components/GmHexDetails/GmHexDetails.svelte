@@ -1,18 +1,17 @@
 <script lang="ts">
-  import { getHexPath, getRegionPath } from '../../config/routes.ts';
+  import { getCluePath, getHexPath, getRegionPath } from '../../config/routes.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
 
   import Dungeon from './Dungeon.svelte';
   import Explored from './Explored.svelte';
   import HiddenSites from './HiddenSites.svelte';
   import Landmark from './Landmark.svelte';
-  import LinkedClues from './LinkedClues.svelte';
   import Neighbors from './Neighbors.svelte';
   import Pointcrawls from './Pointcrawls.svelte';
   import Visited from './Visited.svelte';
 
   import type {
-    ClueLink,
+    ClueMapEntry,
     DungeonEntry,
     ExtendedHexData,
     FlatKnowledgeTree,
@@ -20,7 +19,7 @@
   } from '../../types.ts';
 
   interface Props {
-    clueLinks?: ClueLink[];
+    clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
     hex: ExtendedHexData;
     knowledgeTrees: Record<string, FlatKnowledgeTree>;
@@ -29,7 +28,7 @@
   }
 
   const {
-    clueLinks,
+    clueMap = {},
     dungeons,
     hex,
     knowledgeTrees,
@@ -74,8 +73,8 @@
     {hex.topography}
   </p>
 {/if}
-<Landmark {hex} {knowledgeTrees} />
-<HiddenSites {hex} {knowledgeTrees} />
+<Landmark {hex} {knowledgeTrees} {clueMap} />
+<HiddenSites {hex} {knowledgeTrees} {clueMap} />
 {#if hex.secretSite}
   <div class="hanging-indent">
     <span class="inline-heading">Secret Site:</span>{' '}
@@ -87,13 +86,15 @@
     <span class="inline-heading">GM&rsquo;s Notes:</span>
   </p>
   <ul class="gm-notes">
-    {#each hex.renderedNotes as note (note)}
-      <li>{@html note}</li>
+    {#each hex.renderedNotes as note (note.content)}
+      <li>
+        {@html note.content}
+        {#if note.clueId}
+          &rarr; <a href={getCluePath(note.clueId)}>{clueMap[note.clueId]?.name ?? note.clueId}</a>
+        {/if}
+      </li>
     {/each}
   </ul>
-{/if}
-{#if clueLinks}
-  <LinkedClues {clueLinks} hexId={hex.id} />
 {/if}
 
 <style>

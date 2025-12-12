@@ -1,0 +1,50 @@
+---
+import { getCollection } from 'astro:content';
+
+import Clue from '../../../components/Clue.astro';
+import { ROUTES } from '../../../config/routes';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+const cluesData = await getCollection('clues');
+const clues = cluesData
+  .map((c) => c.data)
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const title = 'Clues';
+---
+
+<style>
+  .clue-list {
+    margin-top: 1rem;
+  }
+
+  .clue-item {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--bulma-border);
+  }
+
+  .clue-item:last-child {
+    border-bottom: none;
+  }
+
+  .all-link {
+    margin-top: 2rem;
+  }
+</style>
+
+<SecretLayout title={title}>
+  <div class="clue-list">
+    {
+      clues.map((clue) => (
+        <div class="clue-item">
+          <Clue clue={clue} />
+        </div>
+      ))
+    }
+  </div>
+  <p class="all-link">
+    View <a href={ROUTES.sessionToolkit.clues.unified.allPath}>all clues</a> in one
+    page.
+  </p>
+</SecretLayout>
