@@ -165,7 +165,7 @@ export function buildClueUsageMap(
       addUsage(clueId, {
         type: 'hex-dream',
         id: hex.data.id,
-        name: `${hex.data.name} (dream)`,
+        name: `${hex.data.name} (hex)`,
         hexId: hex.data.id,
       });
     }

@@ -60,27 +60,8 @@ function getUsageUrl(ref: ClueUsageReference): string {
   }
 }
 
-// Helper to get a display label for the usage type
-function getUsageTypeLabel(type: ClueUsageReference['type']): string {
-  switch (type) {
-    case 'encounter':
-      return 'Encounter';
-    case 'hex-landmark':
-      return 'Landmark';
-    case 'hex-hidden-site':
-      return 'Hidden Site';
-    case 'hex-dream':
-      return 'Dream';
-    case 'hex-keyed-encounter':
-      return 'Keyed Encounter';
-    case 'dungeon':
-      return 'Dungeon';
-    case 'pointcrawl-node':
-      return 'Pointcrawl';
-    default:
-      return 'Location';
-  }
-}
+// Sort usedIn alphabetically by name
+const sortedUsedIn = [...usedIn].sort((a, b) => a.name.localeCompare(b.name));
 ---
 
 <style>
@@ -129,15 +110,6 @@ function getUsageTypeLabel(type: ClueUsageReference['type']): string {
 
   .used-in-section ul {
     margin-left: 0;
-    list-style: none;
-  }
-
-  .used-in-section li {
-    margin-bottom: 0.5rem;
-  }
-
-  .used-in-section .tag {
-    margin-right: 0.5rem;
   }
 </style>
 
@@ -215,13 +187,12 @@ function getUsageTypeLabel(type: ClueUsageReference['type']): string {
   }
 
   {
-    showDetail && usedIn.length > 0 && (
+    showDetail && sortedUsedIn.length > 0 && (
       <div class="used-in-section">
         <h3 class="title is-5">Can be discovered in:</h3>
         <ul>
-          {usedIn.map((ref) => (
+          {sortedUsedIn.map((ref) => (
             <li>
-              <span class="tag is-light is-small">{getUsageTypeLabel(ref.type)}</span>
               <a href={getUsageUrl(ref)}>{ref.name}</a>
             </li>
           ))}
