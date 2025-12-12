@@ -5,16 +5,25 @@ import { getCollection } from 'astro:content';
 
 import type { ClueData } from '@skyreach/schemas';
 
-import { getCluePath, getPlotlinePath } from '../config/routes';
+import {
+  getCluePath,
+  getDungeonPath,
+  getEncounterPath,
+  getHexPath,
+  getPlotlinePath,
+  getPointcrawlNodePath,
+} from '../config/routes';
+import type { ClueUsageReference } from '../utils/clue-usage-tracker';
 import { renderMarkdown } from '../utils/markdown';
 
 interface Props {
   clue: ClueData;
   showDetail?: boolean;
   showName?: boolean;
+  usedIn?: ClueUsageReference[];
 }
 
-const { clue, showDetail = false, showName = true } = Astro.props;
+const { clue, showDetail = false, showName = true, usedIn = [] } = Astro.props;
 const infoIcon = icon(faCircleInfo);
 const warningIcon = icon(faTriangleExclamation);
 
@@ -31,6 +40,47 @@ const plotlineLinks = (clue.plotlines ?? []).map((plotlineId) => ({
 // Status badge styling
 const statusColor = clue.status === 'known' ? 'is-success' : 'is-warning';
 const statusLabel = clue.status === 'known' ? 'Known' : 'Unknown';
+
+// Helper to get the URL for a usage reference
+function getUsageUrl(ref: ClueUsageReference): string {
+  switch (ref.type) {
+    case 'encounter':
+      return getEncounterPath(ref.id);
+    case 'hex-landmark':
+    case 'hex-hidden-site':
+    case 'hex-dream':
+    case 'hex-keyed-encounter':
+      return getHexPath(ref.hexId || ref.id);
+    case 'dungeon':
+      return getDungeonPath(ref.id);
+    case 'pointcrawl-node':
+      return getPointcrawlNodePath(ref.id);
+    default:
+      return '#';
+  }
+}
+
+// Helper to get a display label for the usage type
+function getUsageTypeLabel(type: ClueUsageReference['type']): string {
+  switch (type) {
+    case 'encounter':
+      return 'Encounter';
+    case 'hex-landmark':
+      return 'Landmark';
+    case 'hex-hidden-site':
+      return 'Hidden Site';
+    case 'hex-dream':
+      return 'Dream';
+    case 'hex-keyed-encounter':
+      return 'Keyed Encounter';
+    case 'dungeon':
+      return 'Dungeon';
+    case 'pointcrawl-node':
+      return 'Pointcrawl';
+    default:
+      return 'Location';
+  }
+}
 ---
 
 <style>
@@ -64,6 +114,29 @@ const statusLabel = clue.status === 'known' ? 'Known' : 'Unknown';
 
   .meta-label {
     font-weight: bold;
+    margin-right: 0.5rem;
+  }
+
+  .used-in-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--bulma-border);
+  }
+
+  .used-in-section h3 {
+    margin-bottom: 0.75rem;
+  }
+
+  .used-in-section ul {
+    margin-left: 0;
+    list-style: none;
+  }
+
+  .used-in-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  .used-in-section .tag {
     margin-right: 0.5rem;
   }
 </style>
@@ -137,6 +210,22 @@ const statusLabel = clue.status === 'known' ? 'Known' : 'Unknown';
     showDetail && clue.details && (
       <div class="content">
         <Fragment set:html={renderMarkdown(clue.details)} />
+      </div>
+    )
+  }
+
+  {
+    showDetail && usedIn.length > 0 && (
+      <div class="used-in-section">
+        <h3 class="title is-5">Can be discovered in:</h3>
+        <ul>
+          {usedIn.map((ref) => (
+            <li>
+              <span class="tag is-light is-small">{getUsageTypeLabel(ref.type)}</span>
+              <a href={getUsageUrl(ref)}>{ref.name}</a>
+            </li>
+          ))}
+        </ul>
       </div>
     )
   }

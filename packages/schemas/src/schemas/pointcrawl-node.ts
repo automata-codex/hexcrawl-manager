@@ -49,6 +49,10 @@ export const PointcrawlNodeSchema = z
       .array(z.string())
       .optional()
       .describe('IDs of knowledge nodes that are unlocked at this location'),
+    clues: z
+      .array(z.string())
+      .optional()
+      .describe('IDs of clues that can be discovered at this node'),
     naturalLight: z
       .enum(['bright', 'dim', 'none'])
       .optional()

@@ -3,8 +3,18 @@ import { hexSort as hexIdSort } from '@skyreach/core';
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
 
-import type { ExtendedHexData, ExtendedHiddenSites, ExtendedTreasureData } from '../types.ts';
-import type { HexData, HiddenSite } from '@skyreach/schemas';
+import type { ExtendedHexData, ExtendedHiddenSites } from '../types.ts';
+import type { GmNote, HexData, HiddenSite } from '@skyreach/schemas';
+
+/**
+ * Extract the text content from a GM note (handles both string and object formats).
+ */
+function getNoteText(note: GmNote): string {
+  if (typeof note === 'string') {
+    return note;
+  }
+  return note.description;
+}
 
 export function getHexSvgPath(x: number, y: number, hexWidth: number): string {
   const size = hexWidth / 2;
@@ -40,7 +50,7 @@ export async function processHex(hex: HexData): Promise<ExtendedHexData> {
       renderHiddenSites(hex.hiddenSites ?? []),
     ),
     renderedNotes: await Promise.all(
-      hex.notes?.map(renderBulletMarkdown) ?? [],
+      hex.notes?.map((note) => renderBulletMarkdown(getNoteText(note))) ?? [],
     ),
     renderedLandmark: await renderBulletMarkdown(landmark),
     renderedSecretSite: await renderBulletMarkdown(hex.secretSite ?? ''),

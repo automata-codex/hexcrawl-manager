@@ -1,8 +1,11 @@
 ---
-import { getEntry } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
+
+import type { EncounterData } from '@skyreach/schemas';
 
 import Clue from '../../../components/Clue.astro';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+import { buildClueUsageMap, getClueUsage } from '../../../utils/clue-usage-tracker';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -24,6 +27,24 @@ if (clueData === undefined) {
   });
 }
 
+// Load collections needed for usage tracking
+const [encounters, hexes, dungeons, pointcrawlNodes] = await Promise.all([
+  getCollection('encounters'),
+  getCollection('hexes'),
+  getCollection('dungeons'),
+  getCollection('pointcrawl-nodes'),
+]);
+
+// Build encounter map for resolving keyed encounter references
+const encounterMap = new Map<string, EncounterData>();
+for (const encounter of encounters) {
+  encounterMap.set(encounter.id, encounter.data);
+}
+
+// Build usage map and get usages for this clue
+const usageMap = buildClueUsageMap(encounters, hexes, dungeons, pointcrawlNodes, encounterMap);
+const usedIn = getClueUsage(usageMap, id);
+
 const clue = clueData.data;
 const title = `Clue: ${clue.name}`;
 ---
@@ -34,5 +55,5 @@ const title = `Clue: ${clue.name}`;
   }
 </style>
 <SecretArticleLayout title={title}>
-  <Clue clue={clue} showDetail={true} showName={false} />
+  <Clue clue={clue} showDetail={true} showName={false} usedIn={usedIn} />
 </SecretArticleLayout>

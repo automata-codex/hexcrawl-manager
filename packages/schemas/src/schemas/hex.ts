@@ -57,6 +57,10 @@ const BaseHiddenSiteSchema = z.object({
     .array(z.string())
     .optional()
     .describe('IDs of knowledge nodes that are unlocked by this site'),
+  clues: z
+    .array(z.string())
+    .optional()
+    .describe('IDs of clues that can be discovered at this site'),
 });
 
 /**
@@ -156,9 +160,34 @@ export const LandmarkSchema = z.object({
     .array(z.string())
     .optional()
     .describe('IDs of knowledge nodes that are unlocked by this site'),
+  clues: z
+    .array(z.string())
+    .optional()
+    .describe('IDs of clues that can be discovered at this landmark'),
 });
 
 export const TagSchema = z.union([KnownTagEnum, z.string()]);
+
+export const KeyedEncounterTriggerEnum = z.enum(['entry', 'exploration']);
+
+export const KeyedEncounterSchema = z.object({
+  encounterId: z.string(),
+  trigger: KeyedEncounterTriggerEnum,
+  notes: z.string().optional().describe('GM notes about when/how this triggers'),
+});
+
+export type KeyedEncounter = z.infer<typeof KeyedEncounterSchema>;
+export type KeyedEncounterTrigger = z.infer<typeof KeyedEncounterTriggerEnum>;
+
+export const GmNoteSchema = z.union([
+  z.string(),
+  z.object({
+    description: z.string(),
+    clueId: z.string().optional().describe('If this note reveals a clue (e.g., a dream)'),
+  }),
+]);
+
+export type GmNote = z.infer<typeof GmNoteSchema>;
 
 export const HexSchema = z
   .object({
@@ -183,10 +212,14 @@ export const HexSchema = z
       .boolean()
       .optional()
       .describe('When true, hides the random encounter table in the hex detail display'),
-    notes: z
-      .array(z.string())
+    keyedEncounters: z
+      .array(KeyedEncounterSchema)
       .optional()
-      .describe('Private GM eyes-only notes'),
+      .describe('Encounters that trigger under specific conditions in this hex'),
+    notes: z
+      .array(GmNoteSchema)
+      .optional()
+      .describe('Private GM eyes-only notes; can include dream-clues with linked clue IDs'),
     updates: z
       .array(z.string())
       .optional()

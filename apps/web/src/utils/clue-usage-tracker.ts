@@ -1,0 +1,228 @@
+import type {
+  DungeonData,
+  EncounterData,
+  GmNote,
+  HexData,
+  HiddenSite,
+  PointcrawlNodeData,
+} from '@skyreach/schemas';
+
+/**
+ * A reference to where a clue can be discovered.
+ */
+export interface ClueUsageReference {
+  type:
+    | 'encounter'
+    | 'hex-landmark'
+    | 'hex-hidden-site'
+    | 'hex-dream'
+    | 'hex-keyed-encounter'
+    | 'dungeon'
+    | 'pointcrawl-node';
+  id: string;
+  name: string;
+  hexId?: string; // For landmark/hidden-site/dream, which hex contains it
+}
+
+/**
+ * Map of clue IDs to their usage locations.
+ */
+export type ClueUsageMap = Map<string, ClueUsageReference[]>;
+
+/**
+ * Extracts clue IDs from a hex's landmark (if it's an object with clues).
+ */
+function extractClueIdsFromLandmark(
+  hexData: HexData,
+): { clueIds: string[]; landmarkName: string } {
+  const result = { clueIds: [] as string[], landmarkName: '' };
+
+  if (typeof hexData.landmark === 'object' && hexData.landmark.clues) {
+    result.clueIds = hexData.landmark.clues;
+    result.landmarkName = hexData.landmark.description;
+  }
+
+  return result;
+}
+
+/**
+ * Extracts clue IDs from a hex's hidden sites.
+ */
+function extractClueIdsFromHiddenSites(
+  hexData: HexData,
+): Array<{ clueId: string; siteName: string }> {
+  const results: Array<{ clueId: string; siteName: string }> = [];
+
+  if (!hexData.hiddenSites || !Array.isArray(hexData.hiddenSites)) {
+    return results;
+  }
+
+  for (const site of hexData.hiddenSites) {
+    // Skip legacy string format
+    if (typeof site === 'string') continue;
+
+    const hiddenSite = site as HiddenSite;
+    if (hiddenSite.clues) {
+      for (const clueId of hiddenSite.clues) {
+        results.push({ clueId, siteName: hiddenSite.description });
+      }
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Extracts clue IDs from a hex's GM notes (dream-clues).
+ */
+function extractClueIdsFromNotes(
+  hexData: HexData,
+): Array<{ clueId: string; noteDescription: string }> {
+  const results: Array<{ clueId: string; noteDescription: string }> = [];
+
+  if (!hexData.notes || !Array.isArray(hexData.notes)) {
+    return results;
+  }
+
+  for (const note of hexData.notes) {
+    // Check if it's a structured note with a clueId
+    if (typeof note === 'object') {
+      const gmNote = note as GmNote;
+      if (typeof gmNote === 'object' && 'clueId' in gmNote && gmNote.clueId) {
+        results.push({
+          clueId: gmNote.clueId,
+          noteDescription: gmNote.description,
+        });
+      }
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Builds a map of clue IDs to their usage locations by scanning
+ * encounters, hexes (landmarks, hidden sites, notes, keyed encounters),
+ * dungeons, and pointcrawl nodes.
+ */
+export function buildClueUsageMap(
+  encounters: Array<{ id: string; data: EncounterData }>,
+  hexes: Array<{ id: string; data: HexData }>,
+  dungeons: Array<{ id: string; data: DungeonData }>,
+  pointcrawlNodes: Array<{ id: string; data: PointcrawlNodeData }>,
+  // We also need encounters map to resolve keyed encounter names
+  encounterMap: Map<string, EncounterData>,
+): ClueUsageMap {
+  const usageMap: ClueUsageMap = new Map();
+
+  function addUsage(clueId: string, reference: ClueUsageReference): void {
+    if (!usageMap.has(clueId)) {
+      usageMap.set(clueId, []);
+    }
+    usageMap.get(clueId)!.push(reference);
+  }
+
+  // Scan encounters for direct clue references
+  for (const encounter of encounters) {
+    if (encounter.data.clues) {
+      for (const clueId of encounter.data.clues) {
+        addUsage(clueId, {
+          type: 'encounter',
+          id: encounter.data.id,
+          name: encounter.data.name,
+        });
+      }
+    }
+  }
+
+  // Scan hexes
+  for (const hex of hexes) {
+    // Check landmark clues
+    const { clueIds: landmarkClueIds } = extractClueIdsFromLandmark(hex.data);
+    for (const clueId of landmarkClueIds) {
+      addUsage(clueId, {
+        type: 'hex-landmark',
+        id: hex.data.id,
+        name: hex.data.name,
+        hexId: hex.data.id,
+      });
+    }
+
+    // Check hidden site clues
+    const hiddenSiteClues = extractClueIdsFromHiddenSites(hex.data);
+    for (const { clueId, siteName } of hiddenSiteClues) {
+      addUsage(clueId, {
+        type: 'hex-hidden-site',
+        id: hex.data.id,
+        name: `${hex.data.name} - ${siteName}`,
+        hexId: hex.data.id,
+      });
+    }
+
+    // Check dream-clue notes
+    const noteClues = extractClueIdsFromNotes(hex.data);
+    for (const { clueId } of noteClues) {
+      addUsage(clueId, {
+        type: 'hex-dream',
+        id: hex.data.id,
+        name: `${hex.data.name} (dream)`,
+        hexId: hex.data.id,
+      });
+    }
+
+    // Check keyed encounters that reference encounters with clues
+    if (hex.data.keyedEncounters) {
+      for (const keyedEncounter of hex.data.keyedEncounters) {
+        const encounter = encounterMap.get(keyedEncounter.encounterId);
+        if (encounter?.clues) {
+          for (const clueId of encounter.clues) {
+            addUsage(clueId, {
+              type: 'hex-keyed-encounter',
+              id: hex.data.id,
+              name: `${hex.data.name} - ${encounter.name}`,
+              hexId: hex.data.id,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // Scan dungeons
+  for (const dungeon of dungeons) {
+    if (dungeon.data.clues) {
+      for (const clueId of dungeon.data.clues) {
+        addUsage(clueId, {
+          type: 'dungeon',
+          id: dungeon.data.id,
+          name: dungeon.data.name,
+        });
+      }
+    }
+  }
+
+  // Scan pointcrawl nodes
+  for (const node of pointcrawlNodes) {
+    if (node.data.clues) {
+      for (const clueId of node.data.clues) {
+        addUsage(clueId, {
+          type: 'pointcrawl-node',
+          id: `${node.data.pointcrawlId}/${node.data.id}`,
+          name: node.data.name,
+        });
+      }
+    }
+  }
+
+  return usageMap;
+}
+
+/**
+ * Gets usage references for a specific clue.
+ */
+export function getClueUsage(
+  usageMap: ClueUsageMap,
+  clueId: string,
+): ClueUsageReference[] {
+  return usageMap.get(clueId) || [];
+}

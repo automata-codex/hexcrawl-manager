@@ -29,6 +29,10 @@ export const DungeonDataSchema = z
       .array(z.string())
       .optional()
       .describe('IDs of knowledge nodes that are unlocked by this site'),
+    clues: z
+      .array(z.string())
+      .optional()
+      .describe('IDs of clues that can be discovered in this dungeon'),
   })
   .refine(
     (data) => {
