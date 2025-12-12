@@ -29,7 +29,6 @@ export type ClueMapEntry = {
 
 export type ArticleEntry = CollectionEntry<'articles'>;
 export type DungeonEntry = CollectionEntry<'dungeons'>;
-export type FloatingClueEntry = CollectionEntry<'floatingClues'>;
 export type HexEntry = CollectionEntry<'hexes'>;
 export type RegionEntry = CollectionEntry<'regions'>;
 export type RoleplayBookEntry = CollectionEntry<'roleplay-books'>;
@@ -59,7 +58,7 @@ export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
 export type PlacementMap = Record<string, PlacementRef[]>;
 
 export interface PlacementRef {
-  type: 'hex' | 'hidden-site' | 'dungeon' | 'floating-clue' | 'pointcrawl' | 'pointcrawl-node' | 'pointcrawl-edge' | 'encounter';
+  type: 'hex' | 'hidden-site' | 'dungeon' | 'pointcrawl' | 'pointcrawl-node' | 'pointcrawl-edge' | 'encounter';
   id: string;
   label: string;
 }

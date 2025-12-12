@@ -11,7 +11,6 @@ import {
   EncounterSchema,
   type FactionData,
   FactionSchema,
-  FloatingClueSchema,
   HexSchema,
   KnowledgeNodeSchema,
   type LootPackData,
@@ -57,7 +56,6 @@ const DIRS = {
   ENCOUNTER_CATEGORY_TABLES: `${DATA_DIR}/encounter-category-tables`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   FACTIONS: `${DATA_DIR}/factions`,
-  FLOATING_CLUES: `${DATA_DIR}/floating-clues`,
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
   KNOWLEDGE_TREES: `${DATA_DIR}/knowledge-trees`,
@@ -159,11 +157,6 @@ const encounters = defineCollection({
 const factions = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.FACTIONS }),
   schema: FactionSchema,
-});
-
-const floatingClues = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.FLOATING_CLUES }),
-  schema: FloatingClueSchema,
 });
 
 const hexes = defineCollection({
@@ -278,7 +271,6 @@ export const collections = {
   'encounter-category-tables': encounterCategoryTables,
   encounters,
   factions,
-  floatingClues,
   hexes,
   'knowledge-trees': knowledgeTrees,
   'loot-packs': lootPacks,

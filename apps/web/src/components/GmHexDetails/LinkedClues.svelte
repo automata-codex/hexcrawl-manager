@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getFloatingCluePath } from '../../config/routes.ts';
+  import { getCluePath } from '../../config/routes.ts';
 
   import type { ClueLink } from '../../types.ts';
 
@@ -36,12 +36,12 @@
 </script>
 
 {#if cluesForThisHex.length > 0}
-  <section class="floating-clues">
-    <p class="inline-heading">Floating Clues:</p>
+  <section class="linked-clues">
+    <p class="inline-heading">Linked Clues:</p>
     <ul>
       {#each cluesForThisHex as clue (clue.clueId)}
         <li>
-          <a href={getFloatingCluePath(clue.clueId)}>{clue.name}</a>
+          <a href={getCluePath(clue.clueId)}>{clue.name}</a>
           <span class="score">({(clue.score * 100).toFixed(1)}% match)</span>
           <span>{clue.summary}</span>
         </li>

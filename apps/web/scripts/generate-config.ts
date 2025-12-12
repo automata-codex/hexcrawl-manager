@@ -104,10 +104,6 @@ export function getEncounterPath(encounterId: string): string {
   return getCollectionItemPath(ROUTES.gmReference.encounters as CollectionRoute, encounterId);
 }
 
-export function getFloatingCluePath(floatingClueId: string): string {
-  return getCollectionItemPath(ROUTES.sessionToolkit.clues.floatingClues as CollectionRoute, floatingClueId);
-}
-
 export function getHexPath(hexId: string): string {
   return getCollectionItemPath(ROUTES.sessionToolkit.hexes as CollectionRoute, hexId).toLowerCase();
 }
