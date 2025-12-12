@@ -1,0 +1,171 @@
+---
+import Badge from '../../components/Badge.astro';
+import SecretLayout from '../../layouts/SecretLayout.astro';
+
+const colors = [
+  { name: 'blue', useCase: 'scope: dungeon' },
+  { name: 'green', useCase: 'scope: hex, location type, unlocked status' },
+  { name: 'orange', useCase: 'faction' },
+  { name: 'purple', useCase: 'scope: pointcrawl, creature type' },
+  { name: 'pink', useCase: 'lead encounters' },
+  { name: 'cyan', useCase: 'scope: herald' },
+  { name: 'amber', useCase: 'scope: region, warnings' },
+  { name: 'gray', useCase: 'neutral/default, generic tags' },
+] as const;
+
+const semanticColors = [
+  { name: 'success', useCase: 'known status, unlocked' },
+  { name: 'warning', useCase: 'unknown status, pending' },
+  { name: 'info', useCase: 'informational tags' },
+  { name: 'danger', useCase: 'errors, alerts' },
+] as const;
+---
+
+<style>
+  .badge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .badge-card {
+    padding: 1rem;
+    border: 1px solid var(--bulma-border);
+    border-radius: 4px;
+  }
+
+  .badge-card h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    color: var(--bulma-text-weak);
+  }
+
+  .badge-card p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.75rem;
+    color: var(--bulma-text-weak);
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  section {
+    margin-bottom: 2rem;
+  }
+
+  .note {
+    padding: 1rem;
+    background: var(--bulma-scheme-main-bis);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+</style>
+
+<SecretLayout title="Badge Component Test">
+  <div class="note">
+    <p>
+      <strong>Testing instructions:</strong> Toggle between light and dark mode using the theme
+      toggle in the navbar to verify all badges render correctly in both modes.
+    </p>
+  </div>
+
+  <section>
+    <h2 class="title is-4">Custom Colors</h2>
+    <div class="badge-grid">
+      {
+        colors.map(({ name, useCase }) => (
+          <div class="badge-card">
+            <h4>{name}</h4>
+            <div class="badge-row">
+              <Badge color={name}>{name}</Badge>
+              <Badge color={name} bold>
+                {name} bold
+              </Badge>
+            </div>
+            <p>{useCase}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section>
+    <h2 class="title is-4">Bulma Semantic Colors</h2>
+    <div class="badge-grid">
+      {
+        semanticColors.map(({ name, useCase }) => (
+          <div class="badge-card">
+            <h4>{name}</h4>
+            <div class="badge-row">
+              <Badge color={name}>{name}</Badge>
+              <Badge color={name} bold>
+                {name} bold
+              </Badge>
+            </div>
+            <p>{useCase}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section>
+    <h2 class="title is-4">Real-World Examples</h2>
+    <div class="badge-grid">
+      <div class="badge-card">
+        <h4>Encounter Scope Tags</h4>
+        <div class="badge-row">
+          <Badge color="blue">dungeon</Badge>
+          <Badge color="cyan">herald</Badge>
+          <Badge color="green">hex</Badge>
+          <Badge color="amber">region</Badge>
+          <Badge color="purple">pointcrawl</Badge>
+        </div>
+      </div>
+
+      <div class="badge-card">
+        <h4>Lead Indicator</h4>
+        <div class="badge-row">
+          <Badge color="pink" bold>Lead</Badge>
+        </div>
+      </div>
+
+      <div class="badge-card">
+        <h4>Clue Status</h4>
+        <div class="badge-row">
+          <Badge color="success">Known</Badge>
+          <Badge color="warning">Unknown</Badge>
+        </div>
+      </div>
+
+      <div class="badge-card">
+        <h4>Entry Point</h4>
+        <div class="badge-row">
+          <Badge color="success">Entry Point</Badge>
+          <Badge color="success">✓ Unlocked</Badge>
+        </div>
+      </div>
+
+      <div class="badge-card">
+        <h4>Factions</h4>
+        <div class="badge-row">
+          <Badge color="orange">Crimson Veil</Badge>
+          <Badge color="orange">Merchants Guild</Badge>
+        </div>
+      </div>
+
+      <div class="badge-card">
+        <h4>Creature Types</h4>
+        <div class="badge-row">
+          <Badge color="purple">undead</Badge>
+          <Badge color="purple">beast</Badge>
+          <Badge color="purple">humanoid</Badge>
+        </div>
+      </div>
+    </div>
+  </section>
+</SecretLayout>
