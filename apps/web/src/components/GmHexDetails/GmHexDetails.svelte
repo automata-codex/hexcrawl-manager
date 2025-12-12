@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getHexPath, getRegionPath } from '../../config/routes.ts';
+  import { getCluePath, getHexPath, getRegionPath } from '../../config/routes.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
 
   import Dungeon from './Dungeon.svelte';
@@ -86,8 +86,13 @@
     <span class="inline-heading">GM&rsquo;s Notes:</span>
   </p>
   <ul class="gm-notes">
-    {#each hex.renderedNotes as note (note)}
-      <li>{@html note}</li>
+    {#each hex.renderedNotes as note (note.content)}
+      <li>
+        {@html note.content}
+        {#if note.clueId}
+          &rarr; <a href={getCluePath(note.clueId)}>{clueMap[note.clueId]?.name ?? note.clueId}</a>
+        {/if}
+      </li>
     {/each}
   </ul>
 {/if}

@@ -29,8 +29,8 @@
     if (!site.clues) return [];
     return site.clues.map((id) => ({
       id,
-      name: clueMap[id]?.name ?? id,
-      found: !!clueMap[id],
+      name: clueMap?.[id]?.name ?? id,
+      found: !!clueMap?.[id],
     }));
   }
 </script>
@@ -56,8 +56,8 @@
         {/if}
         {#if siteClues.length > 0}
           <p>
-            <strong>Clues:</strong>{' '}
-            {#each siteClues as clue, i}
+            <strong>Clues:</strong>
+            {#each siteClues as clue, i (i)}
               {#if clue.found}
                 <a href={getCluePath(clue.id)}>{clue.name}</a>
               {:else}
@@ -90,8 +90,8 @@
             {/if}
             {#if siteClues.length > 0}
               <p>
-                <strong>Clues:</strong>{' '}
-                {#each siteClues as clue, i}
+                <strong>Clues:</strong>
+                {#each siteClues as clue, i (i)}
                   {#if clue.found}
                     <a href={getCluePath(clue.id)}>{clue.name}</a>
                   {:else}

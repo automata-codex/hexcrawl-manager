@@ -7,9 +7,14 @@ import type {
 } from '@skyreach/schemas';
 import type { CollectionEntry } from 'astro:content';
 
+export type ExtendedGmNote = {
+  content: string;
+  clueId?: string;
+};
+
 export type ExtendedHexData = HexData & {
   renderedHiddenSites: ExtendedHiddenSites[];
-  renderedNotes: string[];
+  renderedNotes: ExtendedGmNote[];
   renderedLandmark: string;
   renderedSecretSite: string;
   renderedUpdates: string[];
