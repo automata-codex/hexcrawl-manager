@@ -22,6 +22,11 @@ export type ExtendedTreasureData = TreasureData & {
   renderedNotes: string;
 };
 
+export type ClueMapEntry = {
+  id: string;
+  name: string;
+};
+
 export type ArticleEntry = CollectionEntry<'articles'>;
 export type DungeonEntry = CollectionEntry<'dungeons'>;
 export type FloatingClueEntry = CollectionEntry<'floatingClues'>;

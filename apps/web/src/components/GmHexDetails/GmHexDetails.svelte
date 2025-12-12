@@ -13,6 +13,7 @@
 
   import type {
     ClueLink,
+    ClueMapEntry,
     DungeonEntry,
     ExtendedHexData,
     FlatKnowledgeTree,
@@ -21,6 +22,7 @@
 
   interface Props {
     clueLinks?: ClueLink[];
+    clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
     hex: ExtendedHexData;
     knowledgeTrees: Record<string, FlatKnowledgeTree>;
@@ -30,6 +32,7 @@
 
   const {
     clueLinks,
+    clueMap = {},
     dungeons,
     hex,
     knowledgeTrees,
@@ -74,8 +77,8 @@
     {hex.topography}
   </p>
 {/if}
-<Landmark {hex} {knowledgeTrees} />
-<HiddenSites {hex} {knowledgeTrees} />
+<Landmark {hex} {knowledgeTrees} {clueMap} />
+<HiddenSites {hex} {knowledgeTrees} {clueMap} />
 {#if hex.secretSite}
   <div class="hanging-indent">
     <span class="inline-heading">Secret Site:</span>{' '}

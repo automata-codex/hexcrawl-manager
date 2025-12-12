@@ -40,7 +40,13 @@ if (hexEntry === undefined) {
 }
 
 const dungeons = await getCollection('dungeons');
+const clues = await getCollection('clues');
 const hex: HexData = hexEntry.data;
+
+// Build clue lookup map for display
+const clueMap = Object.fromEntries(
+  clues.map((c) => [c.id, { id: c.id, name: c.data.name }])
+);
 const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
 
 // Find pointcrawls accessible from this hex
@@ -83,6 +89,7 @@ const extendedHexData = await processHex(hex);
     <GmHexDetails
       client:load
       clueLinks={clueLinks}
+      clueMap={clueMap}
       dungeons={dungeons}
       hex={extendedHexData}
       knowledgeTrees={flatKnowledgeTrees}
