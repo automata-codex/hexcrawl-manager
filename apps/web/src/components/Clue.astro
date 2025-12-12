@@ -24,14 +24,15 @@ interface Props {
 const { clue, usedIn = [] } = Astro.props;
 const warningIcon = icon(faTriangleExclamation);
 
-// Get all plotline IDs to validate references
+// Get all plotlines and build ID-to-title map
 const plotlines = await getCollection('plotlines');
-const plotlineIds = new Set(plotlines.map((p) => p.id));
+const plotlineMap = new Map(plotlines.map((p) => [p.id, p.data.title]));
 
-// Check which plotline references are valid
+// Check which plotline references are valid and get their titles
 const plotlineLinks = (clue.plotlines ?? []).map((plotlineId) => ({
   id: plotlineId,
-  isValid: plotlineIds.has(plotlineId),
+  title: plotlineMap.get(plotlineId) ?? plotlineId,
+  isValid: plotlineMap.has(plotlineId),
 }));
 
 // Status badge styling
@@ -71,18 +72,23 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
     margin-bottom: 0.25rem;
   }
 
+  .clue-summary {
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+
   .warning-icon {
     color: var(--bulma-warning);
     margin-left: 0.25rem;
   }
 
   .meta-section {
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    color: var(--bulma-strong-color);
   }
 
   .meta-label {
     font-weight: bold;
-    margin-right: 0.5rem;
   }
 
   .used-in-section {
@@ -125,7 +131,7 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
     }
   </div>
 
-  <p style="margin-bottom: 1rem;">
+  <p class="clue-summary">
     {clue.summary}
   </p>
 
@@ -136,7 +142,7 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
         {plotlineLinks.map((link, index) => (
           <>
             {link.isValid ? (
-              <a href={getPlotlinePath(link.id)}>{link.id}</a>
+              <a href={getPlotlinePath(link.id)}>{link.title}</a>
             ) : (
               <span>
                 {link.id}
@@ -154,7 +160,7 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
 
   {
     clue.details && (
-      <div class="content">
+      <div>
         <Fragment set:html={renderMarkdown(clue.details)} />
       </div>
     )
