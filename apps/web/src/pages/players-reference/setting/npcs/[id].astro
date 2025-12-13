@@ -102,8 +102,21 @@ const clueRefs = npc.clues?.map((ref) => {
   }
 
   .extended-content {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     clear: both;
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    p + ul,
+    p + ol {
+      margin-top: -1rem;
+    }
   }
 
   .notes {
@@ -148,13 +161,13 @@ const clueRefs = npc.clues?.map((ref) => {
       <Fragment set:html={renderMarkdown(npc.description)} />
     </div>
 
-    {Content && (
-      <div class="extended-content">
-        <Content components={{ SecretContent }} />
-      </div>
-    )}
-
     <SecretContent>
+      {Content && (
+        <div class="extended-content">
+          <Content />
+        </div>
+      )}
+
       {npc.notes && npc.notes.length > 0 && (
         <section class="notes">
           <h2 class="title is-4">GM Notes</h2>
