@@ -136,17 +136,19 @@ The clue display page should show a **warning icon** next to any plotline ID tha
 
 At build time, collect all plotline IDs from `data/plotlines/` and compare against each clue's `plotlines` array.
 
-## Migration Path
+## Migration Status
 
-1. Create the new clue schema and collection
-2. Build one clue and test the format in actual use
-3. Build the display infrastructure for clues
-4. Add cross-linking from hexes, encounters, dungeons, and pointcrawl nodes
-5. Pause and evaluate — does this feel right?
-6. Migrate floating clues (already structured, mostly mechanical)
-7. Extract fixed clues from prose articles (do plotline-by-plotline as needed)
-8. Migrate knowledge tree content that represents facts (not objectives)
-9. Clean up duplicate infrastructure
+The unified clue system is now in place:
+
+- ✅ New clue schema and collection created (`data/clues/`, `ClueSchema`)
+- ✅ Display infrastructure built (index, detail pages, ClueList component)
+- ✅ Cross-linking from hexes, encounters, dungeons, and pointcrawl nodes
+- ✅ Floating clues migrated to unified format
+- ✅ Knowledge tree system removed (not needed - clues handle facts, articles handle objectives)
+- ✅ Duplicate infrastructure cleaned up
+
+**Remaining:**
+- Extract fixed clues from prose articles as needed (do plotline-by-plotline)
 
 ## Principles
 

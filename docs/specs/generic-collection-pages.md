@@ -36,7 +36,7 @@ apps/web/src/pages/gm-reference/characters/
 - Index pages: Same basic structure but varying sort functions, summary vs link rendering
 
 **Low consistency (need custom implementations):**
-- Pages with cross-references (encounters load stat blocks, floating clues, roleplay books)
+- Pages with cross-references (encounters load stat blocks, clues, roleplay books)
 - Pages with client-side filtering (encounters, stat blocks use Svelte components)
 - Pages with complex sorting (regions use `regionSort()`, hexes use `hexSort()`)
 
@@ -47,9 +47,8 @@ apps/web/src/pages/gm-reference/characters/
 | characters | Yes | Yes | No | 2-column layout |
 | dungeons | Yes | Yes | No | Custom sorting, nested details |
 | encounters | Yes | Yes | No | Augmented data, Svelte filtering |
-| floatingClues | Yes | Yes | Yes | Standard pattern |
+| clues | Yes | Yes | No | Standard pattern |
 | hexes | Yes | Yes | No | Custom hex sorting |
-| knowledgeTrees | Yes | Yes | No | Tree visualization |
 | lootPacks | Yes | Yes | Yes | Summary components |
 | npcs | Yes | Yes | No | Standard pattern |
 | pointcrawls | Yes | Yes | No | Map visualization |
@@ -622,7 +621,7 @@ const relatedSpells = allSpells.filter(s =>
 Collections with simple patterns can be migrated:
 
 1. **Good candidates** (standard patterns):
-   - `floatingClues` - standard index/detail/all
+   - `clues` - standard index/detail
    - `lootPacks` - uses summary component (test summaryComponent support)
    - `rumors` - standard pattern
    - `roleplayBooks` - standard pattern
