@@ -17,7 +17,6 @@ export * from './encounter-category-table';
 export * from './faction';
 export * from './floating-clue';
 export * from './hex';
-export * from './knowledge-node';
 export * from './loot-pack';
 export * from './map-path';
 export * from './meta';

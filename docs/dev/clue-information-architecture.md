@@ -120,7 +120,7 @@ At build time, scan all delivery mechanisms and populate a `usedIn` array on eac
 6. Dungeon rooms with `clues` field references
 7. Pointcrawl nodes with `clues` field references
 
-Output structure:
+Output structure (see `packages/schemas/src/schemas/clue.ts` for canonical type):
 ```typescript
 usedIn: Array<{
   type: 'encounter' | 'hex-landmark' | 'hex-hidden-site' | 'hex-dream' | 'dungeon-room' | 'pointcrawl-node';

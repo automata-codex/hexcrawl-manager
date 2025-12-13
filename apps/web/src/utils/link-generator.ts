@@ -11,7 +11,6 @@ import {
   getDungeonPath,
   getEncounterPath,
   getHexPath,
-  getKnowledgeNodePath,
   getRegionPath,
 } from '../config/routes';
 
@@ -32,8 +31,6 @@ export function getLinkPath(linkType: LinkType, linkId: string): string {
       return getRegionPath(linkId);
     case 'faction':
       return `/gm-reference/factions#${linkId}`;
-    case 'knowledge-node':
-      return getKnowledgeNodePath(linkId);
     default:
       return '#';
   }
@@ -50,7 +47,6 @@ export function getLinkText(linkType: LinkType, linkId: string): string {
     encounter: 'Encounter',
     faction: 'Faction',
     hex: 'Hex',
-    'knowledge-node': 'Knowledge',
     region: 'Region',
   };
 

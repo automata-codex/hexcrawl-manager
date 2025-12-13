@@ -7,11 +7,8 @@ import type { EncounterTableData } from '@skyreach/schemas';
 import Badge from '../Badge.astro';
 import { getCluePath } from '../../config/routes';
 import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
-import Unlocks from '../Unlocks.svelte';
 import { mergeEncounterOverrides } from '../../utils/encounters';
-import { getFlatKnowledgeTrees } from '../../utils/knowledge-trees';
 
-const flatKnowledgeTrees = await getFlatKnowledgeTrees();
 const allEncounters = await getCollection('encounters');
 const allClues = await getCollection('clues');
 
@@ -164,12 +161,6 @@ const clueList = nodeClueIds.map((clueId) => {
 {node.data.entryConditions && (
   <p class="entry-conditions"><strong>Entry Conditions:</strong> {node.data.entryConditions}</p>
 )}
-
-<Unlocks
-  client:load
-  knowledgeTrees={flatKnowledgeTrees}
-  unlocks={node.data.unlocks ?? []}
-/>
 
 {
   clueList.length > 0 && (

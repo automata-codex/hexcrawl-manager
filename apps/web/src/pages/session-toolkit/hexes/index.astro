@@ -4,11 +4,8 @@ import { getCollection } from 'astro:content';
 import HexSearch from '../../../components/GmHexDetails/HexSearch.svelte';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import { hexSort, processHex } from '../../../utils/hexes';
-import { getFlatKnowledgeTrees } from '../../../utils/knowledge-trees';
 
 import type { ExtendedHexData, PointcrawlLink } from '../../../types';
-
-const flatKnowledgeTrees = await getFlatKnowledgeTrees();
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
 const intermediateHexes = hexEntries
@@ -37,7 +34,6 @@ for (const pc of allPointcrawls) {
     client:load
     dungeons={dungeons}
     hexes={hexes}
-    knowledgeTrees={flatKnowledgeTrees}
     pointcrawlsByHex={pointcrawlsByHex}
   />
 </SecretLayout>

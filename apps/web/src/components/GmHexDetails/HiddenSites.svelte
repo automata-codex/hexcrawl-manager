@@ -2,18 +2,16 @@
   import { getCluePath } from '../../config/routes.ts';
   import { getLinkPath, getLinkText } from '../../utils/link-generator';
   import TreasureTable from '../TreasureTable/TreasureTable.svelte';
-  import Unlocks from '../Unlocks.svelte';
 
-  import type { ClueMapEntry, ExtendedHexData, ExtendedHiddenSites, FlatKnowledgeTree } from '../../types.ts';
+  import type { ClueMapEntry, ExtendedHexData, ExtendedHiddenSites } from '../../types.ts';
   import type { LinkType } from '@skyreach/schemas';
 
   interface Props {
     clueMap?: Record<string, ClueMapEntry>;
     hex: ExtendedHexData;
-    knowledgeTrees: Record<string, FlatKnowledgeTree>;
   }
 
-  const { clueMap = {}, hex, knowledgeTrees }: Props = $props();
+  const { clueMap = {}, hex }: Props = $props();
 
   /**
    * Type guard to check if a hidden site has link fields.
@@ -48,12 +46,6 @@
         {/if}
       </div>
       <div style="margin-left: 1rem">
-        {#if site.unlocks}
-          <Unlocks
-            {knowledgeTrees}
-            unlocks={site.unlocks}
-          />
-        {/if}
         {#if siteClues.length > 0}
           <p>
             <strong>Clues:</strong>
@@ -85,9 +77,6 @@
             &rarr; <a href={getLinkPath(site.linkType, site.linkId)}>{getLinkText(site.linkType, site.linkId)}</a>
           {/if}
           <div>
-            {#if site.unlocks}
-              <Unlocks {knowledgeTrees} unlocks={site.unlocks} />
-            {/if}
             {#if siteClues.length > 0}
               <p>
                 <strong>Clues:</strong>

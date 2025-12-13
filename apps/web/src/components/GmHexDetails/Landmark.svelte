@@ -1,16 +1,14 @@
 <script lang="ts">
   import { getCluePath } from '../../config/routes.ts';
-  import Unlocks from '../Unlocks.svelte';
 
-  import type { ClueMapEntry, ExtendedHexData, FlatKnowledgeTree } from '../../types.ts';
+  import type { ClueMapEntry, ExtendedHexData } from '../../types.ts';
 
   interface Props {
     clueMap?: Record<string, ClueMapEntry>;
     hex: ExtendedHexData;
-    knowledgeTrees: Record<string, FlatKnowledgeTree>;
   }
 
-  const { clueMap = {}, hex, knowledgeTrees }: Props = $props();
+  const { clueMap = {}, hex }: Props = $props();
   // TODO Handle a treasure entry in the landmark data structure
 
   // Get clue display data
@@ -26,11 +24,6 @@
 <div class="hanging-indent">
   <span class="inline-heading">Landmark:</span>{' '}
   {@html hex.renderedLandmark}
-  {#if typeof hex.landmark !== 'string' && hex.landmark.unlocks}
-    <div style="margin-left: 1rem">
-      <Unlocks {knowledgeTrees} unlocks={hex.landmark.unlocks} />
-    </div>
-  {/if}
   {#if landmarkClues.length > 0}
     <p style="margin-left: 1rem">
       <strong>Clues:</strong>{' '}

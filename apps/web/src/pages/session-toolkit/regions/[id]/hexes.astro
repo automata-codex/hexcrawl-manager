@@ -4,7 +4,6 @@ import { getCollection } from 'astro:content';
 import GmHexDetails from '../../../../components/GmHexDetails/GmHexDetails.svelte';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
 import { hexSort, processHex } from '../../../../utils/hexes';
-import { getFlatKnowledgeTrees } from '../../../../utils/knowledge-trees';
 import {
   getHexEntriesForRegion,
   getRegionTitle,
@@ -12,8 +11,6 @@ import {
 
 import type { ExtendedHexData, HexEntry } from '../../../../types';
 import type { HexData } from '@skyreach/schemas';
-
-const flatKnowledgeTrees = await getFlatKnowledgeTrees();
 
 const { id: regionId } = Astro.params;
 if (!regionId) {
@@ -49,7 +46,6 @@ const hexes: ExtendedHexData[] = await Promise.all(
           client:load
           dungeons={dungeons}
           hex={hex}
-          knowledgeTrees={flatKnowledgeTrees}
         />
       </>
     ))

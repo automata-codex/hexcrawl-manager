@@ -12,7 +12,6 @@ import {
   type FactionData,
   FactionSchema,
   HexSchema,
-  KnowledgeNodeSchema,
   type LootPackData,
   LootPackSchema,
   MapPathSchema,
@@ -58,7 +57,6 @@ const DIRS = {
   FACTIONS: `${DATA_DIR}/factions`,
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
-  KNOWLEDGE_TREES: `${DATA_DIR}/knowledge-trees`,
   LOOT_PACKS: `${DATA_DIR}/loot-packs`,
   MAP_PATHS: `${DATA_DIR}/map-paths`,
   NPCS: `${DATA_DIR}/npcs`,
@@ -164,11 +162,6 @@ const hexes = defineCollection({
   schema: HexSchema,
 });
 
-const knowledgeTrees = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.KNOWLEDGE_TREES }),
-  schema: KnowledgeNodeSchema,
-});
-
 const lootPacks = defineCollection({
   loader: getDirectoryYamlLoader<LootPackData>(DIRS.LOOT_PACKS),
   schema: LootPackSchema,
@@ -272,7 +265,6 @@ export const collections = {
   encounters,
   factions,
   hexes,
-  'knowledge-trees': knowledgeTrees,
   'loot-packs': lootPacks,
   'map-paths': mapPaths,
   npcs,

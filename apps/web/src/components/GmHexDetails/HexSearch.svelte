@@ -6,18 +6,16 @@
   import type {
     DungeonEntry,
     ExtendedHexData,
-    FlatKnowledgeTree,
     PointcrawlLink,
   } from '../../types';
 
   interface Props {
     dungeons: DungeonEntry[];
     hexes: ExtendedHexData[];
-    knowledgeTrees: Record<string, FlatKnowledgeTree>;
     pointcrawlsByHex?: Record<string, PointcrawlLink[]>;
   }
 
-  const { dungeons, hexes, knowledgeTrees, pointcrawlsByHex = {} }: Props = $props();
+  const { dungeons, hexes, pointcrawlsByHex = {} }: Props = $props();
 
   let query = $state('');
   let results: ExtendedHexData[] = $state([]);
@@ -82,7 +80,6 @@
       <GmHexDetails
         {dungeons}
         {hex}
-        {knowledgeTrees}
         pointcrawls={pointcrawlsByHex[hex.id.toLowerCase()]}
         showSelfLink={true}
       />
