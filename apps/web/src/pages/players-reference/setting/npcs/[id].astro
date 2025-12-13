@@ -1,0 +1,180 @@
+---
+import { getEntry, render } from 'astro:content';
+import { normalizeClueRef } from '@skyreach/schemas';
+
+import SecretContent from '../../../../components/Content/SecretContent.astro';
+import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
+import { getCluePath } from '../../../../config/routes';
+import { renderMarkdown } from '../../../../utils/markdown';
+import { formatText } from '../../../../utils/text';
+
+function formatOccupation(
+  occupation: string,
+  charClass?: string,
+  adventuringCompany?: string,
+) {
+  if (occupation === 'Adventurer') {
+    if (adventuringCompany) {
+      return `Adventurer (${charClass}), ${adventuringCompany}`;
+    } else {
+      return `Adventurer (${charClass})`;
+    }
+  } else {
+    return occupation;
+  }
+}
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Query for the entry directly using the request slug
+const npcData = await getEntry('npcs', id);
+
+// Redirect if the entry does not exist
+if (npcData === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+const npc = npcData.data;
+const title = npc.name;
+
+// Check if this is an MD/MDX file with body content
+const isMdx = npcData.filePath?.endsWith('.mdx') || npcData.filePath?.endsWith('.md');
+const { Content } = isMdx ? await render(npcData) : { Content: null };
+
+// Normalize clue references for display
+const clueRefs = npc.clues?.map((ref) => normalizeClueRef(ref)) ?? [];
+---
+
+<style>
+  .npc-image {
+    float: right;
+    max-height: 250px;
+    margin-left: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .npc-meta {
+    margin-bottom: 1.5rem;
+
+    dt {
+      font-weight: bold;
+      display: inline;
+    }
+
+    dt::after {
+      content: ': ';
+    }
+
+    dd {
+      display: inline;
+      margin: 0;
+    }
+
+    dd::after {
+      content: '';
+      display: block;
+    }
+  }
+
+  .description {
+    margin-bottom: 1.5rem;
+
+    p {
+      text-indent: var(--skyreach-standard-indent);
+    }
+  }
+
+  .extended-content {
+    margin-top: 1.5rem;
+    clear: both;
+  }
+
+  .notes {
+    margin-top: 1.5rem;
+  }
+
+  .clues-section {
+    margin-top: 1.5rem;
+
+    ul {
+      margin-top: 0.5rem;
+    }
+  }
+
+  .clue-context {
+    color: var(--bulma-text-weak);
+    font-style: italic;
+  }
+</style>
+
+<ComponentLayout title={title}>
+  <main>
+    {npc.image && <img class="npc-image" src={npc.image} alt={npc.name} />}
+
+    <h1 class="title is-2">{npc.name}</h1>
+    {npc.title && <p class="subtitle is-4">{npc.title}</p>}
+
+    <dl class="npc-meta">
+      <dt>Occupation</dt>
+      <dd>{formatOccupation(npc.occupation, npc.class, npc.adventuringCompany)}</dd>
+
+      <dt>Species</dt>
+      <dd>{npc.species}</dd>
+
+      <dt>Culture</dt>
+      <dd>{npc.culture}</dd>
+
+      <dt>Pronouns</dt>
+      <dd>{npc.pronouns}</dd>
+    </dl>
+
+    <div class="description">
+      <Fragment set:html={renderMarkdown(npc.description)} />
+    </div>
+
+    {Content && (
+      <div class="extended-content">
+        <Content components={{ SecretContent }} />
+      </div>
+    )}
+
+    <SecretContent>
+      {npc.notes && npc.notes.length > 0 && (
+        <section class="notes">
+          <h2 class="title is-4">GM Notes</h2>
+          <ul>
+            {npc.notes.map((note) => (
+              <li>{formatText(note)}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {clueRefs.length > 0 && (
+        <section class="clues-section">
+          <h2 class="title is-4">Clues This NPC Knows</h2>
+          <ul>
+            {clueRefs.map((clue) => (
+              <li>
+                <a href={getCluePath(clue.id)}>{clue.id}</a>
+                {clue.context && (
+                  <span class="clue-context"> — {clue.context}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </SecretContent>
+  </main>
+</ComponentLayout>

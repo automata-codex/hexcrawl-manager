@@ -174,7 +174,7 @@ const mapPaths = defineCollection({
 });
 
 const npcs = defineCollection({
-  loader: getDirectoryYamlLoader<NpcData>(DIRS.NPCS),
+  loader: glob({ pattern: '**/*.{yaml,yml,md,mdx}', base: DIRS.NPCS }),
   schema: NpcSchema,
 });
 

@@ -1,11 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
 
-import SecretContent from '../../../components/Content/SecretContent.astro';
-import ComponentLayout from '../../../layouts/ComponentLayout.astro';
-import { renderMarkdown } from '../../../utils/markdown';
-import { formatText } from '../../../utils/text';
-import { getRoleplayBookPath } from '../../../config/routes.ts';
+import SecretContent from '../../../../components/Content/SecretContent.astro';
+import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
+import { renderMarkdown } from '../../../../utils/markdown';
+import { formatText } from '../../../../utils/text';
+import { getNpcPath, getRoleplayBookPath } from '../../../../config/routes.ts';
 
 function formatOccupation(
   occupation: string,
@@ -67,7 +67,7 @@ const title = 'NPCs';
         <section>
           {npc.data.image && <img src={npc.data.image} alt={npc.data.name} />}
           <h2 class="title is-4" style="margin-bottom: 0.25rem">
-            {npc.data.name}
+            <a href={getNpcPath(npc.id)}>{npc.data.name}</a>
           </h2>
           <p>
             <span class="inline-heading">Occupation:</span>{' '}

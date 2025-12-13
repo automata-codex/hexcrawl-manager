@@ -8,9 +8,11 @@ import type { ClueData } from '@skyreach/schemas';
 
 import Badge from './Badge.astro';
 import {
+  getCharacterPath,
   getDungeonPath,
   getEncounterPath,
   getHexPath,
+  getNpcPath,
   getPlotlinePath,
   getPointcrawlNodePath,
 } from '../config/routes';
@@ -53,6 +55,12 @@ function getUsageUrl(ref: ClueUsageReference): string {
       return getDungeonPath(ref.id);
     case 'pointcrawl-node':
       return getPointcrawlNodePath(ref.id);
+    case 'character':
+      return getCharacterPath(ref.id);
+    case 'npc':
+      return getNpcPath(ref.id);
+    case 'plotline':
+      return getPlotlinePath(ref.id);
     default:
       return '#';
   }
