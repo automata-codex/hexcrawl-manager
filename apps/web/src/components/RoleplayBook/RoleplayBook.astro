@@ -36,8 +36,6 @@ const { data } = Astro.props;
 </style>
 
 <div class="roleplay-book">
-  <h2 class="title is-3">{data.name}</h2>
-
   <h3 class="title is-4 section-title">Cultural Overview</h3>
   <div class="cultural-overview">
     <Fragment set:html={renderMarkdown(data.culturalOverview)} />

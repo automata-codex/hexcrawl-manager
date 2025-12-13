@@ -15,6 +15,7 @@ import {
   getNpcPath,
   getPlotlinePath,
   getPointcrawlNodePath,
+  getRoleplayBookPath,
 } from '../config/routes';
 import type { ClueUsageReference } from '../utils/clue-usage-tracker';
 import { renderMarkdown } from '../utils/markdown';
@@ -61,6 +62,8 @@ function getUsageUrl(ref: ClueUsageReference): string {
       return getNpcPath(ref.id);
     case 'plotline':
       return getPlotlinePath(ref.id);
+    case 'roleplay-book':
+      return getRoleplayBookPath(ref.id);
     default:
       return '#';
   }

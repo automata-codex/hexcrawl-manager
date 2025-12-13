@@ -9,6 +9,7 @@ import type {
   NpcData,
   PlotlineData,
   PointcrawlNodeData,
+  RoleplayBookData,
 } from '@skyreach/schemas';
 import { normalizeClueRef } from '@skyreach/schemas';
 
@@ -26,7 +27,8 @@ export interface ClueUsageReference {
     | 'pointcrawl-node'
     | 'character'
     | 'npc'
-    | 'plotline';
+    | 'plotline'
+    | 'roleplay-book';
   id: string;
   name: string;
   hexId?: string; // For landmark/hidden-site/dream, which hex contains it
@@ -129,7 +131,7 @@ function extractClueIdsFromNotes(
 /**
  * Builds a map of clue IDs to their usage locations by scanning
  * encounters, hexes (landmarks, hidden sites, notes, keyed encounters),
- * dungeons, pointcrawl nodes, characters, NPCs, and plotlines.
+ * dungeons, pointcrawl nodes, characters, NPCs, plotlines, and roleplay books.
  */
 export function buildClueUsageMap(
   encounters: Array<{ id: string; data: EncounterData }>,
@@ -138,10 +140,11 @@ export function buildClueUsageMap(
   pointcrawlNodes: Array<{ id: string; data: PointcrawlNodeData }>,
   // We also need encounters map to resolve keyed encounter names
   encounterMap: Map<string, EncounterData>,
-  // New sources for clue placement
+  // Additional sources for clue placement
   characters: Array<{ id: string; data: CharacterData }> = [],
   npcs: Array<{ id: string; data: NpcData }> = [],
   plotlines: Array<{ id: string; data: PlotlineData }> = [],
+  roleplayBooks: Array<{ id: string; data: RoleplayBookData }> = [],
 ): ClueUsageMap {
   const usageMap: ClueUsageMap = new Map();
 
@@ -279,6 +282,21 @@ export function buildClueUsageMap(
           id: plotline.data.slug,
           name: `${plotline.data.title} (Plotline)`,
         });
+      }
+    }
+  }
+
+  // Scan roleplay books for intelligence report clue links
+  for (const book of roleplayBooks) {
+    if (book.data.intelligenceReports?.rows) {
+      for (const row of book.data.intelligenceReports.rows) {
+        if (row.linkType === 'clue' && row.linkId) {
+          addUsage(row.linkId, {
+            type: 'roleplay-book',
+            id: book.id,
+            name: `${book.data.name} (Roleplay Book)`,
+          });
+        }
       }
     }
   }
