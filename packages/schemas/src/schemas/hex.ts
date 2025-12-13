@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { ClueReferencesSchema } from './clue-reference';
 import { EncounterOverrideSchema } from './encounter-override';
 import { LinkTypeEnum } from './roleplay-book';
 import { TreasureSchema } from './treasure';
@@ -57,10 +58,7 @@ const BaseHiddenSiteSchema = z.object({
     .array(z.string())
     .optional()
     .describe('IDs of knowledge nodes that are unlocked by this site'),
-  clues: z
-    .array(z.string())
-    .optional()
-    .describe('IDs of clues that can be discovered at this site'),
+  clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this site'),
 });
 
 /**
@@ -160,10 +158,7 @@ export const LandmarkSchema = z.object({
     .array(z.string())
     .optional()
     .describe('IDs of knowledge nodes that are unlocked by this site'),
-  clues: z
-    .array(z.string())
-    .optional()
-    .describe('IDs of clues that can be discovered at this landmark'),
+  clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this landmark'),
 });
 
 export const TagSchema = z.union([KnownTagEnum, z.string()]);

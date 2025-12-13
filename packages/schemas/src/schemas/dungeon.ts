@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { ClueReferencesSchema } from './clue-reference';
 import { BuilderEnum } from './dungeon-builder';
 import { ImageSchema } from './dungeon-image';
 import { TreasureSchema } from './treasure';
@@ -29,10 +30,7 @@ export const DungeonDataSchema = z
       .array(z.string())
       .optional()
       .describe('IDs of knowledge nodes that are unlocked by this site'),
-    clues: z
-      .array(z.string())
-      .optional()
-      .describe('IDs of clues that can be discovered in this dungeon'),
+    clues: ClueReferencesSchema.describe('IDs of clues that can be discovered in this dungeon'),
   })
   .refine(
     (data) => {

@@ -1,9 +1,11 @@
 ---
-import { getEntry } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 
-import { renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
-
+import { normalizeClueRef } from '@skyreach/schemas';
 import type { CharacterData, PlayerData } from '@skyreach/schemas';
+
+import { getCluePath } from '../config/routes';
+import { renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
 
 interface Props {
   character: CharacterData;
@@ -18,6 +20,21 @@ if (!playerData) {
   throw new Error(`Player not found: ${character.playerId}`);
 }
 const player: PlayerData = playerData.data;
+
+// Get all clues and build ID-to-name map
+const allClues = await getCollection('clues');
+const clueNameMap = new Map(allClues.map((c) => [c.id, c.data.name]));
+
+// Build clue links with validation
+const clueLinks = (character.clues ?? []).map((ref) => {
+  const normalized = normalizeClueRef(ref);
+  return {
+    id: normalized.id,
+    name: clueNameMap.get(normalized.id) ?? normalized.id,
+    context: normalized.context,
+    isValid: clueNameMap.has(normalized.id),
+  };
+});
 
 // Format subheadings
 const subheading = (text: string) => {
@@ -101,6 +118,25 @@ function getBackstoryText(markdown: string): Promise<string> {
     <div>
       <Fragment set:html={subheading('Notes')} />
       <Fragment set:html={renderMarkdown(character.notes)} />
+    </div>
+  )
+}
+{
+  clueLinks.length > 0 && (
+    <div>
+      <Fragment set:html={subheading('Clues')} />
+      <ul>
+        {clueLinks.map((link) => (
+          <li>
+            {link.isValid ? (
+              <a href={getCluePath(link.id)}>{link.name}</a>
+            ) : (
+              <span>{link.id} (not found)</span>
+            )}
+            {link.context && <span> — {link.context}</span>}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

@@ -162,6 +162,10 @@ export function getBountyPath(bountyId: string): string {
   return getCollectionItemPath(ROUTES.playersReference.setting.bountyBoard as CollectionRoute, bountyId);
 }
 
+export function getNpcPath(npcId: string): string {
+  return getCollectionItemPath(ROUTES.playersReference.setting.npcs as CollectionRoute, npcId);
+}
+
 export function getCluePath(clueId: string): string {
   return getCollectionItemPath(ROUTES.sessionToolkit.clues.unified as CollectionRoute, clueId);
 }

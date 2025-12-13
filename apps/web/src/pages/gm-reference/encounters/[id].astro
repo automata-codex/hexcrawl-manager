@@ -21,7 +21,7 @@ import {
   renderMarkdown,
 } from '../../../utils/markdown';
 
-import type { EncounterData } from '@skyreach/schemas';
+import { type EncounterData, normalizeClueRef } from '@skyreach/schemas';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -82,9 +82,10 @@ const pointcrawlEdgeList = pointcrawlEdgesUsing
   .join(', ');
 
 // Build list of clues that can be revealed by this encounter
-const encounterClueIds = encounter.clues ?? [];
-const clueList = encounterClueIds
-  .map((clueId) => {
+const encounterClueRefs = encounter.clues ?? [];
+const clueList = encounterClueRefs
+  .map((ref) => {
+    const { id: clueId } = normalizeClueRef(ref);
     const clue = clues.find((c) => c.id === clueId);
     if (!clue) return `<span class="has-text-danger">${clueId} (not found)</span>`;
     return `<a href="${getCluePath(clueId)}">${clue.data.name}</a>`;

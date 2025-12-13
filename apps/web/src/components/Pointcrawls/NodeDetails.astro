@@ -2,7 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import { getCollection } from 'astro:content';
 
-import type { EncounterTableData } from '@skyreach/schemas';
+import { type EncounterTableData, normalizeClueRef } from '@skyreach/schemas';
 
 import Badge from '../Badge.astro';
 import { getCluePath } from '../../config/routes';
@@ -46,8 +46,9 @@ if (encounters && node.data.encounterOverrides) {
 encounterChance = node.data.encounterChance ?? encounterChance;
 
 // Build clue list
-const nodeClueIds = node.data.clues ?? [];
-const clueList = nodeClueIds.map((clueId) => {
+const nodeClueRefs = node.data.clues ?? [];
+const clueList = nodeClueRefs.map((ref) => {
+  const { id: clueId } = normalizeClueRef(ref);
   const clue = allClues.find((c) => c.id === clueId);
   return {
     id: clueId,

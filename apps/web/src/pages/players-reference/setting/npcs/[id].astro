@@ -1,0 +1,199 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import { normalizeClueRef } from '@skyreach/schemas';
+
+import SecretContent from '../../../../components/Content/SecretContent.astro';
+import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
+import { getCluePath } from '../../../../config/routes';
+import { renderMarkdown } from '../../../../utils/markdown';
+import { formatText } from '../../../../utils/text';
+
+function formatOccupation(
+  occupation: string,
+  charClass?: string,
+  adventuringCompany?: string,
+) {
+  if (occupation === 'Adventurer') {
+    if (adventuringCompany) {
+      return `Adventurer (${charClass}), ${adventuringCompany}`;
+    } else {
+      return `Adventurer (${charClass})`;
+    }
+  } else {
+    return occupation;
+  }
+}
+
+// Get the ID from the incoming server request
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Query for the entry directly using the request slug
+const npcData = await getEntry('npcs', id);
+
+// Redirect if the entry does not exist
+if (npcData === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+const npc = npcData.data;
+const title = npc.name;
+
+// Check if this is an MD/MDX file with body content
+const isMdx = npcData.filePath?.endsWith('.mdx') || npcData.filePath?.endsWith('.md');
+const { Content } = isMdx ? await render(npcData) : { Content: null };
+
+// Build clue ID to name map for display
+const allClues = await getCollection('clues');
+const clueNameMap = new Map(allClues.map((c) => [c.id, c.data.name]));
+
+// Normalize clue references and add names for display
+const clueRefs = npc.clues?.map((ref) => {
+  const normalized = normalizeClueRef(ref);
+  return {
+    ...normalized,
+    name: clueNameMap.get(normalized.id) ?? normalized.id,
+  };
+}) ?? [];
+---
+
+<style>
+  .npc-image {
+    float: right;
+    max-height: 250px;
+    margin-left: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .npc-meta {
+    margin-bottom: 1rem;
+
+    dt {
+      font-weight: bold;
+      display: inline;
+      color: var(--bulma-strong-color);
+    }
+
+    dt::after {
+      content: ': ';
+    }
+
+    dd {
+      display: inline;
+      margin: 0;
+    }
+
+    dd::after {
+      content: '';
+      display: block;
+    }
+  }
+
+  .description {
+    margin-bottom: 1.5rem;
+  }
+
+  .extended-content {
+    margin-top: 1rem;
+    clear: both;
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    p + ul,
+    p + ol {
+      margin-top: -1rem;
+    }
+  }
+
+  .notes {
+    margin-top: 1.5rem;
+  }
+
+  .clues-section {
+    margin-top: 1.5rem;
+
+    ul {
+      margin-top: 0.5rem;
+    }
+  }
+
+  .clue-context {
+    color: var(--bulma-text-weak);
+    font-style: italic;
+  }
+</style>
+
+<ComponentLayout title={title}>
+  <main>
+    {npc.image && <img class="npc-image" src={npc.image} alt={npc.name} />}
+
+    {npc.title && <p class="subtitle is-4">{npc.title}</p>}
+
+    <dl class="npc-meta">
+      <dt>Occupation</dt>
+      <dd>{formatOccupation(npc.occupation, npc.class, npc.adventuringCompany)}</dd>
+
+      <dt>Species</dt>
+      <dd>{npc.species}</dd>
+
+      <dt>Culture</dt>
+      <dd>{npc.culture}</dd>
+
+      <dt>Pronouns</dt>
+      <dd>{npc.pronouns}</dd>
+    </dl>
+
+    <div class="description">
+      <Fragment set:html={renderMarkdown(npc.description)} />
+    </div>
+
+    <SecretContent>
+      {Content && (
+        <div class="extended-content">
+          <Content />
+        </div>
+      )}
+
+      {npc.notes && npc.notes.length > 0 && (
+        <section class="notes">
+          <h2 class="title is-4">GM Notes</h2>
+          <ul>
+            {npc.notes.map((note) => (
+              <li>{formatText(note)}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {clueRefs.length > 0 && (
+        <section class="clues-section">
+          <h2 class="title is-4">Clues This NPC Knows</h2>
+          <ul>
+            {clueRefs.map((clue) => (
+              <li>
+                <a href={getCluePath(clue.id)}>{clue.name}</a>
+                {clue.context && (
+                  <span class="clue-context"> — {clue.context}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </SecretContent>
+  </main>
+</ComponentLayout>

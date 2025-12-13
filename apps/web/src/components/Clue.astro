@@ -8,11 +8,15 @@ import type { ClueData } from '@skyreach/schemas';
 
 import Badge from './Badge.astro';
 import {
+  getCharacterPath,
+  getCluePath,
   getDungeonPath,
   getEncounterPath,
   getHexPath,
+  getNpcPath,
   getPlotlinePath,
   getPointcrawlNodePath,
+  getRoleplayBookPath,
 } from '../config/routes';
 import type { ClueUsageReference } from '../utils/clue-usage-tracker';
 import { renderMarkdown } from '../utils/markdown';
@@ -28,6 +32,17 @@ const warningIcon = icon(faTriangleExclamation);
 // Get all plotlines and build ID-to-title map
 const plotlines = await getCollection('plotlines');
 const plotlineMap = new Map(plotlines.map((p) => [p.id, p.data.title]));
+
+// Get all clues and build ID-to-name map for linked clues
+const allClues = await getCollection('clues');
+const clueNameMap = new Map(allClues.map((c) => [c.id, c.data.name]));
+
+// Build linked clues list with validation
+const linkedClueLinks = (clue.linkedClues ?? []).map((clueId) => ({
+  id: clueId,
+  name: clueNameMap.get(clueId) ?? clueId,
+  isValid: clueNameMap.has(clueId),
+}));
 
 // Check which plotline references are valid and get their titles
 const plotlineLinks = (clue.plotlines ?? []).map((plotlineId) => ({
@@ -53,6 +68,16 @@ function getUsageUrl(ref: ClueUsageReference): string {
       return getDungeonPath(ref.id);
     case 'pointcrawl-node':
       return getPointcrawlNodePath(ref.id);
+    case 'character':
+      return getCharacterPath(ref.id);
+    case 'npc':
+      return getNpcPath(ref.id);
+    case 'plotline':
+      return getPlotlinePath(ref.id);
+    case 'roleplay-book':
+      return getRoleplayBookPath(ref.id);
+    case 'linked-clue':
+      return getCluePath(ref.id);
     default:
       return '#';
   }
@@ -151,8 +176,30 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
           <span class="meta-label">Located in:</span>
           {sortedUsedIn.map((ref, index) => (
             <>
-              <a href={getUsageUrl(ref)}>{ref.name}</a>
-              {index < sortedUsedIn.length - 1 && ', '}
+              <a href={getUsageUrl(ref)}>{ref.name}</a>{index < sortedUsedIn.length - 1 && ', '}
+            </>
+          ))}
+        </p>
+      )
+    }
+
+    {
+      linkedClueLinks.length > 0 && (
+        <p>
+          <span class="meta-label">Reveals:</span>
+          {linkedClueLinks.map((link, index) => (
+            <>
+              {link.isValid ? (
+                <a href={getCluePath(link.id)}>{link.name}</a>
+              ) : (
+                <span>
+                  {link.id}
+                  <span class="warning-icon" title="Clue not found">
+                    <Fragment set:html={warningIcon.html} />
+                  </span>
+                </span>
+              )}
+              {index < linkedClueLinks.length - 1 && ', '}
             </>
           ))}
         </p>

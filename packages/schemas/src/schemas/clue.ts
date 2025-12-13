@@ -2,6 +2,15 @@ import { z } from 'zod';
 
 import { FactionEnum } from './encounter';
 
+// Re-export clue reference types from the separate module (avoids circular deps)
+export {
+  ClueReferenceSchema,
+  ClueReferencesSchema,
+  normalizeClueRef,
+  type ClueReference,
+  type ClueReferences,
+} from './clue-reference';
+
 export const ClueStatusEnum = z.enum(['unknown', 'known']);
 
 export const ClueSchema = z
@@ -29,6 +38,20 @@ export const ClueSchema = z
       .array(z.string())
       .optional()
       .describe('Additional tags for filtering (themes, characters, etc.)'),
+
+    // Placement tracking
+    minPlacements: z
+      .number()
+      .int()
+      .min(1)
+      .optional()
+      .describe('Target number of placements for this clue'),
+
+    // Linked clues - revealed when this clue is discovered
+    linkedClues: z
+      .array(z.string())
+      .optional()
+      .describe('Clue IDs that are revealed when this clue is learned'),
 
     status: ClueStatusEnum.default('unknown'),
   })

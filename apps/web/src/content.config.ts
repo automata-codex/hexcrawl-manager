@@ -19,6 +19,7 @@ import {
   NpcSchema,
   type PlayerData,
   PlayerSchema,
+  PlotlineSchema,
   PointcrawlEdgeSchema,
   PointcrawlNodeSchema,
   PointcrawlSchema,
@@ -173,7 +174,7 @@ const mapPaths = defineCollection({
 });
 
 const npcs = defineCollection({
-  loader: getDirectoryYamlLoader<NpcData>(DIRS.NPCS),
+  loader: glob({ pattern: '**/*.{yaml,yml,md,mdx}', base: DIRS.NPCS }),
   schema: NpcSchema,
 });
 
@@ -182,15 +183,9 @@ const players = defineCollection({
   schema: PlayerSchema,
 });
 
-// in your content config
 const plotlines = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.PLOTLINES }),
-  schema: z.object({
-    slug: z.string(),
-    status: z.enum(['active', 'dormant', 'resolved']).default('active'),
-    summary: z.string().optional(),
-    title: z.string(),
-  }),
+  schema: PlotlineSchema,
 });
 
 const pointcrawls = defineCollection({

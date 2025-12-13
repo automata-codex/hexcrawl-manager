@@ -10,6 +10,7 @@
     plotlines: string[];
     tags: string[];
     isUsed: boolean;
+    needsReview: boolean;
   }
 
   interface FilterOptions {
@@ -32,6 +33,7 @@
   let plotlineFilter = $state('');
   let tagFilter = $state('');
   let usageFilter = $state('');
+  let reviewFilter = $state('');
 
   let filtered = $derived(() => {
     return clues.filter((clue) => {
@@ -74,6 +76,10 @@
       if (usageFilter === 'used' && !clue.isUsed) return false;
       if (usageFilter === 'unused' && clue.isUsed) return false;
 
+      // Review filter
+      if (reviewFilter === 'needs-review' && !clue.needsReview) return false;
+      if (reviewFilter === 'ok' && clue.needsReview) return false;
+
       return true;
     });
   });
@@ -85,6 +91,7 @@
     plotlineFilter = '';
     tagFilter = '';
     usageFilter = '';
+    reviewFilter = '';
   }
 
   function formatFaction(faction: string): string {
@@ -183,6 +190,19 @@
       </div>
     </div>
 
+    <div class="field">
+      <label class="label" for="review">Review</label>
+      <div class="control">
+        <div class="select">
+          <select id="review" bind:value={reviewFilter}>
+            <option value="">All</option>
+            <option value="needs-review">Needs Review</option>
+            <option value="ok">OK</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <div class="filter-actions">
       <button class="button" onclick={clearFilters}>Clear</button>
     </div>
@@ -195,7 +215,8 @@
 
 <p class="legend">
   <span class="unused-text">Italic</span> = unused |
-  <Badge color="green">Known</Badge> = discovered by players
+  <Badge color="green">Known</Badge> = discovered by players |
+  <Badge color="orange">Review</Badge> = needs more placements
 </p>
 
 <ul class="clue-list">
@@ -209,6 +230,9 @@
       </a>
       {#if clue.status === 'known'}
         <Badge color="green">Known</Badge>
+      {/if}
+      {#if clue.needsReview}
+        <Badge color="orange">Review</Badge>
       {/if}
     </li>
   {/each}

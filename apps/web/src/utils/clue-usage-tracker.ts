@@ -1,11 +1,18 @@
 import type {
+  CharacterData,
+  ClueData,
+  ClueReference,
   DungeonData,
   EncounterData,
   GmNote,
   HexData,
   HiddenSite,
+  NpcData,
+  PlotlineData,
   PointcrawlNodeData,
+  RoleplayBookData,
 } from '@skyreach/schemas';
+import { normalizeClueRef } from '@skyreach/schemas';
 
 /**
  * A reference to where a clue can be discovered.
@@ -18,10 +25,23 @@ export interface ClueUsageReference {
     | 'hex-dream'
     | 'hex-keyed-encounter'
     | 'dungeon'
-    | 'pointcrawl-node';
+    | 'pointcrawl-node'
+    | 'character'
+    | 'npc'
+    | 'plotline'
+    | 'roleplay-book'
+    | 'linked-clue';
   id: string;
   name: string;
   hexId?: string; // For landmark/hidden-site/dream, which hex contains it
+}
+
+/**
+ * Extracts clue IDs from a clue references array (handles both string and object formats).
+ */
+function extractClueIds(refs: ClueReference[] | undefined): string[] {
+  if (!refs) return [];
+  return refs.map((ref) => normalizeClueRef(ref).id);
 }
 
 /**
@@ -38,7 +58,7 @@ function extractClueIdsFromLandmark(
   const result = { clueIds: [] as string[], landmarkName: '' };
 
   if (typeof hexData.landmark === 'object' && hexData.landmark.clues) {
-    result.clueIds = hexData.landmark.clues;
+    result.clueIds = extractClueIds(hexData.landmark.clues);
     result.landmarkName = hexData.landmark.description;
   }
 
@@ -68,7 +88,7 @@ function extractClueIdsFromHiddenSites(
 
     // Check for clues array (clues discoverable at this site)
     if (hiddenSite.clues) {
-      for (const clueId of hiddenSite.clues) {
+      for (const clueId of extractClueIds(hiddenSite.clues)) {
         results.push({ clueId });
       }
     }
@@ -113,7 +133,8 @@ function extractClueIdsFromNotes(
 /**
  * Builds a map of clue IDs to their usage locations by scanning
  * encounters, hexes (landmarks, hidden sites, notes, keyed encounters),
- * dungeons, and pointcrawl nodes.
+ * dungeons, pointcrawl nodes, characters, NPCs, plotlines, roleplay books,
+ * and linked clues.
  */
 export function buildClueUsageMap(
   encounters: Array<{ id: string; data: EncounterData }>,
@@ -122,6 +143,12 @@ export function buildClueUsageMap(
   pointcrawlNodes: Array<{ id: string; data: PointcrawlNodeData }>,
   // We also need encounters map to resolve keyed encounter names
   encounterMap: Map<string, EncounterData>,
+  // Additional sources for clue placement
+  characters: Array<{ id: string; data: CharacterData }> = [],
+  npcs: Array<{ id: string; data: NpcData }> = [],
+  plotlines: Array<{ id: string; data: PlotlineData }> = [],
+  roleplayBooks: Array<{ id: string; data: RoleplayBookData }> = [],
+  clues: Array<{ id: string; data: ClueData }> = [],
 ): ClueUsageMap {
   const usageMap: ClueUsageMap = new Map();
 
@@ -135,7 +162,7 @@ export function buildClueUsageMap(
   // Scan encounters for direct clue references
   for (const encounter of encounters) {
     if (encounter.data.clues) {
-      for (const clueId of encounter.data.clues) {
+      for (const clueId of extractClueIds(encounter.data.clues)) {
         addUsage(clueId, {
           type: 'encounter',
           id: encounter.data.id,
@@ -185,7 +212,7 @@ export function buildClueUsageMap(
       for (const keyedEncounter of hex.data.keyedEncounters) {
         const encounter = encounterMap.get(keyedEncounter.encounterId);
         if (encounter?.clues) {
-          for (const clueId of encounter.clues) {
+          for (const clueId of extractClueIds(encounter.clues)) {
             addUsage(clueId, {
               type: 'hex-keyed-encounter',
               id: hex.data.id,
@@ -201,7 +228,7 @@ export function buildClueUsageMap(
   // Scan dungeons
   for (const dungeon of dungeons) {
     if (dungeon.data.clues) {
-      for (const clueId of dungeon.data.clues) {
+      for (const clueId of extractClueIds(dungeon.data.clues)) {
         addUsage(clueId, {
           type: 'dungeon',
           id: dungeon.data.id,
@@ -214,11 +241,78 @@ export function buildClueUsageMap(
   // Scan pointcrawl nodes
   for (const node of pointcrawlNodes) {
     if (node.data.clues) {
-      for (const clueId of node.data.clues) {
+      for (const clueId of extractClueIds(node.data.clues)) {
         addUsage(clueId, {
           type: 'pointcrawl-node',
           id: `${node.data.pointcrawlId}/${node.data.id}`,
           name: `${node.data.name} (Pointcrawl Node)`,
+        });
+      }
+    }
+  }
+
+  // Scan characters
+  for (const character of characters) {
+    if (character.data.clues) {
+      for (const clueId of extractClueIds(character.data.clues)) {
+        addUsage(clueId, {
+          type: 'character',
+          id: character.data.id,
+          name: `${character.data.displayName} (Character)`,
+        });
+      }
+    }
+  }
+
+  // Scan NPCs
+  for (const npc of npcs) {
+    if (npc.data.clues) {
+      for (const clueId of extractClueIds(npc.data.clues)) {
+        addUsage(clueId, {
+          type: 'npc',
+          id: npc.data.id,
+          name: `${npc.data.name} (NPC)`,
+        });
+      }
+    }
+  }
+
+  // Scan plotlines
+  for (const plotline of plotlines) {
+    if (plotline.data.clues) {
+      for (const clueId of extractClueIds(plotline.data.clues)) {
+        addUsage(clueId, {
+          type: 'plotline',
+          id: plotline.data.slug,
+          name: `${plotline.data.title} (Plotline)`,
+        });
+      }
+    }
+  }
+
+  // Scan roleplay books for intelligence report clue links
+  for (const book of roleplayBooks) {
+    if (book.data.intelligenceReports?.rows) {
+      for (const row of book.data.intelligenceReports.rows) {
+        if (row.linkType === 'clue' && row.linkId) {
+          addUsage(row.linkId, {
+            type: 'roleplay-book',
+            id: book.id,
+            name: `${book.data.name} (Roleplay Book)`,
+          });
+        }
+      }
+    }
+  }
+
+  // Scan clues for linkedClues references
+  for (const clue of clues) {
+    if (clue.data.linkedClues) {
+      for (const linkedClueId of clue.data.linkedClues) {
+        addUsage(linkedClueId, {
+          type: 'linked-clue',
+          id: clue.id,
+          name: `${clue.data.name} (Clue)`,
         });
       }
     }
