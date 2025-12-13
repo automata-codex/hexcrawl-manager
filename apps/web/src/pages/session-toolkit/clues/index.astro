@@ -41,16 +41,21 @@ const usageMap = buildClueUsageMap(
 
 // Transform to list items
 const clues = cluesData
-  .map((c) => ({
-    id: c.id,
-    name: c.data.name,
-    summary: c.data.summary,
-    status: c.data.status,
-    factions: c.data.factions ?? [],
-    plotlines: c.data.plotlines ?? [],
-    tags: c.data.tags ?? [],
-    isUsed: (usageMap.get(c.id) ?? []).length > 0,
-  }))
+  .map((c) => {
+    const placementCount = (usageMap.get(c.id) ?? []).length;
+    const minPlacements = c.data.minPlacements;
+    return {
+      id: c.id,
+      name: c.data.name,
+      summary: c.data.summary,
+      status: c.data.status,
+      factions: c.data.factions ?? [],
+      plotlines: c.data.plotlines ?? [],
+      tags: c.data.tags ?? [],
+      isUsed: placementCount > 0,
+      needsReview: minPlacements !== undefined && placementCount < minPlacements,
+    };
+  })
   .sort((a, b) => sortIgnoringArticles(a.name, b.name));
 
 // Extract unique filter options

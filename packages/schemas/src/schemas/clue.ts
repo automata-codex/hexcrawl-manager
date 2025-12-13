@@ -39,6 +39,14 @@ export const ClueSchema = z
       .optional()
       .describe('Additional tags for filtering (themes, characters, etc.)'),
 
+    // Placement tracking
+    minPlacements: z
+      .number()
+      .int()
+      .min(1)
+      .optional()
+      .describe('Target number of placements for this clue'),
+
     status: ClueStatusEnum.default('unknown'),
   })
   .describe('ClueSchema');
