@@ -1,6 +1,9 @@
 <script lang="ts">
-  import type { CreatureType, Faction, LocationType } from '@skyreach/schemas';
+  import { initFilterFromUrl, setUrlParam } from '../utils/url-filter-state';
+
   import Badge from './Badge.svelte';
+
+  import type { CreatureType, Faction, LocationType } from '@skyreach/schemas';
 
   interface EncounterItem {
     id: string;
@@ -27,13 +30,22 @@
 
   const { encounters, filterOptions }: Props = $props();
 
-  let scopeFilter = $state('');
-  let locationFilter = $state('');
-  let factionFilter = $state('');
-  let creatureFilter = $state('');
-  let usageFilter = $state('');
-  let leadFilter = $state('');
-  let searchQuery = $state('');
+  let scopeFilter = $state(initFilterFromUrl('scope'));
+  let locationFilter = $state(initFilterFromUrl('location'));
+  let factionFilter = $state(initFilterFromUrl('faction'));
+  let creatureFilter = $state(initFilterFromUrl('creature'));
+  let usageFilter = $state(initFilterFromUrl('usage'));
+  let leadFilter = $state(initFilterFromUrl('lead'));
+  let searchQuery = $state(initFilterFromUrl('search'));
+
+  // Sync filter state to URL
+  $effect(() => { setUrlParam('scope', scopeFilter); });
+  $effect(() => { setUrlParam('location', locationFilter); });
+  $effect(() => { setUrlParam('faction', factionFilter); });
+  $effect(() => { setUrlParam('creature', creatureFilter); });
+  $effect(() => { setUrlParam('usage', usageFilter); });
+  $effect(() => { setUrlParam('lead', leadFilter); });
+  $effect(() => { setUrlParam('search', searchQuery); });
 
   let filtered = $derived(() => {
     return encounters.filter((enc) => {
@@ -129,7 +141,7 @@
         <div class="select">
           <select id="scope" bind:value={scopeFilter}>
             <option value="">All</option>
-            {#each filterOptions.scopes as scope}
+            {#each filterOptions.scopes as scope (scope)}
               <option value={scope}>{scope}</option>
             {/each}
           </select>
@@ -143,7 +155,7 @@
         <div class="select">
           <select id="location" bind:value={locationFilter}>
             <option value="">All</option>
-            {#each filterOptions.locationTypes as type}
+            {#each filterOptions.locationTypes as type (type)}
               <option value={type}>{type}</option>
             {/each}
           </select>
@@ -158,7 +170,7 @@
           <select id="faction" bind:value={factionFilter}>
             <option value="">All</option>
             <option value="__none__">No Faction</option>
-            {#each filterOptions.factions as faction}
+            {#each filterOptions.factions as faction (faction)}
               <option value={faction}>{formatFaction(faction)}</option>
             {/each}
           </select>
@@ -172,7 +184,7 @@
         <div class="select">
           <select id="creature" bind:value={creatureFilter}>
             <option value="">All</option>
-            {#each filterOptions.creatureTypes as type}
+            {#each filterOptions.creatureTypes as type (type)}
               <option value={type}>{type}</option>
             {/each}
           </select>

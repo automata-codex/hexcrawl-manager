@@ -4,6 +4,12 @@
   import { parseSessionId, type SessionId } from '@skyreach/schemas';
 
   import { renderMarkdown } from '../utils/markdown';
+  import {
+    initBooleanFilterFromUrl,
+    initFilterFromUrl,
+    setBooleanUrlParam,
+    setUrlParam,
+  } from '../utils/url-filter-state';
 
   import Badge from './Badge.svelte';
 
@@ -27,10 +33,14 @@
 
   // Local state for todos (allows optimistic updates)
   let localTodos = $state<AggregatedTodoItem[]>([...initialTodos]);
-  let showCompleted = $state(false);
-  let sessionFilter = $state(''); // Empty string = all sessions
+  let showCompleted = $state(initBooleanFilterFromUrl('completed'));
+  let sessionFilter = $state(initFilterFromUrl('session')); // Empty string = all sessions
   let updating = $state<string | null>(null); // Track which todo is being updated
   let errorMessage = $state<string | null>(null); // Error message for failed updates
+
+  // Sync filter state to URL
+  $effect(() => { setBooleanUrlParam('completed', showCompleted); });
+  $effect(() => { setUrlParam('session', sessionFilter); });
 
   // Get unique session IDs for filter dropdown
   let sessionIds = $derived(() => {
