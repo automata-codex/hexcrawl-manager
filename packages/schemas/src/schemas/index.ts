@@ -45,5 +45,3 @@ export * from './supplement-list';
 export * from './trails';
 export * from './treasure';
 export * from './unused-hidden-site';
-export * from './zone';
-export * from './zone-crawl';

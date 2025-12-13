@@ -22,7 +22,6 @@ import { SupplementListSchema } from '../schemas/supplement-list.js';
 import { TrailSchema } from '../schemas/trails.js';
 import { TreasureSchema } from '../schemas/treasure.js';
 import { UnusedHiddenSiteListSchema } from '../schemas/unused-hidden-site.js';
-import { ZoneSchema } from '../schemas/zone.js';
 
 const apLedgerFile = new URL('../schemas/ap-ledger.json', import.meta.url);
 writeFileSync(
@@ -152,6 +151,3 @@ writeFileSync(
   unusedHiddenSiteFile,
   JSON.stringify(zodToJsonSchema(UnusedHiddenSiteListSchema), null, 2),
 );
-
-const zoneFile = new URL('../schemas/zone.json', import.meta.url);
-writeFileSync(zoneFile, JSON.stringify(zodToJsonSchema(ZoneSchema), null, 2));
