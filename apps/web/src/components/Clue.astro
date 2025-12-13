@@ -162,8 +162,7 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
           <span class="meta-label">Located in:</span>
           {sortedUsedIn.map((ref, index) => (
             <>
-              <a href={getUsageUrl(ref)}>{ref.name}</a>
-              {index < sortedUsedIn.length - 1 && ', '}
+              <a href={getUsageUrl(ref)}>{ref.name}</a>{index < sortedUsedIn.length - 1 && ', '}
             </>
           ))}
         </p>
