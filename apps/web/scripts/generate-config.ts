@@ -132,20 +132,6 @@ export function getCharacterPath(characterId: string): string {
   return getCollectionItemPath(ROUTES.gmReference.characters as CollectionRoute, characterId);
 }
 
-export function getKnowledgeTreePath(treeId: string): string {
-  return getCollectionItemPath(ROUTES.gmReference.knowledgeTrees as CollectionRoute, treeId);
-}
-
-/**
- * Get path for a specific knowledge tree node.
- * @param nodeKey - Dot-separated node key (e.g., "crystals.tier1.plant_growth")
- * @returns URL path (e.g., "/gm-reference/knowledge-trees/crystals/tier1/plant_growth")
- */
-export function getKnowledgeNodePath(nodeKey: string): string {
-  const pathSegments = nodeKey.split('.');
-  return \`/gm-reference/knowledge-trees/\${pathSegments.join('/')}\`;
-}
-
 export function getPointcrawlPath(pointcrawlSlug: string): string {
   return getCollectionItemPath(ROUTES.gmReference.pointcrawls as CollectionRoute, pointcrawlSlug);
 }

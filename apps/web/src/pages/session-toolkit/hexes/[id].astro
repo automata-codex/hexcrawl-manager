@@ -11,11 +11,8 @@ import RandomEncounterTable from '../../../components/RandomEncounterTable/Rando
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { mergeEncounterOverrides } from '../../../utils/encounters';
 import { processHex } from '../../../utils/hexes';
-import { getFlatKnowledgeTrees } from '../../../utils/knowledge-trees';
 
 import type { EncounterTableData, HexData } from '@skyreach/schemas';
-
-const flatKnowledgeTrees = await getFlatKnowledgeTrees();
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -89,7 +86,6 @@ const extendedHexData = await processHex(hex);
       clueMap={clueMap}
       dungeons={dungeons}
       hex={extendedHexData}
-      knowledgeTrees={flatKnowledgeTrees}
       pointcrawls={pointcrawls}
       showSelfLink={false}
     />

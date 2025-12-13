@@ -15,7 +15,7 @@ Add a GM dashboard to the homepage for authenticated users with the `gm` role. T
 items:
   - text: "Process scribe todos"
     source: template
-  - text: "Update floating clues (if any were placed)"
+  - text: "Update clues (if any were placed)"
     source: template
   - text: "Update plotlines and advance countdown clocks"
     source: template

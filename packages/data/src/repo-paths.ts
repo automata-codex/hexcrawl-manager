@@ -19,7 +19,6 @@ export const REPO_PATHS = {
   HAVENS: () => getRepoPath('data', 'havens.yml'),
   HEXES: () => resolveDataPath('hexes'),
   IN_PROGRESS: () => getRepoPath('data', 'session-logs', 'in-progress'), // In-progress session logs
-  KNOWLEDGE_TREES: () => resolveDataPath('knowledge-trees'),
   LOCKS: () => getRepoPath('data', 'session-logs', '.locks'), // Lock files for sessions
   LOGS_ROOT: () => getRepoPath('data', 'session-logs'), // Root for all session logs
   META: () => getRepoPath('data', 'meta.yaml'), // Meta file for session state

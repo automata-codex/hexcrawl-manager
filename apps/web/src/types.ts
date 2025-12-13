@@ -2,7 +2,6 @@ import type {
   EncounterEntryData,
   HexData,
   HiddenSite,
-  KnowledgeNodeData,
   TreasureData,
 } from '@skyreach/schemas';
 import type { CollectionEntry } from 'astro:content';
@@ -47,18 +46,6 @@ export type EncounterCategoryTables = Record<
   string,
   Record<string, EncounterEntryData[]>
 >;
-
-export type FlatKnowledgeTree = Record<string, KnowledgeNodeData>;
-
-export type PlacementMap = Record<string, PlacementRef[]>;
-
-export interface PlacementRef {
-  type: 'hex' | 'hidden-site' | 'dungeon' | 'pointcrawl' | 'pointcrawl-node' | 'pointcrawl-edge' | 'encounter';
-  id: string;
-  label: string;
-}
-
-export type PlacementType = PlacementRef['type'];
 
 /**
  * Typed href that references content by type and ID/path

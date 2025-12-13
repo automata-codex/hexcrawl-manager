@@ -2,11 +2,8 @@
 import { getCollection, getEntry, render } from 'astro:content';
 
 import { getCluePath } from '../config/routes';
-import Unlocks from '../components/Unlocks.svelte';
-import { getFlatKnowledgeTrees } from '../utils/knowledge-trees';
 import { renderBulletMarkdown } from '../utils/markdown';
 
-const flatKnowledgeTrees = await getFlatKnowledgeTrees();
 const allClues = await getCollection('clues');
 
 import StatBlock from './StatBlock/StatBlock.astro';
@@ -127,10 +124,6 @@ const clueList = dungeonClueIds.map((clueId) => {
     </div>
   )
 }
-<Unlocks
-  knowledgeTrees={flatKnowledgeTrees}
-  unlocks={dungeon.data.unlocks ?? []}
-/>
 {
   clueList.length > 0 && (
     <p>

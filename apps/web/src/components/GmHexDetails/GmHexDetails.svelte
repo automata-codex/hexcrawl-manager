@@ -14,7 +14,6 @@
     ClueMapEntry,
     DungeonEntry,
     ExtendedHexData,
-    FlatKnowledgeTree,
     PointcrawlLink,
   } from '../../types.ts';
 
@@ -22,7 +21,6 @@
     clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
     hex: ExtendedHexData;
-    knowledgeTrees: Record<string, FlatKnowledgeTree>;
     pointcrawls?: PointcrawlLink[];
     showSelfLink?: boolean;
   }
@@ -31,7 +29,6 @@
     clueMap = {},
     dungeons,
     hex,
-    knowledgeTrees,
     pointcrawls,
     showSelfLink = true,
   }: Props = $props();
@@ -73,8 +70,8 @@
     {hex.topography}
   </p>
 {/if}
-<Landmark {hex} {knowledgeTrees} {clueMap} />
-<HiddenSites {hex} {knowledgeTrees} {clueMap} />
+<Landmark {hex} {clueMap} />
+<HiddenSites {hex} {clueMap} />
 {#if hex.secretSite}
   <div class="hanging-indent">
     <span class="inline-heading">Secret Site:</span>{' '}

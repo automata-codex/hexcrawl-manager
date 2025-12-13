@@ -5,7 +5,6 @@ import Badge from '../../../components/Badge.astro';
 import EncounterContent from '../../../components/EncounterContent.astro';
 import RoleplayBook from '../../../components/RoleplayBook/RoleplayBook.astro';
 import StatBlock from '../../../components/StatBlock/StatBlock.astro';
-import Unlocks from '../../../components/Unlocks.svelte';
 import {
   getCluePath,
   getDungeonPath,
@@ -16,7 +15,6 @@ import {
   getRegionPath,
 } from '../../../config/routes';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
-import { getFlatKnowledgeTrees } from '../../../utils/knowledge-trees';
 import { loadAugmentedEncounter } from '../../../utils/load-augmented-encounters';
 import {
   renderBulletMarkdown,
@@ -24,8 +22,6 @@ import {
 } from '../../../utils/markdown';
 
 import type { EncounterData } from '@skyreach/schemas';
-
-const flatKnowledgeTrees = await getFlatKnowledgeTrees();
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -288,10 +284,6 @@ const resolvedStatBlocks = statBlockIds
     )
   }
   </ul>
-  <Unlocks
-    knowledgeTrees={flatKnowledgeTrees}
-    unlocks={encounter.unlocks ?? []}
-  />
   {
     encounter.description && (
       <div class="summary">
