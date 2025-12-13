@@ -1,5 +1,6 @@
 import type {
   CharacterData,
+  ClueData,
   ClueReference,
   DungeonData,
   EncounterData,
@@ -28,7 +29,8 @@ export interface ClueUsageReference {
     | 'character'
     | 'npc'
     | 'plotline'
-    | 'roleplay-book';
+    | 'roleplay-book'
+    | 'linked-clue';
   id: string;
   name: string;
   hexId?: string; // For landmark/hidden-site/dream, which hex contains it
@@ -131,7 +133,8 @@ function extractClueIdsFromNotes(
 /**
  * Builds a map of clue IDs to their usage locations by scanning
  * encounters, hexes (landmarks, hidden sites, notes, keyed encounters),
- * dungeons, pointcrawl nodes, characters, NPCs, plotlines, and roleplay books.
+ * dungeons, pointcrawl nodes, characters, NPCs, plotlines, roleplay books,
+ * and linked clues.
  */
 export function buildClueUsageMap(
   encounters: Array<{ id: string; data: EncounterData }>,
@@ -145,6 +148,7 @@ export function buildClueUsageMap(
   npcs: Array<{ id: string; data: NpcData }> = [],
   plotlines: Array<{ id: string; data: PlotlineData }> = [],
   roleplayBooks: Array<{ id: string; data: RoleplayBookData }> = [],
+  clues: Array<{ id: string; data: ClueData }> = [],
 ): ClueUsageMap {
   const usageMap: ClueUsageMap = new Map();
 
@@ -297,6 +301,19 @@ export function buildClueUsageMap(
             name: `${book.data.name} (Roleplay Book)`,
           });
         }
+      }
+    }
+  }
+
+  // Scan clues for linkedClues references
+  for (const clue of clues) {
+    if (clue.data.linkedClues) {
+      for (const linkedClueId of clue.data.linkedClues) {
+        addUsage(linkedClueId, {
+          type: 'linked-clue',
+          id: clue.id,
+          name: `${clue.data.name} (Clue)`,
+        });
       }
     }
   }

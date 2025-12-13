@@ -47,6 +47,12 @@ export const ClueSchema = z
       .optional()
       .describe('Target number of placements for this clue'),
 
+    // Linked clues - revealed when this clue is discovered
+    linkedClues: z
+      .array(z.string())
+      .optional()
+      .describe('Clue IDs that are revealed when this clue is learned'),
+
     status: ClueStatusEnum.default('unknown'),
   })
   .describe('ClueSchema');

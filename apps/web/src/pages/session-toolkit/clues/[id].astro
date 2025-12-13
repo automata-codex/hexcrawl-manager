@@ -28,7 +28,7 @@ if (clueData === undefined) {
 }
 
 // Load collections needed for usage tracking
-const [encounters, hexes, dungeons, pointcrawlNodes, characters, npcs, plotlines, roleplayBooks] = await Promise.all([
+const [encounters, hexes, dungeons, pointcrawlNodes, characters, npcs, plotlines, roleplayBooks, clues] = await Promise.all([
   getCollection('encounters'),
   getCollection('hexes'),
   getCollection('dungeons'),
@@ -37,6 +37,7 @@ const [encounters, hexes, dungeons, pointcrawlNodes, characters, npcs, plotlines
   getCollection('npcs'),
   getCollection('plotlines'),
   getCollection('roleplay-books'),
+  getCollection('clues'),
 ]);
 
 // Build encounter map for resolving keyed encounter references
@@ -56,6 +57,7 @@ const usageMap = buildClueUsageMap(
   npcs,
   plotlines,
   roleplayBooks,
+  clues,
 );
 const usedIn = getClueUsage(usageMap, id);
 
