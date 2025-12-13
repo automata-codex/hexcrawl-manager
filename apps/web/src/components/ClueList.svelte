@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { initFilterFromUrl, setUrlParam } from '../utils/url-filter-state';
+
   import Badge from './Badge.svelte';
 
   interface ClueListItem {
@@ -27,13 +29,22 @@
 
   const { clues, filterOptions, plotlineNames }: Props = $props();
 
-  let searchQuery = $state('');
-  let statusFilter = $state('');
-  let factionFilter = $state('');
-  let plotlineFilter = $state('');
-  let tagFilter = $state('');
-  let usageFilter = $state('');
-  let reviewFilter = $state('');
+  let searchQuery = $state(initFilterFromUrl('search'));
+  let statusFilter = $state(initFilterFromUrl('status'));
+  let factionFilter = $state(initFilterFromUrl('faction'));
+  let plotlineFilter = $state(initFilterFromUrl('plotline'));
+  let tagFilter = $state(initFilterFromUrl('tag'));
+  let usageFilter = $state(initFilterFromUrl('usage'));
+  let reviewFilter = $state(initFilterFromUrl('review'));
+
+  // Sync filter state to URL
+  $effect(() => { setUrlParam('search', searchQuery); });
+  $effect(() => { setUrlParam('status', statusFilter); });
+  $effect(() => { setUrlParam('faction', factionFilter); });
+  $effect(() => { setUrlParam('plotline', plotlineFilter); });
+  $effect(() => { setUrlParam('tag', tagFilter); });
+  $effect(() => { setUrlParam('usage', usageFilter); });
+  $effect(() => { setUrlParam('review', reviewFilter); });
 
   let filtered = $derived(() => {
     return clues.filter((clue) => {
