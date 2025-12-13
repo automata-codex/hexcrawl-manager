@@ -5,6 +5,7 @@
 
   import type { ClueMapEntry, ExtendedHexData, ExtendedHiddenSites } from '../../types.ts';
   import type { LinkType } from '@skyreach/schemas';
+  import { sortIgnoringArticles } from '@skyreach/core';
 
   interface Props {
     clueMap?: Record<string, ClueMapEntry>;
@@ -25,11 +26,13 @@
    */
   function getSiteClues(site: ExtendedHiddenSites) {
     if (!site.clues) return [];
-    return site.clues.map((id) => ({
-      id,
-      name: clueMap?.[id]?.name ?? id,
-      found: !!clueMap?.[id],
-    }));
+    return site.clues
+      .map((id) => ({
+        id,
+        name: clueMap?.[id]?.name ?? id,
+        found: !!clueMap?.[id],
+      }))
+      .sort((a, b) => sortIgnoringArticles(a.name, b.name));
   }
 </script>
 
@@ -54,8 +57,7 @@
                 <a href={getCluePath(clue.id)}>{clue.name}</a>
               {:else}
                 <span class="has-text-danger">{clue.name} (not found)</span>
-              {/if}
-              {#if i < siteClues.length - 1}, {/if}
+              {/if}{#if i < siteClues.length - 1},{' '}{/if}
             {/each}
           </p>
         {/if}
