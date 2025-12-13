@@ -1,5 +1,5 @@
 ---
-import { getEntry, render } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import { normalizeClueRef } from '@skyreach/schemas';
 
 import SecretContent from '../../../../components/Content/SecretContent.astro';
@@ -51,8 +51,18 @@ const title = npc.name;
 const isMdx = npcData.filePath?.endsWith('.mdx') || npcData.filePath?.endsWith('.md');
 const { Content } = isMdx ? await render(npcData) : { Content: null };
 
-// Normalize clue references for display
-const clueRefs = npc.clues?.map((ref) => normalizeClueRef(ref)) ?? [];
+// Build clue ID to name map for display
+const allClues = await getCollection('clues');
+const clueNameMap = new Map(allClues.map((c) => [c.id, c.data.name]));
+
+// Normalize clue references and add names for display
+const clueRefs = npc.clues?.map((ref) => {
+  const normalized = normalizeClueRef(ref);
+  return {
+    ...normalized,
+    name: clueNameMap.get(normalized.id) ?? normalized.id,
+  };
+}) ?? [];
 ---
 
 <style>
@@ -64,11 +74,12 @@ const clueRefs = npc.clues?.map((ref) => normalizeClueRef(ref)) ?? [];
   }
 
   .npc-meta {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 
     dt {
       font-weight: bold;
       display: inline;
+      color: var(--bulma-strong-color);
     }
 
     dt::after {
@@ -88,10 +99,6 @@ const clueRefs = npc.clues?.map((ref) => normalizeClueRef(ref)) ?? [];
 
   .description {
     margin-bottom: 1.5rem;
-
-    p {
-      text-indent: var(--skyreach-standard-indent);
-    }
   }
 
   .extended-content {
@@ -121,7 +128,6 @@ const clueRefs = npc.clues?.map((ref) => normalizeClueRef(ref)) ?? [];
   <main>
     {npc.image && <img class="npc-image" src={npc.image} alt={npc.name} />}
 
-    <h1 class="title is-2">{npc.name}</h1>
     {npc.title && <p class="subtitle is-4">{npc.title}</p>}
 
     <dl class="npc-meta">
@@ -166,7 +172,7 @@ const clueRefs = npc.clues?.map((ref) => normalizeClueRef(ref)) ?? [];
           <ul>
             {clueRefs.map((clue) => (
               <li>
-                <a href={getCluePath(clue.id)}>{clue.id}</a>
+                <a href={getCluePath(clue.id)}>{clue.name}</a>
                 {clue.context && (
                   <span class="clue-context"> — {clue.context}</span>
                 )}
