@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { ClassEnum } from './class-enum';
+import { ClueReferencesSchema } from './clue-reference';
 
 export const NpcSchema = z.object({
   id: z.string(),
@@ -15,6 +16,7 @@ export const NpcSchema = z.object({
   description: z.string(),
   image: z.string().optional(),
   notes: z.array(z.string()).optional(),
+  clues: ClueReferencesSchema.describe('IDs of clues this NPC knows or can reveal'),
 });
 
 export type NpcData = z.infer<typeof NpcSchema>;

@@ -8,12 +8,14 @@ import SecretLayout from '../../../layouts/SecretLayout.astro';
 import { buildClueUsageMap } from '../../../utils/clue-usage-tracker';
 
 // Fetch clues and collections needed for usage tracking
-const [cluesData, encounters, hexes, dungeons, pointcrawlNodes, plotlines] = await Promise.all([
+const [cluesData, encounters, hexes, dungeons, pointcrawlNodes, characters, npcs, plotlines] = await Promise.all([
   getCollection('clues'),
   getCollection('encounters'),
   getCollection('hexes'),
   getCollection('dungeons'),
   getCollection('pointcrawl-nodes'),
+  getCollection('characters'),
+  getCollection('npcs'),
   getCollection('plotlines'),
 ]);
 
@@ -24,7 +26,16 @@ for (const encounter of encounters) {
 }
 
 // Build usage map
-const usageMap = buildClueUsageMap(encounters, hexes, dungeons, pointcrawlNodes, encounterMap);
+const usageMap = buildClueUsageMap(
+  encounters,
+  hexes,
+  dungeons,
+  pointcrawlNodes,
+  encounterMap,
+  characters,
+  npcs,
+  plotlines,
+);
 
 // Transform to list items
 const clues = cluesData

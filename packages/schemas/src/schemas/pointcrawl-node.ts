@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { ClueReferencesSchema } from './clue-reference';
 import { EncounterOverrideSchema } from './encounter-override';
 import { TreasureSchema } from './treasure';
 
@@ -49,10 +50,7 @@ export const PointcrawlNodeSchema = z
       .array(z.string())
       .optional()
       .describe('IDs of knowledge nodes that are unlocked at this location'),
-    clues: z
-      .array(z.string())
-      .optional()
-      .describe('IDs of clues that can be discovered at this node'),
+    clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this node'),
     naturalLight: z
       .enum(['bright', 'dim', 'none'])
       .optional()

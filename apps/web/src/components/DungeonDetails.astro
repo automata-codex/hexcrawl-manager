@@ -1,6 +1,8 @@
 ---
 import { getCollection, getEntry, render } from 'astro:content';
 
+import { normalizeClueRef } from '@skyreach/schemas';
+
 import { getCluePath } from '../config/routes';
 import { renderBulletMarkdown } from '../utils/markdown';
 
@@ -41,8 +43,9 @@ const statBlocks = dungeon.data.statBlocks
   : [];
 
 // Build clue list
-const dungeonClueIds = dungeon.data.clues ?? [];
-const clueList = dungeonClueIds.map((clueId) => {
+const dungeonClueRefs = dungeon.data.clues ?? [];
+const clueList = dungeonClueRefs.map((ref) => {
+  const { id: clueId } = normalizeClueRef(ref);
   const clue = allClues.find((c) => c.id === clueId);
   return {
     id: clueId,
