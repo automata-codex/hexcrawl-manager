@@ -6,17 +6,13 @@ import SecretContent from '../../../components/Content/SecretContent.astro';
 import GhostlyEchoes from '../../../components/GhostlyEchoes.astro';
 import GmHexDetails from '../../../components/GmHexDetails/GmHexDetails.svelte';
 import PlayerHexDetails from '../../../components/PlayerHexDetails/PlayerHexDetails.astro';
+import RandomEncountersSection from '../../../components/RandomEncountersSection.astro';
 import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
-import { loadClueLinks } from '../../../utils/clue-links';
 import { mergeEncounterOverrides } from '../../../utils/encounters';
 import { processHex } from '../../../utils/hexes';
-import { getFlatKnowledgeTrees } from '../../../utils/knowledge-trees';
 
 import type { EncounterTableData, HexData } from '@skyreach/schemas';
-
-const flatKnowledgeTrees = await getFlatKnowledgeTrees();
-const clueLinks = await loadClueLinks();
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -39,7 +35,13 @@ if (hexEntry === undefined) {
 }
 
 const dungeons = await getCollection('dungeons');
+const clues = await getCollection('clues');
 const hex: HexData = hexEntry.data;
+
+// Build clue lookup map for display
+const clueMap = Object.fromEntries(
+  clues.map((c) => [c.id, { id: c.id, name: c.data.name }])
+);
 const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
 
 // Find pointcrawls accessible from this hex
@@ -59,8 +61,16 @@ if (region) {
 }
 encounterChance = hex.encounterChance ?? encounterChance;
 
-if (encounters && hex.encounterOverrides) {
-  encounters = mergeEncounterOverrides(encounters, hex.encounterOverrides);
+if (hex.encounterOverrides) {
+  if (encounters) {
+    encounters = mergeEncounterOverrides(encounters, hex.encounterOverrides);
+  } else if (hex.encounterOverrides.mainTable && hex.encounterOverrides.categoryTables) {
+    // Use hex overrides as the full table when no region base exists
+    encounters = {
+      mainTable: hex.encounterOverrides.mainTable,
+      categoryTables: hex.encounterOverrides.categoryTables as EncounterTableData['categoryTables'],
+    };
+  }
 }
 
 const extendedHexData = await processHex(hex);
@@ -73,14 +83,20 @@ const extendedHexData = await processHex(hex);
   <SecretContent>
     <GmHexDetails
       client:load
-      clueLinks={clueLinks}
+      clueMap={clueMap}
       dungeons={dungeons}
       hex={extendedHexData}
-      knowledgeTrees={flatKnowledgeTrees}
       pointcrawls={pointcrawls}
       showSelfLink={false}
     />
-    {!hex.hideRandomEncounters && (
+    {!hex.hideRandomEncounters && region && (
+      <RandomEncountersSection
+        region={region.data}
+        encounters={encounters}
+        encounterChance={encounterChance}
+      />
+    )}
+    {!hex.hideRandomEncounters && !region && encounters && (
       <>
         <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
         <p>

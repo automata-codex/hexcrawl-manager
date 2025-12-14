@@ -8,9 +8,7 @@ import { ClassSchema } from '../schemas/class.js';
 import { EncounterTableSchema } from '../schemas/encounter-table.js';
 import { EncounterSchema } from '../schemas/encounter.js';
 import { FactionListSchema } from '../schemas/faction.js';
-import { FloatingClueSchema } from '../schemas/floating-clue.js';
 import { HexSchema } from '../schemas/hex.js';
-import { KnowledgeNodeSchema } from '../schemas/knowledge-node.js';
 import { LootPackListSchema } from '../schemas/loot-pack.js';
 import { MapPathSchema } from '../schemas/map-path.js';
 import { NpcSchema } from '../schemas/npc.js';
@@ -24,7 +22,6 @@ import { SupplementListSchema } from '../schemas/supplement-list.js';
 import { TrailSchema } from '../schemas/trails.js';
 import { TreasureSchema } from '../schemas/treasure.js';
 import { UnusedHiddenSiteListSchema } from '../schemas/unused-hidden-site.js';
-import { ZoneSchema } from '../schemas/zone.js';
 
 const apLedgerFile = new URL('../schemas/ap-ledger.json', import.meta.url);
 writeFileSync(
@@ -71,26 +68,8 @@ writeFileSync(
   JSON.stringify(zodToJsonSchema(FactionListSchema), null, 2),
 );
 
-const floatingClueFile = new URL(
-  '../schemas/floating-clue.json',
-  import.meta.url,
-);
-writeFileSync(
-  floatingClueFile,
-  JSON.stringify(zodToJsonSchema(FloatingClueSchema), null, 2),
-);
-
 const hexFile = new URL('../schemas/hex.json', import.meta.url);
 writeFileSync(hexFile, JSON.stringify(zodToJsonSchema(HexSchema), null, 2));
-
-const knowledgeNodeFile = new URL(
-  '../schemas/knowledge-node.json',
-  import.meta.url,
-);
-writeFileSync(
-  knowledgeNodeFile,
-  JSON.stringify(zodToJsonSchema(KnowledgeNodeSchema), null, 2),
-);
 
 const lootPackFile = new URL('../schemas/loot-pack.json', import.meta.url);
 writeFileSync(
@@ -172,6 +151,3 @@ writeFileSync(
   unusedHiddenSiteFile,
   JSON.stringify(zodToJsonSchema(UnusedHiddenSiteListSchema), null, 2),
 );
-
-const zoneFile = new URL('../schemas/zone.json', import.meta.url);
-writeFileSync(zoneFile, JSON.stringify(zodToJsonSchema(ZoneSchema), null, 2));

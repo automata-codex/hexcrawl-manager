@@ -1,13 +1,13 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 
+import Badge from '../../../components/Badge.astro';
 import EncounterContent from '../../../components/EncounterContent.astro';
 import RoleplayBook from '../../../components/RoleplayBook/RoleplayBook.astro';
 import StatBlock from '../../../components/StatBlock/StatBlock.astro';
-import Unlocks from '../../../components/Unlocks.svelte';
 import {
+  getCluePath,
   getDungeonPath,
-  getFloatingCluePath,
   getHexPath,
   getPointcrawlEdgePath,
   getPointcrawlNodePath,
@@ -15,17 +15,13 @@ import {
   getRegionPath,
 } from '../../../config/routes';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
-import { getFlatKnowledgeTrees } from '../../../utils/knowledge-trees';
 import { loadAugmentedEncounter } from '../../../utils/load-augmented-encounters';
 import {
   renderBulletMarkdown,
   renderMarkdown,
 } from '../../../utils/markdown';
 
-import type { FloatingClueEntry } from '../../../types';
-import type { EncounterData } from '@skyreach/schemas';
-
-const flatKnowledgeTrees = await getFlatKnowledgeTrees();
+import { type EncounterData, normalizeClueRef } from '@skyreach/schemas';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -54,7 +50,7 @@ const augmentedEncounter = await loadAugmentedEncounter(id);
 const creatureTypes = augmentedEncounter?.data.creatureTypes || [];
 const usedIn = augmentedEncounter?.data.usedIn || [];
 const statBlocks = await getCollection('statBlocks');
-const floatingClues = await getCollection('floatingClues');
+const clues = await getCollection('clues');
 
 const title = `Encounter: ${await renderBulletMarkdown(encounter.name)}`;
 
@@ -85,14 +81,15 @@ const pointcrawlEdgeList = pointcrawlEdgesUsing
   .map((ref) => `<a href=${getPointcrawlEdgePath(ref.id)}>${ref.name}</a>`)
   .join(', ');
 
-// Floating clues are not tracked in usedIn, so check manually
-const floatingCluesUsingEncounter = floatingClues.filter((clue) =>
-  clue.data.encounters?.includes(id),
-);
-const floatingClueList = floatingCluesUsingEncounter
-  .map(
-    (clue) => `<a href=${getFloatingCluePath(clue.id)}>${clue.data.name}</a>`,
-  )
+// Build list of clues that can be revealed by this encounter
+const encounterClueRefs = encounter.clues ?? [];
+const clueList = encounterClueRefs
+  .map((ref) => {
+    const { id: clueId } = normalizeClueRef(ref);
+    const clue = clues.find((c) => c.id === clueId);
+    if (!clue) return `<span class="has-text-danger">${clueId} (not found)</span>`;
+    return `<a href="${getCluePath(clueId)}">${clue.data.name}</a>`;
+  })
   .join(', ');
 
 // Get all roleplay books
@@ -107,6 +104,17 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   // Check if any stat block ID contains keyword
   return statBlockIds.some((statBlockId) => statBlockId.includes(keyword));
 });
+
+// Resolve and sort stat blocks by CR (lowest to highest)
+const resolvedStatBlocks = statBlockIds
+  .map((statBlockId: string) => {
+    const statBlock = statBlocks.find((sb) => sb.id === statBlockId);
+    if (!statBlock) {
+      throw new Error(`Stat block not found: ${statBlockId}`);
+    }
+    return statBlock;
+  })
+  .sort((a, b) => (a.data.cr ?? 0) - (b.data.cr ?? 0));
 ---
 
 <style is:global>
@@ -161,94 +169,6 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
     gap: 0.25rem;
   }
 
-  .badge {
-    display: inline-block;
-    padding: 0.125rem 0.5rem;
-    background: var(--bulma-scheme-main-ter);
-    border-radius: 3px;
-    font-size: 0.875rem;
-  }
-
-  .badge.scope {
-    background: #dbeafe;
-    color: #1e40af;
-  }
-
-  .badge.location {
-    background: #dcfce7;
-    color: #166534;
-  }
-
-  .badge.faction {
-    background: #ffedd5;
-    color: #c2410c;
-  }
-
-  .badge.creature {
-    background: #f3e8ff;
-    color: #7e22ce;
-  }
-
-  .badge.lead {
-    background: #fce7f3;
-    color: #9d174d;
-    font-weight: 600;
-  }
-
-  /* Dark mode - explicit theme selection */
-  :global(html[data-theme='dark']) .badge.scope {
-    background: #1e3a5f;
-    color: #93c5fd;
-  }
-
-  :global(html[data-theme='dark']) .badge.location {
-    background: #14532d;
-    color: #86efac;
-  }
-
-  :global(html[data-theme='dark']) .badge.faction {
-    background: #7c2d12;
-    color: #fdba74;
-  }
-
-  :global(html[data-theme='dark']) .badge.creature {
-    background: #581c87;
-    color: #d8b4fe;
-  }
-
-  :global(html[data-theme='dark']) .badge.lead {
-    background: #831843;
-    color: #fbcfe8;
-  }
-
-  /* Dark mode - system preference when no explicit theme */
-  @media (prefers-color-scheme: dark) {
-    :global(html:not([data-theme])) .badge.scope {
-      background: #1e3a5f;
-      color: #93c5fd;
-    }
-
-    :global(html:not([data-theme])) .badge.location {
-      background: #14532d;
-      color: #86efac;
-    }
-
-    :global(html:not([data-theme])) .badge.faction {
-      background: #7c2d12;
-      color: #fdba74;
-    }
-
-    :global(html:not([data-theme])) .badge.creature {
-      background: #581c87;
-      color: #d8b4fe;
-    }
-
-    :global(html:not([data-theme])) .badge.lead {
-      background: #831843;
-      color: #fbcfe8;
-    }
-  }
-
   .cross-reference-list {
     margin-bottom: 1rem;
   }
@@ -266,13 +186,13 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
         {encounter.scope && (
           <div class="taxonomy-item">
             <span class="taxonomy-label">Scope:</span>
-            <span class="badge scope">{encounter.scope}</span>
+            <Badge color="blue">{encounter.scope}</Badge>
           </div>
         )}
 
         {encounter.isLead && (
           <div class="taxonomy-item">
-            <span class="badge lead">Lead</span>
+            <Badge color="pink" bold>Lead</Badge>
           </div>
         )}
 
@@ -281,7 +201,7 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
             <span class="taxonomy-label">Location:</span>
             <div class="taxonomy-badges">
               {encounter.locationTypes.map((type) => (
-                <span class="badge location">{type}</span>
+                <Badge color="green">{type}</Badge>
               ))}
             </div>
           </div>
@@ -292,7 +212,7 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
             <span class="taxonomy-label">Factions:</span>
             <div class="taxonomy-badges">
               {encounter.factions.map((faction) => (
-                <span class="badge faction">{faction}</span>
+                <Badge color="orange">{faction}</Badge>
               ))}
             </div>
           </div>
@@ -303,7 +223,7 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
             <span class="taxonomy-label">Creatures:</span>
             <div class="taxonomy-badges">
               {creatureTypes.map((type) => (
-                <span class="badge creature">{type}</span>
+                <Badge color="purple">{type}</Badge>
               ))}
             </div>
           </div>
@@ -314,10 +234,10 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
 
   <ul class="cross-reference-list">
   {
-    floatingClueList.length > 0 && (
+    clueList.length > 0 && (
       <li>
-        <strong>Floating Clues</strong> using this encounter:{' '}
-        <Fragment set:html={floatingClueList} />
+        <strong>Clues</strong> in this encounter:{' '}
+        <Fragment set:html={clueList} />
       </li>
     )
   }
@@ -365,10 +285,6 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
     )
   }
   </ul>
-  <Unlocks
-    knowledgeTrees={flatKnowledgeTrees}
-    unlocks={encounter.unlocks ?? []}
-  />
   {
     encounter.description && (
       <div class="summary">
@@ -396,15 +312,9 @@ const matchedRoleplayBooks = allRoleplayBooks.filter((book) => {
   </div>
   <div class="stat-block-container">
     {
-      statBlockIds.map((statBlockId: string) => {
-        const statBlock = statBlocks.find(
-          (statBlock) => statBlock.id === statBlockId,
-        );
-        if (!statBlock) {
-          throw new Error(`Stat block not found: ${statBlockId}`);
-        }
-        return <StatBlock data={statBlock.data} />;
-      })
+      resolvedStatBlocks.map((statBlock) => (
+        <StatBlock data={statBlock.data} />
+      ))
     }
   </div>
 </SecretArticleLayout>

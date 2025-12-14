@@ -1,0 +1,80 @@
+---
+import { getCollection } from 'astro:content';
+import { sortIgnoringArticles } from '@skyreach/core';
+import type { EncounterData } from '@skyreach/schemas';
+
+import ClueList from '../../../components/ClueList.svelte';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { buildClueUsageMap } from '../../../utils/clue-usage-tracker';
+
+// Fetch clues and collections needed for usage tracking
+const [cluesData, encounters, hexes, dungeons, pointcrawlNodes, characters, npcs, plotlines, roleplayBooks] = await Promise.all([
+  getCollection('clues'),
+  getCollection('encounters'),
+  getCollection('hexes'),
+  getCollection('dungeons'),
+  getCollection('pointcrawl-nodes'),
+  getCollection('characters'),
+  getCollection('npcs'),
+  getCollection('plotlines'),
+  getCollection('roleplay-books'),
+]);
+
+// Build encounter map for resolving keyed encounter references
+const encounterMap = new Map<string, EncounterData>();
+for (const encounter of encounters) {
+  encounterMap.set(encounter.id, encounter.data);
+}
+
+// Build usage map
+const usageMap = buildClueUsageMap(
+  encounters,
+  hexes,
+  dungeons,
+  pointcrawlNodes,
+  encounterMap,
+  characters,
+  npcs,
+  plotlines,
+  roleplayBooks,
+  cluesData,
+);
+
+// Transform to list items
+const clues = cluesData
+  .map((c) => {
+    const placementCount = (usageMap.get(c.id) ?? []).length;
+    const minPlacements = c.data.minPlacements;
+    return {
+      id: c.id,
+      name: c.data.name,
+      summary: c.data.summary,
+      status: c.data.status,
+      factions: c.data.factions ?? [],
+      plotlines: c.data.plotlines ?? [],
+      tags: c.data.tags ?? [],
+      isUsed: placementCount > 0,
+      needsReview: minPlacements !== undefined && placementCount < minPlacements,
+    };
+  })
+  .sort((a, b) => sortIgnoringArticles(a.name, b.name));
+
+// Extract unique filter options
+const filterOptions = {
+  factions: [...new Set(clues.flatMap((c) => c.factions))].sort(),
+  plotlines: [...new Set(clues.flatMap((c) => c.plotlines))].sort(),
+  tags: [...new Set(clues.flatMap((c) => c.tags))].sort(),
+};
+
+// Create plotline ID to name map for display
+const plotlineNames = Object.fromEntries(plotlines.map((p) => [p.id, p.data.title]));
+---
+
+<SecretLayout title="Clues">
+  <ClueList
+    client:load
+    clues={clues}
+    filterOptions={filterOptions}
+    plotlineNames={plotlineNames}
+  />
+</SecretLayout>

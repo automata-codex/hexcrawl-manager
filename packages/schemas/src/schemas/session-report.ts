@@ -23,6 +23,14 @@ const DowntimeSchema = z.object({
   notes: z.string().optional(),
 });
 
+const TodoItemSchema = z.object({
+  text: z.string(),
+  status: z.enum(['pending', 'done']),
+  source: z.enum(['template', 'scribe']).optional(),
+});
+
+export type TodoItem = z.infer<typeof TodoItemSchema>;
+
 const GuestCharacter = z.object({
   characterName: z.string(),
   playerName: z.string(),
@@ -46,12 +54,13 @@ const SessionHeader = z.object({
   sessionDate: z.string().default(''), // real-world YYYY-MM-DD; blank in planned, set on completion
   source: z.enum(['scribe', 'import']).default('scribe'),
   createdAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime().optional(),
 });
 
 // Planning-time fields (no AP, no characterIds)
 const PlannedSessionReport = SessionHeader.extend({
   status: z.literal('planned'),
-  agenda: z.array(z.string()).default([]).optional(),
+  agenda: z.string().optional(), // Markdown text with bullet lists
   gmNotes: z.string().optional(),
 });
 
@@ -67,7 +76,7 @@ const CompletedSessionReport = SessionHeader.extend({
   fingerprint: z.string(),
   gameEndDate: z.string().default(''),
   notes: z.array(z.string()).default([]),
-  todo: z.array(z.string()).default([]),
+  todo: z.array(TodoItemSchema).default([]),
   weave: z.object({
     appliedAt: z.string().datetime(),
     version: z.string(),

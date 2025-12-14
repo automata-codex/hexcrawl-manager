@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { ClueReferencesSchema } from './clue-reference';
 import { EncounterOverrideSchema } from './encounter-override';
 import { LinkTypeEnum } from './roleplay-book';
 import { TreasureSchema } from './treasure';
@@ -28,6 +29,20 @@ const BiomeEnum = z.enum([
   'Unknown',
 ]);
 
+export const TerrainEnum = z.enum([
+  'glacier',
+  'highland-bog',
+  'hills',
+  'marsh',
+  'moors',
+  'mountains',
+  'peak',
+  'plains',
+  'rocky-highland',
+  'swamp',
+  'water',
+]);
+
 export const HexId = z
   .string()
   .toLowerCase()
@@ -43,6 +58,7 @@ const BaseHiddenSiteSchema = z.object({
     .array(z.string())
     .optional()
     .describe('IDs of knowledge nodes that are unlocked by this site'),
+  clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this site'),
 });
 
 /**
@@ -125,12 +141,12 @@ export const HiddenSitesSchema = z.union([
 export const KnownTagEnum = z.enum([
   'crystal-bounty',
   'dungeon',
-  'settlement',
+  'settlement', // A settlement with the infrastructure to potentially become a haven
   'dragon-ruins',
   'fc-city',
   'fc-ruins',
   'goblin-ruins',
-  'haven',
+  'haven', // An established haven that is available to the party
   'landmark-known',
   'scar-site',
 ]);
@@ -142,9 +158,31 @@ export const LandmarkSchema = z.object({
     .array(z.string())
     .optional()
     .describe('IDs of knowledge nodes that are unlocked by this site'),
+  clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this landmark'),
 });
 
 export const TagSchema = z.union([KnownTagEnum, z.string()]);
+
+export const KeyedEncounterTriggerEnum = z.enum(['entry', 'exploration']);
+
+export const KeyedEncounterSchema = z.object({
+  encounterId: z.string(),
+  trigger: KeyedEncounterTriggerEnum,
+  notes: z.string().optional().describe('GM notes about when/how this triggers'),
+});
+
+export type KeyedEncounter = z.infer<typeof KeyedEncounterSchema>;
+export type KeyedEncounterTrigger = z.infer<typeof KeyedEncounterTriggerEnum>;
+
+export const GmNoteSchema = z.union([
+  z.string(),
+  z.object({
+    description: z.string(),
+    clueId: z.string().optional().describe('If this note reveals a clue (e.g., a dream)'),
+  }),
+]);
+
+export type GmNote = z.infer<typeof GmNoteSchema>;
 
 export const HexSchema = z
   .object({
@@ -169,10 +207,14 @@ export const HexSchema = z
       .boolean()
       .optional()
       .describe('When true, hides the random encounter table in the hex detail display'),
-    notes: z
-      .array(z.string())
+    keyedEncounters: z
+      .array(KeyedEncounterSchema)
       .optional()
-      .describe('Private GM eyes-only notes'),
+      .describe('Encounters that trigger under specific conditions in this hex'),
+    notes: z
+      .array(GmNoteSchema)
+      .optional()
+      .describe('Private GM eyes-only notes; can include dream-clues with linked clue IDs'),
     updates: z
       .array(z.string())
       .optional()
@@ -181,13 +223,12 @@ export const HexSchema = z
       .array(TagSchema)
       .optional()
       .describe('Tags for filtering hexes, matching clues, etc.'),
-    terrain: z.string(),
-    vegetation: z
+    terrain: TerrainEnum,
+    biome: BiomeEnum,
+    topography: z
       .string()
       .optional()
-      .describe('Deprecated: use `biome` instead'),
-    biome: BiomeEnum,
-    elevation: z.number().int().describe('Weighted average elevation in feet'),
+      .describe('Free-text description of elevation and terrain features'),
   })
   .describe('HexSchema');
 

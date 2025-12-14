@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getStatBlockPath } from '../config/routes.ts';
+  import { initFilterFromUrl, setUrlParam } from '../utils/url-filter-state';
 
   interface Entry {
     type: 'group' | 'single';
@@ -14,8 +15,12 @@
 
   const { entries }: Props = $props();
 
-  let search = $state('');
-  let typeFilter = $state('');
+  let search = $state(initFilterFromUrl('search'));
+  let typeFilter = $state(initFilterFromUrl('type'));
+
+  // Sync filter state to URL
+  $effect(() => { setUrlParam('search', search); });
+  $effect(() => { setUrlParam('type', typeFilter); });
 
   let filtered = $derived(() => {
     const matchesFilter = (e: Entry) =>
@@ -72,12 +77,12 @@
 </div>
 
 <ul class="stat-block-index">
-  {#each filtered() as item}
+  {#each filtered() as item (item.label)}
     {#if item.type === 'group'}
       <li>
         <strong>{item.label}</strong>
         <ul>
-          {#each getSortedEntries(item.entries ?? []) as entry}
+          {#each getSortedEntries(item.entries ?? []) as entry (entry.id)}
             <li><a href={getStatBlockPath(entry.id)}>{entry.data.name}</a></li>
           {/each}
         </ul>

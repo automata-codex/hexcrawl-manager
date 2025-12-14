@@ -3,8 +3,21 @@ import { hexSort as hexIdSort } from '@skyreach/core';
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
 
-import type { ExtendedHexData, ExtendedHiddenSites, ExtendedTreasureData } from '../types.ts';
-import type { HexData, HiddenSite } from '@skyreach/schemas';
+import type { ExtendedGmNote, ExtendedHexData, ExtendedHiddenSites } from '../types.ts';
+import type { GmNote, HexData, HiddenSite } from '@skyreach/schemas';
+
+/**
+ * Process a GM note into extended format with rendered markdown and optional clueId.
+ */
+async function processGmNote(note: GmNote): Promise<ExtendedGmNote> {
+  if (typeof note === 'string') {
+    return { content: await renderBulletMarkdown(note) };
+  }
+  return {
+    content: await renderBulletMarkdown(note.description),
+    clueId: note.clueId,
+  };
+}
 
 export function getHexSvgPath(x: number, y: number, hexWidth: number): string {
   const size = hexWidth / 2;
@@ -39,9 +52,7 @@ export async function processHex(hex: HexData): Promise<ExtendedHexData> {
     renderedHiddenSites: await Promise.all(
       renderHiddenSites(hex.hiddenSites ?? []),
     ),
-    renderedNotes: await Promise.all(
-      hex.notes?.map(renderBulletMarkdown) ?? [],
-    ),
+    renderedNotes: await Promise.all(hex.notes?.map(processGmNote) ?? []),
     renderedLandmark: await renderBulletMarkdown(landmark),
     renderedSecretSite: await renderBulletMarkdown(hex.secretSite ?? ''),
     renderedUpdates: await Promise.all(

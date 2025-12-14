@@ -4,15 +4,14 @@ import {
   CharacterSchema,
   type ClassData,
   ClassSchema,
+  ClueSchema,
   CompositeArticleSchema,
   DungeonDataSchema,
   EncounterCategoryTableSchema,
   EncounterSchema,
   type FactionData,
   FactionSchema,
-  FloatingClueSchema,
   HexSchema,
-  KnowledgeNodeSchema,
   type LootPackData,
   LootPackSchema,
   MapPathSchema,
@@ -20,6 +19,7 @@ import {
   NpcSchema,
   type PlayerData,
   PlayerSchema,
+  PlotlineSchema,
   PointcrawlEdgeSchema,
   PointcrawlNodeSchema,
   PointcrawlSchema,
@@ -50,19 +50,19 @@ const DIRS = {
   BOUNTIES: `${DATA_DIR}/bounties`,
   CHARACTERS: `${DATA_DIR}/characters`,
   CLASSES: `${DATA_DIR}/classes`,
+  CLUES: `${DATA_DIR}/clues`,
   COMPOSITE_ARTICLES: `${DATA_DIR}/composite-articles`,
   DUNGEONS: `${DATA_DIR}/dungeons`,
   ENCOUNTER_CATEGORY_TABLES: `${DATA_DIR}/encounter-category-tables`,
   ENCOUNTERS: `${DATA_DIR}/encounters`,
   FACTIONS: `${DATA_DIR}/factions`,
-  FLOATING_CLUES: `${DATA_DIR}/floating-clues`,
   GM_NOTES: `${DATA_DIR}/gm-notes`,
   HEXES: `${DATA_DIR}/hexes`,
-  KNOWLEDGE_TREES: `${DATA_DIR}/knowledge-trees`,
   LOOT_PACKS: `${DATA_DIR}/loot-packs`,
   MAP_PATHS: `${DATA_DIR}/map-paths`,
   NPCS: `${DATA_DIR}/npcs`,
   PLAYERS: `${DATA_DIR}/players`,
+  PLOTLINES: `${DATA_DIR}/plotlines`,
   POINTCRAWLS: `${DATA_DIR}/pointcrawls`,
   POINTCRAWL_EDGES: `${DATA_DIR}/pointcrawl-edges`,
   POINTCRAWL_NODES: `${DATA_DIR}/pointcrawl-nodes`,
@@ -128,6 +128,11 @@ const classes = defineCollection({
   schema: ClassSchema,
 });
 
+const clues = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.CLUES }),
+  schema: ClueSchema,
+});
+
 const compositeArticles = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.COMPOSITE_ARTICLES }),
   schema: CompositeArticleSchema,
@@ -153,19 +158,9 @@ const factions = defineCollection({
   schema: FactionSchema,
 });
 
-const floatingClues = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.FLOATING_CLUES }),
-  schema: FloatingClueSchema,
-});
-
 const hexes = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.HEXES }),
   schema: HexSchema,
-});
-
-const knowledgeTrees = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.KNOWLEDGE_TREES }),
-  schema: KnowledgeNodeSchema,
 });
 
 const lootPacks = defineCollection({
@@ -179,13 +174,18 @@ const mapPaths = defineCollection({
 });
 
 const npcs = defineCollection({
-  loader: getDirectoryYamlLoader<NpcData>(DIRS.NPCS),
+  loader: glob({ pattern: '**/*.{yaml,yml,md,mdx}', base: DIRS.NPCS }),
   schema: NpcSchema,
 });
 
 const players = defineCollection({
   loader: getDirectoryYamlLoader<PlayerData>(DIRS.PLAYERS),
   schema: PlayerSchema,
+});
+
+const plotlines = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.PLOTLINES }),
+  schema: PlotlineSchema,
 });
 
 const pointcrawls = defineCollection({
@@ -253,18 +253,18 @@ export const collections = {
   bounties,
   characters,
   classes,
+  clues,
   'composite-articles': compositeArticles,
   dungeons,
   'encounter-category-tables': encounterCategoryTables,
   encounters,
   factions,
-  floatingClues,
   hexes,
-  'knowledge-trees': knowledgeTrees,
   'loot-packs': lootPacks,
   'map-paths': mapPaths,
   npcs,
   players,
+  plotlines,
   pointcrawls,
   'pointcrawl-edges': pointcrawlEdges,
   'pointcrawl-nodes': pointcrawlNodes,

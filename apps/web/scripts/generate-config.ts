@@ -104,10 +104,6 @@ export function getEncounterPath(encounterId: string): string {
   return getCollectionItemPath(ROUTES.gmReference.encounters as CollectionRoute, encounterId);
 }
 
-export function getFloatingCluePath(floatingClueId: string): string {
-  return getCollectionItemPath(ROUTES.sessionToolkit.clues.floatingClues as CollectionRoute, floatingClueId);
-}
-
 export function getHexPath(hexId: string): string {
   return getCollectionItemPath(ROUTES.sessionToolkit.hexes as CollectionRoute, hexId).toLowerCase();
 }
@@ -134,20 +130,6 @@ export function getStatBlockPath(statBlockId: string): string {
 
 export function getCharacterPath(characterId: string): string {
   return getCollectionItemPath(ROUTES.gmReference.characters as CollectionRoute, characterId);
-}
-
-export function getKnowledgeTreePath(treeId: string): string {
-  return getCollectionItemPath(ROUTES.gmReference.knowledgeTrees as CollectionRoute, treeId);
-}
-
-/**
- * Get path for a specific knowledge tree node.
- * @param nodeKey - Dot-separated node key (e.g., "crystals.tier1.plant_growth")
- * @returns URL path (e.g., "/gm-reference/knowledge-trees/crystals/tier1/plant_growth")
- */
-export function getKnowledgeNodePath(nodeKey: string): string {
-  const pathSegments = nodeKey.split('.');
-  return \`/gm-reference/knowledge-trees/\${pathSegments.join('/')}\`;
 }
 
 export function getPointcrawlPath(pointcrawlSlug: string): string {
@@ -178,6 +160,18 @@ export function getSpellPath(spellId: string): string {
 
 export function getBountyPath(bountyId: string): string {
   return getCollectionItemPath(ROUTES.playersReference.setting.bountyBoard as CollectionRoute, bountyId);
+}
+
+export function getNpcPath(npcId: string): string {
+  return getCollectionItemPath(ROUTES.playersReference.setting.npcs as CollectionRoute, npcId);
+}
+
+export function getCluePath(clueId: string): string {
+  return getCollectionItemPath(ROUTES.sessionToolkit.clues.unified as CollectionRoute, clueId);
+}
+
+export function getPlotlinePath(plotlineId: string): string {
+  return getCollectionItemPath(ROUTES.gmReference.plotlines as CollectionRoute, plotlineId);
 }
 
 // Note: Server-side path resolution helpers (getArticlePath, getCompositePath, resolvePath)

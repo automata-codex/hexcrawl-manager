@@ -47,7 +47,7 @@ export function makePlannedSessionReport(opts: { n: number }): SessionReport {
     scribeIds: [],
     sessionDate: '', // blank for planned
     source: 'scribe',
-    agenda: [],
+    agenda: '',
     gmNotes: '',
   } satisfies SessionReport;
 }

@@ -10,7 +10,6 @@ export const LinkTypeEnum = z.enum([
   'encounter',
   'faction',
   'hex',
-  'knowledge-node',
   'region',
 ]);
 export type LinkType = z.infer<typeof LinkTypeEnum>;

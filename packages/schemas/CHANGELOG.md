@@ -1,5 +1,23 @@
 # @skyreach/schemas
 
+## 4.0.0
+
+### Major Changes
+
+- ec7e954: Clean up and prune dead and deprecated code
+  - @skyreach/data: Update repo paths
+  - @skyreach/schemas: **BREAKING CHANGE:** Remove deprecated schemas
+  - @skyreach/web: Remove dead code
+- 0b6649c: - **BREAKING CHANGE:** Remove deprecated fields `vegetation` and `elevation` from hex schema
+  - **Content Update:** Remove explicit `elevation` field and use free text `topography` field instead
+
+### Minor Changes
+
+- f83daea: Add GM dashboard
+- 4978f44: **Content Update:** Add "herald encounters" for regions
+- 7eb674e: Add new information architecture for clues
+- 89c8f82: **Content Update:** Build out region 29
+
 ## 3.3.0
 
 ### Minor Changes

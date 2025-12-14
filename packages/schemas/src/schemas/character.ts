@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { ClassEnum } from './class-enum';
+import { ClueReferencesSchema } from './clue-reference';
 
 const CharacterLifecycleReason = z.enum([
   'archived',
@@ -38,6 +39,7 @@ export const CharacterSchema = z.object({
   goals: z.string().optional(), // GM-only goals in Markdown
   notes: z.string().optional(), // GM-only notes in Markdown
   lifecycle: CharacterLifecycle.optional(),
+  clues: ClueReferencesSchema.describe('IDs of clues placed in this character (backstory, knowledge, etc.)'),
 });
 
 export type CharacterData = z.infer<typeof CharacterSchema>;

@@ -2,15 +2,15 @@
 import type { CollectionEntry } from 'astro:content';
 import { getCollection } from 'astro:content';
 
-import type { EncounterTableData } from '@skyreach/schemas';
+import { type EncounterTableData, normalizeClueRef } from '@skyreach/schemas';
 
+import Badge from '../Badge.astro';
+import { getCluePath } from '../../config/routes';
 import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
-import Unlocks from '../Unlocks.svelte';
 import { mergeEncounterOverrides } from '../../utils/encounters';
-import { getFlatKnowledgeTrees } from '../../utils/knowledge-trees';
 
-const flatKnowledgeTrees = await getFlatKnowledgeTrees();
 const allEncounters = await getCollection('encounters');
+const allClues = await getCollection('clues');
 
 interface ConnectedEdgeInfo {
   id: string;
@@ -44,6 +44,18 @@ if (encounters && node.data.encounterOverrides) {
 
 // Node-specific encounter chance takes precedence
 encounterChance = node.data.encounterChance ?? encounterChance;
+
+// Build clue list
+const nodeClueRefs = node.data.clues ?? [];
+const clueList = nodeClueRefs.map((ref) => {
+  const { id: clueId } = normalizeClueRef(ref);
+  const clue = allClues.find((c) => c.id === clueId);
+  return {
+    id: clueId,
+    name: clue?.data.name ?? clueId,
+    found: !!clue,
+  };
+});
 ---
 
 <style>
@@ -59,16 +71,6 @@ encounterChance = node.data.encounterChance ?? encounterChance;
     min-width: 200px;
   }
 
-  .entry-badge {
-    display: inline-block;
-    background: var(--bulma-success);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    margin-left: 0.5rem;
-  }
-
   .level-info {
     color: var(--bulma-text-light);
   }
@@ -79,13 +81,6 @@ encounterChance = node.data.encounterChance ?? encounterChance;
 
   .content-section {
     margin: 1rem 0;
-  }
-
-  .slot-content {
-    h2 { font-size: var(--bulma-size-4); }
-    h3 { font-size: var(--bulma-size-5); }
-    h4 { font-size: var(--bulma-size-6); }
-    h5 { font-size: var(--bulma-size-7); }
   }
 
   .connections-section {
@@ -126,7 +121,7 @@ encounterChance = node.data.encounterChance ?? encounterChance;
   <div class="node-meta">
     <p>
       {node.data.level !== undefined && <span class="level-info">Level {node.data.level}</span>}
-      {node.data.isEntry && <span class="entry-badge">Entry Point</span>}
+      {node.data.isEntry && <Badge color="success">Entry Point</Badge>}
     </p>
     {(node.data.naturalLight || node.data.internalLight) && (
       <>
@@ -168,11 +163,23 @@ encounterChance = node.data.encounterChance ?? encounterChance;
   <p class="entry-conditions"><strong>Entry Conditions:</strong> {node.data.entryConditions}</p>
 )}
 
-<Unlocks
-  client:load
-  knowledgeTrees={flatKnowledgeTrees}
-  unlocks={node.data.unlocks ?? []}
-/>
+{
+  clueList.length > 0 && (
+    <p>
+      <strong>Clues</strong> at this location:{' '}
+      {clueList.map((clue, i) => (
+        <>
+          {clue.found ? (
+            <a href={getCluePath(clue.id)}>{clue.name}</a>
+          ) : (
+            <span class="has-text-danger">{clue.name} (not found)</span>
+          )}
+          {i < clueList.length - 1 && ', '}
+        </>
+      ))}
+    </p>
+  )
+}
 
 {
   node.data.treasure && node.data.treasure.length > 0 && (
@@ -226,7 +233,6 @@ encounterChance = node.data.encounterChance ?? encounterChance;
 }
 
 <div class="content-section">
-  <h2 class="title is-3">Description</h2>
   <div class="slot-content">
     <slot />
   </div>

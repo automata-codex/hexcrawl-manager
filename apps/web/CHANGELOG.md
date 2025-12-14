@@ -1,5 +1,35 @@
 # @skyreach/web
 
+## 3.5.0
+
+### Minor Changes
+
+- f524d90: **Content Update:** Add details to crystals knowledge tree
+- b5bf065: Curate/audit clues:
+  - Add links and displays
+  - **Conent Update:** Remove unused clues, place remaining clues
+- 3ce30cd: **Content Update:** Add dungeons for region 16
+- f83daea: Add GM dashboard
+- 4978f44: **Content Update:** Add "herald encounters" for regions
+- 493e50a: Improve Clue UI
+- 1eb7800: **Content Update:** Migrate knowledge trees to clues
+- 7eb674e: Add new information architecture for clues
+- 44022a0: **Content Update:** Add initial plotlines
+- ec7e954: Clean up and prune dead and deprecated code
+  - @skyreach/data: Update repo paths
+  - @skyreach/schemas: **BREAKING CHANGE:** Remove deprecated schemas
+  - @skyreach/web: Remove dead code
+- c789750: Remove "objectives" knowledge tree and replace with checklist article
+- cf61dca: **Content Update:** Refactor clues and plotlines to new format
+- 947e5b1: **Content Update:** Update dungeon in L15
+- 89c8f82: **Content Update:** Build out region 29
+- e213690: Persist filter state in URL query parameters
+- 0b6649c: - **BREAKING CHANGE:** Remove deprecated fields `vegetation` and `elevation` from hex schema
+  - **Content Update:** Remove explicit `elevation` field and use free text `topography` field instead
+- b2ac14c: **Content Update:** Update floating clues that have been placed
+- b4c3ce8: **Content Update:** Change medium for records in Ocularium Sextus
+- d0666e8: Refactor badges to use a shared component
+
 ## 3.4.0
 
 ### Minor Changes

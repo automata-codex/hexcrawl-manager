@@ -7,11 +7,10 @@
 import type { LinkType } from '@skyreach/schemas';
 
 import {
+  getCluePath,
   getDungeonPath,
   getEncounterPath,
-  getFloatingCluePath,
   getHexPath,
-  getKnowledgeNodePath,
   getRegionPath,
 } from '../config/routes';
 
@@ -25,15 +24,13 @@ export function getLinkPath(linkType: LinkType, linkId: string): string {
     case 'dungeon':
       return getDungeonPath(linkId);
     case 'clue':
-      return getFloatingCluePath(linkId);
+      return getCluePath(linkId);
     case 'hex':
       return getHexPath(linkId);
     case 'region':
       return getRegionPath(linkId);
     case 'faction':
       return `/gm-reference/factions#${linkId}`;
-    case 'knowledge-node':
-      return getKnowledgeNodePath(linkId);
     default:
       return '#';
   }
@@ -50,7 +47,6 @@ export function getLinkText(linkType: LinkType, linkId: string): string {
     encounter: 'Encounter',
     faction: 'Faction',
     hex: 'Hex',
-    'knowledge-node': 'Knowledge',
     region: 'Region',
   };
 

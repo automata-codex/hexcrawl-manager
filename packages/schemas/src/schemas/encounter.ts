@@ -1,8 +1,9 @@
 import { z } from 'zod';
 
+import { ClueReferencesSchema } from './clue-reference';
 import { CreatureTypeEnum } from './stat-block';
 
-export const EncounterScopeEnum = z.enum(['general', 'hex', 'region', 'dungeon', 'pointcrawl']);
+export const EncounterScopeEnum = z.enum(['general', 'herald', 'hex', 'region', 'dungeon', 'pointcrawl']);
 
 export const LocationTypeEnum = z.enum(['wilderness', 'dungeon']);
 
@@ -48,6 +49,8 @@ export const EncounterSchema = z
       .array(z.string())
       .optional()
       .describe('IDs of knowledge nodes that are unlocked by this encounter'),
+
+    clues: ClueReferencesSchema.describe('IDs of clues that this encounter can reveal'),
 
     // Derived fields (populated at build time)
     isLead: z

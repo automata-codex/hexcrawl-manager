@@ -5,7 +5,7 @@ import { hexSort } from '@skyreach/core';
 import { getHexPath, getRegionPath } from '../../config/routes';
 import { renderMarkdown } from '../../utils/markdown';
 import SecretContent from '../Content/SecretContent.astro';
-import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
+import RandomEncountersSection from '../RandomEncountersSection.astro';
 
 import ContentDensity from './ContentDensity.astro';
 import TreasureRating from './TreasureRating.astro';
@@ -50,6 +50,14 @@ const hexes = hexData
       margin-right: 1rem;
     }
   }
+
+  :global(.story-container p) {
+    margin-top: 1rem;
+  }
+
+  :global(.story-container p:first-child) {
+    margin-top: 0;
+  }
 </style>
 <SecretContent>
   <div>
@@ -65,6 +73,11 @@ const hexes = hexData
       <div>|</div>
       <div><a href=`${getRegionPath(region.id)}/hexes`>View all</a></div>
     </div>
+    {region.topography && (
+      <div class="hanging-indent">
+        <span class="inline-heading">Topography:</span>{' '}{region.topography}
+      </div>
+    )}
     <div class="hanging-indent">
       <span class="inline-heading">Haven:</span>{' '}{region.haven}
     </div>
@@ -89,12 +102,9 @@ const hexes = hexData
         <Fragment set:html={renderMarkdown(region.story)} />
       </div>
     )}
-    <Fragment set:html={getHeading('Random Encounters')} />
-    <p class="hanging-indent">
-      <span class="inline-heading">Chance of encounter:</span>
-      {' '}
-      {region.encounterChance * 5}% (&le;{region.encounterChance})
-    </p>
-    <RandomEncounterTable data={region.encounters} />
+    <RandomEncountersSection
+      region={region}
+      headingLevel={isSubcomponent ? 'h3' : 'h2'}
+    />
   </div>
 </SecretContent>

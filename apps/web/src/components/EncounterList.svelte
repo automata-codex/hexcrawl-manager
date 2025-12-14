@@ -1,4 +1,8 @@
 <script lang="ts">
+  import { initFilterFromUrl, setUrlParam } from '../utils/url-filter-state';
+
+  import Badge from './Badge.svelte';
+
   import type { CreatureType, Faction, LocationType } from '@skyreach/schemas';
 
   interface EncounterItem {
@@ -26,13 +30,22 @@
 
   const { encounters, filterOptions }: Props = $props();
 
-  let scopeFilter = $state('');
-  let locationFilter = $state('');
-  let factionFilter = $state('');
-  let creatureFilter = $state('');
-  let usageFilter = $state('');
-  let leadFilter = $state('');
-  let searchQuery = $state('');
+  let scopeFilter = $state(initFilterFromUrl('scope'));
+  let locationFilter = $state(initFilterFromUrl('location'));
+  let factionFilter = $state(initFilterFromUrl('faction'));
+  let creatureFilter = $state(initFilterFromUrl('creature'));
+  let usageFilter = $state(initFilterFromUrl('usage'));
+  let leadFilter = $state(initFilterFromUrl('lead'));
+  let searchQuery = $state(initFilterFromUrl('search'));
+
+  // Sync filter state to URL
+  $effect(() => { setUrlParam('scope', scopeFilter); });
+  $effect(() => { setUrlParam('location', locationFilter); });
+  $effect(() => { setUrlParam('faction', factionFilter); });
+  $effect(() => { setUrlParam('creature', creatureFilter); });
+  $effect(() => { setUrlParam('usage', usageFilter); });
+  $effect(() => { setUrlParam('lead', leadFilter); });
+  $effect(() => { setUrlParam('search', searchQuery); });
 
   let filtered = $derived(() => {
     return encounters.filter((enc) => {
@@ -94,6 +107,17 @@
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   }
+
+  function getScopeColor(scope: string): 'blue' | 'cyan' | 'green' | 'amber' | 'purple' | 'gray' {
+    const scopeColors: Record<string, 'blue' | 'cyan' | 'green' | 'amber' | 'purple'> = {
+      dungeon: 'blue',
+      herald: 'cyan',
+      hex: 'green',
+      region: 'amber',
+      pointcrawl: 'purple',
+    };
+    return scopeColors[scope] ?? 'gray';
+  }
 </script>
 
 <div class="encounter-filters">
@@ -117,7 +141,7 @@
         <div class="select">
           <select id="scope" bind:value={scopeFilter}>
             <option value="">All</option>
-            {#each filterOptions.scopes as scope}
+            {#each filterOptions.scopes as scope (scope)}
               <option value={scope}>{scope}</option>
             {/each}
           </select>
@@ -131,7 +155,7 @@
         <div class="select">
           <select id="location" bind:value={locationFilter}>
             <option value="">All</option>
-            {#each filterOptions.locationTypes as type}
+            {#each filterOptions.locationTypes as type (type)}
               <option value={type}>{type}</option>
             {/each}
           </select>
@@ -146,7 +170,7 @@
           <select id="faction" bind:value={factionFilter}>
             <option value="">All</option>
             <option value="__none__">No Faction</option>
-            {#each filterOptions.factions as faction}
+            {#each filterOptions.factions as faction (faction)}
               <option value={faction}>{formatFaction(faction)}</option>
             {/each}
           </select>
@@ -160,7 +184,7 @@
         <div class="select">
           <select id="creature" bind:value={creatureFilter}>
             <option value="">All</option>
-            {#each filterOptions.creatureTypes as type}
+            {#each filterOptions.creatureTypes as type (type)}
               <option value={type}>{type}</option>
             {/each}
           </select>
@@ -206,11 +230,12 @@
 
 <p class="legend">
   <span class="unused-text">Italic</span> = unused |
-  <span class="scope-tag scope-dungeon">dungeon</span>
-  <span class="scope-tag scope-hex">hex</span>
-  <span class="scope-tag scope-pointcrawl">pointcrawl</span>
-  <span class="scope-tag scope-region">region</span> = specific scope |
-  <span class="scope-tag scope-lead">lead</span> = faction intelligence
+  <Badge color="blue">dungeon</Badge>
+  <Badge color="cyan">herald</Badge>
+  <Badge color="green">hex</Badge>
+  <Badge color="purple">pointcrawl</Badge>
+  <Badge color="amber">region</Badge> = specific scope |
+  <Badge color="pink" bold>lead</Badge> = faction intelligence
 </p>
 
 <ul class="encounter-list">
@@ -223,18 +248,10 @@
         {encounter.name}
       </a>
       {#if encounter.isLead}
-        <span class="scope-tag scope-lead">lead</span>
+        <Badge color="pink" bold>lead</Badge>
       {/if}
       {#if encounter.scope && encounter.scope !== 'general'}
-        <span
-          class="scope-tag"
-          class:scope-dungeon={encounter.scope === 'dungeon'}
-          class:scope-hex={encounter.scope === 'hex'}
-          class:scope-pointcrawl={encounter.scope === 'pointcrawl'}
-          class:scope-region={encounter.scope === 'region'}
-        >
-          {encounter.scope}
-        </span>
+        <Badge color={getScopeColor(encounter.scope)}>{encounter.scope}</Badge>
       {/if}
     </li>
   {/each}
@@ -291,97 +308,6 @@
 
   .encounter-item {
     break-inside: avoid;
-  }
-
-  .encounter-item .scope-tag {
-    margin-left: 0.25rem;
-  }
-
-  .scope-tag {
-    display: inline-block;
-    font-size: 0.7rem;
-    padding: 0.125rem 0.375rem;
-    border-radius: 4px;
-    font-weight: 500;
-  }
-
-  .scope-dungeon {
-    background-color: #dbeafe;
-    color: #1e40af;
-  }
-
-  .scope-hex {
-    background-color: #dcfce7;
-    color: #166534;
-  }
-
-  .scope-region {
-    background-color: #fef3c7;
-    color: #92400e;
-  }
-
-  .scope-pointcrawl {
-    background-color: #f3e8ff;
-    color: #7e22ce;
-  }
-
-  .scope-lead {
-    background-color: #fce7f3;
-    color: #9d174d;
-  }
-
-  /* Dark mode - explicit theme selection */
-  :global(html[data-theme='dark']) .scope-dungeon {
-    background-color: #1e3a5f;
-    color: #93c5fd;
-  }
-
-  :global(html[data-theme='dark']) .scope-hex {
-    background-color: #14532d;
-    color: #86efac;
-  }
-
-  :global(html[data-theme='dark']) .scope-region {
-    background-color: #78350f;
-    color: #fcd34d;
-  }
-
-  :global(html[data-theme='dark']) .scope-pointcrawl {
-    background-color: #581c87;
-    color: #d8b4fe;
-  }
-
-  :global(html[data-theme='dark']) .scope-lead {
-    background-color: #831843;
-    color: #fbcfe8;
-  }
-
-  /* Dark mode - system preference when no explicit theme */
-  @media (prefers-color-scheme: dark) {
-    :global(html:not([data-theme])) .scope-dungeon {
-      background-color: #1e3a5f;
-      color: #93c5fd;
-    }
-
-    :global(html:not([data-theme])) .scope-hex {
-      background-color: #14532d;
-      color: #86efac;
-    }
-
-    :global(html:not([data-theme])) .scope-region {
-      background-color: #78350f;
-      color: #fcd34d;
-    }
-
-    :global(html:not([data-theme])) .scope-pointcrawl {
-      background-color: #581c87;
-      color: #d8b4fe;
-    }
-
-    :global(html:not([data-theme])) .scope-lead {
-      background-color: #831843;
-      color: #fbcfe8;
-    }
   }
 
   @media (max-width: 1024px) {

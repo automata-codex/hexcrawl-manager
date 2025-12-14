@@ -61,6 +61,13 @@ function extractEncounterIdsFromRegion(regionData: RegionData): string[] {
     }
   }
 
+  // Include herald encounters
+  if (regionData.heraldEncounters) {
+    for (const id of regionData.heraldEncounters) {
+      encounterIds.add(id);
+    }
+  }
+
   return Array.from(encounterIds);
 }
 

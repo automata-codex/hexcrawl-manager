@@ -8,6 +8,7 @@ export { rollDice } from './roll-dice';
 export * from './rollovers';
 export * from './seasons';
 export * from './sessions';
+export * from './strings';
 export * from './trails';
 export * from './types';
 export * from './weather';

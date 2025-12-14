@@ -6,7 +6,6 @@ import { getRepoPath, resolveDataPath } from './paths';
 export const REPO_PATHS = {
   AP_LEDGER: () => resolveDataPath('ap-ledger.jsonl'),
   CHARACTERS: () => getRepoPath('data', 'characters'),
-  CLUE_LINKS: () => resolveDataPath('clue-links.yaml'),
   DEV: () => getRepoPath('data', 'session-logs', '_dev'), // Dev-mode root
   DEV_IN_PROGRESS: () =>
     getRepoPath('data', 'session-logs', '_dev', 'in-progress'), // Dev-mode in-progress logs
@@ -20,13 +19,13 @@ export const REPO_PATHS = {
   HAVENS: () => getRepoPath('data', 'havens.yml'),
   HEXES: () => resolveDataPath('hexes'),
   IN_PROGRESS: () => getRepoPath('data', 'session-logs', 'in-progress'), // In-progress session logs
-  KNOWLEDGE_TREES: () => resolveDataPath('knowledge-trees'),
   LOCKS: () => getRepoPath('data', 'session-logs', '.locks'), // Lock files for sessions
   LOGS_ROOT: () => getRepoPath('data', 'session-logs'), // Root for all session logs
   META: () => getRepoPath('data', 'meta.yaml'), // Meta file for session state
   REPORTS: () => getRepoPath('data', 'session-reports'), // Generated reports
   ROLLOVERS: () => getRepoPath('data', 'session-logs', 'rollovers'), // Root for all session logs
   SESSIONS: () => getRepoPath('data', 'session-logs', 'sessions'), // Finalized session files
+  TEMPLATES: () => getRepoPath('data', 'templates'), // Template files (e.g., post-session checklist)
   TRAILS: () => getRepoPath('data', 'trails.yml'),
 };
 

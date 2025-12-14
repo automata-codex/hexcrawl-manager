@@ -25,7 +25,22 @@ export const RegionSchema = z
     ]),
     contentDensity: z.number().int().min(1).max(5),
     treasureRating: z.number().int().min(1).max(5),
-    story: z.string().optional().describe('Story or lore associated with this region'),
+    story: z
+      .string()
+      .optional()
+      .describe('Story or lore associated with this region'),
+    topography: z
+      .string()
+      .optional()
+      .describe('Free-text description of regional elevation trends and notable terrain features'),
+    heraldEncounters: z
+      .array(z.string())
+      .optional()
+      .describe('Array of encounter IDs for herald encounters shown when first entering this region'),
+    heraldComplete: z
+      .boolean()
+      .optional()
+      .describe('When true, herald phase is complete and normal encounters are shown'),
   })
   .describe('Data for a region on a hex map');
 

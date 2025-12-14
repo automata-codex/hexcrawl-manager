@@ -1,38 +1,34 @@
 <script lang="ts">
-  import { getHexPath, getRegionPath } from '../../config/routes.ts';
+  import { getCluePath, getHexPath, getRegionPath } from '../../config/routes.ts';
   import { getRegionTitle } from '../../utils/regions.ts';
 
   import Dungeon from './Dungeon.svelte';
   import Explored from './Explored.svelte';
   import HiddenSites from './HiddenSites.svelte';
   import Landmark from './Landmark.svelte';
-  import LinkedClues from './LinkedClues.svelte';
   import Neighbors from './Neighbors.svelte';
   import Pointcrawls from './Pointcrawls.svelte';
   import Visited from './Visited.svelte';
 
   import type {
-    ClueLink,
+    ClueMapEntry,
     DungeonEntry,
     ExtendedHexData,
-    FlatKnowledgeTree,
     PointcrawlLink,
   } from '../../types.ts';
 
   interface Props {
-    clueLinks?: ClueLink[];
+    clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
     hex: ExtendedHexData;
-    knowledgeTrees: Record<string, FlatKnowledgeTree>;
     pointcrawls?: PointcrawlLink[];
     showSelfLink?: boolean;
   }
 
   const {
-    clueLinks,
+    clueMap = {},
     dungeons,
     hex,
-    knowledgeTrees,
     pointcrawls,
     showSelfLink = true,
   }: Props = $props();
@@ -67,8 +63,15 @@
 <div class="data-bar">
   <Neighbors {hex} />
 </div>
-<Landmark {hex} {knowledgeTrees} />
-<HiddenSites {hex} {knowledgeTrees} />
+{#if hex.topography}
+  <p class="hanging-indent">
+    <span class="inline-heading">Topography:</span>
+    {' '}
+    {hex.topography}
+  </p>
+{/if}
+<Landmark {hex} {clueMap} />
+<HiddenSites {hex} {clueMap} />
 {#if hex.secretSite}
   <div class="hanging-indent">
     <span class="inline-heading">Secret Site:</span>{' '}
@@ -79,14 +82,16 @@
   <p class="hanging-indent">
     <span class="inline-heading">GM&rsquo;s Notes:</span>
   </p>
-  <ul>
-    {#each hex.renderedNotes as note (note)}
-      <li>{@html note}</li>
+  <ul class="gm-notes">
+    {#each hex.renderedNotes as note (note.content)}
+      <li>
+        {@html note.content}
+        {#if note.clueId}
+          &rarr; <a href={getCluePath(note.clueId)}>{clueMap[note.clueId]?.name ?? note.clueId}</a>
+        {/if}
+      </li>
     {/each}
   </ul>
-{/if}
-{#if clueLinks}
-  <LinkedClues {clueLinks} hexId={hex.id} />
 {/if}
 
 <style>
@@ -97,6 +102,10 @@
 
   :global(.data-bar-cell) {
     margin-right: 1rem;
+  }
+
+  .gm-notes {
+    margin-bottom: 0;
   }
 
   .updates {

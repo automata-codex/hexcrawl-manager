@@ -1,0 +1,217 @@
+---
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import { faTriangleExclamation } from '@fortawesome/pro-solid-svg-icons';
+import { sortIgnoringArticles } from '@skyreach/core';
+import { getCollection } from 'astro:content';
+
+import type { ClueData } from '@skyreach/schemas';
+
+import Badge from './Badge.astro';
+import {
+  getCharacterPath,
+  getCluePath,
+  getDungeonPath,
+  getEncounterPath,
+  getHexPath,
+  getNpcPath,
+  getPlotlinePath,
+  getPointcrawlNodePath,
+  getRoleplayBookPath,
+} from '../config/routes';
+import type { ClueUsageReference } from '../utils/clue-usage-tracker';
+import { renderMarkdown } from '../utils/markdown';
+
+interface Props {
+  clue: ClueData;
+  usedIn?: ClueUsageReference[];
+}
+
+const { clue, usedIn = [] } = Astro.props;
+const warningIcon = icon(faTriangleExclamation);
+
+// Get all plotlines and build ID-to-title map
+const plotlines = await getCollection('plotlines');
+const plotlineMap = new Map(plotlines.map((p) => [p.id, p.data.title]));
+
+// Get all clues and build ID-to-name map for linked clues
+const allClues = await getCollection('clues');
+const clueNameMap = new Map(allClues.map((c) => [c.id, c.data.name]));
+
+// Build linked clues list with validation
+const linkedClueLinks = (clue.linkedClues ?? []).map((clueId) => ({
+  id: clueId,
+  name: clueNameMap.get(clueId) ?? clueId,
+  isValid: clueNameMap.has(clueId),
+}));
+
+// Check which plotline references are valid and get their titles
+const plotlineLinks = (clue.plotlines ?? []).map((plotlineId) => ({
+  id: plotlineId,
+  title: plotlineMap.get(plotlineId) ?? plotlineId,
+  isValid: plotlineMap.has(plotlineId),
+}));
+
+// Status badge
+const statusLabel = clue.status === 'known' ? 'Known' : 'Unknown';
+
+// Helper to get the URL for a usage reference
+function getUsageUrl(ref: ClueUsageReference): string {
+  switch (ref.type) {
+    case 'encounter':
+      return getEncounterPath(ref.id);
+    case 'hex-landmark':
+    case 'hex-hidden-site':
+    case 'hex-dream':
+    case 'hex-keyed-encounter':
+      return getHexPath(ref.hexId || ref.id);
+    case 'dungeon':
+      return getDungeonPath(ref.id);
+    case 'pointcrawl-node':
+      return getPointcrawlNodePath(ref.id);
+    case 'character':
+      return getCharacterPath(ref.id);
+    case 'npc':
+      return getNpcPath(ref.id);
+    case 'plotline':
+      return getPlotlinePath(ref.id);
+    case 'roleplay-book':
+      return getRoleplayBookPath(ref.id);
+    case 'linked-clue':
+      return getCluePath(ref.id);
+    default:
+      return '#';
+  }
+}
+
+// Sort usedIn alphabetically by name
+const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.name));
+---
+
+<style>
+  .clue-meta {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .clue-summary {
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+
+  .meta-section {
+    margin-bottom: 1rem;
+
+    p {
+      margin-bottom: 0;
+    }
+  }
+
+  .warning-icon {
+    color: var(--bulma-warning);
+    margin-left: 0.25rem;
+  }
+
+  .meta-label {
+    font-weight: bold;
+    color: var(--bulma-strong-color);
+  }
+
+</style>
+
+<div class="clue">
+  <div class="clue-meta">
+    <Badge color={clue.status === 'known' ? 'success' : 'warning'}>{statusLabel}</Badge>
+
+    {
+      clue.factions && clue.factions.length > 0 && (
+        clue.factions.map((faction) => (
+          <Badge color="orange">{faction}</Badge>
+        ))
+      )
+    }
+
+    {
+      clue.tags && clue.tags.length > 0 && (
+        clue.tags.map((tag) => (
+          <Badge color="gray">{tag}</Badge>
+        ))
+      )
+    }
+  </div>
+
+  <p class="clue-summary">
+    {clue.summary}
+  </p>
+
+  <div class="meta-section">
+    {
+      plotlineLinks.length > 0 && (
+        <p>
+          <span class="meta-label">Plotlines:</span>
+          {plotlineLinks.map((link, index) => (
+            <>
+              {link.isValid ? (
+                <a href={getPlotlinePath(link.id)}>{link.title}</a>
+              ) : (
+                <span>
+                  {link.id}
+                  <span class="warning-icon" title="Plotline not found">
+                    <Fragment set:html={warningIcon.html} />
+                  </span>
+                </span>
+              )}
+              {index < plotlineLinks.length - 1 && ', '}
+            </>
+          ))}
+        </p>
+      )
+    }
+
+    {
+      sortedUsedIn.length > 0 && (
+        <p>
+          <span class="meta-label">Located in:</span>
+          {sortedUsedIn.map((ref, index) => (
+            <>
+              <a href={getUsageUrl(ref)}>{ref.name}</a>{index < sortedUsedIn.length - 1 && ', '}
+            </>
+          ))}
+        </p>
+      )
+    }
+
+    {
+      linkedClueLinks.length > 0 && (
+        <p>
+          <span class="meta-label">Reveals:</span>
+          {linkedClueLinks.map((link, index) => (
+            <>
+              {link.isValid ? (
+                <a href={getCluePath(link.id)}>{link.name}</a>
+              ) : (
+                <span>
+                  {link.id}
+                  <span class="warning-icon" title="Clue not found">
+                    <Fragment set:html={warningIcon.html} />
+                  </span>
+                </span>
+              )}
+              {index < linkedClueLinks.length - 1 && ', '}
+            </>
+          ))}
+        </p>
+      )
+    }
+  </div>
+
+  {
+    clue.details && (
+      <div>
+        <Fragment set:html={renderMarkdown(clue.details)} />
+      </div>
+    )
+  }
+</div>

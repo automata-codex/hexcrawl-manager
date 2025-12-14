@@ -1,11 +1,12 @@
 ---
 import { getCollection, getEntry, render } from 'astro:content';
 
-import Unlocks from '../components/Unlocks.svelte';
-import { getFlatKnowledgeTrees } from '../utils/knowledge-trees';
+import { normalizeClueRef } from '@skyreach/schemas';
+
+import { getCluePath } from '../config/routes';
 import { renderBulletMarkdown } from '../utils/markdown';
 
-const flatKnowledgeTrees = await getFlatKnowledgeTrees();
+const allClues = await getCollection('clues');
 
 import StatBlock from './StatBlock/StatBlock.astro';
 
@@ -40,6 +41,18 @@ async function getStatBlocks(statBlockIds: string[]) {
 const statBlocks = dungeon.data.statBlocks
   ? await getStatBlocks(dungeon.data.statBlocks)
   : [];
+
+// Build clue list
+const dungeonClueRefs = dungeon.data.clues ?? [];
+const clueList = dungeonClueRefs.map((ref) => {
+  const { id: clueId } = normalizeClueRef(ref);
+  const clue = allClues.find((c) => c.id === clueId);
+  return {
+    id: clueId,
+    name: clue?.data.name ?? clueId,
+    found: !!clue,
+  };
+});
 ---
 
 <style>
@@ -114,10 +127,23 @@ const statBlocks = dungeon.data.statBlocks
     </div>
   )
 }
-<Unlocks
-  knowledgeTrees={flatKnowledgeTrees}
-  unlocks={dungeon.data.unlocks ?? []}
-/>
+{
+  clueList.length > 0 && (
+    <p>
+      <strong>Clues</strong> in this dungeon:{' '}
+      {clueList.map((clue, i) => (
+        <>
+          {clue.found ? (
+            <a href={getCluePath(clue.id)}>{clue.name}</a>
+          ) : (
+            <span class="has-text-danger">{clue.name} (not found)</span>
+          )}
+          {i < clueList.length - 1 && ', '}
+        </>
+      ))}
+    </p>
+  )
+}
 <div class="spacer"></div>
 <h2 class="description-header">Description</h2>
 <div class="dungeon-content">

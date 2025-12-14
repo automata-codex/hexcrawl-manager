@@ -1,17 +1,18 @@
 <script lang="ts">
+  import { getCluePath } from '../../config/routes.ts';
   import { getLinkPath, getLinkText } from '../../utils/link-generator';
   import TreasureTable from '../TreasureTable/TreasureTable.svelte';
-  import Unlocks from '../Unlocks.svelte';
 
-  import type { ExtendedHexData, ExtendedHiddenSites, FlatKnowledgeTree } from '../../types.ts';
+  import type { ClueMapEntry, ExtendedHexData, ExtendedHiddenSites } from '../../types.ts';
   import type { LinkType } from '@skyreach/schemas';
+  import { sortIgnoringArticles } from '@skyreach/core';
 
   interface Props {
+    clueMap?: Record<string, ClueMapEntry>;
     hex: ExtendedHexData;
-    knowledgeTrees: Record<string, FlatKnowledgeTree>;
   }
 
-  const { hex, knowledgeTrees }: Props = $props();
+  const { clueMap = {}, hex }: Props = $props();
 
   /**
    * Type guard to check if a hidden site has link fields.
@@ -19,11 +20,26 @@
   function hasLink(site: ExtendedHiddenSites): site is ExtendedHiddenSites & { linkType: LinkType; linkId: string } {
     return 'linkType' in site && 'linkId' in site && !!site.linkType && !!site.linkId;
   }
+
+  /**
+   * Get clue display data for a site.
+   */
+  function getSiteClues(site: ExtendedHiddenSites) {
+    if (!site.clues) return [];
+    return site.clues
+      .map((id) => ({
+        id,
+        name: clueMap?.[id]?.name ?? id,
+        found: !!clueMap?.[id],
+      }))
+      .sort((a, b) => sortIgnoringArticles(a.name, b.name));
+  }
 </script>
 
 {#if hex.renderedHiddenSites && hex.renderedHiddenSites.length > 0}
   {#if hex.renderedHiddenSites.length === 1}
     {@const site = hex.renderedHiddenSites[0]}
+    {@const siteClues = getSiteClues(site)}
     <div>
       <div class="inline-heading-block">
         <span class="inline-heading">Hidden Site:</span>
@@ -33,11 +49,17 @@
         {/if}
       </div>
       <div style="margin-left: 1rem">
-        {#if site.unlocks}
-          <Unlocks
-            {knowledgeTrees}
-            unlocks={site.unlocks}
-          />
+        {#if siteClues.length > 0}
+          <p>
+            <strong>Clues:</strong>
+            {#each siteClues as clue, i (i)}
+              {#if clue.found}
+                <a href={getCluePath(clue.id)}>{clue.name}</a>
+              {:else}
+                <span class="has-text-danger">{clue.name} (not found)</span>
+              {/if}{#if i < siteClues.length - 1},{' '}{/if}
+            {/each}
+          </p>
         {/if}
       </div>
       {#if site.treasure}
@@ -50,14 +72,25 @@
     </div>
     <ul>
       {#each hex.renderedHiddenSites as site (site.description)}
+        {@const siteClues = getSiteClues(site)}
         <li>
           {@html site.description}
           {#if hasLink(site)}
             &rarr; <a href={getLinkPath(site.linkType, site.linkId)}>{getLinkText(site.linkType, site.linkId)}</a>
           {/if}
           <div>
-            {#if site.unlocks}
-              <Unlocks {knowledgeTrees} unlocks={site.unlocks} />
+            {#if siteClues.length > 0}
+              <p>
+                <strong>Clues:</strong>
+                {#each siteClues as clue, i (i)}
+                  {#if clue.found}
+                    <a href={getCluePath(clue.id)}>{clue.name}</a>
+                  {:else}
+                    <span class="has-text-danger">{clue.name} (not found)</span>
+                  {/if}
+                  {#if i < siteClues.length - 1}, {/if}
+                {/each}
+              </p>
             {/if}
           </div>
           {#if site.treasure}
