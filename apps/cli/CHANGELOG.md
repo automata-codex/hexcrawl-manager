@@ -1,5 +1,23 @@
 # @skyreach/cli
 
+## 2.7.0
+
+### Minor Changes
+
+- f83daea: Add GM dashboard
+
+### Patch Changes
+
+- Updated dependencies [f83daea]
+- Updated dependencies [4978f44]
+- Updated dependencies [7eb674e]
+- Updated dependencies [ec7e954]
+- Updated dependencies [89c8f82]
+- Updated dependencies [0b6649c]
+  - @skyreach/schemas@4.0.0
+  - @skyreach/data@3.3.0
+  - @skyreach/core@3.1.0
+
 ## 2.6.2
 
 ### Patch Changes
