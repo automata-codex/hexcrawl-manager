@@ -1,5 +1,15 @@
 # @skyreach/data
 
+## 3.3.0
+
+### Minor Changes
+
+- f83daea: Add GM dashboard
+- ec7e954: Clean up and prune dead and deprecated code
+  - @skyreach/data: Update repo paths
+  - @skyreach/schemas: **BREAKING CHANGE:** Remove deprecated schemas
+  - @skyreach/web: Remove dead code
+
 ## 3.2.0
 
 ### Minor Changes
