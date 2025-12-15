@@ -57,6 +57,24 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="clue">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="clue" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/clue.schema.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/clues" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="default-encounter-table">
           <value>
             <SchemaInfo>
@@ -105,24 +123,6 @@
                   <Item>
                     <option name="directory" value="true" />
                     <option name="path" value="data/factions" />
-                    <option name="mappingKind" value="Directory" />
-                  </Item>
-                </list>
-              </option>
-            </SchemaInfo>
-          </value>
-        </entry>
-        <entry key="floating-clue">
-          <value>
-            <SchemaInfo>
-              <option name="generatedName" value="New Schema" />
-              <option name="name" value="floating-clue" />
-              <option name="relativePathToSchema" value="packages/schemas/dist/floating-clue.schema.json" />
-              <option name="patterns">
-                <list>
-                  <Item>
-                    <option name="directory" value="true" />
-                    <option name="path" value="data/floating-clues" />
                     <option name="mappingKind" value="Directory" />
                   </Item>
                 </list>
