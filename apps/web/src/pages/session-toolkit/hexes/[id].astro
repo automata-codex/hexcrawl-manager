@@ -3,7 +3,6 @@ import { getCollection, getEntry } from 'astro:content';
 
 import OpenContent from '../../../components/Content/OpenContent.astro';
 import SecretContent from '../../../components/Content/SecretContent.astro';
-import GhostlyEchoes from '../../../components/GhostlyEchoes.astro';
 import GmHexDetails from '../../../components/GmHexDetails/GmHexDetails.svelte';
 import PlayerHexDetails from '../../../components/PlayerHexDetails/PlayerHexDetails.astro';
 import RandomEncountersSection from '../../../components/RandomEncountersSection.astro';
@@ -107,6 +106,5 @@ const extendedHexData = await processHex(hex);
         <RandomEncounterTable data={encounters} />
       </>
     )}
-    <GhostlyEchoes isScarSite={hex.tags?.includes('scar-site')} />
   </SecretContent>
 </ComponentLayout>
