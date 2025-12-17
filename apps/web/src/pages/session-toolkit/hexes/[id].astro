@@ -63,11 +63,12 @@ encounterChance = hex.encounterChance ?? encounterChance;
 if (hex.encounterOverrides) {
   if (encounters) {
     encounters = mergeEncounterOverrides(encounters, hex.encounterOverrides);
-  } else if (hex.encounterOverrides.mainTable && hex.encounterOverrides.categoryTables) {
+  } else if (hex.encounterOverrides.mainTable) {
     // Use hex overrides as the full table when no region base exists
+    // categoryTables may be empty if all categories use external tableId references
     encounters = {
       mainTable: hex.encounterOverrides.mainTable,
-      categoryTables: hex.encounterOverrides.categoryTables as EncounterTableData['categoryTables'],
+      categoryTables: (hex.encounterOverrides.categoryTables ?? {}) as EncounterTableData['categoryTables'],
     };
   }
 }
