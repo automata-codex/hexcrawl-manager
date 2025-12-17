@@ -23,6 +23,15 @@ const tierKeys =
     : [];
 ---
 
+<style>
+  .category-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .subtable-container {
+    margin-right: 2rem;
+  }
+</style>
 <h3 class="title is-4">{label}</h3>
 {
   !table ? (
@@ -49,12 +58,16 @@ const tierKeys =
       </tbody>
     </table>
   ) : (
-    tierKeys.map((tier) => (
-      <TierSubtable
-        tier={tier}
-        entries={table.tiers[tier]}
-        weight={weight}
-      />
-    ))
+    <div class="category-container">
+      {tierKeys.map((tier) => (
+        <div class="subtable-container">
+          <TierSubtable
+            tier={tier}
+            entries={table.tiers[tier]}
+            weight={weight}
+          />
+        </div>
+      ))}
+    </div>
   )
 }
