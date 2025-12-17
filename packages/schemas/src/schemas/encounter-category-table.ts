@@ -23,12 +23,18 @@ const DescriptionTableSchema = z.object({
   entries: z.array(DescriptionEntrySchema).min(1),
 });
 
+// Tiered encounter entries (matches inline categoryTables format)
+export const TieredEncounterEntriesSchema = z.record(
+  z.string(), // tier numbers as strings ("1", "2", etc.)
+  z.array(EncounterReferenceEntrySchema).min(1),
+);
+
 // Encounter reference table type (new - links to encounter definitions)
 const EncounterReferenceTableSchema = z.object({
   type: z.literal('encounter-reference'),
   id: z.string(),
   name: z.string(),
-  entries: z.array(EncounterReferenceEntrySchema).min(1),
+  tiers: TieredEncounterEntriesSchema,
 });
 
 // Discriminated union for the collection
@@ -40,6 +46,7 @@ export const EncounterCategoryTableSchema = z
 export type DieType = z.infer<typeof DieTypeEnum>;
 export type DescriptionEntry = z.infer<typeof DescriptionEntrySchema>;
 export type EncounterReferenceEntry = z.infer<typeof EncounterReferenceEntrySchema>;
+export type TieredEncounterEntries = z.infer<typeof TieredEncounterEntriesSchema>;
 export type DescriptionTableData = z.infer<typeof DescriptionTableSchema>;
 export type EncounterReferenceTableData = z.infer<typeof EncounterReferenceTableSchema>;
 export type EncounterCategoryTableData = z.infer<typeof EncounterCategoryTableSchema>;
