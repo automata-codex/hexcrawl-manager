@@ -1,7 +1,13 @@
 ---
-import { getEntry } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 
 import type { EncounterCategoryTableData } from '@skyreach/schemas';
+
+import { getEncounterPath } from '../../config/routes';
+import {
+  buildWeightedRanges,
+  validateWeightTotal,
+} from '../../utils/encounters';
 
 interface Props {
   label: string;
@@ -13,13 +19,28 @@ const { label, tableId, weight } = Astro.props;
 
 const tableEntry = await getEntry('encounter-category-tables', tableId);
 const table: EncounterCategoryTableData | undefined = tableEntry?.data;
+
+// For encounter-reference tables, we need encounter names
+const encounters =
+  table?.type === 'encounter-reference' ? await getCollection('encounters') : [];
+
+// Build weighted ranges for encounter-reference tables
+const encounterRanges =
+  table?.type === 'encounter-reference'
+    ? buildWeightedRanges(table.entries, (e) => e.weight)
+    : [];
+
+const warning =
+  table?.type === 'encounter-reference'
+    ? validateWeightTotal(table.entries, (e) => e.weight)
+    : null;
 ---
 
 <h3 class="title is-4">{label}</h3>
 {
   !table ? (
     <p style="color: red;">External table "{tableId}" not found</p>
-  ) : (
+  ) : table.type === 'description' ? (
     <table class="encounter-table">
       <thead>
         <tr>
@@ -33,10 +54,43 @@ const table: EncounterCategoryTableData | undefined = tableEntry?.data;
           <tr>
             <td class="col-1">{entry.roll}</td>
             <td class="col-2">{entry.description}</td>
-            <td class="col-3">{((1 / table.entries.length) * (weight / 20) * 100).toFixed(1)}%</td>
+            <td class="col-3">
+              {((1 / table.entries.length) * (weight / 20) * 100).toFixed(1)}%
+            </td>
           </tr>
         ))}
       </tbody>
     </table>
+  ) : (
+    <>
+      {warning && <p style="color: red;">{warning}</p>}
+      <table class="encounter-table">
+        <thead>
+          <tr>
+            <th class="col-1">Roll</th>
+            <th class="col-2">Encounter</th>
+            <th class="col-3">Probability</th>
+          </tr>
+        </thead>
+        <tbody>
+          {encounterRanges.map(({ range, entry }) => {
+            const encounter = encounters.find((e) => e.id === entry.encounterId);
+            return (
+              <tr>
+                <td class="col-1">{range}</td>
+                <td class="col-2">
+                  <a href={getEncounterPath(entry.encounterId)}>
+                    {encounter?.data.name ?? entry.encounterId}
+                  </a>
+                </td>
+                <td class="col-3">
+                  {((entry.weight / 20) * (weight / 20) * 100).toFixed(1)}%
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
   )
 }
