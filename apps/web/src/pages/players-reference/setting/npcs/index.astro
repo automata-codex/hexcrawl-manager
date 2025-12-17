@@ -79,7 +79,7 @@ const title = 'NPCs';
         <section>
           {npc.data.image && <img src={npc.data.image} alt={npc.data.name} />}
           <h2 class="title is-4" style="margin-bottom: 0.25rem">
-            <a href={getNpcPath(npc.id)}>{npc.data.name}</a>
+            <a href={getNpcPath(npc.id)}>{npc.data.title}{' '}{npc.data.name}</a>
           </h2>
           <div class="npc-meta">
             <p>
