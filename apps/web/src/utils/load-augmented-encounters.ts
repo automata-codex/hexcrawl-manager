@@ -56,6 +56,7 @@ export async function loadAugmentedEncounters(): Promise<AugmentedEncountersResu
     pointcrawls,
     pointcrawlNodes,
     pointcrawlEdges,
+    encounterCategoryTables,
   ] = await Promise.all([
     getCollection('encounters'),
     getCollection('statBlocks'),
@@ -66,6 +67,7 @@ export async function loadAugmentedEncounters(): Promise<AugmentedEncountersResu
     getCollection('pointcrawls'),
     getCollection('pointcrawl-nodes'),
     getCollection('pointcrawl-edges'),
+    getCollection('encounter-category-tables'),
   ]);
 
   // Build lookup maps
@@ -77,6 +79,7 @@ export async function loadAugmentedEncounters(): Promise<AugmentedEncountersResu
     pointcrawls,
     pointcrawlNodes,
     pointcrawlEdges,
+    encounterCategoryTables,
   );
   const leadEncounterIds = detectLeadEncounters(roleplayBooks);
 

@@ -1,5 +1,6 @@
 import type {
   DungeonData,
+  EncounterCategoryTableData,
   EncounterTableData,
   HexData,
   PointcrawlData,
@@ -18,6 +19,37 @@ export type { UsageReference };
  * Map of encounter IDs to their usage locations.
  */
 export type EncounterUsageMap = Map<string, UsageReference[]>;
+
+/**
+ * Map of external table IDs to the encounter IDs they contain.
+ */
+export type ExternalTableMap = Map<string, string[]>;
+
+/**
+ * Builds a map from external table IDs to the encounter IDs they contain.
+ * Only processes encounter-reference tables (not description tables).
+ */
+function buildExternalTableMap(
+  categoryTables: Array<{ id: string; data: EncounterCategoryTableData }>,
+): ExternalTableMap {
+  const tableMap: ExternalTableMap = new Map();
+
+  for (const table of categoryTables) {
+    if (table.data.type === 'encounter-reference') {
+      const encounterIds: string[] = [];
+      for (const tierEntries of Object.values(table.data.tiers)) {
+        for (const entry of tierEntries) {
+          if (!encounterIds.includes(entry.encounterId)) {
+            encounterIds.push(entry.encounterId);
+          }
+        }
+      }
+      tableMap.set(table.id, encounterIds);
+    }
+  }
+
+  return tableMap;
+}
 
 /**
  * Extracts encounter IDs from category tables (used by both regions and hex overrides).
@@ -73,9 +105,12 @@ function extractEncounterIdsFromRegion(regionData: RegionData): string[] {
 
 /**
  * Extracts encounter IDs from a hex's encounter overrides, explicit encounters array,
- * and hidden sites with encounter links.
+ * hidden sites with encounter links, and external table references.
  */
-function extractEncounterIdsFromHex(hexData: HexData): string[] {
+function extractEncounterIdsFromHex(
+  hexData: HexData,
+  externalTableMap: ExternalTableMap,
+): string[] {
   const encounterIds = new Set<string>();
 
   // Extract from explicit encounters array (new field)
@@ -87,11 +122,31 @@ function extractEncounterIdsFromHex(hexData: HexData): string[] {
 
   // Extract from encounter overrides (existing field)
   const overrides = hexData.encounterOverrides;
-  if (overrides && 'categoryTables' in overrides && overrides.categoryTables) {
-    for (const id of extractEncounterIdsFromCategoryTables(
-      overrides.categoryTables as Record<string, Record<string, Array<{ encounterId: string }>>>,
-    )) {
-      encounterIds.add(id);
+  if (overrides) {
+    // Extract from inline categoryTables
+    if ('categoryTables' in overrides && overrides.categoryTables) {
+      for (const id of extractEncounterIdsFromCategoryTables(
+        overrides.categoryTables as Record<
+          string,
+          Record<string, Array<{ encounterId: string }>>
+        >,
+      )) {
+        encounterIds.add(id);
+      }
+    }
+
+    // Extract from external table references in mainTable
+    if ('mainTable' in overrides && overrides.mainTable) {
+      for (const entry of overrides.mainTable) {
+        if (entry.tableId) {
+          const tableEncounterIds = externalTableMap.get(entry.tableId);
+          if (tableEncounterIds) {
+            for (const id of tableEncounterIds) {
+              encounterIds.add(id);
+            }
+          }
+        }
+      }
     }
   }
 
@@ -189,6 +244,7 @@ function extractEncounterIdsFromPointcrawlEdge(edgeData: PointcrawlEdgeData): st
  * @param pointcrawls - Array of pointcrawl entries from the collection
  * @param pointcrawlNodes - Array of pointcrawl node entries from the collection
  * @param pointcrawlEdges - Array of pointcrawl edge entries from the collection
+ * @param encounterCategoryTables - Array of external encounter category tables
  * @returns Map of encounter IDs to arrays of usage references
  */
 export function buildEncounterUsageMap(
@@ -198,8 +254,15 @@ export function buildEncounterUsageMap(
   pointcrawls: Array<{ id: string; data: PointcrawlData }>,
   pointcrawlNodes: Array<{ id: string; data: PointcrawlNodeData }>,
   pointcrawlEdges: Array<{ id: string; data: PointcrawlEdgeData }>,
+  encounterCategoryTables: Array<{
+    id: string;
+    data: EncounterCategoryTableData;
+  }> = [],
 ): EncounterUsageMap {
   const usageMap: EncounterUsageMap = new Map();
+
+  // Build external table map for resolving tableId references
+  const externalTableMap = buildExternalTableMap(encounterCategoryTables);
 
   function addUsage(encounterId: string, reference: UsageReference): void {
     if (!usageMap.has(encounterId)) {
@@ -220,9 +283,9 @@ export function buildEncounterUsageMap(
     }
   }
 
-  // Scan hexes (both explicit encounters array and encounter overrides)
+  // Scan hexes (explicit encounters, encounter overrides, and external table refs)
   for (const hex of hexes) {
-    const encounterIds = extractEncounterIdsFromHex(hex.data);
+    const encounterIds = extractEncounterIdsFromHex(hex.data, externalTableMap);
     for (const encounterId of encounterIds) {
       addUsage(encounterId, {
         type: 'hex',
