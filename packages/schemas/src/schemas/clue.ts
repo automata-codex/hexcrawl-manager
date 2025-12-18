@@ -13,6 +13,18 @@ export {
 
 export const ClueStatusEnum = z.enum(['unknown', 'known']);
 
+export const ClueKnownTagEnum = z.enum([
+  'dragon-empire',
+  'first-civilization',
+  'fort-dagaric',
+  'kashra-crystals',
+  'scar-sites',
+  'singing-hill',
+  'sphadhika',
+]);
+
+export const ClueTagSchema = z.union([ClueKnownTagEnum, z.string()]);
+
 export const ClueSchema = z
   .object({
     id: z.string(),
@@ -35,7 +47,7 @@ export const ClueSchema = z
 
     // Flexible categorization
     tags: z
-      .array(z.string())
+      .array(ClueTagSchema)
       .optional()
       .describe('Additional tags for filtering (themes, characters, etc.)'),
 
@@ -58,4 +70,5 @@ export const ClueSchema = z
   .describe('ClueSchema');
 
 export type ClueData = z.infer<typeof ClueSchema>;
+export type ClueKnownTag = z.infer<typeof ClueKnownTagEnum>;
 export type ClueStatus = z.infer<typeof ClueStatusEnum>;

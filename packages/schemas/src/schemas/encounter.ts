@@ -13,9 +13,11 @@ export const FactionEnum = z.enum([
   'beldrunn-vok',
   'blackthorns',
   'flamehold-dwarves',
+  'hollow-choir',
   'kobolds',
   'revenant-legion',
   'servitors',
+  'skybound',
   'three-dukes',
   'veil-shepherds',
 ]);
