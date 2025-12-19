@@ -4,8 +4,6 @@
  * reference content by type and ID.
  */
 
-import type { LinkType } from '@skyreach/schemas';
-
 import {
   getCluePath,
   getDungeonPath,
@@ -13,6 +11,8 @@ import {
   getHexPath,
   getRegionPath,
 } from '../config/routes';
+
+import type { LinkType } from '@skyreach/schemas';
 
 /**
  * Generate the URL path for a link based on its type and ID.

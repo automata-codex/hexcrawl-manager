@@ -1,5 +1,25 @@
 # @skyreach/web
 
+## 3.6.0
+
+### Minor Changes
+
+- 27cb4de: **Content Update:** Update tags and other metadata on clues
+- 5b88e60: **Content Update:** Complete remaining nodes for the Skyspire
+- ca2aec9: **Content Update:** Revise "Iron Basilica" dungeon
+- 41550c1: **Content Update:** Add more nodes to the Skyspire
+- a973ad4: **Content Update:** Add new rules and articles
+- dc73bc5: **Content Update:** Record data from session 22
+- cf8c1df: **Content Update:** Add edges for the Skyspire
+- f245efb: **Content Update:** Add more Skyspire locations and player handouts
+- 6ddfe24: **Content Update:** Update plotline and clues for repairing the Skyspire
+- dfeeeac: Expand encounter category tables
+  - Allow both description tables and weighted tables
+  - **Content Update:** Consolidate all scar site encounter tables into reusable encounter category tables
+
+- 81eeff4: **Content Update:** Add profiles for additional NPCs
+- 144be32: **Content Update:** Add clues about the term "Velari"
+
 ## 3.5.0
 
 ### Minor Changes
