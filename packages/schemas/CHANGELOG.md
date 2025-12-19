@@ -1,5 +1,13 @@
 # @skyreach/schemas
 
+## 4.1.0
+
+### Minor Changes
+
+- dfeeeac: Expand encounter category tables
+  - Allow both description tables and weighted tables
+  - **Content Update:** Consolidate all scar site encounter tables into reusable encounter category tables
+
 ## 4.0.0
 
 ### Major Changes
