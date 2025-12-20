@@ -4,10 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Skyreach is a campaign manager for a tabletop RPG campaign "Beyond the Skyreach Mountains". It consists of:
+Hexcrawl Manager is a campaign manager for a tabletop RPG campaign "Beyond the Skyreach Mountains". It consists of:
 - A CLI tool (`skyreach`) for session management and data processing
 - A web application for viewing campaign data
 - A monorepo with shared packages for core logic, schemas, and utilities
+
+**Repository split:** This is the code repository. Campaign data (session logs, encounters, characters, etc.) lives in a separate data repository at `../skyreach`. The CLI operates on the data repo when configured via `skyreach.config.json`.
 
 ## Common Commands
 
@@ -112,7 +114,7 @@ This is an npm workspaces monorepo with strict architectural boundaries enforced
    - Idempotent: already-applied sessions are no-ops
    - Commands: apply, plan (dry-run), status, doctor, allocate
 
-**Data storage:**
+**Data storage (in separate data repo):**
 - Session logs: `data/session-logs/sessions/` (JSONL format)
 - Rollovers: `data/session-logs/rollovers/` (JSONL format)
 - Footprints: `data/session-logs/footprints/{domain}/` (apply audit trail)
@@ -166,7 +168,7 @@ This is an npm workspaces monorepo with strict architectural boundaries enforced
 
 ## Release Process
 
-Skyreach uses a "version-on-develop" workflow:
+Hexcrawl Manager uses a "version-on-develop" workflow:
 
 1. Create release branch from `develop`: `git co -b release-YYYY-MM-DD`
 2. Rebuild clue links if needed (committed to repo)
@@ -184,19 +186,23 @@ Skyreach uses a "version-on-develop" workflow:
 
 ## Important Files
 
+**Code repo:**
 - `.dependency-cruiser.cjs` - Enforces architectural boundaries
 - `tsconfig.workspace.json` - TypeScript project references
 - `vitest.config.ts` - Test configuration (unit vs integration modes)
+- `skyreach.config.json` - Points to data repo location
 - `docs/specs/` - Command specifications (scribe, weave, data-contracts)
 - `docs/specs/encounter-system.md` - Encounter content and taxonomy spec
 - `docs/dev/session-lifecycle.md` - Session/rollover/weave lifecycle
+- `apps/web/scripts/cache-ap-totals.ts` - Build-time AP caching for web app
+- `apps/web/src/utils/load-ap-totals.ts` - Runtime AP loader (dev/prod switching)
+- `packages/data/src/ap-ledger/` - AP ledger utilities (shared by CLI and web)
+
+**Data repo (separate repository):**
 - `data/meta.yaml` - Campaign state index
 - `data/trails.yml` - Trail network data (managed by weave apply trails)
 - `data/ap-ledger.jsonl` - Canonical AP data (managed by weave commands)
 - `data/encounters/` - Encounter definitions and content
-- `apps/web/scripts/cache-ap-totals.ts` - Build-time AP caching for web app
-- `apps/web/src/utils/load-ap-totals.ts` - Runtime AP loader (dev/prod switching)
-- `packages/data/src/ap-ledger/` - AP ledger utilities (shared by CLI and web)
 
 ## Development Notes
 
@@ -229,14 +235,3 @@ Skyreach uses a "version-on-develop" workflow:
 - Development branch: `develop`
 - Feature branches from `develop`
 - Weave apply requires clean working tree (unless `--allow-dirty`)
-
-## D&D House Rules
-
-The Astro web app (`apps/web`) includes D&D house rules stored as:
-- Markdown and MDX files in `data/articles` (sometimes in multiple parts, assembled by an Astro component under `apps/web/src`)
-- See `apps/web/src/config/routes.ts` for routing configuration
-- Astro pages/components for displaying rules
-
-**When working with rules:**
-- Preserve existing D&D content and terminology
-- Maintain rule formatting and structure
