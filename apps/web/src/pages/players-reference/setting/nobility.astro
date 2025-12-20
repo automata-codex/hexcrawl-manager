@@ -1,10 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
 import SecretContent from '../../../components/Content/SecretContent.astro';
-import NobilityChart from '../../../components/NobilityChart.svelte';
 import NobleHierarchy from '../../../components/NobleHierarchy.astro';
 import ArticleLayout from '../../../layouts/ArticleLayout.astro';
 import OpenContent from '../../../components/Content/OpenContent.astro';
+import { renderMarkdown } from '../../../utils/markdown.ts';
 
 // Fetch all nobles
 const noblesCollection = await getCollection('nobles');
@@ -38,15 +38,6 @@ const allRoots = rootNobles;
 
 <ArticleLayout title="Vaulridge Nobility">
   <article>
-    <!-- Public view (players see this) -->
-    <OpenContent>
-      <NobilityChart nobles={nobles} showSecrets={false} client:load />
-    </OpenContent>
-
-    <SecretContent>
-      <NobilityChart nobles={nobles} showSecrets={true} client:load />
-    </SecretContent>
-
     <h2 class="title is-3">Nobles of Vaulridge</h2>
 
     <OpenContent>
@@ -80,14 +71,31 @@ const allRoots = rootNobles;
                 const leader = getNoble(leaderId);
                 return leader ? (
                   <li>
-                    <span class="inline-heading">{leader.displayTitle ?? leader.name}</span>
-                    {leader.description && <>: {leader.description}</>}
+                    <span class="inline-heading">{leader.displayTitle ?? leader.name}</span>{leader.description && <>: {leader.description}</>}
                   </li>
                 ) : null;
               })}
             </ul>
           </>
         )}
+
+        {(() => {
+          const members = getFactionMembers(faction.id)
+            .filter((n) => !faction.leadership?.includes(n.id))
+            .filter((n) => !n.secret);
+          return members.length > 0 ? (
+            <>
+              <h4 class="title is-5">Members</h4>
+              <ul>
+                {members.map((member) => (
+                  <li>
+                    <span class="inline-heading">{member.displayTitle ?? member.name}</span>{member.description && <>: {member.description}</>}
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null;
+        })()}
 
         <SecretContent>
           {faction.gmNotes && <p><strong>GM Notes:</strong> {faction.gmNotes}</p>}
@@ -101,7 +109,7 @@ const allRoots = rootNobles;
       {secretFactions.map((faction) => (
         <div class="faction-section">
           <h3 class="title is-4">{faction.name}</h3>
-          {faction.description && <p set:html={faction.description.replace(/\n/g, '<br>')} />}
+          {faction.description && <Fragment set:html={renderMarkdown(faction.description)} />}
           {faction.gmNotes && <p><strong>GM Notes:</strong> {faction.gmNotes}</p>}
 
           {faction.leadership && faction.leadership.length > 0 && (

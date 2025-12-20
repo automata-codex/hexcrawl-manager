@@ -1,5 +1,6 @@
 ---
 import type { NobleData } from '@skyreach/schemas';
+import Badge from './Badge.astro';
 
 interface Props {
   noble: NobleData;
@@ -17,10 +18,9 @@ const vassals = allNobles
 ---
 
 <li>
-  <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>
-  {noble.description && <>: {noble.description}</>}
+  <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>{noble.description && <>: {noble.description}</>}
   {showSecrets && noble.gmNotes && <> <em>({noble.gmNotes})</em></>}
-  {showSecrets && noble.secret && <span class="tag is-danger is-light ml-2">Secret</span>}
+  {showSecrets && noble.secret && <Badge color="pink" class="ml-2">Secret</Badge>}
 
   {vassals.length > 0 && (
     <ul>
