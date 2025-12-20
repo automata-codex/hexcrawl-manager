@@ -2,8 +2,8 @@
   import type { NobleData } from '@skyreach/schemas';
   import {
     buildTree,
-    computeLayout,
-    getEdgePath,
+    computeVerticalLayout,
+    getVerticalEdgePath,
     type LayoutConfig,
   } from '../utils/tree-layout';
 
@@ -26,11 +26,11 @@
   const config: Partial<LayoutConfig> = {
     nodeWidth: 150,
     nodeHeight: 60,
-    horizontalGap: 25,
-    verticalGap: 50,
+    horizontalGap: 40,  // gap between depth levels (columns)
+    verticalGap: 15,    // gap between siblings (rows)
   };
 
-  const layout = $derived(computeLayout(roots, config));
+  const layout = $derived(computeVerticalLayout(roots, config));
 
   // Styling helpers
   function getNodeClass(noble: NobleData): string {
@@ -77,15 +77,14 @@
 
 <div class="nobility-chart-container">
   <svg
-    width={layout.width + 40}
-    height={layout.height + 40}
     viewBox="{-20} {-20} {layout.width + 40} {layout.height + 40}"
+    preserveAspectRatio="xMidYMin meet"
   >
     <!-- Edges -->
     <g class="edges">
       {#each layout.edges as edge}
         <path
-          d={getEdgePath(edge)}
+          d={getVerticalEdgePath(edge)}
           class="edge"
           class:secret={edge.target.data.secret}
         />
@@ -119,7 +118,7 @@
           {:else}
             <text
               x={node.width / 2}
-              y={node.height / 2 - 8}
+              y={node.height / 2 - 7}
               dominant-baseline="middle"
               text-anchor="middle"
             >
@@ -127,7 +126,7 @@
             </text>
             <text
               x={node.width / 2}
-              y={node.height / 2 + 8}
+              y={node.height / 2 + 7}
               dominant-baseline="middle"
               text-anchor="middle"
             >
@@ -147,11 +146,12 @@
 
 <style>
   .nobility-chart-container {
-    overflow-x: auto;
     padding: 1rem;
   }
 
   svg {
+    width: 100%;
+    height: auto;
     font-family: var(--bulma-family-primary, system-ui, sans-serif);
     font-size: 12px;
   }
