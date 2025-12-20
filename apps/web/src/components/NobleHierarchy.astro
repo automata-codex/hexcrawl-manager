@@ -18,8 +18,7 @@ const vassals = allNobles
 ---
 
 <li>
-  <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>{noble.description && <>: {noble.description}</>}
-  {showSecrets && noble.gmNotes && <> <em>({noble.gmNotes})</em></>}
+  <span class="inline-heading">{noble.displayTitle ?? noble.name}</span> ({noble.pronouns})
   {showSecrets && noble.secret && <Badge color="pink" class="ml-2">Secret</Badge>}
 
   {vassals.length > 0 && (

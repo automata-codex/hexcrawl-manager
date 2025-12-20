@@ -34,12 +34,30 @@ const rootNobles = nobles
   .sort((a, b) => (a.sortValue ?? a.id).localeCompare(b.sortValue ?? b.id));
 const publicRoots = rootNobles.filter((n) => !n.secret);
 const allRoots = rootNobles;
+
+// Alphabetically sorted nobles for profiles section
+const alphabeticalNobles = [...nobles].sort((a, b) => a.name.localeCompare(b.name));
+// const alphabeticalNobles = [...nobles].sort((a, b) => (a.sortValue ?? a.id).localeCompare(b.sortValue ?? b.id));
+const publicAlphabetical = alphabeticalNobles.filter((n) => !n.secret);
+
+// Helper to get liege name
+function getLiegeName(liegeId: string | null) {
+  if (!liegeId) return null;
+  const liege = getNoble(liegeId);
+  return liege?.displayTitle ?? liege?.name ?? null;
+}
+
+// Helper to get faction names
+function getFactionNames(factionIds: string[] | undefined) {
+  if (!factionIds) return [];
+  return factionIds
+    .map((id) => factions.find((f) => f.id === id)?.name)
+    .filter((name): name is string => !!name);
+}
 ---
 
-<ArticleLayout title="Vaulridge Nobility">
+<ArticleLayout title="Nobility">
   <article>
-    <h2 class="title is-3">Nobles of Vaulridge</h2>
-
     <OpenContent>
       <ul class="hierarchy-list">
         {publicRoots.map((root) => (
@@ -54,6 +72,50 @@ const allRoots = rootNobles;
           <NobleHierarchy noble={root} allNobles={nobles} showSecrets={true} />
         ))}
       </ul>
+    </SecretContent>
+
+    <h2 class="title is-3">Noble Profiles</h2>
+
+    <OpenContent>
+      <dl class="noble-profiles">
+        {publicAlphabetical.map((noble) => (
+          <>
+            <dt>
+              <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>
+              <span class="pronouns">({noble.pronouns})</span>
+            </dt>
+            <dd>
+              {noble.description && <p>{noble.description}</p>}
+              {noble.liege && <p class="meta">Liege: {getLiegeName(noble.liege)}</p>}
+              {getFactionNames(noble.factions).length > 0 && (
+                <p class="meta">Factions: {getFactionNames(noble.factions).join(', ')}</p>
+              )}
+            </dd>
+          </>
+        ))}
+      </dl>
+    </OpenContent>
+
+    <SecretContent>
+      <dl class="noble-profiles">
+        {alphabeticalNobles.map((noble) => (
+          <>
+            <dt>
+              <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>
+              <span class="pronouns">({noble.pronouns})</span>
+              {noble.secret && <span class="tag is-danger is-light ml-2">Secret</span>}
+            </dt>
+            <dd>
+              {noble.description && <p>{noble.description}</p>}
+              {noble.gmNotes && <p class="gm-notes"><strong>GM:</strong> {noble.gmNotes}</p>}
+              {noble.liege && <p class="meta">Liege: {getLiegeName(noble.liege)}</p>}
+              {getFactionNames(noble.factions).length > 0 && (
+                <p class="meta">Factions: {getFactionNames(noble.factions).join(', ')}</p>
+              )}
+            </dd>
+          </>
+        ))}
+      </dl>
     </SecretContent>
 
     <h2 class="title is-3">Political Factions</h2>
@@ -157,5 +219,36 @@ const allRoots = rootNobles;
 <style>
   .faction-section {
     margin-bottom: 1.5rem;
+  }
+
+  .noble-profiles dt {
+    margin-top: 1rem;
+  }
+
+  .noble-profiles dt:first-child {
+    margin-top: 0;
+  }
+
+  .noble-profiles .pronouns {
+    font-weight: normal;
+    color: var(--bulma-text-weak);
+  }
+
+  .noble-profiles dd {
+    margin-left: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .noble-profiles dd p {
+    margin-bottom: 0.25rem;
+  }
+
+  .noble-profiles .meta {
+    font-size: 0.9rem;
+    color: var(--bulma-text-weak);
+  }
+
+  .noble-profiles .gm-notes {
+    font-style: italic;
   }
 </style>
