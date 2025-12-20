@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import SecretContent from '../../../components/Content/SecretContent.astro';
 import NobilityChart from '../../../components/NobilityChart.svelte';
+import NobleHierarchy from '../../../components/NobleHierarchy.astro';
 import ArticleLayout from '../../../layouts/ArticleLayout.astro';
 import OpenContent from '../../../components/Content/OpenContent.astro';
 
@@ -26,6 +27,13 @@ function getFactionMembers(factionId: string) {
 function getNoble(id: string) {
   return nobles.find((n) => n.id === id);
 }
+
+// Get root nobles (those with no liege), sorted by sortValue
+const rootNobles = nobles
+  .filter((n) => n.liege === null)
+  .sort((a, b) => (a.sortValue ?? a.id).localeCompare(b.sortValue ?? b.id));
+const publicRoots = rootNobles.filter((n) => !n.secret);
+const allRoots = rootNobles;
 ---
 
 <ArticleLayout title="Vaulridge Nobility">
@@ -37,6 +45,24 @@ function getNoble(id: string) {
 
     <SecretContent>
       <NobilityChart nobles={nobles} showSecrets={true} client:load />
+    </SecretContent>
+
+    <h2 class="title is-3">Nobles of Vaulridge</h2>
+
+    <OpenContent>
+      <ul class="hierarchy-list">
+        {publicRoots.map((root) => (
+          <NobleHierarchy noble={root} allNobles={nobles} showSecrets={false} />
+        ))}
+      </ul>
+    </OpenContent>
+
+    <SecretContent>
+      <ul class="hierarchy-list">
+        {allRoots.map((root) => (
+          <NobleHierarchy noble={root} allNobles={nobles} showSecrets={true} />
+        ))}
+      </ul>
     </SecretContent>
 
     <h2 class="title is-3">Political Factions</h2>

@@ -1,0 +1,32 @@
+---
+import type { NobleData } from '@skyreach/schemas';
+
+interface Props {
+  noble: NobleData;
+  allNobles: NobleData[];
+  showSecrets: boolean;
+}
+
+const { noble, allNobles, showSecrets } = Astro.props;
+
+// Get vassals of this noble, sorted by sortValue
+const vassals = allNobles
+  .filter((n) => n.liege === noble.id)
+  .filter((n) => showSecrets || !n.secret)
+  .sort((a, b) => (a.sortValue ?? a.id).localeCompare(b.sortValue ?? b.id));
+---
+
+<li>
+  <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>
+  {noble.description && <>: {noble.description}</>}
+  {showSecrets && noble.gmNotes && <> <em>({noble.gmNotes})</em></>}
+  {showSecrets && noble.secret && <span class="tag is-danger is-light ml-2">Secret</span>}
+
+  {vassals.length > 0 && (
+    <ul>
+      {vassals.map((vassal) => (
+        <Astro.self noble={vassal} allNobles={allNobles} showSecrets={showSecrets} />
+      ))}
+    </ul>
+  )}
+</li>
