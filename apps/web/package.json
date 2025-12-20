@@ -15,6 +15,7 @@
     "validate:config": "tsx scripts/validate-yaml-config.ts",
     "validate:dungeons": "tsx scripts/validate-dungeon-encounters.ts",
     "validate:encounters": "tsx scripts/validate-encounter-content.ts",
+    "validate:nobles": "tsx scripts/validate-nobles.ts",
     "validate:pointcrawls": "tsx scripts/validate-pointcrawl-ids.ts",
     "validate:toc": "tsx scripts/validate-toc-config.ts"
   },
