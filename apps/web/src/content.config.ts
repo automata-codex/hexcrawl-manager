@@ -15,6 +15,7 @@ import {
   type LootPackData,
   LootPackSchema,
   MapPathSchema,
+  NobleSchema,
   type NpcData,
   NpcSchema,
   type PlayerData,
@@ -23,6 +24,7 @@ import {
   PointcrawlEdgeSchema,
   PointcrawlNodeSchema,
   PointcrawlSchema,
+  PoliticalFactionSchema,
   RegionSchema,
   RoleplayBookSchema,
   type RumorData,
@@ -60,12 +62,14 @@ const DIRS = {
   HEXES: `${DATA_DIR}/hexes`,
   LOOT_PACKS: `${DATA_DIR}/loot-packs`,
   MAP_PATHS: `${DATA_DIR}/map-paths`,
+  NOBLES: `${DATA_DIR}/nobles`,
   NPCS: `${DATA_DIR}/npcs`,
   PLAYERS: `${DATA_DIR}/players`,
   PLOTLINES: `${DATA_DIR}/plotlines`,
   POINTCRAWLS: `${DATA_DIR}/pointcrawls`,
   POINTCRAWL_EDGES: `${DATA_DIR}/pointcrawl-edges`,
   POINTCRAWL_NODES: `${DATA_DIR}/pointcrawl-nodes`,
+  POLITICAL_FACTIONS: `${DATA_DIR}/political-factions`,
   REGIONS: `${DATA_DIR}/regions`,
   ROLEPLAY_BOOKS: `${DATA_DIR}/roleplay-books`,
   RUMORS: `${DATA_DIR}/rumors`,
@@ -173,6 +177,11 @@ const mapPaths = defineCollection({
   schema: MapPathSchema,
 });
 
+const nobles = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.NOBLES }),
+  schema: NobleSchema,
+});
+
 const npcs = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml,md,mdx}', base: DIRS.NPCS }),
   schema: NpcSchema,
@@ -201,6 +210,11 @@ const pointcrawlEdges = defineCollection({
 const pointcrawlNodes = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.POINTCRAWL_NODES }),
   schema: PointcrawlNodeSchema,
+});
+
+const politicalFactions = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.POLITICAL_FACTIONS }),
+  schema: PoliticalFactionSchema,
 });
 
 const regions = defineCollection({
@@ -262,12 +276,14 @@ export const collections = {
   hexes,
   'loot-packs': lootPacks,
   'map-paths': mapPaths,
+  nobles,
   npcs,
   players,
   plotlines,
   pointcrawls,
   'pointcrawl-edges': pointcrawlEdges,
   'pointcrawl-nodes': pointcrawlNodes,
+  'political-factions': politicalFactions,
   regions,
   'roleplay-books': roleplayBooks,
   rumors,
