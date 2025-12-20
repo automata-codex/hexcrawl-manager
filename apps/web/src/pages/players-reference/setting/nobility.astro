@@ -79,7 +79,7 @@ function getFactionNames(factionIds: string[] | undefined) {
     <OpenContent>
       <dl class="noble-profiles">
         {publicAlphabetical.map((noble) => (
-          <>
+          <div class="profile-entry">
             <dt>
               <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>
               <span class="pronouns">({noble.pronouns})</span>
@@ -91,7 +91,7 @@ function getFactionNames(factionIds: string[] | undefined) {
                 <p class="meta">Factions: {getFactionNames(noble.factions).join(', ')}</p>
               )}
             </dd>
-          </>
+          </div>
         ))}
       </dl>
     </OpenContent>
@@ -99,7 +99,7 @@ function getFactionNames(factionIds: string[] | undefined) {
     <SecretContent>
       <dl class="noble-profiles">
         {alphabeticalNobles.map((noble) => (
-          <>
+          <div class="profile-entry">
             <dt>
               <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>
               <span class="pronouns">({noble.pronouns})</span>
@@ -107,13 +107,13 @@ function getFactionNames(factionIds: string[] | undefined) {
             </dt>
             <dd>
               {noble.description && <p>{noble.description}</p>}
-              {noble.gmNotes && <p class="gm-notes"><strong>GM:</strong> {noble.gmNotes}</p>}
+              {noble.gmNotes && <p class="gm-notes"><strong>GM Notes:</strong> {noble.gmNotes}</p>}
               {noble.liege && <p class="meta">Liege: {getLiegeName(noble.liege)}</p>}
               {getFactionNames(noble.factions).length > 0 && (
                 <p class="meta">Factions: {getFactionNames(noble.factions).join(', ')}</p>
               )}
             </dd>
-          </>
+          </div>
         ))}
       </dl>
     </SecretContent>
@@ -202,8 +202,7 @@ function getFactionNames(factionIds: string[] | undefined) {
                 <ul>
                   {members.map((member) => (
                     <li>
-                      <span class="inline-heading">{member.displayTitle ?? member.name}</span>
-                      {member.gmNotes && <>: {member.gmNotes}</>}
+                      <span class="inline-heading">{member.displayTitle ?? member.name}</span>{member.gmNotes && <>: {member.gmNotes}</>}
                     </li>
                   ))}
                 </ul>
@@ -221,11 +220,25 @@ function getFactionNames(factionIds: string[] | undefined) {
     margin-bottom: 1.5rem;
   }
 
+  .noble-profiles {
+    columns: 1;
+  }
+
+  @media (min-width: 768px) {
+    .noble-profiles {
+      columns: 2;
+    }
+  }
+
+  .noble-profiles .profile-entry {
+    break-inside: avoid;
+  }
+
   .noble-profiles dt {
     margin-top: 1rem;
   }
 
-  .noble-profiles dt:first-child {
+  .noble-profiles .profile-entry:first-child dt {
     margin-top: 0;
   }
 
@@ -240,7 +253,7 @@ function getFactionNames(factionIds: string[] | undefined) {
   }
 
   .noble-profiles dd p {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0;
   }
 
   .noble-profiles .meta {
