@@ -39,10 +39,12 @@ const DEFAULT_CONFIG: LayoutConfig = {
 
 /**
  * Build a tree structure from flat data with parent references.
+ * Optionally sorts children at each level using the provided sort key function.
  */
 export function buildTree<T extends { id: string }>(
   items: T[],
   getParentId: (item: T) => string | null,
+  getSortKey?: (item: T) => string,
 ): TreeNode<T>[] {
   const childrenMap = new Map<string | null, T[]>();
 
@@ -53,6 +55,13 @@ export function buildTree<T extends { id: string }>(
       childrenMap.set(parentId, []);
     }
     childrenMap.get(parentId)!.push(item);
+  }
+
+  // Sort children if sort function provided
+  if (getSortKey) {
+    for (const children of childrenMap.values()) {
+      children.sort((a, b) => getSortKey(a).localeCompare(getSortKey(b)));
+    }
   }
 
   // Recursively build tree nodes

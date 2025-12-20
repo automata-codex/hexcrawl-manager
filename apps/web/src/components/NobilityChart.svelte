@@ -20,8 +20,14 @@
     showSecrets ? nobles : nobles.filter((n) => !n.secret)
   );
 
-  // Build and layout tree
-  const roots = $derived(buildTree(visibleNobles, (noble) => noble.liege));
+  // Build and layout tree, sorted by sortValue if available
+  const roots = $derived(
+    buildTree(
+      visibleNobles,
+      (noble) => noble.liege,
+      (noble) => noble.sortValue ?? noble.id
+    )
+  );
 
   const config: Partial<LayoutConfig> = {
     nodeWidth: 150,

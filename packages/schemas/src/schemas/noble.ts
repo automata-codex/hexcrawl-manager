@@ -25,6 +25,7 @@ export const NobleSchema = z.object({
   liege: z.string().nullable(),
   factions: z.array(z.string()).optional(),
   house: z.string().optional(),
+  sortValue: z.string().optional(),
 });
 
 export type NobleData = z.infer<typeof NobleSchema>;
