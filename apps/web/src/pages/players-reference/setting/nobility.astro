@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import SecretContent from '../../../components/Content/SecretContent.astro';
 import NobilityChart from '../../../components/NobilityChart.svelte';
 import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import OpenContent from '../../../components/Content/OpenContent.astro';
 
 // Fetch all nobles
 const noblesCollection = await getCollection('nobles');
@@ -29,13 +30,12 @@ function getNoble(id: string) {
 
 <ArticleLayout title="Vaulridge Nobility">
   <article>
-    <h2 class="title is-3">Noble Hierarchy</h2>
-
     <!-- Public view (players see this) -->
-    <NobilityChart nobles={nobles} showSecrets={false} client:load />
+    <OpenContent>
+      <NobilityChart nobles={nobles} showSecrets={false} client:load />
+    </OpenContent>
 
     <SecretContent>
-      <h3 class="title is-4">Full Hierarchy (GM View)</h3>
       <NobilityChart nobles={nobles} showSecrets={true} client:load />
     </SecretContent>
 
