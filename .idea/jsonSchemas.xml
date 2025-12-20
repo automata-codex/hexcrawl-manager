@@ -202,6 +202,24 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="noble">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="noble" />
+              <option name="relativePathToSchema" value="packages/schemas/dist/noble.schema.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="data/nobles" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="npc">
           <value>
             <SchemaInfo>

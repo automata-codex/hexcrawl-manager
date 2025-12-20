@@ -6,22 +6,17 @@ export const NobleRankEnum = z.enum([
   'prince',
   'princess',
   'duke',
-  'duchess',
   'marquess',
-  'marchioness',
   'earl',
-  'countess',
   'viscount',
-  'viscountess',
   'baron',
-  'baroness',
   'knight',
-  'lady',
 ]);
 
 export const NobleSchema = z.object({
   id: z.string(),
   name: z.string(),
+  pronouns: z.string(),
   title: NobleRankEnum,
   displayTitle: z.string().optional(),
   description: z.string().optional(),
