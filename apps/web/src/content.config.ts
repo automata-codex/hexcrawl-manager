@@ -47,6 +47,16 @@ import yaml from 'yaml';
 
 const DATA_DIR = '../../data';
 
+/**
+ * Check if a collection directory exists on the filesystem.
+ * Used to conditionally register collections for open-source users
+ * who may not have all data directories.
+ */
+function collectionExists(dir: string): boolean {
+  const fullPath = path.resolve(process.cwd(), 'src', dir);
+  return fs.existsSync(fullPath);
+}
+
 const DIRS = {
   ARTICLES: `${DATA_DIR}/articles`,
   BOUNTIES: `${DATA_DIR}/bounties`,
@@ -117,8 +127,11 @@ const articles = defineCollection({
   }),
 });
 
+// Conditional collection: empty loader if directory doesn't exist
 const bounties = defineCollection({
-  loader: getDirectoryYamlLoader<BountyData>(DIRS.BOUNTIES),
+  loader: collectionExists(DIRS.BOUNTIES)
+    ? getDirectoryYamlLoader<BountyData>(DIRS.BOUNTIES)
+    : () => [],
   schema: BountySchema,
 });
 
@@ -227,8 +240,11 @@ const roleplayBooks = defineCollection({
   schema: RoleplayBookSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't exist
 const rumors = defineCollection({
-  loader: getDirectoryYamlLoader<RumorData>(DIRS.RUMORS),
+  loader: collectionExists(DIRS.RUMORS)
+    ? getDirectoryYamlLoader<RumorData>(DIRS.RUMORS)
+    : () => [],
   schema: RumorSchema,
 });
 
@@ -237,8 +253,11 @@ const sessions = defineCollection({
   schema: SessionSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't exist
 const spells = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.SPELLS }),
+  loader: collectionExists(DIRS.SPELLS)
+    ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.SPELLS })
+    : () => [],
   schema: SpellSchema,
 });
 
