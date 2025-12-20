@@ -1,0 +1,127 @@
+---
+import { getCollection } from 'astro:content';
+import SecretContent from '../../../components/Content/SecretContent.astro';
+import NobilityChart from '../../../components/NobilityChart.svelte';
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+
+// Fetch all nobles
+const noblesCollection = await getCollection('nobles');
+const nobles = noblesCollection.map((entry) => entry.data);
+
+// Fetch political factions
+const factionsCollection = await getCollection('political-factions');
+const factions = factionsCollection.map((entry) => entry.data);
+
+// Separate public and secret factions
+const publicFactions = factions.filter((f) => !f.secret);
+const secretFactions = factions.filter((f) => f.secret);
+
+// Helper to get faction members
+function getFactionMembers(factionId: string) {
+  return nobles.filter((n) => n.factions?.includes(factionId));
+}
+
+// Helper to get noble by ID
+function getNoble(id: string) {
+  return nobles.find((n) => n.id === id);
+}
+---
+
+<ArticleLayout title="Vaulridge Nobility">
+  <article>
+    <h2 class="title is-3">Noble Hierarchy</h2>
+
+    <!-- Public view (players see this) -->
+    <NobilityChart nobles={nobles} showSecrets={false} client:load />
+
+    <SecretContent>
+      <h3 class="title is-4">Full Hierarchy (GM View)</h3>
+      <NobilityChart nobles={nobles} showSecrets={true} client:load />
+    </SecretContent>
+
+    <h2 class="title is-3">Political Factions</h2>
+
+    {publicFactions.map((faction) => (
+      <div class="faction-section">
+        <h3 class="title is-4">{faction.name}</h3>
+        {faction.description && <p>{faction.description}</p>}
+
+        {faction.leadership && faction.leadership.length > 0 && (
+          <>
+            <h4 class="title is-5">Leadership</h4>
+            <ul>
+              {faction.leadership.map((leaderId) => {
+                const leader = getNoble(leaderId);
+                return leader ? (
+                  <li>
+                    <span class="inline-heading">{leader.displayTitle ?? leader.name}</span>
+                    {leader.description && <>: {leader.description}</>}
+                  </li>
+                ) : null;
+              })}
+            </ul>
+          </>
+        )}
+
+        <SecretContent>
+          {faction.gmNotes && <p><strong>GM Notes:</strong> {faction.gmNotes}</p>}
+        </SecretContent>
+      </div>
+    ))}
+
+    <SecretContent>
+      <h2 class="title is-3">Secret Factions</h2>
+
+      {secretFactions.map((faction) => (
+        <div class="faction-section">
+          <h3 class="title is-4">{faction.name}</h3>
+          {faction.description && <p set:html={faction.description.replace(/\n/g, '<br>')} />}
+          {faction.gmNotes && <p><strong>GM Notes:</strong> {faction.gmNotes}</p>}
+
+          {faction.leadership && faction.leadership.length > 0 && (
+            <>
+              <h4 class="title is-5">Leadership</h4>
+              <ul>
+                {faction.leadership.map((leaderId) => {
+                  const leader = getNoble(leaderId);
+                  return leader ? (
+                    <li>
+                      <span class="inline-heading">{leader.displayTitle ?? leader.name}:</span>
+                      {' '}{leader.description}
+                      {leader.gmNotes && <> {leader.gmNotes}</>}
+                    </li>
+                  ) : null;
+                })}
+              </ul>
+            </>
+          )}
+
+          {(() => {
+            const members = getFactionMembers(faction.id).filter(
+              (n) => !faction.leadership?.includes(n.id)
+            );
+            return members.length > 0 ? (
+              <>
+                <h4 class="title is-5">Members</h4>
+                <ul>
+                  {members.map((member) => (
+                    <li>
+                      <span class="inline-heading">{member.displayTitle ?? member.name}</span>
+                      {member.gmNotes && <>: {member.gmNotes}</>}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null;
+          })()}
+        </div>
+      ))}
+    </SecretContent>
+  </article>
+</ArticleLayout>
+
+<style>
+  .faction-section {
+    margin-bottom: 1.5rem;
+  }
+</style>
