@@ -6,6 +6,8 @@ Skyreach uses a **“version-on-develop”** workflow with lightweight automatio
 
 ### Manual steps
 
+⚠️ Review the [weekly release checklist](docs/release-checklist.md) before cutting a release! ⚠️
+
 1. **On `develop`**, prepare a release:
 
    ```bash
