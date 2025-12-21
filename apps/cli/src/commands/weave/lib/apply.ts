@@ -188,6 +188,9 @@ export function hexDistance(a: string, b: string): number {
   );
 }
 
+// TODO: This uses the wrong formula (odd-q instead of even-q). The map uses even-q
+// with 0-indexed columns, so the formula should be: z = row - ((col + (col & 1)) >> 1)
+// This will be replaced by the new coordinate utilities in @achm/core.
 export function hexToCube(hex: string): { x: number; y: number; z: number } {
   const col = hex[0].toUpperCase().charCodeAt(0) - 'A'.charCodeAt(0);
   const row = parseInt(hex.slice(1), 10) - 1;

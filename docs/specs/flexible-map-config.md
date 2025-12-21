@@ -183,7 +183,7 @@ Migrate and consolidate existing geometry functions:
 ```typescript
 /**
  * Convert hex coordinates to cube coordinates for distance calculations.
- * Uses odd-q offset coordinate system (flat-topped hexes).
+ * Uses even-q offset with 0-indexed columns (A=0), where columns A, C, E... are shifted down.
  */
 export function hexToCube(coord: HexCoord): { x: number; y: number; z: number };
 
@@ -205,7 +205,7 @@ export function getNeighborCoords(coord: HexCoord): HexCoord[];
 export function getHexesWithinDistance(center: HexCoord, distance: number): HexCoord[];
 ```
 
-**Known issue to verify:** The existing `getHexNeighbors` function in `packages/core/src/hexes/get-hex-neighbors.ts` has direction labels in comments ("Upper left", "Right", etc.) that may not match the actual geometry. During implementation, verify the neighbor offsets against the actual odd-q flat-top grid orientation used by the interactive map. The offsets themselves may be correct even if the labels are wrong—focus on ensuring the geometry matches what the map renders.
+**Note:** The interactive map uses even-q offset with 0-indexed columns (A=0, B=1, etc.), where columns A, C, E... are shifted down. The existing `getHexNeighbors` function has correct neighbor offsets but mislabeled direction comments ("Upper left", etc.). The existing `hexToCube` in `apply.ts` used the wrong formula (odd-q instead of even-q) but was close enough for distance-3 haven proximity checks. The new coordinate utilities use the correct even-q formulas.
 
 **Commit message:** `feat(core): add hex geometry functions`
 
@@ -404,10 +404,9 @@ describe('getNeighborCoords', () => {
   });
 
   it('handles odd column offset correctly', () => {
-    // Odd columns have different neighbor offsets
+    // Odd column indices (B, D, F...) are not shifted in even-q
     const neighbors = getNeighborCoords({ col: 5, row: 5 });
-    // Verify expected neighbor positions for odd-q grid
-    // (specific positions depend on odd-q flat-top convention)
+    // Verify expected neighbor positions for even-q grid with 0-indexed columns
   });
 
   it('handles even column offset correctly', () => {
@@ -1111,4 +1110,4 @@ Recommend creating a git tag before Stage 6 migration: `git tag pre-hex-migratio
 
 3. **CLI coordinate display**: Should all CLI output use uppercase (F12) or match the input case? → Uppercase for consistency.
 
-4. **Neighbor direction labels**: The existing `getHexNeighbors` has direction labels in comments that may not match actual geometry. Implementation should verify offsets against the interactive map's odd-q flat-top grid orientation. See note in Phase 1.4.
+4. **Neighbor direction labels**: ~~The existing `getHexNeighbors` has direction labels in comments that may not match actual geometry.~~ **Resolved:** The map uses even-q offset with 0-indexed columns. The neighbor offsets are correct; only the direction label comments are wrong. The new coordinate utilities use the correct even-q formulas.

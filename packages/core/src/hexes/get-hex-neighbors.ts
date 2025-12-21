@@ -1,5 +1,6 @@
 /**
- * Get neighboring hexes for a given hex in an odd-q flat-topped hex grid.
+ * Get neighboring hexes for a given hex in a flat-topped hex grid.
+ * Uses even-q offset with 0-indexed columns (A=0), where columns A, C, E... are shifted down.
  * @param hex
  */
 export function getHexNeighbors(hex: string): string[] {
