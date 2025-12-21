@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { getHexNeighbors } from '@skyreach/core';
+  import { getHexNeighbors } from '@achm/core';
 
   import { getHexPath } from '../../config/routes.ts';
 
-  import type { HexData } from '@skyreach/schemas';
+  import type { HexData } from '@achm/schemas';
 
   interface Props {
     hex: HexData;

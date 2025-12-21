@@ -1,9 +1,9 @@
-import { ap, compileLog } from '@skyreach/test-helpers';
+import { ap, compileLog } from '@achm/test-helpers';
 import { describe, it, expect } from 'vitest';
 
 import { computeApForSession } from './compute-ap-for-session';
 
-import type { ScribeEvent } from '@skyreach/schemas';
+import type { ScribeEvent } from '@achm/schemas';
 
 describe('Function `computeApForSession`', () => {
   const party = ['alistar', 'istavan', 'daemaris'];

@@ -1,8 +1,8 @@
-import { getSeasonForDate } from '@skyreach/core';
+import { getSeasonForDate } from '@achm/core';
 
 import { eventsOf } from '../../../services/event-log.service';
 
-import type { DayStartEvent, ScribeEvent } from '@skyreach/schemas';
+import type { DayStartEvent, ScribeEvent } from '@achm/schemas';
 
 /**
  * Session envelope validation helper for weave commands. Usage: `const result = validateSessionEnvelope(events);`

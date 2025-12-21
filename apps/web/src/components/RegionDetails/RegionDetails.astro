@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 
-import { hexSort } from '@skyreach/core';
+import { hexSort } from '@achm/core';
 import { getHexPath, getRegionPath } from '../../config/routes';
 import { renderMarkdown } from '../../utils/markdown';
 import SecretContent from '../Content/SecretContent.astro';
@@ -10,7 +10,7 @@ import RandomEncountersSection from '../RandomEncountersSection.astro';
 import ContentDensity from './ContentDensity.astro';
 import TreasureRating from './TreasureRating.astro';
 
-import type { RegionData } from '@skyreach/schemas';
+import type { RegionData } from '@achm/schemas';
 
 interface Props {
   region: RegionData;

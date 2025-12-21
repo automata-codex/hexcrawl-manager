@@ -1,6 +1,6 @@
 import { appendEvent } from '../../../../services/event-log.service';
 
-import type { Pace } from '@skyreach/schemas';
+import type { Pace } from '@achm/schemas';
 
 /**
  * Emit a move event.

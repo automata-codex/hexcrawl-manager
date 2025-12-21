@@ -1,5 +1,5 @@
-import { normalizeHexId } from '@skyreach/core';
-import { padSessionNum } from '@skyreach/schemas';
+import { normalizeHexId } from '@achm/core';
+import { padSessionNum } from '@achm/schemas';
 
 export class DataFileNotFoundError extends Error {
   constructor(public filepath: string) {

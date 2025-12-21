@@ -1,10 +1,10 @@
-import { hexSort as hexIdSort } from '@skyreach/core';
+import { hexSort as hexIdSort } from '@achm/core';
 
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
 
 import type { ExtendedGmNote, ExtendedHexData, ExtendedHiddenSites } from '../types.ts';
-import type { GmNote, HexData, HiddenSite } from '@skyreach/schemas';
+import type { GmNote, HexData, HiddenSite } from '@achm/schemas';
 
 /**
  * Process a GM note into extended format with rendered markdown and optional clueId.

@@ -1,4 +1,4 @@
-import { seasonIdFromEvents } from '@skyreach/core';
+import { seasonIdFromEvents } from '@achm/core';
 import path from 'path';
 
 import { readOneFinalizedLog } from '../finalized-session-logs.js';

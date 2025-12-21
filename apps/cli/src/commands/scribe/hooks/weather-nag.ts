@@ -1,5 +1,5 @@
-import { warn } from '@skyreach/cli-kit';
-import { datesEqual } from '@skyreach/core';
+import { warn } from '@achm/cli-kit';
+import { datesEqual } from '@achm/core';
 
 import { readEvents } from '../../../services/event-log.service';
 import {
@@ -8,8 +8,8 @@ import {
 } from '../../../services/projectors.service';
 
 import type { Context } from '../types';
-import type { WeatherCommitted } from '@skyreach/core';
-import type { CampaignDate } from '@skyreach/schemas';
+import type { WeatherCommitted } from '@achm/core';
+import type { CampaignDate } from '@achm/schemas';
 
 /** Prints the weather nag if needed, once per in-game day. */
 export default function weatherNag(ctx: Context, cmd: string) {

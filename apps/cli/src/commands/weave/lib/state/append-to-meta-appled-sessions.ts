@@ -1,4 +1,4 @@
-import { MetaV2Data } from '@skyreach/schemas';
+import { MetaV2Data } from '@achm/schemas';
 
 export function appendToMetaAppliedSessions(meta: MetaV2Data, fileId: string) {
   if (!meta.state.trails.applied?.sessions) {

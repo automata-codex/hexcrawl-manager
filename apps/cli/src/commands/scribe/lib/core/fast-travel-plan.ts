@@ -2,14 +2,14 @@ import {
   REPO_PATHS,
   readAndValidateYaml,
   writeYamlAtomic,
-} from '@skyreach/data';
+} from '@achm/data';
 import { randomUUID } from 'node:crypto';
 import { existsSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
 
 import type { FastTravelPlan } from '../types/fast-travel';
-import type { Pace } from '@skyreach/schemas';
+import type { Pace } from '@achm/schemas';
 
 // Zod schema for validating loaded plans
 const FastTravelPlanSchema = z.object({

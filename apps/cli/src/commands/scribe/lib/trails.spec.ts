@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { bfsTrailPath, buildTrailGraph } from './trails';
 
-import type { TrailMap } from '@skyreach/schemas';
+import type { TrailMap } from '@achm/schemas';
 
 describe('buildTrailGraph', () => {
   it('creates bidirectional edges from trail data', () => {

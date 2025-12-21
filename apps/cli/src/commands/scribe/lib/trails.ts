@@ -1,6 +1,6 @@
-import { normalizeHexId } from '@skyreach/core';
+import { normalizeHexId } from '@achm/core';
 
-import type { TrailMap } from '@skyreach/schemas';
+import type { TrailMap } from '@achm/schemas';
 
 /**
  * Build an undirected graph from trail data.

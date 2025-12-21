@@ -1,6 +1,6 @@
-import { error, warn } from '@skyreach/cli-kit';
-import { CALENDAR_CONFIG } from '@skyreach/core';
-import { ensureRepoDirs } from '@skyreach/data';
+import { error, warn } from '@achm/cli-kit';
+import { CALENDAR_CONFIG } from '@achm/core';
+import { ensureRepoDirs } from '@achm/data';
 import { Command } from 'commander';
 import readline from 'node:readline';
 

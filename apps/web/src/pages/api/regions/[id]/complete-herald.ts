@@ -1,5 +1,5 @@
-import { writeYamlAtomic } from '@skyreach/data';
-import { RegionSchema } from '@skyreach/schemas';
+import { writeYamlAtomic } from '@achm/data';
+import { RegionSchema } from '@achm/schemas';
 import type { APIRoute } from 'astro';
 import fs from 'fs';
 import path from 'path';

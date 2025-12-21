@@ -1,4 +1,4 @@
-import { deriveSeasonId, normalizeSeasonId } from '@skyreach/core';
+import { deriveSeasonId, normalizeSeasonId } from '@achm/core';
 import {
   DataValidationError,
   isRolloverPath,
@@ -6,7 +6,7 @@ import {
   loadMeta,
   loadTrails,
   parseSessionFilename,
-} from '@skyreach/data';
+} from '@achm/data';
 import path from 'path';
 
 import { eventsOf, readEvents } from '../../../services/event-log.service';
@@ -26,7 +26,7 @@ import {
 import { ApplyTrailsResult } from '../lib/types';
 import { validateSessionEnvelope } from '../lib/validate';
 
-import type { DayStartEvent, SeasonRolloverEvent } from '@skyreach/schemas';
+import type { DayStartEvent, SeasonRolloverEvent } from '@achm/schemas';
 
 export interface PlanTrailsOptions {
   allowDirty?: boolean;

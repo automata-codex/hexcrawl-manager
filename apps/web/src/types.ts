@@ -3,7 +3,7 @@ import type {
   HexData,
   HiddenSite,
   TreasureData,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import type { CollectionEntry } from 'astro:content';
 
 export type ExtendedGmNote = {

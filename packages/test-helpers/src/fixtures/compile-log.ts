@@ -2,7 +2,7 @@ import {
   type ScribeEvent,
   type ScribeEventKind,
   type PayloadOfKind,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 /** Discriminated prototype produced by your builders */
 export type EventPrototype<K extends ScribeEventKind> = {

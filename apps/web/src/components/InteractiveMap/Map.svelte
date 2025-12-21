@@ -4,7 +4,7 @@
     faMagnifyingGlassArrowsRotate,
   } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-  import { isValidHexId } from '@skyreach/core';
+  import { isValidHexId } from '@achm/core';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
@@ -42,7 +42,7 @@
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { KnownTag } from '@skyreach/schemas';
+  import type { KnownTag } from '@achm/schemas';
 
   interface Props {
     role: string | null;

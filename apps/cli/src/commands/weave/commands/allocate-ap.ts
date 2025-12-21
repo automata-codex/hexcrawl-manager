@@ -2,8 +2,8 @@ import {
   REPO_PATHS,
   appendApEntry,
   findLastCompletedSessionSeq,
-} from '@skyreach/data';
-import { ApLedgerEntry, makeSessionId } from '@skyreach/schemas';
+} from '@achm/data';
+import { ApLedgerEntry, makeSessionId } from '@achm/schemas';
 
 import { loadAllCharacters } from '../../../services/characters.service';
 import {

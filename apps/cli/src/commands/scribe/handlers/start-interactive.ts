@@ -1,7 +1,7 @@
-import { error, info, maybeOverride } from '@skyreach/cli-kit';
-import { isValidHexId, normalizeHexId } from '@skyreach/core';
-import { buildSessionFilename, loadMeta } from '@skyreach/data';
-import { makeSessionId, type MetaV2Data } from '@skyreach/schemas';
+import { error, info, maybeOverride } from '@achm/cli-kit';
+import { isValidHexId, normalizeHexId } from '@achm/core';
+import { buildSessionFilename, loadMeta } from '@achm/data';
+import { makeSessionId, type MetaV2Data } from '@achm/schemas';
 
 import { appendEvent } from '../../../services/event-log.service';
 import { prepareSessionStart } from '../services/session';

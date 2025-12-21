@@ -14,7 +14,7 @@
  *   npm run validate:dungeon-encounters
  */
 
-import { resolveDataPath } from '@skyreach/data';
+import { resolveDataPath } from '@achm/data';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import yaml from 'yaml';

@@ -1,9 +1,9 @@
 /** Returns the most recent forecastAfter value from a previous day's weather_committed event, or 0 if none. */
-import { datesEqual, type WeatherCommitted } from '@skyreach/core';
+import { datesEqual, type WeatherCommitted } from '@achm/core';
 
 import { lastCalendarDate } from './last-calendar-date';
 
-import type { ScribeEvent } from '@skyreach/schemas';
+import type { ScribeEvent } from '@achm/schemas';
 
 export function selectCurrentForecast(events: ScribeEvent[]): number {
   const today = lastCalendarDate(events);

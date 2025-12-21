@@ -1,7 +1,7 @@
 <script lang="ts">
   import CheckBoxIcon from '../InteractiveMap/CheckBoxIcon.svelte';
 
-  import type { HexData } from '@skyreach/schemas';
+  import type { HexData } from '@achm/schemas';
 
   interface Props {
     hex: HexData;

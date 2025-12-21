@@ -1,12 +1,12 @@
-import { assertSeasonId, isSeasonId } from '@skyreach/core';
+import { assertSeasonId, isSeasonId } from '@achm/core';
 import {
   REPO_PATHS,
   SESSION_FILE_RE,
   buildRolloverFilename,
   checkFileExists,
   seasonOfSessionFile,
-} from '@skyreach/data';
-import { SESSION_ID_RE, SessionIdError, isSessionId } from '@skyreach/schemas';
+} from '@achm/data';
+import { SESSION_ID_RE, SessionIdError, isSessionId } from '@achm/schemas';
 import fs from 'fs';
 import path from 'path';
 

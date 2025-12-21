@@ -9,7 +9,7 @@ import {
 import { AllocateApResult } from './allocate-ap';
 
 // Mock cli-kit logging + exit mapper (no-op / deterministic)
-vi.mock('@skyreach/cli-kit', () => ({
+vi.mock('@achm/cli-kit', () => ({
   info: vi.fn(),
   error: vi.fn(),
   makeExitMapper: () => () => 1,

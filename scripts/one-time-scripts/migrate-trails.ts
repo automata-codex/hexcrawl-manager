@@ -1,4 +1,4 @@
-import { getRepoPath } from '@skyreach/data';
+import { getRepoPath } from '@achm/data';
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import * as yaml from 'yaml';

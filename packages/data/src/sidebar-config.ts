@@ -2,7 +2,7 @@
  * Sidebar configuration loader for data/sidebar.yml
  */
 
-import { SidebarConfigSchema, type SidebarConfigData } from '@skyreach/schemas';
+import { SidebarConfigSchema, type SidebarConfigData } from '@achm/schemas';
 
 import { readAndValidateYaml } from './fs-utils.js';
 import { resolveDataPath } from './paths.js';

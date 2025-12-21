@@ -1,6 +1,6 @@
 import { appendEvent } from '../../../../services/event-log.service';
 
-import type { CampaignDate } from '@skyreach/schemas';
+import type { CampaignDate } from '@achm/schemas';
 
 /**
  * Emit a day_start event.

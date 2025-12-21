@@ -2,7 +2,7 @@ import type {
   CreatureType,
   EncounterData,
   UsageReference,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import { getCollection } from 'astro:content';
 
 import {

@@ -4,8 +4,8 @@
   import TreasureTable from '../TreasureTable/TreasureTable.svelte';
 
   import type { ClueMapEntry, ExtendedHexData, ExtendedHiddenSites } from '../../types.ts';
-  import type { LinkType } from '@skyreach/schemas';
-  import { sortIgnoringArticles } from '@skyreach/core';
+  import type { LinkType } from '@achm/schemas';
+  import { sortIgnoringArticles } from '@achm/core';
 
   interface Props {
     clueMap?: Record<string, ClueMapEntry>;

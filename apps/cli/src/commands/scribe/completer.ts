@@ -1,4 +1,4 @@
-import { PILLARS, TIERS } from '@skyreach/schemas';
+import { PILLARS, TIERS } from '@achm/schemas';
 
 import { getAllCharacterIds } from './services/character';
 

@@ -1,5 +1,5 @@
-import { REPO_PATHS, loadMeta, writeYamlAtomic } from '@skyreach/data';
-import { SessionReportSchema, makeSessionId } from '@skyreach/schemas';
+import { REPO_PATHS, loadMeta, writeYamlAtomic } from '@achm/data';
+import { SessionReportSchema, makeSessionId } from '@achm/schemas';
 import { Command } from 'commander';
 import fs from 'fs';
 import path from 'path';

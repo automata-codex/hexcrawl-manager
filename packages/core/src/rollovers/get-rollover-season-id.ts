@@ -1,4 +1,4 @@
-import { ScribeEvent } from '@skyreach/schemas';
+import { ScribeEvent } from '@achm/schemas';
 
 export function getRolloverSeasonId(ev: ScribeEvent): string | undefined {
   if (ev.kind !== 'season_rollover') return undefined;

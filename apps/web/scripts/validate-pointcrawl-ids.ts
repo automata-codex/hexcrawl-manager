@@ -11,7 +11,7 @@
  *   npm run validate:pointcrawls
  */
 
-import { resolveDataPath } from '@skyreach/data';
+import { resolveDataPath } from '@achm/data';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import yaml from 'yaml';

@@ -2,7 +2,7 @@ import { rollEncounterEntry } from './roll-encounter-entry';
 import { rollEncounterOccurs } from './roll-encounter-occurs';
 import { rollEncounterType } from './roll-encounter-type';
 
-import type { EncounterTableData } from '@skyreach/schemas';
+import type { EncounterTableData } from '@achm/schemas';
 
 /**
  * Roll for an encounter entering a hex.

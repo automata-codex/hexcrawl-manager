@@ -1,10 +1,10 @@
-import { REPO_PATHS, writeYamlAtomic } from '@skyreach/data';
+import { REPO_PATHS, writeYamlAtomic } from '@achm/data';
 import {
   SessionReportSchema,
   padSessionNum,
   parseSessionId,
   type SessionId,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import type { APIRoute } from 'astro';
 import fs from 'fs';
 import path from 'path';

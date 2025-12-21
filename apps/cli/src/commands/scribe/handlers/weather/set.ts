@@ -1,5 +1,5 @@
-import { info, error } from '@skyreach/cli-kit';
-import { WEATHER_CATEGORIES } from '@skyreach/schemas';
+import { info, error } from '@achm/cli-kit';
+import { WEATHER_CATEGORIES } from '@achm/schemas';
 import { clamp } from 'lodash-es';
 
 import {
@@ -10,7 +10,7 @@ import {
 } from './helpers';
 
 import type { Context } from '../../types.ts';
-import type { Season, WeatherDraft } from '@skyreach/core';
+import type { Season, WeatherDraft } from '@achm/core';
 
 export default function weatherSet(ctx: Context, args: string[]) {
   const draft: WeatherDraft | undefined = ctx.weatherDraft;

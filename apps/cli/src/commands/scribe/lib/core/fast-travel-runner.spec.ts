@@ -1,4 +1,4 @@
-import { createWeather } from '@skyreach/test-helpers';
+import { createWeather } from '@achm/test-helpers';
 import {
   MockInstance,
   afterEach,
@@ -15,7 +15,7 @@ import * as hexData from '../hex-data';
 import { runFastTravel } from './fast-travel-runner';
 
 import type { FastTravelState } from './fast-travel-runner';
-import type { EncounterTableData } from '@skyreach/schemas';
+import type { EncounterTableData } from '@achm/schemas';
 
 describe('runFastTravel', () => {
   let makeEncounterNoteSpy: MockInstance<

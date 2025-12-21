@@ -1,7 +1,7 @@
-import { error, info, usage, warn } from '@skyreach/cli-kit';
-import { getHexNeighbors, isValidHexId, normalizeHexId } from '@skyreach/core';
-import { canonicalTrailId, loadTrails } from '@skyreach/data';
-import { PACES, type Pace } from '@skyreach/schemas';
+import { error, info, usage, warn } from '@achm/cli-kit';
+import { getHexNeighbors, isValidHexId, normalizeHexId } from '@achm/core';
+import { canonicalTrailId, loadTrails } from '@achm/data';
+import { PACES, type Pace } from '@achm/schemas';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
 import {

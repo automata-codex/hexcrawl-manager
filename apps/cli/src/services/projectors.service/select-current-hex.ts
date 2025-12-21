@@ -1,7 +1,7 @@
 /** Returns the current hex derived from the event log. */
-import { normalizeHexId } from '@skyreach/core';
+import { normalizeHexId } from '@achm/core';
 
-import type { ScribeEvent } from '@skyreach/schemas';
+import type { ScribeEvent } from '@achm/schemas';
 
 export function selectCurrentHex(events: ScribeEvent[]): string | null {
   // Prefer the last move's destination

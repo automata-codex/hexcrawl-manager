@@ -1,8 +1,8 @@
-import { getGitHeadCommit, REPO_PATHS, writeYamlAtomic } from '@skyreach/data';
+import { getGitHeadCommit, REPO_PATHS, writeYamlAtomic } from '@achm/data';
 import {
   RolloverFootprintSchema,
   SessionFootprintSchema,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import path from 'path';
 
 export function writeFootprint(footprint: any, domain: string = 'trails') {

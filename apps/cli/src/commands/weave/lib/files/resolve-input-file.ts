@@ -1,6 +1,6 @@
-import { info, selectFromFiles } from '@skyreach/cli-kit';
-import { REPO_PATHS } from '@skyreach/data';
-import { MetaV2Data } from '@skyreach/schemas';
+import { info, selectFromFiles } from '@achm/cli-kit';
+import { REPO_PATHS } from '@achm/data';
+import { MetaV2Data } from '@achm/schemas';
 import fs from 'fs';
 import path from 'path';
 

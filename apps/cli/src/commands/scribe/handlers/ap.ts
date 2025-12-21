@@ -1,5 +1,5 @@
-import { info, usage } from '@skyreach/cli-kit';
-import { PILLARS, TIERS } from '@skyreach/schemas';
+import { info, usage } from '@achm/cli-kit';
+import { PILLARS, TIERS } from '@achm/schemas';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
 import { partyMemberToString } from '../../../services/party-member.service';

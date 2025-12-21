@@ -1,6 +1,6 @@
 import { weightedRandomSelection } from './weighted-random-selection';
 
-import type { EncounterTableData, TieredSubtableData } from '@skyreach/schemas';
+import type { EncounterTableData, TieredSubtableData } from '@achm/schemas';
 
 /**
  * Roll on a category's subtable to get a specific encounter.

@@ -8,7 +8,7 @@
     CharacterData,
     EncounterData,
     StatBlockData,
-  } from '@skyreach/schemas';
+  } from '@achm/schemas';
 
   interface Props {
     characters: CharacterData[];

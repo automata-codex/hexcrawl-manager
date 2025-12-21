@@ -1,4 +1,4 @@
-import { usage, info } from '@skyreach/cli-kit';
+import { usage, info } from '@achm/cli-kit';
 
 import { readEvents, appendEvent } from '../../../services/event-log.service';
 import { isPartyLost } from '../../../services/projectors.service';

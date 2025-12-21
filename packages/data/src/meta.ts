@@ -1,5 +1,5 @@
-import { compareSeasonIds } from '@skyreach/core';
-import { type MetaV2Data, MetaV2Schema } from '@skyreach/schemas';
+import { compareSeasonIds } from '@achm/core';
+import { type MetaV2Data, MetaV2Schema } from '@achm/schemas';
 import { z } from 'zod';
 
 import { writeYamlAtomic } from './atomic-write.js';
@@ -8,7 +8,7 @@ import { REPO_PATHS } from './repo-paths.js';
 
 /** ────────────────────────────────────────────────────────────────────────────
  *  Compat: v1 shim + migration
- *  (kept local to IO to avoid polluting @skyreach/schemas)
+ *  (kept local to IO to avoid polluting @achm/schemas)
  *  v1 shape:
  *    { appliedSessions: string[], nextSessionSeq: number, rolledSeasons: string[] }
  *  maps to v2 trails + top-level nextSessionSeq

@@ -1,4 +1,4 @@
-import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';
+import type { CampaignDate, ScribeEvent } from '@achm/schemas';
 
 export function firstCalendarDate(events: ScribeEvent[]): CampaignDate | null {
   for (let i = 0; i < events.length; i++) {

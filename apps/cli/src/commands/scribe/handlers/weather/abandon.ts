@@ -1,4 +1,4 @@
-import { info } from '@skyreach/cli-kit';
+import { info } from '@achm/cli-kit';
 
 import type { Context } from '../../types.ts';
 

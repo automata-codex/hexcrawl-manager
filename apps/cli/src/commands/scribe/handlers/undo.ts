@@ -1,4 +1,4 @@
-import { info } from '@skyreach/cli-kit';
+import { info } from '@achm/cli-kit';
 
 import { readEvents, writeEvents } from '../../../services/event-log.service';
 import { requireFile } from '../services/general';

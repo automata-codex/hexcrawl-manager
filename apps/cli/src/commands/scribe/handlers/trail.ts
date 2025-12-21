@@ -1,5 +1,5 @@
-import { error, info, usage, warn } from '@skyreach/cli-kit';
-import { isValidHexId, normalizeHexId } from '@skyreach/core';
+import { error, info, usage, warn } from '@achm/cli-kit';
+import { isValidHexId, normalizeHexId } from '@achm/core';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
 import { selectCurrentHex } from '../../../services/projectors.service';

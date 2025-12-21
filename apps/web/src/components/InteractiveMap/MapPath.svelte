@@ -10,7 +10,7 @@
   } from '../../utils/interactive-map.ts';
 
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { SegmentMetadataData } from '@skyreach/schemas';
+  import type { SegmentMetadataData } from '@achm/schemas';
 
   interface Props {
     paths: MapPathPlayerData[];

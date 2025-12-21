@@ -1,5 +1,5 @@
-import { ApLedgerEntry } from '@skyreach/schemas';
-import { makeAbsenceSpend } from '@skyreach/test-helpers';
+import { ApLedgerEntry } from '@achm/schemas';
+import { makeAbsenceSpend } from '@achm/test-helpers';
 import { describe, it, expect } from 'vitest';
 
 import { aggregateApByCharacter } from './aggregate.js';

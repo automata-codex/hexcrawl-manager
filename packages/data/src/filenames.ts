@@ -1,10 +1,10 @@
-import { assertSeasonId, normalizeSeasonId } from '@skyreach/core';
+import { assertSeasonId, normalizeSeasonId } from '@achm/core';
 import {
   SessionDateSchema,
   makeSessionId,
   assertSessionId,
   type SessionId,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import path from 'path';
 
 import { FinalizedLogInfo } from './finalized-session-logs.js';

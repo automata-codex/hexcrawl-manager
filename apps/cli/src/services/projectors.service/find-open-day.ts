@@ -1,7 +1,7 @@
 /*
  PROJECTORS: Derive current state from the event log (date, hex, party, weather, etc.)
  */
-import type { ScribeEvent } from '@skyreach/schemas';
+import type { ScribeEvent } from '@achm/schemas';
 
 export function findOpenDay(events: ScribeEvent[]) {
   let lastStartIdx = -1;

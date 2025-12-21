@@ -1,5 +1,5 @@
-import { REPO_PATHS, loadMeta } from '@skyreach/data';
-import { ScribeEvent } from '@skyreach/schemas';
+import { REPO_PATHS, loadMeta } from '@achm/data';
+import { ScribeEvent } from '@achm/schemas';
 import {
   compileLog,
   dayEnd,
@@ -11,7 +11,7 @@ import {
   sessionStart,
   trail,
   withTempRepo,
-} from '@skyreach/test-helpers';
+} from '@achm/test-helpers';
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';

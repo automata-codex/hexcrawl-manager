@@ -1,5 +1,5 @@
 // Pick next session id (Option R)
-import { SessionId, makeSessionId } from '@skyreach/schemas';
+import { SessionId, makeSessionId } from '@achm/schemas';
 
 export function pickNextSessionId(
   completed: number[],

@@ -1,5 +1,5 @@
-import { info, warn } from '@skyreach/cli-kit';
-import { hexSort, normalizeHexId } from '@skyreach/core';
+import { info, warn } from '@achm/cli-kit';
+import { hexSort, normalizeHexId } from '@achm/core';
 import {
   REPO_PATHS,
   buildSessionFilename,
@@ -7,7 +7,7 @@ import {
   loadMeta,
   parseSessionFilename,
   saveMeta,
-} from '@skyreach/data';
+} from '@achm/data';
 import {
   SessionId,
   assertSessionId,
@@ -20,7 +20,7 @@ import {
   type SessionContinueEvent,
   type SessionEndEvent,
   type SessionPauseEvent,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import { existsSync, readdirSync, statSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 
@@ -392,7 +392,7 @@ export function findLatestInProgress(): { id: SessionId; path: string } | null {
   return { id: assertSessionId(top.id), path: top.path };
 }
 
-/** @deprecated Use `buildSessionFilename` from @skyreach/data instead. */
+/** @deprecated Use `buildSessionFilename` from @achm/data instead. */
 export const inProgressPathFor = (id: string, devMode?: boolean) => {
   if (devMode) {
     return path.join(REPO_PATHS.DEV_IN_PROGRESS(), `${id}.jsonl`);
