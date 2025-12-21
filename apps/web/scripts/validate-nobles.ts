@@ -14,13 +14,13 @@
  *   npm run validate:nobles
  */
 
+import { resolveDataPath } from '@skyreach/data';
 import { readdirSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import yaml from 'yaml';
 
-const DATA_DIR = resolve(process.cwd(), '../../data');
-const NOBLES_DIR = join(DATA_DIR, 'nobles');
-const FACTIONS_DIR = join(DATA_DIR, 'political-factions');
+const NOBLES_DIR = resolveDataPath('nobles');
+const FACTIONS_DIR = resolveDataPath('political-factions');
 
 interface NobleData {
   id: string;

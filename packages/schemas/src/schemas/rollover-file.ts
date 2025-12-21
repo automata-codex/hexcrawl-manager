@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { SeasonRolloverEventSchema } from './scribe-event';
+import { SeasonRolloverEventSchema } from './scribe-event.js';
 
 /**
  * Schema for validating rollover files (JSONL format).

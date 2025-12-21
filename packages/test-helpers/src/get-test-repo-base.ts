@@ -1,4 +1,3 @@
-import { getRepoPath } from '@skyreach/data';
 import fs from 'fs';
 import path from 'path';
 
@@ -6,10 +5,11 @@ const SENTINEL = '.skyreach-test-root';
 
 /**
  * Returns the absolute path to the test repo base directory, creating it and the sentinel file if needed.
- * Uses TEST_REPO_BASE env or defaults to ./.test-repos relative to project root.
+ * Uses TEST_REPO_BASE env or defaults to ./.test-repos relative to current working directory.
  */
 export function getTestRepoBase(): string {
-  const base = process.env.TEST_REPO_BASE || getRepoPath('.test-repos');
+  const base =
+    process.env.TEST_REPO_BASE || path.resolve(process.cwd(), '.test-repos');
   if (!fs.existsSync(base)) {
     fs.mkdirSync(base, { recursive: true });
   }

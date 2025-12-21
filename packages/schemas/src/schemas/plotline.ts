@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ClueReferencesSchema } from './clue-reference';
+import { ClueReferencesSchema } from './clue-reference.js';
 
 export const PlotlineStatusEnum = z.enum(['active', 'dormant', 'resolved']);
 

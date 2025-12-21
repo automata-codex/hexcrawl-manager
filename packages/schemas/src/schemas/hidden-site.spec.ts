@@ -6,7 +6,7 @@ import {
   HiddenSiteSchema,
   HiddenSitesSchema,
   PreplacedHiddenSiteSchema,
-} from './hex';
+} from './hex.js';
 
 describe('HiddenSiteSchema', () => {
   describe('PreplacedHiddenSiteSchema', () => {

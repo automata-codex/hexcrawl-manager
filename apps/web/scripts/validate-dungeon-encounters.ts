@@ -14,11 +14,12 @@
  *   npm run validate:dungeon-encounters
  */
 
+import { resolveDataPath } from '@skyreach/data';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import yaml from 'yaml';
 
-const DUNGEONS_DIR = resolve(process.cwd(), '../../data/dungeons');
+const DUNGEONS_DIR = resolveDataPath('dungeons');
 
 interface DungeonFrontmatter {
   id: string;

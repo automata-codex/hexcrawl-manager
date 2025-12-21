@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { SessionIdError } from '../errors';
-import { SESSION_ID_RE } from '../regex';
+import { SessionIdError } from '../errors.js';
+import { SESSION_ID_RE } from '../regex.js';
 
 export const SessionIdSchema = z
   .string()

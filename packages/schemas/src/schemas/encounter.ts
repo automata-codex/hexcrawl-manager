@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { ClueReferencesSchema } from './clue-reference';
-import { CreatureTypeEnum } from './stat-block';
+import { ClueReferencesSchema } from './clue-reference.js';
+import { CreatureTypeEnum } from './stat-block.js';
 
 export const EncounterScopeEnum = z.enum(['general', 'herald', 'hex', 'region', 'dungeon', 'pointcrawl']);
 

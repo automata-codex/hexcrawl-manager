@@ -2,12 +2,10 @@
  * Sidebar configuration loader for data/sidebar.yml
  */
 
-import path from 'node:path';
-
 import { SidebarConfigSchema, type SidebarConfigData } from '@skyreach/schemas';
 
-import { readAndValidateYaml } from './fs-utils';
-import { loadConfig } from './load-config';
+import { readAndValidateYaml } from './fs-utils.js';
+import { resolveDataPath } from './paths.js';
 
 /**
  * Load and validate sidebar.yml from the data directory.
@@ -15,7 +13,6 @@ import { loadConfig } from './load-config';
  * @throws DataValidationError if validation fails
  */
 export function loadSidebarConfig(): SidebarConfigData {
-  const config = loadConfig({ throwIfMissing: true })!;
-  const filePath = path.join(config.repoRoot, 'data', 'sidebar.yml');
+  const filePath = resolveDataPath('sidebar.yml');
   return readAndValidateYaml(filePath, SidebarConfigSchema);
 }

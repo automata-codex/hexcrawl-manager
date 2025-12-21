@@ -1,9 +1,9 @@
 import { hexSort } from '@skyreach/core';
 import { TrailData, TrailsFile } from '@skyreach/schemas';
 
-import { writeYamlAtomic } from './atomic-write';
-import { readAndValidateYaml } from './fs-utils';
-import { REPO_PATHS } from './repo-paths';
+import { writeYamlAtomic } from './atomic-write.js';
+import { readAndValidateYaml } from './fs-utils.js';
+import { REPO_PATHS } from './repo-paths.js';
 
 /** Build a stable edge id by ordering the two hex ids with hexSort. */
 export function canonicalTrailId(a: string, b: string): string {

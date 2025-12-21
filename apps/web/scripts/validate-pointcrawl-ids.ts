@@ -11,14 +11,14 @@
  *   npm run validate:pointcrawls
  */
 
+import { resolveDataPath } from '@skyreach/data';
 import { readdirSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import yaml from 'yaml';
 
-const DATA_DIR = resolve(process.cwd(), '../../data');
-const POINTCRAWLS_DIR = join(DATA_DIR, 'pointcrawls');
-const NODES_DIR = join(DATA_DIR, 'pointcrawl-nodes');
-const EDGES_DIR = join(DATA_DIR, 'pointcrawl-edges');
+const POINTCRAWLS_DIR = resolveDataPath('pointcrawls');
+const NODES_DIR = resolveDataPath('pointcrawl-nodes');
+const EDGES_DIR = resolveDataPath('pointcrawl-edges');
 
 interface PointcrawlData {
   id: string;

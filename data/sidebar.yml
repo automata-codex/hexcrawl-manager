@@ -1,0 +1,5 @@
+# Sidebar configuration for the web app
+# See packages/schemas/src/schemas/sidebar-config.ts for schema
+
+shared: []
+gmOnly: []

@@ -1,6 +1,6 @@
-export { datesEqual } from './dates-equal';
-export { formatDate } from './format-date';
-export { getDaylightCapForSeason } from './get-daylight-cap-for-season';
-export { getDaylightCapSegments } from './get-daylight-cap-segments';
-export { getSeasonForDate } from './get-season-for-date';
-export { hoursToSegmentsCeil, segmentsToHours } from './segments';
+export { datesEqual } from './dates-equal.js';
+export { formatDate } from './format-date.js';
+export { getDaylightCapForSeason } from './get-daylight-cap-for-season.js';
+export { getDaylightCapSegments } from './get-daylight-cap-segments.js';
+export { getSeasonForDate } from './get-season-for-date.js';
+export { hoursToSegmentsCeil, segmentsToHours } from './segments.js';

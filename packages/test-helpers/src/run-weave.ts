@@ -1,4 +1,5 @@
 import { execa } from 'execa';
+import path from 'path';
 
 export interface RunWeaveOptions {
   repo: string;
@@ -24,7 +25,7 @@ export async function runWeave(
   const env = {
     ...process.env,
     ...opts.env,
-    REPO_ROOT: opts.repo,
+    ACHM_DATA_PATH: path.join(opts.repo, 'data'),
     FORCE_COLOR: '0',
   };
 

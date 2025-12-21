@@ -1,4 +1,4 @@
-import { isValidHexId } from '../hexes';
+import { isValidHexId } from '../hexes/index.js';
 
 /**
  * Parses a trail ID into its constituent hex IDs.

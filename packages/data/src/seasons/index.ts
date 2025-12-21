@@ -1,1 +1,1 @@
-export * from './season-of-session-file';
+export * from './season-of-session-file.js';
