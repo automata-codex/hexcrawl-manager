@@ -33,6 +33,7 @@ data-skyreach
 /scripts/elevation-solver/.venv-elevation-solver/
 /data/session-logs/_dev
 /.test-repos/
+/apps/cli/.test-repos/
 /_reports/
 tree.txt
 docs/api/typedoc.json

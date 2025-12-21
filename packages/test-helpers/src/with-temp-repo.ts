@@ -99,10 +99,11 @@ export async function withTempRepo<T = string>(
   const ts = Date.now();
   const repoPath = path.join(base, suite, `${slug}-${ts}`);
 
-  // Save previous data path and set ACHM_DATA_PATH to sandbox path for this test
+  // Save previous data path and set ACHM_DATA_PATH to sandbox's data dir for this test
   const prevDataPath = process.env.ACHM_DATA_PATH ?? getDataPath();
   clearDataPathCache();
-  process.env.ACHM_DATA_PATH = repoPath;
+  const dataPath = path.join(repoPath, 'data');
+  process.env.ACHM_DATA_PATH = dataPath;
 
   // Ensure required directories using REPO_PATHS
   ensureRepoDirs();
