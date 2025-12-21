@@ -3,6 +3,7 @@
 '@skyreach/cli-kit': patch
 '@skyreach/schemas': patch
 '@skyreach/core': patch
+'@skyreach/cli': patch
 '@skyreach/data': major
 '@skyreach/web': major
 ---
@@ -13,3 +14,4 @@
 - Add placeholder data
 - Add license
 - **BREAKING CHANGE:** Implement configurable data directory
+- Update tests
