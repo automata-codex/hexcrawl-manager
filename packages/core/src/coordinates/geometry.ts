@@ -11,38 +11,43 @@ export interface CubeCoord {
 }
 
 /**
- * Neighbor offsets for odd-q flat-topped hex grid.
- * Indexed by column parity: [0] = even columns, [1] = odd columns.
+ * Neighbor offsets for flat-topped hex grid with columns A, C, E... shifted down.
+ * Indexed by column parity: [0] = even column indices, [1] = odd column indices.
+ * Reference: https://www.redblobgames.com/grids/hexagons/#neighbors-offset
+ *
+ * Note: With 0-indexed columns (A=0, B=1, ...), columns A, C, E have even indices,
+ * so this is "even-q" in Red Blob Games terminology. The existing codebase comments
+ * say "odd-q" because they think of A as the 1st column, but we use 0-indexed.
  */
 const NEIGHBOR_OFFSETS: Array<Array<{ col: number; row: number }>> = [
-  // Even columns (0, 2, 4, ...)
+  // Even columns (0, 2, 4, ...) - shifted down in even-q
   [
     { col: -1, row: 0 },
     { col: 0, row: -1 },
-    { col: 1, row: 0 },
-    { col: 1, row: 1 },
-    { col: 0, row: 1 },
-    { col: -1, row: 1 },
+    { col: +1, row: 0 },
+    { col: +1, row: +1 },
+    { col: 0, row: +1 },
+    { col: -1, row: +1 },
   ],
-  // Odd columns (1, 3, 5, ...)
+  // Odd columns (1, 3, 5, ...) - not shifted in even-q
   [
     { col: -1, row: -1 },
     { col: 0, row: -1 },
-    { col: 1, row: -1 },
-    { col: 1, row: 0 },
-    { col: 0, row: 1 },
+    { col: +1, row: -1 },
+    { col: +1, row: 0 },
+    { col: 0, row: +1 },
     { col: -1, row: 0 },
   ],
 ];
 
 /**
  * Convert hex coordinates to cube coordinates for distance calculations.
- * Uses odd-q offset coordinate system (flat-topped hexes, odd columns shifted).
+ * Uses even-q offset (columns A, C, E... shifted down, with 0-indexed column indices).
  */
 export function hexToCube(coord: HexCoord): CubeCoord {
   const x = coord.col;
-  // For odd-q: z = row - (col - (col & 1)) / 2
-  const z = coord.row - ((coord.col - (coord.col & 1)) >> 1);
+  // For even-q with 0-indexed columns: z = row - (col + (col & 1)) / 2
+  const z = coord.row - ((coord.col + (coord.col & 1)) >> 1);
   const y = -x - z;
   return { x, y, z };
 }
@@ -110,11 +115,11 @@ export function getHexesWithinDistance(
 
 /**
  * Convert cube coordinates back to hex coordinates.
- * Inverse of hexToCube for odd-q offset system.
+ * Inverse of hexToCube for even-q offset (0-indexed columns).
  */
 function cubeToHex(cube: CubeCoord): HexCoord {
   const col = cube.x;
-  // For odd-q: row = z + (col - (col & 1)) / 2
-  const row = cube.z + ((col - (col & 1)) >> 1);
+  // For even-q with 0-indexed columns: row = z + (col + (col & 1)) / 2
+  const row = cube.z + ((col + (col & 1)) >> 1);
   return { col, row };
 }
