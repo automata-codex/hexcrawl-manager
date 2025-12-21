@@ -16,9 +16,9 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@skyreach/core": "*",
-    "@skyreach/data": "*",
-    "@skyreach/schemas": "*",
+    "@achm/core": "*",
+    "@achm/data": "*",
+    "@achm/schemas": "*",
     "execa": "^9.6.0"
   },
   "devDependencies": {}

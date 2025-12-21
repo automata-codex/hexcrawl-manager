@@ -22,6 +22,6 @@
     "npm": "11.6.2"
   },
   "dependencies": {
-    "@skyreach/schemas": "*"
+    "@achm/schemas": "*"
   }
 }

@@ -22,11 +22,11 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.11.0",
-    "@skyreach/cli-kit": "*",
-    "@skyreach/core": "*",
-    "@skyreach/data": "*",
-    "@skyreach/schemas": "*",
-    "@skyreach/test-helpers": "*",
+    "@achm/cli-kit": "*",
+    "@achm/core": "*",
+    "@achm/data": "*",
+    "@achm/schemas": "*",
+    "@achm/test-helpers": "*",
     "commander": "^13.1.0",
     "lodash-es": "^4.17.21"
   }
