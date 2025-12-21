@@ -1,5 +1,5 @@
 {
-  "name": "@skyreach/core",
+  "name": "@achm/core",
   "version": "3.1.0",
   "exports": {
     ".": "./dist/index.js"

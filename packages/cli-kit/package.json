@@ -1,5 +1,5 @@
 {
-  "name": "@skyreach/cli-kit",
+  "name": "@achm/cli-kit",
   "version": "3.0.0",
   "exports": {
     ".": {

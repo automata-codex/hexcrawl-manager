@@ -1,5 +1,5 @@
 {
-  "name": "@skyreach/test-helpers",
+  "name": "@achm/test-helpers",
   "version": "3.0.0",
   "exports": {
     ".": {

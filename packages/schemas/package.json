@@ -1,5 +1,5 @@
 {
-  "name": "@skyreach/schemas",
+  "name": "@achm/schemas",
   "version": "4.1.0",
   "exports": {
     ".": {
