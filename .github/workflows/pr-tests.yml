@@ -9,6 +9,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build:
+    name: Build Site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+        env:
+          FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
+
+      - name: Build packages and site
+        run: npm run build
+        env:
+          FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
+          PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          # ACHM_DATA_PATH not set — uses default ./data (example data)
+
+      - name: Verify build output
+        run: |
+          if [ ! -d "apps/web/dist" ]; then
+            echo "Build output not found!"
+            exit 1
+          fi
+          echo "Build successful ✓"
+
   tests:
     name: ${{ matrix.cmd }}
     runs-on: ubuntu-latest
@@ -38,9 +72,11 @@ jobs:
         run: npm run build
         env:
           FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
+          PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
 
       - name: Run ${{ matrix.cmd }}
         run: ${{ matrix.cmd }}
         env:
-          REPO_ROOT: '${{ github.workspace }}'
+          ACHM_DATA_PATH: '${{ github.workspace }}/data'
           TEST_REPO_BASE: '${{ github.workspace }}/test-repos'
