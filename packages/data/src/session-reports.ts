@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
 
-import { REPORT_FILE_RE } from './regex';
-import { REPO_PATHS } from './repo-paths';
+import { REPORT_FILE_RE } from './regex.js';
+import { REPO_PATHS } from './repo-paths.js';
 
 export function discoverCompletedReports(): number[] {
   const dir = REPO_PATHS.REPORTS();

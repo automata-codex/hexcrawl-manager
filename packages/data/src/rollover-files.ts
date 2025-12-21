@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
-import { parseRolloverDevFilename, parseRolloverFilename } from './filenames';
-import { REPO_PATHS } from './repo-paths';
+import { parseRolloverDevFilename, parseRolloverFilename } from './filenames.js';
+import { REPO_PATHS } from './repo-paths.js';
 
 /** Internal shape for rollover files on disk. */
 export type RolloverInfo = {

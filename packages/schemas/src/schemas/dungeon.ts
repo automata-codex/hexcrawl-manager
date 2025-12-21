@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-import { ClueReferencesSchema } from './clue-reference';
-import { BuilderEnum } from './dungeon-builder';
-import { ImageSchema } from './dungeon-image';
-import { TreasureSchema } from './treasure';
+import { ClueReferencesSchema } from './clue-reference.js';
+import { BuilderEnum } from './dungeon-builder.js';
+import { ImageSchema } from './dungeon-image.js';
+import { TreasureSchema } from './treasure.js';
 
 export const DungeonDataSchema = z
   .object({

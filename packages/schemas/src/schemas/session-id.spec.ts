@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { padSessionNum } from './session-id';
+import { padSessionNum } from './session-id.js';
 
 describe('padSessionNum', () => {
   it('pads numeric inputs to four digits', () => {

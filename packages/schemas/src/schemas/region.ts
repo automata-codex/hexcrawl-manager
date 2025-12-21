@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { EncounterTableSchema } from './encounter-table';
+import { EncounterTableSchema } from './encounter-table.js';
 
 export const RegionSchema = z
   .object({

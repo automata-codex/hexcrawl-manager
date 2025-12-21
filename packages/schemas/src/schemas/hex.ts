@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-import { ClueReferencesSchema } from './clue-reference';
-import { EncounterOverrideSchema } from './encounter-override';
-import { LinkTypeEnum } from './roleplay-book';
-import { TreasureSchema } from './treasure';
+import { ClueReferencesSchema } from './clue-reference.js';
+import { EncounterOverrideSchema } from './encounter-override.js';
+import { LinkTypeEnum } from './roleplay-book.js';
+import { TreasureSchema } from './treasure.js';
 
 const BiomeEnum = z.enum([
   'alpine-tundra',

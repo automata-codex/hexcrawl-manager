@@ -2,9 +2,9 @@ import { compareSeasonIds } from '@skyreach/core';
 import { type MetaV2Data, MetaV2Schema } from '@skyreach/schemas';
 import { z } from 'zod';
 
-import { writeYamlAtomic } from './atomic-write';
-import { readAndValidateYaml } from './fs-utils';
-import { REPO_PATHS } from './repo-paths';
+import { writeYamlAtomic } from './atomic-write.js';
+import { readAndValidateYaml } from './fs-utils.js';
+import { REPO_PATHS } from './repo-paths.js';
 
 /** ────────────────────────────────────────────────────────────────────────────
  *  Compat: v1 shim + migration

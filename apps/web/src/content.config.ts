@@ -94,7 +94,7 @@ const DIRS = {
 /** @deprecated */
 function getDirectoryYamlLoader<T>(directory: string): () => T[] {
   return () => {
-    const DIRECTORY = path.join(process.cwd(), directory);
+    const DIRECTORY = directory;
     const files = fs.readdirSync(DIRECTORY);
     const data = files.map((file) => {
       if (path.extname(file) !== '.yml' && path.extname(file) !== '.yaml') {

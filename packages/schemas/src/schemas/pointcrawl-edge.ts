@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { EncounterOverrideSchema } from './encounter-override';
+import { EncounterOverrideSchema } from './encounter-override.js';
 
 const DirectionEnum = z.enum([
   'up',

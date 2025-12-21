@@ -1,4 +1,4 @@
-import { Season } from '../types';
+import { Season } from '../types.js';
 
 export const SEASON_ORDER: Season[] = ['winter', 'spring', 'summer', 'autumn'];
 

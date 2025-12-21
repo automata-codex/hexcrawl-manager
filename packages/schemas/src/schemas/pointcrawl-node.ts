@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-import { ClueReferencesSchema } from './clue-reference';
-import { EncounterOverrideSchema } from './encounter-override';
-import { TreasureSchema } from './treasure';
+import { ClueReferencesSchema } from './clue-reference.js';
+import { EncounterOverrideSchema } from './encounter-override.js';
+import { TreasureSchema } from './treasure.js';
 
 export const PointcrawlNodeSchema = z
   .object({

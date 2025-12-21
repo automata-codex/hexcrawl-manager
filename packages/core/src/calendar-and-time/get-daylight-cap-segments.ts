@@ -1,7 +1,7 @@
 import { STEP_HOURS } from '@skyreach/schemas';
 
-import { getDaylightCapForSeason } from './get-daylight-cap-for-season';
-import { getSeasonForDate } from './get-season-for-date';
+import { getDaylightCapForSeason } from './get-daylight-cap-for-season.js';
+import { getSeasonForDate } from './get-season-for-date.js';
 
 import type { CampaignDate } from '@skyreach/schemas';
 

@@ -1,1 +1,1 @@
-export * from './season-id';
+export * from './season-id.js';

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { FactionEnum } from './encounter';
+import { FactionEnum } from './encounter.js';
 
 // Re-export clue reference types from the separate module (avoids circular deps)
 export {
@@ -9,7 +9,7 @@ export {
   normalizeClueRef,
   type ClueReference,
   type ClueReferences,
-} from './clue-reference';
+} from './clue-reference.js';
 
 export const ClueStatusEnum = z.enum(['unknown', 'known']);
 

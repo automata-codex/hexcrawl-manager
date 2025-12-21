@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { IntelligenceReportRowSchema, LinkTypeEnum } from './roleplay-book';
+import { IntelligenceReportRowSchema, LinkTypeEnum } from './roleplay-book.js';
 
 describe('LinkTypeEnum', () => {
   it('accepts valid link types', () => {

@@ -7,13 +7,13 @@ import {
 } from '@skyreach/schemas';
 import path from 'path';
 
-import { FinalizedLogInfo } from './finalized-session-logs';
+import { FinalizedLogInfo } from './finalized-session-logs.js';
 import {
   ROLLOVER_DEV_FILE_RE,
   ROLLOVER_FILE_RE,
   SESSION_FILE_RE,
-} from './regex';
-import { REPO_PATHS } from './repo-paths';
+} from './regex.js';
+import { REPO_PATHS } from './repo-paths.js';
 
 export function buildRolloverDevFilename(season: string): string {
   const date = new Date().toISOString();

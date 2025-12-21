@@ -9,7 +9,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import yaml from 'yaml';
 
-import { getTestRepoBase, TEST_REPO_SENTINEL } from './get-test-repo-base';
+import { getTestRepoBase, TEST_REPO_SENTINEL } from './get-test-repo-base.js';
 
 async function fileExists(p: string) {
   try {

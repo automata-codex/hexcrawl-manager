@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { ClassEnum } from './class-enum';
-import { ClueReferencesSchema } from './clue-reference';
+import { ClassEnum } from './class-enum.js';
+import { ClueReferencesSchema } from './clue-reference.js';
 
 export const NpcSchema = z.object({
   id: z.string(),

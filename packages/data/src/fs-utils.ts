@@ -7,7 +7,7 @@ import {
   DataFileNotFoundError,
   DataParseError,
   DataValidationError,
-} from './errors';
+} from './errors.js';
 
 export function checkFileExists(file: string, msg?: string) {
   if (!fs.existsSync(file)) {

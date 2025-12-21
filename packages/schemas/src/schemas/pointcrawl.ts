@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-import { BuilderEnum } from './dungeon-builder';
-import { ImageSchema } from './dungeon-image';
-import { EncounterTableSchema } from './encounter-table';
+import { BuilderEnum } from './dungeon-builder.js';
+import { ImageSchema } from './dungeon-image.js';
+import { EncounterTableSchema } from './encounter-table.js';
 
 export const PointcrawlSchema = z
   .object({

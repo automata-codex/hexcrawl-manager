@@ -1,7 +1,7 @@
 import { seasonIdFromEvents } from '@skyreach/core';
 import path from 'path';
 
-import { readOneFinalizedLog } from '../finalized-session-logs';
+import { readOneFinalizedLog } from '../finalized-session-logs.js';
 
 /** Read the first day_start from a session file and derive a normalized seasonId. */
 export function seasonOfSessionFile(filePath: string): string {

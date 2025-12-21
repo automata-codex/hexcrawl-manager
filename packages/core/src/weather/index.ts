@@ -1,1 +1,1 @@
-export { slowsTravel } from './slows-travel';
+export { slowsTravel } from './slows-travel.js';

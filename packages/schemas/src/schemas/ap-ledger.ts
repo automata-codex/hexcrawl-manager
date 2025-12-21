@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { SessionIdSchema } from './session-id';
+import { SessionIdSchema } from './session-id.js';
 
 export const ApReasonSchema = z.enum([
   'normal',

@@ -1,1 +1,1 @@
-export { parseTrailId } from './parse-trail-id';
+export { parseTrailId } from './parse-trail-id.js';

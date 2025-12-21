@@ -4,8 +4,8 @@
 
 import { RoutesConfigSchema, type RoutesConfigData } from '@skyreach/schemas';
 
-import { readAndValidateYaml } from './fs-utils';
-import { resolveDataPath } from './paths';
+import { readAndValidateYaml } from './fs-utils.js';
+import { resolveDataPath } from './paths.js';
 
 /**
  * Load and validate routes.yml from the data directory.
