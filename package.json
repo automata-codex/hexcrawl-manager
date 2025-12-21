@@ -18,7 +18,7 @@
     "clean:branches": "git fetch --prune && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D || true",
     "clean:packages": "tsc -b tsconfig.workspace.json --clean && rimraf packages/*/dist",
     "clean:tests": "rm -rf .test-repos",
-    "cli": "tsx apps/cli/src/skyreach.ts",
+    "cli": "tsx apps/cli/src/hexcrawl.ts",
     "deps:fix": "syncpack fix-mismatches",
     "deps:list": "syncpack list-mismatches",
     "dev": "npm run -w @achm/web dev",

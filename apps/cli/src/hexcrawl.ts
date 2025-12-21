@@ -11,8 +11,8 @@ import { weaveCommand } from './commands/weave';
 const program = new Command();
 
 program
-  .name('skyreach')
-  .description('CLI tools for managing your Skyreach campaign')
+  .name('hexcrawl')
+  .description('CLI tools for managing your hexcrawl campaign')
   .version(pkg.version);
 
 // Register commands
