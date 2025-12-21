@@ -1,4 +1,4 @@
-# `@skyreach/core`
+# `@achm/core`
 
 Domain logic lives here. This package encodes the *rules of the world* and the
 *game system*—concepts that make sense even if you swapped out storage or UI.

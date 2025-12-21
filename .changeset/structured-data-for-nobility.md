@@ -1,6 +1,6 @@
 ---
-'@skyreach/schemas': minor
-'@skyreach/web': minor
+'@achm/schemas': minor
+'@achm/web': minor
 ---
 
 Add structured data for nobility

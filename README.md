@@ -44,7 +44,7 @@ Skyreach uses a **“version-on-develop”** workflow with lightweight automatio
 * **On merge to `main`**
 
   * CI builds and tests the repo (no publish step—packages are local/private).
-  * Any workspace (`apps/*` or `packages/*`) whose `package.json` changed gets a git tag: `<package-name>@<version>` (e.g. `@skyreach/core@2.9.0`)
+  * Any workspace (`apps/*` or `packages/*`) whose `package.json` changed gets a git tag: `<package-name>@<version>` (e.g. `@achm/core@2.9.0`)
   * Existing tags are never moved; tags are immutable version markers.
 
 ### Result
@@ -57,13 +57,13 @@ Skyreach uses a **“version-on-develop”** workflow with lightweight automatio
 
 When changes are made only to the `data/` directory (no code changes):
 
-* Bump `@skyreach/web` version to mark the deployment
+* Bump `@achm/web` version to mark the deployment
   * Use **minor** for new content/features (e.g., new articles, session reports)
   * Use **patch** for corrections or small updates
   * Include a clear changeset message indicating it's data-only:
     ```markdown
     ---
-    '@skyreach/web': minor
+    '@achm/web': minor
     ---
 
     **Content Update:** Add new articles on hex exploration mechanics
