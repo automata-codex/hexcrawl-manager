@@ -23,7 +23,7 @@ jobs:
           # cache disabled due to cross-platform binary issues with rollup
 
       - name: Install deps
-        run: npm ci
+        run: rm -rf node_modules && npm install
         env:
           FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
 
@@ -64,7 +64,7 @@ jobs:
           # cache disabled due to cross-platform binary issues with rollup
 
       - name: Install deps
-        run: npm ci
+        run: rm -rf node_modules && npm install
         env:
           FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
 
