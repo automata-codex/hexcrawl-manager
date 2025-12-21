@@ -1,9 +1,9 @@
 ---
+import { sortIgnoringArticles } from '@achm/core';
 import { getCollection, render } from 'astro:content';
 
 import { getCluePath } from '../../../config/routes';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
-import { sortIgnoringArticles } from '@achm/core';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;

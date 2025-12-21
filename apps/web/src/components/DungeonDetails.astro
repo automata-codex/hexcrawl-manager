@@ -1,16 +1,15 @@
 ---
-import { getCollection, getEntry, render } from 'astro:content';
-
 import { normalizeClueRef } from '@achm/schemas';
+import { getCollection, getEntry, render } from 'astro:content';
 
 import { getCluePath } from '../config/routes';
 import { renderBulletMarkdown } from '../utils/markdown';
 
-const allClues = await getCollection('clues');
-
 import StatBlock from './StatBlock/StatBlock.astro';
 
 import type { DungeonEntry } from '../types';
+
+const allClues = await getCollection('clues');
 
 interface Props {
   dungeon: DungeonEntry;

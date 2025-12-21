@@ -1,11 +1,12 @@
 ---
-import { getCollection } from 'astro:content';
 import { sortIgnoringArticles } from '@achm/core';
-import type { EncounterData } from '@achm/schemas';
+import { getCollection } from 'astro:content';
 
 import ClueList from '../../../components/ClueList.svelte';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import { buildClueUsageMap } from '../../../utils/clue-usage-tracker';
+
+import type { EncounterData } from '@achm/schemas';
 
 // Fetch clues and collections needed for usage tracking
 const [cluesData, encounters, hexes, dungeons, pointcrawlNodes, characters, npcs, plotlines, roleplayBooks] = await Promise.all([

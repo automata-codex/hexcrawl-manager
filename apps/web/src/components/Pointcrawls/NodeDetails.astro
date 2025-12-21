@@ -1,13 +1,13 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import { type EncounterTableData, normalizeClueRef } from '@achm/schemas';
 import { getCollection } from 'astro:content';
 
-import { type EncounterTableData, normalizeClueRef } from '@achm/schemas';
-
-import Badge from '../Badge.astro';
 import { getCluePath } from '../../config/routes';
-import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
 import { mergeEncounterOverrides } from '../../utils/encounters';
+import Badge from '../Badge.astro';
+import RandomEncounterTable from '../RandomEncounterTable/RandomEncounterTable.astro';
+
+import type { CollectionEntry } from 'astro:content';
 
 const allEncounters = await getCollection('encounters');
 const allClues = await getCollection('clues');

@@ -12,6 +12,10 @@
  */
 
 import { getRepoPath } from '@achm/data';
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
+import * as yaml from 'yaml';
+
 import type {
   DungeonData,
   EncounterData,
@@ -21,9 +25,6 @@ import type {
   LocationType,
   RegionData,
 } from '@achm/schemas';
-import { promises as fs } from 'node:fs';
-import * as path from 'node:path';
-import * as yaml from 'yaml';
 
 // --- Configuration ---
 

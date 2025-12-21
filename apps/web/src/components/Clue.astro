@@ -1,12 +1,9 @@
 ---
+import { sortIgnoringArticles } from '@achm/core';
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { faTriangleExclamation } from '@fortawesome/pro-solid-svg-icons';
-import { sortIgnoringArticles } from '@achm/core';
 import { getCollection } from 'astro:content';
 
-import type { ClueData } from '@achm/schemas';
-
-import Badge from './Badge.astro';
 import {
   getCharacterPath,
   getCluePath,
@@ -18,8 +15,12 @@ import {
   getPointcrawlNodePath,
   getRoleplayBookPath,
 } from '../config/routes';
-import type { ClueUsageReference } from '../utils/clue-usage-tracker';
 import { renderMarkdown } from '../utils/markdown';
+
+import Badge from './Badge.astro';
+
+import type { ClueUsageReference } from '../utils/clue-usage-tracker';
+import type { ClueData } from '@achm/schemas';
 
 interface Props {
   clue: ClueData;

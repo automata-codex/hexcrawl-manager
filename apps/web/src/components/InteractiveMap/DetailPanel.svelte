@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { parseTrailId } from '@achm/core';
   import {
     faMountainSun,
     faSidebar,
@@ -6,7 +7,6 @@
   } from '@fortawesome/pro-light-svg-icons';
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-  import { parseTrailId } from '@achm/core';
   import { onMount } from 'svelte';
 
   import {

@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { parseSessionId, type SessionId } from '@achm/schemas';
   import { faCircle, faCircleCheck } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-  import { parseSessionId, type SessionId } from '@achm/schemas';
 
   import { renderMarkdown } from '../utils/markdown';
   import {

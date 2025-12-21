@@ -1,10 +1,10 @@
 ---
-import { getCollection, getEntry, render } from 'astro:content';
 import { normalizeClueRef } from '@achm/schemas';
+import { getCollection, getEntry, render } from 'astro:content';
 
 import SecretContent from '../../../../components/Content/SecretContent.astro';
-import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
 import { getCluePath } from '../../../../config/routes';
+import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
 import { renderMarkdown } from '../../../../utils/markdown';
 import { formatText } from '../../../../utils/text';
 

@@ -1,3 +1,5 @@
+import { normalizeClueRef } from '@achm/schemas';
+
 import type {
   CharacterData,
   ClueData,
@@ -12,7 +14,6 @@ import type {
   PointcrawlNodeData,
   RoleplayBookData,
 } from '@achm/schemas';
-import { normalizeClueRef } from '@achm/schemas';
 
 /**
  * A reference to where a clue can be discovered.

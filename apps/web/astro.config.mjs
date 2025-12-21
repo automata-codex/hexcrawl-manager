@@ -1,8 +1,8 @@
+import { getPublicDir } from '@achm/data';
 import mdx from '@astrojs/mdx';
 import node from '@astrojs/node';
 import svelte from '@astrojs/svelte';
 import clerk from '@clerk/astro';
-import { getPublicDir } from '@achm/data';
 import { defineConfig } from 'astro/config';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';

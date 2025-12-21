@@ -32,8 +32,8 @@ import {
   CliValidationError,
   NoChangesError,
 } from '../lib/errors';
-import { assertCleanGitOrAllowDirty } from '../lib/files/assert-git-clean-or-allow-dirty';
 import { loadFinalizedEventsForSessions } from '../lib/files';
+import { assertCleanGitOrAllowDirty } from '../lib/files/assert-git-clean-or-allow-dirty';
 import {
   printApplyHexesSummary,
   printApplyTrailsResult,
