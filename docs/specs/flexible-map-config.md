@@ -767,8 +767,6 @@ export function resolveAllHexes(
 
 ### Phase 5.2: Update Content Collection Loaders
 
-**Note:** This phase should be completed after Stage 6 migration populates region `hexes` arrays. The `resolveAllHexes` function requires regions to define their hex membership in order to build the hex-to-region lookup map.
-
 Update the Astro content collection loaders and API endpoints to use `resolveAllHexes` instead of directly iterating hex files.
 
 **Files to update:**
@@ -778,8 +776,6 @@ Update the Astro content collection loaders and API endpoints to use `resolveAll
 **Commit message:** `feat(web): use hex resolution for API endpoints`
 
 ### Phase 5.3: Update Interactive Map
-
-**Note:** This phase should be completed after Phase 5.2, which depends on Stage 6 migration.
 
 The interactive map should already work since it consumes the API, but verify:
 - Hexes without data files render correctly with region defaults
@@ -941,71 +937,13 @@ async function removeHexRegionIds(dryRun: boolean) {
 
 **Commit message:** `chore(migration): add script to remove regionId from hex files`
 
-### Phase 6.4: Migration Script - Remove Placeholder Hexes
+### Phase 6.4: ~~Migration Script - Remove Placeholder Hexes~~ (SKIPPED)
 
-**File:** `scripts/one-time-scripts/remove-placeholder-hexes.ts`
+**Status:** Deliberately skipped.
 
-Identify and remove hex files that only contain ID, coordinates, terrain, and biome (i.e., no meaningful content beyond what the region provides).
+**Rationale:** The existing hex files with placeholder content (`name: unknown`, `landmark: unknown`) serve as visible TODO markers for hexes that need content. Since the campaign goal is to eventually give every hex unique name and landmark values, keeping these placeholders provides a clear indication of which hexes still need work. Removing them would mean creating new files from scratch when adding content, rather than editing existing stubs in place.
 
-```typescript
-async function removePlaceholderHexes(dryRun: boolean) {
-  const hexFiles = await loadAllHexFiles();
-  const regions = await loadAllRegions();
-
-  // Build region lookup
-  const regionByHex = buildRegionLookup(regions);
-
-  for (const file of hexFiles) {
-    const region = regionByHex.get(normalizeHexId(file.data.id, 'letter-number'));
-    if (!region) continue;
-
-    // Check if this hex file only has data that matches region defaults
-    const isPlaceholder = isPlaceholderHex(file.data, region);
-
-    if (isPlaceholder) {
-      console.log(`Removing placeholder: ${file.path}`);
-      if (!dryRun) {
-        await fs.unlink(file.path);
-      }
-    }
-  }
-}
-
-function isPlaceholderHex(hex: HexData, region: RegionData): boolean {
-  // A hex is a placeholder if it only has:
-  // - id (required)
-  // - terrain (matches region default)
-  // - biome (matches region default)
-  // And nothing else meaningful
-
-  const meaningfulFields = [
-    'landmark',
-    'hiddenSites',
-    'notes',
-    'secretSite',
-    'encounters',
-    'updates',
-    // ... other content fields
-  ];
-
-  for (const field of meaningfulFields) {
-    const value = hex[field];
-    if (value !== undefined && value !== null) {
-      if (Array.isArray(value) && value.length > 0) return false;
-      if (typeof value === 'string' && value.trim() !== '') return false;
-      if (typeof value === 'object' && Object.keys(value).length > 0) return false;
-    }
-  }
-
-  // Check terrain/biome match region defaults
-  if (hex.terrain && hex.terrain !== region.terrain) return false;
-  if (hex.biome && hex.biome !== region.biome) return false;
-
-  return true;
-}
-```
-
-**Commit message:** `chore(migration): add script to remove placeholder hex files`
+The terrain/biome fields in these placeholders are now redundant with region defaults but are harmless—they simply confirm the fallback values.
 
 ### Phase 6.5: Run Migration
 
@@ -1014,7 +952,6 @@ Execute the migration scripts in order:
 1. `migrate-region-hexes.ts` - Populate region hex lists
 2. `reorganize-hexes-by-column.ts` - Move files to column directories
 3. `remove-hex-region-ids.ts` - Clean up redundant field
-4. `remove-placeholder-hexes.ts` - Remove empty placeholders
 
 Run each with `--dry-run` first to verify, then without for actual migration.
 
