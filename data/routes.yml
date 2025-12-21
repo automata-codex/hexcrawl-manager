@@ -1,4 +1,73 @@
-# Route configuration for the web app
-# See packages/schemas/src/schemas/routes-config.ts for schema
+# Minimal routes configuration for example data
+# These routes are required by the generated helper functions in routes.ts
 
-index: /
+index: "/"
+
+gmReference:
+  dungeons:
+    type: collection
+    path: /gm-reference/dungeons
+    idPath: /gm-reference/dungeons/[id]
+  encounters:
+    type: collection
+    path: /gm-reference/encounters
+    idPath: /gm-reference/encounters/[id]
+  statBlocks:
+    type: collection
+    path: /gm-reference/stat-blocks
+    idPath: /gm-reference/stat-blocks/[id]
+  characters:
+    type: collection
+    path: /gm-reference/characters
+    idPath: /gm-reference/characters/[id]
+  pointcrawls:
+    type: collection
+    path: /gm-reference/pointcrawls
+    idPath: /gm-reference/pointcrawls/[id]
+  spells:
+    type: collection
+    path: /gm-reference/spells
+    idPath: /gm-reference/spells/[id]
+  plotlines:
+    type: collection
+    path: /gm-reference/plotlines
+    idPath: /gm-reference/plotlines/[id]
+
+sessionToolkit:
+  hexes:
+    type: collection
+    path: /session-toolkit/hexes
+    idPath: /session-toolkit/hexes/[id]
+  lootPacks:
+    type: collection
+    path: /session-toolkit/loot-packs
+    idPath: /session-toolkit/loot-packs/[id]
+    allPath: /session-toolkit/loot-packs/all
+  regions:
+    type: collection
+    path: /session-toolkit/regions
+    idPath: /session-toolkit/regions/[id]
+  roleplayBooks:
+    type: collection
+    path: /session-toolkit/roleplay-books
+    idPath: /session-toolkit/roleplay-books/[id]
+  rumors:
+    type: collection
+    path: /session-toolkit/rumors
+    idPath: /session-toolkit/rumors/[id]
+  clues:
+    unified:
+      type: collection
+      path: /session-toolkit/clues
+      idPath: /session-toolkit/clues/[id]
+
+playersReference:
+  setting:
+    bountyBoard:
+      type: collection
+      path: /players-reference/bounty-board
+      idPath: /players-reference/bounty-board/[id]
+    npcs:
+      type: collection
+      path: /players-reference/npcs
+      idPath: /players-reference/npcs/[id]
