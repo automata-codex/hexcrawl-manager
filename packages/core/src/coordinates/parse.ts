@@ -1,10 +1,10 @@
 import type { CoordinateNotation, HexCoord } from './types.js';
 
 /** Regex for letter-number notation: single letter + one or more digits */
-const LETTER_NUMBER_RE = /^([a-zA-Z])(\d+)$/;
+export const LETTER_NUMBER_RE = /^([a-zA-Z])(\d+)$/;
 
 /** Regex for numeric notation: exactly 4 digits (CCRR format) */
-const NUMERIC_RE = /^(\d{2})(\d{2})$/;
+export const NUMERIC_RE = /^(\d{2})(\d{2})$/;
 
 /**
  * Parse a hex ID string into internal coordinates.
