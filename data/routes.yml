@@ -1,0 +1,4 @@
+# Route configuration for the web app
+# See packages/schemas/src/schemas/routes-config.ts for schema
+
+index: /
