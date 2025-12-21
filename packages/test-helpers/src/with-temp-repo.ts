@@ -1,4 +1,9 @@
-import { REPO_PATHS, ensureRepoDirs, getRepoRoot } from '@skyreach/data';
+import {
+  clearDataPathCache,
+  ensureRepoDirs,
+  getDataPath,
+  REPO_PATHS,
+} from '@skyreach/data';
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
@@ -94,11 +99,12 @@ export async function withTempRepo<T = string>(
   const ts = Date.now();
   const repoPath = path.join(base, suite, `${slug}-${ts}`);
 
-  // Set REPO_ROOT to sandbox path for this test
-  const prevRepoRoot = process.env.REPO_ROOT ?? getRepoRoot();
-  process.env.REPO_ROOT = repoPath;
+  // Save previous data path and set ACHM_DATA_PATH to sandbox path for this test
+  const prevDataPath = process.env.ACHM_DATA_PATH ?? getDataPath();
+  clearDataPathCache();
+  process.env.ACHM_DATA_PATH = repoPath;
 
-  // Ensure required directories using getRepoPath/REPO_PATHS
+  // Ensure required directories using REPO_PATHS
   ensureRepoDirs();
 
   // Seed required files
@@ -144,7 +150,8 @@ export async function withTempRepo<T = string>(
     console.error(`Sandbox preserved at ${repoPath}`);
     throw err;
   } finally {
-    process.env.REPO_ROOT = prevRepoRoot;
+    clearDataPathCache();
+    process.env.ACHM_DATA_PATH = prevDataPath;
     if (!keep && !process.env[keepEnv]) {
       // Only delete if sentinel exists
       if (await fileExists(sentinel)) {
