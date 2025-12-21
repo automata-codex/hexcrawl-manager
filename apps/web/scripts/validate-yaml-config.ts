@@ -16,9 +16,9 @@ import {
   RoutesConfigSchema,
   SidebarConfigSchema,
 } from '@skyreach/schemas';
-import fs from 'fs';
-import path from 'path';
-import yaml from 'yaml';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as yaml from 'yaml';
 
 const DATA_DIR = getDataPath();
 

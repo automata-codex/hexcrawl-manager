@@ -12,10 +12,11 @@
  */
 
 import { resolveDataPath } from '@skyreach/data';
-import type { EncounterData } from '@skyreach/schemas';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import yaml from 'yaml';
+
+import type { EncounterData } from '@skyreach/schemas';
 
 const ENCOUNTERS_DIR = resolveDataPath('encounters');
 

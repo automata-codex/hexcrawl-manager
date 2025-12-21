@@ -86,6 +86,8 @@ export default defineConfig([
       'packages/**/src/**/*.{js,ts}',
       // app: CLI source
       'apps/cli/**/*.{js,ts}',
+      // app: build/validation scripts
+      'apps/**/scripts/**/*.{js,ts}',
       // app & framework config files that run in Node
       'apps/**/astro.config.{js,cjs,mjs,ts}',
       'apps/**/svelte.config.{js,cjs,mjs,ts}',
