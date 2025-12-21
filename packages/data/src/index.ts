@@ -7,7 +7,6 @@ export * from './fs-utils';
 export * from './git';
 export * from './havens';
 export * from './jsonl';
-export { loadConfig } from './load-config';
 export * from './meta';
 export * from './paths';
 export * from './regex';

@@ -9,7 +9,7 @@ Hexcrawl Manager is a campaign manager for a tabletop RPG campaign "Beyond the S
 - A web application for viewing campaign data
 - A monorepo with shared packages for core logic, schemas, and utilities
 
-**Repository split:** This is the code repository. Campaign data (session logs, encounters, characters, etc.) lives in a separate data repository at `../skyreach`. The CLI operates on the data repo when configured via `skyreach.config.json`.
+**Repository split:** This is the code repository. Campaign data (session logs, encounters, characters, etc.) lives in a separate data repository at `../skyreach`. Set the `ACHM_DATA_PATH` environment variable to point to the data directory.
 
 ## Common Commands
 
@@ -190,7 +190,6 @@ Hexcrawl Manager uses a "version-on-develop" workflow:
 - `.dependency-cruiser.cjs` - Enforces architectural boundaries
 - `tsconfig.workspace.json` - TypeScript project references
 - `vitest.config.ts` - Test configuration (unit vs integration modes)
-- `skyreach.config.json` - Points to data repo location
 - `docs/specs/` - Command specifications (scribe, weave, data-contracts)
 - `docs/specs/encounter-system.md` - Encounter content and taxonomy spec
 - `docs/dev/session-lifecycle.md` - Session/rollover/weave lifecycle
