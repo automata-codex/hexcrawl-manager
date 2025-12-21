@@ -16,7 +16,8 @@ export const GridConfigSchema = z.object({
   rows: z.number().int().positive(),
   notation: CoordinateNotationSchema.default('letter-number'),
 });
-export type GridConfig = z.infer<typeof GridConfigSchema>;
+// Use z.output to get the type after defaults are applied
+export type GridConfig = z.output<typeof GridConfigSchema>;
 
 /**
  * Full map configuration from map.yaml.
@@ -25,4 +26,5 @@ export const MapConfigSchema = z.object({
   grid: GridConfigSchema,
   outOfBounds: z.array(z.string()).default([]),
 });
-export type MapConfig = z.infer<typeof MapConfigSchema>;
+// Use z.output to get the type after defaults are applied
+export type MapConfig = z.output<typeof MapConfigSchema>;

@@ -20,6 +20,7 @@ export const REPO_PATHS = {
   IN_PROGRESS: () => resolveDataPath('session-logs/in-progress'), // In-progress session logs
   LOCKS: () => resolveDataPath('session-logs/.locks'), // Lock files for sessions
   LOGS_ROOT: () => resolveDataPath('session-logs'), // Root for all session logs
+  MAP_CONFIG: () => resolveDataPath('map.yaml'), // Map configuration
   META: () => resolveDataPath('meta.yaml'), // Meta file for session state
   REPORTS: () => resolveDataPath('session-reports'), // Generated reports
   ROLLOVERS: () => resolveDataPath('session-logs/rollovers'), // Root for all session logs

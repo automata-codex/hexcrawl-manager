@@ -7,6 +7,7 @@ export * from './fs-utils.js';
 export * from './git.js';
 export * from './havens.js';
 export * from './jsonl.js';
+export * from './map-config.js';
 export * from './meta.js';
 export * from './paths.js';
 export * from './regex.js';
