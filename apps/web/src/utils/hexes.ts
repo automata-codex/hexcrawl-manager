@@ -1,4 +1,8 @@
-import { hexSort as hexIdSort } from '@achm/core';
+import {
+  hexSort as hexIdSort,
+  isValidHexFormat,
+  parseHexId as coreParseHexId,
+} from '@achm/core';
 
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
@@ -35,13 +39,14 @@ export function hexSort(a: HexData, b: HexData): number {
   return hexIdSort(a.id, b.id);
 }
 
+/**
+ * Parse a hex ID into column (q) and row (r) coordinates.
+ * Uses q/r naming for compatibility with axialToPixel and existing code.
+ * Both values are 0-indexed.
+ */
 export function parseHexId(id: string): { q: number; r: number } {
-  const match = id.match(/^([A-Za-z])(\d+)$/);
-  if (!match) throw new Error(`Invalid hex id: ${id}`);
-  const [, colLetter, rowStr] = match;
-  const q = colLetter.toUpperCase().charCodeAt(0) - 65; // A=0, B=1, ...
-  const r = parseInt(rowStr, 10) - 1; // 1-based to 0-based
-  return { q, r };
+  const { col, row } = coreParseHexId(id, 'letter-number');
+  return { q: col, r: row };
 }
 
 export async function processHex(hex: HexData): Promise<ExtendedHexData> {
@@ -62,8 +67,7 @@ export async function processHex(hex: HexData): Promise<ExtendedHexData> {
 }
 
 export function isValidHexId(hexId: string): boolean {
-  const match = hexId.match(/^([A-Za-z])(\d+)$/);
-  return !!match;
+  return isValidHexFormat(hexId, 'letter-number');
 }
 
 function isStringArray(arr: any[]): arr is string[] {

@@ -1,4 +1,11 @@
-import { hexSort, normalizeHexId, rollDice } from '@achm/core';
+import {
+  hexDistance as coreHexDistance,
+  hexSort,
+  hexToCube as coreHexToCube,
+  normalizeHexId,
+  parseHexId,
+  rollDice,
+} from '@achm/core';
 import { cloneDeep } from 'lodash-es';
 
 export function applyRolloverToTrails(
@@ -178,26 +185,23 @@ export function canonicalEdgeKey(a: string, b: string): string {
   return `${h1.toLowerCase()}-${h2.toLowerCase()}`;
 }
 
+/**
+ * Calculate hex distance between two hex IDs.
+ * Wrapper around core hexDistance that accepts string IDs.
+ */
 export function hexDistance(a: string, b: string): number {
-  const ac = hexToCube(a);
-  const bc = hexToCube(b);
-  return Math.max(
-    Math.abs(ac.x - bc.x),
-    Math.abs(ac.y - bc.y),
-    Math.abs(ac.z - bc.z),
-  );
+  const coordA = parseHexId(a, 'letter-number');
+  const coordB = parseHexId(b, 'letter-number');
+  return coreHexDistance(coordA, coordB);
 }
 
-// TODO: This uses the wrong formula (odd-q instead of even-q). The map uses even-q
-// with 0-indexed columns, so the formula should be: z = row - ((col + (col & 1)) >> 1)
-// This will be replaced by the new coordinate utilities in @achm/core.
+/**
+ * Convert hex ID string to cube coordinates.
+ * Wrapper around core hexToCube that accepts string IDs.
+ */
 export function hexToCube(hex: string): { x: number; y: number; z: number } {
-  const col = hex[0].toUpperCase().charCodeAt(0) - 'A'.charCodeAt(0);
-  const row = parseInt(hex.slice(1), 10) - 1;
-  const x = col;
-  const z = row - ((col - (col & 1)) >> 1);
-  const y = -x - z;
-  return { x, y, z };
+  const coord = parseHexId(hex, 'letter-number');
+  return coreHexToCube(coord);
 }
 
 export function isHexNearAnyHaven(
