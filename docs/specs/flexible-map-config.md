@@ -767,6 +767,8 @@ export function resolveAllHexes(
 
 ### Phase 5.2: Update Content Collection Loaders
 
+**Note:** This phase should be completed after Stage 6 migration populates region `hexes` arrays. The `resolveAllHexes` function requires regions to define their hex membership in order to build the hex-to-region lookup map.
+
 Update the Astro content collection loaders and API endpoints to use `resolveAllHexes` instead of directly iterating hex files.
 
 **Files to update:**
@@ -776,6 +778,8 @@ Update the Astro content collection loaders and API endpoints to use `resolveAll
 **Commit message:** `feat(web): use hex resolution for API endpoints`
 
 ### Phase 5.3: Update Interactive Map
+
+**Note:** This phase should be completed after Phase 5.2, which depends on Stage 6 migration.
 
 The interactive map should already work since it consumes the API, but verify:
 - Hexes without data files render correctly with region defaults
