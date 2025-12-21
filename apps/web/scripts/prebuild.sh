@@ -14,6 +14,11 @@ echo ""
 echo "=== Prebuild: Validating YAML config ==="
 tsx scripts/validate-yaml-config.ts
 
+# This generation step needs to run before the ToC validation
+echo ""
+echo "=== Prebuild: Generating config ==="
+tsx scripts/generate-config.ts
+
 echo ""
 echo "=== Prebuild: Validating articles ==="
 tsx scripts/validate-articles.ts
@@ -37,10 +42,6 @@ tsx scripts/validate-toc-config.ts
 echo ""
 echo "=== Prebuild: Caching AP totals ==="
 tsx scripts/cache-ap-totals.ts
-
-echo ""
-echo "=== Prebuild: Generating config ==="
-tsx scripts/generate-config.ts
 
 echo ""
 echo "=== Prebuild complete ==="
