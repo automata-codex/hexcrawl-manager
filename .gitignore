@@ -25,6 +25,7 @@ pnpm-debug.log*
 
 # project-specific files
 /schemas/*.json
+data-skyreach
 
 *.zip
 /.vercel/
