@@ -1,3 +1,4 @@
+import { getPublicDir } from '@skyreach/data';
 import mdx from '@astrojs/mdx';
 import svelte from '@astrojs/svelte';
 import node from '@astrojs/node';
@@ -13,6 +14,7 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
+  publicDir: getPublicDir(),
   server: {
     host: '0.0.0.0', // Listen on all network interfaces for Railway
     port: Number(process.env.PORT) || 4321, // Use Railway's PORT env var

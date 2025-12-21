@@ -1,3 +1,4 @@
+import { getDataPath } from '@skyreach/data';
 import {
   type BountyData,
   BountySchema,
@@ -45,7 +46,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 
-const DATA_DIR = '../../data';
+const DATA_DIR = getDataPath();
 
 /**
  * Check if a collection directory exists on the filesystem.

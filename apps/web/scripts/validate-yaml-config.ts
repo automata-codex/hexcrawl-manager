@@ -11,18 +11,16 @@
  *   npm run validate:yaml-config
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import yaml from 'yaml';
+import { getDataPath } from '@skyreach/data';
 import {
   RoutesConfigSchema,
   SidebarConfigSchema,
 } from '@skyreach/schemas';
+import fs from 'fs';
+import path from 'path';
+import yaml from 'yaml';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DATA_DIR = path.resolve(__dirname, '../../../data');
+const DATA_DIR = getDataPath();
 
 interface ValidationResult {
   file: string;
