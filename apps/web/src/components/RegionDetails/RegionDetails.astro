@@ -27,9 +27,9 @@ function getHeading(text: string) {
 const articles = await getCollection('articles');
 const dungeons = await getCollection('dungeons');
 const hexData = await getCollection('hexes');
-const hexes = hexData
-  .filter((hex) => hex.data.regionId === region.id)
-  .map((hex) => hex.data.id.toUpperCase())
+// Use region.hexes as the authoritative source of membership
+const hexes = (region.hexes ?? [])
+  .map((hex) => hex.toUpperCase())
   .sort((a, b) => hexSort(a, b));
 ---
 

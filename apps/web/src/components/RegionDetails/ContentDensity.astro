@@ -11,6 +11,11 @@ interface Props {
 
 const { dungeons, hexData, hexCount, region } = Astro.props;
 
+// Use region.hexes as the authoritative source of membership
+const regionHexIds = new Set(
+  (region.hexes ?? []).map((id) => id.toLowerCase()),
+);
+
 const contentDensityDescriptions = {
   1: 'Very Low (0.1–0.2 hidden sites/hex, 0–1 dungeons)',
   2: 'Low (0.2–0.3 hidden sites/hex, 1 dungeon)',
@@ -20,12 +25,12 @@ const contentDensityDescriptions = {
 } as const;
 
 const dungeonCount = dungeons.filter((dungeon) => {
-  const hex = hexData.find((hex) => hex.data.id === dungeon.data.hexId);
-  return hex && hex.data.regionId === region.id;
+  const hexId = dungeon.data.hexId?.toLowerCase();
+  return hexId && regionHexIds.has(hexId);
 }).length;
 
 const hiddenSiteCount = hexData
-  .filter((hex) => hex.data.regionId === region.id)
+  .filter((hex) => regionHexIds.has(hex.data.id.toLowerCase()))
   .reduce((acc, hex) => acc + (hex.data.hiddenSites?.length || 0), 0);
 
 const hiddenSiteDensity = (hiddenSiteCount / hexCount).toFixed(2);

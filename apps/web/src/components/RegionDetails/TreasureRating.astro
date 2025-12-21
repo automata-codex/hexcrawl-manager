@@ -17,6 +17,11 @@ interface Props {
 
 const { articles, dungeons, hexData, region } = Astro.props;
 
+// Use region.hexes as the authoritative source of membership
+const regionHexIds = new Set(
+  (region.hexes ?? []).map((id) => id.toLowerCase()),
+);
+
 const treasureRatingDescriptions = {
   1: 'Very Low (250–500 gp, no or 1 consumable item)',
   2: 'Low (500–1,000 gp, 1–2 common items)',
@@ -57,8 +62,8 @@ const articleTreasure = articles
 
 const dungeonItems = dungeons
   .filter((dungeon) => {
-    const hex = hexData.find((hex) => hex.data.id === dungeon.data.hexId);
-    return hex && hex.data.regionId === region.id;
+    const hexId = dungeon.data.hexId?.toLowerCase();
+    return hexId && regionHexIds.has(hexId);
   })
   .flatMap((dungeon) => {
     const treasureItems = Array.isArray(dungeon.data.treasure)
@@ -76,8 +81,8 @@ const dungeonItems = dungeons
   );
 const dungeonTreasure = dungeons
   .filter((dungeon) => {
-    const hex = hexData.find((hex) => hex.data.id === dungeon.data.hexId);
-    return hex && hex.data.regionId === region.id;
+    const hexId = dungeon.data.hexId?.toLowerCase();
+    return hexId && regionHexIds.has(hexId);
   })
   .reduce((total, dungeon) => {
     const treasureItems = dungeon.data.treasure;
@@ -88,7 +93,7 @@ const dungeonTreasure = dungeons
   }, 0);
 
 const hiddenSiteItems = hexData
-  .filter((hex) => hex.data.regionId === region.id)
+  .filter((hex) => regionHexIds.has(hex.data.id.toLowerCase()))
   // I don't like casting to `any[]`, but it's the only way I've found to make the types work in here
   .flatMap((hex) => (hex.data.hiddenSites as any[]) || [])
   .flatMap((site) =>
@@ -107,7 +112,7 @@ const hiddenSiteItems = hexData
     { ...initialRarityCounts },
   );
 const hiddenSiteTreasure = hexData
-  .filter((hex) => hex.data.regionId === region.id)
+  .filter((hex) => regionHexIds.has(hex.data.id.toLowerCase()))
   .flatMap((hex) => (hex.data.hiddenSites as any[]) || [])
   .reduce((total, site) => {
     if (typeof site !== 'string' && Array.isArray(site.treasure)) {

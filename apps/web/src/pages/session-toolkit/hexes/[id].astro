@@ -10,6 +10,7 @@ import RandomEncounterTable from '../../../components/RandomEncounterTable/Rando
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { mergeEncounterOverrides } from '../../../utils/encounters';
 import { processHex } from '../../../utils/hexes';
+import { buildHexToRegionLookup } from '../../../utils/regions';
 
 import type { EncounterTableData, HexData } from '@achm/schemas';
 
@@ -49,14 +50,24 @@ const pointcrawls = allPointcrawls
   .filter((p) => p.data.hexIds?.includes(hex.id.toLowerCase()))
   .map((p) => ({ slug: p.data.slug, name: p.data.name }));
 
+// Build region lookup and find hex's region
+const regions = await getCollection('regions');
+const hexToRegion = buildHexToRegionLookup(regions);
+const regionEntry = hexToRegion.get(hex.id.toLowerCase());
+
+// Apply region fallbacks for terrain/biome and regionId
+if (regionEntry) {
+  hex.regionId = regionEntry.id;
+  hex.terrain = hex.terrain ?? regionEntry.data.terrain;
+  hex.biome = hex.biome ?? regionEntry.data.biome;
+}
+
 // Build the random encounter table
 let encounters: EncounterTableData | undefined = undefined;
 let encounterChance = 8;
-const regions = await getCollection('regions');
-const region = regions.find((region) => region.id === hex.regionId);
-if (region) {
-  encounters = region.data.encounters;
-  encounterChance = region.data.encounterChance;
+if (regionEntry) {
+  encounters = regionEntry.data.encounters;
+  encounterChance = regionEntry.data.encounterChance;
 }
 encounterChance = hex.encounterChance ?? encounterChance;
 
@@ -89,14 +100,14 @@ const extendedHexData = await processHex(hex);
       pointcrawls={pointcrawls}
       showSelfLink={false}
     />
-    {!hex.hideRandomEncounters && region && (
+    {!hex.hideRandomEncounters && regionEntry && (
       <RandomEncountersSection
-        region={region.data}
+        region={regionEntry.data}
         encounters={encounters}
         encounterChance={encounterChance}
       />
     )}
-    {!hex.hideRandomEncounters && !region && encounters && (
+    {!hex.hideRandomEncounters && !regionEntry && encounters && (
       <>
         <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
         <p>

@@ -3,8 +3,10 @@ import { getCollection } from 'astro:content';
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE, UNKNOWN_CONTENT } from '../../utils/constants.ts';
 import { processHex } from '../../utils/hexes.ts';
+import { buildHexToRegionLookup } from '../../utils/regions.ts';
 
 import type { ExtendedHexData } from '../../types.ts';
+import type { HexData } from '@achm/schemas';
 import type { APIRoute } from 'astro';
 
 export type HexPlayerData = Pick<
@@ -25,9 +27,39 @@ export type HexPlayerData = Pick<
   biome: ExtendedHexData['biome'] | 'Unknown';
 };
 
+/**
+ * Apply region fallbacks to hex data.
+ * Derives regionId from region ownership and provides terrain/biome defaults.
+ */
+function resolveHexData(
+  hex: HexData,
+  hexToRegion: Map<string, { id: string; data: { terrain?: string; biome?: string } }>,
+): HexData {
+  const region = hexToRegion.get(hex.id.toLowerCase());
+
+  return {
+    ...hex,
+    // Use region as authoritative source for regionId
+    regionId: region?.id ?? hex.regionId,
+    // Fall back to region defaults for terrain/biome
+    terrain: hex.terrain ?? region?.data.terrain,
+    biome: hex.biome ?? region?.data.biome,
+  };
+}
+
 export const GET: APIRoute = async ({ locals }) => {
-  const hexEntries = await getCollection('hexes');
-  const fullHexes = hexEntries.map((entry) => entry.data);
+  const [hexEntries, regionEntries] = await Promise.all([
+    getCollection('hexes'),
+    getCollection('regions'),
+  ]);
+
+  // Build region lookup for resolution
+  const hexToRegion = buildHexToRegionLookup(regionEntries);
+
+  // Resolve each hex with region fallbacks
+  const fullHexes = hexEntries.map((entry) =>
+    resolveHexData(entry.data, hexToRegion),
+  );
 
   const role = getCurrentUserRole(locals);
 
