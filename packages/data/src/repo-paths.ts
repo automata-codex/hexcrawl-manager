@@ -1,32 +1,31 @@
 import fs from 'fs';
 import path from 'path';
 
-import { getRepoPath, resolveDataPath } from './paths';
+import { resolveDataPath } from './paths';
 
 export const REPO_PATHS = {
   AP_LEDGER: () => resolveDataPath('ap-ledger.jsonl'),
-  CHARACTERS: () => getRepoPath('data', 'characters'),
-  DEV: () => getRepoPath('data', 'session-logs', '_dev'), // Dev-mode root
-  DEV_IN_PROGRESS: () =>
-    getRepoPath('data', 'session-logs', '_dev', 'in-progress'), // Dev-mode in-progress logs
-  DEV_ROLLOVERS: () => getRepoPath('data', 'session-logs', '_dev', 'rollovers'), // Dev-mode rollover logs
-  DEV_SESSIONS: () => getRepoPath('data', 'session-logs', '_dev', 'sessions'), // Dev-mode finalized session logs
-  FAST_TRAVEL: () => getRepoPath('data', 'fast-travel'), // Fast travel plan files
+  CHARACTERS: () => resolveDataPath('characters'),
+  DEV: () => resolveDataPath('session-logs/_dev'), // Dev-mode root
+  DEV_IN_PROGRESS: () => resolveDataPath('session-logs/_dev/in-progress'), // Dev-mode in-progress logs
+  DEV_ROLLOVERS: () => resolveDataPath('session-logs/_dev/rollovers'), // Dev-mode rollover logs
+  DEV_SESSIONS: () => resolveDataPath('session-logs/_dev/sessions'), // Dev-mode finalized session logs
+  FAST_TRAVEL: () => resolveDataPath('fast-travel'), // Fast travel plan files
   FOOTPRINTS: (domain?: string) =>
     domain
-      ? getRepoPath('data', 'session-logs', 'footprints', domain)
-      : getRepoPath('data', 'session-logs', 'footprints'), // Footprint logs (optionally by domain)
-  HAVENS: () => getRepoPath('data', 'havens.yml'),
+      ? resolveDataPath(`session-logs/footprints/${domain}`)
+      : resolveDataPath('session-logs/footprints'), // Footprint logs (optionally by domain)
+  HAVENS: () => resolveDataPath('havens.yml'),
   HEXES: () => resolveDataPath('hexes'),
-  IN_PROGRESS: () => getRepoPath('data', 'session-logs', 'in-progress'), // In-progress session logs
-  LOCKS: () => getRepoPath('data', 'session-logs', '.locks'), // Lock files for sessions
-  LOGS_ROOT: () => getRepoPath('data', 'session-logs'), // Root for all session logs
-  META: () => getRepoPath('data', 'meta.yaml'), // Meta file for session state
-  REPORTS: () => getRepoPath('data', 'session-reports'), // Generated reports
-  ROLLOVERS: () => getRepoPath('data', 'session-logs', 'rollovers'), // Root for all session logs
-  SESSIONS: () => getRepoPath('data', 'session-logs', 'sessions'), // Finalized session files
-  TEMPLATES: () => getRepoPath('data', 'templates'), // Template files (e.g., post-session checklist)
-  TRAILS: () => getRepoPath('data', 'trails.yml'),
+  IN_PROGRESS: () => resolveDataPath('session-logs/in-progress'), // In-progress session logs
+  LOCKS: () => resolveDataPath('session-logs/.locks'), // Lock files for sessions
+  LOGS_ROOT: () => resolveDataPath('session-logs'), // Root for all session logs
+  META: () => resolveDataPath('meta.yaml'), // Meta file for session state
+  REPORTS: () => resolveDataPath('session-reports'), // Generated reports
+  ROLLOVERS: () => resolveDataPath('session-logs/rollovers'), // Root for all session logs
+  SESSIONS: () => resolveDataPath('session-logs/sessions'), // Finalized session files
+  TEMPLATES: () => resolveDataPath('templates'), // Template files (e.g., post-session checklist)
+  TRAILS: () => resolveDataPath('trails.yml'),
 };
 
 export function ensureRepoDirs() {

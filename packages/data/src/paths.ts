@@ -1,30 +1,51 @@
 import path from 'path';
 
-import { loadConfig } from './load-config';
+let cachedDataPath: string | null = null;
 
 /**
- * Get an absolute path within the repository.
- * @param segments
+ * Get the campaign data directory path.
+ * Priority:
+ * 1. ACHM_DATA_PATH env var
+ * 2. REPO_ROOT env var + '/data' (deprecated, emit warning)
+ * 3. Default to './data'
  */
-export function getRepoPath(...segments: string[]): string {
-  return path.join(getRepoRoot(), ...segments);
-}
+export function getDataPath(): string {
+  if (cachedDataPath) return cachedDataPath;
 
-/**
- * Returns the repository root directory, respecting the REPO_ROOT env override.
- * Falls back to config if not set.
- */
-export function getRepoRoot(): string {
-  if (process.env.REPO_ROOT && process.env.REPO_ROOT.trim()) {
-    return process.env.REPO_ROOT;
+  if (process.env.ACHM_DATA_PATH?.trim()) {
+    cachedDataPath = path.resolve(process.env.ACHM_DATA_PATH);
+    return cachedDataPath;
   }
-  return loadConfig()?.repoRoot ?? process.cwd();
+
+  if (process.env.REPO_ROOT?.trim()) {
+    console.warn(
+      '[DEPRECATED] REPO_ROOT is deprecated. Use ACHM_DATA_PATH instead.',
+    );
+    cachedDataPath = path.resolve(process.env.REPO_ROOT, 'data');
+    return cachedDataPath;
+  }
+
+  cachedDataPath = path.resolve(process.cwd(), 'data');
+  return cachedDataPath;
 }
 
 /**
- * Resolve a path relative to the repo's `data/` directory.
- * @param rel
+ * Resolve a path relative to the campaign data directory.
  */
 export function resolveDataPath(rel: string): string {
-  return getRepoPath('data', rel);
+  return path.join(getDataPath(), rel);
+}
+
+/**
+ * Get the public assets directory (for Astro's publicDir).
+ */
+export function getPublicDir(): string {
+  return path.join(getDataPath(), 'public');
+}
+
+/**
+ * Clear the cached data path (useful for tests).
+ */
+export function clearDataPathCache(): void {
+  cachedDataPath = null;
 }
