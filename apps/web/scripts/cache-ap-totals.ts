@@ -12,10 +12,11 @@ import {
   readApLedger,
   REPO_PATHS,
 } from '@skyreach/data';
-import { ApTotalsCache } from '@skyreach/schemas';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import type { ApTotalsCache } from '@skyreach/schemas';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
