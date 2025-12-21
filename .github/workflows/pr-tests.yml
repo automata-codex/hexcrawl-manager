@@ -20,10 +20,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          # cache disabled due to cross-platform binary issues with rollup
+          cache: 'npm'
 
       - name: Install deps
-        run: rm -rf package-lock.json && npm install
+        run: npm ci
         env:
           FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
 
@@ -61,10 +61,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          # cache disabled due to cross-platform binary issues with rollup
+          cache: 'npm'
 
       - name: Install deps
-        run: rm -rf package-lock.json && npm install
+        run: npm ci
         env:
           FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
 
