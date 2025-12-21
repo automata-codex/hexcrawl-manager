@@ -3,6 +3,7 @@ export * from './characters/index.js';
 export * from './config/index.js';
 export * from './errors/index.js';
 export * from './hexes/index.js';
+export * from './coordinates/index.js';
 export * from './regex.js';
 export { rollDice } from './roll-dice.js';
 export * from './rollovers/index.js';
