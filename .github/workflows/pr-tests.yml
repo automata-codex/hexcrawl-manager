@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
+          # cache disabled due to cross-platform binary issues with rollup
 
       - name: Install deps
         run: npm ci
@@ -61,7 +61,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
+          # cache disabled due to cross-platform binary issues with rollup
 
       - name: Install deps
         run: npm ci
