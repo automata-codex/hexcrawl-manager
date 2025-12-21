@@ -1,13 +1,17 @@
-import { getPublicDir } from '@skyreach/data';
 import mdx from '@astrojs/mdx';
-import svelte from '@astrojs/svelte';
 import node from '@astrojs/node';
+import svelte from '@astrojs/svelte';
 import clerk from '@clerk/astro';
+import { getPublicDir } from '@skyreach/data';
 import { defineConfig } from 'astro/config';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import rehypeAddClasses from 'rehype-add-classes';
 import remarkSmartypants from 'remark-smartypants';
 
 import svgSymbolsPlugin from './src/plugins/svg-symbols-plugin.mjs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://astro.build/config
 export default defineConfig({
@@ -39,5 +43,11 @@ export default defineConfig({
   output: 'server',
   vite: {
     plugins: [svgSymbolsPlugin()],
+    resolve: {
+      alias: {
+        // Allow MDX files in external data repo to import components
+        '@skyreach/web': path.resolve(__dirname),
+      },
+    },
   },
 });
