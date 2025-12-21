@@ -6,7 +6,7 @@ import type {
   LinkType,
   RoleplayBookData,
   StatBlockData,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 /**
  * Derives creature types for an encounter based on its stat blocks.

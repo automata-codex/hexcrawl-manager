@@ -1,4 +1,4 @@
-import type { ScribeEvent } from '@skyreach/schemas';
+import type { ScribeEvent } from '@achm/schemas';
 
 export function isDayOpen(events: ScribeEvent[]) {
   let lastStartIdx = -1;

@@ -4,12 +4,12 @@ import {
   CharacterData,
   CharacterSchema,
   SessionReportSchema,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import {
   makeAbsenceSpend,
   makeCompletedSessionReport,
   makePlannedSessionReport,
-} from '@skyreach/test-helpers';
+} from '@achm/test-helpers';
 import { describe, it, expect } from 'vitest';
 
 import { computeUnclaimedAbsenceAwards } from './compute-unclaimed-absence-awards';

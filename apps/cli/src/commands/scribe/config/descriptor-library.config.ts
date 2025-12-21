@@ -1,4 +1,4 @@
-import type { DescriptorLibrary } from '@skyreach/core';
+import type { DescriptorLibrary } from '@achm/core';
 
 // Descriptor Library: 3 per season×category
 export const DESCRIPTOR_LIBRARY: DescriptorLibrary = {

@@ -1,4 +1,4 @@
-import type { PartyMember } from '@skyreach/schemas';
+import type { PartyMember } from '@achm/schemas';
 
 /** Check if a PartyMember is a guest PC */
 export function isGuest(

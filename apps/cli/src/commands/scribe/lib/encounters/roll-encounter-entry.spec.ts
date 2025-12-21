@@ -1,4 +1,4 @@
-import * as core from '@skyreach/core';
+import * as core from '@achm/core';
 import {
   MockInstance,
   afterEach,
@@ -11,7 +11,7 @@ import {
 
 import { rollEncounterEntry } from './roll-encounter-entry';
 
-import type { EncounterTableData } from '@skyreach/schemas';
+import type { EncounterTableData } from '@achm/schemas';
 
 describe('rollEncounterEntry', () => {
   // eslint-disable-next-line no-unused-vars

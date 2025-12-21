@@ -2,7 +2,7 @@
  * Routes configuration loader for data/routes.yml
  */
 
-import { RoutesConfigSchema, type RoutesConfigData } from '@skyreach/schemas';
+import { RoutesConfigSchema, type RoutesConfigData } from '@achm/schemas';
 
 import { readAndValidateYaml } from './fs-utils.js';
 import { resolveDataPath } from './paths.js';

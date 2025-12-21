@@ -1,4 +1,4 @@
-import { error, info, makeExitMapper } from '@skyreach/cli-kit';
+import { error, info, makeExitMapper } from '@achm/cli-kit';
 import {
   SessionAlreadyAppliedError,
   SessionFingerprintMismatchError,
@@ -6,17 +6,17 @@ import {
   SessionReportValidationError,
   assertSeasonId,
   isSeasonId,
-} from '@skyreach/core';
+} from '@achm/core';
 import {
   DirtyGitError,
   FinalizedLogJsonParseError,
   FinalizedLogsNotFoundError,
-} from '@skyreach/data';
+} from '@achm/data';
 import {
   assertSessionId,
   isSessionId,
   SessionIdError,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 import {
   AlreadyAppliedError,

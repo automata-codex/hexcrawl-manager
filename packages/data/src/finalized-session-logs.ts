@@ -1,4 +1,4 @@
-import { ScribeEvent, SessionId, makeSessionId } from '@skyreach/schemas';
+import { ScribeEvent, SessionId, makeSessionId } from '@achm/schemas';
 import fs from 'fs';
 
 import {

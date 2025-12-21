@@ -3,7 +3,7 @@ import {
   atomicWrite,
   readJsonlWithHeader,
   writeJsonl,
-} from '@skyreach/data';
+} from '@achm/data';
 import {
   ScribeEventSchema,
   ScribeHeader,
@@ -11,7 +11,7 @@ import {
   type ScribeEvent,
   type ScribeEventKind,
   type ScribeEventOfKind,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 const nextSeq = (evs: ScribeEvent[]) =>
   evs.length ? Math.max(...evs.map((e) => e.seq)) + 1 : 1;

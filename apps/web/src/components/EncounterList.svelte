@@ -3,7 +3,7 @@
 
   import Badge from './Badge.svelte';
 
-  import type { CreatureType, Faction, LocationType } from '@skyreach/schemas';
+  import type { CreatureType, Faction, LocationType } from '@achm/schemas';
 
   interface EncounterItem {
     id: string;

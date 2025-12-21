@@ -1,5 +1,5 @@
-import { REPO_PATHS } from '@skyreach/data';
-import { CharacterSchema, type CharacterData } from '@skyreach/schemas';
+import { REPO_PATHS } from '@achm/data';
+import { CharacterSchema, type CharacterData } from '@achm/schemas';
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';

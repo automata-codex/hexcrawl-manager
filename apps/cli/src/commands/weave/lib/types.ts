@@ -1,4 +1,4 @@
-import { ExploreEvent, MoveEvent, ScoutEvent } from '@skyreach/schemas';
+import { ExploreEvent, MoveEvent, ScoutEvent } from '@achm/schemas';
 
 export interface ApplyTrailsDebug {
   /** Before/after snapshots for touched edges (subset, not whole file). */

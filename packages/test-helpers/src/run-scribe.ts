@@ -54,7 +54,7 @@ export async function runScribe(
 
   const entry = opts.entry || {
     cmd: 'tsx',
-    args: ['src/skyreach.ts', 'scribe'],
+    args: ['src/hexcrawl.ts', 'scribe'],
   };
 
   const env = {

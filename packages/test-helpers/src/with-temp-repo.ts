@@ -3,7 +3,7 @@ import {
   ensureRepoDirs,
   getDataPath,
   REPO_PATHS,
-} from '@skyreach/data';
+} from '@achm/data';
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';

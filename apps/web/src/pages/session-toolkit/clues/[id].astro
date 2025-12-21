@@ -1,11 +1,12 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 
-import type { EncounterData } from '@skyreach/schemas';
 
 import Clue from '../../../components/Clue.astro';
 import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
 import { buildClueUsageMap, getClueUsage } from '../../../utils/clue-usage-tracker';
+
+import type { EncounterData } from '@achm/schemas';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;

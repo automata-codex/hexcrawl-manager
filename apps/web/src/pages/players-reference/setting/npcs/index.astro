@@ -1,12 +1,12 @@
 ---
+import { sortIgnoringArticles } from '@achm/core';
 import { getCollection } from 'astro:content';
-import { sortIgnoringArticles } from '@skyreach/core';
 
 import SecretContent from '../../../../components/Content/SecretContent.astro';
+import { getNpcPath, getRoleplayBookPath } from '../../../../config/routes.ts';
 import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
 import { renderMarkdown } from '../../../../utils/markdown';
 import { formatText } from '../../../../utils/text';
-import { getNpcPath, getRoleplayBookPath } from '../../../../config/routes.ts';
 
 function formatOccupation(
   occupation: string,

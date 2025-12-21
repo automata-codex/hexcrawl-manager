@@ -1,4 +1,4 @@
-import { CALENDAR_CONFIG, rollDice } from '@skyreach/core';
+import { CALENDAR_CONFIG, rollDice } from '@achm/core';
 import { clamp } from 'lodash-es';
 
 import { DESCRIPTOR_LIBRARY } from '../../config/descriptor-library.config';
@@ -7,8 +7,8 @@ import { EFFECTS_TABLE } from '../../config/effects-table.config';
 import { FORECAST_MODIFIER } from '../../config/forecast-modifier.config';
 import { SEASONAL_BANDS } from '../../config/seasonal-bands.config';
 
-import type { Season, WeatherCategory } from '@skyreach/core';
-import type { CampaignDate } from '@skyreach/schemas';
+import type { Season, WeatherCategory } from '@achm/core';
+import type { CampaignDate } from '@achm/schemas';
 
 export function bandForTotal(season: Season, total: number): WeatherCategory {
   const bands = SEASONAL_BANDS[season];

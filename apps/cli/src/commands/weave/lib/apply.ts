@@ -1,4 +1,4 @@
-import { hexSort, normalizeHexId, rollDice } from '@skyreach/core';
+import { hexSort, normalizeHexId, rollDice } from '@achm/core';
 import { cloneDeep } from 'lodash-es';
 
 export function applyRolloverToTrails(

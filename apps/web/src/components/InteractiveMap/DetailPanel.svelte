@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { parseTrailId } from '@achm/core';
   import {
     faMountainSun,
     faSidebar,
@@ -6,7 +7,6 @@
   } from '@fortawesome/pro-light-svg-icons';
   import { faDungeon } from '@fortawesome/pro-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-  import { parseTrailId } from '@skyreach/core';
   import { onMount } from 'svelte';
 
   import {
@@ -30,7 +30,7 @@
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { TrailEntry } from '@skyreach/schemas';
+  import type { TrailEntry } from '@achm/schemas';
 
   interface Props {
     dungeons: DungeonEssentialData[];

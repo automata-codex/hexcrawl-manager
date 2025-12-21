@@ -2,7 +2,7 @@ import { makeEncounterNote } from '../encounters';
 
 import { executeLeg } from './execute-leg';
 
-import type { WeatherCommitted } from '@skyreach/core';
+import type { WeatherCommitted } from '@achm/core';
 import type {
   CampaignDate,
   DayEndEventPayload,
@@ -14,7 +14,7 @@ import type {
   Season,
   TimeLogEventPayload,
   WeatherCommittedEventPayload,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 /**
  * Events that can occur during fast travel execution.

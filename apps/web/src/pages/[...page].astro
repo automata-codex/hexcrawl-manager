@@ -3,13 +3,13 @@ import { getCollection, getEntry, render } from 'astro:content';
 
 import SecretContent from '../components/Content/SecretContent.astro';
 import TableOfContents from '../components/TableOfContents.astro';
+import { getSidebarSections } from '../config/sidebar-sections';
 import ArticleLayout from '../layouts/ArticleLayout.astro';
 import SecretArticleLayout from '../layouts/SecretArticleLayout.astro';
-import { getSidebarSections } from '../config/sidebar-sections';
-import { findToCPage, type ToCPageData } from '../utils/toc-helpers';
-import { isSecureRoute } from '../utils/security';
-import { resolveSidebarSections } from '../utils/resolve-sidebar-hrefs';
 import { SECURITY_ROLE } from '../utils/constants';
+import { resolveSidebarSections } from '../utils/resolve-sidebar-hrefs';
+import { isSecureRoute } from '../utils/security';
+import { findToCPage, type ToCPageData } from '../utils/toc-helpers';
 
 const currentPath = Astro.url.pathname;
 

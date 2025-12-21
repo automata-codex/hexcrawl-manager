@@ -1,4 +1,4 @@
-import { ApLedgerEntry } from '@skyreach/schemas';
+import { ApLedgerEntry } from '@achm/schemas';
 
 export type AggregatedAp = Record<
   string,

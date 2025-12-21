@@ -1,4 +1,4 @@
-import { info } from '@skyreach/cli-kit';
+import { info } from '@achm/cli-kit';
 
 import { readEvents } from '../../../../services/event-log.service';
 import { selectCurrentWeather } from '../../../../services/projectors.service';
@@ -7,7 +7,7 @@ import { requireFile } from '../../services/general';
 
 import type { CalendarService } from '../../services/calendar.ts';
 import type { Context } from '../../types.ts';
-import type { WeatherCommitted, WeatherDraft } from '@skyreach/core';
+import type { WeatherCommitted, WeatherDraft } from '@achm/core';
 
 function printCommitted(
   committed: WeatherCommitted,

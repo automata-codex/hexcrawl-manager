@@ -1,16 +1,16 @@
-import { SEASON_ID_RE } from '@skyreach/core';
+import { SEASON_ID_RE } from '@achm/core';
 import {
   REPO_PATHS,
   buildSessionFilename,
   discoverFinalizedLogsFor,
   loadMeta,
-} from '@skyreach/data';
+} from '@achm/data';
 import {
   SESSION_ID_RE,
   makeSessionId,
   type DayStartEvent,
   type ScribeEvent,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import {
   compileLog,
   dayStart,
@@ -18,7 +18,7 @@ import {
   runScribe,
   sessionStart,
   withTempRepo,
-} from '@skyreach/test-helpers';
+} from '@achm/test-helpers';
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';

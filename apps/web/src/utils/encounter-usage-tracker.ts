@@ -8,7 +8,7 @@ import type {
   PointcrawlNodeData,
   RegionData,
   UsageReference,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 /**
  * A reference to where an encounter is used.

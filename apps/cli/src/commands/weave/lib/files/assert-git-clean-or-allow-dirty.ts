@@ -1,4 +1,4 @@
-import { DirtyGitError, isGitDirty } from '@skyreach/data';
+import { DirtyGitError, isGitDirty } from '@achm/data';
 
 export function assertCleanGitOrAllowDirty(opts?: { allowDirty?: boolean }) {
   if (opts?.allowDirty) {

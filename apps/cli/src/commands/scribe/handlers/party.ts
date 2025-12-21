@@ -1,4 +1,4 @@
-import { askLine, error, info, usage } from '@skyreach/cli-kit';
+import { askLine, error, info, usage } from '@achm/cli-kit';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
 import {
@@ -10,7 +10,7 @@ import { getAllCharacterIds } from '../services/character';
 import { requireSession } from '../services/general';
 
 import type { Context } from '../types';
-import type { PartyMember } from '@skyreach/schemas';
+import type { PartyMember } from '@achm/schemas';
 
 function parseGuestFlags(argv: string[]) {
   // Parse flags: --player-name <name> --character-name <name>

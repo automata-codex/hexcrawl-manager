@@ -3,7 +3,7 @@ import {
   deriveSeasonId,
   getRolloverSeasonId,
   normalizeSeasonId,
-} from '@skyreach/core';
+} from '@achm/core';
 import {
   isRolloverPath,
   loadHavens,
@@ -12,7 +12,7 @@ import {
   parseSessionFilename,
   saveMeta,
   saveTrails,
-} from '@skyreach/data';
+} from '@achm/data';
 import path from 'path';
 
 import { readEvents } from '../../../services/event-log.service';
@@ -39,7 +39,7 @@ import { appendToMetaAppliedSessions, writeFootprint } from '../lib/state';
 import { ApplyTrailsResult } from '../lib/types';
 import { validateSessionEnvelope } from '../lib/validate';
 
-import type { CampaignDate } from '@skyreach/schemas';
+import type { CampaignDate } from '@achm/schemas';
 
 export type ApplyTrailsMode = 'auto' | 'rollover' | 'session';
 

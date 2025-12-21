@@ -1,8 +1,8 @@
 import { Interface } from 'node:readline';
 
 import type { CalendarService } from './services/calendar.ts';
-import type { WeatherDraft } from '@skyreach/core';
-import type { SessionId } from '@skyreach/schemas';
+import type { WeatherDraft } from '@achm/core';
+import type { SessionId } from '@achm/schemas';
 
 export type Context = {
   calendar: CalendarService;

@@ -1,4 +1,4 @@
-import { getDataPath } from '@skyreach/data';
+import { getDataPath } from '@achm/data';
 import {
   type BountyData,
   BountySchema,
@@ -39,7 +39,7 @@ import {
   TrailEntrySchema,
   TrailsFile,
   TreasureSchema,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import { file, glob } from 'astro/loaders';
 import { defineCollection, z } from 'astro:content';
 import fs from 'fs';

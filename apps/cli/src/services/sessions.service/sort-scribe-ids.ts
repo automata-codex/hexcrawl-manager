@@ -1,4 +1,4 @@
-import { SESSION_FILE_RE } from '@skyreach/data';
+import { SESSION_FILE_RE } from '@achm/data';
 
 // Sort scribe log basenames by date/suffix
 // Accepts: session-0021_2025-09-17.jsonl, session-0021a_2025-09-17.jsonl

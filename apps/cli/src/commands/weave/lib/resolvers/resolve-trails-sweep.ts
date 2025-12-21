@@ -4,7 +4,7 @@ import {
   discoverRolloverFiles,
   enrichLogsWithSeason,
   loadMeta,
-} from '@skyreach/data';
+} from '@achm/data';
 
 import { isRolloverAlreadyApplied, isSessionAlreadyApplied } from '../guards';
 

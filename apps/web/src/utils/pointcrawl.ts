@@ -1,4 +1,4 @@
-import type { TraversalTimeData, TraversalSegmentData } from '@skyreach/schemas';
+import type { TraversalTimeData, TraversalSegmentData } from '@achm/schemas';
 
 function formatSegment(segment: TraversalSegmentData): string {
   const time = `${segment.count} ${segment.unit}`;

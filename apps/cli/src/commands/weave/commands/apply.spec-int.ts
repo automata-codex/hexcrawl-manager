@@ -1,4 +1,4 @@
-import { REPO_PATHS, loadMeta, readApLedger } from '@skyreach/data';
+import { REPO_PATHS, loadMeta, readApLedger } from '@achm/data';
 import {
   dayEnd,
   dayStart,
@@ -12,7 +12,7 @@ import {
   ap,
   saveCharacters,
   CharacterKey,
-} from '@skyreach/test-helpers';
+} from '@achm/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';

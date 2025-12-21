@@ -1,4 +1,4 @@
-import type { Pace } from '@skyreach/schemas';
+import type { Pace } from '@achm/schemas';
 
 /**
  * Fast travel plan persisted to disk.

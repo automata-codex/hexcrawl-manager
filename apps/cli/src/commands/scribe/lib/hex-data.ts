@@ -2,9 +2,9 @@ import {
   getTravelDifficulty,
   isDifficultTerrain,
   normalizeHexId,
-} from '@skyreach/core';
-import { readAndValidateYaml } from '@skyreach/data';
-import { HexSchema } from '@skyreach/schemas';
+} from '@achm/core';
+import { readAndValidateYaml } from '@achm/data';
+import { HexSchema } from '@achm/schemas';
 
 import { buildHexFileIndex } from '../../../services/hexes.service';
 

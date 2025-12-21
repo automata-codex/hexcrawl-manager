@@ -1,10 +1,10 @@
-import { normalizeHexId } from '@skyreach/core';
+import { normalizeHexId } from '@achm/core';
 import {
   HexFileNotFoundError,
   REPO_PATHS,
   writeYamlAtomic,
-} from '@skyreach/data';
-import { HexData } from '@skyreach/schemas';
+} from '@achm/data';
+import { HexData } from '@achm/schemas';
 import fs from 'node:fs';
 import yaml from 'yaml';
 

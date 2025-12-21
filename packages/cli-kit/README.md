@@ -1,4 +1,4 @@
-# `@skyreach/cli-kit`
+# `@achm/cli-kit`
 
 Shared **CLI UX primitives** and helpers. This package is for building nice command-line experiences across apps—**not** for domain or data logic.
 

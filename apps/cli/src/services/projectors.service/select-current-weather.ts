@@ -1,6 +1,6 @@
 /** Returns the most recent WeatherCommitted payload from the event log, or null if none. */
-import type { WeatherCommitted } from '@skyreach/core';
-import type { ScribeEvent } from '@skyreach/schemas';
+import type { WeatherCommitted } from '@achm/core';
+import type { ScribeEvent } from '@achm/schemas';
 
 export function selectCurrentWeather(
   events: ScribeEvent[],

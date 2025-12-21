@@ -3,7 +3,7 @@ import {
   ApLedgerEntrySchema,
   Pillar,
   makeSessionId,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 const apTriplet = <R extends 'normal' | 'absence_spend'>(
   deltas: Partial<Record<Pillar, number>>,

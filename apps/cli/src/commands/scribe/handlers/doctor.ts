@@ -1,7 +1,7 @@
-import { info, warn, error } from '@skyreach/cli-kit';
-import { parseSessionFilename, REPO_PATHS } from '@skyreach/data';
-import { loadMeta } from '@skyreach/data';
-import { makeSessionId } from '@skyreach/schemas';
+import { info, warn, error } from '@achm/cli-kit';
+import { parseSessionFilename, REPO_PATHS } from '@achm/data';
+import { loadMeta } from '@achm/data';
+import { makeSessionId } from '@achm/schemas';
 import fs from 'node:fs';
 import path from 'node:path';
 

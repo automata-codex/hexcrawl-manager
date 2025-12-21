@@ -1,8 +1,3 @@
-import type {
-  CreatureType,
-  EncounterData,
-  UsageReference,
-} from '@skyreach/schemas';
 import { getCollection } from 'astro:content';
 
 import {
@@ -14,6 +9,12 @@ import {
   buildEncounterUsageMap,
   type EncounterUsageMap,
 } from './encounter-usage-tracker';
+
+import type {
+  CreatureType,
+  EncounterData,
+  UsageReference,
+} from '@achm/schemas';
 
 /**
  * Encounter data augmented with derived fields.

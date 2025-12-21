@@ -1,6 +1,6 @@
-import { usage } from '@skyreach/cli-kit';
-import { isValidHexId, normalizeHexId } from '@skyreach/core';
-import { Pace } from '@skyreach/schemas';
+import { usage } from '@achm/cli-kit';
+import { isValidHexId, normalizeHexId } from '@achm/core';
+import { Pace } from '@achm/schemas';
 
 import fastTravelAbort from './fast-travel/abort';
 import fastTravelPlanAndExecute from './fast-travel/plan-and-execute';

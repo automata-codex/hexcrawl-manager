@@ -3,7 +3,7 @@ import {
   CampaignDate,
   ScribeEvent,
   Season,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 import { CALENDAR_CONFIG } from '../config/index.js';
 import { DayStartMissingError, SeasonIdError } from '../errors/index.js';

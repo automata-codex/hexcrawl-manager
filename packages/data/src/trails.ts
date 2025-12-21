@@ -1,5 +1,5 @@
-import { hexSort } from '@skyreach/core';
-import { TrailData, TrailsFile } from '@skyreach/schemas';
+import { hexSort } from '@achm/core';
+import { TrailData, TrailsFile } from '@achm/schemas';
 
 import { writeYamlAtomic } from './atomic-write.js';
 import { readAndValidateYaml } from './fs-utils.js';

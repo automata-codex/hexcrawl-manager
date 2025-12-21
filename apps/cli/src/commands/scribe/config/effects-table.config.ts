@@ -1,4 +1,4 @@
-import type { EffectsTable } from '@skyreach/core';
+import type { EffectsTable } from '@achm/core';
 
 // Effects Table for weather categories
 export const EFFECTS_TABLE: EffectsTable = {

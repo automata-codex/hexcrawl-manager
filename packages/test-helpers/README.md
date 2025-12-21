@@ -1,3 +1,3 @@
-# `@skyreach/test-helpers`
+# `@achm/test-helpers`
 
 Shockingly, this package contains helpers for testing!

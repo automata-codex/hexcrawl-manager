@@ -1,5 +1,5 @@
-import { warn } from '@skyreach/cli-kit';
-import { ScribeEvent } from '@skyreach/schemas';
+import { warn } from '@achm/cli-kit';
+import { ScribeEvent } from '@achm/schemas';
 
 import { activeSegmentsSinceStart } from './active-segments-since-start';
 import { daylightSegmentsSinceStart } from './daylight-segments-since-start';

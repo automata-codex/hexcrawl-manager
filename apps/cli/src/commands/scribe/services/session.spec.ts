@@ -1,6 +1,6 @@
-import { CALENDAR_CONFIG } from '@skyreach/core';
-import { buildSessionFilename, REPO_PATHS } from '@skyreach/data';
-import { TrailEventSchema, makeSessionId } from '@skyreach/schemas';
+import { CALENDAR_CONFIG } from '@achm/core';
+import { buildSessionFilename, REPO_PATHS } from '@achm/data';
+import { TrailEventSchema, makeSessionId } from '@achm/schemas';
 import {
   compileLog,
   dayEnd,
@@ -9,7 +9,7 @@ import {
   sessionEnd,
   sessionStart,
   trail,
-} from '@skyreach/test-helpers';
+} from '@achm/test-helpers';
 import { describe, it, expect } from 'vitest';
 
 import { CalendarService } from './calendar';

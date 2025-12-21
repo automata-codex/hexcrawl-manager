@@ -1,7 +1,7 @@
-import { error, info, usage } from '@skyreach/cli-kit';
-import { isValidHexId, normalizeHexId } from '@skyreach/core';
-import { buildSessionFilename } from '@skyreach/data';
-import { SESSION_ID_RE } from '@skyreach/schemas';
+import { error, info, usage } from '@achm/cli-kit';
+import { isValidHexId, normalizeHexId } from '@achm/core';
+import { buildSessionFilename } from '@achm/data';
+import { SESSION_ID_RE } from '@achm/schemas';
 import fs from 'node:fs';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';

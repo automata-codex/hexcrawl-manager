@@ -1,4 +1,4 @@
-import type { ScribeEvent } from '@skyreach/schemas';
+import type { ScribeEvent } from '@achm/schemas';
 
 // Sum ALL time segments (daylight + night) since the last day_start
 export function activeSegmentsSinceStart(

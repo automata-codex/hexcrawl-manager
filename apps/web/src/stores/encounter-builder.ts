@@ -6,7 +6,7 @@ import type {
   CharacterData,
   EncounterData,
   StatBlockData,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 export interface CurrentPartyMember {
   id: string;

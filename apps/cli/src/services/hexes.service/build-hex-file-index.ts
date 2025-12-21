@@ -1,5 +1,5 @@
-import { normalizeHexId } from '@skyreach/core';
-import { REPO_PATHS } from '@skyreach/data';
+import { normalizeHexId } from '@achm/core';
+import { REPO_PATHS } from '@achm/data';
 import { glob } from 'glob';
 import path from 'node:path';
 

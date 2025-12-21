@@ -1,5 +1,5 @@
-import { error, info, makeExitMapper } from '@skyreach/cli-kit';
-import { Pillar } from '@skyreach/schemas';
+import { error, info, makeExitMapper } from '@achm/cli-kit';
+import { Pillar } from '@achm/schemas';
 
 import {
   CliError,

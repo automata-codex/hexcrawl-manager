@@ -1,4 +1,4 @@
-import { Pace } from '@skyreach/schemas';
+import { Pace } from '@achm/schemas';
 import { describe, it, expect } from 'vitest';
 
 import { collectHexIntents } from './collect-hex-intents';

@@ -1,7 +1,7 @@
-import { error, info } from '@skyreach/cli-kit';
-import { getDaylightCapSegments, getSeasonForDate } from '@skyreach/core';
-import { REPO_PATHS, readAndValidateYaml } from '@skyreach/data';
-import { TrailMapSchema, type Pace } from '@skyreach/schemas';
+import { error, info } from '@achm/cli-kit';
+import { getDaylightCapSegments, getSeasonForDate } from '@achm/core';
+import { REPO_PATHS, readAndValidateYaml } from '@achm/data';
+import { TrailMapSchema, type Pace } from '@achm/schemas';
 
 import { readEvents } from '../../../../services/event-log.service';
 import {

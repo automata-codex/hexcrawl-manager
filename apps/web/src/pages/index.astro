@@ -1,4 +1,5 @@
 ---
+import GmDashboard from '../components/GmDashboard.svelte';
 import ClassCard from '../components/IndexCards/ClassCard.astro';
 import ExploreCard from '../components/IndexCards/ExploreCard.astro';
 import GoalsCard from '../components/IndexCards/GoalsCard.astro';
@@ -7,10 +8,9 @@ import LevelUpCard from '../components/IndexCards/LevelUpCard.astro';
 import MediumScreen from '../components/ScreenSize/MediumScreen.astro';
 import SmallScreen from '../components/ScreenSize/SmallScreen.astro';
 import ComponentLayout from '../layouts/ComponentLayout.astro';
-import GmDashboard from '../components/GmDashboard.svelte';
 import { getCurrentUserRole } from '../utils/auth';
-import { loadTodos } from '../utils/load-todos';
 import { SECURITY_ROLE } from '../utils/constants';
+import { loadTodos } from '../utils/load-todos';
 
 const role = getCurrentUserRole(Astro.locals);
 const isGm = role === SECURITY_ROLE.GM;

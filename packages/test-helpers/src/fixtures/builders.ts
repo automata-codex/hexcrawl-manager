@@ -1,4 +1,4 @@
-import { getDaylightCapForSeason, getSeasonForDate } from '@skyreach/core';
+import { getDaylightCapForSeason, getSeasonForDate } from '@achm/core';
 import {
   type DateSetEventPayload,
   type DayStartEventPayload,
@@ -9,7 +9,7 @@ import {
   type Season,
   type SessionContinueEventPayload,
   type WeatherCategory,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 /** Discriminated prototype that a finalizer can stamp with seq/ts. */
 export type EventPrototype<K extends ScribeEventKind> = {
@@ -127,7 +127,7 @@ export function note(text: string): EventPrototype<'note'> {
 }
 
 export function partySet(
-  ids: import('@skyreach/schemas').PartyMember[],
+  ids: import('@achm/schemas').PartyMember[],
 ): EventPrototype<'party_set'> {
   return {
     kind: 'party_set',

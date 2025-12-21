@@ -1,4 +1,4 @@
-import type { ScribeEvent } from '@skyreach/schemas';
+import type { ScribeEvent } from '@achm/schemas';
 
 export function isPartyLost(events: ScribeEvent[]): boolean {
   for (let i = events.length - 1; i >= 0; i--) {

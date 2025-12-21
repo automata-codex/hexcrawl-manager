@@ -1,5 +1,5 @@
-import type { CalendarConfig, Season } from '@skyreach/core';
-import type { CampaignDate, Month } from '@skyreach/schemas';
+import type { CalendarConfig, Season } from '@achm/core';
+import type { CampaignDate, Month } from '@achm/schemas';
 
 export class CalendarError extends Error {
   constructor(message: string) {

@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 
-import type { ScribeEvent } from '@skyreach/schemas';
+import type { ScribeEvent } from '@achm/schemas';
 
 /**
  * Compute a SHA-256 over the current ordered event list.

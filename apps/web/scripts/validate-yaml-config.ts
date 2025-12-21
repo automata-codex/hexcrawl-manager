@@ -11,11 +11,11 @@
  *   npm run validate:yaml-config
  */
 
-import { getDataPath } from '@skyreach/data';
+import { getDataPath } from '@achm/data';
 import {
   RoutesConfigSchema,
   SidebarConfigSchema,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as yaml from 'yaml';

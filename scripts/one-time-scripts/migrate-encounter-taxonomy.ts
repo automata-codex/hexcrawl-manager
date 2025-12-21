@@ -11,7 +11,11 @@
  *   --dry-run    Show what would be changed without writing files
  */
 
-import { getRepoPath } from '@skyreach/data';
+import { getRepoPath } from '@achm/data';
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
+import * as yaml from 'yaml';
+
 import type {
   DungeonData,
   EncounterData,
@@ -20,10 +24,7 @@ import type {
   HexData,
   LocationType,
   RegionData,
-} from '@skyreach/schemas';
-import { promises as fs } from 'node:fs';
-import * as path from 'node:path';
-import * as yaml from 'yaml';
+} from '@achm/schemas';
 
 // --- Configuration ---
 

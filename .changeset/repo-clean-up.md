@@ -1,11 +1,11 @@
 ---
-'@skyreach/test-helpers': patch
-'@skyreach/cli-kit': patch
-'@skyreach/schemas': patch
-'@skyreach/core': patch
-'@skyreach/cli': patch
-'@skyreach/data': major
-'@skyreach/web': major
+'@achm/test-helpers': patch
+'@achm/cli-kit': patch
+'@achm/schemas': patch
+'@achm/core': patch
+'@achm/cli': patch
+'@achm/data': major
+'@achm/web': major
 ---
 
 **BREAKING CHANGE:** Refactor repo after code/data split

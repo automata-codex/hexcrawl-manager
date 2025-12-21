@@ -2,7 +2,7 @@ import type {
   ApLedgerEntry,
   CharacterData,
   SessionReport,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 type UnclaimedAbsenceSummary = {
   characterId: string;

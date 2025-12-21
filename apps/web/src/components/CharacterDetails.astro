@@ -1,11 +1,12 @@
 ---
+import { normalizeClueRef } from '@achm/schemas';
 import { getCollection, getEntry } from 'astro:content';
 
-import { normalizeClueRef } from '@skyreach/schemas';
-import type { CharacterData, PlayerData } from '@skyreach/schemas';
 
 import { getCluePath } from '../config/routes';
 import { renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
+
+import type { CharacterData, PlayerData } from '@achm/schemas';
 
 interface Props {
   character: CharacterData;

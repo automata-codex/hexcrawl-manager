@@ -1,4 +1,4 @@
-import { normalizeHexId } from '@skyreach/core';
+import { normalizeHexId } from '@achm/core';
 
 import type { FinalizedHexEvent, HexIntents } from '../types';
 

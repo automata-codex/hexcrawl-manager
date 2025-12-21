@@ -1,5 +1,5 @@
-import { REPO_PATHS } from '@skyreach/data';
-import { runScribe, withTempRepo, saveCharacter } from '@skyreach/test-helpers';
+import { REPO_PATHS } from '@achm/data';
+import { runScribe, withTempRepo, saveCharacter } from '@achm/test-helpers';
 import fs from 'fs';
 import { describe, it, expect } from 'vitest';
 

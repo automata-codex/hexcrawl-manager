@@ -1,4 +1,4 @@
-import type { CampaignDate, ScribeEvent } from '@skyreach/schemas';
+import type { CampaignDate, ScribeEvent } from '@achm/schemas';
 
 /**
  * Find the last known calendar date from a list of events

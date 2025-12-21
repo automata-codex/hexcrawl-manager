@@ -1,5 +1,5 @@
-import { REPO_PATHS, loadMeta, buildSessionFilename } from '@skyreach/data';
-import { makeSessionId } from '@skyreach/schemas';
+import { REPO_PATHS, loadMeta, buildSessionFilename } from '@achm/data';
+import { makeSessionId } from '@achm/schemas';
 import {
   compileLog,
   findSessionFiles,
@@ -7,7 +7,7 @@ import {
   runScribe,
   sessionStart,
   withTempRepo,
-} from '@skyreach/test-helpers';
+} from '@achm/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
@@ -20,7 +20,7 @@ import type {
   MoveEvent,
   ScribeEvent,
   SessionStartEvent,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 describe('scribe start', () => {
   it('emits exactly one session_start with the requested startHex and writes a minimal valid log', async () => {

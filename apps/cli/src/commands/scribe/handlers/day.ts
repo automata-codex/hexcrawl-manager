@@ -1,5 +1,5 @@
-import { info, warn, usage, error } from '@skyreach/cli-kit';
-import { CALENDAR_CONFIG, segmentsToHours } from '@skyreach/core';
+import { info, warn, usage, error } from '@achm/cli-kit';
+import { CALENDAR_CONFIG, segmentsToHours } from '@achm/core';
 
 import { readEvents, appendEvent } from '../../../services/event-log.service';
 import {
@@ -9,7 +9,7 @@ import {
 import { requireFile, requireSession } from '../services/general';
 
 import type { Context } from '../types';
-import type { CampaignDate, Season } from '@skyreach/schemas';
+import type { CampaignDate, Season } from '@achm/schemas';
 
 /** Map seasons to emojis */
 function getSeasonEmoji(season: Season): string {

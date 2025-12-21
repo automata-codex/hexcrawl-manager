@@ -1,4 +1,4 @@
-import type { CampaignDate } from '@skyreach/schemas';
+import type { CampaignDate } from '@achm/schemas';
 
 export function formatDate(d: CampaignDate | null): string {
   if (!d) {

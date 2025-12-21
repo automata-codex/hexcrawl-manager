@@ -1,13 +1,13 @@
 import {
   discoverCompletedReports,
   discoverFinalizedLogs,
-} from '@skyreach/data';
+} from '@achm/data';
 import {
   SessionId,
   assertSessionId,
   isSessionId,
   makeSessionId,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 export type ApWorkItem = { kind: 'session'; sessionId: SessionId };
 

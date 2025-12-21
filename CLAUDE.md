@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 Hexcrawl Manager is a campaign manager for a tabletop RPG campaign "Beyond the Skyreach Mountains". It consists of:
-- A CLI tool (`skyreach`) for session management and data processing
+- A CLI tool (`hexcrawl`) for session management and data processing
 - A web application for viewing campaign data
 - A monorepo with shared packages for core logic, schemas, and utilities
 
@@ -66,7 +66,7 @@ npm run preview            # Preview production build
 This is an npm workspaces monorepo with strict architectural boundaries enforced by dependency-cruiser:
 
 **Apps:**
-- `apps/cli` - The `skyreach` CLI tool (Commander.js-based)
+- `apps/cli` - The `hexcrawl` CLI tool (Commander.js-based)
 - `apps/web` - Astro-based web application with Svelte components
 
 **Packages:**
@@ -150,7 +150,7 @@ This is an npm workspaces monorepo with strict architectural boundaries enforced
 - Character YAML files (`data/characters/*.yml`) keep `advancementPoints` at 0 for schema compatibility
 - The AP ledger is the canonical source of truth for all advancement points
 - **Environment-based loading:**
-  - **Dev mode** (`NODE_ENV !== 'production'`): Reads ledger directly via `@skyreach/data` (always up-to-date)
+  - **Dev mode** (`NODE_ENV !== 'production'`): Reads ledger directly via `@achm/data` (always up-to-date)
   - **Production** (`NODE_ENV === 'production'`): Reads from pre-computed cache (fast)
 - **Build-time caching** (`apps/web/scripts/cache-ap-totals.ts`):
   - Runs before Astro build via `prebuild` script
@@ -218,7 +218,7 @@ Hexcrawl Manager uses a "version-on-develop" workflow:
 **When working with session data:**
 - Sessions use sequential IDs from `meta.nextSessionSeq`
 - Use `abort` command to discard test sessions without affecting state
-- Always use `ensureRepoDirs()` from `@skyreach/data` before file operations
+- Always use `ensureRepoDirs()` from `@achm/data` before file operations
 
 **When working with AP (advancement points) data:**
 - NEVER manually edit `data/ap-ledger.jsonl` - it's managed by weave commands
@@ -227,7 +227,7 @@ Hexcrawl Manager uses a "version-on-develop" workflow:
 - Use `weave allocate ap` to grant absence credits to characters
 - Use `weave status ap` to view current AP totals
 - Web app automatically loads AP from ledger (dev) or cache (production)
-- AP ledger aggregation logic is in `@skyreach/data` package (shared by CLI and web)
+- AP ledger aggregation logic is in `@achm/data` package (shared by CLI and web)
 
 **Git workflow:**
 - Main branch: `main`

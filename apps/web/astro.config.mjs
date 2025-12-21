@@ -1,8 +1,8 @@
+import { getPublicDir } from '@achm/data';
 import mdx from '@astrojs/mdx';
 import node from '@astrojs/node';
 import svelte from '@astrojs/svelte';
 import clerk from '@clerk/astro';
-import { getPublicDir } from '@skyreach/data';
 import { defineConfig } from 'astro/config';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -46,7 +46,7 @@ export default defineConfig({
     resolve: {
       alias: {
         // Allow MDX files in external data repo to import components
-        '@skyreach/web': path.resolve(__dirname),
+        '@achm/web': path.resolve(__dirname),
       },
     },
   },
