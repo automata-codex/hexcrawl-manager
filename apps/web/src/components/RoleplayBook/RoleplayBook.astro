@@ -10,6 +10,7 @@ interface Props {
 }
 
 const { data } = Astro.props;
+const pritharaVariants = data.pritharaVariants ?? [];
 ---
 
 <style>
@@ -43,10 +44,12 @@ const { data } = Astro.props;
     <Fragment set:html={renderMarkdown(data.culturalOverview)} />
   </div>
 
-  <h3 class="title is-4 section-title">Prithara Variants</h3>
+  {pritharaVariants.length > 0 &&
+    <h3 class="title is-4 section-title">Prithara Variants</h3>
+  }
   <ul>
   {
-    data.pritharaVariants.map((variant) => (
+    pritharaVariants.map((variant) => (
       <li>
         <span class="variant-name">{variant.name}</span> – {variant.description}
       </li>
