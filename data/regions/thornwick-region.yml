@@ -1,0 +1,42 @@
+id: thornwick-region
+name: Thornwick Region
+description: |
+  A frontier region at the edge of civilization. Rolling farmlands give way to dense forests and rocky hills. Recently, goblin raids have increased, threatening the peace the villagers have enjoyed for generations.
+topography: |
+  Low hills in the east rise toward rocky outcroppings. Dense deciduous forest covers the northern and western areas. The village sits in a cleared valley with farmland spreading south.
+haven: "0101"
+type: starting
+contentDensity: 3
+treasureRating: 2
+encounterChance: 8
+encounters:
+  mainTable:
+    - category: goblins
+      label: Goblins
+      weight: 12
+    - category: wildlife
+      label: Wildlife
+      weight: 8
+  categoryTables:
+    goblins:
+      "1":
+        - encounterId: goblin-patrol
+          weight: 12
+        - encounterId: goblin-ambush
+          weight: 8
+    wildlife:
+      "1":
+        - encounterId: wolf-pack
+          weight: 12
+        - encounterId: giant-spider-nest
+          weight: 8
+hexes:
+  - "0101"
+  - "0102"
+  - "0201"
+  - "0202"
+  - "0301"
+  - "0302"
+  - "0303"
+terrain: hills
+biome: temperate-woodland
