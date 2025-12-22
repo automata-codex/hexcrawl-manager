@@ -1,0 +1,17 @@
+id: wolf-pack
+name: Wolf Pack
+statBlocks:
+  - wolf
+scope: general
+locationTypes:
+  - wilderness
+description: |
+  A hungry pack of wolves hunting in the forest.
+
+  **Setup:** Three wolves, desperate with hunger, have been driven from their normal territory by the increased goblin activity.
+
+  **Tactics:** Circle prey, looking for the weakest target. Flee if two wolves are killed. Can be driven off with fire or loud noises.
+
+  **Treasure:** Wolf pelts (5gp each if properly skinned).
+
+  **Developments:** A ranger or druid might calm the wolves or learn they've been displaced. Following their trail leads toward the Broken Tower.

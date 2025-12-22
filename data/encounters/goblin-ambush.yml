@@ -1,0 +1,20 @@
+id: goblin-ambush
+name: Goblin Ambush
+statBlocks:
+  - goblin
+  - goblin-boss
+scope: general
+locationTypes:
+  - wilderness
+factions:
+  - skargash-goblins
+description: |
+  A prepared ambush by goblin raiders, led by a boss.
+
+  **Setup:** Five goblins led by a boss have set up an ambush along a trail. Two hide in trees with shortbows, two crouch behind rocks, and the boss waits to charge.
+
+  **Tactics:** Archers target spellcasters first. Boss charges the biggest threat. They fight to the death if the boss is watching; flee if he falls.
+
+  **Treasure:** Boss carries 15gp and a silver ring (5gp). Total of 3d6 sp among the others. Crude orders from Skargash (in Goblin) demanding more prisoners.
+
+  **Developments:** The orders mention a "great ritual" Skargash is planning. Capturing the boss alive could yield more information.
