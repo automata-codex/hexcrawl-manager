@@ -1,6 +1,5 @@
 :root {
-  --skyreach-heading-margin-bottom: 0.25rem;
-  --skyreach-standard-indent: 1rem;
+  --achm-standard-indent: 1rem;
 }
 
 /* --- CUSTOM STYLES --- */
@@ -92,14 +91,14 @@ li ol {
 }
 
 .hanging-indent {
-  margin-left: var(--skyreach-standard-indent);
-  text-indent: calc(-1 * var(--skyreach-standard-indent));
+  margin-left: var(--achm-standard-indent);
+  text-indent: calc(-1 * var(--achm-standard-indent));
 }
 
 /* Multi-paragraph content with inline heading (hanging indent style) */
 .inline-heading-block {
-  margin-left: var(--skyreach-standard-indent);
-  text-indent: calc(-1 * var(--skyreach-standard-indent));
+  margin-left: var(--achm-standard-indent);
+  text-indent: calc(-1 * var(--achm-standard-indent));
 
   > .inline-heading {
     display: inline;
@@ -173,7 +172,7 @@ input[type='checkbox']:focus {
 .title.is-5,
 .title.is-6,
 .title.is-7 {
-  margin-bottom: var(--skyreach-heading-margin-bottom);
+  margin-bottom: 0.25rem;
 }
 
 ul {
