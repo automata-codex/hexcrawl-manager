@@ -1,6 +1,7 @@
 import { info, warn } from '@achm/cli-kit';
 import { hexSort, normalizeHexId } from '@achm/core';
 import {
+  loadMapConfig,
   REPO_PATHS,
   buildSessionFilename,
   getLatestSessionNumber,
@@ -14,6 +15,7 @@ import {
   makeSessionId,
   parseSessionId,
   type CampaignDate,
+  type CoordinateNotation,
   type DayStartEvent,
   type PartyMember,
   type ScribeEvent,
@@ -340,11 +342,13 @@ export function finalizeSession(
   }
 
   // 5. Synthesize lifecycle events for blocks
+  const notation = loadMapConfig().grid.notation;
   const { finalizedBlocks } = synthesizeLifecycleEvents(
     blocks,
     sortedEvents,
     sessionId,
     sessionDate,
+    notation,
   );
 
   // 6. Write finalized session files and rollovers
@@ -403,13 +407,14 @@ export const inProgressPathFor = (id: string, devMode?: boolean) => {
 /** @internal */
 export function normalizeTrailEdges<T extends { kind: string; payload?: any }>(
   events: T[],
+  notation: CoordinateNotation,
 ): T[] {
   return events.map((ev) => {
     if (ev.kind === 'trail' && ev.payload && ev.payload.from && ev.payload.to) {
       let { from, to } = ev.payload as { from: string; to: string };
-      from = normalizeHexId(from);
-      to = normalizeHexId(to);
-      if (hexSort(from, to) > 0) {
+      from = normalizeHexId(from, notation);
+      to = normalizeHexId(to, notation);
+      if (hexSort(from, to, notation) > 0) {
         // Swap so from < to by hexSort
         return { ...ev, payload: { ...ev.payload, from: to, to: from } };
       } else {
@@ -584,6 +589,7 @@ export function synthesizeLifecycleEvents(
   sortedEvents: (ScribeEvent & { _origIdx: number })[],
   sessionId: SessionId,
   sessionDate: string,
+  notation: CoordinateNotation,
 ): {
   finalizedBlocks: {
     seasonId: string;
@@ -707,7 +713,7 @@ export function synthesizeLifecycleEvents(
 
     // --- Normalization: seasonId and trail edges ---
     block.seasonId = block.seasonId.toLowerCase();
-    blockEvents = normalizeTrailEdges(blockEvents);
+    blockEvents = normalizeTrailEdges(blockEvents, notation);
 
     // --- Sorting & seq ---
     blockEvents = blockEvents

@@ -1,5 +1,6 @@
 import { usage } from '@achm/cli-kit';
 import { isValidHexId, normalizeHexId } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 import { Pace } from '@achm/schemas';
 
 import fastTravelAbort from './fast-travel/abort';
@@ -25,8 +26,9 @@ export default function fastTravel(ctx: Context) {
         return usage('usage: fast <dest> <pace> | status | resume | abort');
       default: {
         // Not a subcommand - assume it's a destination hex
-        const dest = normalizeHexId(subOrDest);
-        if (!isValidHexId(dest)) {
+        const notation = loadMapConfig().grid.notation;
+        const dest = normalizeHexId(subOrDest, notation);
+        if (!isValidHexId(dest, notation)) {
           return usage('usage: fast <dest> <pace> | status | resume | abort');
         }
         // Parse pace (second argument, defaults to normal)

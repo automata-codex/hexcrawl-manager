@@ -6,6 +6,7 @@ import {
   parseHexId,
   rollDice,
 } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 
 import type { CoordinateNotation } from '@achm/core';
 import { cloneDeep } from 'lodash-es';
@@ -183,7 +184,10 @@ export function applySessionToTrails(
 }
 
 export function canonicalEdgeKey(a: string, b: string): string {
-  const [h1, h2] = [normalizeHexId(a), normalizeHexId(b)].sort(hexSort);
+  const notation = loadMapConfig().grid.notation;
+  const [h1, h2] = [normalizeHexId(a, notation), normalizeHexId(b, notation)].sort(
+    (x, y) => hexSort(x, y, notation),
+  );
   return `${h1.toLowerCase()}-${h2.toLowerCase()}`;
 }
 
@@ -218,5 +222,6 @@ export function isHexNearAnyHaven(
   havens: string[],
   maxDist = 3,
 ): boolean {
-  return havens.some((haven) => hexDistance(hex, haven) <= maxDist);
+  const notation = loadMapConfig().grid.notation;
+  return havens.some((haven) => hexDistance(hex, haven, notation) <= maxDist);
 }

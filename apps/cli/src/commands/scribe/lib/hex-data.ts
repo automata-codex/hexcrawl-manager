@@ -3,21 +3,29 @@ import {
   isDifficultTerrain,
   normalizeHexId,
 } from '@achm/core';
-import { readAndValidateYaml } from '@achm/data';
+import { loadMapConfig, readAndValidateYaml } from '@achm/data';
 import { HexSchema } from '@achm/schemas';
 
 import { buildHexFileIndex } from '../../../services/hexes.service';
 
-// Cache the hex index at module load for performance
-const hexIndex = buildHexFileIndex();
+// Lazy-initialized hex index cache
+let hexIndex: Record<string, string> | null = null;
+
+function getHexIndex(): Record<string, string> {
+  if (!hexIndex) {
+    hexIndex = buildHexFileIndex();
+  }
+  return hexIndex;
+}
 
 /**
  * Check if a hex has difficult terrain that doubles travel time.
  * Returns false if hex data cannot be loaded.
  */
 export function isDifficultHex(hexId: string): boolean {
-  const normalizedId = normalizeHexId(hexId);
-  const filePath = hexIndex[normalizedId];
+  const notation = loadMapConfig().grid.notation;
+  const normalizedId = normalizeHexId(hexId, notation);
+  const filePath = getHexIndex()[normalizedId];
   if (!filePath) {
     return false; // Unknown hex, assume not difficult
   }
