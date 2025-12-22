@@ -2,6 +2,8 @@ import { writable } from 'svelte/store';
 
 import { STORAGE_KEYS } from '../../utils/constants.ts';
 
+import type { MapBounds } from '../../utils/interactive-map.ts';
+
 export interface MapViewState {
   zoom: number;
   zoomFactor: number;
@@ -24,6 +26,9 @@ const defaultMapView: MapViewState = {
   svgHeight: 800,
 };
 
+/** Tracks whether the view was loaded from saved localStorage state */
+let loadedFromStorage = false;
+
 function loadInitialMapView(): MapViewState {
   if (typeof localStorage === 'undefined') return defaultMapView;
 
@@ -32,6 +37,7 @@ function loadInitialMapView(): MapViewState {
     if (!raw) return defaultMapView;
 
     const parsed = JSON.parse(raw);
+    loadedFromStorage = true;
     return {
       ...defaultMapView,
       ...parsed,
@@ -182,6 +188,49 @@ export function updateZoomAtPoint(
       zoom: clampedZoom,
       centerX,
       centerY,
+    };
+  });
+}
+
+/**
+ * Center the map on the given bounds.
+ * Only applies if no saved state was loaded from localStorage.
+ */
+export function initializeCenterFromBounds(bounds: MapBounds) {
+  if (loadedFromStorage) {
+    // Preserve user's saved view position
+    return;
+  }
+
+  mapView.update((state) => ({
+    ...state,
+    centerX: bounds.centerX,
+    centerY: bounds.centerY,
+  }));
+}
+
+/**
+ * Fit the entire map bounds within the current viewport.
+ * Calculates optimal zoom to show all content with some padding.
+ */
+export function fitToBounds(bounds: MapBounds) {
+  mapView.update((state) => {
+    const { svgWidth, svgHeight, minZoom, maxZoom } = state;
+
+    // Add 10% padding around the content
+    const paddingFactor = 0.9;
+    const zoomX = (svgWidth * paddingFactor) / bounds.width;
+    const zoomY = (svgHeight * paddingFactor) / bounds.height;
+
+    // Use the smaller zoom to ensure all content fits
+    const optimalZoom = Math.min(zoomX, zoomY);
+    const clampedZoom = Math.min(maxZoom, Math.max(minZoom, optimalZoom));
+
+    return {
+      ...state,
+      zoom: clampedZoom,
+      centerX: bounds.centerX,
+      centerY: bounds.centerY,
     };
   });
 }

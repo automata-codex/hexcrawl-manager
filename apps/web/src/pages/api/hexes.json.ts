@@ -1,3 +1,5 @@
+import { isOutOfBounds } from '@achm/core';
+import { loadMapConfig, mapConfigExists } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import { getCurrentUserRole } from '../../utils/auth.ts';
@@ -53,13 +55,18 @@ export const GET: APIRoute = async ({ locals }) => {
     getCollection('regions'),
   ]);
 
+  // Load map config for out-of-bounds filtering
+  const mapConfig = mapConfigExists() ? loadMapConfig() : null;
+  const outOfBoundsList = mapConfig?.outOfBounds ?? [];
+  const notation = mapConfig?.grid.notation ?? 'letter-number';
+
   // Build region lookup for resolution
   const hexToRegion = buildHexToRegionLookup(regionEntries);
 
-  // Resolve each hex with region fallbacks
-  const fullHexes = hexEntries.map((entry) =>
-    resolveHexData(entry.data, hexToRegion),
-  );
+  // Resolve each hex with region fallbacks, filtering out-of-bounds hexes
+  const fullHexes = hexEntries
+    .filter((entry) => !isOutOfBounds(entry.data.id, outOfBoundsList, notation))
+    .map((entry) => resolveHexData(entry.data, hexToRegion));
 
   const role = getCurrentUserRole(locals);
 

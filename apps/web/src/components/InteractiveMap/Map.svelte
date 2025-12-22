@@ -1,6 +1,7 @@
 <script lang="ts">
   import { isValidHexId } from '@achm/core';
   import {
+    faExpand,
     faLocationCrosshairs,
     faMagnifyingGlassArrowsRotate,
   } from '@fortawesome/pro-light-svg-icons';
@@ -13,6 +14,8 @@
   import {
     applyZoomAtCenter,
     computeViewBox,
+    fitToBounds,
+    initializeCenterFromBounds,
     mapView,
     panBy,
     resetZoom,
@@ -24,12 +27,13 @@
   import { SCOPES } from '../../utils/constants.ts';
   import { parseHexId } from '../../utils/hexes.ts';
   import {
+    axialToPixel,
+    calculateMapBounds,
     DAGARIC_ICON_SIZE,
     FC_ICON_SIZE,
     HEX_HEIGHT,
     HEX_WIDTH,
     TERRAIN_ICON_SIZE,
-    axialToPixel,
   } from '../../utils/interactive-map.ts';
 
   import DetailPanel from './DetailPanel.svelte';
@@ -55,6 +59,7 @@
   let isPanning = $state(false);
   let lastX = $state(0);
   let lastY = $state(0);
+  let mapBounds = $state(calculateMapBounds([]));
   let mapPaths: MapPathPlayerData[] = $state([]);
   let svgEl: SVGElement;
   let wasPanning = $state(false);
@@ -69,6 +74,10 @@
       hexes = await hexResponse.json();
       const mapPathResponse = await fetch('/api/map-paths.json');
       mapPaths = await mapPathResponse.json();
+
+      // Calculate bounds from hex data and initialize center if no saved state
+      mapBounds = calculateMapBounds(hexes.map((h) => h.id));
+      initializeCenterFromBounds(mapBounds);
     })();
 
     const resizeObserver = new ResizeObserver((entries) => {
@@ -248,6 +257,10 @@
     );
   }
 
+  function handleFitToBounds() {
+    fitToBounds(mapBounds);
+  }
+
   function handleZoomReset() {
     resetZoom();
   }
@@ -263,6 +276,9 @@
   <button class="button" onclick={() => applyZoomDelta(-1)}>−</button>
   <button class="button" onclick={handleCenterSelectedHexClick}>
     <FontAwesomeIcon icon={faLocationCrosshairs} />
+  </button>
+  <button class="button" onclick={handleFitToBounds} title="Fit map to view">
+    <FontAwesomeIcon icon={faExpand} />
   </button>
   <button class="button" onclick={handleZoomReset}>
     <FontAwesomeIcon icon={faMagnifyingGlassArrowsRotate} />
