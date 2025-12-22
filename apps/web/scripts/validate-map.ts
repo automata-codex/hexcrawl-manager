@@ -40,6 +40,7 @@ interface ValidationResult {
 interface HexFile {
   id: string;
   path: string;
+  mapIcon?: { icon: string; layer?: string };
 }
 
 interface RegionFile {
@@ -97,6 +98,7 @@ function loadAllHexFiles(): HexFile[] {
           hexFiles.push({
             id: result.data.id,
             path: fullPath,
+            mapIcon: result.data.mapIcon,
           });
         }
       }
@@ -236,6 +238,42 @@ function validateMap(): ValidationResult {
       if (!region.biome) {
         result.warnings.push(
           `Region ${region.id} has hexes but no default biome`,
+        );
+      }
+    }
+  }
+
+  // Validate icon references
+  const { icons, tagIcons, layers } = mapConfig;
+  const definedIconKeys = new Set(Object.keys(icons));
+  const definedLayerKeys = new Set(layers.map((l) => l.key));
+
+  // Validate tagIcons reference valid icons and layers
+  for (const tagIcon of tagIcons) {
+    if (!definedIconKeys.has(tagIcon.icon)) {
+      result.errors.push(
+        `tagIcon for tag "${tagIcon.tag}" references undefined icon "${tagIcon.icon}"`,
+      );
+    }
+    if (!definedLayerKeys.has(tagIcon.layer)) {
+      result.errors.push(
+        `tagIcon for tag "${tagIcon.tag}" references undefined layer "${tagIcon.layer}"`,
+      );
+    }
+  }
+
+  // Validate hex mapIcon references
+  for (const hexFile of hexFiles) {
+    if (hexFile.mapIcon) {
+      if (!definedIconKeys.has(hexFile.mapIcon.icon)) {
+        result.errors.push(
+          `Hex ${hexFile.id} mapIcon references undefined icon "${hexFile.mapIcon.icon}"`,
+        );
+      }
+      const layerKey = hexFile.mapIcon.layer ?? 'customIcons';
+      if (!definedLayerKeys.has(layerKey)) {
+        result.errors.push(
+          `Hex ${hexFile.id} mapIcon references undefined layer "${layerKey}"`,
         );
       }
     }

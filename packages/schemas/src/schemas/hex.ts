@@ -185,6 +185,22 @@ export const GmNoteSchema = z.union([
 
 export type GmNote = z.infer<typeof GmNoteSchema>;
 
+/**
+ * Direct map icon configuration for a specific hex.
+ * Use this for one-off icons that don't map to a reusable tag.
+ * For reusable icons, prefer adding a tag and defining a tagIcon in map.yaml.
+ */
+export const HexMapIconSchema = z.object({
+  icon: z.string().describe('Icon key from map.yaml icons section'),
+  size: z.number().positive().optional().describe('Override default icon size'),
+  stroke: z.string().optional().describe('SVG stroke color'),
+  strokeWidth: z.number().positive().optional(),
+  fill: z.string().optional().describe('SVG fill color'),
+  layer: z.string().default('customIcons').describe('Layer key for visibility toggle'),
+});
+
+export type HexMapIcon = z.output<typeof HexMapIconSchema>;
+
 export const HexSchema = z
   .object({
     id: z.string(),
@@ -233,6 +249,9 @@ export const HexSchema = z
       .string()
       .optional()
       .describe('Free-text description of elevation and terrain features'),
+    mapIcon: HexMapIconSchema.optional().describe(
+      'Direct icon configuration; for reusable icons, prefer tags + tagIcons in map.yaml',
+    ),
   })
   .describe('HexSchema');
 
