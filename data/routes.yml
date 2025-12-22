@@ -19,6 +19,19 @@ gmReference:
     type: collection
     path: /gm-reference/encounters
     idPath: /gm-reference/encounters/[id]
+  plotlines:
+    type: collection
+    path: /gm-reference/plotlines
+    idPath: /gm-reference/plotlines/[id]
+  pointcrawls:
+    type: collection
+    path: /gm-reference/pointcrawls
+    idPath: /gm-reference/pointcrawls/[id]
+  spells:
+    type: collection
+    path: /gm-reference/spells
+    idPath: /gm-reference/spells/[id]
+    allPath: /gm-reference/spells/all
   statBlocks:
     type: collection
     path: /gm-reference/stat-blocks
@@ -26,6 +39,10 @@ gmReference:
 
 playersReference:
   setting:
+    bountyBoard:
+      type: collection
+      path: /players-reference/setting/bounty-board
+      idPath: /players-reference/setting/bounty-board/[id]
     npcs:
       type: collection
       path: /players-reference/setting/npcs
@@ -42,6 +59,11 @@ sessionToolkit:
     type: collection
     path: /session-toolkit/hexes
     idPath: /session-toolkit/hexes/[id]
+  lootPacks:
+    type: collection
+    path: /session-toolkit/loot-packs
+    idPath: /session-toolkit/loot-packs/[id]
+    allPath: /session-toolkit/loot-packs/all
   regions:
     type: collection
     path: /session-toolkit/regions

@@ -24,12 +24,12 @@ shared:
     label: "Player's Reference"
     href: /players-reference
     items:
-      - id: progress
-        label: Progress Tracker
-        href: /players-reference/progress
+      - label: Interactive Map
+        href: /players-reference/interactive-map
       - id: player-setting
         label: Setting
         hasToC: true
+        expandable: true
         tocHref: /players-reference/setting
         items:
           - label: NPCs
