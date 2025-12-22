@@ -45,8 +45,9 @@
 
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
+  import type { MapConfigResponse } from '../../pages/api/map-config.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { KnownTag } from '@achm/schemas';
+  import type { CoordinateNotation, KnownTag } from '@achm/schemas';
 
   interface Props {
     role: string | null;
@@ -54,20 +55,31 @@
 
   const { role }: Props = $props();
 
+  let configError: string | null = $state(null);
   let dungeons: DungeonEssentialData[] = $state([]);
   let hexes: HexPlayerData[] = $state([]);
   let isPanning = $state(false);
   let lastX = $state(0);
   let lastY = $state(0);
-  let mapBounds = $state(calculateMapBounds([]));
+  let mapBounds: ReturnType<typeof calculateMapBounds> | null = $state(null);
   let mapPaths: MapPathPlayerData[] = $state([]);
-  let svgEl: SVGElement;
+  let notation: CoordinateNotation | null = $state(null);
+  let svgEl: SVGElement | undefined = $state();
   let wasPanning = $state(false);
 
   let viewBox = $derived(computeViewBox($mapView));
 
   onMount(() => {
     (async () => {
+      // Fetch config first to get notation - this is required
+      const configResponse = await fetch('/api/map-config.json');
+      if (!configResponse.ok) {
+        configError = 'Map configuration is required but could not be loaded';
+        throw new Error(configError);
+      }
+      const config: MapConfigResponse = await configResponse.json();
+      notation = config.grid.notation;
+
       const dungeonResponse = await fetch('/api/dungeons.json');
       dungeons = await dungeonResponse.json();
       const hexResponse = await fetch('/api/hexes.json');
@@ -76,7 +88,7 @@
       mapPaths = await mapPathResponse.json();
 
       // Calculate bounds from hex data and initialize center if no saved state
-      mapBounds = calculateMapBounds(hexes.map((h) => h.id));
+      mapBounds = calculateMapBounds(hexes.map((h) => h.id), notation);
       initializeCenterFromBounds(mapBounds);
     })();
 
@@ -87,7 +99,9 @@
         updateSvgSizeAndPreserveCenter(width, height);
       }
     });
-    resizeObserver.observe(svgEl);
+    if (svgEl) {
+      resizeObserver.observe(svgEl);
+    }
     return () => resizeObserver.disconnect();
   });
 
@@ -152,7 +166,8 @@
   }
 
   function getFortDagaricCoords() {
-    const { q, r } = parseHexId('v17');
+    if (!notation) return { x: 0, y: 0 };
+    const { q, r } = parseHexId('v17', notation);
     const { x, y } = axialToPixel(q, r);
     return { x, y };
   }
@@ -190,8 +205,8 @@
   }
 
   function handleCenterSelectedHexClick() {
-    if ($selectedHex) {
-      const { q, r } = parseHexId($selectedHex);
+    if ($selectedHex && notation) {
+      const { q, r } = parseHexId($selectedHex, notation);
       const { x, y } = axialToPixel(q, r);
 
       mapView.update((state) => ({
@@ -235,6 +250,7 @@
   function handleWheel(e: WheelEvent) {
     e.preventDefault();
     e.stopPropagation();
+    if (!svgEl) return;
 
     const { svgWidth, svgHeight, centerX, centerY, zoom } = get(mapView);
 
@@ -258,7 +274,9 @@
   }
 
   function handleFitToBounds() {
-    fitToBounds(mapBounds);
+    if (mapBounds) {
+      fitToBounds(mapBounds);
+    }
   }
 
   function handleZoomReset() {
@@ -271,6 +289,15 @@
   }
 </script>
 
+{#if configError}
+  <div class="error-message">
+    <p>Error: {configError}</p>
+  </div>
+{:else if !notation}
+  <div class="loading-message">
+    <p>Loading map configuration...</p>
+  </div>
+{:else}
 <div class="zoom-controls">
   <button class="button" onclick={() => applyZoomDelta(1)}>+</button>
   <button class="button" onclick={() => applyZoomDelta(-1)}>−</button>
@@ -319,8 +346,8 @@
         style:display={!$layerVisibility['biomes'] ? 'none' : undefined}
       >
         {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <HexTile
               fill={getBiomeColor(hex.biome)}
@@ -337,8 +364,8 @@
         style:display={!$layerVisibility['terrain'] ? 'none' : undefined}
       >
         {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <use
               href={getTerrainIcon(hex.terrain)}
@@ -355,23 +382,23 @@
         style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
       >
         {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <HexTile fill="none" hexWidth={HEX_WIDTH} {x} {y} />
           {/if}
         {/each}
       </g>
-      <MapPath paths={mapPaths} type="river" />
-      <MapPath paths={mapPaths} type="conduit" />
-      <MapPath paths={mapPaths} type="trail" />
+      <MapPath {notation} paths={mapPaths} type="river" />
+      <MapPath {notation} paths={mapPaths} type="conduit" />
+      <MapPath {notation} paths={mapPaths} type="trail" />
       <g
         id="layer-scar-sites"
         style:display={!$layerVisibility['scarSites'] ? 'none' : undefined}
       >
         {#each filterHexesByTag('scar-site') as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <use
               href="#icon-first-civ"
@@ -391,8 +418,8 @@
         style:display={!$layerVisibility['fcRuins'] ? 'none' : undefined}
       >
         {#each filterHexesByTag('fc-ruins') as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <use
               href="#icon-first-civ"
@@ -412,8 +439,8 @@
         style:display={!$layerVisibility['fcCities'] ? 'none' : undefined}
       >
         {#each filterHexesByTag('fc-city') as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <use
               href="#icon-first-civ"
@@ -443,8 +470,8 @@
       {#if !canAccess(role, [SCOPES.GM])}
         <g id="layer-player-mask" style:display="true">
           {#each hexes as hex (hex.id)}
-            {#if isValidHexId(hex.id) && !hex.isVisited && !hex.isScouted}
-              {@const { q, r } = parseHexId(hex.id)}
+            {#if isValidHexId(hex.id, notation) && !hex.isVisited && !hex.isScouted}
+              {@const { q, r } = parseHexId(hex.id, notation)}
               {@const { x, y } = axialToPixel(q, r)}
               <HexTile fill="white" hexWidth={HEX_WIDTH} {x} {y} />
             {/if}
@@ -456,8 +483,8 @@
         style:display={!$layerVisibility['labels'] ? 'none' : undefined}
       >
         {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <text
               {x}
@@ -473,8 +500,8 @@
       </g>
       <g id="layer-hit-target">
         {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <HexHitTarget
               active={$selectedHex === hex.id}
@@ -490,8 +517,21 @@
     </g>
   </svg>
 </div>
+{/if}
 
 <style>
+  .error-message,
+  .loading-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 1.25rem;
+  }
+
+  .error-message {
+    color: #dc3545;
+  }
   .map {
     width: 100%;
     height: 100%;

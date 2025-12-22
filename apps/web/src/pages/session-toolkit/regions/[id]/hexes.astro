@@ -1,4 +1,5 @@
 ---
+import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import GmHexDetails from '../../../../components/GmHexDetails/GmHexDetails.svelte';
@@ -20,6 +21,8 @@ if (!regionId) {
   });
 }
 
+const notation = loadMapConfig().grid.notation;
+
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
 const regions = await getCollection('regions');
@@ -29,9 +32,14 @@ const intermediateHexes = allHexes
   .filter((hex: HexEntry | undefined) => !!hex)
   .map((entry: HexEntry) => entry.data)
   .filter((hex: HexData) => !hex.hideInCatalog)
-  .sort(hexSort);
+  .sort((a, b) => hexSort(a, b, notation));
+// Add regionId to each hex for processHex
+const resolvedHexes = intermediateHexes.map((hex) => ({
+  ...hex,
+  regionId: regionId,
+}));
 const hexes: ExtendedHexData[] = await Promise.all(
-  intermediateHexes.map(processHex),
+  resolvedHexes.map(processHex),
 );
 ---
 

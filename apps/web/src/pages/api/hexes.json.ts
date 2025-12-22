@@ -1,5 +1,5 @@
 import { isOutOfBounds } from '@achm/core';
-import { loadMapConfig, mapConfigExists } from '@achm/data';
+import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import { getCurrentUserRole } from '../../utils/auth.ts';
@@ -55,10 +55,10 @@ export const GET: APIRoute = async ({ locals }) => {
     getCollection('regions'),
   ]);
 
-  // Load map config for out-of-bounds filtering
-  const mapConfig = mapConfigExists() ? loadMapConfig() : null;
-  const outOfBoundsList = mapConfig?.outOfBounds ?? [];
-  const notation = mapConfig?.grid.notation ?? 'letter-number';
+  // Load map config for out-of-bounds filtering and notation
+  const mapConfig = loadMapConfig();
+  const outOfBoundsList = mapConfig.outOfBounds ?? [];
+  const notation = mapConfig.grid.notation;
 
   // Build region lookup for resolution
   const hexToRegion = buildHexToRegionLookup(regionEntries);

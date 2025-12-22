@@ -1,5 +1,6 @@
 ---
 import { getHexNeighbors } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 
 import type { HexData } from '@achm/schemas';
 
@@ -8,7 +9,8 @@ interface Props {
 }
 
 const { hex } = Astro.props;
-const neighbors = getHexNeighbors(hex.id);
+const notation = loadMapConfig().grid.notation;
+const neighbors = getHexNeighbors(hex.id, notation);
 ---
 
 <div>Neighbors:</div>

@@ -10,9 +10,10 @@
   } from '../../utils/interactive-map.ts';
 
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { SegmentMetadataData } from '@achm/schemas';
+  import type { CoordinateNotation, SegmentMetadataData } from '@achm/schemas';
 
   interface Props {
+    notation: CoordinateNotation;
     paths: MapPathPlayerData[];
     type: 'conduit' | 'river' | 'trail';
   }
@@ -25,7 +26,7 @@
     parent: string;
   }
 
-  let { paths, type }: Props = $props();
+  let { notation, paths, type }: Props = $props();
 
   const ANCHOR_OFFSETS = {
     center: { dx: 0, dy: 0 },
@@ -101,7 +102,7 @@
 
   function resolvePathPoint(point: string): { x: number; y: number } {
     const [hexId, anchor] = point.split(':');
-    const { q, r } = parseHexId(hexId);
+    const { q, r } = parseHexId(hexId, notation);
 
     const { x: baseX, y: baseY } = axialToPixel(q, r);
 
