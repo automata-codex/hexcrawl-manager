@@ -1,0 +1,10 @@
+id: skargash-weakness
+name: Skargash's Weakness
+summary: >
+  The Amulet of the Broken King is the source of Skargash's power over his warband.
+  The goblin sorcerers believe it makes him chosen by their god. Without it, his
+  authority would crumble.
+factions:
+  - skargash-goblins
+  - goblin-dissenters
+status: unknown

@@ -7,20 +7,17 @@ export const EncounterScopeEnum = z.enum(['general', 'herald', 'hex', 'region', 
 
 export const LocationTypeEnum = z.enum(['wilderness', 'dungeon']);
 
-export const FactionEnum = z.enum([
-  'alseid',
-  'bearfolk',
-  'beldrunn-vok',
-  'blackthorns',
-  'flamehold-dwarves',
-  'hollow-choir',
-  'kobolds',
-  'revenant-legion',
-  'servitors',
-  'skybound',
-  'three-dukes',
-  'veil-shepherds',
-]);
+/**
+ * Faction ID - accepts any string.
+ * Validation of faction IDs against actual faction files is done at build time
+ * via the validate-faction-ids.ts script.
+ */
+export const FactionId = z.string();
+
+/**
+ * @deprecated Use FactionId instead. Kept for backward compatibility.
+ */
+export const FactionEnum = FactionId;
 
 export const UsageReferenceSchema = z.object({
   type: z.enum(['hex', 'region', 'dungeon', 'pointcrawl', 'pointcrawl-node', 'pointcrawl-edge']),
@@ -96,6 +93,8 @@ export const EncounterSchema = z
 export type EncounterData = z.infer<typeof EncounterSchema>;
 export type EncounterScope = z.infer<typeof EncounterScopeEnum>;
 export type LocationType = z.infer<typeof LocationTypeEnum>;
-export type Faction = z.infer<typeof FactionEnum>;
+export type FactionIdType = z.infer<typeof FactionId>;
+/** @deprecated Use FactionIdType instead */
+export type Faction = FactionIdType;
 export type UsageReference = z.infer<typeof UsageReferenceSchema>;
 // Note: CreatureType is exported from stat-block.ts

@@ -1,0 +1,10 @@
+id: "0102"
+slug: "0102"
+name: Thornwick Farmlands
+landmark: |
+  Patchwork fields of wheat and barley stretch across gentle hills. Several farmsteads dot the landscape, their inhabitants nervous about recent raids.
+terrain: plains
+biome: temperate-woodland
+encounterChance: 4
+notes:
+  - Recent goblin raids have burned two outlying barns

@@ -1,0 +1,17 @@
+id: giant-spider-nest
+name: Giant Spider Nest
+statBlocks:
+  - giant-spider
+scope: general
+locationTypes:
+  - wilderness
+description: |
+  A nest of giant spiders in web-choked trees.
+
+  **Setup:** Thick webs fill the canopy. Two giant spiders lurk above, waiting for prey to stumble into their domain.
+
+  **Tactics:** Drop from above for surprise. Use webs to restrain prey. Retreat to treetops if badly wounded.
+
+  **Treasure:** Webbed corpse of a goblin scout (2d6 sp, crude map). Webbed bundle containing a potion of healing.
+
+  **Developments:** The dead goblin was from Skargash's warband. The map shows patrol routes and marks the Broken Tower as "home."

@@ -1,0 +1,80 @@
+name: Goblin Dissenters
+keyword: goblin-dissenters
+culturalOverview: |
+  The dissenters are refugees from Skargash's brutal rule. They cling to older goblin traditions
+  that valued cunning and survival over cruelty. Under Grix's leadership, they dream of a life
+  without constant warfare.
+
+  Unlike Skargash's warband, the dissenters remember a time before the Amulet of the Broken King,
+  when goblin leaders earned loyalty through cleverness rather than fear. They're suspicious of
+  outsiders but desperate enough to consider unlikely alliances.
+
+rpVoiceNotes:
+  - Speak quickly, nervously, always watching for threats
+  - Mix Common and Goblin, especially when emotional
+  - Self-deprecating humor as a defense mechanism
+  - Surprisingly philosophical about fate and survival
+
+loreHooks:
+  - The dissenters know secret ways into the Broken Tower
+  - Grix once saved Skargash's life—a debt Skargash resents
+  - Some dissenters want revenge; others just want to flee far away
+
+sampleDialogue:
+  - "Skargash is strong, yes, but strong is not same as smart. We are smart."
+  - "You kill Skargash, we help. We know secret way in. But you must promise—no kill all goblins. Just bad ones."
+  - "The amulet makes him think he is god. Take amulet, he is just goblin with big mouth."
+
+intelligenceReports:
+  instructions: |
+    Roll d4 when the party interacts with goblin dissenters and asks for information.
+    Grix or other dissenters share what they know about Skargash and his operations.
+    The dissenters are helpful but cautious—they won't share everything until trust is earned.
+  rows:
+    - roll: 1
+      report: Tower Defenses
+      sampleDialogue: |
+        There is secret entrance, yes. Old sewers, from before. Skargash does not know—
+        too proud to crawl in filth like smart goblin. We show you, but is dangerous.
+        Bad air, bad water. You must be quiet, quiet, quiet.
+      relevantConditions: |
+        The dissenters know of a secret entrance through the old sewers. This bypasses
+        the main entrance where the goblin-ambush encounter triggers. Useful for
+        stealth approaches or rescuing prisoners.
+      linkType: hex
+      linkId: "0302"
+    - roll: 2
+      report: Skargash's Weakness
+      sampleDialogue: |
+        The amulet is everything. Without it, the sorcerers will not follow. They
+        think it makes him chosen by old gods. Ha! Is just shiny rock with magic.
+        Take amulet, Skargash is nothing. Warband falls apart like wet leaves.
+      relevantConditions: |
+        The Amulet of the Broken King is the source of Skargash's power. Removing
+        or destroying it during combat causes the goblin guards to flee and breaks
+        Skargash's confidence.
+      linkType: clue
+      linkId: skargash-weakness
+    - roll: 3
+      report: Patrol Schedules
+      sampleDialogue: |
+        Patrols change at dawn and dusk—that is when tower is most weak. Guards
+        tired, sleepy, thinking about food. In between? Many eyes watching. But
+        at dawn, at dusk? Only few. That is when we move, when we hunt. Smart way.
+      relevantConditions: |
+        Tactical information about when the tower's defenses are weakest. Dawn and
+        dusk approaches give advantage on stealth checks. Also reveals the patrol
+        patterns described in the goblin-patrol encounter.
+      linkType: encounter
+      linkId: goblin-patrol
+    - roll: 4
+      report: The Prisoners
+      sampleDialogue: |
+        Skargash keeps prisoners in old cells. Three farmers from village—still
+        alive, we think. He plans something bad. Ritual, maybe. Sacrifice to old
+        gods? We do not know. But is soon. Days, not weeks. You must hurry.
+      relevantConditions: |
+        Three captured farmers are held in the prison cells (Room 3 of the dungeon).
+        Skargash plans to sacrifice them soon. Creates urgency for the party to act.
+      linkType: dungeon
+      linkId: broken-tower

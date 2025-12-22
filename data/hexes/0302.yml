@@ -1,0 +1,14 @@
+id: "0302"
+slug: "0302"
+name: The Broken Tower
+landmark: |
+  A ruined watchtower from a fallen empire, now occupied by Skargash's goblin warband. The upper floors have collapsed, but the dungeons below remain intact.
+terrain: hills
+biome: rocky-highland
+tags:
+  - dungeon
+  - goblin-ruins
+keyedEncounters:
+  - encounterId: goblin-ambush
+    trigger: entry
+    notes: Goblin sentries attack anyone approaching openly

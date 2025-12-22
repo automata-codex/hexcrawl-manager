@@ -1,0 +1,72 @@
+id: goblin
+name: Goblin
+desc: A small humanoid standing about three feet tall, with pointed ears and skin that ranges from green to yellow.
+size: small
+type: humanoid
+subtype: goblinoid
+group: null
+family: null
+family_name: null
+alignment: neutral evil
+armor_class: 15
+armor_desc: leather armor, shield
+hit_points: 7
+hit_dice: 2d6
+speed:
+  walk: 30
+strength: 8
+dexterity: 14
+constitution: 10
+intelligence: 10
+wisdom: 8
+charisma: 8
+strength_save: null
+dexterity_save: null
+constitution_save: null
+intelligence_save: null
+wisdom_save: null
+charisma_save: null
+perception: null
+skills:
+  stealth: 6
+proficiency_bonus: 2
+damage_vulnerabilities: ''
+damage_resistances: ''
+damage_immunities: ''
+condition_immunities: ''
+senses: darkvision 60 ft., passive Perception 9
+languages: Common, Goblin
+challenge_rating: '1/4'
+cr: 0.25
+actions:
+  - name: Scimitar
+    action_type: melee weapon attack
+    attack_bonus: 4
+    damage_bonus: 2
+    damage_dice: 1d6
+    damage_type: slashing
+    default_damage: 5
+    reach: 5 ft.
+  - name: Shortbow
+    action_type: ranged weapon attack
+    attack_bonus: 4
+    damage_bonus: 2
+    damage_dice: 1d6
+    damage_type: piercing
+    default_damage: 5
+    range: 80/320 ft.
+special_abilities:
+  - name: Nimble Escape
+    desc: The goblin can take the Disengage or Hide action as a bonus action on each of its turns.
+spell_list: []
+bonus_actions: null
+reactions: null
+legendary_desc: ''
+legendary_actions: null
+page_no: null
+environments:
+  - forest
+  - grassland
+  - hill
+  - underdark
+img_main: null

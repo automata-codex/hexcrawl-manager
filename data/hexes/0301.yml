@@ -1,0 +1,9 @@
+id: "0301"
+slug: "0301"
+name: Thornback Hills
+landmark: |
+  Barren rocky hills with scrub vegetation. Good vantage points but little cover. The Broken Tower is visible from the higher elevations.
+terrain: hills
+biome: rocky-highland
+notes:
+  - Goblin patrols are more frequent here, watching approaches to the tower

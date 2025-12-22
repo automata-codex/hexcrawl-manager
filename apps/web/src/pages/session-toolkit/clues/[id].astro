@@ -3,7 +3,7 @@ import { getCollection, getEntry } from 'astro:content';
 
 
 import Clue from '../../../components/Clue.astro';
-import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
 import { buildClueUsageMap, getClueUsage } from '../../../utils/clue-usage-tracker';
 
 import type { EncounterData } from '@achm/schemas';
@@ -71,6 +71,6 @@ const title = `Clue: ${clue.name}`;
     margin-bottom: 0.25rem;
   }
 </style>
-<SecretArticleLayout title={title}>
+<SecretLayout title={title}>
   <Clue clue={clue} usedIn={usedIn} />
-</SecretArticleLayout>
+</SecretLayout>

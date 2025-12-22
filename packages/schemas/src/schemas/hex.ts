@@ -46,8 +46,9 @@ export const TerrainEnum = z.enum([
 export const HexId = z
   .string()
   .toLowerCase()
-  .regex(/^[a-z]+[0-9]+$/, {
-    message: "Hex id must be like 'q12' (letters+digits, lowercase ok)",
+  .regex(/^([a-z]+[0-9]+|[0-9]{4})$/, {
+    message:
+      "Hex id must be like 'q12' (letters+digits) or '0203' (4-digit CCRR format)",
   });
 
 // Base schema for all hidden sites (common fields)

@@ -32,6 +32,10 @@ echo "=== Prebuild: Validating encounter content ==="
 tsx scripts/validate-encounter-content.ts
 
 echo ""
+echo "=== Prebuild: Validating faction IDs ==="
+tsx scripts/validate-faction-ids.ts
+
+echo ""
 echo "=== Prebuild: Validating encounter table ==="
 tsx scripts/validate-encounter-table.ts
 

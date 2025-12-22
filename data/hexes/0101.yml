@@ -1,0 +1,17 @@
+id: "0101"
+slug: "0101"
+name: Thornwick Village
+landmark: |
+  A small but prosperous village of about 200 souls. Timber-framed buildings cluster around a central well. The Sleeping Boar inn serves as the social hub where travelers and locals share news and rumors.
+terrain: plains
+biome: temperate-woodland
+isVisited: true
+tags:
+  - haven
+  - settlement
+encounterChance: 4
+encounterOverrides:
+  mainTable:
+    - category: wildlife
+      label: Wildlife
+      weight: 20

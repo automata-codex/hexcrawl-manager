@@ -1,0 +1,10 @@
+id: skargash-goblins
+name: Skargash's Warband
+description: |
+  A goblin warband united under the brutal leadership of Skargash the Red. They've grown bolder in recent weeks, raiding farmsteads and demanding tribute. Skargash's power comes from the Amulet of the Broken King, which he found in the ruins of the Broken Tower and which grants him supernatural influence over other goblins.
+areaOfOperation:
+  - Thornwick Region
+  - The Broken Tower
+ideology: Strength is all that matters. The strong take what they want, and the weak serve or die. Skargash is chosen by the old gods to lead goblinkind to glory.
+powerLevel: |
+  A warband of several dozen goblins, including warriors, scouts, and a handful of sorcerers loyal to Skargash. They control the Broken Tower and the surrounding hills, and have been growing bolder with each successful raid.

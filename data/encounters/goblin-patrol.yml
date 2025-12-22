@@ -1,0 +1,19 @@
+id: goblin-patrol
+name: Goblin Patrol
+statBlocks:
+  - goblin
+scope: general
+locationTypes:
+  - wilderness
+factions:
+  - skargash-goblins
+description: |
+  A small group of goblin scouts watching for intruders and potential raid targets.
+
+  **Setup:** Three goblins moving through the area, checking game trails and watching for travelers. They're not looking for a fight but will attack if they spot easy prey.
+
+  **Tactics:** One goblin hangs back to flee and warn the warband if things go badly. They prefer ambush and will disengage if outmatched. Can be bribed with food or shiny objects.
+
+  **Treasure:** 2d6 silver pieces per goblin. One carries a crude map showing patrol routes (leads to Broken Tower).
+
+  **Developments:** If captured, goblins will reveal the tower's location to save themselves. They're terrified of Skargash.
