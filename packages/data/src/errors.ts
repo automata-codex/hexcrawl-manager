@@ -1,4 +1,3 @@
-import { normalizeHexId } from '@achm/core';
 import { padSessionNum } from '@achm/schemas';
 
 export class DataFileNotFoundError extends Error {
@@ -60,7 +59,7 @@ export class FinalizedLogsNotFoundError extends Error {
 
 export class HexFileNotFoundError extends Error {
   constructor(public hexId: string) {
-    super(`Hex file not found for hexId "${normalizeHexId(hexId)}"`);
+    super(`Hex file not found for hexId "${hexId}"`);
     this.name = 'HexFileNotFoundError';
   }
 }

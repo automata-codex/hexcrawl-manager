@@ -7,7 +7,7 @@ import { SECURITY_ROLE, UNKNOWN_CONTENT } from '../../utils/constants.ts';
 import { processHex } from '../../utils/hexes.ts';
 import { buildHexToRegionLookup } from '../../utils/regions.ts';
 
-import type { ExtendedHexData, ResolvedHexData } from '../../types.ts';
+import type { ExtendedHexData, RegionEntry, ResolvedHexData } from '../../types.ts';
 import type { HexData } from '@achm/schemas';
 import type { APIRoute } from 'astro';
 
@@ -35,7 +35,7 @@ export type HexPlayerData = Pick<
  */
 function resolveHexData(
   hex: HexData,
-  hexToRegion: Map<string, { id: string; data: { terrain?: string; biome?: string } }>,
+  hexToRegion: Map<string, RegionEntry>,
 ): ResolvedHexData {
   const region = hexToRegion.get(hex.id.toLowerCase());
 
@@ -76,7 +76,8 @@ export const GET: APIRoute = async ({ locals }) => {
       const hasHiddenSites = data.renderedHiddenSites.length > 0;
 
       if (role === SECURITY_ROLE.GM) {
-        return { ...data, hasHiddenSites };
+        // GM gets full data - type assertion needed as we return superset of HexPlayerData
+        return { ...data, hasHiddenSites } as HexPlayerData;
       }
 
       // Redact fields for players
