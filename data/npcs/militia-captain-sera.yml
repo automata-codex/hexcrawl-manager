@@ -1,0 +1,13 @@
+id: militia-captain-sera
+name: Sera Ironhand
+title: Captain
+occupation: Militia Captain
+class: Fighter
+species: Human
+culture: Thornwick
+pronouns: she/her
+description: |
+  A stern woman with a soldier's bearing and a practical mind. Sera is a former mercenary who settled in Thornwick five years ago. She's the only person in town with real combat experience and has organized the village's defense.
+notes:
+  - Practical and will consider any plan that works, including allying with the goblin dissenters
+  - Skeptical of unconventional approaches but open-minded if presented with good arguments
