@@ -2,7 +2,7 @@
 import { getEntry } from 'astro:content';
 
 import DungeonDetails from '../../../components/DungeonDetails.astro';
-import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
 
 import type { DungeonEntry } from '../../../types';
 
@@ -43,9 +43,9 @@ function getImageFileName(dungeon: DungeonEntry): string | null {
 const image = getImageFileName(dungeon);
 ---
 
-<SecretArticleLayout title={title}>
+<SecretLayout title={title}>
   <div style="text-align: center; margin-bottom: 1rem;">
     {image && <img src={`/images/maps/dungeons/${image}`} alt={title} />}
   </div>
   <DungeonDetails dungeon={dungeon} />
-</SecretArticleLayout>
+</SecretLayout>

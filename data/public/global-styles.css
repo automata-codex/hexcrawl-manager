@@ -50,6 +50,38 @@ h1 {
   text-align: center;
 }
 
+p {
+  margin-bottom: 1rem;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+/* Remove space between paragraph and following list */
+p + ul,
+p + ol {
+  margin-top: -1rem;
+}
+
+table {
+  border-spacing: 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+td,
+th {
+  border-bottom: 1px solid var(--bulma-border);
+  padding-right: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+th {
+  border-top: 1px solid var(--bulma-border);
+}
+
 ol {
   padding-inline-start: 2rem;
   margin-bottom: 1rem;

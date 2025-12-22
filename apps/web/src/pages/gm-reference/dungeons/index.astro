@@ -4,7 +4,7 @@ import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import DungeonDetails from '../../../components/DungeonDetails.astro';
-import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
 
 const notation = loadMapConfig().grid.notation;
 
@@ -36,7 +36,7 @@ const title = 'Dungeons';
     font-weight: 600;
   }
 </style>
-<SecretArticleLayout title={title}>
+<SecretLayout title={title}>
   <div class="dungeon-collection">
     {
       dungeons.map((dungeon) => (
@@ -49,4 +49,4 @@ const title = 'Dungeons';
       ))
     }
   </div>
-</SecretArticleLayout>
+</SecretLayout>

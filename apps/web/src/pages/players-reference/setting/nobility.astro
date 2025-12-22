@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 import OpenContent from '../../../components/Content/OpenContent.astro';
 import SecretContent from '../../../components/Content/SecretContent.astro';
 import NobleHierarchy from '../../../components/NobleHierarchy.astro';
-import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { renderMarkdown } from '../../../utils/markdown.ts';
 
 // Fetch all nobles
@@ -57,7 +57,7 @@ function getFactionNames(factionIds: string[] | undefined) {
 }
 ---
 
-<ArticleLayout title="Nobility">
+<ComponentLayout title="Nobility">
   <article>
     <OpenContent>
       <ul class="hierarchy-list">
@@ -214,7 +214,7 @@ function getFactionNames(factionIds: string[] | undefined) {
       ))}
     </SecretContent>
   </article>
-</ArticleLayout>
+</ComponentLayout>
 
 <style>
   .faction-section {
