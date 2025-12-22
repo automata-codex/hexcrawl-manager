@@ -192,10 +192,6 @@ export const HexSchema = z
     landmark: z.union([z.string(), LandmarkSchema]),
     hiddenSites: HiddenSitesSchema.optional(),
     secretSite: z.string().optional(),
-    regionId: z
-      .string()
-      .optional()
-      .describe('Deprecated: region membership now defined in region schema'),
     hideInCatalog: z.boolean().optional(),
     isVisited: z.boolean().optional(),
     isExplored: z.boolean().optional(),

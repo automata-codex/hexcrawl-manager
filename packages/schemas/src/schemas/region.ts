@@ -20,7 +20,6 @@ export const RegionSchema = z
     // Hex membership and defaults (for flexible map config)
     hexes: z
       .array(z.string())
-      .optional()
       .describe('List of hex IDs belonging to this region'),
     terrain: TerrainEnum.optional().describe(
       'Default terrain for hexes in this region',

@@ -5,7 +5,7 @@ import { SECURITY_ROLE, UNKNOWN_CONTENT } from '../../utils/constants.ts';
 import { processHex } from '../../utils/hexes.ts';
 import { buildHexToRegionLookup } from '../../utils/regions.ts';
 
-import type { ExtendedHexData } from '../../types.ts';
+import type { ExtendedHexData, ResolvedHexData } from '../../types.ts';
 import type { HexData } from '@achm/schemas';
 import type { APIRoute } from 'astro';
 
@@ -34,13 +34,13 @@ export type HexPlayerData = Pick<
 function resolveHexData(
   hex: HexData,
   hexToRegion: Map<string, { id: string; data: { terrain?: string; biome?: string } }>,
-): HexData {
+): ResolvedHexData {
   const region = hexToRegion.get(hex.id.toLowerCase());
 
   return {
     ...hex,
     // Use region as authoritative source for regionId
-    regionId: region?.id ?? hex.regionId,
+    regionId: region?.id ?? 'unknown',
     // Fall back to region defaults for terrain/biome
     terrain: hex.terrain ?? region?.data.terrain,
     biome: hex.biome ?? region?.data.biome,

@@ -7,8 +7,8 @@ import {
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
 
-import type { ExtendedGmNote, ExtendedHexData, ExtendedHiddenSites } from '../types.ts';
-import type { GmNote, HexData, HiddenSite } from '@achm/schemas';
+import type { ExtendedGmNote, ExtendedHexData, ExtendedHiddenSites, ResolvedHexData } from '../types.ts';
+import type { GmNote, HiddenSite } from '@achm/schemas';
 
 /**
  * Process a GM note into extended format with rendered markdown and optional clueId.
@@ -49,7 +49,7 @@ export function parseHexId(id: string): { q: number; r: number } {
   return { q: col, r: row };
 }
 
-export async function processHex(hex: HexData): Promise<ExtendedHexData> {
+export async function processHex(hex: ResolvedHexData): Promise<ExtendedHexData> {
   const landmark =
     typeof hex.landmark === 'string' ? hex.landmark : hex.landmark.description;
   return {
