@@ -1,65 +1,36 @@
+import {
+  formatHexId,
+  getNeighborCoords,
+  parseHexId,
+  sortHexIds,
+} from '../coordinates/index.js';
+
+import type { CoordinateNotation } from '../coordinates/index.js';
+
 /**
- * Get neighboring hexes for a given hex in an odd-q flat-topped hex grid.
- * @param hex
+ * Get neighboring hexes for a given hex in a flat-topped hex grid.
+ * Uses even-q offset with 0-indexed columns (A=0), where columns A, C, E... are shifted down.
+ *
+ * Note: This function filters out neighbors with negative coordinates (invalid hex IDs)
+ * but does NOT enforce map boundaries. Callers should filter results against their
+ * map configuration if needed.
+ *
+ * @param hex - Hex ID (e.g., "F12" for letter-number, "0612" for numeric)
+ * @param notation - Coordinate notation to use
+ * @returns Array of valid neighboring hex IDs, sorted
  */
-export function getHexNeighbors(hex: string): string[] {
-  // Extract column (letter) and row (number) from the input hex string
-  const match = hex.toUpperCase().match(/^([A-Z])(\d+)$/);
-  if (!match) {
-    throw new Error(
-      `Invalid hex format ${hex}. Use a letter followed by a number, e.g., 'P17'.`,
-    );
-  }
+export function getHexNeighbors(
+  hex: string,
+  notation: CoordinateNotation,
+): string[] {
+  const coord = parseHexId(hex, notation);
+  const neighbors = getNeighborCoords(coord);
 
-  const column = match[1];
-  const row = parseInt(match[2], 10);
+  // Filter out neighbors with negative coordinates (invalid hex IDs)
+  // and format back to strings
+  const validNeighbors = neighbors
+    .filter((n) => n.col >= 0 && n.row >= 0)
+    .map((n) => formatHexId(n, notation));
 
-  // Convert column letter to a numerical index for calculations
-  const columnIndex = column.charCodeAt(0) - 'A'.charCodeAt(0);
-
-  // Determine the offsets for neighbors based on whether the column is even or odd
-  const isEvenColumn = columnIndex % 2 === 0;
-
-  // Neighboring offsets for flat-topped hex grid
-  const neighborOffsets = isEvenColumn
-    ? [
-        { col: -1, row: 0 }, // Upper left
-        { col: 0, row: -1 }, // Upper right
-        { col: 1, row: 0 }, // Right
-        { col: 1, row: 1 }, // Lower right
-        { col: 0, row: 1 }, // Lower left
-        { col: -1, row: 1 }, // Left
-      ]
-    : [
-        { col: -1, row: -1 }, // Upper left
-        { col: 0, row: -1 }, // Upper right
-        { col: 1, row: -1 }, // Right
-        { col: 1, row: 0 }, // Lower right
-        { col: 0, row: 1 }, // Lower left
-        { col: -1, row: 0 }, // Left
-      ];
-
-  // Generate the neighbors
-  const neighbors = neighborOffsets.map((offset) => {
-    const newColumnIndex = columnIndex + offset.col;
-    const newRow = row + offset.row;
-
-    // Ensure the new column index is valid (within 0-22 for A-W)
-    if (newColumnIndex < 0 || newColumnIndex > 22) {
-      return null;
-    }
-
-    const newColumn = String.fromCharCode(newColumnIndex + 'A'.charCodeAt(0));
-
-    // Ensure the new row is valid (within 1-27)
-    if (newRow < 1 || newRow > 27) {
-      return null;
-    }
-
-    return `${newColumn}${newRow}`;
-  });
-
-  // Filter out null values (invalid neighbors)
-  const output = neighbors.filter(Boolean) as string[];
-  return output.sort();
+  return sortHexIds(validNeighbors, notation);
 }

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { EncounterTableSchema } from './encounter-table.js';
+import { BiomeEnum, TerrainEnum } from './hex.js';
 
 export const RegionSchema = z
   .object({
@@ -16,6 +17,16 @@ export const RegionSchema = z
       .describe(
         'Explicit list of encounters for this region, derived from encounter tables or specified directly',
       ),
+    // Hex membership and defaults (for flexible map config)
+    hexes: z
+      .array(z.string())
+      .describe('List of hex IDs belonging to this region'),
+    terrain: TerrainEnum.optional().describe(
+      'Default terrain for hexes in this region',
+    ),
+    biome: BiomeEnum.optional().describe(
+      'Default biome for hexes in this region',
+    ),
     type: z.enum([
       'skyreach',
       'starting',

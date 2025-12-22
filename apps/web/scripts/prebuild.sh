@@ -11,6 +11,10 @@ echo "=== Prebuild: Building packages ==="
 npm run --prefix ../.. build:packages
 
 echo ""
+echo "=== Prebuild: Validating map configuration ==="
+tsx scripts/validate-map.ts
+
+echo ""
 echo "=== Prebuild: Validating YAML config ==="
 tsx scripts/validate-yaml-config.ts
 

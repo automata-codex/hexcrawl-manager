@@ -5,7 +5,7 @@ import { EncounterOverrideSchema } from './encounter-override.js';
 import { LinkTypeEnum } from './roleplay-book.js';
 import { TreasureSchema } from './treasure.js';
 
-const BiomeEnum = z.enum([
+export const BiomeEnum = z.enum([
   'alpine-tundra',
   'boreal-forest',
   'coastal-ocean',
@@ -192,7 +192,6 @@ export const HexSchema = z
     landmark: z.union([z.string(), LandmarkSchema]),
     hiddenSites: HiddenSitesSchema.optional(),
     secretSite: z.string().optional(),
-    regionId: z.string(),
     hideInCatalog: z.boolean().optional(),
     isVisited: z.boolean().optional(),
     isExplored: z.boolean().optional(),
@@ -223,8 +222,12 @@ export const HexSchema = z
       .array(TagSchema)
       .optional()
       .describe('Tags for filtering hexes, matching clues, etc.'),
-    terrain: TerrainEnum,
-    biome: BiomeEnum,
+    terrain: TerrainEnum.optional().describe(
+      'Terrain type; falls back to region default if not specified',
+    ),
+    biome: BiomeEnum.optional().describe(
+      'Biome type; falls back to region default if not specified',
+    ),
     topography: z
       .string()
       .optional()

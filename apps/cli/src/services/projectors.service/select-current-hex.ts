@@ -1,16 +1,18 @@
 /** Returns the current hex derived from the event log. */
 import { normalizeHexId } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 
 import type { ScribeEvent } from '@achm/schemas';
 
 export function selectCurrentHex(events: ScribeEvent[]): string | null {
+  const notation = loadMapConfig().grid.notation;
   // Prefer the last move's destination
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
     if (e.kind === 'move' && e.payload && typeof e.payload === 'object') {
       const to = (e.payload as any).to;
       if (typeof to === 'string') {
-        return normalizeHexId(to);
+        return normalizeHexId(to, notation);
       }
     }
   }
@@ -24,7 +26,7 @@ export function selectCurrentHex(events: ScribeEvent[]): string | null {
     ) {
       const hx = (e.payload as any).startHex;
       if (typeof hx === 'string') {
-        return normalizeHexId(hx);
+        return normalizeHexId(hx, notation);
       }
     }
   }

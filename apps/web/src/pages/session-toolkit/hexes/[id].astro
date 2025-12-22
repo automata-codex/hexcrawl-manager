@@ -10,8 +10,9 @@ import RandomEncounterTable from '../../../components/RandomEncounterTable/Rando
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { mergeEncounterOverrides } from '../../../utils/encounters';
 import { processHex } from '../../../utils/hexes';
+import { buildHexToRegionLookup } from '../../../utils/regions';
 
-import type { EncounterTableData, HexData } from '@achm/schemas';
+import type { EncounterTableData } from '@achm/schemas';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -35,28 +36,39 @@ if (hexEntry === undefined) {
 
 const dungeons = await getCollection('dungeons');
 const clues = await getCollection('clues');
-const hex: HexData = hexEntry.data;
+const hexData = hexEntry.data;
 
 // Build clue lookup map for display
 const clueMap = Object.fromEntries(
   clues.map((c) => [c.id, { id: c.id, name: c.data.name }])
 );
-const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
+const title = `Hex ${hexData.id.toUpperCase()}: ${hexData.name}`;
 
 // Find pointcrawls accessible from this hex
 const allPointcrawls = await getCollection('pointcrawls');
 const pointcrawls = allPointcrawls
-  .filter((p) => p.data.hexIds?.includes(hex.id.toLowerCase()))
+  .filter((p) => p.data.hexIds?.includes(hexData.id.toLowerCase()))
   .map((p) => ({ slug: p.data.slug, name: p.data.name }));
+
+// Build region lookup and find hex's region
+const regions = await getCollection('regions');
+const hexToRegion = buildHexToRegionLookup(regions);
+const regionEntry = hexToRegion.get(hexData.id.toLowerCase());
+
+// Resolve hex with regionId and fallback terrain/biome
+const hex = {
+  ...hexData,
+  regionId: regionEntry?.id ?? 'unknown',
+  terrain: hexData.terrain ?? regionEntry?.data.terrain,
+  biome: hexData.biome ?? regionEntry?.data.biome,
+};
 
 // Build the random encounter table
 let encounters: EncounterTableData | undefined = undefined;
 let encounterChance = 8;
-const regions = await getCollection('regions');
-const region = regions.find((region) => region.id === hex.regionId);
-if (region) {
-  encounters = region.data.encounters;
-  encounterChance = region.data.encounterChance;
+if (regionEntry) {
+  encounters = regionEntry.data.encounters;
+  encounterChance = regionEntry.data.encounterChance;
 }
 encounterChance = hex.encounterChance ?? encounterChance;
 
@@ -89,14 +101,14 @@ const extendedHexData = await processHex(hex);
       pointcrawls={pointcrawls}
       showSelfLink={false}
     />
-    {!hex.hideRandomEncounters && region && (
+    {!hex.hideRandomEncounters && regionEntry && (
       <RandomEncountersSection
-        region={region.data}
+        region={regionEntry.data}
         encounters={encounters}
         encounterChance={encounterChance}
       />
     )}
-    {!hex.hideRandomEncounters && !region && encounters && (
+    {!hex.hideRandomEncounters && !regionEntry && encounters && (
       <>
         <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
         <p>

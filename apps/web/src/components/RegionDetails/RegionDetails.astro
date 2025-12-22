@@ -1,5 +1,6 @@
 ---
 import { hexSort } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import { getHexPath, getRegionPath } from '../../config/routes';
@@ -24,13 +25,15 @@ function getHeading(text: string) {
   return `<${element} class="title is-3" style="margin-bottom: 0.25rem">${text}</${element}>`;
 }
 
+const notation = loadMapConfig().grid.notation;
+
 const articles = await getCollection('articles');
 const dungeons = await getCollection('dungeons');
 const hexData = await getCollection('hexes');
-const hexes = hexData
-  .filter((hex) => hex.data.regionId === region.id)
-  .map((hex) => hex.data.id.toUpperCase())
-  .sort((a, b) => hexSort(a, b));
+// Use region.hexes as the authoritative source of membership
+const hexes = (region.hexes ?? [])
+  .map((hex) => hex.toUpperCase())
+  .sort((a, b) => hexSort(a, b, notation));
 ---
 
 <style>

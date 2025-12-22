@@ -1,4 +1,14 @@
-import { hexSort, normalizeHexId, rollDice } from '@achm/core';
+import {
+  hexDistance as coreHexDistance,
+  hexSort,
+  hexToCube as coreHexToCube,
+  normalizeHexId,
+  parseHexId,
+  rollDice,
+} from '@achm/core';
+import { loadMapConfig } from '@achm/data';
+
+import type { CoordinateNotation } from '@achm/core';
 import { cloneDeep } from 'lodash-es';
 
 export function applyRolloverToTrails(
@@ -174,27 +184,37 @@ export function applySessionToTrails(
 }
 
 export function canonicalEdgeKey(a: string, b: string): string {
-  const [h1, h2] = [normalizeHexId(a), normalizeHexId(b)].sort(hexSort);
+  const notation = loadMapConfig().grid.notation;
+  const [h1, h2] = [normalizeHexId(a, notation), normalizeHexId(b, notation)].sort(
+    (x, y) => hexSort(x, y, notation),
+  );
   return `${h1.toLowerCase()}-${h2.toLowerCase()}`;
 }
 
-export function hexDistance(a: string, b: string): number {
-  const ac = hexToCube(a);
-  const bc = hexToCube(b);
-  return Math.max(
-    Math.abs(ac.x - bc.x),
-    Math.abs(ac.y - bc.y),
-    Math.abs(ac.z - bc.z),
-  );
+/**
+ * Calculate hex distance between two hex IDs.
+ * Wrapper around core hexDistance that accepts string IDs.
+ */
+export function hexDistance(
+  a: string,
+  b: string,
+  notation: CoordinateNotation,
+): number {
+  const coordA = parseHexId(a, notation);
+  const coordB = parseHexId(b, notation);
+  return coreHexDistance(coordA, coordB);
 }
 
-export function hexToCube(hex: string): { x: number; y: number; z: number } {
-  const col = hex[0].toUpperCase().charCodeAt(0) - 'A'.charCodeAt(0);
-  const row = parseInt(hex.slice(1), 10) - 1;
-  const x = col;
-  const z = row - ((col - (col & 1)) >> 1);
-  const y = -x - z;
-  return { x, y, z };
+/**
+ * Convert hex ID string to cube coordinates.
+ * Wrapper around core hexToCube that accepts string IDs.
+ */
+export function hexToCube(
+  hex: string,
+  notation: CoordinateNotation,
+): { x: number; y: number; z: number } {
+  const coord = parseHexId(hex, notation);
+  return coreHexToCube(coord);
 }
 
 export function isHexNearAnyHaven(
@@ -202,5 +222,6 @@ export function isHexNearAnyHaven(
   havens: string[],
   maxDist = 3,
 ): boolean {
-  return havens.some((haven) => hexDistance(hex, haven) <= maxDist);
+  const notation = loadMapConfig().grid.notation;
+  return havens.some((haven) => hexDistance(hex, haven, notation) <= maxDist);
 }

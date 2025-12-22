@@ -1,6 +1,6 @@
 import { error, info, maybeOverride } from '@achm/cli-kit';
 import { isValidHexId, normalizeHexId } from '@achm/core';
-import { buildSessionFilename, loadMeta } from '@achm/data';
+import { buildSessionFilename, loadMapConfig, loadMeta } from '@achm/data';
 import { makeSessionId, type MetaV2Data } from '@achm/schemas';
 
 import { appendEvent } from '../../../services/event-log.service';
@@ -22,12 +22,13 @@ export async function startInteractiveWithValues(
   ctx: Context,
   vals: StartInteractiveValues,
 ): Promise<void> {
+  const notation = loadMapConfig().grid.notation;
   // Validate hex/date quickly (seq is checked by Number parse at call sites)
-  if (!isValidHexId(vals.hex)) {
+  if (!isValidHexId(vals.hex, notation)) {
     error('❌ Invalid hex. Example: `R14`');
     return;
   }
-  const hex = normalizeHexId(vals.hex);
+  const hex = normalizeHexId(vals.hex, notation);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(vals.date)) {
     error('❌ Invalid date format; expected YYYY-MM-DD.');
     return;
@@ -58,10 +59,12 @@ export async function startInteractiveWithValues(
 
 // Main interactive session start handler
 export async function handleInteractiveSessionStart(ctx: Context) {
+  const notation = loadMapConfig().grid.notation;
   // Step 1: Prompt for hex
   const hex = await maybeOverride<string>('Enter starting hex ID', 'V17', {
-    validate: (raw) => (isValidHexId(raw) ? undefined : 'Invalid hex ID'),
-    parse: (raw) => normalizeHexId(raw as string),
+    validate: (raw) =>
+      isValidHexId(raw, notation) ? undefined : 'Invalid hex ID',
+    parse: (raw) => normalizeHexId(raw as string, notation),
     placeholder: 'A1',
     rl: ctx.rl,
   });

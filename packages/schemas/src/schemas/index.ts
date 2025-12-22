@@ -18,6 +18,7 @@ export * from './encounter-category-table.js';
 export * from './faction.js';
 export * from './hex.js';
 export * from './loot-pack.js';
+export * from './map-config.js';
 export * from './map-path.js';
 export * from './meta.js';
 export * from './meta-v2.js';
