@@ -1,0 +1,151 @@
+---
+id: broken-tower
+slug: broken-tower
+hexId: "0302"
+name: The Broken Tower
+builders:
+  - goblins
+summary: >
+  A ruined imperial watchtower, now the lair of Skargash's goblin warband. The upper floors collapsed
+  long ago, but the dungeons below remain intact. Skargash has made the underground great hall his
+  throne room, where he plots raids and dreams of conquest.
+encounters:
+  - goblin-ambush
+  - skargash-throne-room
+treasure:
+  - name: Stolen Goods
+    slug: stolen-goods
+    value: 50
+    type: salvage
+    notes: Assorted items looted from farmsteads—tools, cookware, cloth, and a child's wooden toy.
+  - name: Silver Holy Symbol
+    slug: silver-holy-symbol
+    value: 25
+    type: art
+    notes: Hidden under debris in the defiled shrine. Bears the mark of an old imperial god.
+  - name: Amulet of the Broken King
+    slug: amulet-of-the-broken-king
+    type: magic-item
+    rarity: uncommon
+    notes: Requires attunement. Grants advantage on Charisma checks against goblinoids. Found on Skargash.
+  - name: Mixed Coins
+    slug: mixed-coins
+    value: 150
+    type: currency
+    notes: Gold, silver, and copper coins in a locked chest behind Skargash's throne.
+  - name: Raid Ledger
+    slug: raid-ledger
+    value: 10
+    type: salvage
+    notes: Written in Goblin. Lists raided farms and planned targets. Useful evidence for Mayor Aldric.
+---
+import TreasureTableMdx from '@achm/web/src/components/TreasureTable/TreasureTableMdx.astro';
+import { getEncounterPath } from '@achm/web/src/config/routes';
+
+export const paths = {
+  goblinAmbush: getEncounterPath('goblin-ambush'),
+  skargashThroneRoom: getEncounterPath('skargash-throne-room'),
+}
+export const { treasure: treasureList } = frontmatter;
+export const treasure = treasureList.reduce((result, item) => {
+  const slug = item.slug || item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  return { ...result, [slug]: item };
+}, {});
+
+A ruined imperial watchtower, now the lair of Skargash's goblin warband. The upper floors collapsed
+long ago, but the dungeons below remain intact. Skargash has made the underground great hall his
+throne room, where he plots raids and dreams of conquest.
+
+## Dungeon Overview
+
+The tower rises from a rocky hilltop, its upper stories reduced to crumbling walls open to the sky.
+A makeshift wooden palisade surrounds the base. The only intact entrance leads down stone stairs
+into the dungeon level, which consists of five chambers connected by narrow corridors.
+
+**Total dungeon area:** Approximately 3,000 square feet across one level.
+
+## Room 1: Tower Entrance
+
+**Dimensions:** 30 ft. × 20 ft., 15 ft. ceiling (open to sky above ruined walls)
+
+Rubble-strewn entry hall with makeshift goblin fortifications. Overturned carts and sharpened
+stakes create a defensive barrier. Arrow slits have been carved into the remaining walls.
+
+**Features:**
+- Stone stairs descend 10 ft. to the dungeon level
+- Two goblin sentries watch from behind cover
+- A crude alarm system (tin cans on string) alerts the dungeon below
+
+**Encounter:** <a href={paths.goblinAmbush}>Goblin Ambush</a> triggers here if the party approaches openly.
+
+## Room 2: Goblin Barracks
+
+**Dimensions:** 40 ft. × 25 ft., 10 ft. ceiling
+
+A foul-smelling chamber filled with crude bedding—piles of straw, stolen blankets, and animal
+hides. Personal effects and stolen goods are scattered everywhere. A fire pit in the center
+provides warmth and light, its smoke escaping through cracks in the ceiling.
+
+**Features:**
+- Sleeping space for 15-20 goblins
+- Stolen goods from raided farmsteads scattered throughout
+- A locked chest (DC 12 Thieves' Tools) under a pile of bedding
+
+**Treasure:**
+
+<TreasureTableMdx treasure={[treasure['stolen-goods']]} />
+
+## Room 3: Prison Cells
+
+**Dimensions:** 25 ft. × 15 ft., 8 ft. ceiling (three 8 ft. × 8 ft. cells along one wall)
+
+Three iron-barred cells hold captured farmers awaiting Skargash's "ritual." The cells are old
+imperial construction, repurposed by the goblins. A guard post with a stool and small table
+sits opposite the cells.
+
+**Features:**
+- Three prisoners (farmers from Thornwick) can be rescued here
+- Cell locks are old but functional (DC 14 Thieves' Tools, or keys on the guard)
+- Prisoners know the layout of the dungeon and Skargash's daily routine
+
+## Room 4: Defiled Shrine
+
+**Dimensions:** 20 ft. × 20 ft., 12 ft. ceiling (domed)
+
+An old imperial shrine, its original purpose now obscured by goblin fetishes and crude paintings.
+The altar has been smashed and reassembled into a crude idol. Bones and offerings litter the floor.
+
+**Features:**
+- DC 14 Investigation to find the hidden symbol near the original altar
+- DC 12 Religion reveals this was a shrine to an imperial god of protection
+
+<TreasureTableMdx treasure={[treasure['silver-holy-symbol']]} />
+
+## Room 5: Skargash's Throne Room
+
+**Dimensions:** 50 ft. × 35 ft., 15 ft. ceiling (vaulted)
+
+The underground great hall where Skargash holds court. A throne of bones and scavenged wood
+dominates the far end. Torches line the walls, casting dancing shadows. Four pillars support
+the vaulted ceiling.
+
+**Features:**
+- Skargash's bone throne on a raised stone platform
+- Four goblin guards attend their warlord
+- A locked iron chest (DC 15 Thieves' Tools) behind the throne holds the warband's wealth
+- The Amulet of the Broken King glows at Skargash's throat
+
+**Encounter:** <a href={paths.skargashThroneRoom}>Skargash's Throne Room</a>
+
+<TreasureTableMdx treasure={[
+  treasure['amulet-of-the-broken-king'],
+  treasure['mixed-coins'],
+  treasure['raid-ledger']
+]} />
+
+## Secret Entrance (Optional)
+
+The goblin dissenters know of a secret entrance through old sewage tunnels that emerge in
+Room 3 (the prison cells). This passage is flooded knee-deep with stagnant water and requires
+a DC 13 Constitution save to avoid being poisoned by the fumes. Grix can guide the party
+through if they've earned the dissenters' trust.

@@ -78,6 +78,7 @@ export const RoleplayBookSchema = z
     // Prithara variants
     pritharaVariants: z
       .array(PritharaVariantSchema)
+      .optional()
       .describe('Language variants for "Prithara" (ancestral homeland)'),
 
     // RP & Voice notes
