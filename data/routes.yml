@@ -1,9 +1,16 @@
-# Minimal routes configuration for example data
-# These routes are required by the generated helper functions in routes.ts
+# Routes configuration
+# This file defines collection routes and security defaults.
+# Individual articles define their own slugs in frontmatter.
+# See docs/dev/typed-routes.md for more information.
 
-index: "/"
+index: /
 
 gmReference:
+  _defaultSecure: true
+  characters:
+    type: collection
+    path: /gm-reference/characters
+    idPath: /gm-reference/characters/[id]
   dungeons:
     type: collection
     path: /gm-reference/dungeons
@@ -16,33 +23,25 @@ gmReference:
     type: collection
     path: /gm-reference/stat-blocks
     idPath: /gm-reference/stat-blocks/[id]
-  characters:
-    type: collection
-    path: /gm-reference/characters
-    idPath: /gm-reference/characters/[id]
-  pointcrawls:
-    type: collection
-    path: /gm-reference/pointcrawls
-    idPath: /gm-reference/pointcrawls/[id]
-  spells:
-    type: collection
-    path: /gm-reference/spells
-    idPath: /gm-reference/spells/[id]
-  plotlines:
-    type: collection
-    path: /gm-reference/plotlines
-    idPath: /gm-reference/plotlines/[id]
+
+playersReference:
+  setting:
+    npcs:
+      type: collection
+      path: /players-reference/setting/npcs
+      idPath: /players-reference/setting/npcs/[id]
 
 sessionToolkit:
+  _defaultSecure: true
+  clues:
+    unified:
+      type: collection
+      path: /session-toolkit/clues
+      idPath: /session-toolkit/clues/[id]
   hexes:
     type: collection
     path: /session-toolkit/hexes
     idPath: /session-toolkit/hexes/[id]
-  lootPacks:
-    type: collection
-    path: /session-toolkit/loot-packs
-    idPath: /session-toolkit/loot-packs/[id]
-    allPath: /session-toolkit/loot-packs/all
   regions:
     type: collection
     path: /session-toolkit/regions
@@ -55,19 +54,3 @@ sessionToolkit:
     type: collection
     path: /session-toolkit/rumors
     idPath: /session-toolkit/rumors/[id]
-  clues:
-    unified:
-      type: collection
-      path: /session-toolkit/clues
-      idPath: /session-toolkit/clues/[id]
-
-playersReference:
-  setting:
-    bountyBoard:
-      type: collection
-      path: /players-reference/bounty-board
-      idPath: /players-reference/bounty-board/[id]
-    npcs:
-      type: collection
-      path: /players-reference/npcs
-      idPath: /players-reference/npcs/[id]
