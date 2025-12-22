@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { FactionEnum } from './encounter.js';
+import { FactionId } from './encounter.js';
 
 // Re-export clue reference types from the separate module (avoids circular deps)
 export {
@@ -37,7 +37,7 @@ export const ClueSchema = z
 
     // Structured taxonomy
     factions: z
-      .array(FactionEnum)
+      .array(FactionId)
       .optional()
       .describe('Factions this clue relates to'),
     plotlines: z

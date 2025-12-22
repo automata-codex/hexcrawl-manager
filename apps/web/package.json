@@ -16,6 +16,7 @@
     "validate:dungeons": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-dungeon-encounters.ts",
     "validate:encounter-table": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-encounter-table.ts",
     "validate:encounters": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-encounter-content.ts",
+    "validate:factions": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-faction-ids.ts",
     "validate:map": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-map.ts",
     "validate:nobles": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-nobles.ts",
     "validate:pointcrawls": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-pointcrawl-ids.ts",
