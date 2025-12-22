@@ -1,5 +1,7 @@
 import { compareHexIds } from '../coordinates/index.js';
 
+import type { CoordinateNotation } from '../coordinates/index.js';
+
 /**
  * Get the column letter from a hex ID.
  * @deprecated Use parseHexId from coordinates module instead
@@ -18,9 +20,14 @@ export function getHexRow(hexId: string): number {
 
 /**
  * Sorts two hex IDs first by column (west to east) and then by row (north to south).
- * @param hexIdA - First hex ID in letter-number format
- * @param hexIdB - Second hex ID in letter-number format
+ * @param hexIdA - First hex ID
+ * @param hexIdB - Second hex ID
+ * @param notation - Coordinate notation to use
  */
-export function hexSort(hexIdA: string, hexIdB: string): number {
-  return compareHexIds(hexIdA, hexIdB, 'letter-number');
+export function hexSort(
+  hexIdA: string,
+  hexIdB: string,
+  notation: CoordinateNotation,
+): number {
+  return compareHexIds(hexIdA, hexIdB, notation);
 }

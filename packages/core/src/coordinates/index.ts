@@ -12,9 +12,7 @@ export type { CubeCoord } from './geometry.js';
 export { LETTER_NUMBER_RE, NUMERIC_RE } from './parse.js';
 
 // Parsing
-export { displayHexId, formatHexId, parseHexId } from './parse.js';
-// Note: normalizeHexId not exported here to avoid conflict with hexes module.
-// Import directly from './parse.js' if needed, or wait for Phase 1.8 migration.
+export { displayHexId, formatHexId, normalizeHexId, parseHexId } from './parse.js';
 
 // Validation
 export {

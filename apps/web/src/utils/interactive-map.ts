@@ -1,5 +1,7 @@
 import { parseHexId } from './hexes.ts';
 
+import type { CoordinateNotation } from '@achm/core';
+
 export const DEG_TO_RAD = Math.PI / 180;
 export const HEX_WIDTH = 100;
 export const HEX_HEIGHT = (Math.sqrt(3) / 2) * HEX_WIDTH;
@@ -119,7 +121,10 @@ export interface MapBounds {
  * Calculate the pixel bounds of the map from hex data.
  * Returns the bounding box that contains all hexes plus the center point.
  */
-export function calculateMapBounds(hexIds: string[]): MapBounds {
+export function calculateMapBounds(
+  hexIds: string[],
+  notation: CoordinateNotation,
+): MapBounds {
   if (hexIds.length === 0) {
     // Return default bounds for empty map
     return {
@@ -140,7 +145,7 @@ export function calculateMapBounds(hexIds: string[]): MapBounds {
   let maxY = -Infinity;
 
   for (const hexId of hexIds) {
-    const { q, r } = parseHexId(hexId);
+    const { q, r } = parseHexId(hexId, notation);
     const { x, y } = axialToPixel(q, r);
 
     // Account for hex dimensions

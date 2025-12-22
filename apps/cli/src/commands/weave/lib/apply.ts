@@ -6,6 +6,8 @@ import {
   parseHexId,
   rollDice,
 } from '@achm/core';
+
+import type { CoordinateNotation } from '@achm/core';
 import { cloneDeep } from 'lodash-es';
 
 export function applyRolloverToTrails(
@@ -189,9 +191,13 @@ export function canonicalEdgeKey(a: string, b: string): string {
  * Calculate hex distance between two hex IDs.
  * Wrapper around core hexDistance that accepts string IDs.
  */
-export function hexDistance(a: string, b: string): number {
-  const coordA = parseHexId(a, 'letter-number');
-  const coordB = parseHexId(b, 'letter-number');
+export function hexDistance(
+  a: string,
+  b: string,
+  notation: CoordinateNotation,
+): number {
+  const coordA = parseHexId(a, notation);
+  const coordB = parseHexId(b, notation);
   return coreHexDistance(coordA, coordB);
 }
 
@@ -199,8 +205,11 @@ export function hexDistance(a: string, b: string): number {
  * Convert hex ID string to cube coordinates.
  * Wrapper around core hexToCube that accepts string IDs.
  */
-export function hexToCube(hex: string): { x: number; y: number; z: number } {
-  const coord = parseHexId(hex, 'letter-number');
+export function hexToCube(
+  hex: string,
+  notation: CoordinateNotation,
+): { x: number; y: number; z: number } {
+  const coord = parseHexId(hex, notation);
   return coreHexToCube(coord);
 }
 

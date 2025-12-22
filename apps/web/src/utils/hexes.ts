@@ -4,11 +4,13 @@ import {
   parseHexId as coreParseHexId,
 } from '@achm/core';
 
+import type { CoordinateNotation } from '@achm/core';
+
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
 
 import type { ExtendedGmNote, ExtendedHexData, ExtendedHiddenSites, ResolvedHexData } from '../types.ts';
-import type { GmNote, HiddenSite } from '@achm/schemas';
+import type { GmNote, HexData, HiddenSite } from '@achm/schemas';
 
 /**
  * Process a GM note into extended format with rendered markdown and optional clueId.
@@ -35,8 +37,12 @@ export function getHexSvgPath(x: number, y: number, hexWidth: number): string {
   return points.join(' ');
 }
 
-export function hexSort(a: HexData, b: HexData): number {
-  return hexIdSort(a.id, b.id);
+export function hexSort(
+  a: HexData,
+  b: HexData,
+  notation: CoordinateNotation,
+): number {
+  return hexIdSort(a.id, b.id, notation);
 }
 
 /**
@@ -44,8 +50,11 @@ export function hexSort(a: HexData, b: HexData): number {
  * Uses q/r naming for compatibility with axialToPixel and existing code.
  * Both values are 0-indexed.
  */
-export function parseHexId(id: string): { q: number; r: number } {
-  const { col, row } = coreParseHexId(id, 'letter-number');
+export function parseHexId(
+  id: string,
+  notation: CoordinateNotation,
+): { q: number; r: number } {
+  const { col, row } = coreParseHexId(id, notation);
   return { q: col, r: row };
 }
 
@@ -66,8 +75,11 @@ export async function processHex(hex: ResolvedHexData): Promise<ExtendedHexData>
   };
 }
 
-export function isValidHexId(hexId: string): boolean {
-  return isValidHexFormat(hexId, 'letter-number');
+export function isValidHexId(
+  hexId: string,
+  notation: CoordinateNotation,
+): boolean {
+  return isValidHexFormat(hexId, notation);
 }
 
 function isStringArray(arr: any[]): arr is string[] {

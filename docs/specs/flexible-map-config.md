@@ -435,12 +435,6 @@ For each file:
 
 **Commit message:** `refactor: migrate existing code to use coordinate utilities`
 
-**Note:** The migrated code currently hardcodes `'letter-number'` notation for backwards compatibility. Once `map.yaml` is loadable (Stage 2), these callsites should be updated to use `config.grid.notation` instead. Affected locations:
-- `packages/core/src/hexes/get-hex-neighbors.ts`
-- `packages/core/src/hexes/hex-sort.ts`
-- `apps/web/src/utils/hexes.ts`
-- `apps/cli/src/commands/weave/lib/apply.ts`
-
 ---
 
 ## Stage 2: Map Configuration Schema
