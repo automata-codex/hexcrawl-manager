@@ -130,6 +130,16 @@ export async function withTempRepo<T = string>(
   );
   await fs.writeFile(REPO_PATHS.HAVENS(), yaml.stringify([]));
   await fs.writeFile(REPO_PATHS.TRAILS(), yaml.stringify({}));
+  await fs.writeFile(
+    REPO_PATHS.MAP_CONFIG(),
+    yaml.stringify({
+      grid: {
+        columns: 26,
+        rows: 99,
+        notation: 'letter-number',
+      },
+    }),
+  );
 
   // Initialize git repo if needed
   if (opts?.initGit) {
