@@ -1,0 +1,76 @@
+id: giant-spider
+name: Giant Spider
+desc: A massive arachnid that lurks in dark places, spinning webs to trap unwary prey. Its venomous bite can paralyze victims.
+size: large
+type: beast
+subtype: ''
+group: null
+family: null
+family_name: null
+alignment: unaligned
+armor_class: 14
+armor_desc: natural armor
+hit_points: 26
+hit_dice: 4d10+4
+speed:
+  walk: 30
+  climb: 30
+strength: 14
+dexterity: 16
+constitution: 12
+intelligence: 2
+wisdom: 11
+charisma: 4
+strength_save: null
+dexterity_save: null
+constitution_save: null
+intelligence_save: null
+wisdom_save: null
+charisma_save: null
+perception: null
+skills:
+  stealth: 7
+proficiency_bonus: 2
+damage_vulnerabilities: ''
+damage_resistances: ''
+damage_immunities: ''
+condition_immunities: ''
+senses: blindsight 10 ft., darkvision 60 ft., passive Perception 10
+languages: ''
+challenge_rating: '1'
+cr: 1
+actions:
+  - name: Bite
+    action_type: melee weapon attack
+    attack_bonus: 5
+    damage_bonus: 3
+    damage_dice: 1d8
+    damage_type: piercing
+    default_damage: 7
+    reach: 5 ft.
+    additional_damage_dice: 2d8
+    additional_damage_type: poison
+    additional_default_damage: 9
+    desc: The target must make a DC 11 Constitution saving throw, taking the poison damage on a failed save, or half as much damage on a successful one. If the poison damage reduces the target to 0 hit points, the target is stable but poisoned for 1 hour, even after regaining hit points, and is paralyzed while poisoned in this way.
+    use_desc: true
+  - name: Web
+    action_type: special
+    desc: 'Ranged Weapon Attack: +5 to hit, range 30/60 ft., one creature. Hit: The target is restrained by webbing. As an action, the restrained target can make a DC 12 Strength check, bursting the webbing on a success. The webbing can also be attacked and destroyed (AC 10; hp 5; vulnerability to fire damage; immunity to bludgeoning, poison, and psychic damage).'
+    recharge: '5-6'
+special_abilities:
+  - name: Spider Climb
+    desc: The spider can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check.
+  - name: Web Sense
+    desc: While in contact with a web, the spider knows the exact location of any other creature in contact with the same web.
+  - name: Web Walker
+    desc: The spider ignores movement restrictions caused by webbing.
+spell_list: []
+bonus_actions: null
+reactions: null
+legendary_desc: ''
+legendary_actions: null
+page_no: null
+environments:
+  - forest
+  - underdark
+img_main: null

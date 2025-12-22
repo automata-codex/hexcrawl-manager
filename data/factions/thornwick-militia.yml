@@ -1,0 +1,10 @@
+id: thornwick-militia
+name: Thornwick Militia
+description: |
+  A small volunteer militia organized by Captain Sera Ironhand. Farmers and tradespeople who've taken up arms to defend their homes from the growing goblin threat. They lack formal military training but know the land and fight with the desperate courage of those protecting their families.
+areaOfOperation:
+  - Thornwick Village
+  - Thornwick Farmlands
+ideology: We protect our own. This is our home, and we will defend it against any threat. The goblin raids must end, one way or another.
+powerLevel: |
+  About two dozen able-bodied villagers who can fight if needed, though only a handful have any real combat experience. They have basic weapons and armor, mostly repurposed farming tools and hunting bows. What they lack in skill they make up for in determination.
