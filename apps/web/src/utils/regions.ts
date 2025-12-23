@@ -1,4 +1,23 @@
+import { normalizeHexId } from '@achm/core';
+
+import type { CoordinateNotation } from '@achm/core';
 import type { HexEntry, RegionEntry } from '../types.ts';
+
+/**
+ * Get all unique hex IDs referenced by any region.
+ */
+export function getAllRegionHexIds(
+  regions: RegionEntry[],
+  notation: CoordinateNotation,
+): Set<string> {
+  const hexIds = new Set<string>();
+  for (const region of regions) {
+    for (const hexId of region.data.hexes ?? []) {
+      hexIds.add(normalizeHexId(hexId, notation));
+    }
+  }
+  return hexIds;
+}
 
 /**
  * Create a map of region IDs to their associated hex IDs.
@@ -22,12 +41,13 @@ export function getHexesByRegion(
  */
 export function buildHexToRegionLookup(
   regions: RegionEntry[],
+  notation: CoordinateNotation,
 ): Map<string, RegionEntry> {
   const lookup = new Map<string, RegionEntry>();
   for (const region of regions) {
     const hexIds = region.data.hexes ?? [];
     for (const hexId of hexIds) {
-      lookup.set(hexId.toLowerCase(), region);
+      lookup.set(normalizeHexId(hexId, notation), region);
     }
   }
   return lookup;

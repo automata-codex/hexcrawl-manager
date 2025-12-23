@@ -1,4 +1,6 @@
 ---
+import { normalizeHexId } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 import { getCollection, getEntry } from 'astro:content';
 
 import OpenContent from '../../../components/Content/OpenContent.astro';
@@ -44,16 +46,21 @@ const clueMap = Object.fromEntries(
 );
 const title = `Hex ${hexData.id.toUpperCase()}: ${hexData.name}`;
 
+// Load map config for notation
+const mapConfig = loadMapConfig();
+const notation = mapConfig.grid.notation;
+
 // Find pointcrawls accessible from this hex
 const allPointcrawls = await getCollection('pointcrawls');
+const normalizedHexId = normalizeHexId(hexData.id, notation);
 const pointcrawls = allPointcrawls
-  .filter((p) => p.data.hexIds?.includes(hexData.id.toLowerCase()))
+  .filter((p) => p.data.hexIds?.includes(normalizedHexId))
   .map((p) => ({ slug: p.data.slug, name: p.data.name }));
 
 // Build region lookup and find hex's region
 const regions = await getCollection('regions');
-const hexToRegion = buildHexToRegionLookup(regions);
-const regionEntry = hexToRegion.get(hexData.id.toLowerCase());
+const hexToRegion = buildHexToRegionLookup(regions, notation);
+const regionEntry = hexToRegion.get(normalizedHexId);
 
 // Resolve hex with regionId and fallback terrain/biome
 const hex = {

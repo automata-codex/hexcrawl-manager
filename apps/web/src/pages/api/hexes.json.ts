@@ -1,12 +1,13 @@
-import { isOutOfBounds } from '@achm/core';
+import { isOutOfBounds, normalizeHexId } from '@achm/core';
 import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE, UNKNOWN_CONTENT } from '../../utils/constants.ts';
 import { processHex } from '../../utils/hexes.ts';
-import { buildHexToRegionLookup } from '../../utils/regions.ts';
+import { buildHexToRegionLookup, getAllRegionHexIds } from '../../utils/regions.ts';
 
+import type { CoordinateNotation } from '@achm/core';
 import type { ExtendedHexData, RegionEntry, ResolvedHexData } from '../../types.ts';
 import type { HexData } from '@achm/schemas';
 import type { APIRoute } from 'astro';
@@ -36,8 +37,9 @@ export type HexPlayerData = Pick<
 function resolveHexData(
   hex: HexData,
   hexToRegion: Map<string, RegionEntry>,
+  notation: CoordinateNotation,
 ): ResolvedHexData {
-  const region = hexToRegion.get(hex.id.toLowerCase());
+  const region = hexToRegion.get(normalizeHexId(hex.id, notation));
 
   return {
     ...hex,
@@ -46,6 +48,24 @@ function resolveHexData(
     // Fall back to region defaults for terrain/biome
     terrain: hex.terrain ?? region?.data.terrain,
     biome: hex.biome ?? region?.data.biome,
+  };
+}
+
+/**
+ * Create a synthetic HexData for a hex that exists only in a region definition.
+ * These are minimal hex entries with defaults derived from the region.
+ */
+function createSyntheticHex(hexId: string, region: RegionEntry): HexData {
+  return {
+    id: hexId,
+    slug: hexId,
+    name: 'Unexplored',
+    landmark: 'This area has not yet been explored.',
+    terrain: region.data.terrain,
+    biome: region.data.biome,
+    isVisited: false,
+    isExplored: false,
+    isScouted: false,
   };
 }
 
@@ -61,12 +81,34 @@ export const GET: APIRoute = async ({ locals }) => {
   const notation = mapConfig.grid.notation;
 
   // Build region lookup for resolution
-  const hexToRegion = buildHexToRegionLookup(regionEntries);
+  const hexToRegion = buildHexToRegionLookup(regionEntries, notation);
 
-  // Resolve each hex with region fallbacks, filtering out-of-bounds hexes
-  const fullHexes = hexEntries
-    .filter((entry) => !isOutOfBounds(entry.data.id, outOfBoundsList, notation))
-    .map((entry) => resolveHexData(entry.data, hexToRegion));
+  // Get all hex IDs from regions and identify those without individual files
+  const allRegionHexIds = getAllRegionHexIds(regionEntries, notation);
+  const hexFileIds = new Set(
+    hexEntries.map((e) => normalizeHexId(e.data.id, notation)),
+  );
+
+  // Create synthetic hex data for region hexes without files
+  const syntheticHexes: HexData[] = [];
+  for (const hexId of allRegionHexIds) {
+    if (!hexFileIds.has(hexId)) {
+      const region = hexToRegion.get(hexId);
+      if (region) {
+        syntheticHexes.push(createSyntheticHex(hexId, region));
+      }
+    }
+  }
+
+  // Combine file-based and synthetic hexes, filter out-of-bounds, resolve with region data
+  const allHexData = [
+    ...hexEntries.map((e) => e.data),
+    ...syntheticHexes,
+  ];
+
+  const fullHexes = allHexData
+    .filter((hex) => !isOutOfBounds(hex.id, outOfBoundsList, notation))
+    .map((hex) => resolveHexData(hex, hexToRegion, notation));
 
   const role = getCurrentUserRole(locals);
 
