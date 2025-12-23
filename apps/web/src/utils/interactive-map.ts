@@ -8,8 +8,6 @@ export const HEX_HEIGHT = (Math.sqrt(3) / 2) * HEX_WIDTH;
 export const HEX_RADIUS = HEX_WIDTH / 2;
 export const EDGE_OFFSET = HEX_HEIGHT / 2;
 
-export const DAGARIC_ICON_SIZE = 80;
-export const FC_ICON_SIZE = 60;
 export const TERRAIN_ICON_SIZE = 90;
 
 export function axialToPixel(q: number, r: number) {

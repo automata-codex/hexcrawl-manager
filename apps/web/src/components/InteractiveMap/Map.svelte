@@ -10,7 +10,10 @@
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
 
-  import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
+  import {
+    initializeLayerVisibility,
+    layerVisibility,
+  } from '../../stores/interactive-map/layer-visibility';
   import {
     applyZoomAtCenter,
     computeViewBox,
@@ -29,8 +32,6 @@
   import {
     axialToPixel,
     calculateMapBounds,
-    DAGARIC_ICON_SIZE,
-    FC_ICON_SIZE,
     HEX_HEIGHT,
     HEX_WIDTH,
     TERRAIN_ICON_SIZE,
@@ -47,7 +48,7 @@
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapConfigResponse } from '../../pages/api/map-config.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { CoordinateNotation, KnownTag } from '@achm/schemas';
+  import type { CoordinateNotation, MapConfig } from '@achm/schemas';
 
   interface Props {
     role: string | null;
@@ -62,6 +63,7 @@
   let lastX = $state(0);
   let lastY = $state(0);
   let mapBounds: ReturnType<typeof calculateMapBounds> | null = $state(null);
+  let mapConfig: MapConfig | null = $state(null);
   let mapPaths: MapPathPlayerData[] = $state([]);
   let notation: CoordinateNotation | null = $state(null);
   let svgEl: SVGElement | undefined = $state();
@@ -78,7 +80,9 @@
         throw new Error(configError);
       }
       const config: MapConfigResponse = await configResponse.json();
+      mapConfig = config;
       notation = config.grid.notation;
+      initializeLayerVisibility(config.layers);
 
       const dungeonResponse = await fetch('/api/dungeons.json');
       dungeons = await dungeonResponse.json();
@@ -107,15 +111,6 @@
 
   function applyZoomDelta(direction: number) {
     applyZoomAtCenter(direction);
-  }
-
-  function filterHexesByTag(tag: KnownTag | string) {
-    return hexes.filter((hex) => {
-      if (hex.tags) {
-        return hex.tags.includes(tag.toString());
-      }
-      return false;
-    });
   }
 
   function getBiomeColor(biome: string): string {
@@ -165,13 +160,6 @@
     }
   }
 
-  function getFortDagaricCoords() {
-    if (!notation) return { x: 0, y: 0 };
-    const { q, r } = parseHexId('v17', notation);
-    const { x, y } = axialToPixel(q, r);
-    return { x, y };
-  }
-
   function getTerrainIcon(terrain: string) {
     switch (terrain) {
       case 'mountains':
@@ -189,6 +177,18 @@
       default:
         return '#icon-default';
     }
+  }
+
+  /**
+   * Get hexes that match a tag icon definition.
+   * Excludes hexes with direct mapIcon (they render separately).
+   */
+  function getHexesForTagIcon(tag: string): HexPlayerData[] {
+    return hexes.filter((hex) => {
+      if (!hex.tags) return false;
+      if (hex.mapIcon) return false;
+      return hex.tags.includes(tag);
+    });
   }
 
   function handleHexClick(e: Event) {
@@ -392,81 +392,36 @@
       <MapPath {notation} paths={mapPaths} type="river" />
       <MapPath {notation} paths={mapPaths} type="conduit" />
       <MapPath {notation} paths={mapPaths} type="trail" />
-      <g
-        id="layer-scar-sites"
-        style:display={!$layerVisibility['scarSites'] ? 'none' : undefined}
-      >
-        {#each filterHexesByTag('scar-site') as hex (hex.id)}
-          {#if isValidHexId(hex.id, notation)}
-            {@const { q, r } = parseHexId(hex.id, notation)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <use
-              href="#icon-first-civ"
-              x={x - FC_ICON_SIZE / 2}
-              y={y - FC_ICON_SIZE / 2}
-              width={FC_ICON_SIZE}
-              height={FC_ICON_SIZE}
-              stroke-width="4"
-              stroke="black"
-              fill="#E5F20D"
-            />
+      <!-- Data-driven tag icons -->
+      {#if mapConfig}
+        {#each mapConfig.tagIcons as tagIcon (tagIcon.tag)}
+          {@const iconDef = mapConfig.icons[tagIcon.icon]}
+          {#if iconDef}
+            <g
+              id={`layer-${tagIcon.layer}-${tagIcon.tag}`}
+              style:display={!$layerVisibility[tagIcon.layer] ? 'none' : undefined}
+            >
+              {#each getHexesForTagIcon(tagIcon.tag) as hex (hex.id)}
+                {#if isValidHexId(hex.id, notation)}
+                  {@const { q, r } = parseHexId(hex.id, notation)}
+                  {@const { x, y } = axialToPixel(q, r)}
+                  {@const size = tagIcon.size ?? iconDef.size}
+                  <use
+                    href={`#${iconDef.file.replace('.svg', '')}`}
+                    x={x - size / 2}
+                    y={y - size / 2}
+                    width={size}
+                    height={size}
+                    stroke={tagIcon.stroke}
+                    stroke-width={tagIcon.strokeWidth}
+                    fill={tagIcon.fill}
+                  />
+                {/if}
+              {/each}
+            </g>
           {/if}
         {/each}
-      </g>
-      <g
-        id="layer-fc-ruins"
-        style:display={!$layerVisibility['fcRuins'] ? 'none' : undefined}
-      >
-        {#each filterHexesByTag('fc-ruins') as hex (hex.id)}
-          {#if isValidHexId(hex.id, notation)}
-            {@const { q, r } = parseHexId(hex.id, notation)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <use
-              href="#icon-first-civ"
-              x={x - FC_ICON_SIZE / 2}
-              y={y - FC_ICON_SIZE / 2}
-              width={FC_ICON_SIZE}
-              height={FC_ICON_SIZE}
-              stroke-width="4"
-              stroke="#0DCAF2"
-              fill="#0DCAF2"
-            />
-          {/if}
-        {/each}
-      </g>
-      <g
-        id="layer-fc-cities"
-        style:display={!$layerVisibility['fcCities'] ? 'none' : undefined}
-      >
-        {#each filterHexesByTag('fc-city') as hex (hex.id)}
-          {#if isValidHexId(hex.id, notation)}
-            {@const { q, r } = parseHexId(hex.id, notation)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <use
-              href="#icon-first-civ"
-              x={x - FC_ICON_SIZE / 2}
-              y={y - FC_ICON_SIZE / 2}
-              width={FC_ICON_SIZE}
-              height={FC_ICON_SIZE}
-              stroke-width="4"
-              stroke="#0DCAF2"
-              fill="white"
-            />
-          {/if}
-        {/each}
-      </g>
-      <g
-        id="layer-fort-dagaric-icon"
-        style:display={!$layerVisibility['fortDagaric'] ? 'none' : undefined}
-      >
-        <use
-          href="#icon-fort-dagaric"
-          x={getFortDagaricCoords().x - DAGARIC_ICON_SIZE / 2}
-          y={getFortDagaricCoords().y - DAGARIC_ICON_SIZE / 2}
-          width={DAGARIC_ICON_SIZE}
-          height={DAGARIC_ICON_SIZE}
-        />
-      </g>
+      {/if}
       {#if !canAccess(role, [SCOPES.GM])}
         <g id="layer-player-mask" style:display="true">
           {#each hexes as hex (hex.id)}
