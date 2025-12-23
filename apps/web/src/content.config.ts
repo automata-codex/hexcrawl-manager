@@ -60,6 +60,18 @@ function collectionHasContent(dir: string): boolean {
   return files.some((file) => file !== '.gitkeep');
 }
 
+/**
+ * Check if a YAML file exists and has non-empty content.
+ */
+function yamlFileHasContent(filePath: string): boolean {
+  if (!fs.existsSync(filePath)) {
+    return false;
+  }
+  const content = fs.readFileSync(filePath, 'utf8');
+  const parsed = yaml.parse(content);
+  return parsed != null && Object.keys(parsed).length > 0;
+}
+
 const DIRS = {
   ARTICLES: `${DATA_DIR}/articles`,
   BOUNTIES: `${DATA_DIR}/bounties`,
@@ -313,13 +325,16 @@ const supplements = defineCollection({
   schema: SupplementSchema,
 });
 
+// Conditional collection: empty loader if file doesn't have content
 const trails = defineCollection({
-  loader: file(`${DATA_DIR}/trails.yml`, {
-    parser: (raw) => {
-      const obj = yaml.parse(raw);
-      return trailsMapToEntries(obj);
-    },
-  }),
+  loader: yamlFileHasContent(`${DATA_DIR}/trails.yml`)
+    ? file(`${DATA_DIR}/trails.yml`, {
+        parser: (raw) => {
+          const obj = yaml.parse(raw);
+          return trailsMapToEntries(obj);
+        },
+      })
+    : () => [],
   schema: TrailEntrySchema,
 });
 
