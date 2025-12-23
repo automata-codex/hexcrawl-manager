@@ -29,7 +29,6 @@
   import {
     axialToPixel,
     calculateMapBounds,
-    FC_ICON_SIZE,
     HEX_HEIGHT,
     HEX_WIDTH,
     TERRAIN_ICON_SIZE,
@@ -46,7 +45,7 @@
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapConfigResponse } from '../../pages/api/map-config.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { CoordinateNotation, KnownTag, MapConfig } from '@achm/schemas';
+  import type { CoordinateNotation, MapConfig } from '@achm/schemas';
 
   interface Props {
     role: string | null;
@@ -108,15 +107,6 @@
 
   function applyZoomDelta(direction: number) {
     applyZoomAtCenter(direction);
-  }
-
-  function filterHexesByTag(tag: KnownTag | string) {
-    return hexes.filter((hex) => {
-      if (hex.tags) {
-        return hex.tags.includes(tag.toString());
-      }
-      return false;
-    });
   }
 
   function getBiomeColor(biome: string): string {
@@ -398,69 +388,6 @@
       <MapPath {notation} paths={mapPaths} type="river" />
       <MapPath {notation} paths={mapPaths} type="conduit" />
       <MapPath {notation} paths={mapPaths} type="trail" />
-      <g
-        id="layer-scar-sites"
-        style:display={!$layerVisibility['scarSites'] ? 'none' : undefined}
-      >
-        {#each filterHexesByTag('scar-site') as hex (hex.id)}
-          {#if isValidHexId(hex.id, notation)}
-            {@const { q, r } = parseHexId(hex.id, notation)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <use
-              href="#icon-first-civ"
-              x={x - FC_ICON_SIZE / 2}
-              y={y - FC_ICON_SIZE / 2}
-              width={FC_ICON_SIZE}
-              height={FC_ICON_SIZE}
-              stroke-width="4"
-              stroke="black"
-              fill="#E5F20D"
-            />
-          {/if}
-        {/each}
-      </g>
-      <g
-        id="layer-fc-ruins"
-        style:display={!$layerVisibility['fcRuins'] ? 'none' : undefined}
-      >
-        {#each filterHexesByTag('fc-ruins') as hex (hex.id)}
-          {#if isValidHexId(hex.id, notation)}
-            {@const { q, r } = parseHexId(hex.id, notation)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <use
-              href="#icon-first-civ"
-              x={x - FC_ICON_SIZE / 2}
-              y={y - FC_ICON_SIZE / 2}
-              width={FC_ICON_SIZE}
-              height={FC_ICON_SIZE}
-              stroke-width="4"
-              stroke="#0DCAF2"
-              fill="#0DCAF2"
-            />
-          {/if}
-        {/each}
-      </g>
-      <g
-        id="layer-fc-cities"
-        style:display={!$layerVisibility['fcCities'] ? 'none' : undefined}
-      >
-        {#each filterHexesByTag('fc-city') as hex (hex.id)}
-          {#if isValidHexId(hex.id, notation)}
-            {@const { q, r } = parseHexId(hex.id, notation)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <use
-              href="#icon-first-civ"
-              x={x - FC_ICON_SIZE / 2}
-              y={y - FC_ICON_SIZE / 2}
-              width={FC_ICON_SIZE}
-              height={FC_ICON_SIZE}
-              stroke-width="4"
-              stroke="#0DCAF2"
-              fill="white"
-            />
-          {/if}
-        {/each}
-      </g>
       <!-- Data-driven tag icons -->
       {#if mapConfig}
         {#each mapConfig.tagIcons as tagIcon (tagIcon.tag)}
