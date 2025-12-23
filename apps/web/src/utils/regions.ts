@@ -1,4 +1,4 @@
-import { normalizeHexId } from '@achm/core';
+import { normalizeHexId, sortIgnoringArticles } from '@achm/core';
 
 import type { CoordinateNotation } from '@achm/core';
 import type { HexEntry, RegionEntry } from '../types.ts';
@@ -73,18 +73,63 @@ export function getHexEntriesForRegion(
   return hexIds.map((hexId) => hexMap.get(hexId.toLowerCase()));
 }
 
-export function getRegionNumber(regionId: string): number {
-  const regionNumber = regionId.split('-')[1];
-  return parseInt(regionNumber, 10);
+const NUMBERED_REGION_PATTERN = /^region-(\d+)$/;
+
+/**
+ * Extract the region number from a numbered region ID (e.g., "region-1" -> 1).
+ * Returns null for non-numbered region IDs.
+ */
+export function getRegionNumber(regionId: string): number | null {
+  const match = regionId.match(NUMBERED_REGION_PATTERN);
+  return match ? parseInt(match[1], 10) : null;
 }
 
-export function getRegionTitle(regionId: string): string {
-  const regionNumber = getRegionNumber(regionId);
-  return `Region ${regionNumber}`;
+/**
+ * Get a short display title for a region.
+ * - For numbered regions (region-1), returns "Region 1"
+ * - For other regions, returns just the name (or ID as fallback)
+ */
+export function getRegionShortTitle(regionId: string, regionName?: string): string {
+  const num = getRegionNumber(regionId);
+  if (num !== null) {
+    return `Region ${num}`;
+  }
+  return regionName ?? regionId;
 }
 
+/**
+ * Get a full display title for a region including the name.
+ * - For numbered regions (region-1), returns "Region 1: Name"
+ * - For other regions, returns "Region: Name"
+ */
+export function getRegionFullTitle(regionId: string, regionName: string): string {
+  const num = getRegionNumber(regionId);
+  if (num !== null) {
+    return `Region ${num}: ${regionName}`;
+  }
+  return `Region: ${regionName}`;
+}
+
+/**
+ * Sort region IDs with numbered regions first (numerically),
+ * then non-numbered regions alphabetically.
+ */
 export function regionSort(a: string, b: string): number {
-  const aRegionNumber = getRegionNumber(a);
-  const bRegionNumber = getRegionNumber(b);
-  return aRegionNumber - bRegionNumber;
+  const aNum = getRegionNumber(a);
+  const bNum = getRegionNumber(b);
+
+  // Both numbered: sort numerically
+  if (aNum !== null && bNum !== null) {
+    return aNum - bNum;
+  }
+  // Only a is numbered: a comes first
+  if (aNum !== null) {
+    return -1;
+  }
+  // Only b is numbered: b comes first
+  if (bNum !== null) {
+    return 1;
+  }
+  // Neither numbered: sort alphabetically, ignoring articles
+  return sortIgnoringArticles(a, b);
 }

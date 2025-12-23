@@ -21,7 +21,7 @@
     getFavoredTerrain,
     getTravelDifficulty,
   } from '../../utils/interactive-map.ts';
-  import { getRegionTitle } from '../../utils/regions.ts';
+  import { getRegionShortTitle } from '../../utils/regions.ts';
   import Explored from '../GmHexDetails/Explored.svelte';
   import ThemeToggle from '../ThemeToggle.svelte';
 
@@ -141,7 +141,7 @@
           </div>
           <div>
             <a href={getRegionPath(currentHex?.regionId ?? '')}
-              >{getRegionTitle(currentHex?.regionId ?? '')}</a
+              >{getRegionShortTitle(currentHex?.regionId ?? '', currentHex?.regionName)}</a
             >
           </div>
           <div>

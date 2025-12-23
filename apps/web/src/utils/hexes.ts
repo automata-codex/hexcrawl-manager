@@ -103,6 +103,7 @@ export function resolveHexWithRegion(
   return {
     ...hex,
     regionId: region?.id ?? 'unknown',
+    regionName: region?.data.name ?? 'Unknown',
     terrain: hex.terrain ?? region?.data.terrain,
     biome: hex.biome ?? region?.data.biome,
   };

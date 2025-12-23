@@ -6,7 +6,7 @@ import { getCollection } from 'astro:content';
 import GmHexDetails from '../../../../components/GmHexDetails/GmHexDetails.svelte';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
 import { createSyntheticHex, hexSort, processHex, resolveHexWithRegion } from '../../../../utils/hexes';
-import { getRegionTitle } from '../../../../utils/regions';
+import { getRegionShortTitle } from '../../../../utils/regions';
 
 import type { ExtendedHexData } from '../../../../types';
 
@@ -57,7 +57,7 @@ const hexes: ExtendedHexData[] = await Promise.all(
 );
 ---
 
-<SecretLayout title={`${getRegionTitle(regionId)} Hexes`}>
+<SecretLayout title={`${getRegionShortTitle(regionId, region.data.name)} Hexes`}>
   {
     hexes.map((hex) => (
       <>

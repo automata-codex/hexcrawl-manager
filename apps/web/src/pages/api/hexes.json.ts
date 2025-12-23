@@ -16,6 +16,7 @@ export type HexPlayerData = Pick<
   | 'name'
   | 'landmark'
   | 'regionId'
+  | 'regionName'
   | 'topography'
   | 'isVisited'
   | 'isExplored'
@@ -88,6 +89,7 @@ export const GET: APIRoute = async ({ locals }) => {
           name: data.name,
           landmark: data.landmark,
           regionId: data.regionId,
+          regionName: data.regionName,
           terrain: data.terrain,
           biome: data.biome,
           topography: data.topography,
@@ -108,6 +110,7 @@ export const GET: APIRoute = async ({ locals }) => {
             ? data.landmark
             : UNKNOWN_CONTENT,
           regionId: data.regionId,
+          regionName: data.regionName,
           terrain: data.terrain,
           biome: data.biome,
           topography: data.topography,
@@ -126,6 +129,7 @@ export const GET: APIRoute = async ({ locals }) => {
         name: UNKNOWN_CONTENT,
         landmark: UNKNOWN_CONTENT,
         regionId: data.regionId,
+        regionName: data.regionName,
         terrain: UNKNOWN_CONTENT,
         biome: UNKNOWN_CONTENT,
         isVisited: data.isVisited,

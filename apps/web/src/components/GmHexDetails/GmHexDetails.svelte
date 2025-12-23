@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getCluePath, getHexPath, getRegionPath } from '../../config/routes.ts';
-  import { getRegionTitle } from '../../utils/regions.ts';
+  import { getRegionShortTitle } from '../../utils/regions.ts';
 
   import Dungeon from './Dungeon.svelte';
   import Explored from './Explored.svelte';
@@ -55,7 +55,7 @@
     </div>
   {/if}
   <div class="data-bar-cell">
-    <a href={getRegionPath(hex.regionId)}>{getRegionTitle(hex.regionId)}</a>
+    <a href={getRegionPath(hex.regionId)}>{getRegionShortTitle(hex.regionId, hex.regionName)}</a>
   </div>
   <Dungeon {dungeons} {hex} />
   <Pointcrawls {pointcrawls} />
