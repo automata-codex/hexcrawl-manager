@@ -1,13 +1,14 @@
 <script lang="ts">
   import { getEncounterPath } from '../../config/routes.ts';
 
-  import type { ExtendedHexData } from '../../types.ts';
+  import type { EncounterMapEntry, ExtendedHexData } from '../../types.ts';
 
   interface Props {
+    encounterMap?: Record<string, EncounterMapEntry>;
     hex: ExtendedHexData;
   }
 
-  const { hex }: Props = $props();
+  const { encounterMap = {}, hex }: Props = $props();
 
   function formatTrigger(trigger: string): string {
     switch (trigger) {
@@ -19,6 +20,10 @@
         return trigger;
     }
   }
+
+  function getEncounterName(encounterId: string): string {
+    return encounterMap[encounterId]?.name ?? encounterId;
+  }
 </script>
 
 {#if hex.keyedEncounters && hex.keyedEncounters.length > 0}
@@ -27,7 +32,7 @@
     <ul>
       {#each hex.keyedEncounters as encounter (encounter.encounterId)}
         <li>
-          <a href={getEncounterPath(encounter.encounterId)}>{encounter.encounterId}</a>
+          <a href={getEncounterPath(encounter.encounterId)}>{getEncounterName(encounter.encounterId)}</a>
           <span class="trigger">({formatTrigger(encounter.trigger)})</span>
           {#if encounter.notes}
             <span class="notes"> &mdash; {encounter.notes}</span>

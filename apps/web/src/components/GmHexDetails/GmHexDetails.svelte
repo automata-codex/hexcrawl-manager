@@ -16,6 +16,7 @@
   import type {
     ClueMapEntry,
     DungeonEntry,
+    EncounterMapEntry,
     ExtendedHexData,
     PointcrawlLink,
   } from '../../types.ts';
@@ -23,6 +24,7 @@
   interface Props {
     clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
+    encounterMap?: Record<string, EncounterMapEntry>;
     hex: ExtendedHexData;
     mapConfig: MapConfig;
     pointcrawls?: PointcrawlLink[];
@@ -32,6 +34,7 @@
   const {
     clueMap = {},
     dungeons,
+    encounterMap = {},
     hex,
     mapConfig,
     pointcrawls,
@@ -77,7 +80,7 @@
 {/if}
 <Landmark {hex} {clueMap} />
 <HiddenSites {hex} {clueMap} />
-<KeyedEncounters {hex} />
+<KeyedEncounters {hex} {encounterMap} />
 {#if hex.secretSite}
   <div class="hanging-indent">
     <span class="inline-heading">Secret Site:</span>{' '}
