@@ -2,24 +2,24 @@
 mainTable:
   - category: wildlife
     label: Wildlife
-    weight: 50
+    weight: 10
   - category: travelers
     label: Travelers
-    weight: 30
+    weight: 6
   - category: hazards
     label: Hazards
-    weight: 20
+    weight: 4
 
 categoryTables:
   wildlife:
     "1":
-      - encounterId: example-wildlife-1
-        weight: 1
+      - encounterId: wolf-pack
+        weight: 20
   travelers:
     "1":
-      - encounterId: example-travelers-1
-        weight: 1
+      - encounterId: goblin-patrol
+        weight: 20
   hazards:
     "1":
-      - encounterId: example-hazard-1
-        weight: 1
+      - encounterId: goblin-ambush
+        weight: 20
