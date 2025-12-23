@@ -9,8 +9,8 @@ interface Props {
 }
 
 const { hex } = Astro.props;
-const notation = loadMapConfig().grid.notation;
-const neighbors = getHexNeighbors(hex.id, notation);
+const mapConfig = loadMapConfig();
+const neighbors = getHexNeighbors(hex.id, mapConfig.grid.notation, mapConfig);
 ---
 
 <div>Neighbors:</div>

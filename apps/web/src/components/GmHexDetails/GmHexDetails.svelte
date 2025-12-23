@@ -10,6 +10,8 @@
   import Pointcrawls from './Pointcrawls.svelte';
   import Visited from './Visited.svelte';
 
+  import type { MapConfig } from '@achm/schemas';
+
   import type {
     ClueMapEntry,
     DungeonEntry,
@@ -21,6 +23,7 @@
     clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
     hex: ExtendedHexData;
+    mapConfig: MapConfig;
     pointcrawls?: PointcrawlLink[];
     showSelfLink?: boolean;
   }
@@ -29,6 +32,7 @@
     clueMap = {},
     dungeons,
     hex,
+    mapConfig,
     pointcrawls,
     showSelfLink = true,
   }: Props = $props();
@@ -61,7 +65,7 @@
   <Pointcrawls {pointcrawls} />
 </div>
 <div class="data-bar">
-  <Neighbors {hex} />
+  <Neighbors {hex} {mapConfig} />
 </div>
 {#if hex.topography}
   <p class="hanging-indent">

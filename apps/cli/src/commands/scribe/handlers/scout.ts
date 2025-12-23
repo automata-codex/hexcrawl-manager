@@ -28,7 +28,8 @@ export default function scout(ctx: Context) {
       return usage('usage: scout <HEX_ID> [landmark]');
     }
 
-    const notation = loadMapConfig().grid.notation;
+    const mapConfig = loadMapConfig();
+    const notation = mapConfig.grid.notation;
     const target = normalizeHexId(hexRaw, notation);
     if (!isValidHexId(target, notation)) {
       return error('❌ Invalid hex id');
@@ -46,7 +47,7 @@ export default function scout(ctx: Context) {
     }
 
     // Adjacency check
-    const neighbors = getHexNeighbors(from, notation);
+    const neighbors = getHexNeighbors(from, notation, mapConfig);
     if (!neighbors.includes(target)) {
       info(`Warning: ${target} is not adjacent to ${from}.`);
     }
