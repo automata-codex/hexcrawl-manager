@@ -11,12 +11,14 @@ export type ExtendedGmNote = {
   clueId?: string;
 };
 
-/** HexData with regionId added from region lookup */
-export type ResolvedHexData = HexData & { regionId: string };
+/** HexData with region info added from region lookup */
+export type ResolvedHexData = HexData & { regionId: string; regionName: string };
 
 export type ExtendedHexData = HexData & {
   /** Region ID derived from region hex membership */
   regionId: string;
+  /** Region name for display */
+  regionName: string;
   renderedHiddenSites: ExtendedHiddenSites[];
   renderedNotes: ExtendedGmNote[];
   renderedLandmark: string;

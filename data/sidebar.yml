@@ -57,9 +57,11 @@ gmOnly:
           path: /session-toolkit/regions
       - id: roleplay-books
         label: Roleplay Books
-        href:
-          type: collection
-          path: /session-toolkit/roleplay-books
+        hasToC: true
+        tocHref: /session-toolkit/roleplay-books
+        items:
+          - label: Goblin Dissenters
+            href: /session-toolkit/roleplay-books/goblin-dissenters
       - id: rumors
         label: Rumors
         href:

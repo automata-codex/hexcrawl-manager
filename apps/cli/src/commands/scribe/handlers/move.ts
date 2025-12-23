@@ -37,7 +37,8 @@ export default function move(ctx: Context) {
       }
     }
 
-    const notation = loadMapConfig().grid.notation;
+    const mapConfig = loadMapConfig();
+    const notation = mapConfig.grid.notation;
     const to = normalizeHexId(toRaw, notation);
     if (!isValidHexId(to, notation)) {
       return error('❌ Invalid hex id');
@@ -49,7 +50,7 @@ export default function move(ctx: Context) {
       warn('(note) starting move has no previous hex');
     } else {
       // Adjacency check
-      const neighbors = getHexNeighbors(from, notation);
+      const neighbors = getHexNeighbors(from, notation, mapConfig);
       if (!neighbors.includes(to)) {
         warn(`Warning: ${to} is not adjacent to ${from}.`);
       }

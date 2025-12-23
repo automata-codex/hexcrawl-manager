@@ -75,10 +75,11 @@ const pointcrawls = allPointcrawls
 // Find hex's region
 const regionEntry = hexToRegion.get(normalizedHexId);
 
-// Resolve hex with regionId and fallback terrain/biome
+// Resolve hex with region info and fallback terrain/biome
 const hex = {
   ...hexData,
   regionId: regionEntry?.id ?? 'unknown',
+  regionName: regionEntry?.data.name ?? 'Unknown',
   terrain: hexData.terrain ?? regionEntry?.data.terrain,
   biome: hexData.biome ?? regionEntry?.data.biome,
 };
@@ -118,6 +119,7 @@ const extendedHexData = await processHex(hex);
       clueMap={clueMap}
       dungeons={dungeons}
       hex={extendedHexData}
+      mapConfig={mapConfig}
       pointcrawls={pointcrawls}
       showSelfLink={false}
     />

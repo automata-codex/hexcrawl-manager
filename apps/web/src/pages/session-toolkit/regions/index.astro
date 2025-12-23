@@ -2,14 +2,14 @@
 import { getCollection } from 'astro:content';
 
 import SecretLayout from '../../../layouts/SecretLayout.astro';
-import { getRegionTitle, regionSort } from '../../../utils/regions';
+import { getRegionFullTitle, regionSort } from '../../../utils/regions';
 
 const regions = await getCollection('regions');
 const regionLinks = regions
   .sort((a, b) => regionSort(a.id, b.id))
   .map((region) => ({
     href: `/session-toolkit/regions/${region.id}`,
-    name: `${getRegionTitle(region.id)}: ${region.data.name}`,
+    name: getRegionFullTitle(region.id, region.data.name),
   }));
 
 const title = 'Baruun Khil Regions';

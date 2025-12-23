@@ -3,14 +3,17 @@
 
   import { getHexPath } from '../../config/routes.ts';
 
-  import type { HexData } from '@achm/schemas';
+  import type { HexData, MapConfig } from '@achm/schemas';
 
   interface Props {
     hex: HexData;
+    mapConfig: MapConfig;
   }
 
-  const { hex }: Props = $props();
-  const neighbors = $derived(getHexNeighbors(hex.id));
+  const { hex, mapConfig }: Props = $props();
+  const neighbors = $derived(
+    getHexNeighbors(hex.id, mapConfig.grid.notation, mapConfig),
+  );
 </script>
 
 <div class="data-bar-cell"><span class="inline-heading">Neighbors:</span></div>

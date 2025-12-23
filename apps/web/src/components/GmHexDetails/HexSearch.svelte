@@ -3,6 +3,8 @@
 
   import GmHexDetails from './GmHexDetails.svelte';
 
+  import type { MapConfig } from '@achm/schemas';
+
   import type {
     DungeonEntry,
     ExtendedHexData,
@@ -12,10 +14,11 @@
   interface Props {
     dungeons: DungeonEntry[];
     hexes: ExtendedHexData[];
+    mapConfig: MapConfig;
     pointcrawlsByHex?: Record<string, PointcrawlLink[]>;
   }
 
-  const { dungeons, hexes, pointcrawlsByHex = {} }: Props = $props();
+  const { dungeons, hexes, mapConfig, pointcrawlsByHex = {} }: Props = $props();
 
   let query = $state('');
   let results: ExtendedHexData[] = $state([]);
@@ -80,6 +83,7 @@
       <GmHexDetails
         {dungeons}
         {hex}
+        {mapConfig}
         pointcrawls={pointcrawlsByHex[hex.id.toLowerCase()]}
         showSelfLink={true}
       />

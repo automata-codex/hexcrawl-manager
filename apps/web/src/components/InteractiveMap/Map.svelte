@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { isValidHexId } from '@achm/core';
+  import { displayHexId, isValidHexId } from '@achm/core';
   import {
     faExpand,
     faLocationCrosshairs,
@@ -65,6 +65,7 @@
   let mapBounds: ReturnType<typeof calculateMapBounds> | null = $state(null);
   let mapConfig: MapConfig | null = $state(null);
   let mapPaths: MapPathPlayerData[] = $state([]);
+  let labelFont: string | null = $state(null);
   let notation: CoordinateNotation | null = $state(null);
   let svgEl: SVGElement | undefined = $state();
   let wasPanning = $state(false);
@@ -81,6 +82,7 @@
       }
       const config: MapConfigResponse = await configResponse.json();
       mapConfig = config;
+      labelFont = config.grid.labelFont;
       notation = config.grid.notation;
       initializeLayerVisibility(config.layers);
 
@@ -282,11 +284,6 @@
   function handleZoomReset() {
     resetZoom();
   }
-
-  function hexLabel(col: number, row: number): string {
-    const colLabel = String.fromCharCode(65 + col); // A = 65
-    return `${colLabel}${row + 1}`;
-  }
 </script>
 
 {#if configError}
@@ -310,13 +307,13 @@
   <button class="button" onclick={handleZoomReset}>
     <FontAwesomeIcon icon={faMagnifyingGlassArrowsRotate} />
   </button>
-  <div class="button zoom-display">
+  <div class="button zoom-display" style:font-family={labelFont}>
     Zoom: {Math.round($mapView.zoom * 100)}%
   </div>
 </div>
 
 {#if hexes}
-  <DetailPanel {dungeons} {hexes} {mapPaths} {role} />
+  <DetailPanel {dungeons} {hexes} {mapPaths} {notation} {role} />
 {/if}
 
 <div class="main-controls">
@@ -444,11 +441,12 @@
             <text
               {x}
               y={y + HEX_HEIGHT / 2 - 4}
+              font-family={labelFont}
               font-size="12"
               text-anchor="middle"
               fill="black"
             >
-              {hexLabel(q, r)}
+              {displayHexId(hex.id, notation)}
             </text>
           {/if}
         {/each}

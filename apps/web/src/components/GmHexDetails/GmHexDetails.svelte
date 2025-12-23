@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getCluePath, getHexPath, getRegionPath } from '../../config/routes.ts';
-  import { getRegionTitle } from '../../utils/regions.ts';
+  import { getRegionShortTitle } from '../../utils/regions.ts';
 
   import Dungeon from './Dungeon.svelte';
   import Explored from './Explored.svelte';
@@ -9,6 +9,8 @@
   import Neighbors from './Neighbors.svelte';
   import Pointcrawls from './Pointcrawls.svelte';
   import Visited from './Visited.svelte';
+
+  import type { MapConfig } from '@achm/schemas';
 
   import type {
     ClueMapEntry,
@@ -21,6 +23,7 @@
     clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
     hex: ExtendedHexData;
+    mapConfig: MapConfig;
     pointcrawls?: PointcrawlLink[];
     showSelfLink?: boolean;
   }
@@ -29,6 +32,7 @@
     clueMap = {},
     dungeons,
     hex,
+    mapConfig,
     pointcrawls,
     showSelfLink = true,
   }: Props = $props();
@@ -55,13 +59,13 @@
     </div>
   {/if}
   <div class="data-bar-cell">
-    <a href={getRegionPath(hex.regionId)}>{getRegionTitle(hex.regionId)}</a>
+    <a href={getRegionPath(hex.regionId)}>{getRegionShortTitle(hex.regionId, hex.regionName)}</a>
   </div>
   <Dungeon {dungeons} {hex} />
   <Pointcrawls {pointcrawls} />
 </div>
 <div class="data-bar">
-  <Neighbors {hex} />
+  <Neighbors {hex} {mapConfig} />
 </div>
 {#if hex.topography}
   <p class="hanging-indent">

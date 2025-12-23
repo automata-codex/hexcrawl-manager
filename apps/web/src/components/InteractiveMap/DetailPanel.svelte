@@ -21,7 +21,7 @@
     getFavoredTerrain,
     getTravelDifficulty,
   } from '../../utils/interactive-map.ts';
-  import { getRegionTitle } from '../../utils/regions.ts';
+  import { getRegionShortTitle } from '../../utils/regions.ts';
   import Explored from '../GmHexDetails/Explored.svelte';
   import ThemeToggle from '../ThemeToggle.svelte';
 
@@ -30,12 +30,13 @@
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { TrailEntry } from '@achm/schemas';
+  import type { CoordinateNotation, TrailEntry } from '@achm/schemas';
 
   interface Props {
     dungeons: DungeonEssentialData[];
     hexes: HexPlayerData[];
     mapPaths: MapPathPlayerData[];
+    notation: CoordinateNotation;
     role: string | null;
   }
 
@@ -45,7 +46,7 @@
     lastSeasonTouched: string;
   }
 
-  const { dungeons, hexes, role }: Props = $props();
+  const { dungeons, hexes, notation, role }: Props = $props();
 
   let isOpen = $state(!!$selectedHex);
   let trails: TrailEntry[] = $state([]);
@@ -60,7 +61,7 @@
   );
   const trailsInHex = $derived(
     trails.filter((trail) => {
-      const hexIds = parseTrailId(trail.id);
+      const hexIds = parseTrailId(trail.id, notation);
       if (!hexIds) {
         return false;
       }
@@ -88,7 +89,7 @@
   }
 
   function formatTrailData(trail: TrailEntry): LocalTrailData {
-    const hexIds = parseTrailId(trail.id);
+    const hexIds = parseTrailId(trail.id, notation);
     if (!hexIds) {
       throw new Error(`Invalid trail ID: ${trail.id}`);
     }
@@ -140,7 +141,7 @@
           </div>
           <div>
             <a href={getRegionPath(currentHex?.regionId ?? '')}
-              >{getRegionTitle(currentHex?.regionId ?? '')}</a
+              >{getRegionShortTitle(currentHex?.regionId ?? '', currentHex?.regionName)}</a
             >
           </div>
           <div>
@@ -159,40 +160,42 @@
           <CheckBoxIcon checked={currentHex?.isVisited ?? false} />
         </div>
         {#if currentHex && (!currentHex.isExplored || currentHex.hasHiddenSites)}
-          <Explored hex={currentHex} />
+          <Explored isExplored={currentHex.isExplored} />
         {/if}
       </div>
-      <p class="hanging-indent">
-        <span class="inline-heading">Terrain:</span>
-        {' '}
-        {formatText(currentHex?.terrain)}
-      </p>
-      <p class="hanging-indent">
-        <span class="inline-heading">Biome:</span>
-        {' '}
-        {formatText(currentHex?.biome)}
-      </p>
-      <p class="hanging-indent">
-        <span class="inline-heading">Landmark:</span
-        >{' '}{@html currentHex?.renderedLandmark}
-      </p>
-      <p class="hanging-indent">
-        <span class="inline-heading">Travel Difficulty:</span>
-        {' '}
-        {getTravelDifficulty(currentHex?.biome, currentHex?.terrain)}
-      </p>
-      <p class="hanging-indent">
-        <span class="inline-heading">Favored Terrain Type:</span>
-        {' '}
-        {getFavoredTerrain(currentHex?.biome, currentHex?.terrain)}
-      </p>
-      {#if currentHex?.topography}
+      <div class="hex-data-list">
         <p class="hanging-indent">
-          <span class="inline-heading">Topography:</span>
+          <span class="inline-heading">Terrain:</span>
           {' '}
-          {currentHex.topography}
+          {formatText(currentHex?.terrain)}
         </p>
-      {/if}
+        <p class="hanging-indent">
+          <span class="inline-heading">Biome:</span>
+          {' '}
+          {formatText(currentHex?.biome)}
+        </p>
+        <p class="hanging-indent">
+          <span class="inline-heading">Landmark:</span
+          >{' '}{@html currentHex?.renderedLandmark}
+        </p>
+        <p class="hanging-indent">
+          <span class="inline-heading">Travel Difficulty:</span>
+          {' '}
+          {getTravelDifficulty(currentHex?.biome, currentHex?.terrain)}
+        </p>
+        <p class="hanging-indent">
+          <span class="inline-heading">Favored Terrain Type:</span>
+          {' '}
+          {getFavoredTerrain(currentHex?.biome, currentHex?.terrain)}
+        </p>
+        {#if currentHex?.topography}
+          <p class="hanging-indent">
+            <span class="inline-heading">Topography:</span>
+            {' '}
+            {currentHex.topography}
+          </p>
+        {/if}
+      </div>
       {#if trailsInHex.length > 0}
         <h3 class="title is-5">Trails</h3>
         <ul>
@@ -231,6 +234,12 @@
 
   .hex-data-bar > div {
     margin-right: 1rem;
+  }
+
+  .hex-data-list {
+    p {
+      margin-bottom: 0;
+    }
   }
 
   .hex-panel {
