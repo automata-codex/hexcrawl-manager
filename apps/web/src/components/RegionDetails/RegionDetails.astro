@@ -37,6 +37,12 @@ const hexes = (region.hexes ?? [])
 ---
 
 <style>
+  :global(.content-rating-container) {
+    p {
+      margin-bottom: 0;
+    }
+  }
+
   .description-container {
     margin-top: 1rem;
 
@@ -84,18 +90,20 @@ const hexes = (region.hexes ?? [])
     <div class="hanging-indent">
       <span class="inline-heading">Haven:</span>{' '}{region.haven}
     </div>
-    <ContentDensity
-      dungeons={dungeons}
-      hexData={hexData}
-      hexCount={hexes.length}
-      region={region}
-    />
-    <TreasureRating
-      articles={articles}
-      dungeons={dungeons}
-      hexData={hexData}
-      region={region}
-    />
+    <div class="content-rating-container">
+      <ContentDensity
+        dungeons={dungeons}
+        hexData={hexData}
+        hexCount={hexes.length}
+        region={region}
+      />
+      <TreasureRating
+        articles={articles}
+        dungeons={dungeons}
+        hexData={hexData}
+        region={region}
+      />
+    </div>
     <div class="description-container">
       <Fragment set:html={renderMarkdown(region.description)} />
     </div>
