@@ -11,6 +11,7 @@ data/
 ├── map.yaml                    # Icon definitions, tag mappings, layers
 ├── map-assets/
 │   ├── icon-fort-dagaric.svg   # Campaign-specific icons
+│   ├── icon-first-civ.svg      # First Civilization marker (campaign-specific)
 │   └── icon-custom-thing.svg
 └── hexes/
     └── region-8/
@@ -20,8 +21,7 @@ apps/web/src/components/InteractiveMap/
 └── icons/
     ├── icon-mountains.svg      # Framework terrain icons
     ├── icon-hills.svg
-    ├── icon-wetlands.svg
-    └── icon-first-civ.svg      # Framework utility icons (shared)
+    └── icon-wetlands.svg
 ```
 
 ## Schema Changes
@@ -140,12 +140,11 @@ grid:
   notation: letter-number
 
 icons:
-  # Framework icons (reference files in apps/web/.../icons/)
+  # Campaign-specific icons (files in data/map-assets/)
   first-civ:
     file: icon-first-civ.svg
     size: 25
 
-  # Campaign-specific icons (files in data/map-assets/)
   fort-dagaric:
     file: icon-fort-dagaric.svg
     size: 80
@@ -514,9 +513,10 @@ export const layerVisibility = derived(
 **Commit:** `refactor: migrate Fort Dagaric to data-driven icon`
 
 ### Phase 3: Migrate Tag-Based Icons
-1. Add `scar-site`, `fc-ruins`, `fc-city` to `tagIcons` in `map.yaml`
-2. Remove hardcoded `layer-scar-sites`, `layer-fc-ruins`, `layer-fc-cities` groups
-3. Update rendering to use data-driven approach
+1. Move `icon-first-civ.svg` to `data/map-assets/`
+2. Add `scar-site`, `fc-ruins`, `fc-city` to `tagIcons` in `map.yaml`
+3. Remove hardcoded `layer-scar-sites`, `layer-fc-ruins`, `layer-fc-cities` groups
+4. Update rendering to use data-driven approach
 
 **Commit:** `refactor: migrate FC icons to data-driven tagIcons`
 
@@ -531,16 +531,17 @@ export const layerVisibility = derived(
 ### Phase 5: Cleanup
 1. Remove unused constants (`DAGARIC_ICON_SIZE`, `FC_ICON_SIZE`)
 2. Remove `filterHexesByTag` function (if no longer needed)
-3. Update tests and documentation
+3. Verify no framework code references moved icons
+4. Update tests and documentation
 
 **Commit:** `chore: remove deprecated icon constants and helpers`
 
 ## Migration Notes
 
-- The `icon-first-civ.svg` stays in the framework icons directory since it's a generic utility icon
-- Campaign-specific icons like `icon-fort-dagaric.svg` move to `data/map-assets/`
+- Campaign-specific icons (`icon-fort-dagaric.svg`, `icon-first-civ.svg`) move to `data/map-assets/`
 - Existing hex tags (`scar-site`, `fc-city`, `fc-ruins`) don't need to change—only the rendering config moves to `map.yaml`
-- The framework can ship with example `tagIcons` commented out or in example data
+- The framework ships with only terrain icons (`icon-mountains.svg`, `icon-hills.svg`, etc.)
+- Example data can include sample `tagIcons` configuration that campaigns can customize
 
 ## Open Questions
 
