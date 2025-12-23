@@ -5,11 +5,10 @@ import { getCollection } from 'astro:content';
 
 import HexSearch from '../../../components/GmHexDetails/HexSearch.svelte';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
-import { hexSort, processHex } from '../../../utils/hexes';
+import { createSyntheticHex, hexSort, processHex, resolveHexWithRegion } from '../../../utils/hexes';
 import { buildHexToRegionLookup, getAllRegionHexIds } from '../../../utils/regions';
 
-import type { HexData } from '@achm/schemas';
-import type { ExtendedHexData, PointcrawlLink, ResolvedHexData } from '../../../types';
+import type { ExtendedHexData, PointcrawlLink } from '../../../types';
 
 const mapConfig = loadMapConfig();
 const notation = mapConfig.grid.notation;
@@ -28,25 +27,12 @@ const hexFileIds = new Set(
 );
 
 // Create synthetic hex data for region hexes without files
-const syntheticHexes: HexData[] = [];
-for (const hexId of allRegionHexIds) {
-  if (!hexFileIds.has(hexId)) {
-    const region = hexToRegion.get(hexId);
-    if (region) {
-      syntheticHexes.push({
-        id: hexId,
-        slug: hexId,
-        name: 'Unexplored',
-        landmark: 'This area has not yet been explored.',
-        terrain: region.data.terrain,
-        biome: region.data.biome,
-        isVisited: false,
-        isExplored: false,
-        isScouted: false,
-      });
-    }
-  }
-}
+const syntheticHexes = [...allRegionHexIds]
+  .filter((hexId) => !hexFileIds.has(hexId))
+  .map((hexId) => {
+    const region = hexToRegion.get(hexId)!;
+    return createSyntheticHex(hexId, region.data);
+  });
 
 // Combine file-based and synthetic hexes, resolve with region data
 const allHexData = [
@@ -54,15 +40,10 @@ const allHexData = [
   ...syntheticHexes,
 ];
 
-const intermediateHexes: ResolvedHexData[] = allHexData
+const intermediateHexes = allHexData
   .map((hex) => {
     const region = hexToRegion.get(normalizeHexId(hex.id, notation));
-    return {
-      ...hex,
-      regionId: region?.id ?? 'unknown',
-      terrain: hex.terrain ?? region?.data.terrain,
-      biome: hex.biome ?? region?.data.biome,
-    };
+    return resolveHexWithRegion(hex, region);
   })
   .sort((a, b) => hexSort(a, b, notation))
   .filter((hex) => !hex.hideInCatalog);

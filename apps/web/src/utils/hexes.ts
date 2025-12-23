@@ -4,13 +4,12 @@ import {
   parseHexId as coreParseHexId,
 } from '@achm/core';
 
-import type { CoordinateNotation } from '@achm/core';
-
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
 
-import type { ExtendedGmNote, ExtendedHexData, ExtendedHiddenSites, ResolvedHexData } from '../types.ts';
-import type { GmNote, HexData, HiddenSite } from '@achm/schemas';
+import type { ExtendedGmNote, ExtendedHexData, ExtendedHiddenSites, RegionEntry, ResolvedHexData } from '../types.ts';
+import type { CoordinateNotation } from '@achm/core';
+import type { GmNote, HexData, HiddenSite, RegionData } from '@achm/schemas';
 
 /**
  * Process a GM note into extended format with rendered markdown and optional clueId.
@@ -72,6 +71,40 @@ export async function processHex(hex: ResolvedHexData): Promise<ExtendedHexData>
     renderedUpdates: await Promise.all(
       hex.updates?.map(renderBulletMarkdown) ?? [],
     ),
+  };
+}
+
+/**
+ * Create synthetic hex data for a hex that exists only in a region definition.
+ * Used when a region declares hexes but no individual hex files exist for them.
+ */
+export function createSyntheticHex(hexId: string, region: RegionData): HexData {
+  return {
+    id: hexId,
+    slug: hexId,
+    name: 'Unexplored',
+    landmark: 'This area has not yet been explored.',
+    terrain: region.terrain,
+    biome: region.biome,
+    isVisited: false,
+    isExplored: false,
+    isScouted: false,
+  };
+}
+
+/**
+ * Resolve hex data with region fallbacks for terrain/biome and add regionId.
+ * Returns a ResolvedHexData with all region-derived fields populated.
+ */
+export function resolveHexWithRegion(
+  hex: HexData,
+  region: RegionEntry | undefined,
+): ResolvedHexData {
+  return {
+    ...hex,
+    regionId: region?.id ?? 'unknown',
+    terrain: hex.terrain ?? region?.data.terrain,
+    biome: hex.biome ?? region?.data.biome,
   };
 }
 

@@ -5,11 +5,10 @@ import { getCollection } from 'astro:content';
 
 import GmHexDetails from '../../../../components/GmHexDetails/GmHexDetails.svelte';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
-import { hexSort, processHex } from '../../../../utils/hexes';
+import { createSyntheticHex, hexSort, processHex, resolveHexWithRegion } from '../../../../utils/hexes';
 import { getRegionTitle } from '../../../../utils/regions';
 
 import type { ExtendedHexData } from '../../../../types';
-import type { HexData } from '@achm/schemas';
 
 const { id: regionId } = Astro.params;
 if (!regionId) {
@@ -42,39 +41,16 @@ const hexFileMap = new Map(
 
 // Get hex data for each hex in the region (file-based or synthetic)
 const regionHexIds = region.data.hexes ?? [];
-const allHexData: HexData[] = regionHexIds.map((hexId) => {
+const allHexData = regionHexIds.map((hexId) => {
   const normalizedId = normalizeHexId(hexId, notation);
   const fileData = hexFileMap.get(normalizedId);
-
-  if (fileData) {
-    return fileData;
-  }
-
-  // Create synthetic hex data
-  return {
-    id: normalizedId,
-    slug: normalizedId,
-    name: 'Unexplored',
-    landmark: 'This area has not yet been explored.',
-    terrain: region.data.terrain,
-    biome: region.data.biome,
-    isVisited: false,
-    isExplored: false,
-    isScouted: false,
-  };
+  return fileData ?? createSyntheticHex(normalizedId, region.data);
 });
 
-const intermediateHexes = allHexData
+const resolvedHexes = allHexData
   .filter((hex) => !hex.hideInCatalog)
-  .sort((a, b) => hexSort(a, b, notation));
-
-// Add regionId to each hex for processHex
-const resolvedHexes = intermediateHexes.map((hex) => ({
-  ...hex,
-  regionId: regionId,
-  terrain: hex.terrain ?? region.data.terrain,
-  biome: hex.biome ?? region.data.biome,
-}));
+  .sort((a, b) => hexSort(a, b, notation))
+  .map((hex) => resolveHexWithRegion(hex, region));
 
 const hexes: ExtendedHexData[] = await Promise.all(
   resolvedHexes.map(processHex),

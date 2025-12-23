@@ -4,12 +4,10 @@ import { getCollection } from 'astro:content';
 
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE, UNKNOWN_CONTENT } from '../../utils/constants.ts';
-import { processHex } from '../../utils/hexes.ts';
+import { createSyntheticHex, processHex, resolveHexWithRegion } from '../../utils/hexes.ts';
 import { buildHexToRegionLookup, getAllRegionHexIds } from '../../utils/regions.ts';
 
-import type { CoordinateNotation } from '@achm/core';
-import type { ExtendedHexData, RegionEntry, ResolvedHexData } from '../../types.ts';
-import type { HexData } from '@achm/schemas';
+import type { ExtendedHexData } from '../../types.ts';
 import type { APIRoute } from 'astro';
 
 export type HexPlayerData = Pick<
@@ -29,45 +27,6 @@ export type HexPlayerData = Pick<
   terrain: ExtendedHexData['terrain'] | 'Unknown';
   biome: ExtendedHexData['biome'] | 'Unknown';
 };
-
-/**
- * Apply region fallbacks to hex data.
- * Derives regionId from region ownership and provides terrain/biome defaults.
- */
-function resolveHexData(
-  hex: HexData,
-  hexToRegion: Map<string, RegionEntry>,
-  notation: CoordinateNotation,
-): ResolvedHexData {
-  const region = hexToRegion.get(normalizeHexId(hex.id, notation));
-
-  return {
-    ...hex,
-    // Use region as authoritative source for regionId
-    regionId: region?.id ?? 'unknown',
-    // Fall back to region defaults for terrain/biome
-    terrain: hex.terrain ?? region?.data.terrain,
-    biome: hex.biome ?? region?.data.biome,
-  };
-}
-
-/**
- * Create a synthetic HexData for a hex that exists only in a region definition.
- * These are minimal hex entries with defaults derived from the region.
- */
-function createSyntheticHex(hexId: string, region: RegionEntry): HexData {
-  return {
-    id: hexId,
-    slug: hexId,
-    name: 'Unexplored',
-    landmark: 'This area has not yet been explored.',
-    terrain: region.data.terrain,
-    biome: region.data.biome,
-    isVisited: false,
-    isExplored: false,
-    isScouted: false,
-  };
-}
 
 export const GET: APIRoute = async ({ locals }) => {
   const [hexEntries, regionEntries] = await Promise.all([
@@ -90,15 +49,12 @@ export const GET: APIRoute = async ({ locals }) => {
   );
 
   // Create synthetic hex data for region hexes without files
-  const syntheticHexes: HexData[] = [];
-  for (const hexId of allRegionHexIds) {
-    if (!hexFileIds.has(hexId)) {
-      const region = hexToRegion.get(hexId);
-      if (region) {
-        syntheticHexes.push(createSyntheticHex(hexId, region));
-      }
-    }
-  }
+  const syntheticHexes = [...allRegionHexIds]
+    .filter((hexId) => !hexFileIds.has(hexId))
+    .map((hexId) => {
+      const region = hexToRegion.get(hexId)!;
+      return createSyntheticHex(hexId, region.data);
+    });
 
   // Combine file-based and synthetic hexes, filter out-of-bounds, resolve with region data
   const allHexData = [
@@ -108,7 +64,10 @@ export const GET: APIRoute = async ({ locals }) => {
 
   const fullHexes = allHexData
     .filter((hex) => !isOutOfBounds(hex.id, outOfBoundsList, notation))
-    .map((hex) => resolveHexData(hex, hexToRegion, notation));
+    .map((hex) => {
+      const region = hexToRegion.get(normalizeHexId(hex.id, notation));
+      return resolveHexWithRegion(hex, region);
+    });
 
   const role = getCurrentUserRole(locals);
 

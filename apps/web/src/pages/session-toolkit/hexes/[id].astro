@@ -11,7 +11,7 @@ import RandomEncountersSection from '../../../components/RandomEncountersSection
 import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { mergeEncounterOverrides } from '../../../utils/encounters';
-import { processHex } from '../../../utils/hexes';
+import { createSyntheticHex, processHex } from '../../../utils/hexes';
 import { buildHexToRegionLookup } from '../../../utils/regions';
 
 import type { EncounterTableData, HexData } from '@achm/schemas';
@@ -53,17 +53,7 @@ if (hexEntry) {
   }
 
   // Create synthetic hex data from region
-  hexData = {
-    id: normalizedId,
-    slug: normalizedId,
-    name: 'Unexplored',
-    landmark: 'This area has not yet been explored.',
-    terrain: regionEntry.data.terrain,
-    biome: regionEntry.data.biome,
-    isVisited: false,
-    isExplored: false,
-    isScouted: false,
-  };
+  hexData = createSyntheticHex(normalizedId, regionEntry.data);
 }
 
 const dungeons = await getCollection('dungeons');
