@@ -163,6 +163,13 @@ function extractEncounterIdsFromHex(
     }
   }
 
+  // Extract from keyed encounters
+  if (hexData.keyedEncounters) {
+    for (const keyed of hexData.keyedEncounters) {
+      encounterIds.add(keyed.encounterId);
+    }
+  }
+
   return Array.from(encounterIds);
 }
 

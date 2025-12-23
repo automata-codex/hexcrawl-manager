@@ -5,6 +5,7 @@
   import Dungeon from './Dungeon.svelte';
   import Explored from './Explored.svelte';
   import HiddenSites from './HiddenSites.svelte';
+  import KeyedEncounters from './KeyedEncounters.svelte';
   import Landmark from './Landmark.svelte';
   import Neighbors from './Neighbors.svelte';
   import Pointcrawls from './Pointcrawls.svelte';
@@ -76,6 +77,7 @@
 {/if}
 <Landmark {hex} {clueMap} />
 <HiddenSites {hex} {clueMap} />
+<KeyedEncounters {hex} />
 {#if hex.secretSite}
   <div class="hanging-indent">
     <span class="inline-heading">Secret Site:</span>{' '}
