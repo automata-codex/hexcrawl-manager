@@ -2,13 +2,9 @@
   import { LETTER_NUMBER_PREFIX_RE, NUMERIC_PREFIX_RE } from '@achm/core';
   import { onMount } from 'svelte';
 
-  import GmHexDetails from './GmHexDetails.svelte';
+  import HexSearchResult from './HexSearchResult.svelte';
 
-  import type {
-    DungeonEntry,
-    ExtendedHexData,
-    PointcrawlLink,
-  } from '../../types';
+  import type { DungeonEntry, ExtendedHexData, PointcrawlLink } from '../../types';
   import type { MapConfig } from '@achm/schemas';
 
   interface Props {
@@ -53,7 +49,7 @@
           (typeof hex.landmark === 'string' &&
             hex.landmark.toLowerCase().includes(q)) ||
           (typeof hex.landmark !== 'string' &&
-            hex.landmark.description.toLowerCase().includes(q)) ||
+            hex.landmark?.description.toLowerCase().includes(q)) ||
           hex.hiddenSites?.some((site) => {
             if (typeof site === 'string') {
               return site.toLowerCase().includes(q);
@@ -61,7 +57,10 @@
             return site.description.toLowerCase().includes(q);
           }) ||
           hex.notes?.some((note) => {
-            return note.toLowerCase().includes(q);
+            if (typeof note === 'string') {
+              return note.toLowerCase().includes(q);
+            }
+            return note.description.toLowerCase().includes(q);
           }) ||
           hex.secretSite?.toLowerCase().includes(q),
       );
@@ -89,12 +88,10 @@
   {#if results.length > 0}
     {#each results as hex (hex.id)}
       <h2 class="title is-3">{hex.id.toUpperCase()}: {hex.name}</h2>
-      <GmHexDetails
+      <HexSearchResult
         {dungeons}
         {hex}
-        {mapConfig}
         pointcrawls={pointcrawlsByHex[hex.id.toLowerCase()]}
-        showSelfLink={true}
       />
     {/each}
   {/if}

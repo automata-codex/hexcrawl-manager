@@ -11,8 +11,6 @@
   import Pointcrawls from './Pointcrawls.svelte';
   import Visited from './Visited.svelte';
 
-  import type { MapConfig } from '@achm/schemas';
-
   import type {
     ClueMapEntry,
     DungeonEntry,
@@ -20,6 +18,7 @@
     ExtendedHexData,
     PointcrawlLink,
   } from '../../types.ts';
+  import type { MapConfig } from '@achm/schemas';
 
   interface Props {
     clueMap?: Record<string, ClueMapEntry>;
@@ -55,7 +54,7 @@
 <div class="data-bar">
   <Visited {hex} />
   {#if hex.renderedHiddenSites.length > 0}
-    <Explored {hex} />
+    <Explored isExplored={hex.isExplored} />
   {/if}
   {#if showSelfLink}
     <div class="data-bar-cell">
