@@ -14,7 +14,7 @@ import { mergeEncounterOverrides } from '../../../utils/encounters';
 import { processHex } from '../../../utils/hexes';
 import { buildHexToRegionLookup } from '../../../utils/regions';
 
-import type { EncounterTableData } from '@achm/schemas';
+import type { EncounterTableData, HexData } from '@achm/schemas';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -25,30 +25,55 @@ if (!id) {
   });
 }
 
-// Query for the entry directly using the request slug
-const hexEntry = await getEntry('hexes', id);
+// Load map config for notation
+const mapConfig = loadMapConfig();
+const notation = mapConfig.grid.notation;
 
-// Redirect if the entry does not exist
-if (hexEntry === undefined) {
-  return new Response(null, {
-    status: 404,
-    statusText: 'Not found',
-  });
+// Build region lookup early (needed for both file-based and synthetic hexes)
+const regions = await getCollection('regions');
+const hexToRegion = buildHexToRegionLookup(regions, notation);
+
+// Try to get hex from file, or create synthetic hex from region
+const hexEntry = await getEntry('hexes', id);
+let hexData: HexData;
+
+if (hexEntry) {
+  hexData = hexEntry.data;
+} else {
+  // No file exists - check if this hex is defined in a region
+  const normalizedId = normalizeHexId(id, notation);
+  const regionEntry = hexToRegion.get(normalizedId);
+
+  if (!regionEntry) {
+    // Hex doesn't exist as file or in any region
+    return new Response(null, {
+      status: 404,
+      statusText: 'Not found',
+    });
+  }
+
+  // Create synthetic hex data from region
+  hexData = {
+    id: normalizedId,
+    slug: normalizedId,
+    name: 'Unexplored',
+    landmark: 'This area has not yet been explored.',
+    terrain: regionEntry.data.terrain,
+    biome: regionEntry.data.biome,
+    isVisited: false,
+    isExplored: false,
+    isScouted: false,
+  };
 }
 
 const dungeons = await getCollection('dungeons');
 const clues = await getCollection('clues');
-const hexData = hexEntry.data;
 
 // Build clue lookup map for display
 const clueMap = Object.fromEntries(
   clues.map((c) => [c.id, { id: c.id, name: c.data.name }])
 );
 const title = `Hex ${hexData.id.toUpperCase()}: ${hexData.name}`;
-
-// Load map config for notation
-const mapConfig = loadMapConfig();
-const notation = mapConfig.grid.notation;
 
 // Find pointcrawls accessible from this hex
 const allPointcrawls = await getCollection('pointcrawls');
@@ -57,9 +82,7 @@ const pointcrawls = allPointcrawls
   .filter((p) => p.data.hexIds?.includes(normalizedHexId))
   .map((p) => ({ slug: p.data.slug, name: p.data.name }));
 
-// Build region lookup and find hex's region
-const regions = await getCollection('regions');
-const hexToRegion = buildHexToRegionLookup(regions, notation);
+// Find hex's region
 const regionEntry = hexToRegion.get(normalizedHexId);
 
 // Resolve hex with regionId and fallback terrain/biome

@@ -1,21 +1,72 @@
 ---
+import { normalizeHexId } from '@achm/core';
 import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import HexSearch from '../../../components/GmHexDetails/HexSearch.svelte';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import { hexSort, processHex } from '../../../utils/hexes';
+import { buildHexToRegionLookup, getAllRegionHexIds } from '../../../utils/regions';
 
+import type { HexData } from '@achm/schemas';
 import type { ExtendedHexData, PointcrawlLink, ResolvedHexData } from '../../../types';
 
-const notation = loadMapConfig().grid.notation;
+const mapConfig = loadMapConfig();
+const notation = mapConfig.grid.notation;
 
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
-const intermediateHexes = hexEntries
-  .map((entry) => entry.data as ResolvedHexData)
+const regionEntries = await getCollection('regions');
+
+// Build region lookup
+const hexToRegion = buildHexToRegionLookup(regionEntries, notation);
+
+// Get all hex IDs from regions and identify those without individual files
+const allRegionHexIds = getAllRegionHexIds(regionEntries, notation);
+const hexFileIds = new Set(
+  hexEntries.map((e) => normalizeHexId(e.data.id, notation)),
+);
+
+// Create synthetic hex data for region hexes without files
+const syntheticHexes: HexData[] = [];
+for (const hexId of allRegionHexIds) {
+  if (!hexFileIds.has(hexId)) {
+    const region = hexToRegion.get(hexId);
+    if (region) {
+      syntheticHexes.push({
+        id: hexId,
+        slug: hexId,
+        name: 'Unexplored',
+        landmark: 'This area has not yet been explored.',
+        terrain: region.data.terrain,
+        biome: region.data.biome,
+        isVisited: false,
+        isExplored: false,
+        isScouted: false,
+      });
+    }
+  }
+}
+
+// Combine file-based and synthetic hexes, resolve with region data
+const allHexData = [
+  ...hexEntries.map((e) => e.data),
+  ...syntheticHexes,
+];
+
+const intermediateHexes: ResolvedHexData[] = allHexData
+  .map((hex) => {
+    const region = hexToRegion.get(normalizeHexId(hex.id, notation));
+    return {
+      ...hex,
+      regionId: region?.id ?? 'unknown',
+      terrain: hex.terrain ?? region?.data.terrain,
+      biome: hex.biome ?? region?.data.biome,
+    };
+  })
   .sort((a, b) => hexSort(a, b, notation))
   .filter((hex) => !hex.hideInCatalog);
+
 const hexes: ExtendedHexData[] = await Promise.all(
   intermediateHexes.map(processHex),
 );

@@ -1,16 +1,14 @@
 ---
+import { normalizeHexId } from '@achm/core';
 import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import GmHexDetails from '../../../../components/GmHexDetails/GmHexDetails.svelte';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
 import { hexSort, processHex } from '../../../../utils/hexes';
-import {
-  getHexEntriesForRegion,
-  getRegionTitle,
-} from '../../../../utils/regions';
+import { getRegionTitle } from '../../../../utils/regions';
 
-import type { ExtendedHexData, HexEntry } from '../../../../types';
+import type { ExtendedHexData } from '../../../../types';
 import type { HexData } from '@achm/schemas';
 
 const { id: regionId } = Astro.params;
@@ -21,23 +19,63 @@ if (!regionId) {
   });
 }
 
-const notation = loadMapConfig().grid.notation;
+const mapConfig = loadMapConfig();
+const notation = mapConfig.grid.notation;
 
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
 const regions = await getCollection('regions');
 
-const allHexes = await getHexEntriesForRegion(regions, hexEntries, regionId);
-const intermediateHexes = allHexes
-  .filter((hex: HexEntry | undefined) => !!hex)
-  .map((entry: HexEntry) => entry.data)
-  .filter((hex: HexData) => !hex.hideInCatalog)
+// Find the region
+const region = regions.find((r) => r.id === regionId);
+if (!region) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Build a map of hex files by normalized ID
+const hexFileMap = new Map(
+  hexEntries.map((e) => [normalizeHexId(e.data.id, notation), e.data]),
+);
+
+// Get hex data for each hex in the region (file-based or synthetic)
+const regionHexIds = region.data.hexes ?? [];
+const allHexData: HexData[] = regionHexIds.map((hexId) => {
+  const normalizedId = normalizeHexId(hexId, notation);
+  const fileData = hexFileMap.get(normalizedId);
+
+  if (fileData) {
+    return fileData;
+  }
+
+  // Create synthetic hex data
+  return {
+    id: normalizedId,
+    slug: normalizedId,
+    name: 'Unexplored',
+    landmark: 'This area has not yet been explored.',
+    terrain: region.data.terrain,
+    biome: region.data.biome,
+    isVisited: false,
+    isExplored: false,
+    isScouted: false,
+  };
+});
+
+const intermediateHexes = allHexData
+  .filter((hex) => !hex.hideInCatalog)
   .sort((a, b) => hexSort(a, b, notation));
+
 // Add regionId to each hex for processHex
 const resolvedHexes = intermediateHexes.map((hex) => ({
   ...hex,
   regionId: regionId,
+  terrain: hex.terrain ?? region.data.terrain,
+  biome: hex.biome ?? region.data.biome,
 }));
+
 const hexes: ExtendedHexData[] = await Promise.all(
   resolvedHexes.map(processHex),
 );
