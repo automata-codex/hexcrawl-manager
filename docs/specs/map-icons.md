@@ -463,35 +463,53 @@ Delete:
 
 **File:** `apps/web/src/stores/interactive-map/layer-visibility.ts`
 
-The store should load layer configuration from `mapConfig.layers` instead of a hardcoded `layerList`. This requires the store to be initialized after map config is fetched, or to use a reactive approach.
+The store uses a **hybrid approach** where framework layers are hardcoded and campaign layers are loaded from `map.yaml`:
 
 ```typescript
-import { writable, derived } from 'svelte/store';
+import { writable } from 'svelte/store';
 import type { LayerConfig } from '@achm/schemas';
 
-// This will be set when map config loads
+/**
+ * Framework layers - always present, rendered below campaign layers.
+ * These are fundamental map features that every campaign uses.
+ */
+const frameworkLayers: LayerConfig[] = [
+  { key: 'labels', label: 'Hex Labels', defaultVisible: true },
+  { key: 'terrain', label: 'Terrain', defaultVisible: true },
+  { key: 'biomes', label: 'Biomes', defaultVisible: true },
+  { key: 'hexBorders', label: 'Hex Borders', defaultVisible: true },
+  { key: 'river', label: 'Rivers', defaultVisible: true },
+  { key: 'trail', label: 'Trails', defaultVisible: true },
+];
+
+/**
+ * Custom icons layer - always present, rendered above campaign layers.
+ * Used for direct hex mapIcon rendering.
+ */
+const customIconsLayer: LayerConfig = {
+  key: 'customIcons',
+  label: 'Custom Icons',
+  defaultVisible: true,
+};
+
 export const layerConfigStore = writable<LayerConfig[]>([]);
+export const layerVisibility = writable<Record<string, boolean>>({});
 
-// Derive initial visibility from config
-export const layerVisibility = derived(
-  layerConfigStore,
-  ($config, set) => {
-    const saved = typeof localStorage !== 'undefined'
-      ? JSON.parse(localStorage.getItem('layerVisibility') || '{}')
-      : {};
-
-    const initial = Object.fromEntries(
-      $config.map((layer) => [layer.key, saved[layer.key] ?? layer.defaultVisible])
-    );
-
-    set(initial);
-  },
-  {} as Record<string, boolean>
-);
-
-// For updates, use a separate writable that merges with derived
-// (implementation details depend on existing patterns)
+/**
+ * Initialize layer visibility from campaign config.
+ * Merges: framework layers + campaign layers + customIcons layer.
+ */
+export function initializeLayerVisibility(campaignLayers: LayerConfig[]): void {
+  const allLayers = [...frameworkLayers, ...campaignLayers, customIconsLayer];
+  layerConfigStore.set(allLayers);
+  // ... merge with localStorage, set visibility
+}
 ```
+
+**Layer ordering in the panel:**
+1. Framework layers (labels, terrain, biomes, hexBorders, river, trail)
+2. Campaign layers (from map.yaml - fortDagaric, scarSites, etc.)
+3. Custom Icons layer
 
 ## Implementation Phases
 
@@ -520,13 +538,16 @@ export const layerVisibility = derived(
 
 **Commit:** `refactor: migrate FC icons to data-driven tagIcons`
 
-### Phase 4: Data-Driven Layers
-1. Add `layers` section to `map.yaml`
-2. Update `layer-visibility.ts` to load from config
-3. Remove hardcoded `layerList`
-4. Update `LayersPanel.svelte` to use config
+### Phase 4: Hybrid Layer System
+1. Add campaign-specific `layers` section to `map.yaml` (fortDagaric, scarSites, etc.)
+2. Update `layer-visibility.ts` with hybrid approach:
+   - Hardcoded framework layers (labels, terrain, biomes, hexBorders, river, trail)
+   - Campaign layers from `map.yaml`
+   - Hardcoded customIcons layer (rendered on top)
+3. Update `LayersPanel.svelte` to use `layerConfigStore`
+4. Update `Map.svelte` to call `initializeLayerVisibility(config.layers)`
 
-**Commit:** `refactor: migrate layer visibility to data-driven config`
+**Commit:** `refactor: implement hybrid layer visibility system`
 
 ### Phase 5: Cleanup
 1. Remove unused constants (`DAGARIC_ICON_SIZE`, `FC_ICON_SIZE`)
@@ -542,6 +563,7 @@ export const layerVisibility = derived(
 - Existing hex tags (`scar-site`, `fc-city`, `fc-ruins`) don't need to change—only the rendering config moves to `map.yaml`
 - The framework ships with only terrain icons (`icon-mountains.svg`, `icon-hills.svg`, etc.)
 - Example data can include sample `tagIcons` configuration that campaigns can customize
+- **Hybrid layer system:** Framework layers (labels, terrain, biomes, hexBorders, river, trail) are hardcoded; campaign layers are defined in `map.yaml`; customIcons layer is hardcoded and rendered on top
 
 ## Open Questions
 
