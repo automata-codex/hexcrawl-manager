@@ -9,7 +9,12 @@ export type {
 export type { CubeCoord } from './geometry.js';
 
 // Constants
-export { LETTER_NUMBER_RE, NUMERIC_RE } from './parse.js';
+export {
+  LETTER_NUMBER_PREFIX_RE,
+  LETTER_NUMBER_RE,
+  NUMERIC_PREFIX_RE,
+  NUMERIC_RE,
+} from './parse.js';
 
 // Parsing
 export { displayHexId, formatHexId, normalizeHexId, parseHexId } from './parse.js';

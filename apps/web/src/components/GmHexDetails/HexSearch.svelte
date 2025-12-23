@@ -1,15 +1,15 @@
 <script lang="ts">
+  import { LETTER_NUMBER_PREFIX_RE, NUMERIC_PREFIX_RE } from '@achm/core';
   import { onMount } from 'svelte';
 
   import GmHexDetails from './GmHexDetails.svelte';
-
-  import type { MapConfig } from '@achm/schemas';
 
   import type {
     DungeonEntry,
     ExtendedHexData,
     PointcrawlLink,
   } from '../../types';
+  import type { MapConfig } from '@achm/schemas';
 
   interface Props {
     dungeons: DungeonEntry[];
@@ -23,20 +23,29 @@
   let query = $state('');
   let results: ExtendedHexData[] = $state([]);
 
-  const isHexId = (input: string): boolean =>
-    /^[a-z]\s*-?\s*\d{1,2}$/i.test(input.trim());
+  const isHexIdPrefix = (input: string): boolean => {
+    const trimmed = input.trim();
+    if (mapConfig.grid.notation === 'letter-number') {
+      return LETTER_NUMBER_PREFIX_RE.test(trimmed);
+    }
+    return NUMERIC_PREFIX_RE.test(trimmed);
+  };
 
-  const normalizeHexId = (input: string): string =>
-    input.replace(/[^a-z0-9]/gi, '').toUpperCase();
+  const normalizeHexIdPrefix = (input: string): string => {
+    if (mapConfig.grid.notation === 'letter-number') {
+      return input.replace(/[^a-z0-9]/gi, '').toLowerCase();
+    }
+    return input.trim();
+  };
 
   const searchHexes = () => {
     const q = query.trim().toLowerCase();
 
     if (q === '') {
       results = hexes; // Show all
-    } else if (isHexId(q)) {
-      const id = normalizeHexId(q);
-      results = hexes.filter((hex) => hex.id.toUpperCase() === id);
+    } else if (isHexIdPrefix(query)) {
+      const prefix = normalizeHexIdPrefix(query);
+      results = hexes.filter((hex) => hex.id.toLowerCase().startsWith(prefix));
     } else {
       results = hexes.filter(
         (hex) =>
