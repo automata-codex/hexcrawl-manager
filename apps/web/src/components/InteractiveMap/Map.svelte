@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { isValidHexId } from '@achm/core';
+  import { displayHexId, isValidHexId } from '@achm/core';
   import {
     faExpand,
     faLocationCrosshairs,
@@ -282,11 +282,6 @@
   function handleZoomReset() {
     resetZoom();
   }
-
-  function hexLabel(col: number, row: number): string {
-    const colLabel = String.fromCharCode(65 + col); // A = 65
-    return `${colLabel}${row + 1}`;
-  }
 </script>
 
 {#if configError}
@@ -448,7 +443,7 @@
               text-anchor="middle"
               fill="black"
             >
-              {hexLabel(q, r)}
+              {displayHexId(hex.id, notation)}
             </text>
           {/if}
         {/each}

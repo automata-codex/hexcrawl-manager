@@ -164,6 +164,7 @@ export default defineConfig([
       'import/order': importOrder,
       'svelte/no-at-html-tags': 'off',
       'svelte/no-navigation-without-resolve': 'off',
+      'svelte/no-useless-mustaches': 'off',
     },
   },
 
