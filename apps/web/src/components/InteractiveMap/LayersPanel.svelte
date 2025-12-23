@@ -3,7 +3,7 @@
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 
   import {
-    layerList,
+    layerConfigStore,
     layerVisibility,
   } from '../../stores/interactive-map/layer-visibility';
   import { canAccess } from '../../utils/auth.ts';
@@ -40,8 +40,8 @@
   >
     <FontAwesomeIcon icon={faXmark} />
   </button>
-  {#each layerList as layer (layer.key)}
-    {#if !layer.scopes || (layer.scopes && canAccess(role, layer.scopes))}
+  {#each $layerConfigStore as layer (layer.key)}
+    {#if !layer.scopes || canAccess(role, layer.scopes)}
       <div>
         <label>
           <input

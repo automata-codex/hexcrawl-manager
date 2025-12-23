@@ -10,7 +10,10 @@
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
 
-  import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
+  import {
+    initializeLayerVisibility,
+    layerVisibility,
+  } from '../../stores/interactive-map/layer-visibility';
   import {
     applyZoomAtCenter,
     computeViewBox,
@@ -79,6 +82,7 @@
       const config: MapConfigResponse = await configResponse.json();
       mapConfig = config;
       notation = config.grid.notation;
+      initializeLayerVisibility(config.layers);
 
       const dungeonResponse = await fetch('/api/dungeons.json');
       dungeons = await dungeonResponse.json();
