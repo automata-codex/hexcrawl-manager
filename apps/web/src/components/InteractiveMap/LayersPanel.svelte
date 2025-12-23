@@ -40,7 +40,7 @@
   >
     <FontAwesomeIcon icon={faXmark} />
   </button>
-  {#each $layerConfigStore as layer (layer.key)}
+  {#each [...$layerConfigStore].reverse() as layer (layer.key)}
     {#if !layer.scopes || canAccess(role, layer.scopes)}
       <div>
         <label>

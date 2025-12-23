@@ -9,10 +9,10 @@ import type { LayerConfig } from '@achm/schemas';
  * These are fundamental map features that every campaign uses.
  */
 const frameworkLayers: LayerConfig[] = [
-  { key: 'labels', label: 'Hex Labels', defaultVisible: true },
-  { key: 'terrain', label: 'Terrain', defaultVisible: true },
-  { key: 'biomes', label: 'Biomes', defaultVisible: true },
   { key: 'hexBorders', label: 'Hex Borders', defaultVisible: true },
+  { key: 'labels', label: 'Hex Labels', defaultVisible: true },
+  { key: 'biomes', label: 'Biomes', defaultVisible: true },
+  { key: 'terrain', label: 'Terrain', defaultVisible: true },
   { key: 'river', label: 'Rivers', defaultVisible: true },
   { key: 'trail', label: 'Trails', defaultVisible: true },
 ];
@@ -45,8 +45,9 @@ export const layerVisibility = writable<Record<string, boolean>>({});
  * Should be called after fetching map config.
  */
 export function initializeLayerVisibility(campaignLayers: LayerConfig[]): void {
-  // Merge: framework layers + campaign layers + customIcons
-  const allLayers = [...frameworkLayers, ...campaignLayers, customIconsLayer];
+  // Merge: framework layers + campaign layers (reversed to match visual stacking) + customIcons
+  // Config files list top-most layer first, so we reverse to get bottom-first for rendering
+  const allLayers = [...frameworkLayers, ...[...campaignLayers].reverse(), customIconsLayer];
 
   // Update the config store
   layerConfigStore.set(allLayers);
