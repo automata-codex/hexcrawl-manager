@@ -1,9 +1,7 @@
 import { getDataPath } from '@achm/data';
 import {
-  type BountyData,
   BountySchema,
   CharacterSchema,
-  type ClassData,
   ClassSchema,
   ClueSchema,
   CompositeArticleSchema,
@@ -12,12 +10,10 @@ import {
   EncounterSchema,
   FactionSchema,
   HexSchema,
-  type LootPackData,
   LootPackSchema,
   MapPathSchema,
   NobleSchema,
   NpcSchema,
-  type PlayerData,
   PlayerSchema,
   PlotlineSchema,
   PointcrawlEdgeSchema,
@@ -26,12 +22,10 @@ import {
   PoliticalFactionSchema,
   RegionSchema,
   RoleplayBookSchema,
-  type RumorData,
   RumorSchema,
   SessionSchema,
   SpellSchema,
   StatBlockSchema,
-  type SupplementData,
   SupplementSchema,
   type TrailEntry,
   TrailEntrySchema,
@@ -41,7 +35,6 @@ import {
 import { file, glob } from 'astro/loaders';
 import { defineCollection, z } from 'astro:content';
 import fs from 'fs';
-import path from 'path';
 import yaml from 'yaml';
 
 const DATA_DIR = getDataPath();
@@ -105,23 +98,6 @@ const DIRS = {
   TRAILS: `${DATA_DIR}/trails`,
 } as const;
 
-/** @deprecated */
-function getDirectoryYamlLoader<T>(directory: string): () => T[] {
-  return () => {
-    const DIRECTORY = directory;
-    const files = fs.readdirSync(DIRECTORY);
-    const data = files.map((file) => {
-      if (path.extname(file) !== '.yml' && path.extname(file) !== '.yaml') {
-        return [];
-      }
-      const filePath = path.join(DIRECTORY, file);
-      const fileContents = fs.readFileSync(filePath, 'utf8');
-      return yaml.parse(fileContents);
-    });
-    return data.flat();
-  };
-}
-
 export function trailsMapToEntries(input: unknown): TrailEntry[] {
   const obj = TrailsFile.parse(input);
   return Object.entries(obj).map(([id, data]) =>
@@ -148,7 +124,7 @@ const articles = defineCollection({
 // Conditional collection: empty loader if directory doesn't have content
 const bounties = defineCollection({
   loader: collectionHasContent(DIRS.BOUNTIES)
-    ? getDirectoryYamlLoader<BountyData>(DIRS.BOUNTIES)
+    ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.BOUNTIES })
     : () => [],
   schema: BountySchema,
 });
@@ -161,7 +137,7 @@ const characters = defineCollection({
 // Conditional collection: empty loader if directory doesn't have content
 const classes = defineCollection({
   loader: collectionHasContent(DIRS.CLASSES)
-    ? getDirectoryYamlLoader<ClassData>(DIRS.CLASSES)
+    ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.CLASSES })
     : () => [],
   schema: ClassSchema,
 });
@@ -210,7 +186,7 @@ const hexes = defineCollection({
 // Conditional collection: empty loader if directory doesn't have content
 const lootPacks = defineCollection({
   loader: collectionHasContent(DIRS.LOOT_PACKS)
-    ? getDirectoryYamlLoader<LootPackData>(DIRS.LOOT_PACKS)
+    ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.LOOT_PACKS })
     : () => [],
   schema: LootPackSchema,
 });
@@ -237,7 +213,7 @@ const npcs = defineCollection({
 });
 
 const players = defineCollection({
-  loader: getDirectoryYamlLoader<PlayerData>(DIRS.PLAYERS),
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.PLAYERS }),
   schema: PlayerSchema,
 });
 
@@ -292,7 +268,7 @@ const roleplayBooks = defineCollection({
 });
 
 const rumors = defineCollection({
-  loader: getDirectoryYamlLoader<RumorData>(DIRS.RUMORS),
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.RUMORS }),
   schema: RumorSchema,
 });
 
@@ -320,7 +296,7 @@ const statBlocks = defineCollection({
 // Conditional collection: empty loader if directory doesn't have content
 const supplements = defineCollection({
   loader: collectionHasContent(DIRS.SUPPLEMENTS)
-    ? getDirectoryYamlLoader<SupplementData>(DIRS.SUPPLEMENTS)
+    ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.SUPPLEMENTS })
     : () => [],
   schema: SupplementSchema,
 });

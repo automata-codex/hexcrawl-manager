@@ -1,0 +1,8 @@
+id: goblin-attacks
+title: Goblin Raids
+description: |
+  The goblins have gotten bolder. Three farms burned this month alone. Something's riled them up.
+status: "true"
+notes:
+  - "Source: Mayor Aldric"
+  - Leads to hex 0102 (Thornwick Farmlands)
