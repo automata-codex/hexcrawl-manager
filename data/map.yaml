@@ -1,7 +1,9 @@
 grid:
-  columns: 3
-  rows: 3
+  columns: 4
+  rows: 4
   notation: numeric
 outOfBounds:
   - "0103"
-  - "0203"
+  - "0104"
+  - "0401"
+  - "0402"
