@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { ScopeListSchema } from './scopes.js';
+
 /**
  * Supported coordinate notation styles for hex IDs.
  * - letter-number: e.g., "f12", "A3" (columns A-Z, max 26 columns)
@@ -49,7 +51,7 @@ export const LayerConfigSchema = z.object({
   key: z.string().describe('Unique layer identifier'),
   label: z.string().describe('Human-readable label for UI'),
   defaultVisible: z.boolean().default(true),
-  scopes: z.array(z.string()).optional().describe('Required scopes to see this layer'),
+  scopes: ScopeListSchema.optional().describe('Required scopes to see this layer'),
 });
 export type LayerConfig = z.output<typeof LayerConfigSchema>;
 
