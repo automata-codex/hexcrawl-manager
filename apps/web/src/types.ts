@@ -38,6 +38,11 @@ export type ClueMapEntry = {
   name: string;
 };
 
+export type EncounterMapEntry = {
+  id: string;
+  name: string;
+};
+
 export type ArticleEntry = CollectionEntry<'articles'>;
 export type DungeonEntry = CollectionEntry<'dungeons'>;
 export type HexEntry = CollectionEntry<'hexes'>;

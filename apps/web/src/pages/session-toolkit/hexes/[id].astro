@@ -58,10 +58,16 @@ if (hexEntry) {
 
 const dungeons = await getCollection('dungeons');
 const clues = await getCollection('clues');
+const encounterCollection = await getCollection('encounters');
 
 // Build clue lookup map for display
 const clueMap = Object.fromEntries(
   clues.map((c) => [c.id, { id: c.id, name: c.data.name }])
+);
+
+// Build encounter lookup map for display
+const encounterMap = Object.fromEntries(
+  encounterCollection.map((e) => [e.id, { id: e.id, name: e.data.name }])
 );
 const title = `Hex ${hexData.id.toUpperCase()}: ${hexData.name}`;
 
@@ -118,6 +124,7 @@ const extendedHexData = await processHex(hex);
       client:load
       clueMap={clueMap}
       dungeons={dungeons}
+      encounterMap={encounterMap}
       hex={extendedHexData}
       mapConfig={mapConfig}
       pointcrawls={pointcrawls}

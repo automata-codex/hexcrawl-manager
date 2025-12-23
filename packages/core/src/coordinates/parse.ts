@@ -3,8 +3,14 @@ import type { CoordinateNotation, HexCoord } from './types.js';
 /** Regex for letter-number notation: single letter + one or more digits */
 export const LETTER_NUMBER_RE = /^([a-zA-Z])(\d+)$/;
 
+/** Regex for letter-number prefix: letter optionally followed by digits */
+export const LETTER_NUMBER_PREFIX_RE = /^[a-zA-Z]\d*$/;
+
 /** Regex for numeric notation: exactly 4 digits (CCRR format) */
 export const NUMERIC_RE = /^(\d{2})(\d{2})$/;
+
+/** Regex for numeric prefix: 1-4 digits */
+export const NUMERIC_PREFIX_RE = /^\d{1,4}$/;
 
 /**
  * Parse a hex ID string into internal coordinates.

@@ -5,23 +5,25 @@
   import Dungeon from './Dungeon.svelte';
   import Explored from './Explored.svelte';
   import HiddenSites from './HiddenSites.svelte';
+  import KeyedEncounters from './KeyedEncounters.svelte';
   import Landmark from './Landmark.svelte';
   import Neighbors from './Neighbors.svelte';
   import Pointcrawls from './Pointcrawls.svelte';
   import Visited from './Visited.svelte';
 
-  import type { MapConfig } from '@achm/schemas';
-
   import type {
     ClueMapEntry,
     DungeonEntry,
+    EncounterMapEntry,
     ExtendedHexData,
     PointcrawlLink,
   } from '../../types.ts';
+  import type { MapConfig } from '@achm/schemas';
 
   interface Props {
     clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
+    encounterMap?: Record<string, EncounterMapEntry>;
     hex: ExtendedHexData;
     mapConfig: MapConfig;
     pointcrawls?: PointcrawlLink[];
@@ -31,6 +33,7 @@
   const {
     clueMap = {},
     dungeons,
+    encounterMap = {},
     hex,
     mapConfig,
     pointcrawls,
@@ -51,7 +54,7 @@
 <div class="data-bar">
   <Visited {hex} />
   {#if hex.renderedHiddenSites.length > 0}
-    <Explored {hex} />
+    <Explored isExplored={hex.isExplored} />
   {/if}
   {#if showSelfLink}
     <div class="data-bar-cell">
@@ -76,6 +79,7 @@
 {/if}
 <Landmark {hex} {clueMap} />
 <HiddenSites {hex} {clueMap} />
+<KeyedEncounters {hex} {encounterMap} />
 {#if hex.secretSite}
   <div class="hanging-indent">
     <span class="inline-heading">Secret Site:</span>{' '}
