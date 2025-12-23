@@ -65,6 +65,7 @@
   let mapBounds: ReturnType<typeof calculateMapBounds> | null = $state(null);
   let mapConfig: MapConfig | null = $state(null);
   let mapPaths: MapPathPlayerData[] = $state([]);
+  let labelFont: string | null = $state(null);
   let notation: CoordinateNotation | null = $state(null);
   let svgEl: SVGElement | undefined = $state();
   let wasPanning = $state(false);
@@ -81,6 +82,7 @@
       }
       const config: MapConfigResponse = await configResponse.json();
       mapConfig = config;
+      labelFont = config.grid.labelFont;
       notation = config.grid.notation;
       initializeLayerVisibility(config.layers);
 
@@ -305,7 +307,7 @@
   <button class="button" onclick={handleZoomReset}>
     <FontAwesomeIcon icon={faMagnifyingGlassArrowsRotate} />
   </button>
-  <div class="button zoom-display">
+  <div class="button zoom-display" style:font-family={labelFont}>
     Zoom: {Math.round($mapView.zoom * 100)}%
   </div>
 </div>
@@ -439,6 +441,7 @@
             <text
               {x}
               y={y + HEX_HEIGHT / 2 - 4}
+              font-family={labelFont}
               font-size="12"
               text-anchor="middle"
               fill="black"

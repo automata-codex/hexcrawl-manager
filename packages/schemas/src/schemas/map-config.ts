@@ -17,6 +17,10 @@ export const GridConfigSchema = z.object({
   columns: z.number().int().positive().max(26),
   rows: z.number().int().positive(),
   notation: CoordinateNotationSchema.default('letter-number'),
+  labelFont: z
+    .string()
+    .default("'Source Sans 3', sans-serif")
+    .describe('CSS font-family for hex ID labels'),
 });
 // Use z.output to get the type after defaults are applied
 export type GridConfig = z.output<typeof GridConfigSchema>;
