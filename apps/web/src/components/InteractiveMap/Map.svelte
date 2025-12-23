@@ -316,7 +316,7 @@
 </div>
 
 {#if hexes}
-  <DetailPanel {dungeons} {hexes} {mapPaths} {role} />
+  <DetailPanel {dungeons} {hexes} {mapPaths} {notation} {role} />
 {/if}
 
 <div class="main-controls">
