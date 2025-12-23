@@ -10,14 +10,12 @@ import {
   DungeonDataSchema,
   EncounterCategoryTableSchema,
   EncounterSchema,
-  type FactionData,
   FactionSchema,
   HexSchema,
   type LootPackData,
   LootPackSchema,
   MapPathSchema,
   NobleSchema,
-  type NpcData,
   NpcSchema,
   type PlayerData,
   PlayerSchema,
@@ -49,13 +47,17 @@ import yaml from 'yaml';
 const DATA_DIR = getDataPath();
 
 /**
- * Check if a collection directory exists on the filesystem.
+ * Check if a collection directory exists and has content on the filesystem.
  * Used to conditionally register collections for open-source users
  * who may not have all data directories.
  */
-function collectionExists(dir: string): boolean {
-  const fullPath = path.resolve(process.cwd(), 'src', dir);
-  return fs.existsSync(fullPath);
+function collectionHasContent(dir: string): boolean {
+  if (!fs.existsSync(dir)) {
+    return false;
+  }
+  const files = fs.readdirSync(dir);
+  // Directory has content if it contains files other than .gitkeep
+  return files.some((file) => file !== '.gitkeep');
 }
 
 const DIRS = {
@@ -115,8 +117,11 @@ export function trailsMapToEntries(input: unknown): TrailEntry[] {
   );
 }
 
+// Conditional collection: empty loader if directory doesn't have content
 const articles = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.ARTICLES }),
+  loader: collectionHasContent(DIRS.ARTICLES)
+    ? glob({ pattern: '**/*.{md,mdx}', base: DIRS.ARTICLES })
+    : () => [],
   schema: z.object({
     id: z.string(), // Unique identifier for the article
     secure: z.boolean().optional(),
@@ -128,9 +133,9 @@ const articles = defineCollection({
   }),
 });
 
-// Conditional collection: empty loader if directory doesn't exist
+// Conditional collection: empty loader if directory doesn't have content
 const bounties = defineCollection({
-  loader: collectionExists(DIRS.BOUNTIES)
+  loader: collectionHasContent(DIRS.BOUNTIES)
     ? getDirectoryYamlLoader<BountyData>(DIRS.BOUNTIES)
     : () => [],
   schema: BountySchema,
@@ -141,8 +146,11 @@ const characters = defineCollection({
   schema: CharacterSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const classes = defineCollection({
-  loader: getDirectoryYamlLoader<ClassData>(DIRS.CLASSES),
+  loader: collectionHasContent(DIRS.CLASSES)
+    ? getDirectoryYamlLoader<ClassData>(DIRS.CLASSES)
+    : () => [],
   schema: ClassSchema,
 });
 
@@ -151,8 +159,11 @@ const clues = defineCollection({
   schema: ClueSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const compositeArticles = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.COMPOSITE_ARTICLES }),
+  loader: collectionHasContent(DIRS.COMPOSITE_ARTICLES)
+    ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.COMPOSITE_ARTICLES })
+    : () => [],
   schema: CompositeArticleSchema,
 });
 
@@ -161,8 +172,11 @@ const dungeons = defineCollection({
   schema: DungeonDataSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const encounterCategoryTables = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.ENCOUNTER_CATEGORY_TABLES }),
+  loader: collectionHasContent(DIRS.ENCOUNTER_CATEGORY_TABLES)
+    ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.ENCOUNTER_CATEGORY_TABLES })
+    : () => [],
   schema: EncounterCategoryTableSchema,
 });
 
@@ -181,18 +195,27 @@ const hexes = defineCollection({
   schema: HexSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const lootPacks = defineCollection({
-  loader: getDirectoryYamlLoader<LootPackData>(DIRS.LOOT_PACKS),
+  loader: collectionHasContent(DIRS.LOOT_PACKS)
+    ? getDirectoryYamlLoader<LootPackData>(DIRS.LOOT_PACKS)
+    : () => [],
   schema: LootPackSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const mapPaths = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.MAP_PATHS }),
+  loader: collectionHasContent(DIRS.MAP_PATHS)
+    ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.MAP_PATHS })
+    : () => [],
   schema: MapPathSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const nobles = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.NOBLES }),
+  loader: collectionHasContent(DIRS.NOBLES)
+    ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.NOBLES })
+    : () => [],
   schema: NobleSchema,
 });
 
@@ -206,28 +229,43 @@ const players = defineCollection({
   schema: PlayerSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const plotlines = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.PLOTLINES }),
+  loader: collectionHasContent(DIRS.PLOTLINES)
+    ? glob({ pattern: '**/*.{md,mdx}', base: DIRS.PLOTLINES })
+    : () => [],
   schema: PlotlineSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const pointcrawls = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.POINTCRAWLS }),
+  loader: collectionHasContent(DIRS.POINTCRAWLS)
+    ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.POINTCRAWLS })
+    : () => [],
   schema: PointcrawlSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const pointcrawlEdges = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.POINTCRAWL_EDGES }),
+  loader: collectionHasContent(DIRS.POINTCRAWL_EDGES)
+    ? glob({ pattern: '**/*.{md,mdx}', base: DIRS.POINTCRAWL_EDGES })
+    : () => [],
   schema: PointcrawlEdgeSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const pointcrawlNodes = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: DIRS.POINTCRAWL_NODES }),
+  loader: collectionHasContent(DIRS.POINTCRAWL_NODES)
+    ? glob({ pattern: '**/*.{md,mdx}', base: DIRS.POINTCRAWL_NODES })
+    : () => [],
   schema: PointcrawlNodeSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const politicalFactions = defineCollection({
-  loader: glob({ pattern: '**/*.{yaml,yml}', base: DIRS.POLITICAL_FACTIONS }),
+  loader: collectionHasContent(DIRS.POLITICAL_FACTIONS)
+    ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.POLITICAL_FACTIONS })
+    : () => [],
   schema: PoliticalFactionSchema,
 });
 
@@ -241,22 +279,22 @@ const roleplayBooks = defineCollection({
   schema: RoleplayBookSchema,
 });
 
-// Conditional collection: empty loader if directory doesn't exist
 const rumors = defineCollection({
-  loader: collectionExists(DIRS.RUMORS)
-    ? getDirectoryYamlLoader<RumorData>(DIRS.RUMORS)
-    : () => [],
+  loader: getDirectoryYamlLoader<RumorData>(DIRS.RUMORS),
   schema: RumorSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const sessions = defineCollection({
-  loader: glob({ pattern: '**/*.yml', base: DIRS.SESSIONS }),
+  loader: collectionHasContent(DIRS.SESSIONS)
+    ? glob({ pattern: '**/*.yml', base: DIRS.SESSIONS })
+    : () => [],
   schema: SessionSchema,
 });
 
-// Conditional collection: empty loader if directory doesn't exist
+// Conditional collection: empty loader if directory doesn't have content
 const spells = defineCollection({
-  loader: collectionExists(DIRS.SPELLS)
+  loader: collectionHasContent(DIRS.SPELLS)
     ? glob({ pattern: '**/*.{yaml,yml}', base: DIRS.SPELLS })
     : () => [],
   schema: SpellSchema,
@@ -267,8 +305,11 @@ const statBlocks = defineCollection({
   schema: StatBlockSchema,
 });
 
+// Conditional collection: empty loader if directory doesn't have content
 const supplements = defineCollection({
-  loader: getDirectoryYamlLoader<SupplementData>(DIRS.SUPPLEMENTS),
+  loader: collectionHasContent(DIRS.SUPPLEMENTS)
+    ? getDirectoryYamlLoader<SupplementData>(DIRS.SUPPLEMENTS)
+    : () => [],
   schema: SupplementSchema,
 });
 
