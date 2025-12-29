@@ -232,6 +232,8 @@
     --sidebar-text: white;
     --sidebar-text-muted: #ccc;
     --sidebar-hover: rgba(255, 255, 255, 0.05);
+    --sidebar-scrollbar-thumb: rgba(255, 255, 255, 0.3);
+    --sidebar-scrollbar-thumb-hover: rgba(255, 255, 255, 0.5);
 
     position: absolute;
     top: 0;
@@ -243,8 +245,37 @@
     color: var(--sidebar-text);
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
-    padding: 1rem;
     z-index: 1001;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar nav {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--sidebar-scrollbar-thumb) transparent;
+  }
+
+  /* WebKit (Chrome, Safari, Edge) */
+  .sidebar nav::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .sidebar nav::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .sidebar nav::-webkit-scrollbar-thumb {
+    background: var(--sidebar-scrollbar-thumb);
+    border-radius: 4px;
+  }
+
+  .sidebar nav::-webkit-scrollbar-thumb:hover {
+    background: var(--sidebar-scrollbar-thumb-hover);
   }
 
   /* Light mode - explicit theme selection */
@@ -253,6 +284,8 @@
     --sidebar-text: #222;
     --sidebar-text-muted: #555;
     --sidebar-hover: rgba(0, 0, 0, 0.05);
+    --sidebar-scrollbar-thumb: rgba(0, 0, 0, 0.3);
+    --sidebar-scrollbar-thumb-hover: rgba(0, 0, 0, 0.5);
   }
 
   /* Light mode - system preference when no explicit theme */
@@ -262,6 +295,8 @@
       --sidebar-text: #222;
       --sidebar-text-muted: #555;
       --sidebar-hover: rgba(0, 0, 0, 0.05);
+      --sidebar-scrollbar-thumb: rgba(0, 0, 0, 0.3);
+      --sidebar-scrollbar-thumb-hover: rgba(0, 0, 0, 0.5);
     }
   }
 
@@ -287,6 +322,6 @@
   }
 
   .sidebar-content {
-    padding-top: 1.5rem;
+    padding: 2.5rem 1rem 1rem 1rem;
   }
 </style>
