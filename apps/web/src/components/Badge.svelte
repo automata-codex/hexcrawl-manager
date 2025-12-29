@@ -36,7 +36,9 @@
     display: inline-block;
     padding: 0.125rem 0.5rem;
     border-radius: 3px;
+    font-family: 'Source Sans 3', sans-serif;
     font-size: 0.875rem;
+    font-weight: normal;
     line-height: 1.4;
   }
 
