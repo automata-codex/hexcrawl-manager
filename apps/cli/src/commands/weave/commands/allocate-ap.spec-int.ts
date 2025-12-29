@@ -83,6 +83,7 @@ describe('Command `weave allocate ap`', () => {
           [
             'allocate',
             'ap',
+            'absence',
             '--character',
             'alistar',
             '--amount',

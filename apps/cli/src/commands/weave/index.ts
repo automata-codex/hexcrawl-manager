@@ -1,6 +1,9 @@
 import { Command, Option } from 'commander';
 
-import { allocateFromCli as allocateHandler } from './commands/allocate';
+import {
+  allocateAbsenceFromCli as allocateAbsenceHandler,
+  allocateMilestoneFromCli as allocateMilestoneHandler,
+} from './commands/allocate';
 import { apply as applyHandler } from './commands/apply';
 import { plan as planHandler } from './commands/plan';
 import { status as statusHandler } from './commands/status';
@@ -14,10 +17,14 @@ const allocateCommand = new Command('allocate').description(
   'Allocate Advancement Points (AP) to a character',
 );
 
-// `weave allocate ap` -> allocate AP to one or more characters
-const allocateAp = new Command('ap')
-  .description('Allocate AP to one or more characters')
-  // Define options purely for help/UX. We won’t use these parsed values.
+// `weave allocate ap` -> parent with subcommands
+const allocateAp = new Command('ap').description(
+  'Allocate AP to one or more characters',
+);
+
+// `weave allocate ap absence` -> allocate absence credits
+const allocateApAbsence = new Command('absence')
+  .description('Spend unclaimed absence credits')
   .addOption(
     new Option(
       '--character <id>',
@@ -42,10 +49,10 @@ const allocateAp = new Command('ap')
     `
 Examples:
   # Spend N credits for a Tier-1 character, mapping credits to pillars explicitly
-  weave allocate ap --character <id> --amount 3 --combat 1 --exploration 2 --note "Missed 0021"
+  weave allocate ap absence --character <id> --amount 3 --combat 1 --exploration 2 --note "Missed 0021"
 
   # Multiple characters (repeat flags per character)
-  weave allocate ap \\
+  weave allocate ap absence \\
     --character <id1> --amount 2 --social 2 \\
     --character <id2> --amount 1 --exploration 1
 
@@ -55,22 +62,68 @@ Notes:
   • --dry-run applies to all blocks.
 `,
   )
-  // Allow repeats; we’ll parse from raw argv downstream.
   .allowUnknownOption(true)
   .action(async (_opts, command) => {
     const opts = command.optsWithGlobals();
     const raw = process.argv;
     const tokens = sliceAfterThisCommand(raw, command);
 
-    // If nothing after 'ap', show help; otherwise let the orchestrator validate.
     if (tokens.length === 0) {
       command.help({ error: false });
       return;
     }
 
-    await allocateHandler(raw, !!opts.dryRun);
+    await allocateAbsenceHandler(raw, !!opts.dryRun);
   });
 
+// `weave allocate ap milestone` -> grant milestone AP
+const allocateApMilestone = new Command('milestone')
+  .description('Grant milestone AP (always 3 total)')
+  .addOption(
+    new Option(
+      '--character <id>',
+      'Character ID (starts a new allocation block)',
+    ),
+  )
+  .addOption(new Option('--combat <n>', 'Combat pillar credits'))
+  .addOption(new Option('--exploration <n>', 'Exploration pillar credits'))
+  .addOption(new Option('--social <n>', 'Social pillar credits'))
+  .option('--note <text>', 'Milestone description')
+  .option('--dry-run', 'Show what would be allocated without making changes')
+  .addHelpText(
+    'after',
+    `
+Examples:
+  # Grant milestone AP to a character
+  weave allocate ap milestone --character <id> --combat 1 --exploration 1 --social 1 --note "Winter survival"
+
+  # Multiple characters (repeat flags per character)
+  weave allocate ap milestone \\
+    --character <id1> --combat 1 --exploration 2 --social 0 --note "Winter" \\
+    --character <id2> --combat 0 --exploration 1 --social 2 --note "Winter"
+
+Notes:
+  • Each --character begins a new allocation block.
+  • Pillar splits must sum to 3 (the fixed milestone amount).
+  • --dry-run applies to all blocks.
+`,
+  )
+  .allowUnknownOption(true)
+  .action(async (_opts, command) => {
+    const opts = command.optsWithGlobals();
+    const raw = process.argv;
+    const tokens = sliceAfterThisCommand(raw, command);
+
+    if (tokens.length === 0) {
+      command.help({ error: false });
+      return;
+    }
+
+    await allocateMilestoneHandler(raw, !!opts.dryRun);
+  });
+
+allocateAp.addCommand(allocateApAbsence);
+allocateAp.addCommand(allocateApMilestone);
 allocateCommand.addCommand(allocateAp);
 weaveCommand.addCommand(allocateCommand);
 
