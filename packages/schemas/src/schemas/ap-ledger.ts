@@ -27,7 +27,20 @@ const AbsenceSpendEntrySchema = z.object({
   appliedAt: z.string().datetime(),
   characterId: z.string(),
   notes: z.string().optional(),
-  sessionId: SessionIdSchema, // when allocate happens outside a session, you’ll attach it to "most recent completed" and set this
+  sessionId: SessionIdSchema, // when allocate happens outside a session, you'll attach it to "most recent completed" and set this
+});
+
+const MilestoneSpendEntrySchema = z.object({
+  kind: z.literal('milestone_spend'),
+  advancementPoints: z.object({
+    combat: ApSchema,
+    exploration: ApSchema,
+    social: ApSchema,
+  }),
+  appliedAt: z.string().datetime(),
+  characterId: z.string(),
+  notes: z.string().optional(),
+  sessionId: SessionIdSchema, // ties to "most recent completed" session
 });
 
 const SessionApEntrySchema = z.object({
@@ -45,6 +58,7 @@ const SessionApEntrySchema = z.object({
 
 export const ApLedgerEntrySchema = z.discriminatedUnion('kind', [
   AbsenceSpendEntrySchema,
+  MilestoneSpendEntrySchema,
   SessionApEntrySchema,
 ]);
 

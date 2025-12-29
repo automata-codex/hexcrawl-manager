@@ -19,7 +19,7 @@ export function aggregateApByCharacter(
     if (!result[characterId]) {
       result[characterId] = { combat: 0, exploration: 0, social: 0 };
     }
-    if (entry.kind === 'session_ap' || entry.kind === 'absence_spend') {
+    if (entry.kind === 'session_ap' || entry.kind === 'absence_spend' || entry.kind === 'milestone_spend') {
       result[characterId].combat += entry.advancementPoints.combat?.delta ?? 0;
       result[characterId].exploration +=
         entry.advancementPoints.exploration?.delta ?? 0;
