@@ -79,8 +79,9 @@
     font-weight: 600;
     line-height: 16px;
     text-align: center;
-    color: white;
+    color: black;
     background-color: #f59e0b;
     border-radius: 8px;
+    font-family: 'Source Sans 3', sans-serif;
   }
 </style>
