@@ -71,7 +71,7 @@
     <div>
       <span class="inline-heading keep-with-next">Hidden Sites:</span>
     </div>
-    <ul>
+    <ul class="hidden-sites-list">
       {#each hex.renderedHiddenSites as site (site.description)}
         {@const siteClues = getSiteClues(site)}
         <li>
@@ -102,3 +102,9 @@
     </ul>
   {/if}
 {/if}
+
+<style>
+  .hidden-sites-list {
+    margin-bottom: 0;
+  }
+</style>

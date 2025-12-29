@@ -71,7 +71,7 @@
   <Neighbors {hex} {mapConfig} />
 </div>
 {#if hex.topography}
-  <p class="hanging-indent">
+  <p class="hanging-indent" style="margin-bottom: 0;">
     <span class="inline-heading">Topography:</span>
     {' '}
     {hex.topography}
