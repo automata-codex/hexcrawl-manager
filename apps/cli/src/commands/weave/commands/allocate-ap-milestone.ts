@@ -5,60 +5,45 @@ import {
 } from '@achm/data';
 import { ApLedgerEntry, makeSessionId } from '@achm/schemas';
 
+import { CliValidationError, IoApplyError } from '../lib/errors';
 import {
-  CliValidationError,
-  InsufficientCreditsError,
-  IoApplyError,
-} from '../lib/errors';
-import {
-  assertPositiveInt,
+  assertNonNegativeInt,
   ensureCharacterExists,
 } from '../lib/validate';
 
-import { statusAp } from './status-ap';
+import type { AllocateMilestoneArgs } from './allocate';
 
-import type { AllocateArgs } from './allocate';
-
-export type AllocateApResult = {
+export type AllocateMilestoneResult = {
   characterId: string;
-  amount: number;
+  amount: number; // always 3
   pillars: { combat?: number; exploration?: number; social?: number };
   sessionIdSpentAt: string;
-  availableBefore: number;
-  availableAfter: number;
   note?: string;
   createdAt: string;
   dryRun: boolean;
 };
 
-async function getAvailableAbsenceCredits(
-  characterId: string,
-): Promise<number> {
-  const { absenceAwards } = await statusAp();
-  const row = absenceAwards.find((r) => r.characterId === characterId);
-  return row?.unclaimed ?? 0;
-}
+export const MILESTONE_AP_AMOUNT = 3;
 
-// Helper: Build AP ledger entry
-function buildAbsenceSpendEntry(
-  args: AllocateArgs,
+function buildMilestoneSpendEntry(
+  args: AllocateMilestoneArgs,
   latestSessionNum: number,
   createdAt: string,
 ): ApLedgerEntry {
   return {
-    kind: 'absence_spend',
+    kind: 'milestone_spend',
     advancementPoints: {
       combat: {
         delta: args.pillarSplits?.combat ?? 0,
-        reason: 'absence_spend',
+        reason: 'normal',
       },
       exploration: {
         delta: args.pillarSplits?.exploration ?? 0,
-        reason: 'absence_spend',
+        reason: 'normal',
       },
       social: {
         delta: args.pillarSplits?.social ?? 0,
-        reason: 'absence_spend',
+        reason: 'normal',
       },
     },
     appliedAt: createdAt,
@@ -68,14 +53,12 @@ function buildAbsenceSpendEntry(
   };
 }
 
-// Helper: Validate pillar splits
-function validatePillarSplits(
-  amount: number,
+function validateMilestonePillarSplits(
   splits?: Partial<Record<'combat' | 'exploration' | 'social', number>>,
 ) {
   if (!splits) {
     throw new CliValidationError(
-      'Pillar splits are required: --combat/--exploration/--social must sum to --amount.',
+      `Pillar splits are required: --combat/--exploration/--social must sum to ${MILESTONE_AP_AMOUNT}.`,
     );
   }
   const combat = splits.combat ?? 0;
@@ -87,32 +70,26 @@ function validatePillarSplits(
     ['--exploration', exploration],
     ['--social', social],
   ] as const) {
-    if (!Number.isInteger(v) || v < 0) {
-      throw new CliValidationError(
-        `Expected a non-negative integer for ${flag}.`,
-      );
-    }
+    assertNonNegativeInt(flag, v);
   }
 
   const sum = combat + exploration + social;
-  if (sum !== amount) {
+  if (sum !== MILESTONE_AP_AMOUNT) {
     throw new CliValidationError(
-      `Pillar splits must sum to amount (${amount}); got ${sum}.`,
+      `Pillar splits must sum to ${MILESTONE_AP_AMOUNT}; got ${sum}.`,
     );
   }
 }
 
-export async function allocateAp(
-  args: AllocateArgs,
-): Promise<AllocateApResult> {
-  // Step 1: Parse and validate input
-  const { characterId, amount, pillarSplits, note, dryRun = false } = args;
+export async function allocateMilestone(
+  args: AllocateMilestoneArgs,
+): Promise<AllocateMilestoneResult> {
+  const { characterId, pillarSplits, note, dryRun = false } = args;
 
   if (!characterId) {
     throw new CliValidationError('characterId is required.');
   }
-  assertPositiveInt('amount', amount);
-  validatePillarSplits(amount, pillarSplits);
+  validateMilestonePillarSplits(pillarSplits);
   await ensureCharacterExists(characterId);
 
   const latestSessionNum = findLastCompletedSessionSeq();
@@ -122,31 +99,25 @@ export async function allocateAp(
     );
   }
 
-  // Step 2: Ensure the character actually has enough unspent Tier-1 credits
-  const availableBefore = await getAvailableAbsenceCredits(characterId);
-  if (availableBefore < amount) {
-    throw new InsufficientCreditsError(characterId, availableBefore, amount);
-  }
+  // No credit check for milestones - GM grants them directly
 
-  // Step 3: Prepare AP allocation data
   const createdAt = new Date().toISOString();
-  const entry = buildAbsenceSpendEntry(args, latestSessionNum, createdAt);
+  const entry = buildMilestoneSpendEntry(args, latestSessionNum, createdAt);
 
-  // Step 4: Apply AP allocation (unless dryRun)
   if (!dryRun) {
     try {
       appendApEntry(REPO_PATHS.AP_LEDGER(), entry);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       throw new IoApplyError(
-        `Failed to append absence_spend to AP ledger: ${msg}`,
+        `Failed to append milestone_spend to AP ledger: ${msg}`,
       );
     }
   }
 
   return {
     characterId,
-    amount,
+    amount: MILESTONE_AP_AMOUNT,
     pillars: {
       ...(pillarSplits?.combat != null ? { combat: pillarSplits.combat } : {}),
       ...(pillarSplits?.exploration != null
@@ -155,10 +126,8 @@ export async function allocateAp(
       ...(pillarSplits?.social != null ? { social: pillarSplits.social } : {}),
     },
     sessionIdSpentAt: makeSessionId(latestSessionNum),
-    availableBefore,
-    availableAfter: availableBefore - amount,
     note,
     createdAt,
     dryRun,
-  } satisfies AllocateApResult;
+  };
 }
