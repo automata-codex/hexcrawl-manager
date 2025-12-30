@@ -1,0 +1,46 @@
+---
+import { renderBulletMarkdown } from '../../utils/markdown';
+
+import type { StatBlockData } from '@achm/schemas';
+
+interface Props {
+  intro: StatBlockData['lair_actions_intro'];
+  lairActions: StatBlockData['lair_actions'];
+}
+
+const { intro, lairActions } = Astro.props;
+if (!lairActions || lairActions.length === 0) {
+  return null;
+}
+---
+
+<style>
+  h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    page-break-after: avoid;
+    color: var(--bulma-strong-color);
+  }
+
+  .intro {
+    margin-bottom: 0.5rem;
+  }
+
+  .lair-action-name {
+    font-style: italic;
+    font-weight: bold;
+    color: var(--bulma-strong-color);
+  }
+</style>
+<h3>Lair Actions</h3>
+{intro && <div class="intro">{intro}</div>}
+{
+  lairActions.map((action) => (
+    <div>
+      <span class="lair-action-name">{action.name}.</span>{' '}
+      <span class="lair-action-description">
+        <Fragment set:html={renderBulletMarkdown(action.desc)} />
+      </span>
+    </div>
+  ))
+}
