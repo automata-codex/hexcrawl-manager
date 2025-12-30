@@ -19,6 +19,6 @@
 <div class="data-bar-cell"><span class="inline-heading">Neighbors:</span></div>
 {#each neighbors as neighbor (neighbor)}
   <div class="data-bar-cell">
-    <a href={getHexPath(neighbor)}>{neighbor}</a>
+    <a href={getHexPath(neighbor)}>{neighbor.toLocaleUpperCase()}</a>
   </div>
 {/each}
