@@ -190,6 +190,16 @@ export const StatBlockSchema = z.object({
     .optional(),
   legendary_desc: z.string().optional(),
   legendary_actions: z.array(z.string()).nullable().optional(),
+  lair_actions_intro: z.string().optional(),
+  lair_actions: z
+    .array(
+      z.object({
+        name: z.string(),
+        desc: z.string(),
+      }),
+    )
+    .nullable()
+    .optional(),
   special_abilities: z
     .array(
       z.object({
