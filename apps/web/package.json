@@ -1,6 +1,6 @@
 {
   "name": "@achm/web",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "private": true,
   "scripts": {
     "astro": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} astro",
