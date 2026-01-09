@@ -1,5 +1,90 @@
 # @skyreach/core
 
+## 4.0.0
+
+### Major Changes
+
+- 8726d51: Flexible map configuration
+
+  This release makes the hex map system flexible and data-driven rather than hardcoded to specific dimensions.
+
+  **Breaking Changes:**
+  - `regionId` removed from hex schema - regions now own hex membership via `region.hexes[]`
+  - `region.hexes` is now required (was optional)
+  - Coordinate functions (`parseHexId`, `hexSort`, `getHexNeighbors`, `parseTrailId`, etc.) now require `notation` parameter - no more hardcoded defaults
+
+  **New Features:**
+  - Centralized coordinate utilities in `@achm/core` with support for `letter-number` and `numeric` notation
+  - New `map.yaml` configuration file defines grid dimensions, notation, and out-of-bounds hexes
+  - New `/api/map-config.json` endpoint exposes map configuration to frontend
+  - Regions define default `terrain` and `biome` for their hexes
+  - Hex files are optional - hexes without files inherit region defaults
+  - Prebuild validation catches configuration errors (duplicate assignments, invalid coordinates)
+  - Interactive map calculates viewBox from actual hex data
+  - New "Fit to View" button on interactive map
+
+  **Migration:**
+  - Hex files reorganized from `hexes/region-X/` to `hexes/col-X/` structure
+  - Region files now include `hexes` array listing member hex IDs
+  - `regionId` field removed from hex files (derived from region membership)
+
+### Minor Changes
+
+- 0c99f12: Rename package namespace
+- 8ea782e: ### Map and Region Improvements
+  - **Configurable map label font**: Added `labelFont` option to map grid config (defaults to Source Sans 3)
+  - **Hex ID display**: Map labels now correctly respect the coordinate notation setting (numeric vs letter-number)
+  - **Region ID flexibility**: Support both numbered (`region-1`) and named (`skyreach-highlands`) region IDs
+    - Numbered regions display as "Region 1: Name"
+    - Named regions display as "Region: Name"
+    - New functions: `getRegionShortTitle()`, `getRegionFullTitle()`, `getRegionNumber()`
+    - Sorting: numbered regions first (numerically), then named regions (alphabetically, ignoring articles)
+  - **Map-aware neighbors**: `getHexNeighbors()` now accepts optional `MapConfig` to filter by grid bounds and out-of-bounds list
+
+  ### Style Fixes
+  - Fixed paragraph spacing in map detail panel, region pages, NPC pages, and rumor details
+  - Fixed stat block component spacing and colors
+  - Disabled `svelte/no-useless-mustaches` ESLint rule
+
+### Patch Changes
+
+- ec425a4: Add keyed encounters display and improve hex catalog search
+
+  **Keyed Encounters:**
+  - Display keyed encounters on hex detail pages with encounter name, trigger type, and notes
+  - Track keyed encounters in encounter usage map so they no longer appear as "unused"
+
+  **Hex Catalog Improvements:**
+  - Support numeric coordinate notation (e.g., "0303") in addition to letter-number (e.g., "F12")
+  - Enable prefix matching for hex ID search (e.g., "04" matches 0401, 0402, etc.)
+  - Simplify search results to show data bar and searchable fields only
+  - Fix notes search to handle both string and object note formats
+
+  **Rumors Page:**
+  - Convert rumors index to a simple dynamic list instead of hardcoded random table
+  - Remove redundant "all rumors" page
+
+  **Core Package:**
+  - Export `LETTER_NUMBER_PREFIX_RE` and `NUMERIC_PREFIX_RE` patterns for hex ID prefix matching
+
+- 0f0d0f7: **BREAKING CHANGE:** Refactor repo after code/data split
+  - Add file extensions to imports
+  - Add placeholder data
+  - Add license
+  - **BREAKING CHANGE:** Implement configurable data directory
+  - Update tests
+
+- Updated dependencies [52b773f]
+- Updated dependencies [3d0d8ba]
+- Updated dependencies [3b23d23]
+- Updated dependencies [8726d51]
+- Updated dependencies [0c99f12]
+- Updated dependencies [0f0d0f7]
+- Updated dependencies [87fad0b]
+- Updated dependencies [2252ac4]
+- Updated dependencies [8ea782e]
+  - @achm/schemas@5.0.0
+
 ## 3.1.0
 
 ### Minor Changes
