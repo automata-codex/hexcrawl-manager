@@ -1,5 +1,75 @@
 # @skyreach/data
 
+## 4.0.0
+
+### Major Changes
+
+- 0f0d0f7: **BREAKING CHANGE:** Refactor repo after code/data split
+  - Add file extensions to imports
+  - Add placeholder data
+  - Add license
+  - **BREAKING CHANGE:** Implement configurable data directory
+  - Update tests
+
+### Minor Changes
+
+- 8726d51: Flexible map configuration
+
+  This release makes the hex map system flexible and data-driven rather than hardcoded to specific dimensions.
+
+  **Breaking Changes:**
+  - `regionId` removed from hex schema - regions now own hex membership via `region.hexes[]`
+  - `region.hexes` is now required (was optional)
+  - Coordinate functions (`parseHexId`, `hexSort`, `getHexNeighbors`, `parseTrailId`, etc.) now require `notation` parameter - no more hardcoded defaults
+
+  **New Features:**
+  - Centralized coordinate utilities in `@achm/core` with support for `letter-number` and `numeric` notation
+  - New `map.yaml` configuration file defines grid dimensions, notation, and out-of-bounds hexes
+  - New `/api/map-config.json` endpoint exposes map configuration to frontend
+  - Regions define default `terrain` and `biome` for their hexes
+  - Hex files are optional - hexes without files inherit region defaults
+  - Prebuild validation catches configuration errors (duplicate assignments, invalid coordinates)
+  - Interactive map calculates viewBox from actual hex data
+  - New "Fit to View" button on interactive map
+
+  **Migration:**
+  - Hex files reorganized from `hexes/region-X/` to `hexes/col-X/` structure
+  - Region files now include `hexes` array listing member hex IDs
+  - `regionId` field removed from hex files (derived from region membership)
+
+- 0c99f12: Rename package namespace
+
+### Patch Changes
+
+- 52b773f: Add milestone AP allocation support and fix flaky integration tests
+
+  **Milestone AP Feature:**
+  - Add `ap milestone "<note>"` command in scribe to create a todo for milestone AP allocation
+  - Refactor `weave allocate ap` to use subcommands: `absence` (existing) and `milestone` (new)
+  - Add `milestone_spend` entry type to the AP ledger schema
+  - Milestone allocations always grant 3 AP total, split across pillars by the user
+
+  **Breaking Change:**
+  - Old syntax `weave allocate ap --character ...` no longer works
+  - Must use `weave allocate ap absence --character ...` instead
+
+  **CLI Commands:**
+
+  ```bash
+  # Scribe - during session
+  ap milestone "Survived the Winter of 1512"
+
+  # Weave - allocate absence credits (existing, renamed)
+  weave allocate ap absence --character alice --amount 2 --combat 1 --exploration 1
+
+  # Weave - allocate milestone AP (new)
+  weave allocate ap milestone --character alice --combat 1 --exploration 1 --social 1 --note "Winter survival"
+  ```
+
+  **Test Infrastructure:**
+  - Fix flaky integration tests by configuring vitest to use forks pool for integration tests
+  - Add retry mechanism to `runWeave` and `runScribe` test helpers for transient SIGSEGV failures
+
 ## 3.3.0
 
 ### Minor Changes
