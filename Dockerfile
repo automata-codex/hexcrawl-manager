@@ -13,7 +13,7 @@ ARG CLERK_SECRET_KEY
 ENV PUBLIC_CLERK_PUBLISHABLE_KEY=${PUBLIC_CLERK_PUBLISHABLE_KEY}
 ENV CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
 
-# Set repository root for @skyreach/data package
+# Set repository root for @achm/data package
 ENV REPO_ROOT=/app
 
 # Install build dependencies
@@ -37,14 +37,14 @@ RUN npm ci
 COPY . .
 
 # Build packages and web app
-RUN npm run build --workspace=@skyreach/web
+RUN npm run build --workspace=@achm/web
 
 # =============================================================================
 # Production Stage - Minimal runtime image
 # =============================================================================
 FROM node:22-alpine
 
-# Set repository root for @skyreach/data package
+# Set repository root for @achm/data package
 ENV REPO_ROOT=/app
 
 WORKDIR /app
