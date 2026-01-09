@@ -1,5 +1,11 @@
 # @skyreach/web
 
+## 4.0.1
+
+### Patch Changes
+
+- c3181d2: Fix package name in Dockerfile
+
 ## 4.0.0
 
 ### Major Changes
