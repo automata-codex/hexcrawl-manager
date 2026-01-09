@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-# Prebuild script for @skyreach/web
+# Prebuild script for @achm/web
 # Runs all validation and generation steps before building the Astro app.
 
 # Set data path with fallback to local data directory
