@@ -1,0 +1,25 @@
+# Minimal example encounter table
+mainTable:
+  - category: wildlife
+    label: Wildlife
+    weight: 10
+  - category: travelers
+    label: Travelers
+    weight: 6
+  - category: hazards
+    label: Hazards
+    weight: 4
+
+categoryTables:
+  wildlife:
+    "1":
+      - encounterId: wolf-pack
+        weight: 20
+  travelers:
+    "1":
+      - encounterId: goblin-patrol
+        weight: 20
+  hazards:
+    "1":
+      - encounterId: goblin-ambush
+        weight: 20

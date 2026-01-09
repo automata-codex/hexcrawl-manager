@@ -1,10 +1,10 @@
 {
-  "name": "@skyreach/cli",
-  "version": "2.7.0",
+  "name": "@achm/cli",
+  "version": "2.8.0",
   "private": true,
   "scripts": {
     "check": "tsc --noEmit",
-    "start": "tsx src/skyreach.ts",
+    "start": "tsx src/hexcrawl.ts",
     "test": "vitest run --dir src --mode unit",
     "test:int": "vitest run --dir src --mode int",
     "test:scribe": "vitest run --dir src/commands/scribe --mode unit",
@@ -22,11 +22,11 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.11.0",
-    "@skyreach/cli-kit": "*",
-    "@skyreach/core": "*",
-    "@skyreach/data": "*",
-    "@skyreach/schemas": "*",
-    "@skyreach/test-helpers": "*",
+    "@achm/cli-kit": "*",
+    "@achm/core": "*",
+    "@achm/data": "*",
+    "@achm/schemas": "*",
+    "@achm/test-helpers": "*",
     "commander": "^13.1.0",
     "lodash-es": "^4.17.21"
   }

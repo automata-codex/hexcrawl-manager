@@ -8,7 +8,7 @@ import type {
   PointcrawlNodeData,
   RegionData,
   UsageReference,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 /**
  * A reference to where an encounter is used.
@@ -160,6 +160,13 @@ function extractEncounterIdsFromHex(
       if (site.linkType === 'encounter' && site.linkId) {
         encounterIds.add(site.linkId);
       }
+    }
+  }
+
+  // Extract from keyed encounters
+  if (hexData.keyedEncounters) {
+    for (const keyed of hexData.keyedEncounters) {
+      encounterIds.add(keyed.encounterId);
     }
   }
 

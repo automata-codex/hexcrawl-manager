@@ -2,7 +2,7 @@ import {
   SessionFingerprintMismatchError,
   SessionReportValidationError,
   formatDate,
-} from '@skyreach/core';
+} from '@achm/core';
 import {
   REPO_PATHS,
   appendApEntries,
@@ -12,7 +12,7 @@ import {
   discoverFinalizedLogsForOrThrow,
   readAllFinalizedLogsForSession,
   writeYamlAtomic,
-} from '@skyreach/data';
+} from '@achm/data';
 import {
   SessionReportSchema,
   assertSessionId,
@@ -21,7 +21,7 @@ import {
   type SessionId,
   type TodoEvent,
   type TodoItem,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';

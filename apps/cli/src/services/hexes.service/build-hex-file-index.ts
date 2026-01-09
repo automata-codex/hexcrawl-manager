@@ -1,5 +1,5 @@
-import { normalizeHexId } from '@skyreach/core';
-import { REPO_PATHS } from '@skyreach/data';
+import { normalizeHexId } from '@achm/core';
+import { loadMapConfig, REPO_PATHS } from '@achm/data';
 import { glob } from 'glob';
 import path from 'node:path';
 
@@ -10,6 +10,7 @@ import path from 'node:path';
 export function buildHexFileIndex(
   root = REPO_PATHS.HEXES(),
 ): Record<string, string> {
+  const notation = loadMapConfig().grid.notation;
   // Support both .yml and .yaml extensions
   const files = [
     ...glob.sync(path.join(root, '**/*.yml')),
@@ -20,7 +21,7 @@ export function buildHexFileIndex(
   for (const file of files) {
     const ext = path.extname(file);
     const hexId = path.basename(file, ext);
-    index[normalizeHexId(hexId)] = path.resolve(file);
+    index[normalizeHexId(hexId, notation)] = path.resolve(file);
   }
 
   return index;

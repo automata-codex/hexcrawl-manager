@@ -1,7 +1,7 @@
-import { error, info } from '@skyreach/cli-kit';
-import { getDaylightCapSegments, getSeasonForDate } from '@skyreach/core';
-import { REPO_PATHS, readAndValidateYaml } from '@skyreach/data';
-import { TrailMapSchema, type Pace } from '@skyreach/schemas';
+import { error, info } from '@achm/cli-kit';
+import { getDaylightCapSegments, getSeasonForDate } from '@achm/core';
+import { loadMapConfig, REPO_PATHS, readAndValidateYaml } from '@achm/data';
+import { TrailMapSchema, type Pace } from '@achm/schemas';
 
 import { readEvents } from '../../../../services/event-log.service';
 import {
@@ -44,8 +44,9 @@ export default function fastTravelPlanAndExecute(
     return;
   }
 
-  // Load trails
+  // Load trails and notation
   const trails = readAndValidateYaml(REPO_PATHS.TRAILS(), TrailMapSchema);
+  const notation = loadMapConfig().grid.notation;
 
   // Load current session state
   const events = readEvents(ctx.file!);
@@ -56,8 +57,8 @@ export default function fastTravelPlanAndExecute(
   }
 
   // Build trail graph and find path
-  const graph = buildTrailGraph(trails);
-  const route = bfsTrailPath(graph, trails, currentHex, dest);
+  const graph = buildTrailGraph(trails, notation);
+  const route = bfsTrailPath(graph, trails, currentHex, dest, notation);
 
   if (!route) {
     error(`No trail route found from ${currentHex} to ${dest}.`);

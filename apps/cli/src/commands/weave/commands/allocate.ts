@@ -1,5 +1,5 @@
-import { error, info, makeExitMapper } from '@skyreach/cli-kit';
-import { Pillar } from '@skyreach/schemas';
+import { error, info, makeExitMapper } from '@achm/cli-kit';
+import { Pillar } from '@achm/schemas';
 
 import {
   CliError,
@@ -9,6 +9,13 @@ import {
 } from '../lib/errors';
 
 import { allocateAp, AllocateApResult } from './allocate-ap';
+import {
+  allocateMilestone,
+  AllocateMilestoneResult,
+  MILESTONE_AP_AMOUNT,
+} from './allocate-ap-milestone';
+
+// ---- Absence allocation types ----
 
 export type AllocateArgs = {
   characterId: string;
@@ -21,6 +28,21 @@ export type AllocateArgs = {
 export type AllocationBlock = {
   characterId: string;
   amount: number;
+  note?: string;
+  pillarSplits?: Partial<Record<Pillar, number>>;
+};
+
+// ---- Milestone allocation types ----
+
+export type AllocateMilestoneArgs = {
+  characterId: string;
+  pillarSplits?: Partial<Record<Pillar, number>>;
+  note?: string;
+  dryRun?: boolean;
+};
+
+export type MilestoneAllocationBlock = {
+  characterId: string;
   note?: string;
   pillarSplits?: Partial<Record<Pillar, number>>;
 };
@@ -313,4 +335,286 @@ export function sliceAfterWeaveAllocateAp(rawArgs: string[]): string[] {
   if (iAp === -1) return [];
   const start = iWeave + 1 + iAllocate + 1 + iAp + 1;
   return rawArgs.slice(start);
+}
+
+/**
+ * Slice raw argv to the tokens after `weave allocate ap <subcommand>`.
+ */
+export function sliceAfterWeaveAllocateApSubcommand(
+  rawArgs: string[],
+  subcommand: 'absence' | 'milestone',
+): string[] {
+  const iWeave = rawArgs.findIndex((t) => t === 'weave');
+  if (iWeave === -1) return [];
+  const iAllocate = rawArgs
+    .slice(iWeave + 1)
+    .findIndex((t) => t === 'allocate');
+  if (iAllocate === -1) return [];
+  const iAp = rawArgs
+    .slice(iWeave + 1 + iAllocate + 1)
+    .findIndex((t) => t === 'ap');
+  if (iAp === -1) return [];
+  const iSub = rawArgs
+    .slice(iWeave + 1 + iAllocate + 1 + iAp + 1)
+    .findIndex((t) => t === subcommand);
+  if (iSub === -1) return [];
+  const start = iWeave + 1 + iAllocate + 1 + iAp + 1 + iSub + 1;
+  return rawArgs.slice(start);
+}
+
+// ---- Milestone allocation CLI ----
+
+/**
+ * End-to-end entry point for milestone allocation from CLI.
+ */
+export async function allocateMilestoneFromCli(
+  rawArgs: string[],
+  dryRun: boolean,
+) {
+  const tokens = sliceAfterWeaveAllocateApSubcommand(rawArgs, 'milestone');
+  const blocks = parseMilestoneTokens(tokens);
+  await allocateMilestoneMany(blocks, dryRun);
+}
+
+/**
+ * Single milestone allocation with error handling.
+ */
+export async function allocateMilestoneOne(
+  args: AllocateMilestoneArgs,
+): Promise<AllocateMilestoneResult> {
+  try {
+    return allocateMilestone(args);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    error(message);
+    process.exit(exitCodeForAllocate(err));
+  }
+}
+
+/**
+ * Execute many milestone allocations. If one throws, exit is handled by `allocateMilestoneOne()`.
+ */
+export async function allocateMilestoneMany(
+  blocks: MilestoneAllocationBlock[],
+  dryRun: boolean,
+) {
+  const results: AllocateMilestoneResult[] = [];
+  for (const blk of blocks) {
+    const result = await allocateMilestoneOne({
+      characterId: blk.characterId,
+      note: blk.note,
+      pillarSplits: blk.pillarSplits,
+      dryRun,
+    });
+    results.push(result);
+  }
+  printMilestoneResults(results);
+}
+
+/**
+ * Parse the CLI tokens that follow `weave allocate ap milestone`
+ * into one or more milestone allocation blocks.
+ *
+ * Rules:
+ * - Each `--character <id>` starts a new block (required per block).
+ * - No `--amount` flag (always 3 for milestones).
+ * - Required splits: `--combat <n> --exploration <n> --social <n>` must sum to 3.
+ * - `--note "<text>"` applies to the current block.
+ * - `--dry-run` is global (handled by Commander).
+ */
+export function parseMilestoneTokens(tokens: string[]): MilestoneAllocationBlock[] {
+  type Mutable = {
+    characterId?: string;
+    note?: string;
+    splits: Partial<Record<Pillar, number>>;
+  };
+
+  const blocks: MilestoneAllocationBlock[] = [];
+  let current: Mutable | null = null;
+
+  const isInt = (n: number) => Number.isInteger(n) && n >= 0;
+
+  const finalize = () => {
+    if (!current) return;
+    if (!current.characterId) {
+      throw new Error('Missing --character for a milestone allocation block.');
+    }
+
+    const { combat = 0, exploration = 0, social = 0 } = current.splits;
+    const provided = [
+      ['--combat', current.splits.combat],
+      ['--exploration', current.splits.exploration],
+      ['--social', current.splits.social],
+      // eslint-disable-next-line no-unused-vars
+    ].filter(([_, v]) => v != null) as Array<[string, number]>;
+
+    // Validate each pillar when provided
+    for (const [flag, v] of provided) {
+      if (Number.isNaN(v) || !isInt(v)) {
+        throw new Error(`Expected a non-negative integer for ${flag}.`);
+      }
+    }
+
+    const sum = combat + exploration + social;
+    if (sum !== MILESTONE_AP_AMOUNT) {
+      throw new Error(
+        `Pillar splits for "${current.characterId}" must sum to ${MILESTONE_AP_AMOUNT}; got ${sum}.`,
+      );
+    }
+
+    const pillarSplits = {
+      ...(current.splits.combat != null ? { combat } : {}),
+      ...(current.splits.exploration != null ? { exploration } : {}),
+      ...(current.splits.social != null ? { social } : {}),
+    } as MilestoneAllocationBlock['pillarSplits'];
+
+    blocks.push({
+      characterId: current.characterId,
+      note: current.note,
+      pillarSplits,
+    });
+
+    current = null;
+  };
+
+  const take = (i: number) => {
+    const v = tokens[i + 1];
+    if (!v || v.startsWith('-')) {
+      throw new Error(`Expected a value after ${tokens[i]}.`);
+    }
+    return v;
+  };
+
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+
+    switch (t) {
+      case '--character': {
+        finalize();
+        current = { splits: {} };
+        current.characterId = take(i);
+        i++;
+        break;
+      }
+
+      case '--combat': {
+        if (!current) current = { splits: {} };
+        const n = Number(take(i));
+        if (!isInt(n)) {
+          throw new Error('Expected a non-negative integer for --combat.');
+        }
+        current.splits.combat = n;
+        i++;
+        break;
+      }
+
+      case '--exploration': {
+        if (!current) current = { splits: {} };
+        const n = Number(take(i));
+        if (!isInt(n)) {
+          throw new Error('Expected a non-negative integer for --exploration.');
+        }
+        current.splits.exploration = n;
+        i++;
+        break;
+      }
+
+      case '--social': {
+        if (!current) current = { splits: {} };
+        const n = Number(take(i));
+        if (!isInt(n)) {
+          throw new Error('Expected a non-negative integer for --social.');
+        }
+        current.splits.social = n;
+        i++;
+        break;
+      }
+
+      case '--note': {
+        if (!current) current = { splits: {} };
+        current.note = take(i);
+        i++;
+        break;
+      }
+
+      // Ignore anything else; Commander handles globals like --dry-run
+      default:
+        break;
+    }
+  }
+
+  // Push last block
+  finalize();
+
+  if (blocks.length === 0) {
+    throw new Error(
+      'No allocations found.\n' +
+        'Usage:\n' +
+        `  weave allocate ap milestone --character <id> --combat <n> --exploration <n> --social <n> [--note "..."]\n` +
+        `  (pillar splits must sum to ${MILESTONE_AP_AMOUNT}; repeat --character/... for multiple characters)`,
+    );
+  }
+
+  return blocks;
+}
+
+// Pretty-printer for milestone results
+function printMilestoneResults(results: AllocateMilestoneResult[]) {
+  if (results.length === 0) return;
+
+  const dryRun = results.some((r) => r.dryRun);
+  const headers = [
+    'characterId',
+    'amount',
+    'pillars (c/e/s)',
+    'sessionIdSpentAt',
+    'note',
+  ];
+
+  const rows = results.map((r) => {
+    const c = r.pillars.combat ?? 0;
+    const e = r.pillars.exploration ?? 0;
+    const s = r.pillars.social ?? 0;
+    return [
+      r.characterId,
+      String(r.amount),
+      `${c}/${e}/${s}`,
+      r.sessionIdSpentAt,
+      r.note ?? '',
+    ];
+  });
+
+  // compute column widths
+  const widths = headers.map((h, idx) =>
+    Math.max(h.length, ...rows.map((row) => (row[idx] ?? '').length)),
+  );
+
+  const pad = (str: string, w: number) => str.padEnd(w, ' ');
+
+  const line = (cols: string[]) =>
+    cols.map((c, i) => pad(c, widths[i])).join('   '); // 3 spaces between cols
+
+  // header
+  info((dryRun ? '[DRY RUN] ' : '') + line(headers));
+  // separator
+  info(line(widths.map((w) => '-'.repeat(w))));
+
+  // rows
+  for (const r of rows) {
+    info(line(r));
+  }
+}
+
+// ---- Absence allocation CLI (renamed for clarity) ----
+
+/**
+ * End-to-end entry point for absence allocation from CLI.
+ */
+export async function allocateAbsenceFromCli(
+  rawArgs: string[],
+  dryRun: boolean,
+) {
+  const tokens = sliceAfterWeaveAllocateApSubcommand(rawArgs, 'absence');
+  const blocks = parseAllocateTokens(tokens);
+  await allocateMany(blocks, dryRun);
 }

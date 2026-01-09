@@ -1,8 +1,11 @@
+import { isOutOfBounds, normalizeHexId } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE, UNKNOWN_CONTENT } from '../../utils/constants.ts';
-import { processHex } from '../../utils/hexes.ts';
+import { createSyntheticHex, processHex, resolveHexWithRegion } from '../../utils/hexes.ts';
+import { buildHexToRegionLookup, getAllRegionHexIds } from '../../utils/regions.ts';
 
 import type { ExtendedHexData } from '../../types.ts';
 import type { APIRoute } from 'astro';
@@ -13,6 +16,7 @@ export type HexPlayerData = Pick<
   | 'name'
   | 'landmark'
   | 'regionId'
+  | 'regionName'
   | 'topography'
   | 'isVisited'
   | 'isExplored'
@@ -26,8 +30,45 @@ export type HexPlayerData = Pick<
 };
 
 export const GET: APIRoute = async ({ locals }) => {
-  const hexEntries = await getCollection('hexes');
-  const fullHexes = hexEntries.map((entry) => entry.data);
+  const [hexEntries, regionEntries] = await Promise.all([
+    getCollection('hexes'),
+    getCollection('regions'),
+  ]);
+
+  // Load map config for out-of-bounds filtering and notation
+  const mapConfig = loadMapConfig();
+  const outOfBoundsList = mapConfig.outOfBounds ?? [];
+  const notation = mapConfig.grid.notation;
+
+  // Build region lookup for resolution
+  const hexToRegion = buildHexToRegionLookup(regionEntries, notation);
+
+  // Get all hex IDs from regions and identify those without individual files
+  const allRegionHexIds = getAllRegionHexIds(regionEntries, notation);
+  const hexFileIds = new Set(
+    hexEntries.map((e) => normalizeHexId(e.data.id, notation)),
+  );
+
+  // Create synthetic hex data for region hexes without files
+  const syntheticHexes = [...allRegionHexIds]
+    .filter((hexId) => !hexFileIds.has(hexId))
+    .map((hexId) => {
+      const region = hexToRegion.get(hexId)!;
+      return createSyntheticHex(hexId, region.data);
+    });
+
+  // Combine file-based and synthetic hexes, filter out-of-bounds, resolve with region data
+  const allHexData = [
+    ...hexEntries.map((e) => e.data),
+    ...syntheticHexes,
+  ];
+
+  const fullHexes = allHexData
+    .filter((hex) => !isOutOfBounds(hex.id, outOfBoundsList, notation))
+    .map((hex) => {
+      const region = hexToRegion.get(normalizeHexId(hex.id, notation));
+      return resolveHexWithRegion(hex, region);
+    });
 
   const role = getCurrentUserRole(locals);
 
@@ -37,7 +78,8 @@ export const GET: APIRoute = async ({ locals }) => {
       const hasHiddenSites = data.renderedHiddenSites.length > 0;
 
       if (role === SECURITY_ROLE.GM) {
-        return { ...data, hasHiddenSites };
+        // GM gets full data - type assertion needed as we return superset of HexPlayerData
+        return { ...data, hasHiddenSites } as HexPlayerData;
       }
 
       // Redact fields for players
@@ -47,6 +89,7 @@ export const GET: APIRoute = async ({ locals }) => {
           name: data.name,
           landmark: data.landmark,
           regionId: data.regionId,
+          regionName: data.regionName,
           terrain: data.terrain,
           biome: data.biome,
           topography: data.topography,
@@ -67,6 +110,7 @@ export const GET: APIRoute = async ({ locals }) => {
             ? data.landmark
             : UNKNOWN_CONTENT,
           regionId: data.regionId,
+          regionName: data.regionName,
           terrain: data.terrain,
           biome: data.biome,
           topography: data.topography,
@@ -85,6 +129,7 @@ export const GET: APIRoute = async ({ locals }) => {
         name: UNKNOWN_CONTENT,
         landmark: UNKNOWN_CONTENT,
         regionId: data.regionId,
+        regionName: data.regionName,
         terrain: UNKNOWN_CONTENT,
         biome: UNKNOWN_CONTENT,
         isVisited: data.isVisited,

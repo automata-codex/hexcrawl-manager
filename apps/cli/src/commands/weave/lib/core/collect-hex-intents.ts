@@ -1,11 +1,15 @@
-import { normalizeHexId } from '@skyreach/core';
+import { normalizeHexId } from '@achm/core';
 
+import type { CoordinateNotation } from '@achm/schemas';
 import type { FinalizedHexEvent, HexIntents } from '../types';
 
-export function collectHexIntents(events: FinalizedHexEvent[]): HexIntents {
+export function collectHexIntents(
+  events: FinalizedHexEvent[],
+  notation: CoordinateNotation,
+): HexIntents {
   const intents: HexIntents = {};
   const ensure = (h: string) => {
-    const hexId = normalizeHexId(h);
+    const hexId = normalizeHexId(h, notation);
     return (intents[hexId] ??= {});
   };
 

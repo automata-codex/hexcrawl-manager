@@ -1,5 +1,5 @@
-import { readAllFinalizedLogsForSession } from '@skyreach/data';
-import { ScribeEvent, SessionId } from '@skyreach/schemas';
+import { readAllFinalizedLogsForSession } from '@achm/data';
+import { ScribeEvent, SessionId } from '@achm/schemas';
 
 export function loadFinalizedEventsForSessions(
   sessionIds: SessionId[],

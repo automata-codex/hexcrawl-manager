@@ -1,0 +1,68 @@
+id: wolf
+name: Wolf
+desc: A cunning pack predator that hunts in coordinated groups. Wolves use their numbers and teamwork to bring down prey larger than themselves.
+size: medium
+type: beast
+subtype: ''
+group: null
+family: null
+family_name: null
+alignment: unaligned
+armor_class: 13
+armor_desc: natural armor
+hit_points: 11
+hit_dice: 2d8+2
+speed:
+  walk: 40
+strength: 12
+dexterity: 15
+constitution: 12
+intelligence: 3
+wisdom: 12
+charisma: 6
+strength_save: null
+dexterity_save: null
+constitution_save: null
+intelligence_save: null
+wisdom_save: null
+charisma_save: null
+perception: 3
+skills:
+  perception: 3
+  stealth: 4
+proficiency_bonus: 2
+damage_vulnerabilities: ''
+damage_resistances: ''
+damage_immunities: ''
+condition_immunities: ''
+senses: passive Perception 13
+languages: ''
+challenge_rating: '1/4'
+cr: 0.25
+actions:
+  - name: Bite
+    action_type: melee weapon attack
+    attack_bonus: 4
+    damage_bonus: 2
+    damage_dice: 2d4
+    damage_type: piercing
+    default_damage: 7
+    reach: 5 ft.
+    desc: If the target is a creature, it must succeed on a DC 11 Strength saving throw or be knocked prone.
+    use_desc: true
+special_abilities:
+  - name: Keen Hearing and Smell
+    desc: The wolf has advantage on Wisdom (Perception) checks that rely on hearing or smell.
+  - name: Pack Tactics
+    desc: The wolf has advantage on attack rolls against a creature if at least one of the wolf's allies is within 5 feet of the creature and the ally isn't incapacitated.
+spell_list: []
+bonus_actions: null
+reactions: null
+legendary_desc: ''
+legendary_actions: null
+page_no: null
+environments:
+  - forest
+  - grassland
+  - hill
+img_main: null

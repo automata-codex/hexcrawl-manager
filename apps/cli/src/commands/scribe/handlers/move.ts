@@ -1,7 +1,7 @@
-import { error, info, usage, warn } from '@skyreach/cli-kit';
-import { getHexNeighbors, isValidHexId, normalizeHexId } from '@skyreach/core';
-import { canonicalTrailId, loadTrails } from '@skyreach/data';
-import { PACES, type Pace } from '@skyreach/schemas';
+import { error, info, usage, warn } from '@achm/cli-kit';
+import { getHexNeighbors, isValidHexId, normalizeHexId } from '@achm/core';
+import { canonicalTrailId, loadMapConfig, loadTrails } from '@achm/data';
+import { PACES, type Pace } from '@achm/schemas';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
 import {
@@ -37,8 +37,10 @@ export default function move(ctx: Context) {
       }
     }
 
-    const to = normalizeHexId(toRaw);
-    if (!isValidHexId(to)) {
+    const mapConfig = loadMapConfig();
+    const notation = mapConfig.grid.notation;
+    const to = normalizeHexId(toRaw, notation);
+    if (!isValidHexId(to, notation)) {
       return error('❌ Invalid hex id');
     }
 
@@ -48,7 +50,7 @@ export default function move(ctx: Context) {
       warn('(note) starting move has no previous hex');
     } else {
       // Adjacency check
-      const neighbors = getHexNeighbors(from);
+      const neighbors = getHexNeighbors(from, notation, mapConfig);
       if (!neighbors.includes(to)) {
         warn(`Warning: ${to} is not adjacent to ${from}.`);
       }

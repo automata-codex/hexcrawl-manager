@@ -1,4 +1,4 @@
-import * as core from '@skyreach/core';
+import * as core from '@achm/core';
 import {
   MockInstance,
   afterEach,

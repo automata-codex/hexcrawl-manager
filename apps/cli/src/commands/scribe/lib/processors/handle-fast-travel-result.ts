@@ -1,5 +1,5 @@
-import { info } from '@skyreach/cli-kit';
-import { getDaylightCapSegments, segmentsToHours } from '@skyreach/core';
+import { info } from '@achm/cli-kit';
+import { getDaylightCapSegments, segmentsToHours } from '@achm/core';
 
 import { readEvents } from '../../../../services/event-log.service';
 import {

@@ -1,14 +1,16 @@
 ---
-import { getHexNeighbors } from '@skyreach/core';
+import { getHexNeighbors } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 
-import type { HexData } from '@skyreach/schemas';
+import type { HexData } from '@achm/schemas';
 
 interface Props {
   hex: HexData;
 }
 
 const { hex } = Astro.props;
-const neighbors = getHexNeighbors(hex.id);
+const mapConfig = loadMapConfig();
+const neighbors = getHexNeighbors(hex.id, mapConfig.grid.notation, mapConfig);
 ---
 
 <div>Neighbors:</div>

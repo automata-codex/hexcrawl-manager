@@ -1,4 +1,4 @@
-import { usage } from '@skyreach/cli-kit';
+import { usage } from '@achm/cli-kit';
 
 import weatherAbandon from './weather/abandon';
 import weatherClear from './weather/clear';

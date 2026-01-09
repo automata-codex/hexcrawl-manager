@@ -1,6 +1,6 @@
-import { ApDelta, ApLedgerEntry, SessionId } from '@skyreach/schemas';
+import { ApDelta, ApLedgerEntry, SessionId } from '@achm/schemas';
 
-import { readJsonl, writeJsonl, appendJsonl } from '../jsonl';
+import { readJsonl, writeJsonl, appendJsonl } from '../jsonl.js';
 
 // --- Types ---
 

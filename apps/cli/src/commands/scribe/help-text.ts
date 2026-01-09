@@ -2,6 +2,7 @@ export const HELP_TEXT = `
 Commands:
   abort                          abandon the current session (deletes in-progress file)
   ap <pillar> <tier> "<note...>" record an advancement-point event
+  ap milestone "<note...>"       add a todo for milestone AP allocation
   backtrack [pace]               move back to the previous hex, clearing lost status (pace: slow|normal)
   current                        show current session status (alias for \`status\`)
   date <new date>                set or correct the current calendar date

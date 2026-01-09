@@ -1,18 +1,24 @@
+import { getPublicDir } from '@achm/data';
 import mdx from '@astrojs/mdx';
-import svelte from '@astrojs/svelte';
 import node from '@astrojs/node';
+import svelte from '@astrojs/svelte';
 import clerk from '@clerk/astro';
 import { defineConfig } from 'astro/config';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import rehypeAddClasses from 'rehype-add-classes';
 import remarkSmartypants from 'remark-smartypants';
 
 import svgSymbolsPlugin from './src/plugins/svg-symbols-plugin.mjs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://astro.build/config
 export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
+  publicDir: getPublicDir(),
   server: {
     host: '0.0.0.0', // Listen on all network interfaces for Railway
     port: Number(process.env.PORT) || 4321, // Use Railway's PORT env var
@@ -37,5 +43,11 @@ export default defineConfig({
   output: 'server',
   vite: {
     plugins: [svgSymbolsPlugin()],
+    resolve: {
+      alias: {
+        // Allow MDX files in external data repo to import components
+        '@achm/web': path.resolve(__dirname),
+      },
+    },
   },
 });

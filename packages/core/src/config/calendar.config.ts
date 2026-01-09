@@ -1,4 +1,4 @@
-import { CalendarConfig } from '../types';
+import { CalendarConfig } from '../types.js';
 
 export const CALENDAR_CONFIG: CalendarConfig = {
   months: [

@@ -1,6 +1,12 @@
-import { CALENDAR_CONFIG } from '@skyreach/core';
-import { buildSessionFilename, REPO_PATHS } from '@skyreach/data';
-import { TrailEventSchema, makeSessionId } from '@skyreach/schemas';
+import { CALENDAR_CONFIG } from '@achm/core';
+import { buildSessionFilename, REPO_PATHS } from '@achm/data';
+import {
+  TrailEventSchema,
+  makeSessionId,
+  type CoordinateNotation,
+} from '@achm/schemas';
+
+const NOTATION: CoordinateNotation = 'letter-number';
 import {
   compileLog,
   dayEnd,
@@ -9,7 +15,7 @@ import {
   sessionEnd,
   sessionStart,
   trail,
-} from '@skyreach/test-helpers';
+} from '@achm/test-helpers';
 import { describe, it, expect } from 'vitest';
 
 import { CalendarService } from './calendar';
@@ -71,11 +77,11 @@ describe('Session Service', () => {
   describe('Function `normalizeTrailEdges`', () => {
     it('swaps from/to if from is after to by hexSort', () => {
       const events = compileLog([trail('b2', 'a1')]);
-      const result = normalizeTrailEdges(events);
+      const result = normalizeTrailEdges(events, NOTATION);
 
       const trailEvent = TrailEventSchema.parse(result[0]);
-      expect(trailEvent.payload.from).toBe('A1');
-      expect(trailEvent.payload.to).toBe('B2');
+      expect(trailEvent.payload.from).toBe('a1');
+      expect(trailEvent.payload.to).toBe('b2');
     });
   });
 
@@ -127,6 +133,7 @@ describe('Session Service', () => {
         events,
         sessionId,
         sessionDate,
+        NOTATION,
       );
       expect(
         result.finalizedBlocks[0].events.some((e) => e.kind === 'session_end'),
@@ -169,6 +176,7 @@ describe('Session Service', () => {
         expandedEvents,
         sessionId,
         sessionDate,
+        NOTATION,
       );
 
       // First block should end with session_pause (synthesized)
@@ -221,6 +229,7 @@ describe('Session Service', () => {
         expandedEvents,
         sessionId,
         sessionDate,
+        NOTATION,
       );
 
       const firstBlockEvents = result.finalizedBlocks[0].events;

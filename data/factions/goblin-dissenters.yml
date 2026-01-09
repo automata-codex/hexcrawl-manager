@@ -1,0 +1,10 @@
+id: goblin-dissenters
+name: The Exiled Ones
+description: |
+  Goblins who refused to follow Skargash's brutal leadership. Led by Grix the Exile, they hide in the wilderness and may be willing to help outsiders who share their enemy. They cling to older goblin traditions that valued cunning and survival over senseless cruelty.
+areaOfOperation:
+  - Hidden Hollow
+  - Whispering Woods
+ideology: Survival is wisdom. The old ways taught us to be clever, not cruel. Skargash has forgotten this, and his madness will doom us all unless he is stopped. We seek a place where goblins can live without endless war.
+powerLevel: |
+  A small band of perhaps a dozen goblins, including scouts, hunters, and a few who still remember the old healing arts. They survive by staying hidden and avoiding Skargash's patrols. Desperate but resourceful.

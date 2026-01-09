@@ -3,7 +3,7 @@
  * Table of Contents component for section overview pages.
  * Renders a list of links from sidebar configuration.
  */
-import ArticleLayout from '../layouts/ArticleLayout.astro';
+import ComponentLayout from '../layouts/ComponentLayout.astro';
 
 interface ToCItem {
   label: string;
@@ -24,7 +24,7 @@ interface Props {
 const { title, items, parent } = Astro.props;
 ---
 
-<ArticleLayout title={title}>
+<ComponentLayout title={title}>
   {parent && (
     <p class="parent-link">
       <a href={parent.href}>&uarr; {parent.label}</a>
@@ -41,7 +41,7 @@ const { title, items, parent } = Astro.props;
       ))}
     </ul>
   </nav>
-</ArticleLayout>
+</ComponentLayout>
 
 <style>
   .parent-link {

@@ -1,1 +1,1 @@
-export { tierFromLevel } from './tier-from-level';
+export { tierFromLevel } from './tier-from-level.js';

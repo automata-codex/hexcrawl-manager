@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { CampaignDateSchema } from './campaign-date';
+import { CampaignDateSchema } from './campaign-date.js';
 
 /* -------------------------------------------------------------
  * Base & helpers

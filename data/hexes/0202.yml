@@ -1,0 +1,12 @@
+id: "0202"
+slug: "0202"
+name: Whispering Woods (Deep)
+landmark: |
+  Thick canopy blocks most sunlight. Strange webs glisten between the trees, and the forest floor is eerily quiet.
+terrain: hills
+biome: temperate-woodland
+encounterChance: 10
+keyedEncounters:
+  - encounterId: giant-spider-nest
+    trigger: exploration
+    notes: Triggered when party explores off the main trail

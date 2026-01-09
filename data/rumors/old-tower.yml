@@ -1,0 +1,9 @@
+id: old-tower
+title: The Old Tower
+description: |
+  My grandfather used to tell stories about the Broken Tower. Said it was haunted. Now I hear goblins have moved in. Maybe they woke something up.
+status: misleading
+notes:
+  - "Source: Innkeeper at the Sleeping Boar"
+  - Leads to hex 0302 (The Broken Tower)
+  - The tower isn't haunted, but the goblins are real

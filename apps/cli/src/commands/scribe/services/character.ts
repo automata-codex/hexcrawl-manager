@@ -1,4 +1,4 @@
-import { REPO_PATHS } from '@skyreach/data';
+import { REPO_PATHS } from '@achm/data';
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';

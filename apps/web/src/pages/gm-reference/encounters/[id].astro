@@ -1,4 +1,5 @@
 ---
+import { type EncounterData, normalizeClueRef } from '@achm/schemas';
 import { getCollection, getEntry } from 'astro:content';
 
 import Badge from '../../../components/Badge.astro';
@@ -14,14 +15,12 @@ import {
   getPointcrawlPath,
   getRegionPath,
 } from '../../../config/routes';
-import SecretArticleLayout from '../../../layouts/SecretArticleLayout.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
 import { loadAugmentedEncounter } from '../../../utils/load-augmented-encounters';
 import {
   renderBulletMarkdown,
   renderMarkdown,
 } from '../../../utils/markdown';
-
-import { type EncounterData, normalizeClueRef } from '@skyreach/schemas';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -179,7 +178,7 @@ const resolvedStatBlocks = statBlockIds
     padding-bottom: 1rem;
   }
 </style>
-<SecretArticleLayout title={title}>
+<SecretLayout title={title}>
   {(encounter.scope || encounter.isLead || encounter.locationTypes || encounter.factions || creatureTypes.length > 0) && (
     <div class="taxonomy-section">
       <div class="taxonomy-row">
@@ -317,4 +316,4 @@ const resolvedStatBlocks = statBlockIds
       ))
     }
   </div>
-</SecretArticleLayout>
+</SecretLayout>

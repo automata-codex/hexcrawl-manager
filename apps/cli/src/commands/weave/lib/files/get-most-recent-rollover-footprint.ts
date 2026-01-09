@@ -1,5 +1,5 @@
-import { compareSeasonIds } from '@skyreach/core';
-import { REPO_PATHS } from '@skyreach/data';
+import { compareSeasonIds } from '@achm/core';
+import { REPO_PATHS } from '@achm/data';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';

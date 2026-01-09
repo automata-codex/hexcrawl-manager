@@ -1,0 +1,17 @@
+id: dissenter-scouts
+name: Dissenter Scouts
+statBlocks:
+  - goblin
+scope: hex
+locationTypes:
+  - wilderness
+factions:
+  - goblin-dissenters
+description: |
+  Goblin scouts from the dissenter faction, wary but not immediately hostile.
+
+  **Setup:** Two goblins step out of hiding, weapons raised but not attacking. One calls out in broken Common: "You not Skargash-friends? We talk, maybe."
+
+  **Roleplaying the Scouts:** Nervous but hopeful. Will offer to lead friendly parties to Grix. Attack only if attacked first.
+
+  **Developments:** If the party proves peaceful, the scouts lead them to the Hidden Hollow (0303) to meet Grix. This is the primary way to discover the dissenter camp.

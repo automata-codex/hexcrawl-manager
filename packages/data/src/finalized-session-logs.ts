@@ -1,13 +1,13 @@
-import { ScribeEvent, SessionId, makeSessionId } from '@skyreach/schemas';
+import { ScribeEvent, SessionId, makeSessionId } from '@achm/schemas';
 import fs from 'fs';
 
 import {
   FinalizedLogJsonParseError,
   FinalizedLogsNotFoundError,
-} from './errors';
-import { parseSessionFilename } from './filenames';
-import { REPO_PATHS } from './repo-paths';
-import { seasonOfSessionFile } from './seasons';
+} from './errors.js';
+import { parseSessionFilename } from './filenames.js';
+import { REPO_PATHS } from './repo-paths.js';
+import { seasonOfSessionFile } from './seasons/index.js';
 
 export interface FinalizedLogInfo {
   filename: string; // basename

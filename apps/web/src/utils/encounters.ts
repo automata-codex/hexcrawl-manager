@@ -2,7 +2,7 @@ import type {
   CategoryTableData,
   EncounterOverrideData,
   EncounterTableData,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 /**
  * Merges encounter table overrides with a base table.

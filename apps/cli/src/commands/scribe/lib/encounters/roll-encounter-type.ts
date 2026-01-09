@@ -1,6 +1,6 @@
 import { weightedRandomSelection } from './weighted-random-selection';
 
-import type { EncounterTableData } from '@skyreach/schemas';
+import type { EncounterTableData } from '@achm/schemas';
 
 /**
  * Roll on the main encounter table to determine the category.

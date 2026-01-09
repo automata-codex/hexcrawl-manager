@@ -1,10 +1,11 @@
 <script lang="ts">
   import { getCluePath, getHexPath, getRegionPath } from '../../config/routes.ts';
-  import { getRegionTitle } from '../../utils/regions.ts';
+  import { getRegionShortTitle } from '../../utils/regions.ts';
 
   import Dungeon from './Dungeon.svelte';
   import Explored from './Explored.svelte';
   import HiddenSites from './HiddenSites.svelte';
+  import KeyedEncounters from './KeyedEncounters.svelte';
   import Landmark from './Landmark.svelte';
   import Neighbors from './Neighbors.svelte';
   import Pointcrawls from './Pointcrawls.svelte';
@@ -13,14 +14,18 @@
   import type {
     ClueMapEntry,
     DungeonEntry,
+    EncounterMapEntry,
     ExtendedHexData,
     PointcrawlLink,
   } from '../../types.ts';
+  import type { MapConfig } from '@achm/schemas';
 
   interface Props {
     clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
+    encounterMap?: Record<string, EncounterMapEntry>;
     hex: ExtendedHexData;
+    mapConfig: MapConfig;
     pointcrawls?: PointcrawlLink[];
     showSelfLink?: boolean;
   }
@@ -28,7 +33,9 @@
   const {
     clueMap = {},
     dungeons,
+    encounterMap = {},
     hex,
+    mapConfig,
     pointcrawls,
     showSelfLink = true,
   }: Props = $props();
@@ -47,7 +54,7 @@
 <div class="data-bar">
   <Visited {hex} />
   {#if hex.renderedHiddenSites.length > 0}
-    <Explored {hex} />
+    <Explored isExplored={hex.isExplored} />
   {/if}
   {#if showSelfLink}
     <div class="data-bar-cell">
@@ -55,16 +62,16 @@
     </div>
   {/if}
   <div class="data-bar-cell">
-    <a href={getRegionPath(hex.regionId)}>{getRegionTitle(hex.regionId)}</a>
+    <a href={getRegionPath(hex.regionId)}>{getRegionShortTitle(hex.regionId, hex.regionName)}</a>
   </div>
   <Dungeon {dungeons} {hex} />
   <Pointcrawls {pointcrawls} />
 </div>
 <div class="data-bar">
-  <Neighbors {hex} />
+  <Neighbors {hex} {mapConfig} />
 </div>
 {#if hex.topography}
-  <p class="hanging-indent">
+  <p class="hanging-indent" style="margin-bottom: 0;">
     <span class="inline-heading">Topography:</span>
     {' '}
     {hex.topography}
@@ -72,6 +79,7 @@
 {/if}
 <Landmark {hex} {clueMap} />
 <HiddenSites {hex} {clueMap} />
+<KeyedEncounters {hex} {encounterMap} />
 {#if hex.secretSite}
   <div class="hanging-indent">
     <span class="inline-heading">Secret Site:</span>{' '}

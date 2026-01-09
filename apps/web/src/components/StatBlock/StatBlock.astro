@@ -7,13 +7,14 @@ import Attributes from './Attributes.astro';
 import BonusActions from './BonusActions.astro';
 import ChallengeAndProficiency from './ChallengeAndProficiency.astro';
 import Immunities from './Immunities.astro';
+import LairActions from './LairActions.astro';
 import Reactions from './Reactions.astro';
 import Skills from './Skills.astro';
 import Speed from './Speed.astro';
 import Subheading from './Subheading.astro';
 import Traits from './Traits.astro';
 
-import type { StatBlockData } from '@skyreach/schemas';
+import type { StatBlockData } from '@achm/schemas';
 
 interface Props {
   data: StatBlockData;
@@ -99,4 +100,5 @@ const statBlockPath = getStatBlockPath(data.id);
   <Actions actions={data.actions} />
   <BonusActions bonusActions={data.bonus_actions} />
   <Reactions reactions={data.reactions} />
+  <LairActions intro={data.lair_actions_intro} lairActions={data.lair_actions} />
 </section>

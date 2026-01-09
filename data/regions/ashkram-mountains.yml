@@ -1,0 +1,17 @@
+id: ashkram-mountains
+name: Mountains of Ashkram
+description: |
+  A remote range of jagged peaks shrouded in mist, where ancient pines cling to the steep slopes. The mountains are said to harbor forgotten shrines and the lairs of creatures that prefer solitude over civilization.
+haven: none
+type: deep-frontier
+contentDensity: 2
+treasureRating: 4
+encounterChance: 8
+hexes:
+  - "0203"
+  - "0204"
+  - "0304"
+  - "0403"
+  - "0404"
+terrain: mountains
+biome: montane-forest

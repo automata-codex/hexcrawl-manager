@@ -14,6 +14,12 @@
 
 import { getSidebarSections } from '../src/config/sidebar-sections';
 
+import type { SidebarHref } from '../src/types';
+
+function isStringHref(href: SidebarHref | undefined): href is string {
+  return typeof href === 'string';
+}
+
 interface ValidationError {
   type: 'missing-section-href' | 'missing-toc-href' | 'invalid-toc-href';
   sectionId: string;
@@ -35,7 +41,7 @@ function validate(): ValidationError[] {
         sectionId: section.id,
         message: `Section "${section.id}" is missing href for ToC page`,
       });
-    } else if (!section.href.startsWith('/')) {
+    } else if (isStringHref(section.href) && !section.href.startsWith('/')) {
       errors.push({
         type: 'invalid-toc-href',
         sectionId: section.id,
@@ -87,7 +93,7 @@ function main() {
   const tocPages: string[] = [];
 
   for (const section of sections) {
-    if (section.href) {
+    if (isStringHref(section.href)) {
       tocPages.push(section.href);
     }
     for (const item of section.items) {

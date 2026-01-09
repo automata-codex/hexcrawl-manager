@@ -1,4 +1,4 @@
-/** @deprecated Use error from `@skyreach/schemas` instead. */
+/** @deprecated Use error from `@achm/schemas` instead. */
 export class SessionIdError extends Error {
   constructor(readonly value: string) {
     super(`Invalid sessionId: ${value}. Expected format is 'session-####'.`);

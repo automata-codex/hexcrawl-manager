@@ -1,6 +1,6 @@
-import { REPO_PATHS } from '@skyreach/data';
-import { rewriteApLedger } from '@skyreach/data';
-import { ApLedgerEntry, makeSessionId, padSessionNum } from '@skyreach/schemas';
+import { REPO_PATHS } from '@achm/data';
+import { rewriteApLedger } from '@achm/data';
+import { ApLedgerEntry, makeSessionId, padSessionNum } from '@achm/schemas';
 import {
   makeCompletedSessionReport,
   makePlannedSessionReport,
@@ -8,7 +8,7 @@ import {
   runWeave,
   saveCharacter,
   withTempRepo,
-} from '@skyreach/test-helpers';
+} from '@achm/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';

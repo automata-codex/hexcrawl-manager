@@ -1,9 +1,9 @@
-import { slowsTravel } from '@skyreach/core';
+import { slowsTravel } from '@achm/core';
 
 import { isDifficultHex } from '../hex-data';
 
-import type { WeatherCommitted } from '@skyreach/core';
-import type { Pace } from '@skyreach/schemas';
+import type { WeatherCommitted } from '@achm/core';
+import type { Pace } from '@achm/schemas';
 
 /**
  * Result of attempting to execute a leg of travel.

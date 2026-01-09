@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content';
 
 import EdgeDetails from '../../../../components/Pointcrawls/EdgeDetails.astro';
 import NodeDetails from '../../../../components/Pointcrawls/NodeDetails.astro';
-import SecretArticleLayout from '../../../../layouts/SecretArticleLayout.astro';
+import SecretLayout from '../../../../layouts/SecretLayout.astro';
 
 // Get the IDs from the incoming server request
 const { id: pointcrawlSlug, nodeOrEdgeId } = Astro.params;
@@ -112,7 +112,7 @@ const title = isNode
   }
 </style>
 
-<SecretArticleLayout title={title}>
+<SecretLayout title={title}>
   <div class="back-link">
     <a href={`/gm-reference/pointcrawls/${pointcrawlSlug}`}>
       &larr; Back to {pointcrawl.data.name}
@@ -142,4 +142,4 @@ const title = isNode
       )
     )
   }
-</SecretArticleLayout>
+</SecretLayout>

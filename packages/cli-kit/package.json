@@ -1,6 +1,6 @@
 {
-  "name": "@skyreach/cli-kit",
-  "version": "3.0.0",
+  "name": "@achm/cli-kit",
+  "version": "3.1.0",
   "exports": {
     ".": {
       "default": "./dist/index.js",
@@ -22,6 +22,6 @@
     "npm": "11.6.2"
   },
   "dependencies": {
-    "@skyreach/schemas": "*"
+    "@achm/schemas": "*"
   }
 }

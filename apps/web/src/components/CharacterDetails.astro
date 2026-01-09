@@ -1,11 +1,12 @@
 ---
+import { normalizeClueRef } from '@achm/schemas';
 import { getCollection, getEntry } from 'astro:content';
 
-import { normalizeClueRef } from '@skyreach/schemas';
-import type { CharacterData, PlayerData } from '@skyreach/schemas';
 
 import { getCluePath } from '../config/routes';
 import { renderMarkdown, renderSubArticleMarkdown } from '../utils/markdown';
+
+import type { CharacterData, PlayerData } from '@achm/schemas';
 
 interface Props {
   character: CharacterData;
@@ -58,7 +59,7 @@ function getBackstoryText(markdown: string): Promise<string> {
 
 <style is:global>
   p {
-    text-indent: var(--skyreach-standard-indent);
+    text-indent: var(--achm-standard-indent);
   }
 
   p:first-child,

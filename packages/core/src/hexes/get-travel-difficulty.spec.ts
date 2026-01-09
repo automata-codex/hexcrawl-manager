@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   getTravelDifficulty,
   isDifficultTerrain,
-} from './get-travel-difficulty';
+} from './get-travel-difficulty.js';
 
 describe('getTravelDifficulty', () => {
   it('returns Difficult for alpine-tundra biome', () => {

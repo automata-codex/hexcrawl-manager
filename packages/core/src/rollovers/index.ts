@@ -1,1 +1,1 @@
-export { getRolloverSeasonId } from './get-rollover-season-id';
+export { getRolloverSeasonId } from './get-rollover-season-id.js';

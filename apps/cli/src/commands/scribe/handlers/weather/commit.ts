@@ -1,11 +1,11 @@
-import { info, error } from '@skyreach/cli-kit';
+import { info, error } from '@achm/cli-kit';
 import { clamp } from 'lodash-es';
 
 import { appendEvent } from '../../../../services/event-log.service';
 import { requireFile } from '../../services/general';
 
 import type { Context } from '../../types.ts';
-import type { WeatherDraft } from '@skyreach/core';
+import type { WeatherDraft } from '@achm/core';
 
 export default function weatherCommit(ctx: Context) {
   if (!requireFile(ctx)) {

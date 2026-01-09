@@ -1,12 +1,12 @@
 ---
+import { sortIgnoringArticles } from '@achm/core';
 import { getCollection } from 'astro:content';
-import { sortIgnoringArticles } from '@skyreach/core';
 
 import SecretContent from '../../../../components/Content/SecretContent.astro';
+import { getNpcPath, getRoleplayBookPath } from '../../../../config/routes.ts';
 import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
 import { renderMarkdown } from '../../../../utils/markdown';
 import { formatText } from '../../../../utils/text';
-import { getNpcPath, getRoleplayBookPath } from '../../../../config/routes.ts';
 
 function formatOccupation(
   occupation: string,
@@ -57,6 +57,10 @@ const title = 'NPCs';
 
   .npc-meta {
     margin-bottom: 1rem;
+
+    p {
+      margin-bottom: 0;
+    }
   }
 
   h2.title a {
@@ -66,14 +70,6 @@ const title = 'NPCs';
 </style>
 <ComponentLayout title={title}>
   <main>
-    <SecretContent>
-      <div class="fort-dagaric-rp-link">
-        For intel reports from Fort Dagaric denizens, see
-        <a href={getRoleplayBookPath('fort-dagaric')}>
-          the Fort Dagaric Roleplay Book
-        </a>.
-      </div>
-    </SecretContent>
     {
       npcData.map((npc) => (
         <section>

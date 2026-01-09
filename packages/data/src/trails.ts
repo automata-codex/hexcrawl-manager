@@ -1,13 +1,21 @@
-import { hexSort } from '@skyreach/core';
-import { TrailData, TrailsFile } from '@skyreach/schemas';
+import { hexSort } from '@achm/core';
+import { TrailData, TrailsFile } from '@achm/schemas';
 
-import { writeYamlAtomic } from './atomic-write';
-import { readAndValidateYaml } from './fs-utils';
-import { REPO_PATHS } from './repo-paths';
+import type { CoordinateNotation } from '@achm/schemas';
+
+import { writeYamlAtomic } from './atomic-write.js';
+import { readAndValidateYaml } from './fs-utils.js';
+import { loadMapConfig } from './map-config.js';
+import { REPO_PATHS } from './repo-paths.js';
+
+function getNotation(): CoordinateNotation {
+  return loadMapConfig().grid.notation;
+}
 
 /** Build a stable edge id by ordering the two hex ids with hexSort. */
 export function canonicalTrailId(a: string, b: string): string {
-  return hexSort(a, b) <= 0 ? `${a}-${b}` : `${b}-${a}`;
+  const notation = getNotation();
+  return hexSort(a, b, notation) <= 0 ? `${a}-${b}` : `${b}-${a}`;
 }
 
 /** Load trails with normalized and sorted IDs. */
@@ -55,12 +63,13 @@ export function saveTrails(trails: Record<string, TrailData>): void {
 export function sortTrailKeys(
   trails: Record<string, TrailData>,
 ): Record<string, TrailData> {
+  const notation = getNotation();
   const entries = Object.entries(trails);
   entries.sort(([ea], [eb]) => {
     const [a1, a2] = ea.split('-');
     const [b1, b2] = eb.split('-');
-    const firstCmp = hexSort(a1, b1);
-    return firstCmp !== 0 ? firstCmp : hexSort(a2, b2);
+    const firstCmp = hexSort(a1, b1, notation);
+    return firstCmp !== 0 ? firstCmp : hexSort(a2, b2, notation);
   });
   return Object.fromEntries(entries);
 }

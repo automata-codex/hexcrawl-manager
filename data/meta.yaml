@@ -1,0 +1,11 @@
+# Campaign metadata - managed by CLI commands
+version: 2
+nextSessionSeq: 1
+state:
+  trails:
+    backend: meta
+    applied:
+      sessions: []
+      seasons: []
+  ap:
+    backend: ledger

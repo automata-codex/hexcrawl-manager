@@ -1,10 +1,10 @@
-import { buildSessionFilename, REPO_PATHS } from '@skyreach/data';
-import { readApLedger } from '@skyreach/data';
+import { buildSessionFilename, REPO_PATHS } from '@achm/data';
+import { readApLedger } from '@achm/data';
 import {
   makeSessionId,
   type ScribeEvent,
   type SessionReport,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import {
   ap,
   dayEnd,
@@ -17,7 +17,7 @@ import {
   sessionEnd,
   sessionStart,
   withTempRepo,
-} from '@skyreach/test-helpers';
+} from '@achm/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';

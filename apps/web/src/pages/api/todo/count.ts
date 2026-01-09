@@ -1,8 +1,8 @@
-import type { APIRoute } from 'astro';
-
 import { getCurrentUserRole } from '../../../utils/auth';
 import { SECURITY_ROLE } from '../../../utils/constants';
 import { getTodoCounts } from '../../../utils/load-todos';
+
+import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = ({ locals }) => {
   const role = getCurrentUserRole(locals);

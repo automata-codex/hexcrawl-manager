@@ -1,10 +1,11 @@
-import { normalizeHexId } from '@skyreach/core';
+import { normalizeHexId } from '@achm/core';
 import {
   HexFileNotFoundError,
+  loadMapConfig,
   REPO_PATHS,
   writeYamlAtomic,
-} from '@skyreach/data';
-import { HexData } from '@skyreach/schemas';
+} from '@achm/data';
+import { HexData } from '@achm/schemas';
 import fs from 'node:fs';
 import yaml from 'yaml';
 
@@ -51,7 +52,8 @@ export async function applyHexes(
   const index = buildHexFileIndex(root);
 
   // 2) collect intents (ensure collector normalizes IDs consistently)
-  const intents: HexIntents = collectHexIntents(opts.events);
+  const notation = loadMapConfig().grid.notation;
+  const intents: HexIntents = collectHexIntents(opts.events, notation);
 
   const rows: ApplyHexesRow[] = [];
   let changed = 0;
@@ -59,7 +61,7 @@ export async function applyHexes(
 
   // 3) apply per hex
   for (const [hexKey, intent] of Object.entries(intents)) {
-    const norm = normalizeHexId(hexKey); // e.g., "Q12"
+    const norm = normalizeHexId(hexKey, notation); // e.g., "Q12"
     const file = index[norm];
     if (!file) {
       // include normalized id in error for clarity

@@ -1,18 +1,24 @@
 <script lang="ts">
+  import { displayHexId, isValidHexId } from '@achm/core';
   import {
+    faExpand,
     faLocationCrosshairs,
     faMagnifyingGlassArrowsRotate,
   } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-  import { isValidHexId } from '@skyreach/core';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import svgDefs from 'virtual:svg-symbols';
 
-  import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
+  import {
+    initializeLayerVisibility,
+    layerVisibility,
+  } from '../../stores/interactive-map/layer-visibility';
   import {
     applyZoomAtCenter,
     computeViewBox,
+    fitToBounds,
+    initializeCenterFromBounds,
     mapView,
     panBy,
     resetZoom,
@@ -24,12 +30,11 @@
   import { SCOPES } from '../../utils/constants.ts';
   import { parseHexId } from '../../utils/hexes.ts';
   import {
-    DAGARIC_ICON_SIZE,
-    FC_ICON_SIZE,
+    axialToPixel,
+    calculateMapBounds,
     HEX_HEIGHT,
     HEX_WIDTH,
     TERRAIN_ICON_SIZE,
-    axialToPixel,
   } from '../../utils/interactive-map.ts';
 
   import DetailPanel from './DetailPanel.svelte';
@@ -41,8 +46,9 @@
 
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
+  import type { MapConfigResponse } from '../../pages/api/map-config.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
-  import type { KnownTag } from '@skyreach/schemas';
+  import type { CoordinateNotation, MapConfig } from '@achm/schemas';
 
   interface Props {
     role: string | null;
@@ -50,25 +56,46 @@
 
   const { role }: Props = $props();
 
+  let configError: string | null = $state(null);
   let dungeons: DungeonEssentialData[] = $state([]);
   let hexes: HexPlayerData[] = $state([]);
   let isPanning = $state(false);
   let lastX = $state(0);
   let lastY = $state(0);
+  let mapBounds: ReturnType<typeof calculateMapBounds> | null = $state(null);
+  let mapConfig: MapConfig | null = $state(null);
   let mapPaths: MapPathPlayerData[] = $state([]);
-  let svgEl: SVGElement;
+  let labelFont: string | null = $state(null);
+  let notation: CoordinateNotation | null = $state(null);
+  let svgEl: SVGElement | undefined = $state();
   let wasPanning = $state(false);
 
   let viewBox = $derived(computeViewBox($mapView));
 
   onMount(() => {
     (async () => {
+      // Fetch config first to get notation - this is required
+      const configResponse = await fetch('/api/map-config.json');
+      if (!configResponse.ok) {
+        configError = 'Map configuration is required but could not be loaded';
+        throw new Error(configError);
+      }
+      const config: MapConfigResponse = await configResponse.json();
+      mapConfig = config;
+      labelFont = config.grid.labelFont;
+      notation = config.grid.notation;
+      initializeLayerVisibility(config.layers);
+
       const dungeonResponse = await fetch('/api/dungeons.json');
       dungeons = await dungeonResponse.json();
       const hexResponse = await fetch('/api/hexes.json');
       hexes = await hexResponse.json();
       const mapPathResponse = await fetch('/api/map-paths.json');
       mapPaths = await mapPathResponse.json();
+
+      // Calculate bounds from hex data and initialize center if no saved state
+      mapBounds = calculateMapBounds(hexes.map((h) => h.id), notation);
+      initializeCenterFromBounds(mapBounds);
     })();
 
     const resizeObserver = new ResizeObserver((entries) => {
@@ -78,21 +105,14 @@
         updateSvgSizeAndPreserveCenter(width, height);
       }
     });
-    resizeObserver.observe(svgEl);
+    if (svgEl) {
+      resizeObserver.observe(svgEl);
+    }
     return () => resizeObserver.disconnect();
   });
 
   function applyZoomDelta(direction: number) {
     applyZoomAtCenter(direction);
-  }
-
-  function filterHexesByTag(tag: KnownTag | string) {
-    return hexes.filter((hex) => {
-      if (hex.tags) {
-        return hex.tags.includes(tag.toString());
-      }
-      return false;
-    });
   }
 
   function getBiomeColor(biome: string): string {
@@ -142,12 +162,6 @@
     }
   }
 
-  function getFortDagaricCoords() {
-    const { q, r } = parseHexId('v17');
-    const { x, y } = axialToPixel(q, r);
-    return { x, y };
-  }
-
   function getTerrainIcon(terrain: string) {
     switch (terrain) {
       case 'mountains':
@@ -167,6 +181,18 @@
     }
   }
 
+  /**
+   * Get hexes that match a tag icon definition.
+   * Excludes hexes with direct mapIcon (they render separately).
+   */
+  function getHexesForTagIcon(tag: string): HexPlayerData[] {
+    return hexes.filter((hex) => {
+      if (!hex.tags) return false;
+      if (hex.mapIcon) return false;
+      return hex.tags.includes(tag);
+    });
+  }
+
   function handleHexClick(e: Event) {
     if (wasPanning) return; // suppress accidental clicks after pan
 
@@ -181,8 +207,8 @@
   }
 
   function handleCenterSelectedHexClick() {
-    if ($selectedHex) {
-      const { q, r } = parseHexId($selectedHex);
+    if ($selectedHex && notation) {
+      const { q, r } = parseHexId($selectedHex, notation);
       const { x, y } = axialToPixel(q, r);
 
       mapView.update((state) => ({
@@ -226,6 +252,7 @@
   function handleWheel(e: WheelEvent) {
     e.preventDefault();
     e.stopPropagation();
+    if (!svgEl) return;
 
     const { svgWidth, svgHeight, centerX, centerY, zoom } = get(mapView);
 
@@ -248,32 +275,45 @@
     );
   }
 
+  function handleFitToBounds() {
+    if (mapBounds) {
+      fitToBounds(mapBounds);
+    }
+  }
+
   function handleZoomReset() {
     resetZoom();
   }
-
-  function hexLabel(col: number, row: number): string {
-    const colLabel = String.fromCharCode(65 + col); // A = 65
-    return `${colLabel}${row + 1}`;
-  }
 </script>
 
+{#if configError}
+  <div class="error-message">
+    <p>Error: {configError}</p>
+  </div>
+{:else if !notation}
+  <div class="loading-message">
+    <p>Loading map configuration...</p>
+  </div>
+{:else}
 <div class="zoom-controls">
   <button class="button" onclick={() => applyZoomDelta(1)}>+</button>
   <button class="button" onclick={() => applyZoomDelta(-1)}>−</button>
   <button class="button" onclick={handleCenterSelectedHexClick}>
     <FontAwesomeIcon icon={faLocationCrosshairs} />
   </button>
+  <button class="button" onclick={handleFitToBounds} title="Fit map to view">
+    <FontAwesomeIcon icon={faExpand} />
+  </button>
   <button class="button" onclick={handleZoomReset}>
     <FontAwesomeIcon icon={faMagnifyingGlassArrowsRotate} />
   </button>
-  <div class="button zoom-display">
+  <div class="button zoom-display" style:font-family={labelFont}>
     Zoom: {Math.round($mapView.zoom * 100)}%
   </div>
 </div>
 
 {#if hexes}
-  <DetailPanel {dungeons} {hexes} {mapPaths} {role} />
+  <DetailPanel {dungeons} {hexes} {mapPaths} {notation} {role} />
 {/if}
 
 <div class="main-controls">
@@ -303,8 +343,8 @@
         style:display={!$layerVisibility['biomes'] ? 'none' : undefined}
       >
         {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <HexTile
               fill={getBiomeColor(hex.biome)}
@@ -321,8 +361,8 @@
         style:display={!$layerVisibility['terrain'] ? 'none' : undefined}
       >
         {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <use
               href={getTerrainIcon(hex.terrain)}
@@ -339,96 +379,51 @@
         style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
       >
         {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <HexTile fill="none" hexWidth={HEX_WIDTH} {x} {y} />
           {/if}
         {/each}
       </g>
-      <MapPath paths={mapPaths} type="river" />
-      <MapPath paths={mapPaths} type="conduit" />
-      <MapPath paths={mapPaths} type="trail" />
-      <g
-        id="layer-scar-sites"
-        style:display={!$layerVisibility['scarSites'] ? 'none' : undefined}
-      >
-        {#each filterHexesByTag('scar-site') as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <use
-              href="#icon-first-civ"
-              x={x - FC_ICON_SIZE / 2}
-              y={y - FC_ICON_SIZE / 2}
-              width={FC_ICON_SIZE}
-              height={FC_ICON_SIZE}
-              stroke-width="4"
-              stroke="black"
-              fill="#E5F20D"
-            />
+      <MapPath {notation} paths={mapPaths} type="river" />
+      <MapPath {notation} paths={mapPaths} type="conduit" />
+      <MapPath {notation} paths={mapPaths} type="trail" />
+      <!-- Data-driven tag icons -->
+      {#if mapConfig}
+        {#each mapConfig.tagIcons as tagIcon (tagIcon.tag)}
+          {@const iconDef = mapConfig.icons[tagIcon.icon]}
+          {#if iconDef}
+            <g
+              id={`layer-${tagIcon.layer}-${tagIcon.tag}`}
+              style:display={!$layerVisibility[tagIcon.layer] ? 'none' : undefined}
+            >
+              {#each getHexesForTagIcon(tagIcon.tag) as hex (hex.id)}
+                {#if isValidHexId(hex.id, notation)}
+                  {@const { q, r } = parseHexId(hex.id, notation)}
+                  {@const { x, y } = axialToPixel(q, r)}
+                  {@const size = tagIcon.size ?? iconDef.size}
+                  <use
+                    href={`#${iconDef.file.replace('.svg', '')}`}
+                    x={x - size / 2}
+                    y={y - size / 2}
+                    width={size}
+                    height={size}
+                    stroke={tagIcon.stroke}
+                    stroke-width={tagIcon.strokeWidth}
+                    fill={tagIcon.fill}
+                  />
+                {/if}
+              {/each}
+            </g>
           {/if}
         {/each}
-      </g>
-      <g
-        id="layer-fc-ruins"
-        style:display={!$layerVisibility['fcRuins'] ? 'none' : undefined}
-      >
-        {#each filterHexesByTag('fc-ruins') as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <use
-              href="#icon-first-civ"
-              x={x - FC_ICON_SIZE / 2}
-              y={y - FC_ICON_SIZE / 2}
-              width={FC_ICON_SIZE}
-              height={FC_ICON_SIZE}
-              stroke-width="4"
-              stroke="#0DCAF2"
-              fill="#0DCAF2"
-            />
-          {/if}
-        {/each}
-      </g>
-      <g
-        id="layer-fc-cities"
-        style:display={!$layerVisibility['fcCities'] ? 'none' : undefined}
-      >
-        {#each filterHexesByTag('fc-city') as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <use
-              href="#icon-first-civ"
-              x={x - FC_ICON_SIZE / 2}
-              y={y - FC_ICON_SIZE / 2}
-              width={FC_ICON_SIZE}
-              height={FC_ICON_SIZE}
-              stroke-width="4"
-              stroke="#0DCAF2"
-              fill="white"
-            />
-          {/if}
-        {/each}
-      </g>
-      <g
-        id="layer-fort-dagaric-icon"
-        style:display={!$layerVisibility['fortDagaric'] ? 'none' : undefined}
-      >
-        <use
-          href="#icon-fort-dagaric"
-          x={getFortDagaricCoords().x - DAGARIC_ICON_SIZE / 2}
-          y={getFortDagaricCoords().y - DAGARIC_ICON_SIZE / 2}
-          width={DAGARIC_ICON_SIZE}
-          height={DAGARIC_ICON_SIZE}
-        />
-      </g>
+      {/if}
       {#if !canAccess(role, [SCOPES.GM])}
         <g id="layer-player-mask" style:display="true">
           {#each hexes as hex (hex.id)}
-            {#if isValidHexId(hex.id) && !hex.isVisited && !hex.isScouted}
-              {@const { q, r } = parseHexId(hex.id)}
+            {#if isValidHexId(hex.id, notation) && !hex.isVisited && !hex.isScouted}
+              {@const { q, r } = parseHexId(hex.id, notation)}
               {@const { x, y } = axialToPixel(q, r)}
               <HexTile fill="white" hexWidth={HEX_WIDTH} {x} {y} />
             {/if}
@@ -440,25 +435,26 @@
         style:display={!$layerVisibility['labels'] ? 'none' : undefined}
       >
         {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <text
               {x}
               y={y + HEX_HEIGHT / 2 - 4}
+              font-family={labelFont}
               font-size="12"
               text-anchor="middle"
               fill="black"
             >
-              {hexLabel(q, r)}
+              {displayHexId(hex.id, notation)}
             </text>
           {/if}
         {/each}
       </g>
       <g id="layer-hit-target">
         {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id)}
-            {@const { q, r } = parseHexId(hex.id)}
+          {#if isValidHexId(hex.id, notation)}
+            {@const { q, r } = parseHexId(hex.id, notation)}
             {@const { x, y } = axialToPixel(q, r)}
             <HexHitTarget
               active={$selectedHex === hex.id}
@@ -474,8 +470,21 @@
     </g>
   </svg>
 </div>
+{/if}
 
 <style>
+  .error-message,
+  .loading-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 1.25rem;
+  }
+
+  .error-message {
+    color: #dc3545;
+  }
   .map {
     width: 100%;
     height: 100%;

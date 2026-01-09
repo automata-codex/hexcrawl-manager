@@ -1,4 +1,4 @@
-import { rollDice } from '@skyreach/core';
+import { rollDice } from '@achm/core';
 
 /**
  * Roll a d20 to determine if an encounter occurs.

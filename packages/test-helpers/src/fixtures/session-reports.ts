@@ -1,4 +1,4 @@
-import { makeSessionId, SessionReport } from '@skyreach/schemas';
+import { makeSessionId, SessionReport } from '@achm/schemas';
 
 export function makeCompletedSessionReport(opts: {
   n: number; // 1-based counter -> session id

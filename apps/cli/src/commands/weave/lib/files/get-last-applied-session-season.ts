@@ -1,4 +1,4 @@
-import { loadMeta, REPO_PATHS } from '@skyreach/data';
+import { loadMeta, REPO_PATHS } from '@achm/data';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';

@@ -1,7 +1,7 @@
-import { error, info, usage } from '@skyreach/cli-kit';
-import { isValidHexId, normalizeHexId } from '@skyreach/core';
-import { buildSessionFilename } from '@skyreach/data';
-import { SESSION_ID_RE } from '@skyreach/schemas';
+import { error, info, usage } from '@achm/cli-kit';
+import { isValidHexId, normalizeHexId } from '@achm/core';
+import { buildSessionFilename, loadMapConfig } from '@achm/data';
+import { SESSION_ID_RE } from '@achm/schemas';
 import fs from 'node:fs';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
@@ -99,11 +99,12 @@ export default function start(ctx: Context) {
       return;
     }
 
-    if (!arg || !isValidHexId(arg)) {
+    const notation = loadMapConfig().grid.notation;
+    if (!arg || !isValidHexId(arg, notation)) {
       error('❌ Invalid hex. Example: `start P13`');
       return;
     }
-    const startHexNorm = normalizeHexId(arg);
+    const startHexNorm = normalizeHexId(arg, notation);
 
     // Prepare session (ID, file, lock, etc) -- always auto-generate sessionId
     const prep = prepareSessionStart({

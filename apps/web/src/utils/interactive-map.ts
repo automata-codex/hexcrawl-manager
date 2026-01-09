@@ -1,11 +1,13 @@
+import { parseHexId } from './hexes.ts';
+
+import type { CoordinateNotation } from '@achm/core';
+
 export const DEG_TO_RAD = Math.PI / 180;
 export const HEX_WIDTH = 100;
 export const HEX_HEIGHT = (Math.sqrt(3) / 2) * HEX_WIDTH;
 export const HEX_RADIUS = HEX_WIDTH / 2;
 export const EDGE_OFFSET = HEX_HEIGHT / 2;
 
-export const DAGARIC_ICON_SIZE = 80;
-export const FC_ICON_SIZE = 60;
 export const TERRAIN_ICON_SIZE = 90;
 
 export function axialToPixel(q: number, r: number) {
@@ -97,4 +99,64 @@ export function getFavoredTerrain(
   }
 
   return base;
+}
+
+/**
+ * Bounds of the map in SVG coordinate space.
+ */
+export interface MapBounds {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+  centerX: number;
+  centerY: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * Calculate the pixel bounds of the map from hex data.
+ * Returns the bounding box that contains all hexes plus the center point.
+ */
+export function calculateMapBounds(
+  hexIds: string[],
+  notation: CoordinateNotation,
+): MapBounds {
+  if (hexIds.length === 0) {
+    // Return default bounds for empty map
+    return {
+      minX: 0,
+      minY: 0,
+      maxX: 800,
+      maxY: 800,
+      centerX: 400,
+      centerY: 400,
+      width: 800,
+      height: 800,
+    };
+  }
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  for (const hexId of hexIds) {
+    const { q, r } = parseHexId(hexId, notation);
+    const { x, y } = axialToPixel(q, r);
+
+    // Account for hex dimensions
+    minX = Math.min(minX, x - HEX_WIDTH / 2);
+    maxX = Math.max(maxX, x + HEX_WIDTH / 2);
+    minY = Math.min(minY, y - HEX_HEIGHT / 2);
+    maxY = Math.max(maxY, y + HEX_HEIGHT / 2);
+  }
+
+  const width = maxX - minX;
+  const height = maxY - minY;
+  const centerX = minX + width / 2;
+  const centerY = minY + height / 2;
+
+  return { minX, minY, maxX, maxY, centerX, centerY, width, height };
 }

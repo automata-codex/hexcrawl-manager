@@ -1,3 +1,5 @@
+import { normalizeClueRef } from '@achm/schemas';
+
 import type {
   CharacterData,
   ClueData,
@@ -11,8 +13,7 @@ import type {
   PlotlineData,
   PointcrawlNodeData,
   RoleplayBookData,
-} from '@skyreach/schemas';
-import { normalizeClueRef } from '@skyreach/schemas';
+} from '@achm/schemas';
 
 /**
  * A reference to where a clue can be discovered.

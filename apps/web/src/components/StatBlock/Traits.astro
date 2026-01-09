@@ -1,7 +1,7 @@
 ---
 import { renderBulletMarkdown } from '../../utils/markdown';
 
-import type { StatBlockData } from '@skyreach/schemas';
+import type { StatBlockData } from '@achm/schemas';
 
 interface Props {
   specialAbilities: StatBlockData['special_abilities'];
@@ -18,11 +18,13 @@ if (!specialAbilities || specialAbilities.length === 0) {
     font-size: 1.25rem;
     font-weight: bold;
     page-break-after: avoid;
+    color: var(--bulma-strong-color);
   }
 
   .trait-name {
     font-style: italic;
     font-weight: bold;
+    color: var(--bulma-strong-color);
   }
 </style>
 <h3>Traits</h3>

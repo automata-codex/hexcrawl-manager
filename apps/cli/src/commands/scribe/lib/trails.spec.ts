@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import { bfsTrailPath, buildTrailGraph } from './trails';
 
-import type { TrailMap } from '@skyreach/schemas';
+import type { CoordinateNotation, TrailMap } from '@achm/schemas';
+
+const NOTATION: CoordinateNotation = 'letter-number';
 
 describe('buildTrailGraph', () => {
   it('creates bidirectional edges from trail data', () => {
@@ -21,11 +23,11 @@ describe('buildTrailGraph', () => {
       },
     };
 
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    expect(graph.get('P12')).toEqual(['P13']);
-    expect(graph.get('P13')).toEqual(['P12', 'Q13']);
-    expect(graph.get('Q13')).toEqual(['P13']);
+    expect(graph.get('p12')).toEqual(['p13']);
+    expect(graph.get('p13')).toEqual(['p12', 'q13']);
+    expect(graph.get('q13')).toEqual(['p13']);
   });
 
   it('handles mixed-case hex IDs', () => {
@@ -38,10 +40,10 @@ describe('buildTrailGraph', () => {
       },
     };
 
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    expect(graph.get('P12')).toEqual(['P13']);
-    expect(graph.get('P13')).toEqual(['P12']);
+    expect(graph.get('p12')).toEqual(['p13']);
+    expect(graph.get('p13')).toEqual(['p12']);
   });
 
   it('ignores invalid edge formats', () => {
@@ -66,18 +68,19 @@ describe('buildTrailGraph', () => {
       },
     };
 
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    expect(graph.size).toBe(2); // Only P12 and P13
+    expect(graph.size).toBe(2); // Only p12 and p13
   });
 });
+
 
 describe('bfsTrailPath', () => {
   it('returns empty array when start equals dest', () => {
     const trails: TrailMap = {};
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    const path = bfsTrailPath(graph, trails, 'P12', 'P12');
+    const path = bfsTrailPath(graph, trails, 'P12', 'P12', NOTATION);
     expect(path).toEqual([]); // No moves needed
   });
 
@@ -96,9 +99,9 @@ describe('bfsTrailPath', () => {
         lastSeasonTouched: '1511-summer',
       },
     };
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    const path = bfsTrailPath(graph, trails, 'P12', 'Q14');
+    const path = bfsTrailPath(graph, trails, 'P12', 'Q14', NOTATION);
     expect(path).toBeNull();
   });
 
@@ -111,9 +114,9 @@ describe('bfsTrailPath', () => {
         lastSeasonTouched: '1511-summer',
       },
     };
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    const path = bfsTrailPath(graph, trails, 'Z99', 'P13');
+    const path = bfsTrailPath(graph, trails, 'Z99', 'P13', NOTATION);
     expect(path).toBeNull();
   });
 
@@ -138,11 +141,11 @@ describe('bfsTrailPath', () => {
         lastSeasonTouched: '1511-summer',
       },
     };
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    const path = bfsTrailPath(graph, trails, 'P12', 'R14');
+    const path = bfsTrailPath(graph, trails, 'P12', 'R14', NOTATION);
     // Route excludes starting hex - represents "where to go", not "where we are"
-    expect(path).toEqual(['P13', 'Q13', 'R14']);
+    expect(path).toEqual(['p13', 'q13', 'r14']);
   });
 
   it('finds shortest path when multiple routes exist', () => {
@@ -180,10 +183,10 @@ describe('bfsTrailPath', () => {
         lastSeasonTouched: '1511-summer',
       },
     };
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    const path = bfsTrailPath(graph, trails, 'P12', 'Q13');
-    expect(path).toEqual(['P13', 'Q13']);
+    const path = bfsTrailPath(graph, trails, 'P12', 'Q13', NOTATION);
+    expect(path).toEqual(['p13', 'q13']);
   });
 
   it('prefers permanent trails when tie-breaking', () => {
@@ -214,11 +217,11 @@ describe('bfsTrailPath', () => {
         lastSeasonTouched: '1511-summer',
       },
     };
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    const path = bfsTrailPath(graph, trails, 'P12', 'Q13');
+    const path = bfsTrailPath(graph, trails, 'P12', 'Q13', NOTATION);
     // Should prefer the path with permanent trail
-    expect(path).toEqual(['P13', 'Q13']);
+    expect(path).toEqual(['p13', 'q13']);
   });
 
   it('prefers usedThisSeason trails when tie-breaking (no permanent)', () => {
@@ -248,10 +251,10 @@ describe('bfsTrailPath', () => {
         lastSeasonTouched: '1511-summer',
       },
     };
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    const path = bfsTrailPath(graph, trails, 'P12', 'Q13');
-    expect(path).toEqual(['P13', 'Q13']);
+    const path = bfsTrailPath(graph, trails, 'P12', 'Q13', NOTATION);
+    expect(path).toEqual(['p13', 'q13']);
   });
 
   it('prefers higher streak when tie-breaking (no permanent or used)', () => {
@@ -281,10 +284,10 @@ describe('bfsTrailPath', () => {
         lastSeasonTouched: '1511-summer',
       },
     };
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    const path = bfsTrailPath(graph, trails, 'P12', 'Q13');
-    expect(path).toEqual(['P13', 'Q13']);
+    const path = bfsTrailPath(graph, trails, 'P12', 'Q13', NOTATION);
+    expect(path).toEqual(['p13', 'q13']);
   });
 
   it('handles complex network with cycles', () => {
@@ -320,9 +323,9 @@ describe('bfsTrailPath', () => {
         lastSeasonTouched: '1511-summer',
       },
     };
-    const graph = buildTrailGraph(trails);
+    const graph = buildTrailGraph(trails, NOTATION);
 
-    const path = bfsTrailPath(graph, trails, 'P12', 'R14');
-    expect(path).toEqual(['P13', 'Q13', 'R14']);
+    const path = bfsTrailPath(graph, trails, 'P12', 'R14', NOTATION);
+    expect(path).toEqual(['p13', 'q13', 'r14']);
   });
 });

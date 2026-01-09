@@ -3,13 +3,13 @@ import { getCollection, getEntry, render } from 'astro:content';
 
 import SecretContent from '../components/Content/SecretContent.astro';
 import TableOfContents from '../components/TableOfContents.astro';
-import ArticleLayout from '../layouts/ArticleLayout.astro';
-import SecretArticleLayout from '../layouts/SecretArticleLayout.astro';
 import { getSidebarSections } from '../config/sidebar-sections';
-import { findToCPage, type ToCPageData } from '../utils/toc-helpers';
-import { isSecureRoute } from '../utils/security';
-import { resolveSidebarSections } from '../utils/resolve-sidebar-hrefs';
+import ComponentLayout from '../layouts/ComponentLayout.astro';
+import SecretLayout from '../layouts/SecretLayout.astro';
 import { SECURITY_ROLE } from '../utils/constants';
+import { resolveSidebarSections } from '../utils/resolve-sidebar-hrefs';
+import { isSecureRoute } from '../utils/security';
+import { findToCPage, type ToCPageData } from '../utils/toc-helpers';
 
 const currentPath = Astro.url.pathname;
 
@@ -95,7 +95,7 @@ if (pageType === 'not-found') {
   pageType === 'toc' && tocData ? (
     <TableOfContents title={tocData.title} items={tocData.items} parent={tocData.parent} />
   ) : pageType === 'composite' ? (
-    <ArticleLayout title={compositeTitle}>
+    <ComponentLayout title={compositeTitle}>
       <article>
         {compositeSections.map(({ Content: SectionContent, secure, heading }) =>
           secure ? (
@@ -111,18 +111,18 @@ if (pageType === 'not-found') {
           ),
         )}
       </article>
-    </ArticleLayout>
+    </ComponentLayout>
   ) : pageType === 'article' && isSecure ? (
-    <SecretArticleLayout title={articleTitle}>
+    <SecretLayout title={articleTitle}>
       <article>
         {SimpleContent && <SimpleContent />}
       </article>
-    </SecretArticleLayout>
+    </SecretLayout>
   ) : (
-    <ArticleLayout title={articleTitle}>
+    <ComponentLayout title={articleTitle}>
       <article>
         {SimpleContent && <SimpleContent />}
       </article>
-    </ArticleLayout>
+    </ComponentLayout>
   )
 }

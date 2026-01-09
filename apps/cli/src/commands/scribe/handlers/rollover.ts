@@ -1,12 +1,12 @@
-import { error, info } from '@skyreach/cli-kit';
-import { isSeasonId } from '@skyreach/core';
+import { error, info } from '@achm/cli-kit';
+import { isSeasonId } from '@achm/core';
 import {
   atomicWrite,
   buildRolloverDevFilename,
   buildRolloverFilename,
   REPO_PATHS,
-} from '@skyreach/data';
-import { ScribeEvent } from '@skyreach/schemas';
+} from '@achm/data';
+import { ScribeEvent } from '@achm/schemas';
 import fs from 'fs';
 import path from 'path';
 

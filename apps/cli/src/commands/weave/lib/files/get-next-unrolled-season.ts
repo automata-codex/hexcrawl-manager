@@ -1,5 +1,5 @@
-import { normalizeSeasonId, parseSeasonId } from '@skyreach/core';
-import { SEASON_ORDER, type MetaV2Data } from '@skyreach/schemas';
+import { normalizeSeasonId, parseSeasonId } from '@achm/core';
+import { SEASON_ORDER, type MetaV2Data } from '@achm/schemas';
 
 export function getNextUnrolledSeason(meta: MetaV2Data): string | null {
   // meta.state.trails.applied.seasons is sorted chronologically; find the next season after the last rolled

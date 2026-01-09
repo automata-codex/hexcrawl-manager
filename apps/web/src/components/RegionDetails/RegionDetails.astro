@@ -1,7 +1,8 @@
 ---
+import { hexSort } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
-import { hexSort } from '@skyreach/core';
 import { getHexPath, getRegionPath } from '../../config/routes';
 import { renderMarkdown } from '../../utils/markdown';
 import SecretContent from '../Content/SecretContent.astro';
@@ -10,7 +11,7 @@ import RandomEncountersSection from '../RandomEncountersSection.astro';
 import ContentDensity from './ContentDensity.astro';
 import TreasureRating from './TreasureRating.astro';
 
-import type { RegionData } from '@skyreach/schemas';
+import type { RegionData } from '@achm/schemas';
 
 interface Props {
   region: RegionData;
@@ -24,22 +25,26 @@ function getHeading(text: string) {
   return `<${element} class="title is-3" style="margin-bottom: 0.25rem">${text}</${element}>`;
 }
 
+const notation = loadMapConfig().grid.notation;
+
 const articles = await getCollection('articles');
 const dungeons = await getCollection('dungeons');
 const hexData = await getCollection('hexes');
-const hexes = hexData
-  .filter((hex) => hex.data.regionId === region.id)
-  .map((hex) => hex.data.id.toUpperCase())
-  .sort((a, b) => hexSort(a, b));
+// Use region.hexes as the authoritative source of membership
+const hexes = (region.hexes ?? [])
+  .map((hex) => hex.toUpperCase())
+  .sort((a, b) => hexSort(a, b, notation));
 ---
 
 <style>
+  :global(.content-rating-container) {
+    p {
+      margin-bottom: 0;
+    }
+  }
+
   .description-container {
     margin-top: 1rem;
-
-    p:not(:first-child) {
-      text-indent: var(--skyreach-standard-indent);
-    }
   }
 
   .hex-list {
@@ -81,18 +86,20 @@ const hexes = hexData
     <div class="hanging-indent">
       <span class="inline-heading">Haven:</span>{' '}{region.haven}
     </div>
-    <ContentDensity
-      dungeons={dungeons}
-      hexData={hexData}
-      hexCount={hexes.length}
-      region={region}
-    />
-    <TreasureRating
-      articles={articles}
-      dungeons={dungeons}
-      hexData={hexData}
-      region={region}
-    />
+    <div class="content-rating-container">
+      <ContentDensity
+        dungeons={dungeons}
+        hexData={hexData}
+        hexCount={hexes.length}
+        region={region}
+      />
+      <TreasureRating
+        articles={articles}
+        dungeons={dungeons}
+        hexData={hexData}
+        region={region}
+      />
+    </div>
     <div class="description-container">
       <Fragment set:html={renderMarkdown(region.description)} />
     </div>

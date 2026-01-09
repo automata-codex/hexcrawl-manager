@@ -1,5 +1,196 @@
 # @skyreach/web
 
+## 4.0.0
+
+### Major Changes
+
+- 8726d51: Flexible map configuration
+
+  This release makes the hex map system flexible and data-driven rather than hardcoded to specific dimensions.
+
+  **Breaking Changes:**
+  - `regionId` removed from hex schema - regions now own hex membership via `region.hexes[]`
+  - `region.hexes` is now required (was optional)
+  - Coordinate functions (`parseHexId`, `hexSort`, `getHexNeighbors`, `parseTrailId`, etc.) now require `notation` parameter - no more hardcoded defaults
+
+  **New Features:**
+  - Centralized coordinate utilities in `@achm/core` with support for `letter-number` and `numeric` notation
+  - New `map.yaml` configuration file defines grid dimensions, notation, and out-of-bounds hexes
+  - New `/api/map-config.json` endpoint exposes map configuration to frontend
+  - Regions define default `terrain` and `biome` for their hexes
+  - Hex files are optional - hexes without files inherit region defaults
+  - Prebuild validation catches configuration errors (duplicate assignments, invalid coordinates)
+  - Interactive map calculates viewBox from actual hex data
+  - New "Fit to View" button on interactive map
+
+  **Migration:**
+  - Hex files reorganized from `hexes/region-X/` to `hexes/col-X/` structure
+  - Region files now include `hexes` array listing member hex IDs
+  - `regionId` field removed from hex files (derived from region membership)
+
+- 0f0d0f7: **BREAKING CHANGE:** Refactor repo after code/data split
+  - Add file extensions to imports
+  - Add placeholder data
+  - Add license
+  - **BREAKING CHANGE:** Implement configurable data directory
+  - Update tests
+
+### Minor Changes
+
+- ec425a4: Add keyed encounters display and improve hex catalog search
+
+  **Keyed Encounters:**
+  - Display keyed encounters on hex detail pages with encounter name, trigger type, and notes
+  - Track keyed encounters in encounter usage map so they no longer appear as "unused"
+
+  **Hex Catalog Improvements:**
+  - Support numeric coordinate notation (e.g., "0303") in addition to letter-number (e.g., "F12")
+  - Enable prefix matching for hex ID search (e.g., "04" matches 0401, 0402, etc.)
+  - Simplify search results to show data bar and searchable fields only
+  - Fix notes search to handle both string and object note formats
+
+  **Rumors Page:**
+  - Convert rumors index to a simple dynamic list instead of hardcoded random table
+  - Remove redundant "all rumors" page
+
+  **Core Package:**
+  - Export `LETTER_NUMBER_PREFIX_RE` and `NUMERIC_PREFIX_RE` patterns for hex ID prefix matching
+
+- b274f5a: Improve content collection loading for open-source users
+  - Add conditional loaders that return empty arrays for directories with only `.gitkeep` files
+  - Add `collectionHasContent()` helper to check if a directory has actual content
+  - Add `yamlFileHasContent()` helper to check if a YAML file has non-empty content
+  - Remove deprecated `getDirectoryYamlLoader` function
+  - Migrate all collections to use Astro's `glob` loader instead of custom loader
+  - Data files using array format must now be split into individual files (one per item)
+  - Remove empty `.gitkeep` directories from demo data to reduce noise for new users
+
+- 3d0d8ba: Data-driven map icons and layers
+
+  This release replaces hardcoded map icon rendering with a flexible, data-driven system configured via `map.yaml`.
+
+  **New Features:**
+  - Icons defined in `map.yaml` with `icons` section (SVG file + default size)
+  - Tag-based icon rendering via `tagIcons` section (map hex tags to icons with optional styling)
+  - Per-hex custom icons via `mapIcon` field in hex YAML files
+  - Campaign-specific layers defined in `map.yaml` with visibility and scope controls
+  - SVG symbols loaded from both framework icons and `data/map-assets/` directory
+  - Prebuild validation catches undefined icon/layer references
+
+  **Layer System:**
+  - Framework layers (hex borders, labels, biomes, terrain, rivers, trails) remain hardcoded
+  - Campaign layers from `map.yaml` render above framework layers
+  - Custom icons layer renders above campaign layers
+  - Layers panel displays in visual stacking order (top layer first)
+  - Layer scopes now properly validated against `ScopeSchema`
+
+  **Migration:**
+  - Campaign-specific icons (e.g., `icon-fort-dagaric.svg`) should move to `data/map-assets/`
+  - Hardcoded icon rendering replaced with `tagIcons` configuration
+
+- 0c99f12: Rename package namespace
+- 87fad0b: Add sample data for open-source release
+
+  This change introduces a complete starter data set demonstrating core hexcrawl-manager
+  features through the "Thornwick Village" mini-campaign. The sample data includes:
+  - 1 region with encounter tables
+  - 7 hexes covering a 3x3 grid
+  - 1 dungeon (The Broken Tower) with rooms, treasure, and encounters
+  - 6 encounters demonstrating various encounter types
+  - 5 stat blocks (goblins, wolf, spider, boss monster)
+  - 3 factions with relationships
+  - 4 NPCs
+  - 1 character
+  - 1 roleplay book with intelligence reports
+  - 1 clue and 3 rumors
+  - Complete routes.yml, sidebar.yml, and map.yaml configuration
+  - Starter CSS with Fraunces (headings) and Source Serif 4 (body) fonts
+
+  Schema updates:
+  - Made `factions` optional in clue schema
+  - Made `pritharaVariants` optional in roleplay book schema
+  - Changed `FactionEnum` from hardcoded enum to flexible `FactionId` string type
+    (validation now done at build time via validate-faction-ids.ts)
+
+  Web app improvements:
+  - Consolidated ArticleLayout/SecretArticleLayout into ComponentLayout/SecretLayout
+  - Moved article.css styles into global-styles.css
+
+- 2252ac4: Add structured data for nobility
+  - Add new schemas
+  - **Content Update:** Revamp nobility page
+
+- 8ea782e: ### Map and Region Improvements
+  - **Configurable map label font**: Added `labelFont` option to map grid config (defaults to Source Sans 3)
+  - **Hex ID display**: Map labels now correctly respect the coordinate notation setting (numeric vs letter-number)
+  - **Region ID flexibility**: Support both numbered (`region-1`) and named (`skyreach-highlands`) region IDs
+    - Numbered regions display as "Region 1: Name"
+    - Named regions display as "Region: Name"
+    - New functions: `getRegionShortTitle()`, `getRegionFullTitle()`, `getRegionNumber()`
+    - Sorting: numbered regions first (numerically), then named regions (alphabetically, ignoring articles)
+  - **Map-aware neighbors**: `getHexNeighbors()` now accepts optional `MapConfig` to filter by grid bounds and out-of-bounds list
+
+  ### Style Fixes
+  - Fixed paragraph spacing in map detail panel, region pages, NPC pages, and rumor details
+  - Fixed stat block component spacing and colors
+  - Disabled `svelte/no-useless-mustaches` ESLint rule
+
+- 03267cd: Support synthetic hexes for region-only hex definitions
+
+  Hexes can now be defined only at the region level without requiring individual hex files. The web app automatically generates synthetic hex data for these hexes, inheriting terrain and biome from the region.
+
+  **New Features:**
+  - API endpoint `/api/hexes.json` includes synthetic hexes from regions
+  - Individual hex pages (`/session-toolkit/hexes/[id]`) render region-only hexes
+  - Hex catalog includes synthetic hexes in listings
+  - Region hex pages show all hexes including those without files
+
+  **New Utilities:**
+  - `createSyntheticHex(hexId, regionData)` - creates minimal hex data from region defaults
+  - `resolveHexWithRegion(hex, region)` - applies region fallbacks for terrain/biome
+  - `getAllRegionHexIds(regions, notation)` - gets all hex IDs referenced by regions
+
+  Synthetic hexes display as "Unexplored" with the landmark "This area has not yet been explored."
+
+- f9c62ce: Spike: Text conditional registration of content collections
+
+### Patch Changes
+
+- 3b23d23: Add lair actions support to stat blocks
+
+  **Schema:**
+  - Add `lair_actions_intro` field for introductory text (e.g., "On initiative count 20, roll 1d4")
+  - Add `lair_actions` array field with `name` and `desc` for each lair action
+
+  **Web App:**
+  - New `LairActions.astro` component to display lair actions in stat blocks
+  - Lair actions render after reactions when present
+
+- 6600365: Miscellaneous UI fixes and improvements
+
+  **Badge Component:**
+  - Fix inconsistent font weight by setting explicit `font-weight: normal`
+  - Add explicit font family for consistent rendering
+
+  **Sidebar Navigation:**
+  - Make nav menu scrollable when content exceeds viewport height
+  - Move scrollbar to edge of sidebar (outside padding)
+  - Add theme-aware scrollbar styling for both light and dark modes
+
+  **GM Dashboard:**
+  - Add in-world game start date display to next session agenda
+
+  **Hidden Sites:**
+  - Fix type errors when clue references are objects instead of strings
+  - Use `normalizeClueRef` helper for consistent handling
+
+  **Minor Fixes:**
+  - Fix navbar nag badge font consistency
+  - Fix hex detail content spacing
+  - Update progress meter font
+
+- 52429bd: Update default encounter table
+
 ## 3.6.0
 
 ### Minor Changes

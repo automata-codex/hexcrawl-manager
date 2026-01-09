@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { MONTH_NAMES } from '../constants';
+import { MONTH_NAMES } from '../constants/index.js';
 
 export const CampaignDateSchema = z.object({
   day: z.number().int().min(1).max(31),

@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 
 import HiddenContent from '../../../components/Content/HiddenContent.astro';
 import PublicContent from '../../../components/Content/PublicContent.astro';
-import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { getArticlePath } from '../../../utils/article-paths';
 import { renderBulletMarkdown, renderMarkdown } from '../../../utils/markdown';
 
@@ -44,7 +44,7 @@ const title = 'Third-party Supplements';
     margin: 1rem 0;
   }
 </style>
-<ArticleLayout title={title}>
+<ComponentLayout title={title}>
   <PublicContent>
     <Fragment set:html={renderMarkdown(publicText)} />
     <ul style="margin-top: 1rem;">
@@ -81,4 +81,4 @@ const title = 'Third-party Supplements';
       }
     </ul>
   </HiddenContent>
-</ArticleLayout>
+</ComponentLayout>

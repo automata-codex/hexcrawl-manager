@@ -1,5 +1,31 @@
 # @skyreach/cli-kit
 
+## 3.1.0
+
+### Minor Changes
+
+- 0c99f12: Rename package namespace
+
+### Patch Changes
+
+- 0f0d0f7: **BREAKING CHANGE:** Refactor repo after code/data split
+  - Add file extensions to imports
+  - Add placeholder data
+  - Add license
+  - **BREAKING CHANGE:** Implement configurable data directory
+  - Update tests
+
+- Updated dependencies [52b773f]
+- Updated dependencies [3d0d8ba]
+- Updated dependencies [3b23d23]
+- Updated dependencies [8726d51]
+- Updated dependencies [0c99f12]
+- Updated dependencies [0f0d0f7]
+- Updated dependencies [87fad0b]
+- Updated dependencies [2252ac4]
+- Updated dependencies [8ea782e]
+  - @achm/schemas@5.0.0
+
 ## 3.0.0
 
 ### Minor Changes

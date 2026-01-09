@@ -12,12 +12,13 @@
  *   npm run validate:articles
  */
 
+import { resolveDataPath } from '@achm/data';
 import { readdirSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import yaml from 'yaml';
 
-const ARTICLES_DIR = resolve(process.cwd(), '../../data/articles');
-const COMPOSITES_DIR = resolve(process.cwd(), '../../data/composite-articles');
+const ARTICLES_DIR = resolveDataPath('articles');
+const COMPOSITES_DIR = resolveDataPath('composite-articles');
 
 interface ArticleFrontmatter {
   id: string;

@@ -1,4 +1,4 @@
-import { info, error as printError, warn } from '@skyreach/cli-kit';
+import { info, error as printError, warn } from '@achm/cli-kit';
 import fs from 'node:fs';
 
 import {

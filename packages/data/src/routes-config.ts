@@ -2,12 +2,10 @@
  * Routes configuration loader for data/routes.yml
  */
 
-import path from 'node:path';
+import { RoutesConfigSchema, type RoutesConfigData } from '@achm/schemas';
 
-import { RoutesConfigSchema, type RoutesConfigData } from '@skyreach/schemas';
-
-import { readAndValidateYaml } from './fs-utils';
-import { loadConfig } from './load-config';
+import { readAndValidateYaml } from './fs-utils.js';
+import { resolveDataPath } from './paths.js';
 
 /**
  * Load and validate routes.yml from the data directory.
@@ -15,7 +13,6 @@ import { loadConfig } from './load-config';
  * @throws DataValidationError if validation fails
  */
 export function loadRoutesConfig(): RoutesConfigData {
-  const config = loadConfig({ throwIfMissing: true })!;
-  const filePath = path.join(config.repoRoot, 'data', 'routes.yml');
+  const filePath = resolveDataPath('routes.yml');
   return readAndValidateYaml(filePath, RoutesConfigSchema);
 }

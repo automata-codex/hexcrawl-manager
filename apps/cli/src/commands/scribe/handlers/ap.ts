@@ -1,5 +1,5 @@
-import { info, usage } from '@skyreach/cli-kit';
-import { PILLARS, TIERS } from '@skyreach/schemas';
+import { info, usage } from '@achm/cli-kit';
+import { PILLARS, TIERS } from '@achm/schemas';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
 import { partyMemberToString } from '../../../services/party-member.service';
@@ -9,6 +9,8 @@ import {
 } from '../../../services/projectors.service';
 import { requireSession } from '../services/general';
 
+import todoHandler from './todo';
+
 import type { Context } from '../types';
 
 export default function ap(ctx: Context) {
@@ -17,7 +19,21 @@ export default function ap(ctx: Context) {
       return;
     }
 
-    const pillar = (args[0] ?? '').toLowerCase();
+    const sub = (args[0] ?? '').toLowerCase();
+
+    // Handle `ap milestone "<note>"`
+    if (sub === 'milestone') {
+      const milestoneNote = args.slice(1).join(' ').trim();
+      if (!milestoneNote) {
+        return usage('usage: ap milestone "<note...>"');
+      }
+      const todo = todoHandler(ctx);
+      todo([`Add AP for milestone: ${milestoneNote}`]);
+      return;
+    }
+
+    // Existing logic for `ap <pillar> <tier> <note...>`
+    const pillar = sub;
     const tierStr = args[1];
     const note = (args[2] ?? '').trim();
 

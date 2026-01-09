@@ -3,7 +3,7 @@ import { toLower } from 'lodash-es';
 
 import { renderBulletMarkdown } from '../../utils/markdown';
 
-import type { MeleeWeaponAttackData } from '@skyreach/schemas';
+import type { MeleeWeaponAttackData } from '@achm/schemas';
 
 interface Props {
   action: MeleeWeaponAttackData;
@@ -54,6 +54,7 @@ const nameText = recharge ? `${name} (Recharge ${recharge})` : name;
   .action-name {
     font-style: italic;
     font-weight: bold;
+    color: var(--bulma-strong-color);
   }
 
   .attack-type {

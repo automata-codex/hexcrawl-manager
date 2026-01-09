@@ -1,10 +1,15 @@
-import { hexSort as hexIdSort } from '@skyreach/core';
+import {
+  hexSort as hexIdSort,
+  isValidHexFormat,
+  parseHexId as coreParseHexId,
+} from '@achm/core';
 
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
 
-import type { ExtendedGmNote, ExtendedHexData, ExtendedHiddenSites } from '../types.ts';
-import type { GmNote, HexData, HiddenSite } from '@skyreach/schemas';
+import type { ExtendedGmNote, ExtendedHexData, ExtendedHiddenSites, RegionEntry, ResolvedHexData } from '../types.ts';
+import type { CoordinateNotation } from '@achm/core';
+import type { GmNote, HexData, HiddenSite, RegionData } from '@achm/schemas';
 
 /**
  * Process a GM note into extended format with rendered markdown and optional clueId.
@@ -31,20 +36,28 @@ export function getHexSvgPath(x: number, y: number, hexWidth: number): string {
   return points.join(' ');
 }
 
-export function hexSort(a: HexData, b: HexData): number {
-  return hexIdSort(a.id, b.id);
+export function hexSort(
+  a: HexData,
+  b: HexData,
+  notation: CoordinateNotation,
+): number {
+  return hexIdSort(a.id, b.id, notation);
 }
 
-export function parseHexId(id: string): { q: number; r: number } {
-  const match = id.match(/^([A-Za-z])(\d+)$/);
-  if (!match) throw new Error(`Invalid hex id: ${id}`);
-  const [, colLetter, rowStr] = match;
-  const q = colLetter.toUpperCase().charCodeAt(0) - 65; // A=0, B=1, ...
-  const r = parseInt(rowStr, 10) - 1; // 1-based to 0-based
-  return { q, r };
+/**
+ * Parse a hex ID into column (q) and row (r) coordinates.
+ * Uses q/r naming for compatibility with axialToPixel and existing code.
+ * Both values are 0-indexed.
+ */
+export function parseHexId(
+  id: string,
+  notation: CoordinateNotation,
+): { q: number; r: number } {
+  const { col, row } = coreParseHexId(id, notation);
+  return { q: col, r: row };
 }
 
-export async function processHex(hex: HexData): Promise<ExtendedHexData> {
+export async function processHex(hex: ResolvedHexData): Promise<ExtendedHexData> {
   const landmark =
     typeof hex.landmark === 'string' ? hex.landmark : hex.landmark.description;
   return {
@@ -61,9 +74,46 @@ export async function processHex(hex: HexData): Promise<ExtendedHexData> {
   };
 }
 
-export function isValidHexId(hexId: string): boolean {
-  const match = hexId.match(/^([A-Za-z])(\d+)$/);
-  return !!match;
+/**
+ * Create synthetic hex data for a hex that exists only in a region definition.
+ * Used when a region declares hexes but no individual hex files exist for them.
+ */
+export function createSyntheticHex(hexId: string, region: RegionData): HexData {
+  return {
+    id: hexId,
+    slug: hexId,
+    name: 'Unexplored',
+    landmark: 'This area has not yet been explored.',
+    terrain: region.terrain,
+    biome: region.biome,
+    isVisited: false,
+    isExplored: false,
+    isScouted: false,
+  };
+}
+
+/**
+ * Resolve hex data with region fallbacks for terrain/biome and add regionId.
+ * Returns a ResolvedHexData with all region-derived fields populated.
+ */
+export function resolveHexWithRegion(
+  hex: HexData,
+  region: RegionEntry | undefined,
+): ResolvedHexData {
+  return {
+    ...hex,
+    regionId: region?.id ?? 'unknown',
+    regionName: region?.data.name ?? 'Unknown',
+    terrain: hex.terrain ?? region?.data.terrain,
+    biome: hex.biome ?? region?.data.biome,
+  };
+}
+
+export function isValidHexId(
+  hexId: string,
+  notation: CoordinateNotation,
+): boolean {
+  return isValidHexFormat(hexId, notation);
 }
 
 function isStringArray(arr: any[]): arr is string[] {

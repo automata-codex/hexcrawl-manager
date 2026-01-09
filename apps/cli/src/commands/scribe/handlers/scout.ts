@@ -1,5 +1,6 @@
-import { error, info, usage } from '@skyreach/cli-kit';
-import { getHexNeighbors, isValidHexId, normalizeHexId } from '@skyreach/core';
+import { error, info, usage } from '@achm/cli-kit';
+import { getHexNeighbors, isValidHexId, normalizeHexId } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
 import { selectCurrentHex } from '../../../services/projectors.service';
@@ -27,8 +28,10 @@ export default function scout(ctx: Context) {
       return usage('usage: scout <HEX_ID> [landmark]');
     }
 
-    const target = normalizeHexId(hexRaw);
-    if (!isValidHexId(target)) {
+    const mapConfig = loadMapConfig();
+    const notation = mapConfig.grid.notation;
+    const target = normalizeHexId(hexRaw, notation);
+    if (!isValidHexId(target, notation)) {
       return error('❌ Invalid hex id');
     }
 
@@ -44,7 +47,7 @@ export default function scout(ctx: Context) {
     }
 
     // Adjacency check
-    const neighbors = getHexNeighbors(from);
+    const neighbors = getHexNeighbors(from, notation, mapConfig);
     if (!neighbors.includes(target)) {
       info(`Warning: ${target} is not adjacent to ${from}.`);
     }

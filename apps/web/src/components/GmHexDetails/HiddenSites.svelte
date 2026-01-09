@@ -1,11 +1,12 @@
 <script lang="ts">
+  import { sortIgnoringArticles } from '@achm/core';
+  import { normalizeClueRef, type LinkType } from '@achm/schemas';
+
   import { getCluePath } from '../../config/routes.ts';
   import { getLinkPath, getLinkText } from '../../utils/link-generator';
   import TreasureTable from '../TreasureTable/TreasureTable.svelte';
 
   import type { ClueMapEntry, ExtendedHexData, ExtendedHiddenSites } from '../../types.ts';
-  import type { LinkType } from '@skyreach/schemas';
-  import { sortIgnoringArticles } from '@skyreach/core';
 
   interface Props {
     clueMap?: Record<string, ClueMapEntry>;
@@ -27,11 +28,14 @@
   function getSiteClues(site: ExtendedHiddenSites) {
     if (!site.clues) return [];
     return site.clues
-      .map((id) => ({
-        id,
-        name: clueMap?.[id]?.name ?? id,
-        found: !!clueMap?.[id],
-      }))
+      .map((ref) => {
+        const { id } = normalizeClueRef(ref);
+        return {
+          id,
+          name: clueMap?.[id]?.name ?? id,
+          found: !!clueMap?.[id],
+        };
+      })
       .sort((a, b) => sortIgnoringArticles(a.name, b.name));
   }
 </script>
@@ -70,7 +74,7 @@
     <div>
       <span class="inline-heading keep-with-next">Hidden Sites:</span>
     </div>
-    <ul>
+    <ul class="hidden-sites-list">
       {#each hex.renderedHiddenSites as site (site.description)}
         {@const siteClues = getSiteClues(site)}
         <li>
@@ -101,3 +105,9 @@
     </ul>
   {/if}
 {/if}
+
+<style>
+  .hidden-sites-list {
+    margin-bottom: 0;
+  }
+</style>

@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
-import { ClueReferencesSchema } from './clue-reference';
-import { EncounterOverrideSchema } from './encounter-override';
-import { LinkTypeEnum } from './roleplay-book';
-import { TreasureSchema } from './treasure';
+import { ClueReferencesSchema } from './clue-reference.js';
+import { EncounterOverrideSchema } from './encounter-override.js';
+import { LinkTypeEnum } from './roleplay-book.js';
+import { TreasureSchema } from './treasure.js';
 
-const BiomeEnum = z.enum([
+export const BiomeEnum = z.enum([
   'alpine-tundra',
   'boreal-forest',
   'coastal-ocean',
@@ -46,8 +46,9 @@ export const TerrainEnum = z.enum([
 export const HexId = z
   .string()
   .toLowerCase()
-  .regex(/^[a-z]+[0-9]+$/, {
-    message: "Hex id must be like 'q12' (letters+digits, lowercase ok)",
+  .regex(/^([a-z]+[0-9]+|[0-9]{4})$/, {
+    message:
+      "Hex id must be like 'q12' (letters+digits) or '0203' (4-digit CCRR format)",
   });
 
 // Base schema for all hidden sites (common fields)
@@ -184,6 +185,22 @@ export const GmNoteSchema = z.union([
 
 export type GmNote = z.infer<typeof GmNoteSchema>;
 
+/**
+ * Direct map icon configuration for a specific hex.
+ * Use this for one-off icons that don't map to a reusable tag.
+ * For reusable icons, prefer adding a tag and defining a tagIcon in map.yaml.
+ */
+export const HexMapIconSchema = z.object({
+  icon: z.string().describe('Icon key from map.yaml icons section'),
+  size: z.number().positive().optional().describe('Override default icon size'),
+  stroke: z.string().optional().describe('SVG stroke color'),
+  strokeWidth: z.number().positive().optional(),
+  fill: z.string().optional().describe('SVG fill color'),
+  layer: z.string().default('customIcons').describe('Layer key for visibility toggle'),
+});
+
+export type HexMapIcon = z.output<typeof HexMapIconSchema>;
+
 export const HexSchema = z
   .object({
     id: z.string(),
@@ -192,7 +209,6 @@ export const HexSchema = z
     landmark: z.union([z.string(), LandmarkSchema]),
     hiddenSites: HiddenSitesSchema.optional(),
     secretSite: z.string().optional(),
-    regionId: z.string(),
     hideInCatalog: z.boolean().optional(),
     isVisited: z.boolean().optional(),
     isExplored: z.boolean().optional(),
@@ -223,12 +239,19 @@ export const HexSchema = z
       .array(TagSchema)
       .optional()
       .describe('Tags for filtering hexes, matching clues, etc.'),
-    terrain: TerrainEnum,
-    biome: BiomeEnum,
+    terrain: TerrainEnum.optional().describe(
+      'Terrain type; falls back to region default if not specified',
+    ),
+    biome: BiomeEnum.optional().describe(
+      'Biome type; falls back to region default if not specified',
+    ),
     topography: z
       .string()
       .optional()
       .describe('Free-text description of elevation and terrain features'),
+    mapIcon: HexMapIconSchema.optional().describe(
+      'Direct icon configuration; for reusable icons, prefer tags + tagIcons in map.yaml',
+    ),
   })
   .describe('HexSchema');
 

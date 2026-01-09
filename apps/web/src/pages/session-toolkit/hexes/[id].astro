@@ -1,4 +1,6 @@
 ---
+import { normalizeHexId } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 import { getCollection, getEntry } from 'astro:content';
 
 import OpenContent from '../../../components/Content/OpenContent.astro';
@@ -9,9 +11,10 @@ import RandomEncountersSection from '../../../components/RandomEncountersSection
 import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { mergeEncounterOverrides } from '../../../utils/encounters';
-import { processHex } from '../../../utils/hexes';
+import { createSyntheticHex, processHex } from '../../../utils/hexes';
+import { buildHexToRegionLookup } from '../../../utils/regions';
 
-import type { EncounterTableData, HexData } from '@skyreach/schemas';
+import type { EncounterTableData, HexData } from '@achm/schemas';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -22,41 +25,77 @@ if (!id) {
   });
 }
 
-// Query for the entry directly using the request slug
-const hexEntry = await getEntry('hexes', id);
+// Load map config for notation
+const mapConfig = loadMapConfig();
+const notation = mapConfig.grid.notation;
 
-// Redirect if the entry does not exist
-if (hexEntry === undefined) {
-  return new Response(null, {
-    status: 404,
-    statusText: 'Not found',
-  });
+// Build region lookup early (needed for both file-based and synthetic hexes)
+const regions = await getCollection('regions');
+const hexToRegion = buildHexToRegionLookup(regions, notation);
+
+// Try to get hex from file, or create synthetic hex from region
+const hexEntry = await getEntry('hexes', id);
+let hexData: HexData;
+
+if (hexEntry) {
+  hexData = hexEntry.data;
+} else {
+  // No file exists - check if this hex is defined in a region
+  const normalizedId = normalizeHexId(id, notation);
+  const regionEntry = hexToRegion.get(normalizedId);
+
+  if (!regionEntry) {
+    // Hex doesn't exist as file or in any region
+    return new Response(null, {
+      status: 404,
+      statusText: 'Not found',
+    });
+  }
+
+  // Create synthetic hex data from region
+  hexData = createSyntheticHex(normalizedId, regionEntry.data);
 }
 
 const dungeons = await getCollection('dungeons');
 const clues = await getCollection('clues');
-const hex: HexData = hexEntry.data;
+const encounterCollection = await getCollection('encounters');
 
 // Build clue lookup map for display
 const clueMap = Object.fromEntries(
   clues.map((c) => [c.id, { id: c.id, name: c.data.name }])
 );
-const title = `Hex ${hex.id.toUpperCase()}: ${hex.name}`;
+
+// Build encounter lookup map for display
+const encounterMap = Object.fromEntries(
+  encounterCollection.map((e) => [e.id, { id: e.id, name: e.data.name }])
+);
+const title = `Hex ${hexData.id.toUpperCase()}: ${hexData.name}`;
 
 // Find pointcrawls accessible from this hex
 const allPointcrawls = await getCollection('pointcrawls');
+const normalizedHexId = normalizeHexId(hexData.id, notation);
 const pointcrawls = allPointcrawls
-  .filter((p) => p.data.hexIds?.includes(hex.id.toLowerCase()))
+  .filter((p) => p.data.hexIds?.includes(normalizedHexId))
   .map((p) => ({ slug: p.data.slug, name: p.data.name }));
+
+// Find hex's region
+const regionEntry = hexToRegion.get(normalizedHexId);
+
+// Resolve hex with region info and fallback terrain/biome
+const hex = {
+  ...hexData,
+  regionId: regionEntry?.id ?? 'unknown',
+  regionName: regionEntry?.data.name ?? 'Unknown',
+  terrain: hexData.terrain ?? regionEntry?.data.terrain,
+  biome: hexData.biome ?? regionEntry?.data.biome,
+};
 
 // Build the random encounter table
 let encounters: EncounterTableData | undefined = undefined;
 let encounterChance = 8;
-const regions = await getCollection('regions');
-const region = regions.find((region) => region.id === hex.regionId);
-if (region) {
-  encounters = region.data.encounters;
-  encounterChance = region.data.encounterChance;
+if (regionEntry) {
+  encounters = regionEntry.data.encounters;
+  encounterChance = regionEntry.data.encounterChance;
 }
 encounterChance = hex.encounterChance ?? encounterChance;
 
@@ -85,18 +124,20 @@ const extendedHexData = await processHex(hex);
       client:load
       clueMap={clueMap}
       dungeons={dungeons}
+      encounterMap={encounterMap}
       hex={extendedHexData}
+      mapConfig={mapConfig}
       pointcrawls={pointcrawls}
       showSelfLink={false}
     />
-    {!hex.hideRandomEncounters && region && (
+    {!hex.hideRandomEncounters && regionEntry && (
       <RandomEncountersSection
-        region={region.data}
+        region={regionEntry.data}
         encounters={encounters}
         encounterChance={encounterChance}
       />
     )}
-    {!hex.hideRandomEncounters && !region && encounters && (
+    {!hex.hideRandomEncounters && !regionEntry && encounters && (
       <>
         <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
         <p>

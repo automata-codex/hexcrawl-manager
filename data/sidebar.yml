@@ -1,0 +1,97 @@
+# Sidebar configuration
+# This file defines the navigation structure for the campaign site.
+#
+# Structure:
+#   shared: Sections visible to all users (players and GMs)
+#   gmOnly: Sections visible only to GMs
+#
+# Href types:
+#   type: article   - Reference to an article by frontmatter id
+#   type: composite - Reference to a composite article by id
+#   type: collection - Reference to a collection index page
+#   string          - Direct path (for ToC pages, images, special cases)
+#
+# Item properties:
+#   id: Unique identifier (required for items that are expandable)
+#   label: Display text
+#   href: Link (typed reference or direct path)
+#   hasToC: Whether item has a Table of Contents page
+#   tocHref: Path to ToC page (when hasToC is true)
+#   items: Sub-items (shown when expanded or on ToC page)
+
+shared:
+  - id: players-reference
+    label: "Player's Reference"
+    href: /players-reference
+    items:
+      - label: Interactive Map
+        href: /players-reference/interactive-map
+      - id: player-setting
+        label: Setting
+        hasToC: true
+        expandable: true
+        tocHref: /players-reference/setting
+        items:
+          - label: NPCs
+            href: /players-reference/setting/npcs
+
+gmOnly:
+  - id: session-toolkit
+    label: Session Toolkit
+    href: /session-toolkit
+    items:
+      - id: clues
+        label: Clues
+        href:
+          type: collection
+          path: /session-toolkit/clues
+      - id: hex-catalog
+        label: Hex Catalog
+        href:
+          type: collection
+          path: /session-toolkit/hexes
+      - id: regions
+        label: Regions
+        href:
+          type: collection
+          path: /session-toolkit/regions
+      - id: roleplay-books
+        label: Roleplay Books
+        hasToC: true
+        tocHref: /session-toolkit/roleplay-books
+        items:
+          - label: Goblin Dissenters
+            href: /session-toolkit/roleplay-books/goblin-dissenters
+      - id: rumors
+        label: Rumors
+        href:
+          type: collection
+          path: /session-toolkit/rumors
+
+  - id: gm-reference
+    label: GM Reference
+    href: /gm-reference
+    items:
+      - id: characters
+        label: Characters
+        href:
+          type: collection
+          path: /gm-reference/characters
+      - id: dungeons
+        label: Dungeons
+        href:
+          type: collection
+          path: /gm-reference/dungeons
+      - id: encounters
+        label: Encounters
+        href:
+          type: collection
+          path: /gm-reference/encounters
+      - id: factions
+        label: Factions
+        href: /gm-reference/factions
+      - id: stat-blocks
+        label: Stat Blocks
+        href:
+          type: collection
+          path: /gm-reference/stat-blocks

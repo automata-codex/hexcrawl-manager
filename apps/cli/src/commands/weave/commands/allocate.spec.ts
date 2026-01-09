@@ -2,14 +2,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import {
   parseAllocateTokens,
+  parseMilestoneTokens,
   sliceAfterWeaveAllocateAp,
+  sliceAfterWeaveAllocateApSubcommand,
   allocateFromCli,
+  allocateMilestoneFromCli,
   type AllocationBlock,
+  type MilestoneAllocationBlock,
 } from './allocate';
 import { AllocateApResult } from './allocate-ap';
+import { AllocateMilestoneResult } from './allocate-ap-milestone';
 
 // Mock cli-kit logging + exit mapper (no-op / deterministic)
-vi.mock('@skyreach/cli-kit', () => ({
+vi.mock('@achm/cli-kit', () => ({
   info: vi.fn(),
   error: vi.fn(),
   makeExitMapper: () => () => 1,
@@ -35,8 +40,28 @@ vi.mock('./allocate-ap', () => ({
   allocateAp: (...args: unknown[]) => allocateApMock(...args),
 }));
 
+// Mock allocate-ap-milestone
+const allocateMilestoneMock = vi
+  // eslint-disable-next-line no-unused-vars
+  .fn(async (..._rest): Promise<AllocateMilestoneResult> => {
+    return {
+      amount: 3,
+      characterId: '',
+      createdAt: '',
+      dryRun: true,
+      note: '',
+      pillars: {},
+      sessionIdSpentAt: '',
+    };
+  });
+vi.mock('./allocate-ap-milestone', () => ({
+  allocateMilestone: (...args: unknown[]) => allocateMilestoneMock(...args),
+  MILESTONE_AP_AMOUNT: 3,
+}));
+
 beforeEach(() => {
   allocateApMock.mockReset();
+  allocateMilestoneMock.mockReset();
 });
 
 describe('parseAllocateTokens', () => {
@@ -234,6 +259,209 @@ describe('allocateFromCli', () => {
       note: undefined,
       pillarSplits: undefined,
       dryRun: false,
+    });
+  });
+});
+
+// ---- Milestone allocation tests ----
+
+describe('parseMilestoneTokens', () => {
+  it('parses a single block with pillar splits summing to 3', () => {
+    const tokens = [
+      '--character',
+      'char-1',
+      '--combat',
+      '1',
+      '--exploration',
+      '1',
+      '--social',
+      '1',
+      '--note',
+      'Winter survival',
+    ];
+    const blocks = parseMilestoneTokens(tokens);
+    expect(blocks).toEqual<MilestoneAllocationBlock[]>([
+      {
+        characterId: 'char-1',
+        note: 'Winter survival',
+        pillarSplits: { combat: 1, exploration: 1, social: 1 },
+      },
+    ]);
+  });
+
+  it('parses a block with uneven pillar distribution', () => {
+    const tokens = [
+      '--character',
+      'alpha',
+      '--combat',
+      '0',
+      '--exploration',
+      '3',
+      '--social',
+      '0',
+    ];
+    const blocks = parseMilestoneTokens(tokens);
+    expect(blocks).toEqual<MilestoneAllocationBlock[]>([
+      {
+        characterId: 'alpha',
+        note: undefined,
+        pillarSplits: { combat: 0, exploration: 3, social: 0 },
+      },
+    ]);
+  });
+
+  it('parses multiple blocks', () => {
+    const tokens = [
+      '--character',
+      'c1',
+      '--combat',
+      '1',
+      '--exploration',
+      '2',
+      '--social',
+      '0',
+      '--note',
+      'Dragon quest',
+
+      '--character',
+      'c2',
+      '--combat',
+      '0',
+      '--exploration',
+      '1',
+      '--social',
+      '2',
+    ];
+    const blocks = parseMilestoneTokens(tokens);
+    expect(blocks).toEqual<MilestoneAllocationBlock[]>([
+      {
+        characterId: 'c1',
+        note: 'Dragon quest',
+        pillarSplits: { combat: 1, exploration: 2, social: 0 },
+      },
+      {
+        characterId: 'c2',
+        note: undefined,
+        pillarSplits: { combat: 0, exploration: 1, social: 2 },
+      },
+    ]);
+  });
+
+  it('throws if pillar splits do not sum to 3', () => {
+    const tokens = [
+      '--character',
+      'bad',
+      '--combat',
+      '1',
+      '--exploration',
+      '1',
+      '--social',
+      '0',
+    ];
+    expect(() => parseMilestoneTokens(tokens)).toThrow(
+      /must sum to 3.*got 2/,
+    );
+  });
+
+  it('throws if no character is provided', () => {
+    const tokens = ['--combat', '1', '--exploration', '1', '--social', '1'];
+    expect(() => parseMilestoneTokens(tokens)).toThrow(/Missing --character/);
+  });
+
+  it('throws if no allocations are found', () => {
+    const tokens: string[] = [];
+    expect(() => parseMilestoneTokens(tokens)).toThrow(/No allocations found/);
+  });
+});
+
+describe('sliceAfterWeaveAllocateApSubcommand', () => {
+  it('returns tokens after `weave allocate ap absence`', () => {
+    const raw = [
+      '/usr/local/bin/node',
+      '/path/to/cli.js',
+      'weave',
+      'allocate',
+      'ap',
+      'absence',
+      '--character',
+      'x',
+      '--amount',
+      '1',
+    ];
+    const tokens = sliceAfterWeaveAllocateApSubcommand(raw, 'absence');
+    expect(tokens).toEqual(['--character', 'x', '--amount', '1']);
+  });
+
+  it('returns tokens after `weave allocate ap milestone`', () => {
+    const raw = [
+      'node',
+      'cli.js',
+      'weave',
+      'allocate',
+      'ap',
+      'milestone',
+      '--character',
+      'y',
+      '--combat',
+      '1',
+    ];
+    const tokens = sliceAfterWeaveAllocateApSubcommand(raw, 'milestone');
+    expect(tokens).toEqual(['--character', 'y', '--combat', '1']);
+  });
+
+  it('returns [] if subcommand not found', () => {
+    const raw = ['node', 'cli.js', 'weave', 'allocate', 'ap', '--character', 'z'];
+    const tokens = sliceAfterWeaveAllocateApSubcommand(raw, 'milestone');
+    expect(tokens).toEqual([]);
+  });
+});
+
+describe('allocateMilestoneFromCli', () => {
+  it('parses two blocks and calls allocateMilestone for each with dryRun=true', async () => {
+    const raw = [
+      'node',
+      'cli.js',
+      'weave',
+      'allocate',
+      'ap',
+      'milestone',
+      '--character',
+      'id1',
+      '--combat',
+      '1',
+      '--exploration',
+      '1',
+      '--social',
+      '1',
+      '--note',
+      'Winter survival',
+
+      '--character',
+      'id2',
+      '--combat',
+      '0',
+      '--exploration',
+      '2',
+      '--social',
+      '1',
+    ];
+
+    await allocateMilestoneFromCli(raw, /* dryRun */ true);
+
+    expect(allocateMilestoneMock).toHaveBeenCalledTimes(2);
+
+    expect(allocateMilestoneMock).toHaveBeenNthCalledWith(1, {
+      characterId: 'id1',
+      note: 'Winter survival',
+      pillarSplits: { combat: 1, exploration: 1, social: 1 },
+      dryRun: true,
+    });
+
+    expect(allocateMilestoneMock).toHaveBeenNthCalledWith(2, {
+      characterId: 'id2',
+      note: undefined,
+      pillarSplits: { combat: 0, exploration: 2, social: 1 },
+      dryRun: true,
     });
   });
 });

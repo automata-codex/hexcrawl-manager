@@ -1,4 +1,4 @@
-import { info, error as printError } from '@skyreach/cli-kit';
+import { info, error as printError } from '@achm/cli-kit';
 
 import {
   detectDevMode,

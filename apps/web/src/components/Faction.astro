@@ -2,7 +2,7 @@
 import { renderMarkdown } from '../utils/markdown';
 import { formatText } from '../utils/text';
 
-import type { FactionData } from '@skyreach/schemas';
+import type { FactionData } from '@achm/schemas';
 
 interface Props {
   faction: FactionData;
@@ -13,7 +13,7 @@ const { faction } = Astro.props;
 
 <style is:global>
   p {
-    text-indent: var(--skyreach-standard-indent);
+    text-indent: var(--achm-standard-indent);
   }
 
   p:first-child {

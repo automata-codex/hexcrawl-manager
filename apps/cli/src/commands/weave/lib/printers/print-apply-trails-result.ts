@@ -1,4 +1,4 @@
-import { error, info } from '@skyreach/cli-kit';
+import { error, info } from '@achm/cli-kit';
 
 import { ApplyTrailsResult } from '../types';
 

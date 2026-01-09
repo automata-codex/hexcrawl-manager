@@ -1,16 +1,14 @@
 ---
+import { normalizeHexId } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import GmHexDetails from '../../../../components/GmHexDetails/GmHexDetails.svelte';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
-import { hexSort, processHex } from '../../../../utils/hexes';
-import {
-  getHexEntriesForRegion,
-  getRegionTitle,
-} from '../../../../utils/regions';
+import { createSyntheticHex, hexSort, processHex, resolveHexWithRegion } from '../../../../utils/hexes';
+import { getRegionShortTitle } from '../../../../utils/regions';
 
-import type { ExtendedHexData, HexEntry } from '../../../../types';
-import type { HexData } from '@skyreach/schemas';
+import type { ExtendedHexData } from '../../../../types';
 
 const { id: regionId } = Astro.params;
 if (!regionId) {
@@ -20,22 +18,46 @@ if (!regionId) {
   });
 }
 
+const mapConfig = loadMapConfig();
+const notation = mapConfig.grid.notation;
+
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
 const regions = await getCollection('regions');
 
-const allHexes = await getHexEntriesForRegion(regions, hexEntries, regionId);
-const intermediateHexes = allHexes
-  .filter((hex: HexEntry | undefined) => !!hex)
-  .map((entry: HexEntry) => entry.data)
-  .filter((hex: HexData) => !hex.hideInCatalog)
-  .sort(hexSort);
+// Find the region
+const region = regions.find((r) => r.id === regionId);
+if (!region) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+// Build a map of hex files by normalized ID
+const hexFileMap = new Map(
+  hexEntries.map((e) => [normalizeHexId(e.data.id, notation), e.data]),
+);
+
+// Get hex data for each hex in the region (file-based or synthetic)
+const regionHexIds = region.data.hexes ?? [];
+const allHexData = regionHexIds.map((hexId) => {
+  const normalizedId = normalizeHexId(hexId, notation);
+  const fileData = hexFileMap.get(normalizedId);
+  return fileData ?? createSyntheticHex(normalizedId, region.data);
+});
+
+const resolvedHexes = allHexData
+  .filter((hex) => !hex.hideInCatalog)
+  .sort((a, b) => hexSort(a, b, notation))
+  .map((hex) => resolveHexWithRegion(hex, region));
+
 const hexes: ExtendedHexData[] = await Promise.all(
-  intermediateHexes.map(processHex),
+  resolvedHexes.map(processHex),
 );
 ---
 
-<SecretLayout title={`${getRegionTitle(regionId)} Hexes`}>
+<SecretLayout title={`${getRegionShortTitle(regionId, region.data.name)} Hexes`}>
   {
     hexes.map((hex) => (
       <>
@@ -46,6 +68,7 @@ const hexes: ExtendedHexData[] = await Promise.all(
           client:load
           dungeons={dungeons}
           hex={hex}
+          mapConfig={mapConfig}
         />
       </>
     ))

@@ -10,15 +10,16 @@
  *   npm run generate:config
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import yaml from 'yaml';
+import { getDataPath } from '@achm/data';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import * as yaml from 'yaml';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DATA_DIR = path.resolve(__dirname, '../../../data');
+const DATA_DIR = getDataPath();
 const OUTPUT_DIR = path.resolve(__dirname, '../src/config/generated');
 
 function generateRoutes(): void {

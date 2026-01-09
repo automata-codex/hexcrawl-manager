@@ -1,4 +1,4 @@
-import { info } from '@skyreach/cli-kit';
+import { info } from '@achm/cli-kit';
 
 import { HELP_TEXT } from '../help-text';
 

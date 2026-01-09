@@ -2,10 +2,11 @@
 import { getCollection } from 'astro:content';
 
 import { getEncounterPath } from '../config/routes';
+
 import HeraldCompleteButton from './HeraldCompleteButton.svelte';
 import RandomEncounterTable from './RandomEncounterTable/RandomEncounterTable.astro';
 
-import type { EncounterTableData, RegionData } from '@skyreach/schemas';
+import type { EncounterTableData, RegionData } from '@achm/schemas';
 
 interface Props {
   region: RegionData;

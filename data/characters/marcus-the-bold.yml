@@ -1,0 +1,20 @@
+id: marcus-the-bold
+fullName: Marcus the Bold
+displayName: Marcus
+pronouns: he/him
+playerId: sample-player
+species: Human
+culture: Thornwick
+class: Fighter
+level: 3
+advancementPoints:
+  combat: 0
+  exploration: 0
+  social: 0
+backstoryTitle: A Soldier's Past
+backstory: |
+  Marcus grew up on a farm outside Thornwick. When goblin raids began threatening his family's homestead, he took up arms to defend his home. His natural talent for combat caught Captain Sera's eye, and she's been training him ever since.
+goals: |
+  - Protect Thornwick from the goblin threat
+  - Prove himself as a warrior
+  - Eventually travel beyond the village to see the wider world

@@ -1,5 +1,5 @@
-import { info, usage, warn } from '@skyreach/cli-kit';
-import { PACES, type Pace } from '@skyreach/schemas';
+import { info, usage, warn } from '@achm/cli-kit';
+import { PACES, type Pace } from '@achm/schemas';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
 import {

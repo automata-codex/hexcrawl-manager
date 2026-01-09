@@ -1,16 +1,19 @@
 ---
+import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import PlayerHexDetails from '../../../components/PlayerHexDetails/PlayerHexDetails.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { hexSort } from '../../../utils/hexes';
 
+const notation = loadMapConfig().grid.notation;
+
 const hexData = await getCollection('hexes');
 const hexes = hexData
   .map((hex) => hex.data)
   .filter((hex) => !hex.hideInCatalog)
   .filter((hex) => hex.isVisited)
-  .sort(hexSort);
+  .sort((a, b) => hexSort(a, b, notation));
 
 const title = 'Baruun Khil Map';
 ---

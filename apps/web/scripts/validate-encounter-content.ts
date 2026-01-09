@@ -11,15 +11,14 @@
  *   npm run validate:encounters
  */
 
-import { existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-
-// We can't use getCollection at build-script time, so we'll load YAML directly
-import { readdirSync, readFileSync } from 'node:fs';
+import { resolveDataPath } from '@achm/data';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import yaml from 'yaml';
-import type { EncounterData } from '@skyreach/schemas';
 
-const ENCOUNTERS_DIR = resolve(process.cwd(), '../../data/encounters');
+import type { EncounterData } from '@achm/schemas';
+
+const ENCOUNTERS_DIR = resolveDataPath('encounters');
 
 interface ValidationError {
   encounterId: string;

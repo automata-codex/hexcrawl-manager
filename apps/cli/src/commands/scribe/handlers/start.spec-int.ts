@@ -1,5 +1,5 @@
-import { REPO_PATHS, loadMeta, buildSessionFilename } from '@skyreach/data';
-import { makeSessionId } from '@skyreach/schemas';
+import { REPO_PATHS, loadMeta, buildSessionFilename } from '@achm/data';
+import { makeSessionId } from '@achm/schemas';
 import {
   compileLog,
   findSessionFiles,
@@ -7,7 +7,7 @@ import {
   runScribe,
   sessionStart,
   withTempRepo,
-} from '@skyreach/test-helpers';
+} from '@achm/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
@@ -20,7 +20,7 @@ import type {
   MoveEvent,
   ScribeEvent,
   SessionStartEvent,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
 describe('scribe start', () => {
   it('emits exactly one session_start with the requested startHex and writes a minimal valid log', async () => {
@@ -52,7 +52,7 @@ describe('scribe start', () => {
         // Exactly one session_start, with correct startHex
         const starts = eventsOf(events, 'session_start') as SessionStartEvent[];
         expect(starts.length).toBe(1);
-        expect(starts[0].payload.startHex).toBe('P13');
+        expect(starts[0].payload.startHex).toBe('p13');
 
         // At least one day_start, normalized season
         const days = eventsOf(events, 'day_start') as DayStartEvent[];
@@ -67,7 +67,7 @@ describe('scribe start', () => {
         // Move to Q13 was recorded; from may be null or 'P13' per spec
         const moves = eventsOf(events, 'move') as MoveEvent[];
         expect(moves.length).toBe(1);
-        expect(moves[0].payload.to).toBe('Q13');
+        expect(moves[0].payload.to).toBe('q13');
 
         // Finalize appended exactly one session_end
         const ends = eventsOf(events, 'session_end');
@@ -102,7 +102,7 @@ describe('scribe start', () => {
 
         const starts = eventsOf(events, 'session_start') as SessionStartEvent[];
         expect(starts.length).toBe(1);
-        expect(starts[0].payload.startHex).toBe('P13'); // original start is kept
+        expect(starts[0].payload.startHex).toBe('p13'); // original start is kept
 
         const ends = eventsOf(events, 'session_end');
         expect(ends.length).toBe(1);
@@ -131,7 +131,7 @@ describe('scribe start', () => {
         const events = readEvents(files[0]);
         const moves = eventsOf(events, 'move') as MoveEvent[];
         expect(moves.length).toBe(2);
-        expect(moves.map((m) => m.payload.to)).toEqual(['Q13', 'Q14']);
+        expect(moves.map((m) => m.payload.to)).toEqual(['q13', 'q14']);
 
         // Not asserting specific 'from' here (it may be null per spec), just the sequence and targets
       },

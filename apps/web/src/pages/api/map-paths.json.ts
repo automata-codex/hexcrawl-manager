@@ -1,10 +1,11 @@
-import { parseTrailId } from '@skyreach/core';
+import { parseTrailId } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE } from '../../utils/constants.ts';
 
-import type { SegmentMetadataData, TrailEntry } from '@skyreach/schemas';
+import type { CoordinateNotation, SegmentMetadataData, TrailEntry } from '@achm/schemas';
 import type { APIRoute } from 'astro';
 
 const ALLOWED_PLAYER_TYPES = ['river', 'trail'];
@@ -17,9 +18,12 @@ export interface MapPathPlayerData {
   segmentMetadata?: Record<string, SegmentMetadataData>;
 }
 
-function convertTrailsToPaths(trailEntries: TrailEntry[]): MapPathPlayerData[] {
+function convertTrailsToPaths(
+  trailEntries: TrailEntry[],
+  notation: CoordinateNotation,
+): MapPathPlayerData[] {
   return trailEntries.map((entry) => {
-    const hexIds = parseTrailId(entry.id);
+    const hexIds = parseTrailId(entry.id, notation);
     if (!hexIds) {
       throw new Error(`Invalid trail id: ${entry.id}`);
     }
@@ -39,8 +43,10 @@ export const GET: APIRoute = async ({ locals }) => {
   const trailEntryCollection = await getCollection('trails');
   const trailEntries = trailEntryCollection.map((entry) => entry.data);
 
+  const notation = loadMapConfig().grid.notation;
+
   const paths: MapPathPlayerData[] = [
-    ...convertTrailsToPaths(trailEntries),
+    ...convertTrailsToPaths(trailEntries, notation),
     ...pathEntries.map((entry) => entry.data),
   ];
 

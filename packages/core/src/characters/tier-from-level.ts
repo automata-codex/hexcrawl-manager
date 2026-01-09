@@ -1,4 +1,4 @@
-import { Tier } from '@skyreach/schemas';
+import { Tier } from '@achm/schemas';
 
 /**
  * Derive character tier from character level

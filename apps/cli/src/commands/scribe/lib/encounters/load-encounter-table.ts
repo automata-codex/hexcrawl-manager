@@ -1,7 +1,7 @@
-import { readAndValidateYaml, resolveDataPath } from '@skyreach/data';
-import { EncounterTableSchema } from '@skyreach/schemas';
+import { readAndValidateYaml, resolveDataPath } from '@achm/data';
+import { EncounterTableSchema } from '@achm/schemas';
 
-import type { EncounterTableData } from '@skyreach/schemas';
+import type { EncounterTableData } from '@achm/schemas';
 
 /**
  * Load the default encounter table.

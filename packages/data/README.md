@@ -1,4 +1,4 @@
-# `@skyreach/data`
+# `@achm/data`
 
 Data handling lives here: repository layout, file formats, and safe I/O. This
 package knows *where* things are on disk and *how* to serialize/validate them.

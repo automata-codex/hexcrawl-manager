@@ -1,6 +1,6 @@
-import { normalizeSeasonId, prevSeasonId } from '@skyreach/core';
-import { parseRolloverFilename, SESSION_FILE_RE } from '@skyreach/data';
-import { MetaV2Data } from '@skyreach/schemas';
+import { normalizeSeasonId, prevSeasonId } from '@achm/core';
+import { parseRolloverFilename, SESSION_FILE_RE } from '@achm/data';
+import { MetaV2Data } from '@achm/schemas';
 import path from 'node:path';
 
 import { getNextUnrolledSeason } from './files';

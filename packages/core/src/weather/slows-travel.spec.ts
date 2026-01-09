@@ -1,7 +1,7 @@
-import { createWeather } from '@skyreach/test-helpers';
+import { createWeather } from '@achm/test-helpers';
 import { describe, expect, it } from 'vitest';
 
-import { slowsTravel } from './slows-travel';
+import { slowsTravel } from './slows-travel.js';
 
 describe('slowsTravel', () => {
   it('returns false for Pleasant weather', () => {

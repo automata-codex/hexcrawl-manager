@@ -1,8 +1,35 @@
-import { getSeasonForDate } from '@skyreach/core';
+import { getSeasonForDate } from '@achm/core';
 
+import { loadAllCharacters } from '../../../services/characters.service';
 import { eventsOf } from '../../../services/event-log.service';
 
-import type { DayStartEvent, ScribeEvent } from '@skyreach/schemas';
+import { CliValidationError } from './errors';
+
+import type { DayStartEvent, ScribeEvent } from '@achm/schemas';
+
+// ---- Integer assertions ----
+
+export function assertPositiveInt(name: string, n: number): void {
+  if (!Number.isInteger(n) || n <= 0) {
+    throw new CliValidationError(`${name} must be a positive integer.`);
+  }
+}
+
+export function assertNonNegativeInt(name: string, n: number): void {
+  if (!Number.isInteger(n) || n < 0) {
+    throw new CliValidationError(`${name} must be a non-negative integer.`);
+  }
+}
+
+// ---- Character validation ----
+
+export function ensureCharacterExists(characterId: string): void {
+  const characters = loadAllCharacters();
+  const found = characters.find((c) => c.id === characterId);
+  if (!found) {
+    throw new CliValidationError(`Character not found: "${characterId}".`);
+  }
+}
 
 /**
  * Session envelope validation helper for weave commands. Usage: `const result = validateSessionEnvelope(events);`

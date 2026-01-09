@@ -2,15 +2,18 @@ import {
   REPO_PATHS,
   appendApEntry,
   findLastCompletedSessionSeq,
-} from '@skyreach/data';
-import { ApLedgerEntry, makeSessionId } from '@skyreach/schemas';
+} from '@achm/data';
+import { ApLedgerEntry, makeSessionId } from '@achm/schemas';
 
-import { loadAllCharacters } from '../../../services/characters.service';
 import {
   CliValidationError,
   InsufficientCreditsError,
   IoApplyError,
 } from '../lib/errors';
+import {
+  assertPositiveInt,
+  ensureCharacterExists,
+} from '../lib/validate';
 
 import { statusAp } from './status-ap';
 
@@ -27,20 +30,6 @@ export type AllocateApResult = {
   createdAt: string;
   dryRun: boolean;
 };
-
-function assertPositiveInt(name: string, n: number) {
-  if (!Number.isInteger(n) || n <= 0) {
-    throw new CliValidationError(`${name} must be a positive integer.`);
-  }
-}
-
-async function ensureCharacterExists(characterId: string) {
-  const characters = loadAllCharacters();
-  const found = characters.find((c) => c.id === characterId);
-  if (!found) {
-    throw new CliValidationError(`Character not found: "${characterId}".`);
-  }
-}
 
 async function getAvailableAbsenceCredits(
   characterId: string,

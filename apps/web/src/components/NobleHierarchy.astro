@@ -1,0 +1,32 @@
+---
+import Badge from './Badge.astro';
+
+import type { NobleData } from '@achm/schemas';
+
+interface Props {
+  noble: NobleData;
+  allNobles: NobleData[];
+  showSecrets: boolean;
+}
+
+const { noble, allNobles, showSecrets } = Astro.props;
+
+// Get vassals of this noble, sorted by sortValue
+const vassals = allNobles
+  .filter((n) => n.liege === noble.id)
+  .filter((n) => showSecrets || !n.secret)
+  .sort((a, b) => (a.sortValue ?? a.id).localeCompare(b.sortValue ?? b.id));
+---
+
+<li>
+  <span class="inline-heading">{noble.displayTitle ?? noble.name}</span> ({noble.pronouns})
+  {showSecrets && noble.secret && <Badge color="pink" class="ml-2">Secret</Badge>}
+
+  {vassals.length > 0 && (
+    <ul>
+      {vassals.map((vassal) => (
+        <Astro.self noble={vassal} allNobles={allNobles} showSecrets={showSecrets} />
+      ))}
+    </ul>
+  )}
+</li>

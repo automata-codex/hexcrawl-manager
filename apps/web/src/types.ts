@@ -3,7 +3,7 @@ import type {
   HexData,
   HiddenSite,
   TreasureData,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 import type { CollectionEntry } from 'astro:content';
 
 export type ExtendedGmNote = {
@@ -11,7 +11,14 @@ export type ExtendedGmNote = {
   clueId?: string;
 };
 
+/** HexData with region info added from region lookup */
+export type ResolvedHexData = HexData & { regionId: string; regionName: string };
+
 export type ExtendedHexData = HexData & {
+  /** Region ID derived from region hex membership */
+  regionId: string;
+  /** Region name for display */
+  regionName: string;
   renderedHiddenSites: ExtendedHiddenSites[];
   renderedNotes: ExtendedGmNote[];
   renderedLandmark: string;
@@ -27,6 +34,11 @@ export type ExtendedTreasureData = TreasureData & {
 };
 
 export type ClueMapEntry = {
+  id: string;
+  name: string;
+};
+
+export type EncounterMapEntry = {
   id: string;
   name: string;
 };

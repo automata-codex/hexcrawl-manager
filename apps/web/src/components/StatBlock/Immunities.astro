@@ -1,5 +1,5 @@
 ---
-import type { StatBlockData } from '@skyreach/schemas';
+import type { StatBlockData } from '@achm/schemas';
 
 interface Props {
   data: StatBlockData;
@@ -8,7 +8,11 @@ interface Props {
 const { data } = Astro.props;
 ---
 
-<style></style>
+<style>
+  .inline-heading {
+    color: var(--bulma-strong-color);
+  }
+</style>
 {
   data.damage_resistances && (
     <div>

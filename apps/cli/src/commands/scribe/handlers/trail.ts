@@ -1,5 +1,6 @@
-import { error, info, usage, warn } from '@skyreach/cli-kit';
-import { isValidHexId, normalizeHexId } from '@skyreach/core';
+import { error, info, usage, warn } from '@achm/cli-kit';
+import { isValidHexId, normalizeHexId } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 
 import { appendEvent, readEvents } from '../../../services/event-log.service';
 import { selectCurrentHex } from '../../../services/projectors.service';
@@ -21,8 +22,9 @@ export default function trail(ctx: Context) {
       return usage('usage: trail <hex>');
     }
 
-    const other = normalizeHexId(otherRaw);
-    if (!isValidHexId(other)) {
+    const notation = loadMapConfig().grid.notation;
+    const other = normalizeHexId(otherRaw, notation);
+    if (!isValidHexId(other, notation)) {
       return error('❌ Invalid hex. Example: trail P14');
     }
 
@@ -33,7 +35,7 @@ export default function trail(ctx: Context) {
         '⚠ no current hex known—make a move or start with a starting hex first',
       );
     }
-    const from = normalizeHexId(current);
+    const from = normalizeHexId(current, notation);
     if (from === other) {
       return error('❌ Cannot mark a trail to the same hex');
     }

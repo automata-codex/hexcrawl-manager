@@ -1,4 +1,4 @@
-import { createWeather } from '@skyreach/test-helpers';
+import { createWeather } from '@achm/test-helpers';
 import {
   MockInstance,
   afterEach,
@@ -13,7 +13,7 @@ import * as hexData from '../hex-data';
 
 import { calculateLegSegments, executeLeg } from './execute-leg';
 
-import type { WeatherCommitted } from '@skyreach/core';
+import type { WeatherCommitted } from '@achm/core';
 
 describe('calculateLegSegments', () => {
   // eslint-disable-next-line no-unused-vars

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
-import { atomicWrite } from './atomic-write';
-import { ensureDir } from './fs-utils';
+import { atomicWrite } from './atomic-write.js';
+import { ensureDir } from './fs-utils.js';
 
 import type { ZodSchema } from 'zod';
 

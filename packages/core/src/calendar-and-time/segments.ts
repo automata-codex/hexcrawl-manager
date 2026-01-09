@@ -1,4 +1,4 @@
-import { STEP_HOURS } from '@skyreach/schemas';
+import { STEP_HOURS } from '@achm/schemas';
 
 export function hoursToSegmentsCeil(hours: number) {
   return Math.ceil(hours / STEP_HOURS);

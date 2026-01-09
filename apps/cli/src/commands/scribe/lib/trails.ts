@@ -1,19 +1,22 @@
-import { normalizeHexId } from '@skyreach/core';
+import { normalizeHexId } from '@achm/core';
 
-import type { TrailMap } from '@skyreach/schemas';
+import type { CoordinateNotation, TrailMap } from '@achm/schemas';
 
 /**
  * Build an undirected graph from trail data.
  * Each edge A-B creates two directed edges: A→B and B→A.
  */
-export function buildTrailGraph(trails: TrailMap): Map<string, string[]> {
+export function buildTrailGraph(
+  trails: TrailMap,
+  notation: CoordinateNotation,
+): Map<string, string[]> {
   const graph = new Map<string, string[]>();
 
   for (const [edge] of Object.entries(trails)) {
     const parts = edge.split('-');
     if (parts.length !== 2) continue;
 
-    const [a, b] = parts.map(normalizeHexId);
+    const [a, b] = parts.map((id) => normalizeHexId(id, notation));
     if (!a || !b) continue;
 
     // Add bidirectional edges
@@ -67,9 +70,10 @@ export function bfsTrailPath(
   trails: TrailMap,
   start: string,
   dest: string,
+  notation: CoordinateNotation,
 ): string[] | null {
-  const startNorm = normalizeHexId(start);
-  const destNorm = normalizeHexId(dest);
+  const startNorm = normalizeHexId(start, notation);
+  const destNorm = normalizeHexId(dest, notation);
 
   if (startNorm === destNorm) return []; // Already at destination, no moves needed
   if (!graph.has(startNorm) || !graph.has(destNorm)) return null;

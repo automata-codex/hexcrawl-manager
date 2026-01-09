@@ -1,5 +1,5 @@
-import { REPO_PATHS } from '@skyreach/data';
-import { SessionReportSchema, type TodoItem } from '@skyreach/schemas';
+import { REPO_PATHS } from '@achm/data';
+import { SessionReportSchema, type TodoItem } from '@achm/schemas';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
@@ -12,6 +12,7 @@ export interface AggregatedTodoItem extends TodoItem {
 export interface NextSessionAgenda {
   sessionId: string;
   sessionDate: string;
+  gameStartDate: string; // In-world date
   agenda: string; // Markdown text
 }
 
@@ -76,6 +77,7 @@ export function loadTodos(): TodosResult {
           plannedSessions.push({
             sessionId: report.id,
             sessionDate: report.sessionDate || '',
+            gameStartDate: report.gameStartDate || '',
             agenda,
           });
         }

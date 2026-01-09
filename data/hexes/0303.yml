@@ -1,0 +1,13 @@
+id: "0303"
+slug: "0303"
+name: Hidden Hollow
+landmark: |
+  A deep rocky ravine cuts through the hills here, its walls overgrown with tangled brush and stunted trees. A seasonal stream has carved the hollow over centuries, leaving behind weathered stone formations and numerous small caves.
+terrain: hills
+biome: rocky-highland
+hiddenSites:
+  - description: The Goblin Dissenter camp, led by Grix the Exile. A hidden refuge for goblins who opposed Skargash's brutal leadership.
+keyedEncounters:
+  - encounterId: dissenter-scouts
+    trigger: entry
+    notes: Dissenter scouts challenge anyone entering the hollow

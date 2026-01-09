@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { parseSessionId, type SessionId } from '@achm/schemas';
   import { faCircle, faCircleCheck } from '@fortawesome/pro-light-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-  import { parseSessionId, type SessionId } from '@skyreach/schemas';
 
   import { renderMarkdown } from '../utils/markdown';
   import {
@@ -237,7 +237,10 @@
         <h3 class="subtitle is-4 next-session-id">
           {formatSessionId(nextSession.sessionId)}
           {#if nextSession.sessionDate}
-            <span class="has-text-grey-light"> &mdash; {nextSession.sessionDate}</span>
+            <span class="has-text-grey-light"> | {nextSession.sessionDate}</span>
+          {/if}
+          {#if nextSession.gameStartDate}
+            <span class="has-text-grey-light"> | {nextSession.gameStartDate}</span>
           {/if}
         </h3>
         <div class="agenda-content">
@@ -367,10 +370,6 @@
   .agenda-content :global(ol) {
     margin-top: 0;
     margin-bottom: 0;
-  }
-
-  .agenda-content :global(li) {
-    margin-bottom: 0.25rem;
   }
 
   .agenda-content :global(li:last-child) {

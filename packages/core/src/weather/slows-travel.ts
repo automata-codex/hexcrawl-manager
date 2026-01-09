@@ -1,4 +1,4 @@
-import type { WeatherCommitted } from '../types';
+import type { WeatherCommitted } from '../types.js';
 
 /**
  * Check if weather slows travel times.

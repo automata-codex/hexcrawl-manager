@@ -1,5 +1,5 @@
 ---
-import type { SpecialActionData } from '@skyreach/schemas';
+import type { SpecialActionData } from '@achm/schemas';
 
 interface Props {
   action: SpecialActionData;
@@ -12,6 +12,7 @@ const { action } = Astro.props;
   .action-name {
     font-style: italic;
     font-weight: bold;
+    color: var(--bulma-strong-color);
   }
 
   .attack-type {

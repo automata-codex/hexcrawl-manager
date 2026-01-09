@@ -1,4 +1,4 @@
-import { HexData } from '@skyreach/schemas';
+import { HexData } from '@achm/schemas';
 
 import type { HexIntent } from '../types';
 

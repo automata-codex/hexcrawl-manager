@@ -1,2 +1,2 @@
-export * from './aggregate';
-export * from './io';
+export * from './aggregate.js';
+export * from './io.js';

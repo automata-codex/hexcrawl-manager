@@ -1,13 +1,13 @@
-import { REPO_PATHS } from '@skyreach/data';
-import { readApLedger, rewriteApLedger } from '@skyreach/data';
-import { ApLedgerEntry, padSessionNum } from '@skyreach/schemas';
+import { REPO_PATHS } from '@achm/data';
+import { readApLedger, rewriteApLedger } from '@achm/data';
+import { ApLedgerEntry, padSessionNum } from '@achm/schemas';
 import {
   makeCompletedSessionReport,
   makePlannedSessionReport,
   runWeave,
   saveCharacter,
   withTempRepo,
-} from '@skyreach/test-helpers';
+} from '@achm/test-helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -83,6 +83,7 @@ describe('Command `weave allocate ap`', () => {
           [
             'allocate',
             'ap',
+            'absence',
             '--character',
             'alistar',
             '--amount',

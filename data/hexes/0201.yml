@@ -1,0 +1,9 @@
+id: "0201"
+slug: "0201"
+name: Whispering Woods (Edge)
+landmark: |
+  The forest begins here, ancient oaks giving way to dense undergrowth. A worn trail leads deeper into the woods.
+terrain: hills
+biome: temperate-woodland
+hiddenSites:
+  - description: A goblin watch post hidden in the trees, used by Skargash's scouts to monitor the forest edge.

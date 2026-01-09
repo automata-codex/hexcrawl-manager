@@ -25,6 +25,7 @@ pnpm-debug.log*
 
 # project-specific files
 /schemas/*.json
+data-skyreach
 
 *.zip
 /.vercel/
@@ -32,6 +33,8 @@ pnpm-debug.log*
 /scripts/elevation-solver/.venv-elevation-solver/
 /data/session-logs/_dev
 /.test-repos/
+/apps/cli/.test-repos/
 /_reports/
 tree.txt
 docs/api/typedoc.json
+.idea/

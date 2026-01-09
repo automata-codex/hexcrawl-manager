@@ -1,10 +1,25 @@
-# Beyond the Skyreach Mountains
+# Automata Codex Hexcrawl Manager
+
+## License
+
+This software is licensed under the **Elastic License 2.0 (ELv2)**.
+
+- **Individuals and non-profits** may self-host and modify it freely.
+- **You may _NOT_ offer this software as a managed service (SaaS).**
+- The original author retains the right to run and monetize a SaaS version.
+- For **commercial SaaS usage**, a separate commercial license is available.
+
+For more details, see the full [Elastic License 2.0](LICENSE.md). For commercial licensing inquiries, contact [license@automatacodex.com][2].
+
+[2]: mailto:license@automatacodex.com
 
 ## 🛳️ Release Process
 
 Skyreach uses a **“version-on-develop”** workflow with lightweight automation. A repo owner decides when to release; GitHub Actions handles tagging and consistency checks.
 
 ### Manual steps
+
+⚠️ Review the [weekly release checklist](docs/release-checklist.md) before cutting a release! ⚠️
 
 1. **On `develop`**, prepare a release:
 
@@ -29,7 +44,7 @@ Skyreach uses a **“version-on-develop”** workflow with lightweight automatio
 * **On merge to `main`**
 
   * CI builds and tests the repo (no publish step—packages are local/private).
-  * Any workspace (`apps/*` or `packages/*`) whose `package.json` changed gets a git tag: `<package-name>@<version>` (e.g. `@skyreach/core@2.9.0`)
+  * Any workspace (`apps/*` or `packages/*`) whose `package.json` changed gets a git tag: `<package-name>@<version>` (e.g. `@achm/core@2.9.0`)
   * Existing tags are never moved; tags are immutable version markers.
 
 ### Result
@@ -42,13 +57,13 @@ Skyreach uses a **“version-on-develop”** workflow with lightweight automatio
 
 When changes are made only to the `data/` directory (no code changes):
 
-* Bump `@skyreach/web` version to mark the deployment
+* Bump `@achm/web` version to mark the deployment
   * Use **minor** for new content/features (e.g., new articles, session reports)
   * Use **patch** for corrections or small updates
   * Include a clear changeset message indicating it's data-only:
     ```markdown
     ---
-    '@skyreach/web': minor
+    '@achm/web': minor
     ---
 
     **Content Update:** Add new articles on hex exploration mechanics

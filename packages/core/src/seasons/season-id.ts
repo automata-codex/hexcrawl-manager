@@ -3,11 +3,11 @@ import {
   CampaignDate,
   ScribeEvent,
   Season,
-} from '@skyreach/schemas';
+} from '@achm/schemas';
 
-import { CALENDAR_CONFIG } from '../config';
-import { DayStartMissingError, SeasonIdError } from '../errors';
-import { SEASON_ID_RE } from '../regex';
+import { CALENDAR_CONFIG } from '../config/index.js';
+import { DayStartMissingError, SeasonIdError } from '../errors/index.js';
+import { SEASON_ID_RE } from '../regex.js';
 
 /** Validates and returns a normalized SeasonId (lowercase season). */
 export function assertSeasonId(value: string): string {

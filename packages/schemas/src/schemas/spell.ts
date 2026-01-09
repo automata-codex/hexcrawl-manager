@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ClassEnum } from './class-enum';
+import { ClassEnum } from './class-enum.js';
 
 export const SpellSchoolEnum = z.enum([
   'Abjuration',

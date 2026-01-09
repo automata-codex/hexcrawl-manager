@@ -1,4 +1,4 @@
-import type { WeatherCategory, WeatherCommitted } from '@skyreach/core';
+import type { WeatherCategory, WeatherCommitted } from '@achm/core';
 
 export const createWeather = (category: WeatherCategory): WeatherCommitted => ({
   category: category,

@@ -1,4 +1,4 @@
-import { SESSION_FILE_RE } from '@skyreach/data';
+import { SESSION_FILE_RE } from '@achm/data';
 import fs from 'node:fs';
 import path from 'node:path';
 

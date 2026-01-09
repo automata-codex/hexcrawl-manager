@@ -1,0 +1,20 @@
+id: skargash-throne-room
+name: Skargash's Throne Room
+statBlocks:
+  - skargash
+  - goblin
+scope: dungeon
+locationTypes:
+  - dungeon
+factions:
+  - skargash-goblins
+description: |
+  The final confrontation with Warlord Skargash.
+
+  **Setup:** Skargash sits on a throne of bones in the tower's underground great hall. Four goblin guards attend him. The Amulet of the Broken King glows at his throat.
+
+  **Tactics:** Skargash fights to the death, convinced of his invincibility. Guards protect their leader but flee if he falls. The amulet grants Skargash advantage on Charisma checks vs. goblins.
+
+  **The Amulet:** If the amulet is removed or destroyed during combat, all goblin guards immediately flee, Skargash loses his bonus action attacks, and his confidence shatters—he may try to bargain.
+
+  **Developments:** With Skargash dead and the amulet taken, his warband scatters. The goblin threat to Thornwick ends—at least for now.

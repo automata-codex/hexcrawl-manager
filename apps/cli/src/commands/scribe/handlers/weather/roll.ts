@@ -1,5 +1,5 @@
-import { info } from '@skyreach/cli-kit';
-import { rollDice } from '@skyreach/core';
+import { info } from '@achm/cli-kit';
+import { rollDice } from '@achm/core';
 import { clamp } from 'lodash-es';
 
 import { readEvents } from '../../../../services/event-log.service';
@@ -20,8 +20,8 @@ import {
 } from './helpers';
 
 import type { Context } from '../../types.ts';
-import type { Season, WeatherCategory, WeatherDraft } from '@skyreach/core';
-import type { CampaignDate } from '@skyreach/schemas';
+import type { Season, WeatherCategory, WeatherDraft } from '@achm/core';
+import type { CampaignDate } from '@achm/schemas';
 
 export default function weatherRoll(ctx: Context) {
   if (!requireSession(ctx)) {

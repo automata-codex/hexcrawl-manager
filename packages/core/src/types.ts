@@ -1,4 +1,4 @@
-import { CampaignDate, WEATHER_CATEGORIES } from '@skyreach/schemas';
+import { CampaignDate, WEATHER_CATEGORIES } from '@achm/schemas';
 
 export type CalendarConfig = {
   daylightCaps: Record<Season, number>; // { winter:6, spring:9, summer:12, autumn:9 }
@@ -46,7 +46,7 @@ export type MonthDef = {
   aliases?: string[]; // optional short forms or common misspellings
 };
 
-/** @deprecated Use the value from `@skyreach/schemas` instead. */
+/** @deprecated Use the value from `@achm/schemas` instead. */
 export type Season = 'winter' | 'spring' | 'summer' | 'autumn';
 
 export type SeasonalBand = {

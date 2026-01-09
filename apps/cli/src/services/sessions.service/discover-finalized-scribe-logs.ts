@@ -1,9 +1,9 @@
-import { REPO_PATHS } from '@skyreach/data';
+import { REPO_PATHS } from '@achm/data';
 import { glob } from 'glob';
 import path from 'path';
 
 /**
- * @deprecated Use `discoverFinalizedLogs` from `@skyreach/data` instead.
+ * @deprecated Use `discoverFinalizedLogs` from `@achm/data` instead.
  * Discover finalized scribe logs for a given session number.
  * @param sessionNumber
  * @returns Array of absolute paths to finalized scribe logs for the given session number
