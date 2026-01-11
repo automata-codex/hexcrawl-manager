@@ -215,7 +215,7 @@ export const WeatherCommittedEventPayloadSchema = z.object({
   category: z.string(),
   detail: z.string().nullable().optional(), // null in your samples; allow absent too
   descriptors: z.array(z.string()).optional(), // present or omitted in samples
-  forecastAfter: z.number().int().min(0),
+  forecastAfter: z.number().int().min(-1),
 });
 export type WeatherCommittedEventPayload = z.infer<
   typeof WeatherCommittedEventPayloadSchema
