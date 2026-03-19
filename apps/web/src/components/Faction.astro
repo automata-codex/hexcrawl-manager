@@ -21,18 +21,37 @@ const { faction } = Astro.props;
   }
 </style>
 <style>
-  .ideology {
+  .quote {
     font-style: italic;
     margin: 0 10% 1rem;
+  }
+
+  .clock-item {
+    margin-bottom: 0.5rem;
+  }
+
+  .clock-progress {
+    font-weight: bold;
+  }
+
+  .clock-description {
+    font-style: italic;
+    font-size: 0.9em;
   }
 </style>
 <section>
   <h2 class="title is-3">{formatText(faction.name)}</h2>
-  <div class="ideology">
-    <Fragment set:html={renderMarkdown(faction.ideology)} />
-  </div>
+  {faction.quote && (
+    <div class="quote">
+      <Fragment set:html={renderMarkdown(faction.quote)} />
+    </div>
+  )}
   <div>
     <Fragment set:html={renderMarkdown(faction.description)} />
+  </div>
+  <h3 class="title is-5">Ideology</h3>
+  <div>
+    <Fragment set:html={renderMarkdown(faction.ideology)} />
   </div>
   <h3 class="title is-5">Power Level</h3>
   <div>
@@ -41,7 +60,63 @@ const { faction } = Astro.props;
   <h3 class="title is-5">Areas of Operation</h3>
   <div>
     <ul>
-      {faction.areaOfOperation.map((area) => <li>{formatText(area)}</li>)}
+      {faction.areaOfOperation.map((area) => <li><Fragment set:html={renderMarkdown(area)} /></li>)}
     </ul>
   </div>
+  {faction.goals && (
+    <>
+      <h3 class="title is-5">Goals</h3>
+      <div>
+        <Fragment set:html={renderMarkdown(faction.goals)} />
+      </div>
+    </>
+  )}
+  {faction.clocks && faction.clocks.length > 0 && (
+    <>
+      <h3 class="title is-5">Clocks</h3>
+      <div>
+        <ul>
+          {faction.clocks.map((clock) => (
+            <li class="clock-item">
+              <span class="clock-progress">{clock.completedSteps}/{clock.totalSteps}</span>
+              {' '}{clock.title}
+              {clock.description && (
+                <span class="clock-description"> — {clock.description}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  )}
+  {faction.ifIgnored && (
+    <>
+      <h3 class="title is-5">If Ignored</h3>
+      <div>
+        <Fragment set:html={renderMarkdown(faction.ifIgnored)} />
+      </div>
+    </>
+  )}
+  {faction.pcIntersections && (
+    <>
+      <h3 class="title is-5">PC Intersections</h3>
+      <div>
+        <Fragment set:html={renderMarkdown(faction.pcIntersections)} />
+      </div>
+    </>
+  )}
+  {faction.activeAgents && faction.activeAgents.length > 0 && (
+    <>
+      <h3 class="title is-5">Active Agents</h3>
+      <div>
+        <ul>
+          {faction.activeAgents.map((agent) => (
+            <li>
+              <strong>{agent.name}</strong> — {agent.role}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  )}
 </section>
