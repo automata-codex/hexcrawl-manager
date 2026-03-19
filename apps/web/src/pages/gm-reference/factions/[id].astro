@@ -1,0 +1,29 @@
+---
+import { getEntry } from 'astro:content';
+
+import Faction from '../../../components/Faction.astro';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+const { id } = Astro.params;
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+const factionData = await getEntry('factions', id);
+
+if (factionData === undefined) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+const faction = factionData.data;
+---
+
+<SecretLayout title={faction.name}>
+  <Faction faction={faction} />
+</SecretLayout>

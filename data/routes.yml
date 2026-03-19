@@ -19,6 +19,10 @@ gmReference:
     type: collection
     path: /gm-reference/encounters
     idPath: /gm-reference/encounters/[id]
+  factions:
+    type: collection
+    path: /gm-reference/factions
+    idPath: /gm-reference/factions/[id]
   plotlines:
     type: collection
     path: /gm-reference/plotlines
