@@ -210,7 +210,7 @@ export const WeatherCommittedEventPayloadSchema = z.object({
   date: CampaignDateSchema,
   season: z.string(),
   roll2d6: z.number().int().min(2).max(12),
-  forecastBefore: z.number().int().min(0),
+  forecastBefore: z.number().int().min(-1),
   total: z.number().int(),
   category: z.string(),
   detail: z.string().nullable().optional(), // null in your samples; allow absent too
