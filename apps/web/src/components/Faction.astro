@@ -1,4 +1,5 @@
 ---
+import Clock from './Clock.astro';
 import { renderMarkdown } from '../utils/markdown';
 import { formatText } from '../utils/text';
 
@@ -26,18 +27,6 @@ const { faction } = Astro.props;
     margin: 0 10% 1rem;
   }
 
-  .clock-item {
-    margin-bottom: 0.5rem;
-  }
-
-  .clock-progress {
-    font-weight: bold;
-  }
-
-  .clock-description {
-    font-style: italic;
-    font-size: 0.9em;
-  }
 </style>
 <section>
   <h2 class="title is-3">{formatText(faction.name)}</h2>
@@ -75,17 +64,14 @@ const { faction } = Astro.props;
     <>
       <h3 class="title is-5">Clocks</h3>
       <div>
-        <ul>
-          {faction.clocks.map((clock) => (
-            <li class="clock-item">
-              <span class="clock-progress">{clock.completedSteps}/{clock.totalSteps}</span>
-              {' '}{clock.title}
-              {clock.description && (
-                <span class="clock-description"> — {clock.description}</span>
-              )}
-            </li>
-          ))}
-        </ul>
+        {faction.clocks.map((clock) => (
+          <Clock
+            title={clock.title}
+            totalSteps={clock.totalSteps}
+            completedSteps={clock.completedSteps}
+            description={clock.description}
+          />
+        ))}
       </div>
     </>
   )}
