@@ -8,6 +8,7 @@ import {
   getCluePath,
   getDungeonPath,
   getEncounterPath,
+  getFactionPath,
   getHexPath,
   getRegionPath,
 } from '../config/routes';
@@ -30,7 +31,7 @@ export function getLinkPath(linkType: LinkType, linkId: string): string {
     case 'region':
       return getRegionPath(linkId);
     case 'faction':
-      return `/gm-reference/factions#${linkId}`;
+      return getFactionPath(linkId);
     default:
       return '#';
   }

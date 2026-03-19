@@ -105,6 +105,10 @@ export function getEncounterPath(encounterId: string): string {
   return getCollectionItemPath(ROUTES.gmReference.encounters as CollectionRoute, encounterId);
 }
 
+export function getFactionPath(factionId: string): string {
+  return getCollectionItemPath(ROUTES.gmReference.factions as CollectionRoute, factionId);
+}
+
 export function getHexPath(hexId: string): string {
   return getCollectionItemPath(ROUTES.sessionToolkit.hexes as CollectionRoute, hexId).toLowerCase();
 }

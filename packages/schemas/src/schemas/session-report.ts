@@ -26,7 +26,7 @@ const DowntimeSchema = z.object({
 const TodoItemSchema = z.object({
   text: z.string(),
   status: z.enum(['pending', 'done']),
-  source: z.enum(['template', 'scribe']).optional(),
+  source: z.enum(['manual', 'scribe', 'template']).optional(),
 });
 
 export type TodoItem = z.infer<typeof TodoItemSchema>;
