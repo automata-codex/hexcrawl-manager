@@ -12,7 +12,7 @@ import { allocateAp, AllocateApResult } from './allocate-ap';
 import {
   allocateMilestone,
   AllocateMilestoneResult,
-  MILESTONE_AP_AMOUNT,
+  MILESTONE_AP_CAP,
 } from './allocate-ap-milestone';
 
 // ---- Absence allocation types ----
@@ -36,6 +36,7 @@ export type AllocationBlock = {
 
 export type AllocateMilestoneArgs = {
   characterId: string;
+  sessionId: string;
   pillarSplits?: Partial<Record<Pillar, number>>;
   note?: string;
   dryRun?: boolean;
@@ -43,6 +44,7 @@ export type AllocateMilestoneArgs = {
 
 export type MilestoneAllocationBlock = {
   characterId: string;
+  sessionId: string;
   note?: string;
   pillarSplits?: Partial<Record<Pillar, number>>;
 };
@@ -402,6 +404,7 @@ export async function allocateMilestoneMany(
   for (const blk of blocks) {
     const result = await allocateMilestoneOne({
       characterId: blk.characterId,
+      sessionId: blk.sessionId,
       note: blk.note,
       pillarSplits: blk.pillarSplits,
       dryRun,
@@ -417,14 +420,16 @@ export async function allocateMilestoneMany(
  *
  * Rules:
  * - Each `--character <id>` starts a new block (required per block).
- * - No `--amount` flag (always 3 for milestones).
- * - Required splits: `--combat <n> --exploration <n> --social <n>` must sum to 3.
+ * - `--session-id <id>` is required per block (the session this milestone is tied to).
+ * - Pillar splits: `--combat <n> --exploration <n> --social <n>` must sum to 0..3.
+ *   Final validation against the session's pillar AP topup happens in the allocator.
  * - `--note "<text>"` applies to the current block.
  * - `--dry-run` is global (handled by Commander).
  */
 export function parseMilestoneTokens(tokens: string[]): MilestoneAllocationBlock[] {
   type Mutable = {
     characterId?: string;
+    sessionId?: string;
     note?: string;
     splits: Partial<Record<Pillar, number>>;
   };
@@ -438,6 +443,11 @@ export function parseMilestoneTokens(tokens: string[]): MilestoneAllocationBlock
     if (!current) return;
     if (!current.characterId) {
       throw new Error('Missing --character for a milestone allocation block.');
+    }
+    if (!current.sessionId) {
+      throw new Error(
+        `Missing --session-id for milestone allocation block "${current.characterId}".`,
+      );
     }
 
     const { combat = 0, exploration = 0, social = 0 } = current.splits;
@@ -456,9 +466,9 @@ export function parseMilestoneTokens(tokens: string[]): MilestoneAllocationBlock
     }
 
     const sum = combat + exploration + social;
-    if (sum !== MILESTONE_AP_AMOUNT) {
+    if (sum < 0 || sum > MILESTONE_AP_CAP) {
       throw new Error(
-        `Pillar splits for "${current.characterId}" must sum to ${MILESTONE_AP_AMOUNT}; got ${sum}.`,
+        `Pillar splits for "${current.characterId}" must sum to 0..${MILESTONE_AP_CAP}; got ${sum}.`,
       );
     }
 
@@ -470,6 +480,7 @@ export function parseMilestoneTokens(tokens: string[]): MilestoneAllocationBlock
 
     blocks.push({
       characterId: current.characterId,
+      sessionId: current.sessionId,
       note: current.note,
       pillarSplits,
     });
@@ -493,6 +504,13 @@ export function parseMilestoneTokens(tokens: string[]): MilestoneAllocationBlock
         finalize();
         current = { splits: {} };
         current.characterId = take(i);
+        i++;
+        break;
+      }
+
+      case '--session-id': {
+        if (!current) current = { splits: {} };
+        current.sessionId = take(i);
         i++;
         break;
       }
@@ -550,8 +568,8 @@ export function parseMilestoneTokens(tokens: string[]): MilestoneAllocationBlock
     throw new Error(
       'No allocations found.\n' +
         'Usage:\n' +
-        `  weave allocate ap milestone --character <id> --combat <n> --exploration <n> --social <n> [--note "..."]\n` +
-        `  (pillar splits must sum to ${MILESTONE_AP_AMOUNT}; repeat --character/... for multiple characters)`,
+        `  weave allocate ap milestone --character <id> --session-id <session-NNNN> --combat <n> --exploration <n> --social <n> [--note "..."]\n` +
+        `  (pillar splits must sum to the session's milestone topup, between 0 and ${MILESTONE_AP_CAP})`,
     );
   }
 
@@ -567,7 +585,8 @@ function printMilestoneResults(results: AllocateMilestoneResult[]) {
     'characterId',
     'amount',
     'pillars (c/e/s)',
-    'sessionIdSpentAt',
+    'sessionId',
+    'topup',
     'note',
   ];
 
@@ -579,7 +598,8 @@ function printMilestoneResults(results: AllocateMilestoneResult[]) {
       r.characterId,
       String(r.amount),
       `${c}/${e}/${s}`,
-      r.sessionIdSpentAt,
+      r.sessionId,
+      r.topUpAmount === null ? 'deferred' : String(r.topUpAmount),
       r.note ?? '',
     ];
   });
@@ -602,6 +622,18 @@ function printMilestoneResults(results: AllocateMilestoneResult[]) {
   // rows
   for (const r of rows) {
     info(line(r));
+  }
+
+  // Reminder to apply (skip on dry-run since nothing was actually staged)
+  if (!dryRun) {
+    const sessionIds = Array.from(new Set(results.map((r) => r.sessionId)));
+    const target =
+      sessionIds.length === 1 ? ` ${sessionIds[0]}` : '';
+    info('');
+    info(
+      `Staged in session report${sessionIds.length > 1 ? 's' : ''}. ` +
+        `Run \`weave apply ap${target}\` to record the milestone in the ledger.`,
+    );
   }
 }
 
