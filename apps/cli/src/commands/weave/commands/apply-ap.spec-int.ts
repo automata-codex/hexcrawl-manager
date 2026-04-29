@@ -629,4 +629,487 @@ describe('Command `weave apply ap`', () => {
     it.todo('fails with specific IDs/paths for unknown character IDs');
     it.todo('prints guidance for immutable mismatch errors');
   });
+
+  describe('Milestone allocation reconciliation (Phase 2)', () => {
+    // Build a session whose events grant 1 combat (maxTier 1) + 1 exploration (maxTier 2)
+    // for everyone present. Used for tier-aware topup tests below.
+    function tierMixedEvents(
+      sessionId: string,
+      sessionDate: string,
+      attendees: string[],
+    ): ScribeEvent[] {
+      return compileLog([
+        sessionStart(sessionId, 'R14', sessionDate),
+        dayStart({ year: 1511, month: 'Umbraeus', day: 17 }),
+        partySet(attendees),
+        ap('combat', 1, attendees, 'A1', 'maxTier 1'),
+        ap('exploration', 2, attendees, 'B1', 'maxTier 2'),
+        dayEnd(13, 13),
+        sessionEnd(sessionId),
+      ]);
+    }
+
+    it('milestone-first-then-apply: writes both session_ap and milestone_spend in one batch', async () => {
+      await withTempRepo(
+        'apply-ap-milestone-first',
+        { initGit: false },
+        async (repo) => {
+          writeCharacterFiles();
+
+          const sid = 'session-0001';
+          const logPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            buildSessionFilename(1, '2025-09-25'),
+          );
+          fs.writeFileSync(
+            logPath,
+            buildSessionEvents(sid, '2025-09-25')
+              .map((e) => JSON.stringify(e))
+              .join('\n'),
+          );
+
+          // Pre-stage a planned report with a milestone allocation
+          const reportPath = path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml');
+          fs.writeFileSync(
+            reportPath,
+            yaml.stringify({
+              id: sid,
+              status: 'planned',
+              absenceAllocations: [],
+              downtime: [],
+              gameStartDate: '',
+              schemaVersion: 2,
+              scribeIds: [],
+              sessionDate: '',
+              source: 'scribe',
+              milestoneAllocations: [
+                {
+                  characterId: 'alistar',
+                  pillarSplits: { combat: 0, exploration: 0, social: 0 },
+                  note: 'Survived the Winter',
+                  allocatedAt: '2025-09-25T12:00:00.000Z',
+                },
+              ],
+            }),
+          );
+
+          const { exitCode, stderr } = await runWeave(
+            ['apply', 'ap', sid, '--allow-dirty'],
+            { repo },
+          );
+          expect(exitCode).toBe(0);
+          expect(stderr).toBeFalsy();
+
+          const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
+          const apEntry = ledger.find(
+            (e: any) =>
+              e.kind === 'session_ap' &&
+              e.characterId === 'alistar' &&
+              e.sessionId === sid,
+          );
+          expect(apEntry).toBeDefined();
+
+          const msEntry = ledger.find(
+            (e: any) =>
+              e.kind === 'milestone_spend' &&
+              e.characterId === 'alistar' &&
+              e.sessionId === sid,
+          ) as any;
+          expect(msEntry).toBeDefined();
+          expect(msEntry.advancementPoints.combat.delta).toBe(0);
+          expect(msEntry.advancementPoints.exploration.delta).toBe(0);
+          expect(msEntry.advancementPoints.social.delta).toBe(0);
+          expect(msEntry.notes).toBe('Survived the Winter');
+
+          // Report should keep milestoneAllocations and be marked completed
+          const report = SessionReport_parse(reportPath);
+          expect(report.status).toBe('completed');
+          expect(report.milestoneAllocations).toHaveLength(1);
+          expect(report.milestoneAllocations[0].characterId).toBe('alistar');
+        },
+      );
+    });
+
+    it('apply-then-allocate-then-reapply: second apply writes milestone_spend without rewriting session_ap', async () => {
+      await withTempRepo(
+        'apply-ap-then-allocate',
+        { initGit: false },
+        async (repo) => {
+          writeCharacterFiles();
+          const sid = 'session-0001';
+          const logPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            buildSessionFilename(1, '2025-09-25'),
+          );
+          fs.writeFileSync(
+            logPath,
+            buildSessionEvents(sid, '2025-09-25')
+              .map((e) => JSON.stringify(e))
+              .join('\n'),
+          );
+
+          // First apply: writes session_ap; no milestones yet
+          const first = await runWeave(
+            ['apply', 'ap', sid, '--allow-dirty'],
+            { repo },
+          );
+          expect(first.exitCode).toBe(0);
+          const ledgerAfterFirst = readApLedger(REPO_PATHS.AP_LEDGER());
+          expect(
+            ledgerAfterFirst.filter((e: any) => e.kind === 'milestone_spend'),
+          ).toHaveLength(0);
+          const sessionApAfterFirst = ledgerAfterFirst.filter(
+            (e: any) => e.kind === 'session_ap',
+          );
+
+          // Stage a milestone allocation in the now-completed report.
+          // Session-0001 is grandfathered: pillarTotal = 3, topup = 0,
+          // so the staged split must sum to 0.
+          const reportPath = path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml');
+          const r = SessionReport_parse(reportPath);
+          fs.writeFileSync(
+            reportPath,
+            yaml.stringify({
+              ...r,
+              milestoneAllocations: [
+                {
+                  characterId: 'alistar',
+                  pillarSplits: { combat: 0, exploration: 0, social: 0 },
+                  allocatedAt: new Date().toISOString(),
+                },
+              ],
+            }),
+          );
+
+          // Second apply: fingerprint matches → Phase 1 no-op; Phase 2 writes milestone_spend
+          const second = await runWeave(
+            ['apply', 'ap', sid, '--allow-dirty'],
+            { repo },
+          );
+          expect(second.exitCode).toBe(0);
+
+          const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
+          const sessionApAfterSecond = ledger.filter(
+            (e: any) => e.kind === 'session_ap',
+          );
+          // session_ap entries unchanged
+          expect(sessionApAfterSecond).toEqual(sessionApAfterFirst);
+          // a milestone_spend was added for alistar
+          const ms = ledger.filter((e: any) => e.kind === 'milestone_spend');
+          expect(ms).toHaveLength(1);
+          expect((ms[0] as any).characterId).toBe('alistar');
+        },
+      );
+    });
+
+    it('mismatch fails apply with no partial milestone_spend writes', async () => {
+      await withTempRepo(
+        'apply-ap-milestone-mismatch',
+        { initGit: false },
+        async (repo) => {
+          writeCharacterFiles();
+          const sid = 'session-0001';
+          const logPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            buildSessionFilename(1, '2025-09-25'),
+          );
+          fs.writeFileSync(
+            logPath,
+            buildSessionEvents(sid, '2025-09-25')
+              .map((e) => JSON.stringify(e))
+              .join('\n'),
+          );
+
+          // Pre-stage 1/1/1 in a planned report. Pillar AP for session-0001 will be 3
+          // (grandfathered), so topup is 0 — sum 3 won't match.
+          const reportPath = path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml');
+          fs.writeFileSync(
+            reportPath,
+            yaml.stringify({
+              id: sid,
+              status: 'planned',
+              absenceAllocations: [],
+              downtime: [],
+              gameStartDate: '',
+              schemaVersion: 2,
+              scribeIds: [],
+              sessionDate: '',
+              source: 'scribe',
+              milestoneAllocations: [
+                {
+                  characterId: 'alistar',
+                  pillarSplits: { combat: 1, exploration: 1, social: 1 },
+                  allocatedAt: '2025-09-25T12:00:00.000Z',
+                },
+              ],
+            }),
+          );
+
+          const { exitCode, stderr } = await runWeave(
+            ['apply', 'ap', sid, '--allow-dirty'],
+            { repo },
+          );
+          expect(exitCode).not.toBe(0);
+          expect(stderr).toMatch(/sums to 3/);
+          expect(stderr).toMatch(/topup is 0/);
+
+          // No milestone_spend in ledger; session_ap may have been written first
+          const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
+          expect(
+            ledger.filter((e: any) => e.kind === 'milestone_spend'),
+          ).toHaveLength(0);
+        },
+      );
+    });
+
+    it('is idempotent: re-running apply with the same allocations writes nothing new', async () => {
+      await withTempRepo(
+        'apply-ap-milestone-idempotent',
+        { initGit: false },
+        async (repo) => {
+          writeCharacterFiles();
+          const sid = 'session-0001';
+          const logPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            buildSessionFilename(1, '2025-09-25'),
+          );
+          fs.writeFileSync(
+            logPath,
+            buildSessionEvents(sid, '2025-09-25')
+              .map((e) => JSON.stringify(e))
+              .join('\n'),
+          );
+
+          // Stage one milestone (sum 0 because grandfathered pillarTotal = 3, topup = 0)
+          const reportPath = path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml');
+          fs.writeFileSync(
+            reportPath,
+            yaml.stringify({
+              id: sid,
+              status: 'planned',
+              absenceAllocations: [],
+              downtime: [],
+              gameStartDate: '',
+              schemaVersion: 2,
+              scribeIds: [],
+              sessionDate: '',
+              source: 'scribe',
+              milestoneAllocations: [
+                {
+                  characterId: 'alistar',
+                  pillarSplits: { combat: 0, exploration: 0, social: 0 },
+                  allocatedAt: '2025-09-25T12:00:00.000Z',
+                },
+              ],
+            }),
+          );
+
+          const first = await runWeave(
+            ['apply', 'ap', sid, '--allow-dirty'],
+            { repo },
+          );
+          expect(first.exitCode).toBe(0);
+          const ledgerAfterFirst = fs.readFileSync(
+            REPO_PATHS.AP_LEDGER(),
+            'utf8',
+          );
+
+          const second = await runWeave(
+            ['apply', 'ap', sid, '--allow-dirty'],
+            { repo },
+          );
+          expect(second.exitCode).toBe(0);
+          const ledgerAfterSecond = fs.readFileSync(
+            REPO_PATHS.AP_LEDGER(),
+            'utf8',
+          );
+          expect(ledgerAfterSecond).toEqual(ledgerAfterFirst);
+        },
+      );
+    });
+
+    it('tier-aware topup: T1 char gets 1 milestone AP, T2 char gets 2 milestone AP, both end at 3', async () => {
+      await withTempRepo(
+        'apply-ap-milestone-tier-aware',
+        { initGit: false },
+        async (repo) => {
+          // T1: alistar (level 1). T2: daemaris (level 5).
+          saveCharacters([
+            { key: 'alistar', overrides: { level: 1 } },
+            { key: 'daemaris', overrides: { level: 5 } },
+          ]);
+
+          // Session-0020 puts us under cap policy (≥0020).
+          // Events: 1 combat (maxTier 1) + 1 exploration (maxTier 2).
+          // T1 alistar earns combat (eligible) + exploration (eligible) = pillarTotal 2 → topup 1.
+          // T2 daemaris earns combat 0 (over-tier excluded) + exploration 1 = pillarTotal 1 → topup 2.
+          const sid = 'session-0020';
+          const sessionNum = 20;
+          const sessionDate = '2025-10-15';
+          const logPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            buildSessionFilename(sessionNum, sessionDate),
+          );
+          fs.writeFileSync(
+            logPath,
+            tierMixedEvents(sid, sessionDate, ['alistar', 'daemaris'])
+              .map((e) => JSON.stringify(e))
+              .join('\n'),
+          );
+
+          // Stage milestone allocations matching each character's expected topup
+          const reportPath = path.join(
+            REPO_PATHS.REPORTS(),
+            `session-${String(sessionNum).padStart(4, '0')}.yaml`,
+          );
+          fs.writeFileSync(
+            reportPath,
+            yaml.stringify({
+              id: sid,
+              status: 'planned',
+              absenceAllocations: [],
+              downtime: [],
+              gameStartDate: '',
+              schemaVersion: 2,
+              scribeIds: [],
+              sessionDate: '',
+              source: 'scribe',
+              milestoneAllocations: [
+                {
+                  characterId: 'alistar',
+                  pillarSplits: { combat: 0, exploration: 0, social: 1 },
+                  allocatedAt: '2025-10-15T12:00:00.000Z',
+                },
+                {
+                  characterId: 'daemaris',
+                  pillarSplits: { combat: 1, exploration: 0, social: 1 },
+                  allocatedAt: '2025-10-15T12:00:00.000Z',
+                },
+              ],
+            }),
+          );
+
+          const { exitCode, stderr } = await runWeave(
+            ['apply', 'ap', sid, '--allow-dirty'],
+            { repo },
+          );
+          expect(exitCode).toBe(0);
+          expect(stderr).toBeFalsy();
+
+          const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
+
+          // Alistar (T1): combat 1 + exploration 1 + milestone social 1 = 3
+          const alistarSession = ledger.find(
+            (e: any) =>
+              e.kind === 'session_ap' &&
+              e.characterId === 'alistar' &&
+              e.sessionId === sid,
+          ) as any;
+          const alistarMilestone = ledger.find(
+            (e: any) =>
+              e.kind === 'milestone_spend' &&
+              e.characterId === 'alistar' &&
+              e.sessionId === sid,
+          ) as any;
+          expect(alistarSession.advancementPoints.combat.delta).toBe(1);
+          expect(alistarSession.advancementPoints.exploration.delta).toBe(1);
+          expect(alistarSession.advancementPoints.social.delta).toBe(0);
+          expect(alistarMilestone.advancementPoints.combat.delta).toBe(0);
+          expect(alistarMilestone.advancementPoints.exploration.delta).toBe(0);
+          expect(alistarMilestone.advancementPoints.social.delta).toBe(1);
+
+          // Daemaris (T2): combat 0 (capped) + exploration 1 + milestone (1 combat + 1 social) = 3
+          const daemarisSession = ledger.find(
+            (e: any) =>
+              e.kind === 'session_ap' &&
+              e.characterId === 'daemaris' &&
+              e.sessionId === sid,
+          ) as any;
+          const daemarisMilestone = ledger.find(
+            (e: any) =>
+              e.kind === 'milestone_spend' &&
+              e.characterId === 'daemaris' &&
+              e.sessionId === sid,
+          ) as any;
+          expect(daemarisSession.advancementPoints.combat.delta).toBe(0);
+          expect(daemarisSession.advancementPoints.combat.reason).toBe('cap');
+          expect(daemarisSession.advancementPoints.exploration.delta).toBe(1);
+          expect(daemarisMilestone.advancementPoints.combat.delta).toBe(1);
+          expect(daemarisMilestone.advancementPoints.exploration.delta).toBe(0);
+          expect(daemarisMilestone.advancementPoints.social.delta).toBe(1);
+        },
+      );
+    });
+
+    it('grandfather overage: pillarTotal=3 yields topup=0 and a zero-delta milestone_spend', async () => {
+      await withTempRepo(
+        'apply-ap-milestone-grandfather',
+        { initGit: false },
+        async (repo) => {
+          writeCharacterFiles();
+
+          // session-0001 is ≤19 → grandfather policy. The standard buildSessionEvents
+          // gives every attendee delta=1 in all three pillars (pillarTotal=3, topup=0).
+          const sid = 'session-0001';
+          const logPath = path.join(
+            REPO_PATHS.SESSIONS(),
+            buildSessionFilename(1, '2025-09-25'),
+          );
+          fs.writeFileSync(
+            logPath,
+            buildSessionEvents(sid, '2025-09-25')
+              .map((e) => JSON.stringify(e))
+              .join('\n'),
+          );
+
+          const reportPath = path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml');
+          fs.writeFileSync(
+            reportPath,
+            yaml.stringify({
+              id: sid,
+              status: 'planned',
+              absenceAllocations: [],
+              downtime: [],
+              gameStartDate: '',
+              schemaVersion: 2,
+              scribeIds: [],
+              sessionDate: '',
+              source: 'scribe',
+              milestoneAllocations: [
+                {
+                  characterId: 'alistar',
+                  pillarSplits: { combat: 0, exploration: 0, social: 0 },
+                  allocatedAt: '2025-09-25T12:00:00.000Z',
+                },
+              ],
+            }),
+          );
+
+          const { exitCode } = await runWeave(
+            ['apply', 'ap', sid, '--allow-dirty'],
+            { repo },
+          );
+          expect(exitCode).toBe(0);
+
+          const ledger = readApLedger(REPO_PATHS.AP_LEDGER());
+          const ms = ledger.find(
+            (e: any) =>
+              e.kind === 'milestone_spend' &&
+              e.characterId === 'alistar' &&
+              e.sessionId === sid,
+          ) as any;
+          expect(ms).toBeDefined();
+          expect(ms.advancementPoints.combat.delta).toBe(0);
+          expect(ms.advancementPoints.exploration.delta).toBe(0);
+          expect(ms.advancementPoints.social.delta).toBe(0);
+        },
+      );
+    });
+  });
 });
+
+function SessionReport_parse(reportPath: string): SessionReport {
+  // Light helper that parses without schema validation — useful in tests where
+  // we want to read whatever was written, including before all defaults applied.
+  return yaml.parse(fs.readFileSync(reportPath, 'utf8')) as SessionReport;
+}

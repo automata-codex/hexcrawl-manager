@@ -114,16 +114,17 @@ Result:
      - ≤0019: `number = 1` if `hadAny`; else `0`.
      - ≥0020: `number = 1` if any attendee has `delta = 1`; else `0`.
      - `maxTier` = maximum `event.tier` seen for that pillar (default 1 if none).
-8) **Idempotency check:** if a completed report already exists with identical `{ sessionId, sorted scribeIds }` → **no-op** success.
-9) **Write outputs:**
+8) **Idempotency check (Phase 1):** if a completed report already exists with identical `{ sessionId, sorted scribeIds }` → Phase 1 (pillar AP) is a **no-op**, but **Phase 2 still runs** to commit any milestone allocations staged after the prior apply.
+9) **Write outputs (Phase 1):**
    - **Completed session report** (`data/session-reports/session-####.yaml`)
-     - Create if no report exists; if a **planned** report exists and git is **clean**, replace with **completed** (immutable).
-     - Persist: `id`, `status: "completed"`, `sessionDate`, `gameStartDate`, `gameEndDate`, `scribeIds[]`, attendance, and `advancementPoints` block.
-   - **Ledger entries**
-     - Append one `session_ap` per (session, character) with:
-       - `sessionId`, `characterId`
-       - `pillars.{combat|exploration|social}: { delta, reason }`
-       - (Optional) `source` metadata incl. `scribeIds[]`.
+     - Create if no report exists; if a **planned** report exists, replace with **completed** (immutable).
+     - Persist: `id`, `status: "completed"`, `sessionDate`, `gameStartDate`, `gameEndDate`, `scribeIds[]`, attendance, `advancementPoints` block, and **carry forward any `milestoneAllocations[]`** from the prior report.
+   - **Ledger entries:** append one `session_ap` per (session, character) with `{ sessionId, characterId, pillars.{combat|exploration|social}: { delta, reason } }`.
+10) **Phase 2 — Milestone reconciliation:** read the current report's `milestoneAllocations[]` (the GM stages these via `weave allocate ap milestone`). For each entry:
+    - **Idempotency:** if a `milestone_spend` ledger entry already exists for `(characterId, sessionId)`, skip.
+    - **Compute topup:** `topUp = max(0, 3 - sum(session_ap deltas for that character/session))`. The `session_ap` deltas reflect era policy (cap/grandfather), so milestone topup adapts to per-character tier automatically.
+    - **Strict-fail:** if the staged `pillarSplits` sum doesn't equal `topUp`, fail the apply with a message naming character, session, expected sum, provided sum. The GM updates the staged allocation in the report and re-runs apply. No partial write.
+    - **Append a `milestone_spend` entry** to the ledger with `reason: "normal"` on each pillar.
 
 ---
 
@@ -131,10 +132,11 @@ Result:
 
 - **Completed report:**
   - Created even if **no planned** report exists.
-  - If a planned report exists: require **clean git** (else **fail**). On success, it becomes the completed report.
+  - If a planned report exists, it becomes the completed report. `milestoneAllocations[]` is carried forward.
 - **Ledger:**
-  - Append on first apply only. Re-runs with same fingerprint add **no** duplicate entries.
-- **Fingerprint:** `{ sessionId, sorted scribeIds }`.
+  - **Phase 1 (`session_ap`)**: append on first apply only. Re-runs with same fingerprint add no duplicate `session_ap` entries.
+  - **Phase 2 (`milestone_spend`)**: append for each staged allocation that does not yet have a `milestone_spend` entry for `(characterId, sessionId)`. Re-running apply after staging new allocations is the supported way to commit them; re-running with no new allocations is a no-op.
+- **Fingerprint:** `{ sessionId, sorted scribeIds }` — gates Phase 1 writes only. Phase 2 always runs and uses its own per-allocation idempotency.
 
 ---
 
