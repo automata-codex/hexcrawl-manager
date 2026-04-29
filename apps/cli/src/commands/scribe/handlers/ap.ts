@@ -9,8 +9,6 @@ import {
 } from '../../../services/projectors.service';
 import { requireSession } from '../services/general';
 
-import todoHandler from './todo';
-
 import type { Context } from '../types';
 
 export default function ap(ctx: Context) {
@@ -27,8 +25,8 @@ export default function ap(ctx: Context) {
       if (!milestoneNote) {
         return usage('usage: ap milestone "<note...>"');
       }
-      const todo = todoHandler(ctx);
-      todo([`Add AP for milestone: ${milestoneNote}`]);
+      appendEvent(ctx.file!, 'milestone', { note: milestoneNote });
+      info(`✓ milestone recorded: ${milestoneNote}`);
       return;
     }
 
