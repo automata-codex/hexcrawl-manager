@@ -1,5 +1,83 @@
 # @skyreach/cli
 
+## 2.9.0
+
+### Minor Changes
+
+- 630e38e: Replace the flat-3 milestone-grant model with a top-up model and split the
+  `weave allocate ap milestone` workflow into staging + apply phases.
+
+  **Behavior change:** A milestone now fills the gap between a character's
+  session pillar AP and a per-session cap of 3 AP. Pillar AP earned through
+  normal play is credited first; the milestone tops up the remainder. This
+  matches the campaign rules in the players guide. The `MILESTONE_AP_AMOUNT = 3`
+  constant has been removed; the new constant `MILESTONE_AP_CAP = 3` represents
+  the per-session cap, not a fixed grant.
+
+  **Workflow change:** `weave allocate ap milestone` no longer writes to the AP
+  ledger. Instead it stages an entry in the target session report's
+  `milestoneAllocations[]` array. `weave apply ap` is now the single writer for
+  both `session_ap` and `milestone_spend` ledger entries, reconciling staged
+  allocations against the per-character session pillar AP at apply time. This
+  gives natural order-independence — pillar AP and milestone allocation can
+  happen in either order and `apply` reconciles them.
+
+  **Schema (`@achm/schemas`):**
+  - Add `MilestoneEventSchema` (a structured `milestone` scribe event with
+    `{ note, slug? }` payload). Replaces the legacy `todo` event with the
+    `"Add AP for milestone:"` text prefix.
+  - Add `MilestoneAllocationSchema` and the `milestoneAllocations[]` field on
+    `SessionHeader` (parallel to `absenceAllocations[]`).
+  - `MilestoneSpendEntrySchema.sessionId` semantics updated: it now refers to
+    the session the milestone is tied to, not "where the entry was applied."
+
+  **CLI (`@achm/cli`):**
+  - `scribe ap milestone "<note>"` now emits a structured `milestone` event.
+  - `weave allocate ap milestone` requires `--session-id`, accepts pillar
+    splits summing 0..3 (was strict =3), eagerly validates against existing
+    `session_ap` when present, and stages intent in the report.
+  - `weave apply ap` adds Phase 2: reads `report.milestoneAllocations[]`,
+    computes per-character topup from the just-written `session_ap`, strict-fails
+    on mismatched sums, and appends `milestone_spend` ledger entries.
+  - `weave status ap` adds a Milestone Awards table mirroring Unclaimed Absence
+    Awards.
+
+  **Breaking change:** `weave allocate ap milestone` no longer commits to the
+  ledger directly. Existing `milestone_spend` entries written under the
+  previous model continue to display correctly, but new allocations require
+  running `weave apply ap` to commit. See
+  `docs/specs/milestone-ap-reconciliation.md` for the full design and
+  `docs/plans/milestone-ap-reconciliation-implementation.md` for the migration
+  runbook.
+
+### Patch Changes
+
+- 1d4ea03: Align AP spec docs and a stale code comment with the rules of record and
+  the actual implementation.
+  - **Absence credits are not Tier-1-only.** The rules article
+    (`character-advancement.md`) grants 1 absence AP per missed session to
+    every absent character regardless of tier, and the implementation
+    (`compute-unclaimed-absence-awards.ts`, `allocate-ap.ts`) has always
+    matched. Only the spec docs claimed Tier-1 was a precondition. Removed
+    the stale restriction from `ap-workflow-overview.md` (§3.E, §3.F, §6,
+    §7, §9, §11) and `weave-commands/allocate-ap.md` (§1, §4, §5, §6, §9,
+    §10, §11), plus a stale "Tier-1 credits" comment in
+    `allocate-ap.ts`.
+  - **Pillar splits are player-chosen, not GM-chosen.** Per the rules of
+    record, each player decides how to allocate their character's milestone
+    topup and absence credit across pillars. The spec docs and migration
+    runbook called these decisions GM judgment; corrected to reflect that
+    the GM is the CLI operator who types in values supplied by each player.
+    Updated `milestone-ap-reconciliation.md`, `ap-workflow-overview.md`,
+    the implementation plan, and the migration runbook.
+
+  No behavior change.
+
+- Updated dependencies [6d0da96]
+- Updated dependencies [8cd786e]
+- Updated dependencies [630e38e]
+  - @achm/schemas@5.1.0
+
 ## 2.8.0
 
 ### Minor Changes
