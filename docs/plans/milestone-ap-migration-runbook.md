@@ -35,10 +35,10 @@ Same `seq` and `ts` so audit trail and downstream re-runs stay deterministic.
 
 ## Step 2 — Stage milestone allocations (per character)
 
-Each character gets 1 AP of milestone topup. The pillar choice is GM
-judgment — the worked example below allocates 1 exploration to every
-character (since exploration was the pillar that didn't earn this session),
-but you can pick differently per character.
+Each character gets 1 AP of milestone topup. The pillar choice is the
+player's call — collect each player's preferred pillar before running the
+command. The worked example below shows one possible distribution, but the
+real values should come from the players themselves.
 
 ```bash
 # Run from anywhere with ACHM_DATA_PATH set to ../skyreach/data

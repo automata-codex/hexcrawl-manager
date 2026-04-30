@@ -136,7 +136,7 @@ This plan implements the spec at `docs/specs/milestone-ap-reconciliation.md` in 
 - **Data migration** (in the `../skyreach` data repo):
   - Identify the JSONL log line: `data/session-logs/sessions/session-NNNN_*.jsonl` containing the `todo` event with `"Add AP for milestone:"` prefix.
   - Hand-edit that line into a structured `milestone` event with `{ note }` payload.
-  - Run `weave allocate ap milestone --session-id <S> --character <id> ...` for each character present in that session, with the GM-chosen pillar splits.
+  - Run `weave allocate ap milestone --session-id <S> --character <id> ...` for each character present in that session, with the pillar splits each player chose for their own character.
   - Run `weave apply ap <S>` (or `weave apply ap` to pick it up automatically). Verify `milestone_spend` entries appear in the ledger.
   - Verify `weave status ap` shows the milestone in the new table.
   - Commit in the data repo: `chore(data): migrate session-NN milestone to structured event`
