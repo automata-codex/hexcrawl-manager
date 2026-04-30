@@ -1,14 +1,23 @@
 import { warn } from '@achm/cli-kit';
 import {
   aggregateApByCharacter,
+  discoverFinalizedLogsFor,
   readApLedger,
+  readAllFinalizedLogsForSession,
   REPO_PATHS,
 } from '@achm/data';
-import { ApLedgerEntry, ApLedgerEntrySchema } from '@achm/schemas';
+import {
+  ApLedgerEntry,
+  ApLedgerEntrySchema,
+  SessionReport,
+} from '@achm/schemas';
 
 import { loadAllCharacters } from '../../../services/characters.service';
 import { loadAllSessionReports } from '../../../services/sessions.service';
 import { computeUnclaimedAbsenceAwards } from '../lib/core/compute-unclaimed-absence-awards';
+import { computeUnclaimedMilestoneAwards } from '../lib/core/compute-unclaimed-milestone-awards';
+
+const LEGACY_MILESTONE_TODO_PREFIX = 'Add AP for milestone:';
 
 export interface StatusApResult {
   apByCharacter: Record<
@@ -22,6 +31,58 @@ export interface StatusApResult {
     claimed: number;
     unclaimed: number;
   }>;
+  milestoneAwards: Array<{
+    characterId: string;
+    displayName: string;
+    eligible: number;
+    claimed: number;
+    unclaimed: number;
+  }>;
+}
+
+/**
+ * For each completed session, count milestone occurrences from:
+ *   1. structured `milestone` events in the JSONL log (current canon), and
+ *   2. legacy `todo` items on the report whose text starts with
+ *      "Add AP for milestone:" (pre-Phase-2 logs that haven't been migrated).
+ *
+ * Returns a Map<sessionId, count>. Sessions with zero milestones are absent.
+ *
+ * TODO(post-migration): once Phase 6 has rewritten all legacy `todo`-prefix
+ * entries into structured `milestone` events, drop the legacy branch.
+ */
+function collectMilestoneCountsBySessionId(
+  sessions: SessionReport[],
+): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const session of sessions) {
+    if (session.status !== 'completed') continue;
+    let count = 0;
+
+    // (1) Structured `milestone` events in the JSONL log.
+    const sessionNum = session.id.split('-')[1];
+    if (sessionNum && discoverFinalizedLogsFor(sessionNum).length > 0) {
+      try {
+        const events = readAllFinalizedLogsForSession(sessionNum);
+        count += events.filter((e) => e.kind === 'milestone').length;
+      } catch {
+        // unreadable log — ignore for status (don't fail the command)
+      }
+    }
+
+    // (2) Legacy `todo`-with-prefix entries on the report.
+    for (const t of session.todo ?? []) {
+      if (
+        typeof t.text === 'string' &&
+        t.text.startsWith(LEGACY_MILESTONE_TODO_PREFIX)
+      ) {
+        count += 1;
+      }
+    }
+
+    if (count > 0) out.set(session.id, count);
+  }
+  return out;
 }
 
 export async function statusAp(): Promise<StatusApResult> {
@@ -58,5 +119,15 @@ export async function statusAp(): Promise<StatusApResult> {
     ledgerEntries,
   );
 
-  return { apByCharacter, absenceAwards };
+  // 5) Compute unclaimed milestone awards
+  const milestoneCountsBySessionId =
+    collectMilestoneCountsBySessionId(sessionReports);
+  const milestoneAwards = computeUnclaimedMilestoneAwards(
+    sessionReports,
+    activeCharacters,
+    ledgerEntries,
+    milestoneCountsBySessionId,
+  );
+
+  return { apByCharacter, absenceAwards, milestoneAwards };
 }
