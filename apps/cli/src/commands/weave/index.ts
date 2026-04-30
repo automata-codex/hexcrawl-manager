@@ -76,35 +76,51 @@ Notes:
     await allocateAbsenceHandler(raw, !!opts.dryRun);
   });
 
-// `weave allocate ap milestone` -> grant milestone AP
+// `weave allocate ap milestone` -> stage milestone allocation in a session report
 const allocateApMilestone = new Command('milestone')
-  .description('Grant milestone AP (always 3 total)')
+  .description(
+    'Stage a milestone allocation in a session report (committed by `weave apply ap`)',
+  )
   .addOption(
     new Option(
       '--character <id>',
       'Character ID (starts a new allocation block)',
     ),
   )
+  .addOption(
+    new Option(
+      '--session-id <id>',
+      'Session ID this milestone is tied to (e.g. session-0023)',
+    ),
+  )
   .addOption(new Option('--combat <n>', 'Combat pillar credits'))
   .addOption(new Option('--exploration <n>', 'Exploration pillar credits'))
   .addOption(new Option('--social <n>', 'Social pillar credits'))
   .option('--note <text>', 'Milestone description')
-  .option('--dry-run', 'Show what would be allocated without making changes')
+  .option('--dry-run', 'Show what would be staged without writing the report')
   .addHelpText(
     'after',
     `
 Examples:
-  # Grant milestone AP to a character
-  weave allocate ap milestone --character <id> --combat 1 --exploration 1 --social 1 --note "Winter survival"
+  # Stage a milestone for a character whose pillar AP for the session sums to 2
+  # (topup is 1; split must sum to exactly 1)
+  weave allocate ap milestone --character <id> --session-id session-0023 \\
+    --combat 1 --exploration 0 --social 0 --note "Winter survival"
 
-  # Multiple characters (repeat flags per character)
+  # Multiple characters in the same session (repeat flags per character)
   weave allocate ap milestone \\
-    --character <id1> --combat 1 --exploration 2 --social 0 --note "Winter" \\
-    --character <id2> --combat 0 --exploration 1 --social 2 --note "Winter"
+    --character <id1> --session-id session-0023 --combat 1 --exploration 0 --social 0 \\
+    --character <id2> --session-id session-0023 --combat 0 --exploration 2 --social 0
 
 Notes:
-  • Each --character begins a new allocation block.
-  • Pillar splits must sum to 3 (the fixed milestone amount).
+  • Each --character begins a new allocation block; --session-id is required per block.
+  • Splits sum to between 0 and 3. If pillar AP for the session is already in the ledger,
+    the sum must equal exactly (3 − pillarTotal); otherwise validation is deferred to
+    \`weave apply ap\`.
+  • Allocations are staged in the session report's milestoneAllocations[] field;
+    \`weave apply ap\` writes the corresponding milestone_spend ledger entries.
+  • Re-allocating for the same (character, session) is an error — hand-edit the report
+    to revise.
   • --dry-run applies to all blocks.
 `,
   )

@@ -1,0 +1,100 @@
+---
+/**
+ * A Blades in the Dark / PbtA-style progress clock rendered as an SVG pie chart.
+ * Displays filled and empty wedges in a circle, with an optional title and description.
+ */
+
+interface Props {
+  title: string;
+  totalSteps: number;
+  completedSteps: number;
+  description?: string;
+  /** Diameter of the clock in pixels. Defaults to 60. */
+  size?: number;
+}
+
+const { title, totalSteps, completedSteps, description, size = 60 } = Astro.props;
+
+const radius = 50;
+const center = 50;
+
+function getWedgePath(index: number, total: number): string {
+  const startAngle = (index / total) * 2 * Math.PI - Math.PI / 2;
+  const endAngle = ((index + 1) / total) * 2 * Math.PI - Math.PI / 2;
+
+  const x1 = center + radius * Math.cos(startAngle);
+  const y1 = center + radius * Math.sin(startAngle);
+  const x2 = center + radius * Math.cos(endAngle);
+  const y2 = center + radius * Math.sin(endAngle);
+
+  const largeArc = endAngle - startAngle > Math.PI ? 1 : 0;
+
+  return `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+}
+
+const wedges = Array.from({ length: totalSteps }, (_, i) => ({
+  path: getWedgePath(i, totalSteps),
+  filled: i < completedSteps,
+}));
+---
+
+<style>
+  .clock-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .clock-svg {
+    flex-shrink: 0;
+  }
+
+  .clock-wedge-filled {
+    fill: #c62828;
+    stroke: #363636;
+    stroke-width: 2.5;
+  }
+
+  .clock-wedge-empty {
+    fill: #f5f5f5;
+    stroke: #363636;
+    stroke-width: 2.5;
+  }
+
+  .clock-label {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .clock-title {
+    font-weight: bold;
+  }
+
+  .clock-description {
+    font-style: italic;
+    font-size: 0.9em;
+  }
+</style>
+<div class="clock-container">
+  <svg
+    class="clock-svg"
+    width={size}
+    height={size}
+    viewBox="0 0 100 100"
+  >
+    <circle cx={center} cy={center} r={radius} fill="#f5f5f5" stroke="#363636" stroke-width="1" />
+    {wedges.map((wedge) => (
+      <path
+        d={wedge.path}
+        class={wedge.filled ? 'clock-wedge-filled' : 'clock-wedge-empty'}
+      />
+    ))}
+  </svg>
+  <div class="clock-label">
+    <span class="clock-title">{title}</span>
+    {description && (
+      <span class="clock-description">{description}</span>
+    )}
+  </div>
+</div>

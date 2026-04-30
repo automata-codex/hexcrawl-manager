@@ -122,7 +122,7 @@ export async function allocateAp(
     );
   }
 
-  // Step 2: Ensure the character actually has enough unspent Tier-1 credits
+  // Step 2: Ensure the character actually has enough unspent absence credits
   const availableBefore = await getAvailableAbsenceCredits(characterId);
   if (availableBefore < amount) {
     throw new InsufficientCreditsError(characterId, availableBefore, amount);

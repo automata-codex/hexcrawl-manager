@@ -12,6 +12,19 @@ const AbsenceAllocationSchema = z.object({
   notes: z.string().optional(),
 });
 
+export const MilestoneAllocationSchema = z.object({
+  characterId: z.string(),
+  pillarSplits: z.object({
+    combat: z.number().int().min(0).default(0),
+    exploration: z.number().int().min(0).default(0),
+    social: z.number().int().min(0).default(0),
+  }),
+  note: z.string().optional(),
+  allocatedAt: z.string().datetime(),
+});
+
+export type MilestoneAllocation = z.infer<typeof MilestoneAllocationSchema>;
+
 const ApSchema = z.object({
   number: z.number().int().nonnegative(),
   maxTier: z.number().int().min(1).max(4),
@@ -26,7 +39,7 @@ const DowntimeSchema = z.object({
 const TodoItemSchema = z.object({
   text: z.string(),
   status: z.enum(['pending', 'done']),
-  source: z.enum(['template', 'scribe']).optional(),
+  source: z.enum(['manual', 'scribe', 'template']).optional(),
 });
 
 export type TodoItem = z.infer<typeof TodoItemSchema>;
@@ -48,6 +61,7 @@ const SessionHeader = z.object({
   id: SessionIdSchema, // "session-####"
   absenceAllocations: z.array(AbsenceAllocationSchema).default([]),
   downtime: z.array(DowntimeSchema).default([]),
+  milestoneAllocations: z.array(MilestoneAllocationSchema).default([]),
   gameStartDate: z.string().default(''), // in-world date (free text); GM fills manually
   schemaVersion: z.number().int().min(2).default(2),
   scribeIds: z.array(ScribeId).default([]), // may be empty in planned; must be non-empty before apply

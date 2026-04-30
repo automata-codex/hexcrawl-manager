@@ -100,6 +100,12 @@ export const LostEventPayloadSchema = z.object({
 });
 export type LostEventPayload = z.infer<typeof LostEventPayloadSchema>;
 
+export const MilestoneEventPayloadSchema = z.object({
+  note: z.string(),
+  slug: z.string().optional(),
+});
+export type MilestoneEventPayload = z.infer<typeof MilestoneEventPayloadSchema>;
+
 export const MoveEventPayloadSchema = z.object({
   from: z.string().nullable(),
   to: z.string(),
@@ -210,12 +216,12 @@ export const WeatherCommittedEventPayloadSchema = z.object({
   date: CampaignDateSchema,
   season: z.string(),
   roll2d6: z.number().int().min(2).max(12),
-  forecastBefore: z.number().int().min(0),
+  forecastBefore: z.number().int().min(-1),
   total: z.number().int(),
   category: z.string(),
   detail: z.string().nullable().optional(), // null in your samples; allow absent too
   descriptors: z.array(z.string()).optional(), // present or omitted in samples
-  forecastAfter: z.number().int().min(0),
+  forecastAfter: z.number().int().min(-1),
 });
 export type WeatherCommittedEventPayload = z.infer<
   typeof WeatherCommittedEventPayloadSchema
@@ -269,6 +275,12 @@ export type ExploreEvent = z.infer<typeof ExploreEventSchema>;
 
 export const LostEventSchema = makeEventSchema('lost', LostEventPayloadSchema);
 export type LostEvent = z.infer<typeof LostEventSchema>;
+
+export const MilestoneEventSchema = makeEventSchema(
+  'milestone',
+  MilestoneEventPayloadSchema,
+);
+export type MilestoneEvent = z.infer<typeof MilestoneEventSchema>;
 
 export const MoveEventSchema = makeEventSchema('move', MoveEventPayloadSchema);
 export type MoveEvent = z.infer<typeof MoveEventSchema>;
@@ -352,6 +364,7 @@ export const ScribeEventSchema = z.discriminatedUnion('kind', [
   DeadReckoningEventSchema,
   ExploreEventSchema,
   LostEventSchema,
+  MilestoneEventSchema,
   MoveEventSchema,
   NoteEventSchema,
   PartySetEventSchema,

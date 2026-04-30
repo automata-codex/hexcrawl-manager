@@ -1,14 +1,21 @@
 import { warn } from '@achm/cli-kit';
 import {
   aggregateApByCharacter,
+  discoverFinalizedLogsFor,
   readApLedger,
+  readAllFinalizedLogsForSession,
   REPO_PATHS,
 } from '@achm/data';
-import { ApLedgerEntry, ApLedgerEntrySchema } from '@achm/schemas';
+import {
+  ApLedgerEntry,
+  ApLedgerEntrySchema,
+  SessionReport,
+} from '@achm/schemas';
 
 import { loadAllCharacters } from '../../../services/characters.service';
 import { loadAllSessionReports } from '../../../services/sessions.service';
 import { computeUnclaimedAbsenceAwards } from '../lib/core/compute-unclaimed-absence-awards';
+import { computeUnclaimedMilestoneAwards } from '../lib/core/compute-unclaimed-milestone-awards';
 
 export interface StatusApResult {
   apByCharacter: Record<
@@ -22,6 +29,41 @@ export interface StatusApResult {
     claimed: number;
     unclaimed: number;
   }>;
+  milestoneAwards: Array<{
+    characterId: string;
+    displayName: string;
+    eligible: number;
+    claimed: number;
+    unclaimed: number;
+  }>;
+}
+
+/**
+ * For each completed session, count structured `milestone` events in the
+ * JSONL log. Returns a Map<sessionId, count>; sessions with zero milestones
+ * are absent.
+ */
+function collectMilestoneCountsBySessionId(
+  sessions: SessionReport[],
+): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const session of sessions) {
+    if (session.status !== 'completed') continue;
+
+    const sessionNum = session.id.split('-')[1];
+    if (!sessionNum || discoverFinalizedLogsFor(sessionNum).length === 0) {
+      continue;
+    }
+
+    try {
+      const events = readAllFinalizedLogsForSession(sessionNum);
+      const count = events.filter((e) => e.kind === 'milestone').length;
+      if (count > 0) out.set(session.id, count);
+    } catch {
+      // unreadable log — ignore for status (don't fail the command)
+    }
+  }
+  return out;
 }
 
 export async function statusAp(): Promise<StatusApResult> {
@@ -58,5 +100,15 @@ export async function statusAp(): Promise<StatusApResult> {
     ledgerEntries,
   );
 
-  return { apByCharacter, absenceAwards };
+  // 5) Compute unclaimed milestone awards
+  const milestoneCountsBySessionId =
+    collectMilestoneCountsBySessionId(sessionReports);
+  const milestoneAwards = computeUnclaimedMilestoneAwards(
+    sessionReports,
+    activeCharacters,
+    ledgerEntries,
+    milestoneCountsBySessionId,
+  );
+
+  return { apByCharacter, absenceAwards, milestoneAwards };
 }

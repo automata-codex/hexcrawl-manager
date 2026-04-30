@@ -40,7 +40,7 @@ const MilestoneSpendEntrySchema = z.object({
   appliedAt: z.string().datetime(),
   characterId: z.string(),
   notes: z.string().optional(),
-  sessionId: SessionIdSchema, // ties to "most recent completed" session
+  sessionId: SessionIdSchema, // the session this milestone is tied to (i.e., when the milestone occurred), not when the entry was applied
 });
 
 const SessionApEntrySchema = z.object({

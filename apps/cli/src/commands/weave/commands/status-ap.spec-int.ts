@@ -1,4 +1,4 @@
-import { REPO_PATHS } from '@achm/data';
+import { REPO_PATHS, buildSessionFilename } from '@achm/data';
 import { rewriteApLedger } from '@achm/data';
 import { ApLedgerEntry, makeSessionId, padSessionNum } from '@achm/schemas';
 import {
@@ -224,4 +224,76 @@ describe('Command `weave ap status`', () => {
   it.todo('handles sessions with no attendance');
   it.todo('handles sessions with only guests');
   it.todo('handles windowing that excludes all sessions');
+
+  // Milestone awards table (Phase 5)
+  it('renders a milestone awards table from structured milestone events and milestone_spend ledger entries', async () => {
+    await withTempRepo(
+      'ap-status-milestone-table',
+      { initGit: false },
+      async (repo) => {
+        // Two characters, both present at session-0001 which has one
+        // structured milestone event in its JSONL log. Alistar already
+        // claimed it (1 milestone_spend entry); Daemaris has not.
+        saveCharacter('alistar', { level: 1 });
+        saveCharacter('daemaris', { level: 1 });
+
+        const reportPath = path.join(REPO_PATHS.REPORTS(), 'session-0001.yaml');
+        const completed = makeCompletedSessionReport({
+          n: 1,
+          date: '2025-09-01',
+          present: ['alistar', 'daemaris'],
+        });
+        fs.writeFileSync(reportPath, yaml.stringify(completed));
+
+        // JSONL log for session-0001 with a structured `milestone` event.
+        const logPath = path.join(
+          REPO_PATHS.SESSIONS(),
+          buildSessionFilename(1, '2025-09-01'),
+        );
+        fs.writeFileSync(
+          logPath,
+          JSON.stringify({
+            seq: 1,
+            ts: '2025-09-01T20:00:00.000Z',
+            kind: 'milestone',
+            payload: { note: 'Survived the Winter' },
+          }) + '\n',
+        );
+
+        // Ledger: alistar has a milestone_spend entry; daemaris does not.
+        const ledger: ApLedgerEntry[] = [
+          {
+            kind: 'milestone_spend',
+            advancementPoints: {
+              combat: { delta: 0, reason: 'normal' },
+              exploration: { delta: 0, reason: 'normal' },
+              social: { delta: 0, reason: 'normal' },
+            },
+            appliedAt: '2025-09-01T12:00:00.000Z',
+            characterId: 'alistar',
+            sessionId: makeSessionId(1),
+          },
+        ];
+        rewriteApLedger(REPO_PATHS.AP_LEDGER(), ledger);
+
+        const { exitCode, stdout, stderr } = await runWeave(
+          ['status', 'ap'],
+          { repo },
+        );
+        expect(exitCode).toBe(0);
+        expect(stderr).toBeFalsy();
+
+        // Find the Milestone Awards block in the output
+        const lines = stdout.split(/\r?\n/);
+        const start = lines.findIndex((l) => /Milestone Awards/i.test(l));
+        expect(start).toBeGreaterThan(-1);
+        const milestoneBlock = lines.slice(start, start + 8).join('\n');
+
+        // Alistar: eligible 1, claimed 1, unclaimed 0
+        expect(milestoneBlock).toMatch(/Alistar\s+1\s+1\s+0/);
+        // Daemaris: eligible 1, claimed 0, unclaimed 1
+        expect(milestoneBlock).toMatch(/Daemaris\s+1\s+0\s+1/);
+      },
+    );
+  });
 });
