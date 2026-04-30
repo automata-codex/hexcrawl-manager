@@ -1,5 +1,15 @@
 # Milestone AP Support
 
+> **⚠️ Superseded.** The flat-3 milestone-grant model described below was the
+> original implementation. It has been replaced by a top-up model in which a
+> milestone fills the gap between a character's session pillar AP and a
+> per-session cap of 3 AP. See **`docs/specs/milestone-ap-reconciliation.md`**
+> for the current spec, and `docs/specs/weave-commands/apply-ap.md` (Phase 2)
+> for how `weave apply ap` writes `milestone_spend` ledger entries from staged
+> allocations in the session report's `milestoneAllocations[]`.
+>
+> Sections below are kept for historical context only.
+
 ## Overview
 
 Add milestone advancement point support to the CLI:

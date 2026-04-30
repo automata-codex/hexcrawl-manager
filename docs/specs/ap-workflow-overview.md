@@ -74,14 +74,25 @@ This document explains **what the system does** and **where each responsibility 
 - `weave ap allocate` records **absence spends** in the ledger and updates the **most recent completed** report’s `absenceAllocations[]`.
 - Tier 2+ spends display as `absence_spend` **only** (no pillar deltas).
 
+### G. Milestone reconciliation (apply, Phase 2)
+- A milestone is declared in scribe via `ap milestone "<note>"` (writes a structured `milestone` event into the JSONL log). The GM allocates each character's pillar split via `weave allocate ap milestone --character <id> --session-id <S> --combat <n> --exploration <n> --social <n>`, which **stages** intent in the session report's `milestoneAllocations[]` (no ledger write).
+- `weave apply ap` is the single ledger writer. After Phase 1 writes `session_ap` for the session, **Phase 2** reconciles each staged allocation:
+  - Compute `topUp = max(0, 3 - sum(session_ap deltas for that character/session))`. The era-clamped deltas already encode tier policy, so milestone topup adapts automatically per character.
+  - **Strict-fail** the entire apply if any staged split does not equal the computed topup (no auto-clamp). The GM updates the staged allocation and re-runs apply.
+  - On match: append a `milestone_spend` ledger entry with `reason: "normal"` per pillar.
+- **Idempotency:** Phase 2 is idempotent by `(characterId, sessionId)` — if a `milestone_spend` already exists for that pair, that allocation is skipped on re-apply. Re-running apply after staging new allocations is the supported way to commit them.
+- **Eligibility for the status table:** a character is eligible for a milestone iff a milestone event was declared in a session AND the character appears in that session's final attendance roster. Active-window logic does **not** apply.
+- See `docs/specs/milestone-ap-reconciliation.md` for the full top-up model, and `docs/specs/weave-commands/apply-ap.md` for the apply algorithm.
+
 ---
 
 ## 4) Roles & Boundaries
 
 - **`session`**: creates *planned* report only. No ledger writes.
-- **`weave ap apply`**: the **only** writer of *completed* reports and per-session ledger entries.
-- **`weave ap status`**: read-only aggregation; calculates absence credits on the fly.
-- **`weave ap allocate`**: writes `absence_spend` to ledger and appends to latest *completed* report.
+- **`weave ap apply`**: the **only** writer of *completed* reports and per-session ledger entries (both `session_ap` and `milestone_spend`).
+- **`weave ap status`**: read-only aggregation; calculates absence credits and milestone awards on the fly.
+- **`weave allocate ap absence`**: writes `absence_spend` to ledger and appends to latest *completed* report.
+- **`weave allocate ap milestone`**: stages intent in the target session report's `milestoneAllocations[]`. Does **not** write the ledger; `weave apply ap` commits the corresponding `milestone_spend` entries.
 - **Migration script**: one-time content transformer; ends with a reconcile artifact (not a command).
 - **Future consolidation:** `weave apply` will act as an orchestrator that runs idempotent sub-steps (trails → AP → hex updates). `weave ap apply` remains callable directly and/or as a sub-step until deprecated.
 
