@@ -226,14 +226,14 @@ describe('Command `weave ap status`', () => {
   it.todo('handles windowing that excludes all sessions');
 
   // Milestone awards table (Phase 5)
-  it('renders a milestone awards table from legacy todo-prefix entries and milestone_spend ledger entries', async () => {
+  it('renders a milestone awards table from structured milestone events and milestone_spend ledger entries', async () => {
     await withTempRepo(
       'ap-status-milestone-table',
       { initGit: false },
       async (repo) => {
-        // Two characters, both present at session-0001 which has one legacy
-        // milestone todo. Alistar already claimed it (1 milestone_spend entry);
-        // Daemaris has not.
+        // Two characters, both present at session-0001 which has one
+        // structured milestone event in its JSONL log. Alistar already
+        // claimed it (1 milestone_spend entry); Daemaris has not.
         saveCharacter('alistar', { level: 1 });
         saveCharacter('daemaris', { level: 1 });
 
@@ -243,18 +243,22 @@ describe('Command `weave ap status`', () => {
           date: '2025-09-01',
           present: ['alistar', 'daemaris'],
         });
-        // Inject a legacy milestone-prefix todo on the report.
-        const reportWithTodo = {
-          ...completed,
-          todo: [
-            {
-              text: 'Add AP for milestone: Survived the Winter',
-              status: 'pending',
-              source: 'scribe',
-            },
-          ],
-        };
-        fs.writeFileSync(reportPath, yaml.stringify(reportWithTodo));
+        fs.writeFileSync(reportPath, yaml.stringify(completed));
+
+        // JSONL log for session-0001 with a structured `milestone` event.
+        const logPath = path.join(
+          REPO_PATHS.SESSIONS(),
+          buildSessionFilename(1, '2025-09-01'),
+        );
+        fs.writeFileSync(
+          logPath,
+          JSON.stringify({
+            seq: 1,
+            ts: '2025-09-01T20:00:00.000Z',
+            kind: 'milestone',
+            payload: { note: 'Survived the Winter' },
+          }) + '\n',
+        );
 
         // Ledger: alistar has a milestone_spend entry; daemaris does not.
         const ledger: ApLedgerEntry[] = [
@@ -292,80 +296,4 @@ describe('Command `weave ap status`', () => {
       },
     );
   });
-
-  it(
-    'does not double-count when a session has both a structured milestone event ' +
-      'in the JSONL log and a stale legacy todo entry on the report',
-    async () => {
-      // Reproduces the migration-window bug: editing the JSONL line from
-      // `todo` to a structured `milestone` event leaves the original
-      // legacy-prefix entry in the completed report's todo[] array (because
-      // apply's fingerprint short-circuit prevents the report from being
-      // refreshed). Status should treat the JSONL log as canonical.
-      await withTempRepo(
-        'ap-status-milestone-no-double-count',
-        { initGit: false },
-        async (repo) => {
-          saveCharacter('alistar', { level: 1 });
-
-          // Report has a stale legacy `Add AP for milestone:` entry.
-          const reportPath = path.join(
-            REPO_PATHS.REPORTS(),
-            'session-0001.yaml',
-          );
-          const completed = makeCompletedSessionReport({
-            n: 1,
-            date: '2025-09-01',
-            present: ['alistar'],
-          });
-          const reportWithStaleTodo = {
-            ...completed,
-            todo: [
-              {
-                text: 'Add AP for milestone: Survived the Winter',
-                status: 'pending',
-                source: 'scribe',
-              },
-            ],
-          };
-          fs.writeFileSync(reportPath, yaml.stringify(reportWithStaleTodo));
-
-          // JSONL log for the same session contains a structured `milestone`
-          // event (i.e. the migration step has been performed).
-          const logPath = path.join(
-            REPO_PATHS.SESSIONS(),
-            buildSessionFilename(1, '2025-09-01'),
-          );
-          fs.writeFileSync(
-            logPath,
-            JSON.stringify({
-              seq: 1,
-              ts: '2025-09-01T20:00:00.000Z',
-              kind: 'milestone',
-              payload: { note: 'Survived the Winter' },
-            }) + '\n',
-          );
-
-          rewriteApLedger(REPO_PATHS.AP_LEDGER(), []);
-
-          const { exitCode, stdout, stderr } = await runWeave(
-            ['status', 'ap'],
-            { repo },
-          );
-          expect(exitCode).toBe(0);
-          expect(stderr).toBeFalsy();
-
-          const lines = stdout.split(/\r?\n/);
-          const start = lines.findIndex((l) => /Milestone Awards/i.test(l));
-          expect(start).toBeGreaterThan(-1);
-          const milestoneBlock = lines.slice(start, start + 8).join('\n');
-
-          // The structured event is the source of truth → 1 milestone, not 2.
-          expect(milestoneBlock).toMatch(/Alistar\s+1\s+0\s+1/);
-          // Negative assertion: must not show 2 anywhere in alistar's row.
-          expect(milestoneBlock).not.toMatch(/Alistar\s+2\s+/);
-        },
-      );
-    },
-  );
 });
