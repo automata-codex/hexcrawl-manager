@@ -9,7 +9,7 @@ export async function status(opts: StatusArgs = {}): Promise<void> {
 
   switch (mode) {
     case 'ap': {
-      const { apByCharacter, absenceAwards } = await statusAp();
+      const { apByCharacter, absenceAwards, milestoneAwards } = await statusAp();
 
       // AP-by-character table
       console.log('AP Status by Character:');
@@ -39,6 +39,25 @@ export async function status(opts: StatusArgs = {}): Promise<void> {
         console.log(
           `${pad(row.displayName, 17)}${pad(
             row.eligibleMissed.toString(),
+            9,
+          )}${pad(row.claimed.toString(), 8)}${pad(
+            row.unclaimed.toString(),
+            10,
+          )}`,
+        );
+      }
+      console.log('-------------------------------------------------');
+
+      // Milestone awards table
+      console.log('\nMilestone Awards:');
+      console.log('-------------------------------------------------');
+      console.log('Character         Eligible  Claimed  Unclaimed');
+      console.log('-------------------------------------------------');
+
+      for (const row of milestoneAwards) {
+        console.log(
+          `${pad(row.displayName, 17)}${pad(
+            row.eligible.toString(),
             9,
           )}${pad(row.claimed.toString(), 8)}${pad(
             row.unclaimed.toString(),

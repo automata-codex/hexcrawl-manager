@@ -13,6 +13,7 @@ export function makeCompletedSessionReport(opts: {
     absenceAllocations: [],
     downtime: [],
     gameStartDate: '',
+    milestoneAllocations: [],
     schemaVersion: 2,
     scribeIds: [`${makeSessionId(opts.n)}_2025-09-01`], // any valid ScribeId shape
     sessionDate: opts.date,
@@ -43,6 +44,7 @@ export function makePlannedSessionReport(opts: { n: number }): SessionReport {
     absenceAllocations: [],
     downtime: [],
     gameStartDate: '',
+    milestoneAllocations: [],
     schemaVersion: 2,
     scribeIds: [],
     sessionDate: '', // blank for planned

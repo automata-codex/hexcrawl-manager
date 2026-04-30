@@ -2,9 +2,14 @@
 
 > **File:** `docs/specs/weave-commands/ap-allocate.md`
 >
-> **Scope:** Spend **Tier-1 absence credits** for one or more characters, recording a transaction in the ledger and appending an audit row to the **most recent completed** session report’s `absenceAllocations[]`.
+> **Scope:** `weave allocate ap` is a parent with two subcommands:
 >
-> **Related:** AP Workflow Overview (`docs/specs/ap-workflow-overview.md`), Data Contracts (`docs/specs/data-contracts.md`), schemas in `/schemas`.
+> - `weave allocate ap absence` — spend Tier-1 absence credits (this document).
+> - `weave allocate ap milestone` — stage a milestone allocation in a session report. See `docs/specs/milestone-ap-reconciliation.md` for the milestone behavior; the milestone subcommand does not write to the ledger directly. `weave apply ap` writes the corresponding `milestone_spend` ledger entries.
+>
+> The remainder of this document describes only the **absence** subcommand.
+>
+> **Related:** AP Workflow Overview (`docs/specs/ap-workflow-overview.md`), Milestone AP Reconciliation (`docs/specs/milestone-ap-reconciliation.md`), Data Contracts (`docs/specs/data-contracts.md`), schemas in `/schemas`.
 
 ---
 

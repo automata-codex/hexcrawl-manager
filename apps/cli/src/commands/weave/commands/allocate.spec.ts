@@ -47,16 +47,17 @@ const allocateMilestoneMock = vi
     return {
       amount: 3,
       characterId: '',
-      createdAt: '',
+      sessionId: '',
       dryRun: true,
       note: '',
       pillars: {},
-      sessionIdSpentAt: '',
+      topUpAmount: null,
+      allocatedAt: '',
     };
   });
 vi.mock('./allocate-ap-milestone', () => ({
   allocateMilestone: (...args: unknown[]) => allocateMilestoneMock(...args),
-  MILESTONE_AP_AMOUNT: 3,
+  MILESTONE_AP_CAP: 3,
 }));
 
 beforeEach(() => {
@@ -266,10 +267,12 @@ describe('allocateFromCli', () => {
 // ---- Milestone allocation tests ----
 
 describe('parseMilestoneTokens', () => {
-  it('parses a single block with pillar splits summing to 3', () => {
+  it('parses a single block with session id and pillar splits', () => {
     const tokens = [
       '--character',
       'char-1',
+      '--session-id',
+      'session-0023',
       '--combat',
       '1',
       '--exploration',
@@ -283,20 +286,23 @@ describe('parseMilestoneTokens', () => {
     expect(blocks).toEqual<MilestoneAllocationBlock[]>([
       {
         characterId: 'char-1',
+        sessionId: 'session-0023',
         note: 'Winter survival',
         pillarSplits: { combat: 1, exploration: 1, social: 1 },
       },
     ]);
   });
 
-  it('parses a block with uneven pillar distribution', () => {
+  it('accepts splits that sum to less than 3 (topup may be smaller)', () => {
     const tokens = [
       '--character',
       'alpha',
+      '--session-id',
+      'session-0023',
       '--combat',
       '0',
       '--exploration',
-      '3',
+      '1',
       '--social',
       '0',
     ];
@@ -304,16 +310,43 @@ describe('parseMilestoneTokens', () => {
     expect(blocks).toEqual<MilestoneAllocationBlock[]>([
       {
         characterId: 'alpha',
+        sessionId: 'session-0023',
         note: undefined,
-        pillarSplits: { combat: 0, exploration: 3, social: 0 },
+        pillarSplits: { combat: 0, exploration: 1, social: 0 },
       },
     ]);
   });
 
-  it('parses multiple blocks', () => {
+  it('accepts a zero-sum split (topup = 0 case under grandfather policy)', () => {
+    const tokens = [
+      '--character',
+      'alpha',
+      '--session-id',
+      'session-0010',
+      '--combat',
+      '0',
+      '--exploration',
+      '0',
+      '--social',
+      '0',
+    ];
+    const blocks = parseMilestoneTokens(tokens);
+    expect(blocks).toEqual<MilestoneAllocationBlock[]>([
+      {
+        characterId: 'alpha',
+        sessionId: 'session-0010',
+        note: undefined,
+        pillarSplits: { combat: 0, exploration: 0, social: 0 },
+      },
+    ]);
+  });
+
+  it('parses multiple blocks each with their own session id', () => {
     const tokens = [
       '--character',
       'c1',
+      '--session-id',
+      'session-0023',
       '--combat',
       '1',
       '--exploration',
@@ -325,6 +358,8 @@ describe('parseMilestoneTokens', () => {
 
       '--character',
       'c2',
+      '--session-id',
+      'session-0023',
       '--combat',
       '0',
       '--exploration',
@@ -336,36 +371,63 @@ describe('parseMilestoneTokens', () => {
     expect(blocks).toEqual<MilestoneAllocationBlock[]>([
       {
         characterId: 'c1',
+        sessionId: 'session-0023',
         note: 'Dragon quest',
         pillarSplits: { combat: 1, exploration: 2, social: 0 },
       },
       {
         characterId: 'c2',
+        sessionId: 'session-0023',
         note: undefined,
         pillarSplits: { combat: 0, exploration: 1, social: 2 },
       },
     ]);
   });
 
-  it('throws if pillar splits do not sum to 3', () => {
+  it('throws if pillar splits sum above 3', () => {
     const tokens = [
       '--character',
       'bad',
+      '--session-id',
+      'session-0023',
+      '--combat',
+      '2',
+      '--exploration',
+      '2',
+      '--social',
+      '0',
+    ];
+    expect(() => parseMilestoneTokens(tokens)).toThrow(
+      /must sum to 0\.\.3.*got 4/,
+    );
+  });
+
+  it('throws if no character is provided', () => {
+    const tokens = [
+      '--session-id',
+      'session-0023',
       '--combat',
       '1',
       '--exploration',
       '1',
       '--social',
-      '0',
+      '1',
     ];
-    expect(() => parseMilestoneTokens(tokens)).toThrow(
-      /must sum to 3.*got 2/,
-    );
+    expect(() => parseMilestoneTokens(tokens)).toThrow(/Missing --character/);
   });
 
-  it('throws if no character is provided', () => {
-    const tokens = ['--combat', '1', '--exploration', '1', '--social', '1'];
-    expect(() => parseMilestoneTokens(tokens)).toThrow(/Missing --character/);
+  it('throws if no session id is provided', () => {
+    const tokens = [
+      '--character',
+      'orphan',
+      '--combat',
+      '1',
+      '--exploration',
+      '1',
+      '--social',
+      '1',
+    ];
+    expect(() => parseMilestoneTokens(tokens)).toThrow(/Missing --session-id/);
   });
 
   it('throws if no allocations are found', () => {
@@ -427,6 +489,8 @@ describe('allocateMilestoneFromCli', () => {
       'milestone',
       '--character',
       'id1',
+      '--session-id',
+      'session-0023',
       '--combat',
       '1',
       '--exploration',
@@ -438,6 +502,8 @@ describe('allocateMilestoneFromCli', () => {
 
       '--character',
       'id2',
+      '--session-id',
+      'session-0023',
       '--combat',
       '0',
       '--exploration',
@@ -452,6 +518,7 @@ describe('allocateMilestoneFromCli', () => {
 
     expect(allocateMilestoneMock).toHaveBeenNthCalledWith(1, {
       characterId: 'id1',
+      sessionId: 'session-0023',
       note: 'Winter survival',
       pillarSplits: { combat: 1, exploration: 1, social: 1 },
       dryRun: true,
@@ -459,6 +526,7 @@ describe('allocateMilestoneFromCli', () => {
 
     expect(allocateMilestoneMock).toHaveBeenNthCalledWith(2, {
       characterId: 'id2',
+      sessionId: 'session-0023',
       note: undefined,
       pillarSplits: { combat: 0, exploration: 2, social: 1 },
       dryRun: true,

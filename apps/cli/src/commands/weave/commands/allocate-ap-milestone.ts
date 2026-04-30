@@ -1,133 +1,206 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import {
   REPO_PATHS,
-  appendApEntry,
-  findLastCompletedSessionSeq,
+  readApLedger,
+  writeYamlAtomic,
 } from '@achm/data';
-import { ApLedgerEntry, makeSessionId } from '@achm/schemas';
+import {
+  ApLedgerEntrySchema,
+  MilestoneAllocation,
+  Pillar,
+  SessionReport,
+  SessionReportSchema,
+  isSessionId,
+  padSessionNum,
+} from '@achm/schemas';
+import yaml from 'yaml';
 
 import { CliValidationError, IoApplyError } from '../lib/errors';
-import {
-  assertNonNegativeInt,
-  ensureCharacterExists,
-} from '../lib/validate';
+import { ensureCharacterExists } from '../lib/validate';
 
 import type { AllocateMilestoneArgs } from './allocate';
 
+export const MILESTONE_AP_CAP = 3;
+
 export type AllocateMilestoneResult = {
   characterId: string;
-  amount: number; // always 3
+  sessionId: string;
   pillars: { combat?: number; exploration?: number; social?: number };
-  sessionIdSpentAt: string;
+  amount: number; // sum of pillar splits — varies by topup
+  topUpAmount: number | null; // null when deferred (no session_ap yet)
   note?: string;
-  createdAt: string;
+  allocatedAt: string;
   dryRun: boolean;
 };
 
-export const MILESTONE_AP_AMOUNT = 3;
-
-function buildMilestoneSpendEntry(
-  args: AllocateMilestoneArgs,
-  latestSessionNum: number,
-  createdAt: string,
-): ApLedgerEntry {
-  return {
-    kind: 'milestone_spend',
-    advancementPoints: {
-      combat: {
-        delta: args.pillarSplits?.combat ?? 0,
-        reason: 'normal',
-      },
-      exploration: {
-        delta: args.pillarSplits?.exploration ?? 0,
-        reason: 'normal',
-      },
-      social: {
-        delta: args.pillarSplits?.social ?? 0,
-        reason: 'normal',
-      },
-    },
-    appliedAt: createdAt,
-    characterId: args.characterId,
-    notes: args.note ?? '',
-    sessionId: makeSessionId(latestSessionNum),
-  };
+function loadSessionReport(sessionId: string): {
+  report: SessionReport;
+  reportPath: string;
+} {
+  const num = sessionId.split('-')[1];
+  const reportPath = path.join(
+    REPO_PATHS.REPORTS(),
+    `session-${padSessionNum(num)}.yaml`,
+  );
+  if (!fs.existsSync(reportPath)) {
+    throw new CliValidationError(
+      `Session report not found for ${sessionId} (expected ${reportPath}).`,
+    );
+  }
+  const raw = fs.readFileSync(reportPath, 'utf8');
+  const parsed = SessionReportSchema.safeParse(yaml.parse(raw));
+  if (!parsed.success) {
+    throw new CliValidationError(
+      `Session report for ${sessionId} failed schema validation: ${parsed.error.message}`,
+    );
+  }
+  return { report: parsed.data, reportPath };
 }
 
-function validateMilestonePillarSplits(
-  splits?: Partial<Record<'combat' | 'exploration' | 'social', number>>,
-) {
+function getEagerTopUp(
+  characterId: string,
+  sessionId: string,
+): number | null {
+  const ledgerPath = REPO_PATHS.AP_LEDGER();
+  if (!fs.existsSync(ledgerPath)) return null;
+  const entries = readApLedger(ledgerPath);
+
+  let pillarTotal = 0;
+  let foundSessionAp = false;
+  for (const raw of entries) {
+    const parsed = ApLedgerEntrySchema.safeParse(raw);
+    if (!parsed.success) continue;
+    const entry = parsed.data;
+    if (
+      entry.kind === 'session_ap' &&
+      entry.characterId === characterId &&
+      entry.sessionId === sessionId
+    ) {
+      foundSessionAp = true;
+      pillarTotal +=
+        (entry.advancementPoints.combat?.delta ?? 0) +
+        (entry.advancementPoints.exploration?.delta ?? 0) +
+        (entry.advancementPoints.social?.delta ?? 0);
+    }
+  }
+
+  if (!foundSessionAp) return null;
+  return Math.max(0, MILESTONE_AP_CAP - pillarTotal);
+}
+
+function validatePillarSplits(
+  splits: Partial<Record<Pillar, number>> | undefined,
+): { combat: number; exploration: number; social: number; sum: number } {
   if (!splits) {
     throw new CliValidationError(
-      `Pillar splits are required: --combat/--exploration/--social must sum to ${MILESTONE_AP_AMOUNT}.`,
+      'Pillar splits are required: --combat/--exploration/--social.',
     );
   }
   const combat = splits.combat ?? 0;
   const exploration = splits.exploration ?? 0;
   const social = splits.social ?? 0;
-
   for (const [flag, v] of [
     ['--combat', combat],
     ['--exploration', exploration],
     ['--social', social],
   ] as const) {
-    assertNonNegativeInt(flag, v);
+    if (!Number.isInteger(v) || v < 0) {
+      throw new CliValidationError(
+        `Expected a non-negative integer for ${flag}.`,
+      );
+    }
   }
-
   const sum = combat + exploration + social;
-  if (sum !== MILESTONE_AP_AMOUNT) {
+  if (sum < 0 || sum > MILESTONE_AP_CAP) {
     throw new CliValidationError(
-      `Pillar splits must sum to ${MILESTONE_AP_AMOUNT}; got ${sum}.`,
+      `Milestone pillar splits must sum to between 0 and ${MILESTONE_AP_CAP}; got ${sum}.`,
     );
   }
+  return { combat, exploration, social, sum };
 }
 
 export async function allocateMilestone(
   args: AllocateMilestoneArgs,
 ): Promise<AllocateMilestoneResult> {
-  const { characterId, pillarSplits, note, dryRun = false } = args;
+  const { characterId, sessionId, pillarSplits, note, dryRun = false } = args;
 
   if (!characterId) {
     throw new CliValidationError('characterId is required.');
   }
-  validateMilestonePillarSplits(pillarSplits);
+  if (!sessionId) {
+    throw new CliValidationError(
+      '--session-id is required for milestone allocation.',
+    );
+  }
+  if (!isSessionId(sessionId)) {
+    throw new CliValidationError(`Invalid session ID: "${sessionId}".`);
+  }
   await ensureCharacterExists(characterId);
 
-  const latestSessionNum = findLastCompletedSessionSeq();
-  if (!latestSessionNum) {
+  const splits = validatePillarSplits(pillarSplits);
+
+  // Load report and check dedup
+  const { report, reportPath } = loadSessionReport(sessionId);
+  const existing = report.milestoneAllocations.find(
+    (a) => a.characterId === characterId,
+  );
+  if (existing) {
     throw new CliValidationError(
-      'No finalized sessions found (latest completed session is required).',
+      `Milestone allocation for character "${characterId}" already exists in ${sessionId}. ` +
+        `To revise, edit ${reportPath} by hand.`,
     );
   }
 
-  // No credit check for milestones - GM grants them directly
+  // Eager top-up validation when session_ap is already in the ledger
+  const topUp = getEagerTopUp(characterId, sessionId);
+  if (topUp !== null && splits.sum !== topUp) {
+    throw new CliValidationError(
+      `Milestone pillar splits for "${characterId}" must sum to ${topUp} ` +
+        `(session pillar AP = ${MILESTONE_AP_CAP - topUp}); got ${splits.sum}.`,
+    );
+  }
 
-  const createdAt = new Date().toISOString();
-  const entry = buildMilestoneSpendEntry(args, latestSessionNum, createdAt);
+  const allocatedAt = new Date().toISOString();
+  const allocation: MilestoneAllocation = {
+    characterId,
+    pillarSplits: {
+      combat: splits.combat,
+      exploration: splits.exploration,
+      social: splits.social,
+    },
+    ...(note ? { note } : {}),
+    allocatedAt,
+  };
 
   if (!dryRun) {
     try {
-      appendApEntry(REPO_PATHS.AP_LEDGER(), entry);
+      const updated: SessionReport = {
+        ...report,
+        milestoneAllocations: [...report.milestoneAllocations, allocation],
+      };
+      writeYamlAtomic(reportPath, updated);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       throw new IoApplyError(
-        `Failed to append milestone_spend to AP ledger: ${msg}`,
+        `Failed to stage milestone allocation in ${reportPath}: ${msg}`,
       );
     }
   }
 
   return {
     characterId,
-    amount: MILESTONE_AP_AMOUNT,
+    sessionId,
     pillars: {
-      ...(pillarSplits?.combat != null ? { combat: pillarSplits.combat } : {}),
-      ...(pillarSplits?.exploration != null
-        ? { exploration: pillarSplits.exploration }
-        : {}),
-      ...(pillarSplits?.social != null ? { social: pillarSplits.social } : {}),
+      combat: splits.combat,
+      exploration: splits.exploration,
+      social: splits.social,
     },
-    sessionIdSpentAt: makeSessionId(latestSessionNum),
+    amount: splits.sum,
+    topUpAmount: topUp,
     note,
-    createdAt,
+    allocatedAt,
     dryRun,
-  };
+  } satisfies AllocateMilestoneResult;
 }
