@@ -36,7 +36,7 @@ sessionTotal     = combat_delta + exploration_delta + social_delta
                    from that character's session_ap entry for session-NNNN
                    (deltas are already era-clamped: cap policy ≥0020, grandfather ≤0019)
 topUpAmount      = max(0, 3 - sessionTotal)
-milestoneSplit   = GM-chosen pillar distribution summing to topUpAmount
+milestoneSplit   = player-chosen pillar distribution summing to topUpAmount
 ```
 
 If `sessionTotal >= 3` (possible only under the grandfather policy in old sessions), the milestone grants 0 AP but is still recorded as claimed.
@@ -52,7 +52,7 @@ The same milestone awards **different amounts to different characters at the sam
 | Alistar   | 1    | 1      | 1           | 2           | 1     | 1            | 3             |
 | Daemaris  | 2    | 0 (gated) | 1        | 1           | 2     | 2            | 3             |
 
-Both characters end the session at 3 AP, with milestone splits chosen by the GM.
+Both characters end the session at 3 AP, with each milestone's pillar split chosen by the player whose character is being awarded.
 
 **Cap-or-grandfather edge cases.**
 - **≥0020 cap policy:** `session_ap.delta` for over-tier events is 0 (excluded), so `sessionTotal` is naturally ≤3. Topup formula behaves as expected.

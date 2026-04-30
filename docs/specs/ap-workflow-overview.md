@@ -68,14 +68,14 @@ This document explains **what the system does** and **where each responsibility 
 
 ### E. Status (read-only)
 - `weave ap status` folds the ledger to report per-character pillar totals.
-- **Absence credits are derived at runtime** (Tier 1 and **not** in downtime) and **not persisted**.
+- **Absence credits are derived at runtime** (1 credit per missed session, **not** in downtime) and **not persisted**.
 
 ### F. Allocate (spend credits)
 - `weave ap allocate` records **absence spends** in the ledger and updates the **most recent completed** report’s `absenceAllocations[]`.
-- Tier 2+ spends display as `absence_spend` **only** (no pillar deltas).
+- All characters earn absence credits regardless of tier. The recorded `absence_spend` always carries the player-chosen pillar split (per the rules: "a pillar of their choice").
 
 ### G. Milestone reconciliation (apply, Phase 2)
-- A milestone is declared in scribe via `ap milestone "<note>"` (writes a structured `milestone` event into the JSONL log). The GM allocates each character's pillar split via `weave allocate ap milestone --character <id> --session-id <S> --combat <n> --exploration <n> --social <n>`, which **stages** intent in the session report's `milestoneAllocations[]` (no ledger write).
+- A milestone is declared in scribe via `ap milestone "<note>"` (writes a structured `milestone` event into the JSONL log). Each player chooses how to split their character's milestone topup across pillars; the GM (as CLI operator) records those choices via `weave allocate ap milestone --character <id> --session-id <S> --combat <n> --exploration <n> --social <n>`, which **stages** intent in the session report's `milestoneAllocations[]` (no ledger write).
 - `weave apply ap` is the single ledger writer. After Phase 1 writes `session_ap` for the session, **Phase 2** reconciles each staged allocation:
   - Compute `topUp = max(0, 3 - sum(session_ap deltas for that character/session))`. The era-clamped deltas already encode tier policy, so milestone topup adapts automatically per character.
   - **Strict-fail** the entire apply if any staged split does not equal the computed topup (no auto-clamp). The GM updates the staged allocation and re-runs apply.
@@ -132,12 +132,11 @@ This document explains **what the system does** and **where each responsibility 
 
 ### Absence Credits & Spends
 - **Credits are derived at runtime** (never stored):
-  - 1 credit per missed session **only if** the character is **Tier 1** **and** **not in downtime** that session.
+  - 1 credit per missed session **for every character** who is **not in downtime** that session, regardless of tier. Per the rules of record, missed sessions credit the absent character with one downtime AP.
   - **Any downtime entry** for the session counts as “in downtime” (no credit).
 - **Spends are persisted**:
-  - Ledger gets an `absence_spend` entry.
+  - Ledger gets an `absence_spend` entry whose pillar deltas reflect the player-chosen split.
   - The **most recent completed** session report’s `absenceAllocations[]` is updated.
-  - **Tier 2+**: show as `absence_spend` only (no pillar deltas).
 
 ---
 
@@ -158,7 +157,7 @@ This document explains **what the system does** and **where each responsibility 
 - **Ledger**
   - `session_ap` (one per (session, character)):
     - `pillars.{combat|exploration|social}` → `{ delta: number, reason: "normal"|"grandfathered"|"cap", note?: string }`.
-  - `absence_spend`: standalone entries for spends (Tier 2+ shows only this).
+  - `absence_spend`: standalone entries for spends, with per-pillar deltas from the player's chosen split.
 
 ---
 
@@ -177,7 +176,7 @@ This document explains **what the system does** and **where each responsibility 
 
 - **AP (Advancement Points):** progress tracked across three pillars: combat, exploration, social.
 - **Pillar delta:** `{ delta, reason, note? }` awarded to a character for a session.
-- **Absence credit:** a runtime-derived token for Tier-1 non-downtime absences; not stored.
+- **Absence credit:** a runtime-derived token for non-downtime absences; not stored. Earned by all characters regardless of tier.
 - **Absence spend:** a persisted use of credits; recorded in the ledger + latest completed report.
 - **Finalize (scribe):** move logs to `/sessions/`; sufficient to mark as finalized.
 - **Apply (weave):** transform finalized logs into an immutable completed report + ledger entries.
@@ -200,5 +199,5 @@ This document explains **what the system does** and **where each responsibility 
 - [ ] `weave ap apply` discovered **all** `session-####[a-z]?_*.jsonl` parts → proceed; else **fail**.
 - [ ] Completed report is written once; subsequent applies are no-ops for the same `{ sessionId, sorted scribeIds }`.
 - [ ] Ledger entries follow event-level gating and session-era rules (≤0019 grandfather / ≥0020 cap).
-- [ ] `status` derives absence credits (Tier 1 & not in downtime) without persisting.
+- [ ] `status` derives absence credits (1 per missed session, not in downtime) without persisting.
 - [ ] `allocate` writes `absence_spend` and updates **latest completed** report’s `absenceAllocations[]`.
