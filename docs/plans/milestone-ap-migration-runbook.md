@@ -46,9 +46,9 @@ export ACHM_DATA_PATH="$(pwd)/../skyreach/data"  # adjust path as needed
 
 npm run cli -- weave allocate ap milestone \
   --character alistar  --session-id session-0028 --combat 0 --exploration 1 --social 0 --note "Retrieve Nightbane" \
-  --character quince   --session-id session-0028 --combat 0 --exploration 1 --social 0 --note "Retrieve Nightbane" \
+  --character quince   --session-id session-0028 --combat 1 --exploration 0 --social 0 --note "Retrieve Nightbane" \
   --character milly    --session-id session-0028 --combat 0 --exploration 1 --social 0 --note "Retrieve Nightbane" \
-  --character daemaris --session-id session-0028 --combat 0 --exploration 1 --social 0 --note "Retrieve Nightbane"
+  --character daemaris --session-id session-0028 --combat 1 --exploration 0 --social 0 --note "Retrieve Nightbane"
 ```
 
 The command will eagerly validate that each character's split (sum 1)

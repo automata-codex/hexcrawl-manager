@@ -41,15 +41,23 @@ export interface StatusApResult {
 }
 
 /**
- * For each completed session, count milestone occurrences from:
- *   1. structured `milestone` events in the JSONL log (current canon), and
- *   2. legacy `todo` items on the report whose text starts with
- *      "Add AP for milestone:" (pre-Phase-2 logs that haven't been migrated).
+ * For each completed session, count milestone occurrences. The JSONL log is
+ * the canonical source; legacy `todo`-with-prefix entries on the report are
+ * used only as a fallback for sessions whose JSONL log has not yet been
+ * migrated to structured `milestone` events.
+ *
+ * If a session has at least one structured `milestone` event in its JSONL
+ * log, only those are counted — any leftover legacy entries on
+ * `report.todo[]` for the same session are ignored. This avoids
+ * double-counting during the data-repo migration, where the JSONL line is
+ * rewritten but the completed report's `todo[]` array still carries the old
+ * prefix entry from the original `weave apply ap` run (apply's fingerprint
+ * short-circuit prevents the report from being refreshed).
  *
  * Returns a Map<sessionId, count>. Sessions with zero milestones are absent.
  *
- * TODO(post-migration): once Phase 6 has rewritten all legacy `todo`-prefix
- * entries into structured `milestone` events, drop the legacy branch.
+ * TODO(post-migration): once all legacy `todo`-prefix entries have been
+ * migrated, drop the fallback branch entirely.
  */
 function collectMilestoneCountsBySessionId(
   sessions: SessionReport[],
@@ -57,30 +65,35 @@ function collectMilestoneCountsBySessionId(
   const out = new Map<string, number>();
   for (const session of sessions) {
     if (session.status !== 'completed') continue;
-    let count = 0;
 
-    // (1) Structured `milestone` events in the JSONL log.
+    // (1) Canonical: structured `milestone` events in the JSONL log.
+    let structuredCount = 0;
     const sessionNum = session.id.split('-')[1];
     if (sessionNum && discoverFinalizedLogsFor(sessionNum).length > 0) {
       try {
         const events = readAllFinalizedLogsForSession(sessionNum);
-        count += events.filter((e) => e.kind === 'milestone').length;
+        structuredCount = events.filter((e) => e.kind === 'milestone').length;
       } catch {
         // unreadable log — ignore for status (don't fail the command)
       }
     }
 
-    // (2) Legacy `todo`-with-prefix entries on the report.
+    if (structuredCount > 0) {
+      out.set(session.id, structuredCount);
+      continue;
+    }
+
+    // (2) Fallback: legacy `todo`-with-prefix entries on the report.
+    let legacyCount = 0;
     for (const t of session.todo ?? []) {
       if (
         typeof t.text === 'string' &&
         t.text.startsWith(LEGACY_MILESTONE_TODO_PREFIX)
       ) {
-        count += 1;
+        legacyCount += 1;
       }
     }
-
-    if (count > 0) out.set(session.id, count);
+    if (legacyCount > 0) out.set(session.id, legacyCount);
   }
   return out;
 }
