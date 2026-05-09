@@ -235,7 +235,7 @@
     <li class="clue-item">
       <a
         href={`/session-toolkit/clues/${clue.id}`}
-        class={clue.isUsed ? '' : 'unused-text'}
+        class={clue.isUsed || clue.status === 'known' ? '' : 'unused-text'}
       >
         {clue.name}
       </a>
