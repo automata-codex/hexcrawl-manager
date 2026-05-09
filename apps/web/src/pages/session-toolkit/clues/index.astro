@@ -55,7 +55,10 @@ const clues = cluesData
       plotlines: c.data.plotlines ?? [],
       tags: c.data.tags ?? [],
       isUsed: placementCount > 0,
-      needsReview: minPlacements !== undefined && placementCount < minPlacements,
+      needsReview:
+        c.data.status !== 'known' &&
+        minPlacements !== undefined &&
+        placementCount < minPlacements,
     };
   })
   .sort((a, b) => sortIgnoringArticles(a.name, b.name));
