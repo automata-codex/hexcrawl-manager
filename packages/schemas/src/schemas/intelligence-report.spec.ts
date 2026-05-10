@@ -15,7 +15,6 @@ describe('LinkTypeEnum', () => {
       'encounter',
       'faction',
       'hex',
-      'knowledge-node',
       'region',
     ];
 
