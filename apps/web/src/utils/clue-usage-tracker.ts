@@ -293,15 +293,16 @@ export function buildClueUsageMap(
 
   // Scan roleplay books for intelligence report clue links
   for (const book of roleplayBooks) {
-    if (book.data.intelligenceReports?.rows) {
-      for (const row of book.data.intelligenceReports.rows) {
-        if (row.linkType === 'clue' && row.linkId) {
-          addUsage(row.linkId, {
-            type: 'roleplay-book',
-            id: book.id,
-            name: `${book.data.name} (Roleplay Book)`,
-          });
-        }
+    const reports = book.data.intelligenceReports;
+    if (!reports) continue;
+    const allRows = [...(reports.rows ?? []), ...(reports.situational ?? [])];
+    for (const row of allRows) {
+      if (row.linkType === 'clue' && row.linkId) {
+        addUsage(row.linkId, {
+          type: 'roleplay-book',
+          id: book.id,
+          name: `${book.data.name} (Roleplay Book)`,
+        });
       }
     }
   }
