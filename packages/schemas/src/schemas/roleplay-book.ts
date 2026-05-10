@@ -14,27 +14,39 @@ export const LinkTypeEnum = z.enum([
 ]);
 export type LinkType = z.infer<typeof LinkTypeEnum>;
 
-// Intelligence report row schema
+const reportRowBaseShape = {
+  report: z.string().describe('Title/summary of the report'),
+  linkType: LinkTypeEnum.optional().describe('Type of the linked content'),
+  linkId: z.string().optional().describe('ID of the linked content'),
+  sampleDialogue: z.string().describe('In-character delivery'),
+  relevantConditions: z.string().describe('When this report is relevant'),
+};
+
+const linkCoPresenceRefinement = [
+  (data: { linkType?: unknown; linkId?: unknown }) => {
+    const hasLinkType = data.linkType !== undefined;
+    const hasLinkId = data.linkId !== undefined;
+    return (hasLinkType && hasLinkId) || (!hasLinkType && !hasLinkId);
+  },
+  { message: 'linkType and linkId must both be present or both be absent' },
+] as const;
+
+// Intelligence report row schema (d12 random table entry)
 export const IntelligenceReportRowSchema = z
   .object({
     roll: z.number().describe('Die result'),
-    report: z.string().describe('Title/summary of the report'),
-    linkType: LinkTypeEnum.optional().describe('Type of the linked content'),
-    linkId: z.string().optional().describe('ID of the linked content'),
-    sampleDialogue: z.string().describe('In-character delivery'),
-    relevantConditions: z.string().describe('When this report is relevant'),
+    ...reportRowBaseShape,
   })
-  .refine(
-    (data) => {
-      // linkType and linkId must be both present or both absent
-      const hasLinkType = data.linkType !== undefined;
-      const hasLinkId = data.linkId !== undefined;
-      return (hasLinkType && hasLinkId) || (!hasLinkType && !hasLinkId);
-    },
-    { message: 'linkType and linkId must both be present or both be absent' },
-  )
+  .refine(...linkCoPresenceRefinement)
   .describe('IntelligenceReportRowSchema');
 export type IntelligenceReportRow = z.infer<typeof IntelligenceReportRowSchema>;
+
+// Situational report row schema (GM-selected, no roll)
+export const SituationalReportRowSchema = z
+  .object(reportRowBaseShape)
+  .refine(...linkCoPresenceRefinement)
+  .describe('SituationalReportRowSchema');
+export type SituationalReportRow = z.infer<typeof SituationalReportRowSchema>;
 
 // Prithara variant schema
 export const PritharaVariantSchema = z
@@ -56,6 +68,10 @@ export const IntelligenceReportsSchema = z
     rows: z
       .array(IntelligenceReportRowSchema)
       .describe('Intelligence report rows'),
+    situational: z
+      .array(SituationalReportRowSchema)
+      .optional()
+      .describe('Unnumbered situational/regional reports (GM-selected, not rolled)'),
   })
   .describe('IntelligenceReportsSchema');
 
