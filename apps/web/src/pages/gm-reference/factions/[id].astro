@@ -2,7 +2,6 @@
 import { getNpcSortKey } from '@achm/schemas';
 import { getCollection, getEntry } from 'astro:content';
 
-import FactionNpcList from '../../../components/FactionNpcList.svelte';
 import Faction from '../../../components/Faction.astro';
 import type { NpcListItem } from '../../../components/npc-list-types';
 import { getNpcPath } from '../../../config/routes';
@@ -54,24 +53,8 @@ const associatedNpcs: NpcListItem[] = npcEntries
   .sort((a, b) =>
     a.sortKey.localeCompare(b.sortKey, undefined, { sensitivity: 'base' }),
   );
-
-const activeAssociatedCount = associatedNpcs.filter(
-  (n) => n.campaignStatus === 'active',
-).length;
 ---
 
 <SecretLayout title={faction.name}>
-  <Faction faction={faction} />
-  {activeAssociatedCount > 0 && (
-    <section class="associated-npcs">
-      <h3 class="title is-5">Associated NPCs</h3>
-      <FactionNpcList client:load npcs={associatedNpcs} />
-    </section>
-  )}
+  <Faction faction={faction} associatedNpcs={associatedNpcs} />
 </SecretLayout>
-
-<style>
-  .associated-npcs {
-    margin-top: 1.5rem;
-  }
-</style>
