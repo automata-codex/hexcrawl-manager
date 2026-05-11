@@ -59,6 +59,7 @@ const clues = cluesData
         c.data.status !== 'known' &&
         minPlacements !== undefined &&
         placementCount < minPlacements,
+      campaignStatus: c.data.campaignStatus,
     };
   })
   .sort((a, b) => sortIgnoringArticles(a.name, b.name));

@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { initFilterFromUrl, setUrlParam } from '../utils/url-filter-state';
+  import {
+    initBooleanFilterFromUrl,
+    initFilterFromUrl,
+    setBooleanUrlParam,
+    setUrlParam,
+  } from '../utils/url-filter-state';
 
   import Badge from './Badge.svelte';
 
@@ -13,6 +18,7 @@
     factions: string[];
     plotlines: string[];
     visibility: 'player' | 'gm';
+    campaignStatus: 'active' | 'inactive';
   }
 
   interface FilterOptions {
@@ -32,6 +38,7 @@
   let searchQuery = $state(initFilterFromUrl('q'));
   let factionFilter = $state(initFilterFromUrl('faction'));
   let plotlineFilter = $state(initFilterFromUrl('plotline'));
+  let showInactive = $state(initBooleanFilterFromUrl('show-inactive'));
 
   $effect(() => {
     setUrlParam('q', searchQuery);
@@ -42,10 +49,14 @@
   $effect(() => {
     setUrlParam('plotline', plotlineFilter);
   });
+  $effect(() => {
+    setBooleanUrlParam('show-inactive', showInactive);
+  });
 
   const filtered = $derived(() => {
     const query = searchQuery.trim().toLowerCase();
     return npcs.filter((npc) => {
+      if (npc.campaignStatus === 'inactive' && !showInactive) return false;
       if (query) {
         const hay = `${npc.displayName}\n${npc.sortKey}`.toLowerCase();
         if (!hay.includes(query)) return false;
@@ -87,6 +98,7 @@
     searchQuery = '';
     factionFilter = '';
     plotlineFilter = '';
+    showInactive = false;
   }
 
   function getFactionName(id: string): string {
@@ -143,6 +155,13 @@
       </div>
     </div>
 
+    <div class="field show-inactive-field">
+      <label class="checkbox">
+        <input type="checkbox" bind:checked={showInactive} />
+        Show inactive
+      </label>
+    </div>
+
     <div class="filter-actions">
       <button class="button" onclick={clearFilters}>Clear</button>
     </div>
@@ -177,6 +196,9 @@
                     {npc.displayName}
                     {#if npc.visibility === 'gm'}
                       <Badge color="purple">GM</Badge>
+                    {/if}
+                    {#if npc.campaignStatus === 'inactive'}
+                      <Badge color="gray">inactive</Badge>
                     {/if}
                   </span>
                   <span class="npc-occupation">{npc.occupation}</span>
@@ -214,6 +236,16 @@
   .filter-actions {
     display: flex;
     align-items: flex-end;
+  }
+
+  .show-inactive-field {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 0.5rem;
+  }
+
+  .show-inactive-field .checkbox {
+    font-size: 0.875rem;
   }
 
   .filter-count {

@@ -37,8 +37,6 @@ const plotlineNames: Record<string, string> = Object.fromEntries(
   plotlineEntries.map((p) => [p.id, p.data.title]),
 );
 
-// TODO(content-status): once `campaignStatus` filtering ships, surface a
-// "Show inactive" toggle in NpcList; see Phase 3 of the implementation plan.
 const npcs = npcEntries
   .filter((entry) => isGm || isPlayerVisible(entry.data))
   .map((entry) => ({
@@ -55,6 +53,7 @@ const npcs = npcEntries
     factions: entry.data.factions ?? [],
     plotlines: entry.data.plotlines ?? [],
     visibility: entry.data.visibility,
+    campaignStatus: entry.data.campaignStatus,
   }))
   .sort((a, b) =>
     a.sortKey.localeCompare(b.sortKey, undefined, { sensitivity: 'base' }),

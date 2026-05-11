@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { initFilterFromUrl, setUrlParam } from '../utils/url-filter-state';
+  import {
+    initBooleanFilterFromUrl,
+    initFilterFromUrl,
+    setBooleanUrlParam,
+    setUrlParam,
+  } from '../utils/url-filter-state';
 
   import Badge from './Badge.svelte';
 
@@ -14,6 +19,7 @@
     creatureTypes: CreatureType[];
     isLead: boolean;
     isUsed: boolean;
+    campaignStatus: 'active' | 'inactive';
   }
 
   interface FilterOptions {
@@ -37,6 +43,7 @@
   let usageFilter = $state(initFilterFromUrl('usage'));
   let leadFilter = $state(initFilterFromUrl('lead'));
   let searchQuery = $state(initFilterFromUrl('search'));
+  let showInactive = $state(initBooleanFilterFromUrl('show-inactive'));
 
   // Sync filter state to URL
   $effect(() => { setUrlParam('scope', scopeFilter); });
@@ -46,9 +53,13 @@
   $effect(() => { setUrlParam('usage', usageFilter); });
   $effect(() => { setUrlParam('lead', leadFilter); });
   $effect(() => { setUrlParam('search', searchQuery); });
+  $effect(() => { setBooleanUrlParam('show-inactive', showInactive); });
 
   let filtered = $derived(() => {
     return encounters.filter((enc) => {
+      // Campaign status: default-hide inactive
+      if (enc.campaignStatus === 'inactive' && !showInactive) return false;
+
       // Search filter
       if (searchQuery && !enc.name.toLowerCase().includes(searchQuery.toLowerCase())) {
         return false;
@@ -99,6 +110,7 @@
     usageFilter = '';
     leadFilter = '';
     searchQuery = '';
+    showInactive = false;
   }
 
   function formatFaction(faction: string): string {
@@ -218,6 +230,13 @@
       </div>
     </div>
 
+    <div class="field show-inactive-field">
+      <label class="checkbox">
+        <input type="checkbox" bind:checked={showInactive} />
+        Show inactive
+      </label>
+    </div>
+
     <div class="filter-actions">
       <button class="button" onclick={clearFilters}>Clear</button>
     </div>
@@ -253,6 +272,9 @@
       {#if encounter.scope && encounter.scope !== 'general'}
         <Badge color={getScopeColor(encounter.scope)}>{encounter.scope}</Badge>
       {/if}
+      {#if encounter.campaignStatus === 'inactive'}
+        <Badge color="gray">inactive</Badge>
+      {/if}
     </li>
   {/each}
 </ul>
@@ -281,6 +303,16 @@
   .filter-actions {
     display: flex;
     align-items: flex-end;
+  }
+
+  .show-inactive-field {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 0.5rem;
+  }
+
+  .show-inactive-field .checkbox {
+    font-size: 0.875rem;
   }
 
   .filter-count {
