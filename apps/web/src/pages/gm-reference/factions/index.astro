@@ -1,13 +1,19 @@
 ---
+import { isActive } from '@achm/schemas';
 import { getCollection } from 'astro:content';
 
 import { renderMarkdown } from '../../../utils/markdown';
 import { formatText } from '../../../utils/text';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 
+// TODO(content-status): no "Show inactive" toggle here — inactive volume is
+// expected to stay low for factions. Promote to a filterable list with a
+// toggle if/when enough factions are inactive that hidden entries cause
+// confusion. See docs/specs/content-status-fields.md §"Campaign status".
 const factionData = await getCollection('factions');
 const factions = factionData
   .map((entry) => entry.data)
+  .filter(isActive)
   .sort((a, b) => a.name.localeCompare(b.name));
 ---
 

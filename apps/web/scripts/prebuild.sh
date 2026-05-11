@@ -48,6 +48,10 @@ echo "=== Prebuild: Validating ToC config ==="
 tsx scripts/validate-toc-config.ts
 
 echo ""
+echo "=== Prebuild: Validating content-status cross-references ==="
+tsx scripts/validate-content-status.ts
+
+echo ""
 echo "=== Prebuild: Caching AP totals ==="
 tsx scripts/cache-ap-totals.ts
 

@@ -1,14 +1,21 @@
 ---
+import { isActive } from '@achm/schemas';
 import { getCollection } from 'astro:content';
 
 import Card from '../../../components/Card.astro';
 import CardGrid from '../../../components/CardGrid.astro';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 
+// TODO(content-status): no "Show inactive" toggle here — inactive volume is
+// expected to stay low for plotlines. Promote to a filterable list with a
+// toggle if/when enough plotlines are inactive that hidden entries cause
+// confusion. See docs/specs/content-status-fields.md §"Campaign status".
+// Note: `campaignStatus` is independent of the plotline lifecycle `status`
+// field (active/dormant/resolved); this filter only hides inactive entries.
 const plotlines = await getCollection('plotlines');
-const sortedPlotlines = plotlines.sort((a, b) =>
-  a.data.title.localeCompare(b.data.title)
-);
+const sortedPlotlines = plotlines
+  .filter((p) => isActive(p.data))
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
 
 const title = 'Plotlines';
 ---
