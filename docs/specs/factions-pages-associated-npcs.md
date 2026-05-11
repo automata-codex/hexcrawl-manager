@@ -4,7 +4,7 @@
 
 The `factions` array on the NPC schema already exists and is populated for some NPCs. Faction pages currently don't render the NPCs associated with them — the relationship is asserted in the data but invisible in the rendered output. This brief adds that rendering.
 
-The relationship is unidirectional: NPCs declare their factions via the `factions` field; faction pages derive their NPC list by query. There is no `activeAgents` field on the faction schema (or if one exists from earlier schema iterations, this brief includes removing it — see "Schema cleanup" below).
+The relationship is unidirectional: NPCs declare their factions via the `factions` field; faction pages derive their NPC list by query.
 
 ## Display: faction detail page
 
@@ -35,7 +35,6 @@ Add no new validation in this brief.
 
 ## Acceptance
 
-- Faction schema no longer has a separate field listing associated NPCs (if one existed); the NPC-side `factions` array is the sole source.
 - Each faction detail page renders a list of associated NPCs derived from query, filtered by visibility (player vs. GM route) and `campaignStatus` (active by default, with toggle for inactive).
 - Rows use the same display component and sort key as the filterable NPC index.
 - Empty results render no section, not an empty heading.
