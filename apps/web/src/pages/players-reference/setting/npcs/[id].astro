@@ -4,7 +4,7 @@ import { getCollection, getEntry, render } from 'astro:content';
 
 import Badge from '../../../../components/Badge.astro';
 import SecretContent from '../../../../components/Content/SecretContent.astro';
-import { getCluePath } from '../../../../config/routes';
+import { getCluePath, getFactionPath } from '../../../../config/routes';
 import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
 import { canAccess, getCurrentUserRole } from '../../../../utils/auth';
 import { SCOPES } from '../../../../utils/constants';
@@ -62,6 +62,26 @@ const clueRefs = npc.clues?.map((ref) => {
     name: clueNameMap.get(normalized.id) ?? normalized.id,
   };
 }) ?? [];
+
+// GM-only: resolve faction ids to names so we can link to the GM faction
+// pages. Skip ids that don't resolve so the meta line doesn't render dead
+// links if data drifts.
+const factionLinks = isGm
+  ? await (async () => {
+      const ids = npc.factions ?? [];
+      if (ids.length === 0) return [];
+      const factionsCollection = await getCollection('factions');
+      const factionsById = new Map(
+        factionsCollection.map((f) => [f.id, f.data]),
+      );
+      return ids
+        .map((id) => {
+          const data = factionsById.get(id);
+          return data ? { id, name: data.name } : null;
+        })
+        .filter((entry): entry is { id: string; name: string } => entry !== null);
+    })()
+  : [];
 ---
 
 <style>
@@ -187,6 +207,20 @@ const clueRefs = npc.clues?.map((ref) => {
 
       <dt>Pronouns</dt>
       <dd>{npc.pronouns}</dd>
+
+      {factionLinks.length > 0 && (
+        <>
+          <dt>Factions</dt>
+          <dd>
+            {factionLinks.map((faction, index) => (
+              <>
+                <a href={getFactionPath(faction.id)}>{faction.name}</a>
+                {index < factionLinks.length - 1 && ', '}
+              </>
+            ))}
+          </dd>
+        </>
+      )}
     </dl>
 
     <div class="description">
