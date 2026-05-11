@@ -1,7 +1,8 @@
 ---
-import { isPlayerVisible, normalizeClueRef } from '@achm/schemas';
+import { isActive, isPlayerVisible, normalizeClueRef } from '@achm/schemas';
 import { getCollection, getEntry, render } from 'astro:content';
 
+import Badge from '../../../../components/Badge.astro';
 import SecretContent from '../../../../components/Content/SecretContent.astro';
 import { getCluePath } from '../../../../config/routes';
 import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
@@ -149,6 +150,11 @@ const clueRefs = npc.clues?.map((ref) => {
     font-style: italic;
   }
 
+  .status-indicator {
+    margin-bottom: 1rem;
+    clear: both;
+  }
+
   .gm-only-indicator {
     display: inline-block;
     padding: 0.125rem 0.5rem;
@@ -177,6 +183,12 @@ const clueRefs = npc.clues?.map((ref) => {
     {npc.image && <img class="npc-image" src={npc.image} alt={npc.displayName} />}
 
     {showGmOnlyIndicator && <p class="gm-only-indicator">GM-only NPC</p>}
+
+    {!isActive(npc) && (
+      <p class="status-indicator">
+        <Badge color="gray">Inactive</Badge>
+      </p>
+    )}
 
     <dl class="npc-meta">
       <dt>Occupation</dt>

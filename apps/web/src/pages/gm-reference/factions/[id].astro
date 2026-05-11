@@ -1,6 +1,8 @@
 ---
+import { isActive } from '@achm/schemas';
 import { getEntry } from 'astro:content';
 
+import Badge from '../../../components/Badge.astro';
 import Faction from '../../../components/Faction.astro';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 
@@ -24,6 +26,17 @@ if (factionData === undefined) {
 const faction = factionData.data;
 ---
 
+<style>
+  .status-indicator {
+    margin-bottom: 1rem;
+  }
+</style>
+
 <SecretLayout title={faction.name}>
+  {!isActive(faction) && (
+    <p class="status-indicator">
+      <Badge color="gray">Inactive</Badge>
+    </p>
+  )}
   <Faction faction={faction} />
 </SecretLayout>

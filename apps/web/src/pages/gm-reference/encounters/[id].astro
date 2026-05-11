@@ -1,5 +1,5 @@
 ---
-import { type EncounterData, normalizeClueRef } from '@achm/schemas';
+import { type EncounterData, isActive, normalizeClueRef } from '@achm/schemas';
 import { getCollection, getEntry } from 'astro:content';
 
 import Badge from '../../../components/Badge.astro';
@@ -177,8 +177,17 @@ const resolvedStatBlocks = statBlockIds
     margin-bottom: 1rem;
     padding-bottom: 1rem;
   }
+
+  .status-indicator {
+    margin-bottom: 1rem;
+  }
 </style>
 <SecretLayout title={title}>
+  {!isActive(encounter) && (
+    <p class="status-indicator">
+      <Badge color="gray">Inactive</Badge>
+    </p>
+  )}
   {(encounter.scope || encounter.isLead || encounter.locationTypes || encounter.factions || creatureTypes.length > 0) && (
     <div class="taxonomy-section">
       <div class="taxonomy-row">
