@@ -19,10 +19,12 @@ export const NpcSchema = z.object({
   pronouns: z.string(),
   description: z.string(),
   image: z.string().optional(),
-  factions: z.array(z.string()).optional(),
+  factions: z.array(z.string()).optional(), // Factions this NPC is associated with; see `FactionAgentSchema` in `./factions.ts` for listing NPCs on the faction page
   plotlines: z.array(z.string()).optional(),
   notes: z.array(z.string()).optional(),
-  clues: ClueReferencesSchema.describe('IDs of clues this NPC knows or can reveal'),
+  clues: ClueReferencesSchema.describe(
+    'IDs of clues this NPC knows or can reveal',
+  ),
   visibility: NpcVisibilityEnum.default('player'),
   campaignStatus: CampaignStatusEnum.default('active'),
 });
