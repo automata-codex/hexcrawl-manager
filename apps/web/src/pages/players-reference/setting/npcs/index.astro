@@ -20,13 +20,17 @@ function formatOccupation(
   return occupation;
 }
 
-const [npcEntries, factionEntries] = await Promise.all([
+const [npcEntries, factionEntries, plotlineEntries] = await Promise.all([
   getCollection('npcs'),
   getCollection('factions'),
+  getCollection('plotlines'),
 ]);
 
 const factionNames: Record<string, string> = Object.fromEntries(
   factionEntries.map((f) => [f.id, f.data.name]),
+);
+const plotlineNames: Record<string, string> = Object.fromEntries(
+  plotlineEntries.map((p) => [p.id, p.data.title]),
 );
 
 // TODO(npc-status): once `hidden` / `inactive` flags land on the NPC schema,
@@ -45,6 +49,7 @@ const npcs = npcEntries
     ),
     image: entry.data.image,
     factions: entry.data.factions ?? [],
+    plotlines: entry.data.plotlines ?? [],
   }))
   .sort((a, b) =>
     a.sortKey.localeCompare(b.sortKey, undefined, { sensitivity: 'base' }),
@@ -53,6 +58,11 @@ const npcs = npcEntries
 const filterOptions = {
   factions: [...new Set(npcs.flatMap((n) => n.factions))].sort((a, b) =>
     (factionNames[a] ?? a).localeCompare(factionNames[b] ?? b, undefined, {
+      sensitivity: 'base',
+    }),
+  ),
+  plotlines: [...new Set(npcs.flatMap((n) => n.plotlines))].sort((a, b) =>
+    (plotlineNames[a] ?? a).localeCompare(plotlineNames[b] ?? b, undefined, {
       sensitivity: 'base',
     }),
   ),
@@ -66,6 +76,7 @@ const filterOptions = {
       npcs={npcs}
       filterOptions={filterOptions}
       factionNames={factionNames}
+      plotlineNames={plotlineNames}
     />
   </main>
 </ComponentLayout>

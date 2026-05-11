@@ -9,28 +9,35 @@
     occupation: string;
     image?: string;
     factions: string[];
+    plotlines: string[];
   }
 
   interface FilterOptions {
     factions: string[];
+    plotlines: string[];
   }
 
   interface Props {
     npcs: NpcListItem[];
     filterOptions: FilterOptions;
     factionNames: Record<string, string>;
+    plotlineNames: Record<string, string>;
   }
 
-  const { npcs, filterOptions, factionNames }: Props = $props();
+  const { npcs, filterOptions, factionNames, plotlineNames }: Props = $props();
 
   let searchQuery = $state(initFilterFromUrl('q'));
   let factionFilter = $state(initFilterFromUrl('faction'));
+  let plotlineFilter = $state(initFilterFromUrl('plotline'));
 
   $effect(() => {
     setUrlParam('q', searchQuery);
   });
   $effect(() => {
     setUrlParam('faction', factionFilter);
+  });
+  $effect(() => {
+    setUrlParam('plotline', plotlineFilter);
   });
 
   const filtered = $derived(() => {
@@ -44,6 +51,13 @@
         if (factionFilter === '__none__') {
           if (npc.factions.length > 0) return false;
         } else if (!npc.factions.includes(factionFilter)) {
+          return false;
+        }
+      }
+      if (plotlineFilter) {
+        if (plotlineFilter === '__none__') {
+          if (npc.plotlines.length > 0) return false;
+        } else if (!npc.plotlines.includes(plotlineFilter)) {
           return false;
         }
       }
@@ -69,10 +83,15 @@
   function clearFilters() {
     searchQuery = '';
     factionFilter = '';
+    plotlineFilter = '';
   }
 
   function getFactionName(id: string): string {
     return factionNames[id] ?? id;
+  }
+
+  function getPlotlineName(id: string): string {
+    return plotlineNames[id] ?? id;
   }
 </script>
 
@@ -106,6 +125,21 @@
       </div>
     </div>
 
+    <div class="field">
+      <label class="label" for="npc-plotline">Plotline</label>
+      <div class="control">
+        <div class="select">
+          <select id="npc-plotline" bind:value={plotlineFilter}>
+            <option value="">All</option>
+            <option value="__none__">No Plotline</option>
+            {#each filterOptions.plotlines as plotline (plotline)}
+              <option value={plotline}>{getPlotlineName(plotline)}</option>
+            {/each}
+          </select>
+        </div>
+      </div>
+    </div>
+
     <div class="filter-actions">
       <button class="button" onclick={clearFilters}>Clear</button>
     </div>
@@ -117,7 +151,10 @@
 </div>
 
 {#if filtered().length === 0}
-  <p class="empty-state">No NPCs match the current filters.</p>
+  <div class="empty-state">
+    <p>No NPCs match the current filters.</p>
+    <button class="button is-small" onclick={clearFilters}>Clear filters</button>
+  </div>
 {:else}
   <div class="npc-groups">
     {#each groups() as [letter, items] (letter)}
@@ -178,8 +215,15 @@
   }
 
   .empty-state {
-    margin-top: 1rem;
-    font-style: italic;
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    border: 1px dashed var(--bulma-border);
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .empty-state p {
+    margin-bottom: 0.75rem;
     color: var(--bulma-text-weak);
   }
 
