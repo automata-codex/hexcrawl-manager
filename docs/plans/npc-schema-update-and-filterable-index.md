@@ -10,6 +10,7 @@ Implements `docs/specs/npc-schema-update-and-filterable-index.md` in three revie
 2. **Schema additions:** `factions` and `plotlines` are added as optional string arrays on the NPC schema in Phase 1, anticipating the data shape and unblocking the Phase 2/3 filters.
 3. **Sort:** alphabetical by `getNpcSortKey` is the only sort. The letter-group headers make the sort visible without needing a sort dropdown. No "recently updated" option, no mtime work.
 4. **GM variant + status flags:** deferred entirely until `inactive` / `hidden` land in the schema. Phase 3 leaves a `TODO` comment pointing at the spec.
+5. **Text search:** included in Phase 2. The spec doesn't call it out explicitly, but both `ClueList.svelte` and `EncounterList.svelte` (the patterns the spec tells us to mirror) have a name-text search at the top. A case-insensitive substring match against `displayName` and `sortName`, ANDed with the faction filter, matches user muscle memory from those pages. URL param `q`.
 
 ---
 
@@ -71,9 +72,9 @@ This is intentionally a single phase rather than two: a commit that updates the 
 
 ---
 
-## Phase 2 — Filterable NPC index: list, letter groups, URL state, faction filter
+## Phase 2 — Filterable NPC index: list, letter groups, URL state, text search, faction filter
 
-**Goal:** Replace the prose index page at `/players-reference/setting/npcs` with a new filterable list that mirrors the clues filterable page. Ship the alphabetical-with-letter-headers list, URL state, and the faction filter. Plotline filter and polish are Phase 3.
+**Goal:** Replace the prose index page at `/players-reference/setting/npcs` with a new filterable list that mirrors the clues filterable page. Ship the alphabetical-with-letter-headers list, URL state, the text search box, and the faction filter. Plotline filter and polish are Phase 3.
 
 Splitting faction (Phase 2) from plotline (Phase 3) keeps each commit reviewable; faction is a straightforward field-driven multi-select, while plotline involves a slug→title lookup and deserves its own review pass.
 
@@ -87,8 +88,9 @@ Implement:
 - **Row rendering:** thumbnail (or placeholder) + `displayName` as primary text + `occupation` as secondary; clickable row → `/players-reference/setting/npcs/{id}`. Compact rows, scannable, not the current prose look. Match clue/encounter row styling.
 - **Sort:** always alphabetical by `getNpcSortKey(npc)`, case-insensitive. No sort dropdown — the letter headers serve as the visible sort indicator, which satisfies the spec's "do not ship with an invisible default sort" requirement.
 - **Letter-group headers:** render a header per first-letter of the sort key. So "Sergeant Brenn Hardback" (sortKey starts with "H") sits under **H**.
+- **Text search:** input at the top of the filter row. Case-insensitive substring match against both `displayName` and `sortName` (so typing "Mar" matches "Mara Tindle" *and* an NPC sorted as "Tindle, Mara"). ANDs with the faction filter. Mirror the position and styling of the search input in `ClueList.svelte`/`EncounterList.svelte`.
 - **Faction filter:** multi-select control. Source the list of available factions from the `factionsById` prop. Filter logic: NPC matches if any of its `factions` ids is in the selected set. Treat missing `factions` as `[]`. UI label uses `faction.name`, not the raw id (the spec is explicit about this — clues currently render the raw kebab id, so this is a deliberate improvement over the clues pattern).
-- **URL state:** use `apps/web/src/utils/url-filter-state.ts` exactly as `ClueList.svelte` does. Key: `factions` (comma-joined). State persists across reload and back/forward.
+- **URL state:** use `apps/web/src/utils/url-filter-state.ts` exactly as `ClueList.svelte` does. Keys: `q` (text search), `factions` (comma-joined). State persists across reload and back/forward.
 
 **Page route: `apps/web/src/pages/players-reference/setting/npcs/index.astro`**
 
@@ -106,7 +108,8 @@ Overwrite the existing prose page. Data loading:
 
 - Component visually matches the clues/encounters filterable lists (look-and-feel parity is a spec requirement).
 - Letter groups correct (Sergeant Brenn Hardback under **H**, Master-at-Arms Kardek under **K**, Commander Law under **L**, Cassio Vandermere under **C**).
-- URL state survives reload and back/forward — faction selection persists.
+- Text search: typing "Mar" surfaces "Mara Tindle" / "Tindle, Mara"; case-insensitive; ANDs cleanly with faction selection.
+- URL state survives reload and back/forward — text query and faction selection both persist.
 - Faction labels in the filter UI come from `faction.name`, not the kebab id.
 - Player-facing page (not GM-gated). Build is green. `getNpcSortKey` is the sole sort-key source.
 
@@ -131,7 +134,7 @@ Overwrite the existing prose page. Data loading:
 - Filter logic: NPC matches if any of its plotline ids is in the selected set; empty selection = no constraint.
 
 **Empty state:**
-- When filtered count is zero, render a friendly empty block ("No NPCs match these filters.") with a "Clear filters" button that resets both `factions` and `plotlines` (and the sort to its default) and clears those URL params. Match the existing pattern from clues/encounters; if they don't have an explicit empty-state component, mint a minimal one inline.
+- When filtered count is zero, render a friendly empty block ("No NPCs match these filters.") with a "Clear filters" button that resets `q`, `factions`, and `plotlines` and clears those URL params. Match the existing pattern from clues/encounters; if they don't have an explicit empty-state component, mint a minimal one inline.
 
 **Status TODO:**
 - Add or confirm the TODO comment at the loader/component boundary referencing the spec for `hidden`/`inactive` work to come. Mention the GM-visible-with-indicator behaviour from spec §"Status filtering" so a future reader has the full picture.
@@ -165,7 +168,7 @@ Overwrite the existing prose page. Data loading:
 | Phase | Scope | Approx. size | Build state at end |
 |------|------|------|------|
 | 1 | Schema + helper + propagate field rename in `apps/web` | Small–medium, mostly mechanical | Green; prose index still live |
-| 2 | New filterable index (list + letter groups + URL state + faction filter); prose page deleted | Medium–large; biggest visual change | Green; new index live, plotline filter not yet present |
+| 2 | New filterable index (list + letter groups + URL state + text search + faction filter); prose page deleted | Medium–large; biggest visual change | Green; new index live, plotline filter not yet present |
 | 3 | Plotline filter + empty state + acceptance polish | Small | Green; all Phase-1/2 acceptance criteria met |
 
 Deferred entirely until the data migration adds `inactive` / `hidden`: status filtering, GM toggle, GM-only variant.
