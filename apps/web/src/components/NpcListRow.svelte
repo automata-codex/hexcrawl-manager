@@ -9,7 +9,7 @@
   const { npc }: Props = $props();
 </script>
 
-<a class="npc-link" href={npc.href}>
+{#snippet rowContent()}
   {#if npc.image}
     <img class="npc-thumb" src={npc.image} alt="" loading="lazy" />
   {:else}
@@ -25,9 +25,19 @@
         <Badge color="gray">inactive</Badge>
       {/if}
     </span>
-    <span class="npc-occupation">{npc.occupation}</span>
+    <span class="npc-occupation">{npc.role ?? npc.occupation}</span>
   </span>
-</a>
+{/snippet}
+
+{#if npc.href}
+  <a class="npc-link" href={npc.href}>
+    {@render rowContent()}
+  </a>
+{:else}
+  <div class="npc-link is-stub">
+    {@render rowContent()}
+  </div>
+{/if}
 
 <style>
   .npc-link {
@@ -40,13 +50,17 @@
     border-radius: 4px;
   }
 
-  .npc-link:hover {
+  .npc-link:hover:not(.is-stub) {
     background-color: var(--bulma-scheme-main-bis);
   }
 
-  .npc-link:hover .npc-name {
+  .npc-link:hover:not(.is-stub) .npc-name {
     text-decoration: underline;
     color: var(--bulma-link-text);
+  }
+
+  .npc-link.is-stub {
+    cursor: default;
   }
 
   .npc-thumb {

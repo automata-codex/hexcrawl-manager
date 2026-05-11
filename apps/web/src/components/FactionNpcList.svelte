@@ -9,18 +9,21 @@
 
   interface Props {
     npcs: NpcListItem[];
+    /** URL query-param key for the show-inactive toggle.
+     * Override when multiple instances render on the same page. */
+    urlKey?: string;
   }
 
-  const { npcs }: Props = $props();
+  const { npcs, urlKey = 'show-inactive' }: Props = $props();
 
   const hasInactives = $derived(
     npcs.some((n) => n.campaignStatus === 'inactive'),
   );
 
-  let showInactive = $state(initBooleanFilterFromUrl('show-inactive'));
+  let showInactive = $state(initBooleanFilterFromUrl(urlKey));
 
   $effect(() => {
-    setBooleanUrlParam('show-inactive', showInactive);
+    setBooleanUrlParam(urlKey, showInactive);
   });
 
   const visible = $derived(() =>

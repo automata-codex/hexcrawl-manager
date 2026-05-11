@@ -9,23 +9,20 @@ import type { NpcListItem } from './npc-list-types';
 
 interface Props {
   faction: FactionData;
+  /** Curated featured representatives projected from `faction.activeAgents`
+   * (with `role` and possibly stub rows when `npcId` is absent). */
+  activeAgents?: NpcListItem[];
+  /** Comprehensive query-derived list of NPCs whose `factions` array contains
+   * this faction id, minus anyone already in `activeAgents`. */
   associatedNpcs?: NpcListItem[];
 }
 
-const { faction, associatedNpcs = [] } = Astro.props;
+const { faction, activeAgents = [], associatedNpcs = [] } = Astro.props;
 
-// Exclude NPCs already named under Active Agents above so they don't appear
-// twice on the page. Only structured (npcId-linked) agents filter anything;
-// unstructured agents have no link to filter on.
-const activeAgentNpcIds = new Set(
-  faction.activeAgents
-    ?.map((agent) => agent.npcId)
-    .filter((id): id is string => Boolean(id)) ?? [],
-);
-const otherAssociatedNpcs = associatedNpcs.filter(
-  (npc) => !activeAgentNpcIds.has(npc.id),
-);
-const activeOtherCount = otherAssociatedNpcs.filter(
+const activeAgentCount = activeAgents.filter(
+  (npc) => npc.campaignStatus === 'active',
+).length;
+const associatedActiveCount = associatedNpcs.filter(
   (npc) => npc.campaignStatus === 'active',
 ).length;
 ---
@@ -42,24 +39,24 @@ const activeOtherCount = otherAssociatedNpcs.filter(
       <Fragment set:html={renderMarkdown(faction.quote)} />
     </div>
   )}
-  {faction.activeAgents && faction.activeAgents.length > 0 && (
+  {activeAgentCount > 0 && (
     <>
       <h3 class="title is-5">Active Agents</h3>
-      <div>
-        <ul>
-          {faction.activeAgents.map((agent) => (
-            <li>
-              <strong>{agent.name}</strong> — {agent.role}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <FactionNpcList
+        client:load
+        npcs={activeAgents}
+        urlKey="show-inactive-agents"
+      />
     </>
   )}
-  {activeOtherCount > 0 && (
+  {associatedActiveCount > 0 && (
     <>
       <h3 class="title is-5">Associated NPCs</h3>
-      <FactionNpcList client:load npcs={otherAssociatedNpcs} />
+      <FactionNpcList
+        client:load
+        npcs={associatedNpcs}
+        urlKey="show-inactive-associated"
+      />
     </>
   )}
   <div>
