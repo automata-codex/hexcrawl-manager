@@ -2,6 +2,7 @@ export * from './ap-ledger.js';
 export * from './ap-totals.js';
 export * from './bounty.js';
 export * from './campaign-date.js';
+export * from './campaign-status.js';
 export * from './character.js';
 export * from './class.js';
 export * from './clue.js';

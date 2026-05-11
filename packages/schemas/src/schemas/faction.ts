@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { CampaignStatusEnum } from './campaign-status.js';
+
 const FactionClockSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
@@ -26,6 +28,7 @@ export const FactionSchema = z.object({
   ifIgnored: z.string().optional(), // What happens if the PCs don't engage with this faction
   pcIntersections: z.string().optional(), // How faction goals intersect with PC goals (markdown)
   activeAgents: z.array(FactionAgentSchema).optional(), // Named NPCs who embody the faction at the table
+  campaignStatus: CampaignStatusEnum.default('active'),
 });
 
 export const FactionListSchema = z.array(FactionSchema);

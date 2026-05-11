@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
+import { CampaignStatusEnum } from './campaign-status.js';
 import { ClassEnum } from './class-enum.js';
 import { ClueReferencesSchema } from './clue-reference.js';
+
+export const NpcVisibilityEnum = z.enum(['player', 'gm']);
+export type NpcVisibility = z.infer<typeof NpcVisibilityEnum>;
 
 export const NpcSchema = z.object({
   id: z.string(),
@@ -19,10 +23,16 @@ export const NpcSchema = z.object({
   plotlines: z.array(z.string()).optional(),
   notes: z.array(z.string()).optional(),
   clues: ClueReferencesSchema.describe('IDs of clues this NPC knows or can reveal'),
+  visibility: NpcVisibilityEnum.default('player'),
+  campaignStatus: CampaignStatusEnum.default('active'),
 });
 
 export type NpcData = z.infer<typeof NpcSchema>;
 
 export function getNpcSortKey(npc: NpcData): string {
   return npc.sortName ?? npc.displayName;
+}
+
+export function isPlayerVisible(npc: { visibility?: NpcVisibility }): boolean {
+  return (npc.visibility ?? 'player') === 'player';
 }
