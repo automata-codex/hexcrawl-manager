@@ -7,20 +7,7 @@ import { getNpcPath } from '../../../../config/routes.ts';
 import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
 import { canAccess, getCurrentUserRole } from '../../../../utils/auth';
 import { SCOPES } from '../../../../utils/constants';
-
-function formatOccupation(
-  occupation: string,
-  charClass?: string,
-  adventuringCompany?: string,
-) {
-  if (occupation === 'Adventurer') {
-    if (adventuringCompany) {
-      return `Adventurer (${charClass}), ${adventuringCompany}`;
-    }
-    return `Adventurer (${charClass})`;
-  }
-  return occupation;
-}
+import { formatOccupation } from '../../../../utils/npc-display';
 
 const isGm = canAccess(getCurrentUserRole(Astro.locals), [SCOPES.GM]);
 

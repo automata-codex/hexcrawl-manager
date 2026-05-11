@@ -9,23 +9,8 @@ import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
 import { canAccess, getCurrentUserRole } from '../../../../utils/auth';
 import { SCOPES } from '../../../../utils/constants';
 import { renderMarkdown } from '../../../../utils/markdown';
+import { formatOccupation } from '../../../../utils/npc-display';
 import { formatText } from '../../../../utils/text';
-
-function formatOccupation(
-  occupation: string,
-  charClass?: string,
-  adventuringCompany?: string,
-) {
-  if (occupation === 'Adventurer') {
-    if (adventuringCompany) {
-      return `Adventurer (${charClass}), ${adventuringCompany}`;
-    } else {
-      return `Adventurer (${charClass})`;
-    }
-  } else {
-    return occupation;
-  }
-}
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;

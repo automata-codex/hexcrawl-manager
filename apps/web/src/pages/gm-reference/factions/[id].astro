@@ -1,10 +1,13 @@
 ---
-import { isActive } from '@achm/schemas';
-import { getEntry } from 'astro:content';
+import { getNpcSortKey } from '@achm/schemas';
+import { getCollection, getEntry } from 'astro:content';
 
-import Badge from '../../../components/Badge.astro';
+import FactionNpcList from '../../../components/FactionNpcList.svelte';
 import Faction from '../../../components/Faction.astro';
+import type { NpcListItem } from '../../../components/npc-list-types';
+import { getNpcPath } from '../../../config/routes';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { formatOccupation } from '../../../utils/npc-display';
 
 const { id } = Astro.params;
 if (!id) {
@@ -24,19 +27,51 @@ if (factionData === undefined) {
 }
 
 const faction = factionData.data;
+
+// Associated NPCs: derived by querying NPC.factions for this faction's id.
+// No isPlayerVisible filter — this route is GM-only via SecretLayout, so
+// GM-visibility NPCs should appear (with their badge). Add the filter if a
+// player-facing faction route is ever introduced.
+const npcEntries = await getCollection('npcs');
+const associatedNpcs: NpcListItem[] = npcEntries
+  .filter((entry) => entry.data.factions?.includes(faction.id))
+  .map((entry) => ({
+    id: entry.id,
+    href: getNpcPath(entry.id),
+    displayName: entry.data.displayName,
+    sortKey: getNpcSortKey(entry.data),
+    occupation: formatOccupation(
+      entry.data.occupation,
+      entry.data.class,
+      entry.data.adventuringCompany,
+    ),
+    image: entry.data.image,
+    factions: entry.data.factions ?? [],
+    plotlines: entry.data.plotlines ?? [],
+    visibility: entry.data.visibility,
+    campaignStatus: entry.data.campaignStatus,
+  }))
+  .sort((a, b) =>
+    a.sortKey.localeCompare(b.sortKey, undefined, { sensitivity: 'base' }),
+  );
+
+const activeAssociatedCount = associatedNpcs.filter(
+  (n) => n.campaignStatus === 'active',
+).length;
 ---
 
+<SecretLayout title={faction.name}>
+  <Faction faction={faction} />
+  {activeAssociatedCount > 0 && (
+    <section class="associated-npcs">
+      <h3 class="title is-5">Associated NPCs</h3>
+      <FactionNpcList client:load npcs={associatedNpcs} />
+    </section>
+  )}
+</SecretLayout>
+
 <style>
-  .status-indicator {
-    margin-bottom: 1rem;
+  .associated-npcs {
+    margin-top: 1.5rem;
   }
 </style>
-
-<SecretLayout title={faction.name}>
-  {!isActive(faction) && (
-    <p class="status-indicator">
-      <Badge color="gray">Inactive</Badge>
-    </p>
-  )}
-  <Faction faction={faction} />
-</SecretLayout>
