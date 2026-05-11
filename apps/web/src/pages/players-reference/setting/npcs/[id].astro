@@ -1,10 +1,12 @@
 ---
-import { normalizeClueRef } from '@achm/schemas';
+import { isPlayerVisible, normalizeClueRef } from '@achm/schemas';
 import { getCollection, getEntry, render } from 'astro:content';
 
 import SecretContent from '../../../../components/Content/SecretContent.astro';
 import { getCluePath } from '../../../../config/routes';
 import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
+import { canAccess, getCurrentUserRole } from '../../../../utils/auth';
+import { SCOPES } from '../../../../utils/constants';
 import { renderMarkdown } from '../../../../utils/markdown';
 import { formatText } from '../../../../utils/text';
 
@@ -45,7 +47,18 @@ if (npcData === undefined) {
 }
 
 const npc = npcData.data;
+const isGm = canAccess(getCurrentUserRole(Astro.locals), [SCOPES.GM]);
+
+// Non-GM viewers can't see GM-only NPCs — return 404 rather than reveal existence.
+if (!isGm && !isPlayerVisible(npc)) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
 const title = npc.displayName;
+const showGmOnlyIndicator = isGm && !isPlayerVisible(npc);
 
 // Check if this is an MD/MDX file with body content
 const isMdx = npcData.filePath?.endsWith('.mdx') || npcData.filePath?.endsWith('.md');
@@ -135,11 +148,35 @@ const clueRefs = npc.clues?.map((ref) => {
     color: var(--bulma-text-weak);
     font-style: italic;
   }
+
+  .gm-only-indicator {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 3px;
+    font-size: 0.875rem;
+    background: #f3e8ff;
+    color: #7e22ce;
+  }
+
+  :global(html[data-theme='dark']) .gm-only-indicator {
+    background: #581c87;
+    color: #d8b4fe;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .gm-only-indicator {
+      background: #581c87;
+      color: #d8b4fe;
+    }
+  }
 </style>
 
 <ComponentLayout title={title}>
   <main>
     {npc.image && <img class="npc-image" src={npc.image} alt={npc.displayName} />}
+
+    {showGmOnlyIndicator && <p class="gm-only-indicator">GM-only NPC</p>}
 
     <dl class="npc-meta">
       <dt>Occupation</dt>

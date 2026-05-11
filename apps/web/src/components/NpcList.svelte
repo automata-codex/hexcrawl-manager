@@ -1,6 +1,8 @@
 <script lang="ts">
   import { initFilterFromUrl, setUrlParam } from '../utils/url-filter-state';
 
+  import Badge from './Badge.svelte';
+
   interface NpcListItem {
     id: string;
     href: string;
@@ -10,6 +12,7 @@
     image?: string;
     factions: string[];
     plotlines: string[];
+    visibility: 'player' | 'gm';
   }
 
   interface FilterOptions {
@@ -170,7 +173,12 @@
                   <span class="npc-thumb npc-thumb-placeholder" aria-hidden="true"></span>
                 {/if}
                 <span class="npc-text">
-                  <span class="npc-name">{npc.displayName}</span>
+                  <span class="npc-name">
+                    {npc.displayName}
+                    {#if npc.visibility === 'gm'}
+                      <Badge color="purple">GM</Badge>
+                    {/if}
+                  </span>
                   <span class="npc-occupation">{npc.occupation}</span>
                 </span>
               </a>

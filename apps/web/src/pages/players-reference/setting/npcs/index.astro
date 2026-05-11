@@ -1,10 +1,12 @@
 ---
-import { getNpcSortKey } from '@achm/schemas';
+import { getNpcSortKey, isPlayerVisible } from '@achm/schemas';
 import { getCollection } from 'astro:content';
 
 import NpcList from '../../../../components/NpcList.svelte';
 import { getNpcPath } from '../../../../config/routes.ts';
 import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
+import { canAccess, getCurrentUserRole } from '../../../../utils/auth';
+import { SCOPES } from '../../../../utils/constants';
 
 function formatOccupation(
   occupation: string,
@@ -20,6 +22,8 @@ function formatOccupation(
   return occupation;
 }
 
+const isGm = canAccess(getCurrentUserRole(Astro.locals), [SCOPES.GM]);
+
 const [npcEntries, factionEntries, plotlineEntries] = await Promise.all([
   getCollection('npcs'),
   getCollection('factions'),
@@ -33,10 +37,10 @@ const plotlineNames: Record<string, string> = Object.fromEntries(
   plotlineEntries.map((p) => [p.id, p.data.title]),
 );
 
-// TODO(npc-status): once `hidden` / `inactive` flags land on the NPC schema,
-// drop hidden NPCs from this list and add a GM-only toggle for inactive ones.
-// See docs/specs/npc-schema-update-and-filterable-index.md §"Status filtering".
+// TODO(content-status): once `campaignStatus` filtering ships, surface a
+// "Show inactive" toggle in NpcList; see Phase 3 of the implementation plan.
 const npcs = npcEntries
+  .filter((entry) => isGm || isPlayerVisible(entry.data))
   .map((entry) => ({
     id: entry.id,
     href: getNpcPath(entry.id),
@@ -50,6 +54,7 @@ const npcs = npcEntries
     image: entry.data.image,
     factions: entry.data.factions ?? [],
     plotlines: entry.data.plotlines ?? [],
+    visibility: entry.data.visibility,
   }))
   .sort((a, b) =>
     a.sortKey.localeCompare(b.sortKey, undefined, { sensitivity: 'base' }),
