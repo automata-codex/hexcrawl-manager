@@ -1,5 +1,5 @@
 ---
-import { sortIgnoringArticles } from '@achm/core';
+import { getNpcSortKey } from '@achm/schemas';
 import { getCollection } from 'astro:content';
 
 import SecretContent from '../../../../components/Content/SecretContent.astro';
@@ -25,7 +25,9 @@ function formatOccupation(
 }
 
 const npcData = (await getCollection('npcs')).sort((a, b) =>
-  sortIgnoringArticles(a.data.name, b.data.name)
+  getNpcSortKey(a.data).localeCompare(getNpcSortKey(b.data), undefined, {
+    sensitivity: 'base',
+  })
 );
 const title = 'NPCs';
 ---
@@ -76,9 +78,9 @@ const title = 'NPCs';
     {
       npcData.map((npc) => (
         <section>
-          {npc.data.image && <img src={npc.data.image} alt={npc.data.name} />}
+          {npc.data.image && <img src={npc.data.image} alt={npc.data.displayName} />}
           <h2 class="title is-4" style="margin-bottom: 0.25rem">
-            <a href={getNpcPath(npc.id)}>{npc.data.title}{' '}{npc.data.name}</a>
+            <a href={getNpcPath(npc.id)}>{npc.data.displayName}</a>
           </h2>
           <div class="npc-meta">
             <p>

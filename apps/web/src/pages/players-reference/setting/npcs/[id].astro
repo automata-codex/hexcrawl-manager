@@ -45,7 +45,7 @@ if (npcData === undefined) {
 }
 
 const npc = npcData.data;
-const title = npc.name;
+const title = npc.displayName;
 
 // Check if this is an MD/MDX file with body content
 const isMdx = npcData.filePath?.endsWith('.mdx') || npcData.filePath?.endsWith('.md');
@@ -139,9 +139,7 @@ const clueRefs = npc.clues?.map((ref) => {
 
 <ComponentLayout title={title}>
   <main>
-    {npc.image && <img class="npc-image" src={npc.image} alt={npc.name} />}
-
-    {npc.title && <p class="subtitle is-4">{npc.title}</p>}
+    {npc.image && <img class="npc-image" src={npc.image} alt={npc.displayName} />}
 
     <dl class="npc-meta">
       <dt>Occupation</dt>
