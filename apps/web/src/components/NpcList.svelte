@@ -19,23 +19,32 @@
     filterOptions: FilterOptions;
     factionNames: Record<string, string>;
     plotlineNames: Record<string, string>;
+    /** When false, the faction and plotline filters are hidden and their
+     *  URL state is ignored — those affiliations are GM-only knowledge. */
+    isGm: boolean;
   }
 
-  const { npcs, filterOptions, factionNames, plotlineNames }: Props = $props();
+  const {
+    npcs,
+    filterOptions,
+    factionNames,
+    plotlineNames,
+    isGm,
+  }: Props = $props();
 
   let searchQuery = $state(initFilterFromUrl('q'));
-  let factionFilter = $state(initFilterFromUrl('faction'));
-  let plotlineFilter = $state(initFilterFromUrl('plotline'));
+  let factionFilter = $state(isGm ? initFilterFromUrl('faction') : '');
+  let plotlineFilter = $state(isGm ? initFilterFromUrl('plotline') : '');
   let showInactive = $state(initBooleanFilterFromUrl('show-inactive'));
 
   $effect(() => {
     setUrlParam('q', searchQuery);
   });
   $effect(() => {
-    setUrlParam('faction', factionFilter);
+    if (isGm) setUrlParam('faction', factionFilter);
   });
   $effect(() => {
-    setUrlParam('plotline', plotlineFilter);
+    if (isGm) setUrlParam('plotline', plotlineFilter);
   });
   $effect(() => {
     setBooleanUrlParam('show-inactive', showInactive);
@@ -113,35 +122,37 @@
       </div>
     </div>
 
-    <div class="field">
-      <label class="label" for="npc-faction">Faction</label>
-      <div class="control">
-        <div class="select">
-          <select id="npc-faction" bind:value={factionFilter}>
-            <option value="">All</option>
-            <option value="__none__">No Faction</option>
-            {#each filterOptions.factions as faction (faction)}
-              <option value={faction}>{getFactionName(faction)}</option>
-            {/each}
-          </select>
+    {#if isGm}
+      <div class="field">
+        <label class="label" for="npc-faction">Faction</label>
+        <div class="control">
+          <div class="select">
+            <select id="npc-faction" bind:value={factionFilter}>
+              <option value="">All</option>
+              <option value="__none__">No Faction</option>
+              {#each filterOptions.factions as faction (faction)}
+                <option value={faction}>{getFactionName(faction)}</option>
+              {/each}
+            </select>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="field">
-      <label class="label" for="npc-plotline">Plotline</label>
-      <div class="control">
-        <div class="select">
-          <select id="npc-plotline" bind:value={plotlineFilter}>
-            <option value="">All</option>
-            <option value="__none__">No Plotline</option>
-            {#each filterOptions.plotlines as plotline (plotline)}
-              <option value={plotline}>{getPlotlineName(plotline)}</option>
-            {/each}
-          </select>
+      <div class="field">
+        <label class="label" for="npc-plotline">Plotline</label>
+        <div class="control">
+          <div class="select">
+            <select id="npc-plotline" bind:value={plotlineFilter}>
+              <option value="">All</option>
+              <option value="__none__">No Plotline</option>
+              {#each filterOptions.plotlines as plotline (plotline)}
+                <option value={plotline}>{getPlotlineName(plotline)}</option>
+              {/each}
+            </select>
+          </div>
         </div>
       </div>
-    </div>
+    {/if}
 
     <div class="field show-inactive-field">
       <label class="checkbox">
