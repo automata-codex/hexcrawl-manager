@@ -11,7 +11,7 @@
 
 {#snippet rowContent()}
   {#if npc.image}
-    <img class="npc-thumb" src={npc.image} alt="" loading="lazy" />
+    <img class="npc-thumb" src={npc.image} alt="{npc.displayName} thumbnail" />
   {:else}
     <span class="npc-thumb npc-thumb-placeholder" aria-hidden="true"></span>
   {/if}
