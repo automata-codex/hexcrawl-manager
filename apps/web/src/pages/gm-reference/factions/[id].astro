@@ -57,22 +57,28 @@ const sortBySortKey = (a: NpcListItem, b: NpcListItem) =>
 
 // Active Agents: curated featured list. Resolve each agent to an NPC by
 // `npcId`; fall back to a stub row (no link, no thumbnail) when the agent
-// has no `npcId` or it doesn't resolve. Each row's secondary text is the
-// agent's `role`, not the NPC's occupation.
+// has no `npcId` or it doesn't resolve. When `npcId` resolves, omitted
+// `name` / `role` fall back to the NPC's displayName / formatted occupation.
 const activeAgentItems: NpcListItem[] = (faction.activeAgents ?? []).map(
   (agent, index) => {
     const resolved = agent.npcId
       ? npcEntriesById.get(agent.npcId)
       : undefined;
     if (resolved) {
-      return { ...projectNpc(resolved), role: agent.role };
+      const projected = projectNpc(resolved);
+      return {
+        ...projected,
+        displayName: agent.name ?? projected.displayName,
+        role: agent.role ?? projected.occupation,
+      };
     }
+    const fallbackName = agent.name ?? `Unknown (${agent.npcId})`;
     return {
       id: `stub-${agent.npcId ?? `unlinked-${index}`}`,
-      displayName: agent.name,
-      sortKey: agent.name,
+      displayName: fallbackName,
+      sortKey: fallbackName,
       occupation: '',
-      role: agent.role,
+      role: agent.role ?? '',
       factions: [],
       plotlines: [],
       visibility: 'player',

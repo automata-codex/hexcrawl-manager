@@ -28,6 +28,10 @@ const associatedActiveCount = associatedNpcs.filter(
 ---
 
 <style>
+  .faction-description {
+    margin-top: 1rem;
+  }
+
   .quote {
     font-style: italic;
     margin: 0 10% 1rem;
@@ -61,7 +65,7 @@ const associatedActiveCount = associatedNpcs.filter(
       />
     </>
   )}
-  <div>
+  <div class="faction-description">
     <Fragment set:html={renderMarkdown(faction.description)} />
   </div>
   <h3 class="title is-5">Ideology</h3>

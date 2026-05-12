@@ -42,7 +42,7 @@ interface FactionFrontmatter {
   id: string;
   name: string;
   campaignStatus?: 'active' | 'inactive';
-  activeAgents?: Array<{ name: string; role: string; npcId?: string }>;
+  activeAgents?: Array<{ name?: string; role?: string; npcId?: string }>;
 }
 
 type ClueReference = string | { id: string; context?: string };

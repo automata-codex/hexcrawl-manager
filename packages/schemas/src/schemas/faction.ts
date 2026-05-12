@@ -9,11 +9,27 @@ const FactionClockSchema = z.object({
   completedSteps: z.number().int().nonnegative(),
 });
 
-const FactionAgentSchema = z.object({
+// Two forms:
+//   1. `npcId` supplied — `name` and `role` are optional and default from
+//      the linked NPC's `displayName` / formatted occupation.
+//   2. `npcId` omitted — `name` and `role` are required (standalone entry,
+//      no NPC data to inherit from).
+const FactionAgentWithNpcSchema = z.object({
+  npcId: z.string(),
+  name: z.string().optional(),
+  role: z.string().optional(),
+});
+
+const FactionAgentStandaloneSchema = z.object({
+  npcId: z.undefined().optional(),
   name: z.string(),
   role: z.string(),
-  npcId: z.string().optional(), // Forward-compatible link to NPC data file
 });
+
+const FactionAgentSchema = z.union([
+  FactionAgentWithNpcSchema,
+  FactionAgentStandaloneSchema,
+]);
 
 export const FactionSchema = z.object({
   id: z.string(),
