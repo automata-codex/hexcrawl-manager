@@ -6,7 +6,7 @@
     npc: NpcListItem;
   }
 
-  const { npc }: Props = $props();
+  let { npc }: Props = $props();
 </script>
 
 {#snippet rowContent()}

@@ -14,21 +14,17 @@
     urlKey?: string;
   }
 
-  const { npcs, urlKey = 'show-inactive' }: Props = $props();
+  let { npcs, urlKey = 'show-inactive' }: Props = $props();
+
+  let showInactive = $state(initBooleanFilterFromUrl(urlKey));
 
   const hasInactives = $derived(
     npcs.some((n) => n.campaignStatus === 'inactive'),
   );
 
-  let showInactive = $state(initBooleanFilterFromUrl(urlKey));
-
   $effect(() => {
     setBooleanUrlParam(urlKey, showInactive);
   });
-
-  const visible = $derived(() =>
-    npcs.filter((n) => n.campaignStatus !== 'inactive' || showInactive),
-  );
 </script>
 
 {#if hasInactives}
@@ -39,8 +35,11 @@
 {/if}
 
 <ul class="npc-list">
-  {#each visible() as npc (npc.id)}
-    <li class="npc-item">
+  {#each npcs as npc (npc.id)}
+    <li
+      class="npc-item"
+      class:hidden={npc.campaignStatus === 'inactive' && !showInactive}
+    >
       <NpcListRow {npc} />
     </li>
   {/each}
@@ -61,5 +60,9 @@
 
   .npc-item {
     margin: 0;
+  }
+
+  .npc-item.hidden {
+    display: none;
   }
 </style>

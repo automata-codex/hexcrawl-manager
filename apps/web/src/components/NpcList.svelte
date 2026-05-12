@@ -50,10 +50,14 @@
     setBooleanUrlParam('show-inactive', showInactive);
   });
 
+  // `filtered` intentionally does NOT apply the `showInactive` toggle —
+  // inactive NPCs stay in the list and groups, and are hidden via CSS on
+  // the `<li>` instead. Filtering by show-inactive used to cause Svelte's
+  // keyed each to reorder items, which triggered a runtime bug where the
+  // moved `<img>` kept the previous item's `src`.
   const filtered = $derived(() => {
     const query = searchQuery.trim().toLowerCase();
     return npcs.filter((npc) => {
-      if (npc.campaignStatus === 'inactive' && !showInactive) return false;
       if (query) {
         const hay = `${npc.displayName}\n${npc.sortKey}`.toLowerCase();
         if (!hay.includes(query)) return false;
@@ -75,6 +79,13 @@
       return true;
     });
   });
+
+  const visibleCount = $derived(
+    () =>
+      filtered().filter(
+        (npc) => npc.campaignStatus !== 'inactive' || showInactive,
+      ).length,
+  );
 
   const groups = $derived(() => {
     const buckets = new Map<string, NpcListItem[]>();
@@ -167,11 +178,11 @@
   </div>
 
   <p class="filter-count">
-    Showing {filtered().length} of {npcs.length} NPCs
+    Showing {visibleCount()} of {npcs.length} NPCs
   </p>
 </div>
 
-{#if filtered().length === 0}
+{#if visibleCount() === 0}
   <div class="empty-state">
     <p>No NPCs match the current filters.</p>
     <button class="button is-small" onclick={clearFilters}>Clear filters</button>
@@ -183,7 +194,10 @@
         <h3 class="letter-header">{letter}</h3>
         <ul class="npc-list">
           {#each items as npc (npc.id)}
-            <li class="npc-item">
+            <li
+              class="npc-item"
+              class:hidden={npc.campaignStatus === 'inactive' && !showInactive}
+            >
               <NpcListRow {npc} />
             </li>
           {/each}
@@ -277,6 +291,16 @@
 
   .npc-item {
     margin: 0;
+  }
+
+  .npc-item.hidden {
+    display: none;
+  }
+
+  /* Hide letter groups whose items are all hidden (e.g. a letter with only
+     inactive NPCs while "Show inactive" is off). */
+  .npc-group:not(:has(.npc-item:not(.hidden))) {
+    display: none;
   }
 
   @media (max-width: 768px) {
