@@ -77,8 +77,8 @@ const title = plotline.data.title;
     </p>
   )}
   <div class="clue-header">
-    <p><strong>Status:</strong> {plotline.data.status}</p>
-    {plotline.data.summary && <p class="hanging-indent"><strong>Summary:</strong> {plotline.data.summary}</p>}
+    <p><strong>Status:</strong>{' '}{plotline.data.status}</p>
+    {plotline.data.summary && <p class="hanging-indent"><strong>Summary:</strong>{' '}{plotline.data.summary}</p>}
     {linkedClues.length > 0 && (
       <>
         <p><strong>Clues:</strong></p>

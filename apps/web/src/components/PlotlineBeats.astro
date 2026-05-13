@@ -28,18 +28,18 @@ const beatNotesHtml = await Promise.all(
 
 {beats.length > 0 && (
   <section class="beats">
-    <h2 class="title is-4">Beats</h2>
+    <h2 class="title is-3">Beats</h2>
     {beats.map((beat, i) => (
       <article class={`beat beat-${beat.status}`}>
-        <h3 class="beat-title">
-          {beat.title}
+        <div class="beat-title-container">
+          <h3 class="beat-title title is-4">{beat.title}</h3>
           <Badge color={statusBadgeColor[beat.status]}>
             {beat.status}
             {beat.status === 'resolved' && <span class="checkmark">✓</span>}
           </Badge>
-        </h3>
+        </div>
         {beat.trigger && (
-          <p><strong>Trigger:</strong> {beat.trigger}</p>
+          <p><strong>Trigger:</strong>{' '}{beat.trigger}</p>
         )}
         {beat.factions.length > 0 && (
           <p>
@@ -114,12 +114,14 @@ const beatNotesHtml = await Promise.all(
 
   .beat {
     margin-bottom: 1.5rem;
+    /*
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--bulma-border-weak, var(--bulma-border));
+    */
 
     p {
-      margin-bottom: 0.25rem;
-      margin-top: 0.25rem;
+      margin-bottom: 0;
+      margin-top: 0;
     }
   }
 
@@ -128,11 +130,13 @@ const beatNotesHtml = await Promise.all(
   }
 
   .beat-title {
+    margin: 0;
+  }
+
+  .beat-title-container {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 0.5rem;
-    font-size: 1.125rem;
-    font-weight: 600;
     margin-bottom: 0.5rem;
   }
 
