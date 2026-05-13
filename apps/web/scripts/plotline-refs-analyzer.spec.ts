@@ -6,6 +6,7 @@ import {
   formatReport,
   parseBodyMentions,
   type AnalysisInput,
+  type BeatFile,
   type CharacterEntity,
   type FactionEntity,
   type NpcEntity,
@@ -28,11 +29,25 @@ const character = (id: string, displayName: string, plotlines: string[] = []): C
   plotlines,
 });
 
-const baseInput = (plotlines: PlotlineFile[] = []): AnalysisInput => ({
+const baseInput = (
+  plotlines: PlotlineFile[] = [],
+  beats: BeatFile[] = [],
+): AnalysisInput => ({
   plotlines,
   npcs: [],
   factions: [],
   characters: [],
+  beats,
+});
+
+const beat = (
+  parentPlotlineSlug: string,
+  slug: string,
+  plotlineFrontmatter: string | null = parentPlotlineSlug,
+): BeatFile => ({
+  slug,
+  parentPlotlineSlug,
+  plotlineFrontmatter,
 });
 
 describe('extractCandidateLabel', () => {
@@ -341,5 +356,114 @@ describe('formatReport', () => {
     expect(report).toContain('faction/blackthorn-syndicate');
     expect(report).toContain('Unresolved body mentions');
     expect(report).toContain('Aetherion the Unbound');
+  });
+});
+
+describe('analyzePlotlineRefs — beat ↔ plotline sync', () => {
+  const plotline = (
+    slug: string,
+    beatRefs: string[] | undefined,
+  ): PlotlineFile => ({ slug, title: slug, body: '', beatRefs });
+
+  it('emits no warnings when beatRefs and beat files are in sync', () => {
+    const warnings = analyzePlotlineRefs(
+      baseInput(
+        [plotline('p1', ['a', 'b'])],
+        [beat('p1', 'a'), beat('p1', 'b')],
+      ),
+    );
+    expect(warnings).toEqual([]);
+  });
+
+  it('flags missing-beat-file when beatRefs references a slug with no matching beat file', () => {
+    const warnings = analyzePlotlineRefs(
+      baseInput([plotline('p1', ['a', 'ghost'])], [beat('p1', 'a')]),
+    );
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toMatchObject({
+      kind: 'missing-beat-file',
+      plotlineSlug: 'p1',
+      entityKind: 'beat',
+      entityIdOrName: 'ghost',
+    });
+  });
+
+  it('flags orphan-beat when a beat file is not listed in its plotline\'s beatRefs', () => {
+    const warnings = analyzePlotlineRefs(
+      baseInput(
+        [plotline('p1', ['a'])],
+        [beat('p1', 'a'), beat('p1', 'untracked')],
+      ),
+    );
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toMatchObject({
+      kind: 'orphan-beat',
+      plotlineSlug: 'p1',
+      entityIdOrName: 'untracked',
+    });
+  });
+
+  it('flags every beat as orphan when the plotline has no beatRefs at all', () => {
+    const warnings = analyzePlotlineRefs(
+      baseInput([plotline('p1', undefined)], [beat('p1', 'a'), beat('p1', 'b')]),
+    );
+    expect(warnings.map((w) => w.kind)).toEqual(['orphan-beat', 'orphan-beat']);
+  });
+
+  it('flags beat-plotline-mismatch when the beat\'s frontmatter plotline disagrees with its parent dir', () => {
+    const warnings = analyzePlotlineRefs(
+      baseInput([plotline('p1', ['a'])], [beat('p1', 'a', 'wrong-plotline')]),
+    );
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toMatchObject({
+      kind: 'beat-plotline-mismatch',
+      entityKind: 'beat',
+      entityIdOrName: 'a',
+    });
+    expect(warnings[0].entityLabel).toContain('wrong-plotline');
+  });
+
+  it('treats a null plotlineFrontmatter as missing (not a mismatch)', () => {
+    const warnings = analyzePlotlineRefs(
+      baseInput([plotline('p1', ['a'])], [beat('p1', 'a', null)]),
+    );
+    expect(warnings).toEqual([]);
+  });
+});
+
+describe('formatReport — beat warnings', () => {
+  it('renders beat warning sections', () => {
+    const report = formatReport([
+      {
+        plotlineSlug: 'p1',
+        plotlineTitle: 'P1',
+        kind: 'missing-beat-file',
+        entityKind: 'beat',
+        entityIdOrName: 'ghost',
+        entityLabel: 'ghost',
+      },
+      {
+        plotlineSlug: 'p1',
+        plotlineTitle: 'P1',
+        kind: 'orphan-beat',
+        entityKind: 'beat',
+        entityIdOrName: 'untracked',
+        entityLabel: 'untracked',
+      },
+      {
+        plotlineSlug: 'p1',
+        plotlineTitle: 'P1',
+        kind: 'beat-plotline-mismatch',
+        entityKind: 'beat',
+        entityIdOrName: 'a',
+        entityLabel: 'a (frontmatter plotline=wrong-plotline)',
+      },
+    ]);
+    expect(report).toContain('Missing beat files');
+    expect(report).toContain('beat/ghost');
+    expect(report).toContain('Orphan beats');
+    expect(report).toContain('beat/untracked');
+    expect(report).toContain('Beat ↔ plotline mismatches');
+    expect(report).toContain('frontmatter plotline=wrong-plotline');
   });
 });

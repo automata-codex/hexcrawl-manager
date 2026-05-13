@@ -36,6 +36,12 @@ export const PlotlineSchema = z.object({
   summary: z.string().optional(),
   title: z.string(),
   beats: z.array(PlotlineBeatSchema).optional(),
+  beatRefs: z
+    .array(z.string())
+    .optional()
+    .describe(
+      'Ordered bare slugs of beats in the beats collection. The order is the canonical beat sequence. Renames to `beats` after the inline field is removed.',
+    ),
   campaignStatus: CampaignStatusEnum.default('active'),
 });
 

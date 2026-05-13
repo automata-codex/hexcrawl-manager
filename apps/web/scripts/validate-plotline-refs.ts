@@ -20,13 +20,14 @@
  */
 
 import { resolveDataPath } from '@achm/data';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import yaml from 'yaml';
 
 import {
   analyzePlotlineRefs,
   formatReport,
+  type BeatFile,
   type CharacterEntity,
   type FactionEntity,
   type NpcEntity,
@@ -68,11 +69,38 @@ function loadPlotlineFiles(dir: string): PlotlineFile[] {
   for (const file of readdirSync(dir)) {
     if (!file.endsWith('.md') && !file.endsWith('.mdx')) continue;
     const raw = readFileSync(join(dir, file), 'utf-8');
-    const parsed = parseFrontmatter<{ slug?: string; title?: string }>(raw);
+    const parsed = parseFrontmatter<{
+      slug?: string;
+      title?: string;
+      beatRefs?: string[];
+    }>(raw);
     if (!parsed) continue;
-    const { slug, title } = parsed.frontmatter;
+    const { slug, title, beatRefs } = parsed.frontmatter;
     if (!slug || !title) continue;
-    out.push({ slug, title, body: parsed.body });
+    out.push({ slug, title, body: parsed.body, beatRefs });
+  }
+  return out;
+}
+
+function loadBeatFiles(plotlinesDir: string): BeatFile[] {
+  if (!existsSync(plotlinesDir)) return [];
+  const out: BeatFile[] = [];
+  for (const entry of readdirSync(plotlinesDir)) {
+    const plotlineDir = join(plotlinesDir, entry);
+    if (!statSync(plotlineDir).isDirectory()) continue;
+    const beatsDir = join(plotlineDir, 'beats');
+    if (!existsSync(beatsDir) || !statSync(beatsDir).isDirectory()) continue;
+    for (const file of readdirSync(beatsDir)) {
+      if (!file.endsWith('.md') && !file.endsWith('.mdx')) continue;
+      const slug = file.replace(/\.(md|mdx)$/, '');
+      const raw = readFileSync(join(beatsDir, file), 'utf-8');
+      const parsed = parseFrontmatter<{ plotline?: string }>(raw);
+      out.push({
+        slug,
+        parentPlotlineSlug: entry,
+        plotlineFrontmatter: parsed?.frontmatter.plotline ?? null,
+      });
+    }
   }
   return out;
 }
@@ -80,7 +108,9 @@ function loadPlotlineFiles(dir: string): PlotlineFile[] {
 function main(): void {
   console.log('Validating plotline back-references...\n');
 
-  const plotlines = loadPlotlineFiles(resolveDataPath('plotlines'));
+  const plotlinesDir = resolveDataPath('plotlines');
+  const plotlines = loadPlotlineFiles(plotlinesDir);
+  const beats = loadBeatFiles(plotlinesDir);
   const npcs = loadEntityCollection<NpcEntity>(
     resolveDataPath('npcs'),
     ['.yaml', '.yml', '.md', '.mdx'],
@@ -94,7 +124,13 @@ function main(): void {
     ['.yaml', '.yml'],
   );
 
-  const warnings = analyzePlotlineRefs({ plotlines, npcs, factions, characters });
+  const warnings = analyzePlotlineRefs({
+    plotlines,
+    npcs,
+    factions,
+    characters,
+    beats,
+  });
 
   if (warnings.length === 0) {
     console.log('All plotline back-references are in sync.\n');
