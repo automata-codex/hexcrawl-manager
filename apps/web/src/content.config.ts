@@ -219,11 +219,13 @@ const players = defineCollection({
 });
 
 // Conditional collection: empty loader if directory doesn't have content.
-// Pattern intentionally non-recursive: per-plotline `beats/` subdirectories
-// are loaded by the `beats` collection below.
+// Plotlines live at `<plotline-slug>/<file>.{md,mdx}` (one level deep).
+// The pattern intentionally stops at one level so per-plotline `beats/`
+// subdirectories (two levels deep) are picked up only by the `beats`
+// collection below.
 const plotlines = defineCollection({
   loader: collectionHasContent(DIRS.PLOTLINES)
-    ? glob({ pattern: '*.{md,mdx}', base: DIRS.PLOTLINES })
+    ? glob({ pattern: '*/*.{md,mdx}', base: DIRS.PLOTLINES })
     : () => [],
   schema: PlotlineSchema,
 });

@@ -66,18 +66,22 @@ function loadEntityCollection<T>(dir: string, extensions: readonly string[]): T[
 function loadPlotlineFiles(dir: string): PlotlineFile[] {
   if (!existsSync(dir)) return [];
   const out: PlotlineFile[] = [];
-  for (const file of readdirSync(dir)) {
-    if (!file.endsWith('.md') && !file.endsWith('.mdx')) continue;
-    const raw = readFileSync(join(dir, file), 'utf-8');
-    const parsed = parseFrontmatter<{
-      slug?: string;
-      title?: string;
-      beats?: string[];
-    }>(raw);
-    if (!parsed) continue;
-    const { slug, title, beats } = parsed.frontmatter;
-    if (!slug || !title) continue;
-    out.push({ slug, title, body: parsed.body, beats });
+  for (const entry of readdirSync(dir)) {
+    const plotlineDir = join(dir, entry);
+    if (!statSync(plotlineDir).isDirectory()) continue;
+    for (const file of readdirSync(plotlineDir)) {
+      if (!file.endsWith('.md') && !file.endsWith('.mdx')) continue;
+      const raw = readFileSync(join(plotlineDir, file), 'utf-8');
+      const parsed = parseFrontmatter<{
+        slug?: string;
+        title?: string;
+        beats?: string[];
+      }>(raw);
+      if (!parsed) continue;
+      const { slug, title, beats } = parsed.frontmatter;
+      if (!slug || !title) continue;
+      out.push({ slug, title, body: parsed.body, beats });
+    }
   }
   return out;
 }
