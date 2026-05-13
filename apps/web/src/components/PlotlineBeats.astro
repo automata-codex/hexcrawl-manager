@@ -1,0 +1,172 @@
+---
+import type { ResolvedBeat } from '@achm/core';
+
+import Badge from './Badge.astro';
+import { getCluePath, getFactionPath, getNpcPath } from '../config/routes';
+import { renderMarkdown } from '../utils/markdown';
+
+interface Props {
+  beats: ResolvedBeat[];
+}
+
+const { beats } = Astro.props;
+
+type BeatStatus = ResolvedBeat['status'];
+const statusBadgeColor: Record<BeatStatus, 'gray' | 'green'> = {
+  pending: 'gray',
+  active: 'green',
+  resolved: 'gray',
+  skipped: 'gray',
+};
+
+// renderMarkdown is async; pre-render each beat's notes so the template
+// can interpolate the resulting HTML directly.
+const beatNotesHtml = await Promise.all(
+  beats.map((b) => (b.notes ? renderMarkdown(b.notes) : Promise.resolve(''))),
+);
+---
+
+{beats.length > 0 && (
+  <section class="beats">
+    <h2 class="title is-3">Beats</h2>
+    {beats.map((beat, i) => (
+      <article class={`beat beat-${beat.status}`}>
+        <div class="beat-title-container">
+          <h3 class="beat-title title is-4">{beat.title}</h3>
+          <Badge color={statusBadgeColor[beat.status]}>
+            {beat.status}
+            {beat.status === 'resolved' && <span class="checkmark">✓</span>}
+          </Badge>
+        </div>
+        {beat.trigger && (
+          <p><strong>Trigger:</strong>{' '}{beat.trigger}</p>
+        )}
+        {beat.factions.length > 0 && (
+          <p>
+            <strong>Factions:</strong>{' '}
+            {beat.factions.map((f, idx) => (
+              <>
+                {f.found ? (
+                  <a href={getFactionPath(f.id)}>{f.name}</a>
+                ) : (
+                  <>
+                    <span>{f.id}</span>
+                    <span class="not-found">(not found)</span>
+                  </>
+                )}
+                {idx < beat.factions.length - 1 && ', '}
+              </>
+            ))}
+          </p>
+        )}
+        {beat.npcs.length > 0 && (
+          <p>
+            <strong>NPCs:</strong>{' '}
+            {beat.npcs.map((n, idx) => (
+              <>
+                {n.found ? (
+                  <a href={getNpcPath(n.id)}>{n.name}</a>
+                ) : (
+                  <>
+                    <span>{n.id}</span>
+                    <span class="not-found">(not found)</span>
+                  </>
+                )}
+                {idx < beat.npcs.length - 1 && ', '}
+              </>
+            ))}
+          </p>
+        )}
+        {beat.clues.length > 0 && (
+          <>
+            <p><strong>Clues:</strong></p>
+            <ul class="linked-clues">
+              {beat.clues.map((clue) => (
+                <li>
+                  {clue.found ? (
+                    <>
+                      <a href={getCluePath(clue.id)}>{clue.name}</a>
+                      {clue.clueStatus === 'known' && <span class="checkmark">✓</span>}
+                    </>
+                  ) : (
+                    <>
+                      <span>{clue.id}</span>
+                      <span class="not-found">(not found)</span>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        {beat.notes && (
+          <div class="beat-notes" set:html={beatNotesHtml[i]}></div>
+        )}
+      </article>
+    ))}
+  </section>
+)}
+
+<style>
+  .beats {
+    margin: 1.5rem 0;
+  }
+
+  .beat {
+    margin-bottom: 1.5rem;
+    /*
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--bulma-border-weak, var(--bulma-border));
+    */
+
+    p {
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+  }
+
+  .beat:last-child {
+    border-bottom: none;
+  }
+
+  .beat-title {
+    margin: 0;
+  }
+
+  .beat-title-container {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .beat-skipped {
+    opacity: 0.6;
+  }
+
+  .beat-skipped .beat-title {
+    text-decoration: line-through;
+  }
+
+  .linked-clues {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .checkmark {
+    color: var(--bulma-success);
+    margin-left: 0.25rem;
+    font-weight: bold;
+  }
+
+  .beat-notes {
+    margin-top: 0.5rem;
+  }
+
+  .not-found {
+    color: var(--bulma-danger);
+    margin-left: 0.25rem;
+    font-size: 0.875rem;
+    font-style: italic;
+  }
+</style>

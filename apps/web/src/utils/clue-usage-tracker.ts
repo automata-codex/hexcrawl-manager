@@ -134,8 +134,10 @@ function extractClueIdsFromNotes(
 /**
  * Builds a map of clue IDs to their usage locations by scanning
  * encounters, hexes (landmarks, hidden sites, notes, keyed encounters),
- * dungeons, pointcrawl nodes, characters, NPCs, plotlines, roleplay books,
- * and linked clues.
+ * dungeons, pointcrawl nodes, characters, NPCs, roleplay books, and
+ * linked clues. The `plotlines` parameter is accepted for call-site
+ * compatibility but no longer scanned — plotline ↔ clue links are
+ * authoritative on the clue side (`clue.plotlines`).
  */
 export function buildClueUsageMap(
   encounters: Array<{ id: string; data: EncounterData }>,
@@ -278,18 +280,10 @@ export function buildClueUsageMap(
     }
   }
 
-  // Scan plotlines
-  for (const plotline of plotlines) {
-    if (plotline.data.clues) {
-      for (const clueId of extractClueIds(plotline.data.clues)) {
-        addUsage(clueId, {
-          type: 'plotline',
-          id: plotline.data.slug,
-          name: `${plotline.data.title} (Plotline)`,
-        });
-      }
-    }
-  }
+  // Plotlines: the inverse relationship is authoritative on the clue side
+  // (`clue.plotlines`), so no scan is needed here. The `plotlines` parameter
+  // is retained for call-site compatibility.
+  void plotlines;
 
   // Scan roleplay books for intelligence report clue links
   for (const book of roleplayBooks) {

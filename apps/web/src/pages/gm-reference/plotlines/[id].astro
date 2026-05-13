@@ -1,9 +1,10 @@
 ---
-import { sortIgnoringArticles } from '@achm/core';
+import { resolveBeats, sortIgnoringArticles } from '@achm/core';
 import { isActive } from '@achm/schemas';
 import { getCollection, render } from 'astro:content';
 
 import Badge from '../../../components/Badge.astro';
+import PlotlineBeats from '../../../components/PlotlineBeats.astro';
 import { getCluePath } from '../../../config/routes';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 
@@ -28,16 +29,46 @@ if (plotline === undefined) {
   });
 }
 
-// Get clues linked to this plotline
+// Get clues linked to this plotline (back-reference list)
 const allClues = await getCollection('clues');
 const linkedClues = allClues
   .filter((c) => c.data.plotlines?.includes(plotline.data.slug))
   .map((c) => ({ id: c.id, name: c.data.name, status: c.data.status }))
   .sort((a, b) => sortIgnoringArticles(a.name, b.name));
 
+// Build lookup maps for resolving beat references. The resolver is pure and
+// lives in @achm/core; PlotlineBeats handles rendering.
+const cluesById = new Map(
+  allClues.map((c) => [c.id, { name: c.data.name, status: c.data.status }]),
+);
+const npcsCollection = await getCollection('npcs');
+const npcsById = new Map(
+  npcsCollection.map((n) => [n.id, { displayName: n.data.displayName }]),
+);
+const factionsCollection = await getCollection('factions');
+const factionsById = new Map(
+  factionsCollection.map((f) => [f.id, { name: f.data.name }]),
+);
+const resolvedBeats = resolveBeats(plotline.data.beats, {
+  npcsById,
+  factionsById,
+  cluesById,
+});
+
 const { Content } = await render(plotline);
 const title = plotline.data.title;
 ---
+<style is:global>
+  h3 > a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  h3 > a:hover {
+    text-decoration: underline;
+  }
+
+</style>
 
 <SecretLayout title={title}>
   {!isActive(plotline.data) && (
@@ -46,8 +77,8 @@ const title = plotline.data.title;
     </p>
   )}
   <div class="clue-header">
-    <p><strong>Status:</strong> {plotline.data.status}</p>
-    {plotline.data.summary && <p class="hanging-indent"><strong>Summary:</strong> {plotline.data.summary}</p>}
+    <p><strong>Status:</strong>{' '}{plotline.data.status}</p>
+    {plotline.data.summary && <p class="hanging-indent"><strong>Summary:</strong>{' '}{plotline.data.summary}</p>}
     {linkedClues.length > 0 && (
       <>
         <p><strong>Clues:</strong></p>
@@ -62,6 +93,7 @@ const title = plotline.data.title;
       </>
     )}
   </div>
+  <PlotlineBeats beats={resolvedBeats} />
   <Content />
 </SecretLayout>
 

@@ -2,14 +2,15 @@
 /**
  * Validate Content Status Cross-References
  *
- * Warns when an *active* parent references an *inactive* (or GM-only) child.
- * These mismatches are usually unintentional but legitimate cases exist
+ * Warns when an *active* parent references an *inactive* child. These
+ * mismatches are usually unintentional but legitimate cases exist
  * (e.g., a plotline that references shelved content as historical context),
  * so this script emits warnings only — it never fails the build.
  *
  * Checks (structured references only):
- *   - faction.activeAgents[].npcId → NPC must be active and player-visible
- *   - plotline.clues[]            → clue must be active
+ *   - faction.activeAgents[].npcId → NPC must be active
+ *     (no visibility check — faction pages are GM-only, so referencing a
+ *     GM-only NPC is fine)
  *
  * TODO(content-status): the spec also mentions "GM-only NPC referenced by a
  * player-visible NPC's connection notes." NPCs have no structured
@@ -32,26 +33,11 @@ interface NpcFrontmatter {
   campaignStatus?: 'active' | 'inactive';
 }
 
-interface ClueFrontmatter {
-  id: string;
-  name: string;
-  campaignStatus?: 'active' | 'inactive';
-}
-
 interface FactionFrontmatter {
   id: string;
   name: string;
   campaignStatus?: 'active' | 'inactive';
   activeAgents?: Array<{ name?: string; role?: string; npcId?: string }>;
-}
-
-type ClueReference = string | { id: string; context?: string };
-
-interface PlotlineFrontmatter {
-  slug: string;
-  title: string;
-  campaignStatus?: 'active' | 'inactive';
-  clues?: ClueReference[];
 }
 
 function parseFrontmatter<T>(content: string): T | null {
@@ -91,14 +77,6 @@ function isActive(item: { campaignStatus?: 'active' | 'inactive' }): boolean {
   return (item.campaignStatus ?? 'active') === 'active';
 }
 
-function isPlayerVisible(npc: { visibility?: 'player' | 'gm' }): boolean {
-  return (npc.visibility ?? 'player') === 'player';
-}
-
-function normalizeClueRef(ref: ClueReference): string {
-  return typeof ref === 'string' ? ref : ref.id;
-}
-
 interface Warning {
   parent: string;
   reason: string;
@@ -115,17 +93,8 @@ function main(): void {
     resolveDataPath('factions'),
     ['.yaml', '.yml'],
   );
-  const plotlines = loadCollection<PlotlineFrontmatter>(
-    resolveDataPath('plotlines'),
-    ['.md', '.mdx'],
-  );
-  const clues = loadCollection<ClueFrontmatter>(
-    resolveDataPath('clues'),
-    ['.yaml', '.yml'],
-  );
 
   const npcById = new Map(npcs.filter((n) => n.id).map((n) => [n.id, n]));
-  const clueById = new Map(clues.filter((c) => c.id).map((c) => [c.id, c]));
 
   const warnings: Warning[] = [];
 
@@ -148,34 +117,8 @@ function main(): void {
           reason: `activeAgents[].npcId="${agent.npcId}" → NPC "${npc.displayName}" is inactive`,
         });
       }
-      if (!isPlayerVisible(npc)) {
-        warnings.push({
-          parent: `faction "${faction.name}" (${faction.id})`,
-          reason: `activeAgents[].npcId="${agent.npcId}" → NPC "${npc.displayName}" is GM-only (visibility mismatch)`,
-        });
-      }
-    }
-  }
-
-  // Plotline clues → clue checks
-  for (const plotline of plotlines) {
-    if (!isActive(plotline)) continue;
-    for (const ref of plotline.clues ?? []) {
-      const clueId = normalizeClueRef(ref);
-      const clue = clueById.get(clueId);
-      if (!clue) {
-        warnings.push({
-          parent: `plotline "${plotline.title}" (${plotline.slug})`,
-          reason: `clues[]="${clueId}" — clue not found`,
-        });
-        continue;
-      }
-      if (!isActive(clue)) {
-        warnings.push({
-          parent: `plotline "${plotline.title}" (${plotline.slug})`,
-          reason: `clues[]="${clueId}" → clue "${clue.name}" is inactive`,
-        });
-      }
+      // No visibility check: faction pages are GM-only, so an activeAgents
+      // entry pointing at a GM-only NPC is fine.
     }
   }
 

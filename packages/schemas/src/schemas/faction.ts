@@ -44,6 +44,9 @@ export const FactionSchema = z.object({
   ifIgnored: z.string().optional(), // What happens if the PCs don't engage with this faction
   pcIntersections: z.string().optional(), // How faction goals intersect with PC goals (markdown)
   activeAgents: z.array(FactionAgentSchema).optional(), // Named NPCs who embody the faction at the table
+  plotlines: z.array(z.string()).optional().describe(
+    'Plotline slugs this faction appears in (reverse direction of plotline body references)',
+  ),
   campaignStatus: CampaignStatusEnum.default('active'),
 });
 
