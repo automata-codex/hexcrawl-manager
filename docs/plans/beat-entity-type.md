@@ -89,10 +89,9 @@ This phase introduces UI without changing the plotline page yet — beats become
 ### Work
 
 - **New route** `apps/web/src/pages/gm-reference/plotlines/[plotline]/beats/[beat].astro`:
-  - `getStaticPaths()` enumerates all beat entries: returns `{ params: { plotline: beat.data.plotline, beat: beat.data.slug } }` for each.
-  - Page body queries the beat by `(plotline, beat)` pair (filename id is `<plotline>/beats/<beat>`), 404 if missing.
+  - App is `output: 'server'` (SSR), so no `getStaticPaths()`. Use the same pattern as the existing plotline `[id].astro`: read `Astro.params`, query `getCollection('beats')`, match by `(plotline, beat)` against `data.plotline` and `data.slug`, 404 if missing.
   - Build lookup maps over `clues`, `npcs`, `factions` collections (reuse the pattern from `[id].astro`).
-  - Reuse `resolveBeats()` from `@achm/core` if it fits — but since the function is designed for an array, easiest is to call it on `[beatData]` and unwrap. If awkward, factor a `resolveBeat(beatData, maps)` companion in `@achm/core` and reuse it from `resolveBeats` internally. **Decision deferred to implementation** — pick whichever path is shorter when the code is in front of you.
+  - **Resolver:** add a sibling `resolveBeat(beatData, lookups)` next to the existing `resolveBeats()` in `packages/core/src/plotlines/resolve-beats.ts`. The field names differ (new beats have `drivers`; inline beats had `factions`) so a separate function is cleaner than overloading. The two share `ResolvedRef`, `ResolvedClueRef`, and `BeatLookups` types. Phase 5 deletes the inline resolver and leaves the entity resolver standing.
   - Render: title, parent plotline link (back to `/gm-reference/plotlines/<plotline-slug>`), status badge (reuse `<Badge>`), trigger (muted), drivers/npcs/clues lists (linked, with `(not found)` markers for unresolved refs — same pattern as `PlotlineBeats.astro`), then `<Content />` from `render(beat)` for the markdown body.
   - Use `SecretLayout` (consistent with plotline detail pages).
 - **Cross-link from plotline page:** *not yet* — that's Phase 4. The plotline page still renders `<PlotlineBeats>` with inline data.
