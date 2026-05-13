@@ -35,7 +35,6 @@ export const PlotlineSchema = z.object({
   status: PlotlineStatusEnum.default('active'),
   summary: z.string().optional(),
   title: z.string(),
-  clues: ClueReferencesSchema.describe('IDs of clues placed in this plotline'),
   beats: z.array(PlotlineBeatSchema).optional(),
   campaignStatus: CampaignStatusEnum.default('active'),
 });
