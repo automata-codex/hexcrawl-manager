@@ -77,10 +77,10 @@ const statusBadgeColor: Record<typeof resolved.status, 'gray' | 'green'> = {
     {resolved.trigger && (
       <p><strong>Trigger:</strong>{' '}{resolved.trigger}</p>
     )}
-    {resolved.drivers.length > 0 && (
+    {resolved.factions.length > 0 && (
       <p>
-        <strong>Drivers:</strong>{' '}
-        {resolved.drivers.map((f, idx) => (
+        <strong>Factions:</strong>{' '}
+        {resolved.factions.map((f, idx) => (
           <>
             {f.found ? (
               <a href={getFactionPath(f.id)}>{f.name}</a>
@@ -90,7 +90,7 @@ const statusBadgeColor: Record<typeof resolved.status, 'gray' | 'green'> = {
                 <span class="not-found">(not found)</span>
               </>
             )}
-            {idx < resolved.drivers.length - 1 && ', '}
+            {idx < resolved.factions.length - 1 && ', '}
           </>
         ))}
       </p>

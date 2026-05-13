@@ -27,10 +27,8 @@ export interface ResolvedBeat {
 
 /**
  * Resolved shape for a standalone beat entity (the new `beats` content
- * collection). Distinct from `ResolvedBeat` because the schema field
- * names differ: standalone beats expose `drivers` (faction slugs)
- * rather than the inline `factions` field. The inline `ResolvedBeat`
- * and its `resolveBeats` are removed in Phase 5 once migration is done.
+ * collection). Sibling of the inline `ResolvedBeat`, which is removed
+ * in Phase 5 once migration is done.
  */
 export interface ResolvedBeatEntity {
   slug: string;
@@ -38,7 +36,7 @@ export interface ResolvedBeatEntity {
   plotline: string;
   status: PlotlineBeatStatus;
   trigger?: string;
-  drivers: ResolvedRef[];
+  factions: ResolvedRef[];
   npcs: ResolvedRef[];
   clues: ResolvedClueRef[];
 }
@@ -90,7 +88,7 @@ export function resolveBeat(
     plotline: beat.plotline,
     status: beat.status,
     trigger: beat.trigger,
-    drivers: (beat.drivers ?? []).map((id) => {
+    factions: (beat.factions ?? []).map((id) => {
       const data = lookups.factionsById.get(id);
       return { id, name: data?.name ?? id, found: data !== undefined };
     }),

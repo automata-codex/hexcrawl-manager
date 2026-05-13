@@ -18,7 +18,7 @@ export const BeatSchema = z
       .string()
       .optional()
       .describe('Free-text condition for when this beat activates'),
-    drivers: z
+    factions: z
       .array(z.string())
       .optional()
       .describe('Faction slugs driving this beat'),

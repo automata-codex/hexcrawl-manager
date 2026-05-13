@@ -40,7 +40,7 @@ This phase is committable in a "schema + loader scaffold" state: build passes, n
 
 - **New schema** `packages/schemas/src/schemas/beat.ts`:
   - Import `PlotlineBeatStatusEnum` and `ClueReferencesSchema` from existing modules; do not redefine them.
-  - Define `BeatSchema` with fields: `title` (required), `slug` (required), `plotline` (required string), `trigger` (optional), `status` (defaults `'pending'`, uses `PlotlineBeatStatusEnum`), `drivers` (optional `z.array(z.string())` — faction slugs), `npcs` (optional `z.array(z.string())`), `clues` (`ClueReferencesSchema`), `campaignStatus` (defaults `'active'`).
+  - Define `BeatSchema` with fields: `title` (required), `slug` (required), `plotline` (required string), `trigger` (optional), `status` (defaults `'pending'`, uses `PlotlineBeatStatusEnum`), `factions` (optional `z.array(z.string())` — faction slugs), `npcs` (optional `z.array(z.string())`), `clues` (`ClueReferencesSchema`), `campaignStatus` (defaults `'active'`).
   - Export `BeatData` type.
 - **Barrel export** `packages/schemas/src/schemas/index.ts`: re-export `./beat.js` (verify `export *` style is what the file uses — match it).
 - **JSON schemas:** run `npm run build:json-schemas` to confirm the build script picks up `BeatSchema` automatically and emits `packages/schemas/dist/beat.schema.json`. The `dist/` directory is gitignored, so nothing to commit here — this step is a sanity check, not a deliverable.
@@ -82,7 +82,7 @@ Small, mechanical phase. Worth keeping separate from Phase 1 because it touches 
 
 ## Phase 3 — Beat detail page
 
-**Goal:** Standalone page surfacing a beat's full content: title, status badge, trigger, drivers, npcs, clues, parent plotline link, markdown body.
+**Goal:** Standalone page surfacing a beat's full content: title, status badge, trigger, factions, npcs, clues, parent plotline link, markdown body.
 
 This phase introduces UI without changing the plotline page yet — beats become reachable by direct URL but the plotline page still uses inline data.
 
@@ -91,8 +91,8 @@ This phase introduces UI without changing the plotline page yet — beats become
 - **New route** `apps/web/src/pages/gm-reference/plotlines/[plotline]/beats/[beat].astro`:
   - App is `output: 'server'` (SSR), so no `getStaticPaths()`. Use the same pattern as the existing plotline `[id].astro`: read `Astro.params`, query `getCollection('beats')`, match by `(plotline, beat)` against `data.plotline` and `data.slug`, 404 if missing.
   - Build lookup maps over `clues`, `npcs`, `factions` collections (reuse the pattern from `[id].astro`).
-  - **Resolver:** add a sibling `resolveBeat(beatData, lookups)` next to the existing `resolveBeats()` in `packages/core/src/plotlines/resolve-beats.ts`. The field names differ (new beats have `drivers`; inline beats had `factions`) so a separate function is cleaner than overloading. The two share `ResolvedRef`, `ResolvedClueRef`, and `BeatLookups` types. Phase 5 deletes the inline resolver and leaves the entity resolver standing.
-  - Render: title, parent plotline link (back to `/gm-reference/plotlines/<plotline-slug>`), status badge (reuse `<Badge>`), trigger (muted), drivers/npcs/clues lists (linked, with `(not found)` markers for unresolved refs — same pattern as `PlotlineBeats.astro`), then `<Content />` from `render(beat)` for the markdown body.
+  - **Resolver:** add a sibling `resolveBeat(beatData, lookups)` next to the existing `resolveBeats()` in `packages/core/src/plotlines/resolve-beats.ts`. Both share `ResolvedRef`, `ResolvedClueRef`, and `BeatLookups` types. Phase 5 deletes the inline resolver and leaves the entity resolver standing.
+  - Render: title, parent plotline link (back to `/gm-reference/plotlines/<plotline-slug>`), status badge (reuse `<Badge>`), trigger (muted), factions/npcs/clues lists (linked, with `(not found)` markers for unresolved refs — same pattern as `PlotlineBeats.astro`), then `<Content />` from `render(beat)` for the markdown body.
   - Use `SecretLayout` (consistent with plotline detail pages).
 - **Cross-link from plotline page:** *not yet* — that's Phase 4. The plotline page still renders `<PlotlineBeats>` with inline data.
 
