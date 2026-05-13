@@ -34,20 +34,22 @@ const beatHref = (slug: string): string =>
         ]}>
           {item.found ? (
             <>
-              <a class="beat-title" href={beatHref(item.slug)}>{item.title}</a>
+              <div class="beat-row-header">
+                <a class="beat-title" href={beatHref(item.slug)}>{item.title}</a>
+                <Badge color={statusBadgeColor[item.status]}>
+                  {item.status}
+                  {item.status === 'resolved' && <span class="checkmark">✓</span>}
+                </Badge>
+              </div>
               {item.trigger && (
-                <span class="beat-trigger">{item.trigger}</span>
+                <p class="beat-trigger">{item.trigger}</p>
               )}
-              <Badge color={statusBadgeColor[item.status]}>
-                {item.status}
-                {item.status === 'resolved' && <span class="checkmark">✓</span>}
-              </Badge>
             </>
           ) : (
-            <>
+            <div class="beat-row-header">
               <span class="beat-title beat-missing">{item.slug}</span>
               <span class="not-found">(missing)</span>
-            </>
+            </div>
           )}
         </li>
       ))}
@@ -67,10 +69,14 @@ const beatHref = (slug: string): string =>
   }
 
   .beat-row {
+    padding: 0.25rem 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .beat-row-header {
     display: flex;
     align-items: baseline;
-    gap: 0.75rem;
-    padding: 0.25rem 0;
+    gap: 0.5rem;
   }
 
   .beat-row.is-resolved,
@@ -91,6 +97,7 @@ const beatHref = (slug: string): string =>
     color: var(--bulma-text-weak, var(--bulma-text));
     font-size: 0.9rem;
     font-style: italic;
+    margin: 0.1rem 0 0 0;
   }
 
   .beat-missing {
