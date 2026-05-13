@@ -52,6 +52,10 @@ echo "=== Prebuild: Validating content-status cross-references ==="
 tsx scripts/validate-content-status.ts
 
 echo ""
+echo "=== Prebuild: Validating plotline back-references ==="
+tsx scripts/validate-plotline-refs.ts
+
+echo ""
 echo "=== Prebuild: Caching AP totals ==="
 tsx scripts/cache-ap-totals.ts
 
