@@ -58,6 +58,17 @@ const resolvedBeats = resolveBeats(plotline.data.beats, {
 const { Content } = await render(plotline);
 const title = plotline.data.title;
 ---
+<style is:global>
+  h3 > a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  h3 > a:hover {
+    text-decoration: underline;
+  }
+
+</style>
 
 <SecretLayout title={title}>
   {!isActive(plotline.data) && (

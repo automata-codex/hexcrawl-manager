@@ -2,13 +2,15 @@
 /**
  * Validate Content Status Cross-References
  *
- * Warns when an *active* parent references an *inactive* (or GM-only) child.
- * These mismatches are usually unintentional but legitimate cases exist
+ * Warns when an *active* parent references an *inactive* child. These
+ * mismatches are usually unintentional but legitimate cases exist
  * (e.g., a plotline that references shelved content as historical context),
  * so this script emits warnings only — it never fails the build.
  *
  * Checks (structured references only):
- *   - faction.activeAgents[].npcId → NPC must be active and player-visible
+ *   - faction.activeAgents[].npcId → NPC must be active
+ *     (no visibility check — faction pages are GM-only, so referencing a
+ *     GM-only NPC is fine)
  *
  * TODO(content-status): the spec also mentions "GM-only NPC referenced by a
  * player-visible NPC's connection notes." NPCs have no structured
@@ -75,10 +77,6 @@ function isActive(item: { campaignStatus?: 'active' | 'inactive' }): boolean {
   return (item.campaignStatus ?? 'active') === 'active';
 }
 
-function isPlayerVisible(npc: { visibility?: 'player' | 'gm' }): boolean {
-  return (npc.visibility ?? 'player') === 'player';
-}
-
 interface Warning {
   parent: string;
   reason: string;
@@ -119,12 +117,8 @@ function main(): void {
           reason: `activeAgents[].npcId="${agent.npcId}" → NPC "${npc.displayName}" is inactive`,
         });
       }
-      if (!isPlayerVisible(npc)) {
-        warnings.push({
-          parent: `faction "${faction.name}" (${faction.id})`,
-          reason: `activeAgents[].npcId="${agent.npcId}" → NPC "${npc.displayName}" is GM-only (visibility mismatch)`,
-        });
-      }
+      // No visibility check: faction pages are GM-only, so an activeAgents
+      // entry pointing at a GM-only NPC is fine.
     }
   }
 
