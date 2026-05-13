@@ -1,10 +1,11 @@
 ---
-import { resolveBeats, sortIgnoringArticles } from '@achm/core';
+import { sortIgnoringArticles } from '@achm/core';
 import { isActive } from '@achm/schemas';
 import { getCollection, render } from 'astro:content';
 
 import Badge from '../../../components/Badge.astro';
-import PlotlineBeats from '../../../components/PlotlineBeats.astro';
+import PlotlineBeatList from '../../../components/PlotlineBeatList.astro';
+import type { BeatListItem } from '../../../components/PlotlineBeatList.types';
 import { getCluePath } from '../../../config/routes';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 
@@ -36,23 +37,25 @@ const linkedClues = allClues
   .map((c) => ({ id: c.id, name: c.data.name, status: c.data.status }))
   .sort((a, b) => sortIgnoringArticles(a.name, b.name));
 
-// Build lookup maps for resolving beat references. The resolver is pure and
-// lives in @achm/core; PlotlineBeats handles rendering.
-const cluesById = new Map(
-  allClues.map((c) => [c.id, { name: c.data.name, status: c.data.status }]),
+// Resolve beat references in declared order. The ordered `beatRefs` array
+// on the plotline is the canonical sequence; the beats collection carries
+// the per-beat content.
+const allBeats = await getCollection('beats');
+const beatsBySlug = new Map(
+  allBeats
+    .filter((b) => b.data.plotline === plotline.data.slug)
+    .map((b) => [b.data.slug, b.data]),
 );
-const npcsCollection = await getCollection('npcs');
-const npcsById = new Map(
-  npcsCollection.map((n) => [n.id, { displayName: n.data.displayName }]),
-);
-const factionsCollection = await getCollection('factions');
-const factionsById = new Map(
-  factionsCollection.map((f) => [f.id, { name: f.data.name }]),
-);
-const resolvedBeats = resolveBeats(plotline.data.beats, {
-  npcsById,
-  factionsById,
-  cluesById,
+const beatItems: BeatListItem[] = (plotline.data.beatRefs ?? []).map((slug) => {
+  const beat = beatsBySlug.get(slug);
+  if (!beat) return { found: false, slug };
+  return {
+    found: true,
+    slug,
+    title: beat.title,
+    status: beat.status,
+    trigger: beat.trigger,
+  };
 });
 
 const { Content } = await render(plotline);
@@ -93,7 +96,7 @@ const title = plotline.data.title;
       </>
     )}
   </div>
-  <PlotlineBeats beats={resolvedBeats} />
+  <PlotlineBeatList plotlineSlug={plotline.data.slug} items={beatItems} />
   <Content />
 </SecretLayout>
 
