@@ -1,11 +1,16 @@
 ---
-import { sortIgnoringArticles } from '@achm/core';
+import { resolveBeats, sortIgnoringArticles } from '@achm/core';
 import { isActive } from '@achm/schemas';
 import { getCollection, render } from 'astro:content';
 
 import Badge from '../../../components/Badge.astro';
-import { getCluePath } from '../../../config/routes';
+import {
+  getCluePath,
+  getFactionPath,
+  getNpcPath,
+} from '../../../config/routes';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { renderMarkdown } from '../../../utils/markdown';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -28,12 +33,46 @@ if (plotline === undefined) {
   });
 }
 
-// Get clues linked to this plotline
+// Get clues linked to this plotline (back-reference list)
 const allClues = await getCollection('clues');
 const linkedClues = allClues
   .filter((c) => c.data.plotlines?.includes(plotline.data.slug))
   .map((c) => ({ id: c.id, name: c.data.name, status: c.data.status }))
   .sort((a, b) => sortIgnoringArticles(a.name, b.name));
+
+// Build lookup maps for resolving beat references. The resolver itself is
+// pure and lives in @achm/core; the page is responsible for shaping the
+// collections into the lookup shape it expects.
+const cluesById = new Map(
+  allClues.map((c) => [c.id, { name: c.data.name, status: c.data.status }]),
+);
+const npcsCollection = await getCollection('npcs');
+const npcsById = new Map(
+  npcsCollection.map((n) => [n.id, { displayName: n.data.displayName }]),
+);
+const factionsCollection = await getCollection('factions');
+const factionsById = new Map(
+  factionsCollection.map((f) => [f.id, { name: f.data.name }]),
+);
+
+const resolvedBeats = resolveBeats(plotline.data.beats, {
+  npcsById,
+  factionsById,
+  cluesById,
+});
+
+// Pre-render notes markdown for each beat (renderMarkdown is async).
+const beatNotesHtml = await Promise.all(
+  resolvedBeats.map((b) => (b.notes ? renderMarkdown(b.notes) : Promise.resolve(''))),
+);
+
+type BeatStatus = (typeof resolvedBeats)[number]['status'];
+const statusBadgeColor: Record<BeatStatus, 'gray' | 'green'> = {
+  pending: 'gray',
+  active: 'green',
+  resolved: 'gray',
+  skipped: 'gray',
+};
 
 const { Content } = await render(plotline);
 const title = plotline.data.title;
@@ -62,6 +101,86 @@ const title = plotline.data.title;
       </>
     )}
   </div>
+  {resolvedBeats.length > 0 && (
+    <section class="beats">
+      <h2 class="title is-4">Beats</h2>
+      {resolvedBeats.map((beat, i) => (
+        <article class={`beat beat-${beat.status}`}>
+          <h3 class="beat-title">
+            {beat.title}
+            <Badge color={statusBadgeColor[beat.status]}>
+              {beat.status}
+              {beat.status === 'resolved' && <span class="checkmark">✓</span>}
+            </Badge>
+          </h3>
+          {beat.trigger && (
+            <p><strong>Trigger:</strong> {beat.trigger}</p>
+          )}
+          {beat.factions.length > 0 && (
+            <p>
+              <strong>Factions:</strong>{' '}
+              {beat.factions.map((f, idx) => (
+                <>
+                  {f.found ? (
+                    <a href={getFactionPath(f.id)}>{f.name}</a>
+                  ) : (
+                    <>
+                      <span>{f.id}</span>
+                      <span class="not-found">(not found)</span>
+                    </>
+                  )}
+                  {idx < beat.factions.length - 1 && ', '}
+                </>
+              ))}
+            </p>
+          )}
+          {beat.npcs.length > 0 && (
+            <p>
+              <strong>NPCs:</strong>{' '}
+              {beat.npcs.map((n, idx) => (
+                <>
+                  {n.found ? (
+                    <a href={getNpcPath(n.id)}>{n.name}</a>
+                  ) : (
+                    <>
+                      <span>{n.id}</span>
+                      <span class="not-found">(not found)</span>
+                    </>
+                  )}
+                  {idx < beat.npcs.length - 1 && ', '}
+                </>
+              ))}
+            </p>
+          )}
+          {beat.clues.length > 0 && (
+            <>
+              <p><strong>Clues:</strong></p>
+              <ul class="linked-clues">
+                {beat.clues.map((clue) => (
+                  <li>
+                    {clue.found ? (
+                      <>
+                        <a href={getCluePath(clue.id)}>{clue.name}</a>
+                        {clue.clueStatus === 'known' && <span class="checkmark">✓</span>}
+                      </>
+                    ) : (
+                      <>
+                        <span>{clue.id}</span>
+                        <span class="not-found">(not found)</span>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          {beat.notes && (
+            <div class="beat-notes" set:html={beatNotesHtml[i]}></div>
+          )}
+        </article>
+      ))}
+    </section>
+  )}
   <Content />
 </SecretLayout>
 
@@ -92,5 +211,52 @@ const title = plotline.data.title;
     color: var(--bulma-success);
     margin-left: 0.25rem;
     font-weight: bold;
+  }
+
+  .beats {
+    margin: 1.5rem 0;
+  }
+
+  .beat {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--bulma-border-weak, var(--bulma-border));
+
+    p {
+      margin-bottom: 0.25rem;
+      margin-top: 0.25rem;
+    }
+  }
+
+  .beat:last-child {
+    border-bottom: none;
+  }
+
+  .beat-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .beat-skipped {
+    opacity: 0.6;
+  }
+
+  .beat-skipped .beat-title {
+    text-decoration: line-through;
+  }
+
+  .beat-notes {
+    margin-top: 0.5rem;
+  }
+
+  .not-found {
+    color: var(--bulma-danger);
+    margin-left: 0.25rem;
+    font-size: 0.875rem;
+    font-style: italic;
   }
 </style>
