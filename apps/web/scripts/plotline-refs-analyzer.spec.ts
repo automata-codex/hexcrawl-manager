@@ -362,10 +362,10 @@ describe('formatReport', () => {
 describe('analyzePlotlineRefs — beat ↔ plotline sync', () => {
   const plotline = (
     slug: string,
-    beatRefs: string[] | undefined,
-  ): PlotlineFile => ({ slug, title: slug, body: '', beatRefs });
+    beats: string[] | undefined,
+  ): PlotlineFile => ({ slug, title: slug, body: '', beats });
 
-  it('emits no warnings when beatRefs and beat files are in sync', () => {
+  it('emits no warnings when plotline.beats and beat files are in sync', () => {
     const warnings = analyzePlotlineRefs(
       baseInput(
         [plotline('p1', ['a', 'b'])],
@@ -375,7 +375,7 @@ describe('analyzePlotlineRefs — beat ↔ plotline sync', () => {
     expect(warnings).toEqual([]);
   });
 
-  it('flags missing-beat-file when beatRefs references a slug with no matching beat file', () => {
+  it('flags missing-beat-file when plotline.beats references a slug with no matching beat file', () => {
     const warnings = analyzePlotlineRefs(
       baseInput([plotline('p1', ['a', 'ghost'])], [beat('p1', 'a')]),
     );
@@ -388,7 +388,7 @@ describe('analyzePlotlineRefs — beat ↔ plotline sync', () => {
     });
   });
 
-  it('flags orphan-beat when a beat file is not listed in its plotline\'s beatRefs', () => {
+  it('flags orphan-beat when a beat file is not listed in its plotline\'s `beats` array', () => {
     const warnings = analyzePlotlineRefs(
       baseInput(
         [plotline('p1', ['a'])],
@@ -403,7 +403,7 @@ describe('analyzePlotlineRefs — beat ↔ plotline sync', () => {
     });
   });
 
-  it('flags every beat as orphan when the plotline has no beatRefs at all', () => {
+  it('flags every beat as orphan when the plotline has no `beats` array at all', () => {
     const warnings = analyzePlotlineRefs(
       baseInput([plotline('p1', undefined)], [beat('p1', 'a'), beat('p1', 'b')]),
     );

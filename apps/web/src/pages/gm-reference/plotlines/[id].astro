@@ -37,7 +37,7 @@ const linkedClues = allClues
   .map((c) => ({ id: c.id, name: c.data.name, status: c.data.status }))
   .sort((a, b) => sortIgnoringArticles(a.name, b.name));
 
-// Resolve beat references in declared order. The ordered `beatRefs` array
+// Resolve beat references in declared order. The ordered `beats` array
 // on the plotline is the canonical sequence; the beats collection carries
 // the per-beat content.
 const allBeats = await getCollection('beats');
@@ -46,7 +46,7 @@ const beatsBySlug = new Map(
     .filter((b) => b.data.plotline === plotline.data.slug)
     .map((b) => [b.data.slug, b.data]),
 );
-const beatItems: BeatListItem[] = (plotline.data.beatRefs ?? []).map((slug) => {
+const beatItems: BeatListItem[] = (plotline.data.beats ?? []).map((slug) => {
   const beat = beatsBySlug.get(slug);
   if (!beat) return { found: false, slug };
   return {

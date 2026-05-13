@@ -15,7 +15,7 @@ export interface PlotlineFile {
   title: string;
   body: string;
   /** Ordered bare slugs of beats this plotline references. */
-  beatRefs?: string[];
+  beats?: string[];
 }
 
 /**
@@ -380,7 +380,7 @@ export function analyzePlotlineRefs(input: AnalysisInput): RefWarning[] {
 
   for (const plotline of input.plotlines) {
     const onDisk = beatsByPlotline.get(plotline.slug) ?? new Set<string>();
-    const referenced = new Set(plotline.beatRefs ?? []);
+    const referenced = new Set(plotline.beats ?? []);
 
     for (const slug of referenced) {
       if (!onDisk.has(slug)) {
@@ -465,13 +465,13 @@ export function formatReport(warnings: RefWarning[]): string {
       }
     }
     if (missingBeats.length > 0) {
-      lines.push('  Missing beat files (beatRefs lists a slug with no matching beat under this plotline):');
+      lines.push('  Missing beat files (plotline `beats` lists a slug with no matching beat under this plotline):');
       for (const w of missingBeats) {
         lines.push(`    - beat/${w.entityIdOrName}`);
       }
     }
     if (orphanBeats.length > 0) {
-      lines.push('  Orphan beats (beat file exists but is not listed in this plotline\'s beatRefs):');
+      lines.push('  Orphan beats (beat file exists but is not listed in this plotline\'s `beats` array):');
       for (const w of orphanBeats) {
         lines.push(`    - beat/${w.entityIdOrName}`);
       }

@@ -72,12 +72,12 @@ function loadPlotlineFiles(dir: string): PlotlineFile[] {
     const parsed = parseFrontmatter<{
       slug?: string;
       title?: string;
-      beatRefs?: string[];
+      beats?: string[];
     }>(raw);
     if (!parsed) continue;
-    const { slug, title, beatRefs } = parsed.frontmatter;
+    const { slug, title, beats } = parsed.frontmatter;
     if (!slug || !title) continue;
-    out.push({ slug, title, body: parsed.body, beatRefs });
+    out.push({ slug, title, body: parsed.body, beats });
   }
   return out;
 }

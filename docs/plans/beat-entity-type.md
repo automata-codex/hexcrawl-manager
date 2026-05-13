@@ -146,9 +146,14 @@ This is the visible behavior change. Inline beat data still exists in the schema
   - Decide whether to keep `PlotlineBeatSchema` and `PlotlineBeatStatusEnum` exported. `PlotlineBeatStatusEnum` is still used by the new `BeatSchema`, so it stays. `PlotlineBeatSchema` becomes unused unless something else imports it (grep before deleting).
 - `packages/schemas/src/schemas/index.ts`: drop any export that becomes dead.
 - Regenerate JSON schemas as a sanity check (`dist/` is gitignored).
-- `packages/core/src/plotlines/resolve-beats.ts` (the `resolveBeats` function): if no remaining caller uses it after Phase 4 (the plotline page no longer does, and Phase 3 may or may not — see Phase 3's deferred decision), delete it. Otherwise leave it. Grep to confirm.
+- `packages/core/src/plotlines/resolve-beats.ts`: delete the `resolveBeats` function and `ResolvedBeat` interface (Phase 4 was the last caller). Remove the unused `PlotlineBeatData` import. Keep `resolveBeat`, `ResolvedBeatEntity`, and the shared `ResolvedRef`/`ResolvedClueRef`/`BeatLookups` types.
+- `packages/core/src/plotlines/resolve-beats.spec.ts`: the existing spec exclusively exercises the deleted `resolveBeats`. Port the still-relevant test cases (resolves refs, marks missing refs as `found: false`, normalizes clue refs with context, handles bare beats) over to `resolveBeat` rather than discarding coverage entirely.
+- `packages/schemas/src/schemas/plotline.spec.ts`: delete — this file exclusively tests `PlotlineBeatSchema` and the inline `beats` array, both of which are gone. No replacement needed (the new `beats: string[]` field is trivial Zod and is covered by integration through the validator and the web build).
 - `apps/web/src/components/PlotlineBeats.astro`: delete (the rich inline component, no longer referenced anywhere).
-- `apps/web/src/pages/gm-reference/plotlines/[id].astro`: update any code that referenced `plotline.data.beatRefs` to use `plotline.data.beats` after the rename.
+- `apps/web/src/pages/gm-reference/plotlines/[id].astro`: rename `plotline.data.beatRefs` → `plotline.data.beats`.
+- `apps/web/scripts/plotline-refs-analyzer.ts` (the Phase 2 validator): rename `PlotlineFile.beatRefs` → `PlotlineFile.beats` and update the two warning message strings that mention "beatRefs" in user-facing text.
+- `apps/web/scripts/validate-plotline-refs.ts`: rename the frontmatter destructure from `beatRefs` to `beats` so the validator reads the renamed field.
+- `apps/web/scripts/plotline-refs-analyzer.spec.ts`: rename the `beatRefs` parameter on the local test factory and any descriptive strings that still mention "beatRefs".
 
 ### Verification
 
