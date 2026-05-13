@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { CampaignStatusEnum } from './campaign-status.js';
 import { ClueReferencesSchema } from './clue-reference.js';
 import { CreatureTypeEnum } from './stat-block.js';
 
@@ -68,6 +69,8 @@ export const EncounterSchema = z
       .array(UsageReferenceSchema)
       .optional()
       .describe('Automatically populated by analyzing references'),
+
+    campaignStatus: CampaignStatusEnum.default('active'),
   })
   .refine((data) => data.description || data.contentPath, {
     message: "Either 'description' or 'contentPath' must be provided",

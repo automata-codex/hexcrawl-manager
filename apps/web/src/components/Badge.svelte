@@ -52,6 +52,16 @@
     color: var(--bulma-text);
   }
 
+  :global(html[data-theme='dark']) .badge.gray {
+    border: 1px solid var(--bulma-border);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .badge.gray {
+      border: 1px solid var(--bulma-border);
+    }
+  }
+
   /* Blue */
   .badge.blue {
     background: #dbeafe;

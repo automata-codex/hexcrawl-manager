@@ -1,6 +1,6 @@
 id: militia-captain-sera
-name: Sera Ironhand
-title: Captain
+displayName: Captain Sera Ironhand
+sortName: Sera Ironhand
 occupation: Militia Captain
 class: Fighter
 species: Human

@@ -1,7 +1,9 @@
 ---
 import { sortIgnoringArticles } from '@achm/core';
+import { isActive } from '@achm/schemas';
 import { getCollection, render } from 'astro:content';
 
+import Badge from '../../../components/Badge.astro';
 import { getCluePath } from '../../../config/routes';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 
@@ -38,6 +40,11 @@ const title = plotline.data.title;
 ---
 
 <SecretLayout title={title}>
+  {!isActive(plotline.data) && (
+    <p class="status-indicator">
+      <Badge color="gray">Inactive</Badge>
+    </p>
+  )}
   <div class="clue-header">
     <p><strong>Status:</strong> {plotline.data.status}</p>
     {plotline.data.summary && <p class="hanging-indent"><strong>Summary:</strong> {plotline.data.summary}</p>}
@@ -59,6 +66,10 @@ const title = plotline.data.title;
 </SecretLayout>
 
 <style>
+  .status-indicator {
+    margin-bottom: 1rem;
+  }
+
   .clue-header {
     margin-bottom: 1rem;
 

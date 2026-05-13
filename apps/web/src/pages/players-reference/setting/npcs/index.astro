@@ -1,122 +1,74 @@
 ---
-import { sortIgnoringArticles } from '@achm/core';
+import { getNpcSortKey, isPlayerVisible } from '@achm/schemas';
 import { getCollection } from 'astro:content';
 
-import SecretContent from '../../../../components/Content/SecretContent.astro';
-import { getNpcPath, getRoleplayBookPath } from '../../../../config/routes.ts';
+import NpcList from '../../../../components/NpcList.svelte';
+import { getNpcPath } from '../../../../config/routes.ts';
 import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
-import { renderMarkdown } from '../../../../utils/markdown';
-import { formatText } from '../../../../utils/text';
+import { canAccess, getCurrentUserRole } from '../../../../utils/auth';
+import { SCOPES } from '../../../../utils/constants';
+import { formatOccupation } from '../../../../utils/npc-display';
 
-function formatOccupation(
-  occupation: string,
-  charClass?: string,
-  adventuringCompany?: string,
-) {
-  if (occupation === 'Adventurer') {
-    if (adventuringCompany) {
-      return `Adventurer (${charClass}), ${adventuringCompany}`;
-    } else {
-      return `Adventurer (${charClass})`;
-    }
-  } else {
-    return occupation;
-  }
-}
+const isGm = canAccess(getCurrentUserRole(Astro.locals), [SCOPES.GM]);
 
-const npcData = (await getCollection('npcs')).sort((a, b) =>
-  sortIgnoringArticles(a.data.name, b.data.name)
+const [npcEntries, factionEntries, plotlineEntries] = await Promise.all([
+  getCollection('npcs'),
+  getCollection('factions'),
+  getCollection('plotlines'),
+]);
+
+const factionNames: Record<string, string> = Object.fromEntries(
+  factionEntries.map((f) => [f.id, f.data.name]),
 );
-const title = 'NPCs';
+const plotlineNames: Record<string, string> = Object.fromEntries(
+  plotlineEntries.map((p) => [p.id, p.data.title]),
+);
+
+const npcs = npcEntries
+  .filter((entry) => isGm || isPlayerVisible(entry.data))
+  .map((entry) => ({
+    id: entry.id,
+    href: getNpcPath(entry.id),
+    displayName: entry.data.displayName,
+    sortKey: getNpcSortKey(entry.data),
+    occupation: formatOccupation(
+      entry.data.occupation,
+      entry.data.class,
+      entry.data.adventuringCompany,
+    ),
+    image: entry.data.image,
+    factions: entry.data.factions ?? [],
+    plotlines: entry.data.plotlines ?? [],
+    visibility: entry.data.visibility,
+    campaignStatus: entry.data.campaignStatus,
+  }))
+  .sort((a, b) =>
+    a.sortKey.localeCompare(b.sortKey, undefined, { sensitivity: 'base' }),
+  );
+
+const filterOptions = {
+  factions: [...new Set(npcs.flatMap((n) => n.factions))].sort((a, b) =>
+    (factionNames[a] ?? a).localeCompare(factionNames[b] ?? b, undefined, {
+      sensitivity: 'base',
+    }),
+  ),
+  plotlines: [...new Set(npcs.flatMap((n) => n.plotlines))].sort((a, b) =>
+    (plotlineNames[a] ?? a).localeCompare(plotlineNames[b] ?? b, undefined, {
+      sensitivity: 'base',
+    }),
+  ),
+};
 ---
 
-<style>
-  img {
-    float: right;
-    max-height: 175px;
-    margin-left: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  section {
-    margin-bottom: 2rem;
-  }
-
-  .description {
-    p {
-      margin-bottom: 1rem;
-    }
-  }
-
-  .fort-dagaric-rp-link {
-    margin-bottom: 1rem;
-    padding: 0.75rem;
-    background-color: var(--bulma-scheme-main-bis);
-    border-left: 3px solid var(--bulma-link-text);
-  }
-
-  .npc-meta {
-    margin-bottom: 1rem;
-
-    p {
-      margin-bottom: 0;
-    }
-  }
-
-  h2.title a {
-    color: var(--bulma-strong-color);
-    text-decoration: none;
-  }
-</style>
-<ComponentLayout title={title}>
+<ComponentLayout title="NPCs">
   <main>
-    {
-      npcData.map((npc) => (
-        <section>
-          {npc.data.image && <img src={npc.data.image} alt={npc.data.name} />}
-          <h2 class="title is-4" style="margin-bottom: 0.25rem">
-            <a href={getNpcPath(npc.id)}>{npc.data.title}{' '}{npc.data.name}</a>
-          </h2>
-          <div class="npc-meta">
-            <p>
-              <span class="inline-heading">Occupation:</span>{' '}
-              {formatOccupation(
-                npc.data.occupation,
-                npc.data.class,
-                npc.data.adventuringCompany,
-              )}
-            </p>
-            <p>
-              <span class="inline-heading">Species:</span>{' '}{npc.data.species}
-            </p>
-            <p>
-              <span class="inline-heading">Culture:</span>{' '}{npc.data.culture}
-            </p>
-            <p>
-              <span class="inline-heading">Pronouns:</span>{' '}{npc.data.pronouns}
-            </p>
-          </div>
-          <div class="description">
-            <Fragment set:html={renderMarkdown(npc.data.description)} />
-          </div>
-          <SecretContent>
-            {npc.data.notes && (
-              <>
-                <p>
-                  <span class="inline-heading">GM Notes:</span>
-                </p>
-                <ul>
-                  {npc.data.notes.map((note) => (
-                    <li>
-                      <Fragment set:html={renderMarkdown(note)} />
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </SecretContent>
-        </section>
-      ))
-    }
+    <NpcList
+      client:load
+      npcs={npcs}
+      filterOptions={filterOptions}
+      factionNames={factionNames}
+      plotlineNames={plotlineNames}
+      isGm={isGm}
+    />
   </main>
 </ComponentLayout>

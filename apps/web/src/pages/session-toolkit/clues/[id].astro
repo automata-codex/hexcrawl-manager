@@ -1,7 +1,9 @@
 ---
+import { isActive } from '@achm/schemas';
 import { getCollection, getEntry } from 'astro:content';
 
 
+import Badge from '../../../components/Badge.astro';
 import Clue from '../../../components/Clue.astro';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 import { buildClueUsageMap, getClueUsage } from '../../../utils/clue-usage-tracker';
@@ -71,6 +73,16 @@ const title = `Clue: ${clue.name}`;
     margin-bottom: 0.25rem;
   }
 </style>
+<style>
+  .status-indicator {
+    margin-bottom: 1rem;
+  }
+</style>
 <SecretLayout title={title}>
+  {!isActive(clue) && (
+    <p class="status-indicator">
+      <Badge color="gray">Inactive</Badge>
+    </p>
+  )}
   <Clue clue={clue} usedIn={usedIn} />
 </SecretLayout>

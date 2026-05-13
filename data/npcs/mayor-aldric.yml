@@ -1,6 +1,6 @@
 id: mayor-aldric
-name: Aldric Thornwood
-title: Mayor
+displayName: Mayor Aldric Thornwood
+sortName: Aldric Thornwood
 occupation: Village Mayor
 species: Human
 culture: Thornwick

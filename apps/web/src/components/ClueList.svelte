@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { initFilterFromUrl, setUrlParam } from '../utils/url-filter-state';
+  import {
+    initBooleanFilterFromUrl,
+    initFilterFromUrl,
+    setBooleanUrlParam,
+    setUrlParam,
+  } from '../utils/url-filter-state';
 
   import Badge from './Badge.svelte';
 
@@ -13,6 +18,7 @@
     tags: string[];
     isUsed: boolean;
     needsReview: boolean;
+    campaignStatus: 'active' | 'inactive';
   }
 
   interface FilterOptions {
@@ -36,6 +42,7 @@
   let tagFilter = $state(initFilterFromUrl('tag'));
   let usageFilter = $state(initFilterFromUrl('usage'));
   let reviewFilter = $state(initFilterFromUrl('review'));
+  let showInactive = $state(initBooleanFilterFromUrl('show-inactive'));
 
   // Sync filter state to URL
   $effect(() => { setUrlParam('search', searchQuery); });
@@ -45,9 +52,13 @@
   $effect(() => { setUrlParam('tag', tagFilter); });
   $effect(() => { setUrlParam('usage', usageFilter); });
   $effect(() => { setUrlParam('review', reviewFilter); });
+  $effect(() => { setBooleanUrlParam('show-inactive', showInactive); });
 
   let filtered = $derived(() => {
     return clues.filter((clue) => {
+      // Campaign status: default-hide inactive
+      if (clue.campaignStatus === 'inactive' && !showInactive) return false;
+
       // Search filter - matches name or summary
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -103,6 +114,7 @@
     tagFilter = '';
     usageFilter = '';
     reviewFilter = '';
+    showInactive = false;
   }
 
   function formatFaction(faction: string): string {
@@ -214,6 +226,13 @@
       </div>
     </div>
 
+    <div class="field show-inactive-field">
+      <label class="checkbox">
+        <input type="checkbox" bind:checked={showInactive} />
+        Show inactive
+      </label>
+    </div>
+
     <div class="filter-actions">
       <button class="button" onclick={clearFilters}>Clear</button>
     </div>
@@ -245,6 +264,9 @@
       {#if clue.needsReview}
         <Badge color="orange">Review</Badge>
       {/if}
+      {#if clue.campaignStatus === 'inactive'}
+        <Badge color="gray">inactive</Badge>
+      {/if}
     </li>
   {/each}
 </ul>
@@ -273,6 +295,16 @@
   .filter-actions {
     display: flex;
     align-items: flex-end;
+  }
+
+  .show-inactive-field {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 0.5rem;
+  }
+
+  .show-inactive-field .checkbox {
+    font-size: 0.875rem;
   }
 
   .filter-count {

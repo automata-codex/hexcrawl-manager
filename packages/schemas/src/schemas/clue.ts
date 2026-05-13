@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { CampaignStatusEnum } from './campaign-status.js';
 import { FactionId } from './encounter.js';
 
 // Re-export clue reference types from the separate module (avoids circular deps)
@@ -66,6 +67,7 @@ export const ClueSchema = z
       .describe('Clue IDs that are revealed when this clue is learned'),
 
     status: ClueStatusEnum.default('unknown'),
+    campaignStatus: CampaignStatusEnum.default('active'),
   })
   .describe('ClueSchema');
 

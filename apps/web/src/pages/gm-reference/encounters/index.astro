@@ -23,6 +23,7 @@ const encounters = sortedEncounters.map((enc) => ({
   creatureTypes: enc.data.creatureTypes || [],
   isLead: enc.data.isLead || false,
   isUsed: enc.data.usedIn.length > 0,
+  campaignStatus: enc.data.campaignStatus,
 }));
 
 const filterOptions = extractFilterOptions(sortedEncounters);

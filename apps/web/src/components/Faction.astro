@@ -1,41 +1,71 @@
 ---
 import Clock from './Clock.astro';
+import FactionNpcList from './FactionNpcList.svelte';
 import { renderMarkdown } from '../utils/markdown';
 import { formatText } from '../utils/text';
 
 import type { FactionData } from '@achm/schemas';
+import type { NpcListItem } from './npc-list-types';
 
 interface Props {
   faction: FactionData;
+  /** Curated featured representatives projected from `faction.activeAgents`
+   * (with `role` and possibly stub rows when `npcId` is absent). */
+  activeAgents?: NpcListItem[];
+  /** Comprehensive query-derived list of NPCs whose `factions` array contains
+   * this faction id, minus anyone already in `activeAgents`. */
+  associatedNpcs?: NpcListItem[];
 }
 
-const { faction } = Astro.props;
+const { faction, activeAgents = [], associatedNpcs = [] } = Astro.props;
+
+const activeAgentCount = activeAgents.filter(
+  (npc) => npc.campaignStatus === 'active',
+).length;
+const associatedActiveCount = associatedNpcs.filter(
+  (npc) => npc.campaignStatus === 'active',
+).length;
 ---
 
-<style is:global>
-  p {
-    text-indent: var(--achm-standard-indent);
+<style>
+  .faction-description {
+    margin-top: 1rem;
   }
 
-  p:first-child {
-    text-indent: 0;
-  }
-</style>
-<style>
   .quote {
     font-style: italic;
     margin: 0 10% 1rem;
   }
-
 </style>
 <section>
-  <h2 class="title is-3">{formatText(faction.name)}</h2>
   {faction.quote && (
     <div class="quote">
       <Fragment set:html={renderMarkdown(faction.quote)} />
     </div>
   )}
-  <div>
+  {activeAgentCount > 0 && (
+    <>
+      <h3 class="title is-5">Active Agents</h3>
+      <FactionNpcList
+        client:load
+        npcs={activeAgents}
+        urlKey="show-inactive-agents"
+      />
+    </>
+  )}
+  {associatedActiveCount > 0 && (
+    <>
+      <h3 class="title is-5">
+        {activeAgentCount > 0 ? 'Other Associated NPCs' : 'Associated NPCs'}
+      </h3>
+      <FactionNpcList
+        client:load
+        npcs={associatedNpcs}
+        urlKey="show-inactive-associated"
+      />
+    </>
+  )}
+  <div class="faction-description">
     <Fragment set:html={renderMarkdown(faction.description)} />
   </div>
   <h3 class="title is-5">Ideology</h3>
@@ -88,20 +118,6 @@ const { faction } = Astro.props;
       <h3 class="title is-5">PC Intersections</h3>
       <div>
         <Fragment set:html={renderMarkdown(faction.pcIntersections)} />
-      </div>
-    </>
-  )}
-  {faction.activeAgents && faction.activeAgents.length > 0 && (
-    <>
-      <h3 class="title is-5">Active Agents</h3>
-      <div>
-        <ul>
-          {faction.activeAgents.map((agent) => (
-            <li>
-              <strong>{agent.name}</strong> — {agent.role}
-            </li>
-          ))}
-        </ul>
       </div>
     </>
   )}

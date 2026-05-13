@@ -272,7 +272,7 @@ export function buildClueUsageMap(
         addUsage(clueId, {
           type: 'npc',
           id: npc.data.id,
-          name: `${npc.data.name} (NPC)`,
+          name: `${npc.data.displayName} (NPC)`,
         });
       }
     }
