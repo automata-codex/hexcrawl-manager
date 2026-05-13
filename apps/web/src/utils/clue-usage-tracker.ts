@@ -1,6 +1,7 @@
 import { normalizeClueRef } from '@achm/schemas';
 
 import type {
+  BeatData,
   CharacterData,
   ClueData,
   ClueReference,
@@ -31,10 +32,12 @@ export interface ClueUsageReference {
     | 'npc'
     | 'plotline'
     | 'roleplay-book'
-    | 'linked-clue';
+    | 'linked-clue'
+    | 'beat';
   id: string;
   name: string;
   hexId?: string; // For landmark/hidden-site/dream, which hex contains it
+  plotlineSlug?: string; // For type === 'beat', needed to construct the URL
 }
 
 /**
@@ -134,10 +137,12 @@ function extractClueIdsFromNotes(
 /**
  * Builds a map of clue IDs to their usage locations by scanning
  * encounters, hexes (landmarks, hidden sites, notes, keyed encounters),
- * dungeons, pointcrawl nodes, characters, NPCs, roleplay books, and
- * linked clues. The `plotlines` parameter is accepted for call-site
- * compatibility but no longer scanned — plotline ↔ clue links are
- * authoritative on the clue side (`clue.plotlines`).
+ * dungeons, pointcrawl nodes, characters, NPCs, roleplay books, linked
+ * clues, and beats. The `plotlines` parameter is accepted for call-site
+ * compatibility (and to resolve beat→plotline display names) but plotlines
+ * themselves are no longer scanned — plotline ↔ clue links are
+ * authoritative on the clue side (`clue.plotlines`). Beats, however, are
+ * concrete scheduled discovery moments and *do* count as placements.
  */
 export function buildClueUsageMap(
   encounters: Array<{ id: string; data: EncounterData }>,
@@ -152,6 +157,7 @@ export function buildClueUsageMap(
   plotlines: Array<{ id: string; data: PlotlineData }> = [],
   roleplayBooks: Array<{ id: string; data: RoleplayBookData }> = [],
   clues: Array<{ id: string; data: ClueData }> = [],
+  beats: Array<{ id: string; data: BeatData }> = [],
 ): ClueUsageMap {
   const usageMap: ClueUsageMap = new Map();
 
@@ -311,6 +317,27 @@ export function buildClueUsageMap(
           name: `${clue.data.name} (Clue)`,
         });
       }
+    }
+  }
+
+  // Scan beats for direct clue references. A beat is a scheduled GM
+  // moment, so a clue referenced by a beat counts as a placement —
+  // there's a specific scene where the GM plans to surface that fact.
+  const plotlineTitleBySlug = new Map<string, string>();
+  for (const plotline of plotlines) {
+    plotlineTitleBySlug.set(plotline.data.slug, plotline.data.title);
+  }
+  for (const beat of beats) {
+    if (!beat.data.clues) continue;
+    const plotlineLabel =
+      plotlineTitleBySlug.get(beat.data.plotline) ?? beat.data.plotline;
+    for (const clueId of extractClueIds(beat.data.clues)) {
+      addUsage(clueId, {
+        type: 'beat',
+        id: beat.data.slug,
+        name: `${beat.data.title} (Beat in ${plotlineLabel})`,
+        plotlineSlug: beat.data.plotline,
+      });
     }
   }
 
