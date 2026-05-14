@@ -1,14 +1,10 @@
 <script lang="ts">
-  import { sortIgnoringArticles } from '@achm/core';
-
   import {
     initBooleanFilterFromUrl,
     initFilterFromUrl,
     setBooleanUrlParam,
     setUrlParam,
   } from '../utils/url-filter-state';
-
-  import Badge from './Badge.svelte';
 
   type BeatStatus = 'pending' | 'active' | 'resolved' | 'skipped';
 
@@ -43,7 +39,6 @@
   let factionFilter = $state(initFilterFromUrl('faction'));
   let plotlineFilter = $state(initFilterFromUrl('plotline'));
   let statusFilter = $state(initFilterFromUrl('status'));
-  let sortBy = $state(initFilterFromUrl('sort', 'title'));
   let showInactive = $state(initBooleanFilterFromUrl('show-inactive'));
 
   $effect(() => {
@@ -62,28 +57,11 @@
     setUrlParam('status', statusFilter);
   });
   $effect(() => {
-    setUrlParam('sort', sortBy === 'title' ? '' : sortBy);
-  });
-  $effect(() => {
     setBooleanUrlParam('show-inactive', showInactive);
   });
 
-  const statusOrder: Record<BeatStatus, number> = {
-    active: 0,
-    pending: 1,
-    resolved: 2,
-    skipped: 3,
-  };
-
-  const statusBadgeColor: Record<BeatStatus, 'gray' | 'green'> = {
-    pending: 'gray',
-    active: 'green',
-    resolved: 'gray',
-    skipped: 'gray',
-  };
-
   let filtered = $derived(() => {
-    const result = beats.filter((beat) => {
+    return beats.filter((beat) => {
       if (beat.campaignStatus === 'inactive' && !showInactive) return false;
 
       if (searchQuery) {
@@ -118,26 +96,6 @@
 
       return true;
     });
-
-    if (sortBy === 'plotline') {
-      result.sort((a, b) => {
-        const cmp = sortIgnoringArticles(
-          getPlotlineName(a.plotline),
-          getPlotlineName(b.plotline),
-        );
-        if (cmp !== 0) return cmp;
-        return sortIgnoringArticles(a.title, b.title);
-      });
-    } else if (sortBy === 'status') {
-      result.sort((a, b) => {
-        const cmp = statusOrder[a.status] - statusOrder[b.status];
-        if (cmp !== 0) return cmp;
-        return sortIgnoringArticles(a.title, b.title);
-      });
-    }
-    // 'title' is the default — beats arrive pre-sorted by title.
-
-    return result;
   });
 
   function clearFilters() {
@@ -146,7 +104,6 @@
     factionFilter = '';
     plotlineFilter = '';
     statusFilter = '';
-    sortBy = 'title';
     showInactive = false;
   }
 
@@ -159,10 +116,6 @@
 
   function getPlotlineName(slug: string): string {
     return plotlineNames[slug] ?? slug;
-  }
-
-  function getBeatHref(beat: BeatListItem): string {
-    return `/gm-reference/plotlines/${beat.plotlineSlug}/beats/${beat.slug}`;
   }
 </script>
 
@@ -239,19 +192,6 @@
       </div>
     </div>
 
-    <div class="field">
-      <label class="label" for="sort">Sort</label>
-      <div class="control">
-        <div class="select">
-          <select id="sort" bind:value={sortBy}>
-            <option value="title">Title</option>
-            <option value="plotline">Plotline</option>
-            <option value="status">Status</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
     <div class="field show-inactive-field">
       <label class="checkbox">
         <input type="checkbox" bind:checked={showInactive} />
@@ -272,26 +212,11 @@
 <ul class="beat-list">
   {#each filtered() as beat (beat.plotlineSlug + '/' + beat.slug)}
     <li class="beat-item">
-      <div class="beat-header">
-        <a href={getBeatHref(beat)} class="beat-title">{beat.title}</a>
-        <Badge color={statusBadgeColor[beat.status]}>{beat.status}</Badge>
-        {#if beat.campaignStatus === 'inactive'}
-          <Badge color="gray">inactive</Badge>
-        {/if}
-      </div>
-      <p class="beat-meta">
-        <span class="plotline-name">{getPlotlineName(beat.plotline)}</span>
-        {#if beat.tags.length > 0}
-          <span class="tag-list">
-            {#each beat.tags as tag (tag)}
-              <span class="tag">{tag}</span>
-            {/each}
-          </span>
-        {/if}
-      </p>
-      {#if beat.trigger}
-        <p class="beat-trigger">{beat.trigger}</p>
-      {/if}
+      <a
+        href={`/gm-reference/plotlines/${beat.plotlineSlug}/beats/${beat.slug}`}
+      >
+        {beat.title}
+      </a>
     </li>
   {/each}
 </ul>
@@ -339,64 +264,26 @@
   }
 
   .beat-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+    columns: 3;
+    column-gap: 2rem;
+    margin-top: 0;
   }
 
   .beat-item {
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--bulma-border);
+    break-inside: avoid;
   }
 
-  .beat-item:last-child {
-    border-bottom: none;
-  }
-
-  .beat-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.5rem;
-  }
-
-  .beat-title {
-    font-weight: 600;
-  }
-
-  .beat-meta {
-    margin: 0.125rem 0 0.25rem;
-    font-size: 0.875rem;
-    color: var(--bulma-text-weak);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .plotline-name {
-    font-style: italic;
-  }
-
-  .tag-list {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-
-  .tag {
-    background: var(--bulma-scheme-main-ter);
-    border-radius: 3px;
-    padding: 0.0625rem 0.375rem;
-    font-size: 0.75rem;
-  }
-
-  .beat-trigger {
-    margin: 0;
-    font-size: 0.95rem;
+  @media (max-width: 1024px) {
+    .beat-list {
+      columns: 2;
+    }
   }
 
   @media (max-width: 768px) {
+    .beat-list {
+      columns: 1;
+    }
+
     .filter-row {
       flex-direction: column;
       align-items: stretch;
