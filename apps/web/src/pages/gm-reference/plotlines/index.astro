@@ -1,4 +1,5 @@
 ---
+import { sortIgnoringArticles } from '@achm/core';
 import { isActive } from '@achm/schemas';
 import { getCollection } from 'astro:content';
 
@@ -15,7 +16,7 @@ import SecretLayout from '../../../layouts/SecretLayout.astro';
 const plotlines = await getCollection('plotlines');
 const sortedPlotlines = plotlines
   .filter((p) => isActive(p.data))
-  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+  .sort((a, b) => sortIgnoringArticles(a.data.title, b.data.title));
 
 const title = 'Plotlines';
 ---
@@ -25,14 +26,17 @@ const title = 'Plotlines';
 
   <CardGrid>
     {
-      sortedPlotlines.map((pointcrawl) => (
-        <Card
-          title={pointcrawl.data.title}
-          href={`/gm-reference/plotlines/${pointcrawl.data.slug}`}
-        >
-          {pointcrawl.data.summary && <p>{pointcrawl.data.summary}</p>}
-        </Card>
-      ))
+      sortedPlotlines.map((pointcrawl) => {
+        const cardText = pointcrawl.data.blurb ?? pointcrawl.data.summary;
+        return (
+          <Card
+            title={pointcrawl.data.title}
+            href={`/gm-reference/plotlines/${pointcrawl.data.slug}`}
+          >
+            {cardText && <p>{cardText}</p>}
+          </Card>
+        );
+      })
     }
   </CardGrid>
 </SecretLayout>

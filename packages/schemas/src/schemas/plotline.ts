@@ -15,6 +15,12 @@ export const PlotlineSchema = z.object({
   slug: z.string(),
   status: PlotlineStatusEnum.default('active'),
   summary: z.string().optional(),
+  blurb: z
+    .string()
+    .optional()
+    .describe(
+      'Short text shown on the plotlines index card. When omitted, the summary is shown on the card instead.',
+    ),
   title: z.string(),
   beats: z
     .array(z.string())
