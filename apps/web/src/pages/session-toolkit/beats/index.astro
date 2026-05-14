@@ -1,0 +1,45 @@
+---
+import { sortIgnoringArticles } from '@achm/core';
+import { getCollection } from 'astro:content';
+
+import BeatList from '../../../components/BeatList.svelte';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+const [beatsData, plotlines] = await Promise.all([
+  getCollection('beats'),
+  getCollection('plotlines'),
+]);
+
+const beats = beatsData
+  .map((b) => ({
+    plotlineSlug: b.data.plotline,
+    slug: b.data.slug,
+    title: b.data.title,
+    trigger: b.data.trigger ?? '',
+    status: b.data.status,
+    factions: b.data.factions ?? [],
+    plotline: b.data.plotline,
+    tags: b.data.tags ?? [],
+    campaignStatus: b.data.campaignStatus,
+  }))
+  .sort((a, b) => sortIgnoringArticles(a.title, b.title));
+
+const filterOptions = {
+  tags: [...new Set(beats.flatMap((b) => b.tags))].sort(),
+  factions: [...new Set(beats.flatMap((b) => b.factions))].sort(),
+  plotlines: [...new Set(beats.map((b) => b.plotline))].sort(),
+};
+
+const plotlineNames = Object.fromEntries(
+  plotlines.map((p) => [p.data.slug, p.data.title]),
+);
+---
+
+<SecretLayout title="Beats">
+  <BeatList
+    client:load
+    beats={beats}
+    filterOptions={filterOptions}
+    plotlineNames={plotlineNames}
+  />
+</SecretLayout>
