@@ -26,6 +26,12 @@ export const BeatSchema = z
       .array(z.string())
       .optional()
       .describe('NPC slugs driving this beat'),
+    tags: z
+      .array(z.string())
+      .optional()
+      .describe(
+        'Free-form tags for at-the-table lookup (location, situation, encounter context)',
+      ),
     clues: ClueReferencesSchema.describe('Clues associated with this beat'),
     campaignStatus: CampaignStatusEnum.default('active'),
   })
