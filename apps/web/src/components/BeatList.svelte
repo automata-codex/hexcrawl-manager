@@ -15,6 +15,7 @@
     trigger: string;
     status: BeatStatus;
     factions: string[];
+    npcs: string[];
     plotline: string;
     tags: string[];
     campaignStatus: 'active' | 'inactive';
@@ -23,6 +24,7 @@
   interface FilterOptions {
     tags: string[];
     factions: string[];
+    npcs: string[];
     plotlines: string[];
   }
 
@@ -30,13 +32,15 @@
     beats: BeatListItem[];
     filterOptions: FilterOptions;
     plotlineNames: Record<string, string>;
+    npcNames: Record<string, string>;
   }
 
-  const { beats, filterOptions, plotlineNames }: Props = $props();
+  const { beats, filterOptions, plotlineNames, npcNames }: Props = $props();
 
   let searchQuery = $state(initFilterFromUrl('search'));
   let tagFilter = $state(initFilterFromUrl('tag'));
   let factionFilter = $state(initFilterFromUrl('faction'));
+  let npcFilter = $state(initFilterFromUrl('npc'));
   let plotlineFilter = $state(initFilterFromUrl('plotline'));
   let statusFilter = $state(initFilterFromUrl('status'));
   let showInactive = $state(initBooleanFilterFromUrl('show-inactive'));
@@ -49,6 +53,9 @@
   });
   $effect(() => {
     setUrlParam('faction', factionFilter);
+  });
+  $effect(() => {
+    setUrlParam('npc', npcFilter);
   });
   $effect(() => {
     setUrlParam('plotline', plotlineFilter);
@@ -86,6 +93,10 @@
         }
       }
 
+      if (npcFilter && !beat.npcs.includes(npcFilter)) {
+        return false;
+      }
+
       if (plotlineFilter && beat.plotline !== plotlineFilter) {
         return false;
       }
@@ -102,6 +113,7 @@
     searchQuery = '';
     tagFilter = '';
     factionFilter = '';
+    npcFilter = '';
     plotlineFilter = '';
     statusFilter = '';
     showInactive = false;
@@ -116,6 +128,10 @@
 
   function getPlotlineName(slug: string): string {
     return plotlineNames[slug] ?? slug;
+  }
+
+  function getNpcName(id: string): string {
+    return npcNames[id] ?? id;
   }
 </script>
 
@@ -157,6 +173,20 @@
             <option value="__none__">No Faction</option>
             {#each filterOptions.factions as faction (faction)}
               <option value={faction}>{formatFaction(faction)}</option>
+            {/each}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="npc">NPC</label>
+      <div class="control">
+        <div class="select">
+          <select id="npc" bind:value={npcFilter}>
+            <option value="">All</option>
+            {#each filterOptions.npcs as npc (npc)}
+              <option value={npc}>{getNpcName(npc)}</option>
             {/each}
           </select>
         </div>
