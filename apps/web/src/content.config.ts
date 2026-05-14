@@ -1,5 +1,6 @@
 import { getDataPath } from '@achm/data';
 import {
+  BeatSchema,
   BountySchema,
   CharacterSchema,
   ClassSchema,
@@ -217,12 +218,25 @@ const players = defineCollection({
   schema: PlayerSchema,
 });
 
-// Conditional collection: empty loader if directory doesn't have content
+// Conditional collection: empty loader if directory doesn't have content.
+// Plotlines live at `<plotline-slug>/<file>.{md,mdx}` (one level deep).
+// The pattern intentionally stops at one level so per-plotline `beats/`
+// subdirectories (two levels deep) are picked up only by the `beats`
+// collection below.
 const plotlines = defineCollection({
   loader: collectionHasContent(DIRS.PLOTLINES)
-    ? glob({ pattern: '**/*.{md,mdx}', base: DIRS.PLOTLINES })
+    ? glob({ pattern: '*/*.{md,mdx}', base: DIRS.PLOTLINES })
     : () => [],
   schema: PlotlineSchema,
+});
+
+// Beats are co-located under their parent plotline at
+// `<plotlines>/<plotline-slug>/beats/<beat-slug>.{md,mdx}`.
+const beats = defineCollection({
+  loader: collectionHasContent(DIRS.PLOTLINES)
+    ? glob({ pattern: '*/beats/*.{md,mdx}', base: DIRS.PLOTLINES })
+    : () => [],
+  schema: BeatSchema,
 });
 
 // Conditional collection: empty loader if directory doesn't have content
@@ -316,6 +330,7 @@ const trails = defineCollection({
 
 export const collections = {
   articles,
+  beats,
   bounties,
   characters,
   classes,

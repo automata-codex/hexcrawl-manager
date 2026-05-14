@@ -79,6 +79,10 @@ function getUsageUrl(ref: ClueUsageReference): string {
       return getRoleplayBookPath(ref.id);
     case 'linked-clue':
       return getCluePath(ref.id);
+    case 'beat':
+      return ref.plotlineSlug
+        ? `/gm-reference/plotlines/${ref.plotlineSlug}/beats/${ref.id}`
+        : '#';
     default:
       return '#';
   }

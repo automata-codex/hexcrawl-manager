@@ -1,5 +1,6 @@
 ---
 import Badge from './Badge.astro';
+import { getNpcPath } from '../config/routes';
 
 import type { NobleData } from '@achm/schemas';
 
@@ -16,10 +17,16 @@ const vassals = allNobles
   .filter((n) => n.liege === noble.id)
   .filter((n) => showSecrets || !n.secret)
   .sort((a, b) => (a.sortValue ?? a.id).localeCompare(b.sortValue ?? b.id));
+
+const displayName = noble.displayTitle ?? noble.name;
 ---
 
 <li>
-  <span class="inline-heading">{noble.displayTitle ?? noble.name}</span> ({noble.pronouns})
+  {noble.npcId ? (
+    <a class="inline-heading" href={getNpcPath(noble.npcId)}>{displayName}</a>
+  ) : (
+    <span class="inline-heading">{displayName}</span>
+  )} ({noble.pronouns})
   {showSecrets && noble.secret && <Badge color="pink" class="ml-2">Secret</Badge>}
 
   {vassals.length > 0 && (
@@ -30,3 +37,13 @@ const vassals = allNobles
     </ul>
   )}
 </li>
+
+<style>
+  a.inline-heading {
+    text-decoration: none;
+  }
+
+  a.inline-heading:hover {
+    text-decoration: underline;
+  }
+</style>

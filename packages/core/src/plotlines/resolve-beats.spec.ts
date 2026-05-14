@@ -1,7 +1,7 @@
-import type { PlotlineBeatData } from '@achm/schemas';
+import type { BeatData } from '@achm/schemas';
 import { describe, it, expect } from 'vitest';
 
-import { resolveBeats } from './resolve-beats.js';
+import { resolveBeat } from './resolve-beats.js';
 
 const lookups = {
   npcsById: new Map([
@@ -18,33 +18,26 @@ const lookups = {
   ]),
 };
 
-describe('resolveBeats', () => {
-  it('returns empty array for undefined beats', () => {
-    expect(resolveBeats(undefined, lookups)).toEqual([]);
-  });
+const baseBeat = (overrides: Partial<BeatData>): BeatData => ({
+  slug: 'test-beat',
+  title: 'Test beat',
+  plotline: 'daemaris',
+  status: 'pending',
+  campaignStatus: 'active',
+  ...overrides,
+});
 
-  it('preserves array order', () => {
-    const beats: PlotlineBeatData[] = [
-      { title: 'First', status: 'pending', factions: [], npcs: [], clues: [] },
-      { title: 'Second', status: 'active', factions: [], npcs: [], clues: [] },
-      { title: 'Third', status: 'resolved', factions: [], npcs: [], clues: [] },
-    ];
-    const result = resolveBeats(beats, lookups);
-    expect(result.map((b) => b.title)).toEqual(['First', 'Second', 'Third']);
-    expect(result.map((b) => b.status)).toEqual(['pending', 'active', 'resolved']);
-  });
-
+describe('resolveBeat', () => {
   it('resolves known faction/npc/clue ids with found=true', () => {
-    const beats: PlotlineBeatData[] = [
-      {
-        title: 'The cache',
+    const beat = resolveBeat(
+      baseBeat({
         status: 'active',
         factions: ['sword-of-the-king'],
         npcs: ['daemaris', 'orlin-vex'],
         clues: ['cipher-fragment'],
-      },
-    ];
-    const [beat] = resolveBeats(beats, lookups);
+      }),
+      lookups,
+    );
     expect(beat.factions).toEqual([
       { id: 'sword-of-the-king', name: 'Sword of the King', found: true },
     ]);
@@ -58,16 +51,14 @@ describe('resolveBeats', () => {
   });
 
   it('falls back to the bare id with found=false when an entity is missing', () => {
-    const beats: PlotlineBeatData[] = [
-      {
-        title: 'Drift test',
-        status: 'pending',
+    const beat = resolveBeat(
+      baseBeat({
         factions: ['ghost-faction'],
         npcs: ['unknown-npc'],
         clues: ['ghost-clue'],
-      },
-    ];
-    const [beat] = resolveBeats(beats, lookups);
+      }),
+      lookups,
+    );
     expect(beat.factions).toEqual([
       { id: 'ghost-faction', name: 'ghost-faction', found: false },
     ]);
@@ -80,40 +71,40 @@ describe('resolveBeats', () => {
   });
 
   it('handles clue references in object form with context', () => {
-    const beats: PlotlineBeatData[] = [
-      {
-        title: 'Mixed clue refs',
-        status: 'active',
+    const beat = resolveBeat(
+      baseBeat({
         clues: [
           'cipher-fragment',
           { id: 'sealed-letter', context: 'Found in the safehouse' },
         ],
-      },
-    ];
-    const [beat] = resolveBeats(beats, lookups);
+      }),
+      lookups,
+    );
     expect(beat.clues.map((c) => c.id)).toEqual(['cipher-fragment', 'sealed-letter']);
     expect(beat.clues.map((c) => c.found)).toEqual([true, true]);
   });
 
-  it('passes through trigger and notes verbatim', () => {
-    const beats: PlotlineBeatData[] = [
-      {
-        title: 'Annotated beat',
-        status: 'pending',
-        trigger: 'After the PCs talk to Vex',
-        notes: 'GM note: tie this in',
-      },
-    ];
-    const [beat] = resolveBeats(beats, lookups);
+  it('passes through trigger verbatim', () => {
+    const beat = resolveBeat(
+      baseBeat({ trigger: 'After the PCs talk to Vex' }),
+      lookups,
+    );
     expect(beat.trigger).toBe('After the PCs talk to Vex');
-    expect(beat.notes).toBe('GM note: tie this in');
   });
 
   it('treats missing optional ref arrays as empty', () => {
-    const beats: PlotlineBeatData[] = [{ title: 'Bare beat', status: 'pending' }];
-    const [beat] = resolveBeats(beats, lookups);
+    const beat = resolveBeat(baseBeat({}), lookups);
     expect(beat.factions).toEqual([]);
     expect(beat.npcs).toEqual([]);
     expect(beat.clues).toEqual([]);
+  });
+
+  it('preserves slug and parent plotline from input', () => {
+    const beat = resolveBeat(
+      baseBeat({ slug: 'cache-discovery', plotline: 'daemaris' }),
+      lookups,
+    );
+    expect(beat.slug).toBe('cache-discovery');
+    expect(beat.plotline).toBe('daemaris');
   });
 });

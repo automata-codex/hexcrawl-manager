@@ -1,0 +1,55 @@
+---
+import { sortIgnoringArticles } from '@achm/core';
+import { getCollection } from 'astro:content';
+
+import BeatList from '../../../components/BeatList.svelte';
+import SecretLayout from '../../../layouts/SecretLayout.astro';
+
+const [beatsData, plotlines, npcsCollection] = await Promise.all([
+  getCollection('beats'),
+  getCollection('plotlines'),
+  getCollection('npcs'),
+]);
+
+const beats = beatsData
+  .map((b) => ({
+    plotlineSlug: b.data.plotline,
+    slug: b.data.slug,
+    title: b.data.title,
+    trigger: b.data.trigger ?? '',
+    status: b.data.status,
+    factions: b.data.factions ?? [],
+    npcs: b.data.npcs ?? [],
+    plotline: b.data.plotline,
+    tags: b.data.tags ?? [],
+    campaignStatus: b.data.campaignStatus,
+  }))
+  .sort((a, b) => sortIgnoringArticles(a.title, b.title));
+
+const npcNames = Object.fromEntries(
+  npcsCollection.map((n) => [n.id, n.data.displayName]),
+);
+
+const filterOptions = {
+  tags: [...new Set(beats.flatMap((b) => b.tags))].sort(),
+  factions: [...new Set(beats.flatMap((b) => b.factions))].sort(),
+  npcs: [...new Set(beats.flatMap((b) => b.npcs))].sort((a, b) =>
+    sortIgnoringArticles(npcNames[a] ?? a, npcNames[b] ?? b),
+  ),
+  plotlines: [...new Set(beats.map((b) => b.plotline))].sort(),
+};
+
+const plotlineNames = Object.fromEntries(
+  plotlines.map((p) => [p.data.slug, p.data.title]),
+);
+---
+
+<SecretLayout title="Beats">
+  <BeatList
+    client:load
+    beats={beats}
+    filterOptions={filterOptions}
+    plotlineNames={plotlineNames}
+    npcNames={npcNames}
+  />
+</SecretLayout>

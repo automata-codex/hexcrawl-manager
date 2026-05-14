@@ -14,6 +14,20 @@ export interface PlotlineFile {
   slug: string;
   title: string;
   body: string;
+  /** Ordered bare slugs of beats this plotline references. */
+  beats?: string[];
+}
+
+/**
+ * A beat file discovered on disk. Slugs come from the directory layout
+ * (`<plotlines-dir>/<parentPlotlineSlug>/beats/<slug>.{md,mdx}`); the
+ * frontmatter `plotline` field is captured so we can flag mismatches
+ * between the redundant frontmatter and the path-derived parent.
+ */
+export interface BeatFile {
+  slug: string;
+  parentPlotlineSlug: string;
+  plotlineFrontmatter: string | null;
 }
 
 export interface NpcEntity {
@@ -34,12 +48,15 @@ export interface CharacterEntity {
   plotlines?: string[];
 }
 
-export type EntityKind = 'npc' | 'faction' | 'character';
+export type EntityKind = 'npc' | 'faction' | 'character' | 'beat';
 
 export type WarningKind =
   | 'missing-back-ref'
   | 'stale-back-ref'
-  | 'unresolved-body-mention';
+  | 'unresolved-body-mention'
+  | 'missing-beat-file'
+  | 'orphan-beat'
+  | 'beat-plotline-mismatch';
 
 export interface RefWarning {
   plotlineSlug: string;
@@ -57,6 +74,8 @@ export interface AnalysisInput {
   npcs: NpcEntity[];
   factions: FactionEntity[];
   characters: CharacterEntity[];
+  /** All beat files discovered under any plotline's `beats/` subdirectory. */
+  beats?: BeatFile[];
 }
 
 // --- Minimal mdast shape (avoids depending on @types/mdast) ---------------
@@ -129,6 +148,9 @@ const ID_FROM_URL_RES: Record<EntityKind, RegExp[]> = {
   npc: [/\/npcs\/([a-z0-9-]+)\b/i],
   faction: [/\/factions\/([a-z0-9-]+)\b/i],
   character: [/\/characters\/([a-z0-9-]+)\b/i],
+  // Beats aren't body-scanned for mentions; entry exists only to satisfy
+  // the exhaustive Record type.
+  beat: [],
 };
 
 function idFromUrl(kind: EntityKind, url: string): string | null {
@@ -343,6 +365,62 @@ export function analyzePlotlineRefs(input: AnalysisInput): RefWarning[] {
     );
   }
 
+  // Beat ↔ plotline sync. Both directions of the bidirectional reference
+  // are checked, plus the redundant frontmatter `plotline` field.
+  const beats = input.beats ?? [];
+  const beatsByPlotline = new Map<string, Set<string>>();
+  for (const beat of beats) {
+    let set = beatsByPlotline.get(beat.parentPlotlineSlug);
+    if (!set) {
+      set = new Set();
+      beatsByPlotline.set(beat.parentPlotlineSlug, set);
+    }
+    set.add(beat.slug);
+  }
+
+  for (const plotline of input.plotlines) {
+    const onDisk = beatsByPlotline.get(plotline.slug) ?? new Set<string>();
+    const referenced = new Set(plotline.beats ?? []);
+
+    for (const slug of referenced) {
+      if (!onDisk.has(slug)) {
+        warnings.push({
+          plotlineSlug: plotline.slug,
+          plotlineTitle: plotline.title,
+          kind: 'missing-beat-file',
+          entityKind: 'beat',
+          entityIdOrName: slug,
+          entityLabel: slug,
+        });
+      }
+    }
+    for (const slug of onDisk) {
+      if (!referenced.has(slug)) {
+        warnings.push({
+          plotlineSlug: plotline.slug,
+          plotlineTitle: plotline.title,
+          kind: 'orphan-beat',
+          entityKind: 'beat',
+          entityIdOrName: slug,
+          entityLabel: slug,
+        });
+      }
+    }
+  }
+
+  for (const beat of beats) {
+    if (beat.plotlineFrontmatter === null) continue;
+    if (beat.plotlineFrontmatter === beat.parentPlotlineSlug) continue;
+    warnings.push({
+      plotlineSlug: beat.parentPlotlineSlug,
+      plotlineTitle: beat.parentPlotlineSlug,
+      kind: 'beat-plotline-mismatch',
+      entityKind: 'beat',
+      entityIdOrName: beat.slug,
+      entityLabel: `${beat.slug} (frontmatter plotline=${beat.plotlineFrontmatter})`,
+    });
+  }
+
   return warnings;
 }
 
@@ -363,6 +441,9 @@ export function formatReport(warnings: RefWarning[]): string {
     const missing = group.filter((w) => w.kind === 'missing-back-ref');
     const stale = group.filter((w) => w.kind === 'stale-back-ref');
     const unresolved = group.filter((w) => w.kind === 'unresolved-body-mention');
+    const missingBeats = group.filter((w) => w.kind === 'missing-beat-file');
+    const orphanBeats = group.filter((w) => w.kind === 'orphan-beat');
+    const mismatchedBeats = group.filter((w) => w.kind === 'beat-plotline-mismatch');
 
     const lines: string[] = [`Plotline: ${plotline}`];
     if (missing.length > 0) {
@@ -381,6 +462,24 @@ export function formatReport(warnings: RefWarning[]): string {
       lines.push('  Unresolved body mentions (typo or missing entity?):');
       for (const w of unresolved) {
         lines.push(`    - ${w.entityKind}: "${w.entityLabel}"`);
+      }
+    }
+    if (missingBeats.length > 0) {
+      lines.push('  Missing beat files (plotline `beats` lists a slug with no matching beat under this plotline):');
+      for (const w of missingBeats) {
+        lines.push(`    - beat/${w.entityIdOrName}`);
+      }
+    }
+    if (orphanBeats.length > 0) {
+      lines.push('  Orphan beats (beat file exists but is not listed in this plotline\'s `beats` array):');
+      for (const w of orphanBeats) {
+        lines.push(`    - beat/${w.entityIdOrName}`);
+      }
+    }
+    if (mismatchedBeats.length > 0) {
+      lines.push('  Beat ↔ plotline mismatches (frontmatter `plotline` field disagrees with parent directory):');
+      for (const w of mismatchedBeats) {
+        lines.push(`    - ${w.entityLabel}`);
       }
     }
     sections.push(lines.join('\n'));

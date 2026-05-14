@@ -1,4 +1,4 @@
-import type { PlotlineBeatData, PlotlineBeatStatus } from '@achm/schemas';
+import type { BeatData, PlotlineBeatStatus } from '@achm/schemas';
 import { normalizeClueRef } from '@achm/schemas';
 
 export interface ResolvedRef {
@@ -11,14 +11,15 @@ export interface ResolvedClueRef extends ResolvedRef {
   clueStatus?: string;
 }
 
-export interface ResolvedBeat {
+export interface ResolvedBeatEntity {
+  slug: string;
   title: string;
+  plotline: string;
   status: PlotlineBeatStatus;
   trigger?: string;
   factions: ResolvedRef[];
   npcs: ResolvedRef[];
   clues: ResolvedClueRef[];
-  notes?: string;
 }
 
 export interface BeatLookups {
@@ -27,13 +28,14 @@ export interface BeatLookups {
   cluesById: Map<string, { name: string; status?: string }>;
 }
 
-export function resolveBeats(
-  beats: PlotlineBeatData[] | undefined,
+export function resolveBeat(
+  beat: BeatData,
   lookups: BeatLookups,
-): ResolvedBeat[] {
-  if (!beats) return [];
-  return beats.map((beat) => ({
+): ResolvedBeatEntity {
+  return {
+    slug: beat.slug,
     title: beat.title,
+    plotline: beat.plotline,
     status: beat.status,
     trigger: beat.trigger,
     factions: (beat.factions ?? []).map((id) => {
@@ -54,6 +56,5 @@ export function resolveBeats(
         clueStatus: data?.status,
       };
     }),
-    notes: beat.notes,
-  }));
+  };
 }
