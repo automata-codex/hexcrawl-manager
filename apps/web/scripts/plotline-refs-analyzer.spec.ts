@@ -114,6 +114,16 @@ On Duke Farnsworth's payroll.
     expect(out.npcNames).toEqual(['Mara Tindle', 'Eira Frostmantle']);
   });
 
+  it('classifies "## Other NPCs" (prefixed heading) as NPC section', () => {
+    const body = `
+## Other NPCs
+
+- [Orlea](/players-reference/setting/npcs/orlea), Daemaris's mentor and lover
+`;
+    const out = parseBodyMentions(body);
+    expect(out.npcIds).toEqual(['orlea']);
+  });
+
   it('classifies "## Agents" as NPC section', () => {
     const body = `
 ## Agents
