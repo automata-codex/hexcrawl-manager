@@ -110,7 +110,9 @@ function collectLinks(node: MdNode, out: MdLink[] = []): MdLink[] {
 
 // --- Body parsing ---------------------------------------------------------
 
-const NPC_H2_RE = /^(npcs|operatives|agents)\b/i;
+// Word-boundary (not `^`) so prefixed headings like "Other NPCs" still
+// classify as an NPC section.
+const NPC_H2_RE = /\b(npcs|operatives|agents)\b/i;
 const FACTION_H2_RE = /^factions\b/i;
 const CHARACTER_H2_RE = /^characters\b/i;
 

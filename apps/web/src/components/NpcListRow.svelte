@@ -1,5 +1,6 @@
 <script lang="ts">
   import Badge from './Badge.svelte';
+
   import type { NpcListItem } from './npc-list-types';
 
   interface Props {
@@ -67,7 +68,6 @@
     width: 36px;
     height: 36px;
     flex-shrink: 0;
-    border-radius: 4px;
     object-fit: cover;
     background-color: var(--bulma-scheme-main-bis);
   }

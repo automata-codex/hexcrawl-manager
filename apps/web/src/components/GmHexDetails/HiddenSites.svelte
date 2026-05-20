@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { sortIgnoringArticles } from '@achm/core';
-  import { normalizeClueRef, type LinkType } from '@achm/schemas';
+  import { type LinkType } from '@achm/schemas';
 
-  import { getCluePath } from '../../config/routes.ts';
   import { getLinkPath, getLinkText } from '../../utils/link-generator';
+  import HexClueList from './HexClueList.svelte';
   import TreasureTable from '../TreasureTable/TreasureTable.svelte';
 
   import type { ClueMapEntry, ExtendedHexData, ExtendedHiddenSites } from '../../types.ts';
@@ -21,29 +20,11 @@
   function hasLink(site: ExtendedHiddenSites): site is ExtendedHiddenSites & { linkType: LinkType; linkId: string } {
     return 'linkType' in site && 'linkId' in site && !!site.linkType && !!site.linkId;
   }
-
-  /**
-   * Get clue display data for a site.
-   */
-  function getSiteClues(site: ExtendedHiddenSites) {
-    if (!site.clues) return [];
-    return site.clues
-      .map((ref) => {
-        const { id } = normalizeClueRef(ref);
-        return {
-          id,
-          name: clueMap?.[id]?.name ?? id,
-          found: !!clueMap?.[id],
-        };
-      })
-      .sort((a, b) => sortIgnoringArticles(a.name, b.name));
-  }
 </script>
 
 {#if hex.renderedHiddenSites && hex.renderedHiddenSites.length > 0}
   {#if hex.renderedHiddenSites.length === 1}
     {@const site = hex.renderedHiddenSites[0]}
-    {@const siteClues = getSiteClues(site)}
     <div>
       <div class="inline-heading-block">
         <span class="inline-heading">Hidden Site:</span>
@@ -53,18 +34,7 @@
         {/if}
       </div>
       <div style="margin-left: 1rem">
-        {#if siteClues.length > 0}
-          <p>
-            <strong>Clues:</strong>
-            {#each siteClues as clue, i (i)}
-              {#if clue.found}
-                <a href={getCluePath(clue.id)}>{clue.name}</a>
-              {:else}
-                <span class="has-text-danger">{clue.name} (not found)</span>
-              {/if}{#if i < siteClues.length - 1},{' '}{/if}
-            {/each}
-          </p>
-        {/if}
+        <HexClueList clues={site.clues} {clueMap} />
       </div>
       {#if site.treasure}
         <TreasureTable treasure={site.treasure} />
@@ -76,26 +46,13 @@
     </div>
     <ul class="hidden-sites-list">
       {#each hex.renderedHiddenSites as site (site.description)}
-        {@const siteClues = getSiteClues(site)}
         <li>
           {@html site.description}
           {#if hasLink(site)}
             &rarr; <a href={getLinkPath(site.linkType, site.linkId)}>{getLinkText(site.linkType, site.linkId)}</a>
           {/if}
           <div>
-            {#if siteClues.length > 0}
-              <p>
-                <strong>Clues:</strong>
-                {#each siteClues as clue, i (i)}
-                  {#if clue.found}
-                    <a href={getCluePath(clue.id)}>{clue.name}</a>
-                  {:else}
-                    <span class="has-text-danger">{clue.name} (not found)</span>
-                  {/if}
-                  {#if i < siteClues.length - 1}, {/if}
-                {/each}
-              </p>
-            {/if}
+            <HexClueList clues={site.clues} {clueMap} />
           </div>
           {#if site.treasure}
             <TreasureTable treasure={site.treasure} />

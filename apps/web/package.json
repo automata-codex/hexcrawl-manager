@@ -22,7 +22,9 @@
     "validate:nobles": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-nobles.ts",
     "validate:plotlines": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-plotline-refs.ts",
     "validate:pointcrawls": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-pointcrawl-ids.ts",
-    "validate:toc": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-toc-config.ts"
+    "validate:refs": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-data-refs.ts",
+    "validate:toc": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-toc-config.ts",
+    "link:refs": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/link-data-refs.ts"
   },
   "type": "module",
   "volta": {
