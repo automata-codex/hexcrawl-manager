@@ -56,6 +56,10 @@ echo "=== Prebuild: Validating plotline back-references ==="
 tsx scripts/validate-plotline-refs.ts
 
 echo ""
+echo "=== Prebuild: Validating data references (backticks + links) ==="
+tsx scripts/validate-data-refs.ts
+
+echo ""
 echo "=== Prebuild: Caching AP totals ==="
 tsx scripts/cache-ap-totals.ts
 
