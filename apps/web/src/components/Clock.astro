@@ -1,4 +1,6 @@
 ---
+import { renderBulletMarkdown } from '../utils/markdown';
+
 /**
  * A Blades in the Dark / PbtA-style progress clock rendered as an SVG pie chart.
  * Displays filled and empty wedges in a circle, with an optional title and description.
@@ -14,6 +16,8 @@ interface Props {
 }
 
 const { title, totalSteps, completedSteps, description, size = 60 } = Astro.props;
+
+const descriptionHtml = description ? await renderBulletMarkdown(description) : null;
 
 const radius = 50;
 const center = 50;
@@ -93,8 +97,8 @@ const wedges = Array.from({ length: totalSteps }, (_, i) => ({
   </svg>
   <div class="clock-label">
     <span class="clock-title">{title}</span>
-    {description && (
-      <span class="clock-description">{description}</span>
+    {descriptionHtml && (
+      <span class="clock-description" set:html={descriptionHtml} />
     )}
   </div>
 </div>

@@ -8,9 +8,8 @@ import { getCluePath, getFactionPath } from '../../../../config/routes';
 import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
 import { canAccess, getCurrentUserRole } from '../../../../utils/auth';
 import { SCOPES } from '../../../../utils/constants';
-import { renderMarkdown } from '../../../../utils/markdown';
+import { renderBulletMarkdown, renderMarkdown } from '../../../../utils/markdown';
 import { formatOccupation } from '../../../../utils/npc-display';
-import { formatText } from '../../../../utils/text';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -62,6 +61,10 @@ const clueRefs = npc.clues?.map((ref) => {
     name: clueNameMap.get(normalized.id) ?? normalized.id,
   };
 }) ?? [];
+
+const renderedNotes = await Promise.all(
+  (npc.notes ?? []).map((note) => renderBulletMarkdown(note)),
+);
 
 // GM-only: resolve faction ids to names so we can link to the GM faction
 // pages. Skip ids that don't resolve so the meta line doesn't render dead
@@ -234,12 +237,12 @@ const factionLinks = isGm
         </div>
       )}
 
-      {npc.notes && npc.notes.length > 0 && (
+      {renderedNotes.length > 0 && (
         <section class="notes">
           <h2 class="title is-4">GM Notes</h2>
           <ul>
-            {npc.notes.map((note) => (
-              <li>{formatText(note)}</li>
+            {renderedNotes.map((noteHtml) => (
+              <li set:html={noteHtml} />
             ))}
           </ul>
         </section>
