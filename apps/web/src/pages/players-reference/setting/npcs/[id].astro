@@ -96,8 +96,6 @@ const factionLinks = isGm
   }
 
   .npc-meta {
-    margin-bottom: 1rem;
-
     dt {
       font-weight: bold;
       display: inline;
@@ -145,12 +143,8 @@ const factionLinks = isGm
     margin-top: 1.5rem;
   }
 
-  .clues-section {
-    margin-top: 1.5rem;
-
-    ul {
-      margin-top: 0.5rem;
-    }
+  .npc-clues {
+    margin-bottom: 1rem;
   }
 
   .clue-context {
@@ -210,21 +204,41 @@ const factionLinks = isGm
 
       <dt>Pronouns</dt>
       <dd>{npc.pronouns}</dd>
+    </dl>
 
-      {factionLinks.length > 0 && (
-        <>
-          <dt>Factions</dt>
-          <dd>
-            {factionLinks.map((faction, index) => (
+    <SecretContent>
+      <dl class="npc-meta">
+        {factionLinks.length > 0 && (
+          <>
+            <dt>Factions</dt>
+            <dd>
+              {factionLinks.map((faction, index) => (
+                <>
+                  <a href={getFactionPath(faction.id)}>{faction.name}</a>
+                  {index < factionLinks.length - 1 && ', '}
+                </>
+              ))}
+            </dd>
+          </>
+        )}
+
+        {clueRefs.length > 0 && (
+          <p class="npc-clues">
+            <strong>Clues</strong> this NPC knows:{' '}
+            {clueRefs.map((clue, index) => (
               <>
-                <a href={getFactionPath(faction.id)}>{faction.name}</a>
-                {index < factionLinks.length - 1 && ', '}
+                <a href={getCluePath(clue.id)}>{clue.name}</a>
+                {clue.context && (
+                  <span class="clue-context"> ({clue.context})</span>
+                )}
+                {index < clueRefs.length - 1 && ', '}
               </>
             ))}
-          </dd>
-        </>
-      )}
-    </dl>
+          </p>
+        )}
+      </dl>
+    </SecretContent>
+    <div style="margin-bottom: 1rem"></div>
 
     <div class="description">
       <Fragment set:html={renderMarkdown(npc.description)} />
@@ -243,22 +257,6 @@ const factionLinks = isGm
           <ul>
             {renderedNotes.map((noteHtml) => (
               <li set:html={noteHtml} />
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {clueRefs.length > 0 && (
-        <section class="clues-section">
-          <h2 class="title is-4">Clues This NPC Knows</h2>
-          <ul>
-            {clueRefs.map((clue) => (
-              <li>
-                <a href={getCluePath(clue.id)}>{clue.name}</a>
-                {clue.context && (
-                  <span class="clue-context"> — {clue.context}</span>
-                )}
-              </li>
             ))}
           </ul>
         </section>
