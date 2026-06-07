@@ -8,7 +8,11 @@ import { getCluePath, getFactionPath } from '../../../../config/routes';
 import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
 import { canAccess, getCurrentUserRole } from '../../../../utils/auth';
 import { SCOPES } from '../../../../utils/constants';
-import { renderBulletMarkdown, renderMarkdown } from '../../../../utils/markdown';
+import {
+  renderBulletMarkdown,
+  renderMarkdown,
+  renderSubArticleMarkdown,
+} from '../../../../utils/markdown';
 import { formatOccupation } from '../../../../utils/npc-display';
 
 // Get the ID from the incoming server request
@@ -62,9 +66,18 @@ const clueRefs = npc.clues?.map((ref) => {
   };
 }) ?? [];
 
-const renderedNotes = await Promise.all(
-  (npc.notes ?? []).map((note) => renderBulletMarkdown(note)),
-);
+// GM notes: prefer the markdown `gmNotes` field; fall back to the deprecated
+// `notes` array for NPCs not yet migrated. gmNotes carries its own section
+// headings (## Truth, ## Voice, ...), so behead them one level to sit beneath
+// the "GM Notes" section heading rendered below.
+const gmNotesHtml = npc.gmNotes
+  ? await renderSubArticleMarkdown(npc.gmNotes)
+  : null;
+const renderedNotes = gmNotesHtml
+  ? []
+  : await Promise.all(
+      (npc.notes ?? []).map((note) => renderBulletMarkdown(note)),
+    );
 
 // GM-only: resolve faction ids to names so we can link to the GM faction
 // pages. Skip ids that don't resolve so the meta line doesn't render dead
@@ -141,6 +154,21 @@ const factionLinks = isGm
 
   .notes {
     margin-top: 1.5rem;
+  }
+
+  .gm-notes {
+    p {
+      margin-bottom: 1rem;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    p + ul,
+    p + ol {
+      margin-top: -1rem;
+    }
   }
 
   .npc-clues {
@@ -251,14 +279,18 @@ const factionLinks = isGm
         </div>
       )}
 
-      {renderedNotes.length > 0 && (
+      {(gmNotesHtml || renderedNotes.length > 0) && (
         <section class="notes">
-          <h2 class="title is-4">GM Notes</h2>
-          <ul>
-            {renderedNotes.map((noteHtml) => (
-              <li set:html={noteHtml} />
-            ))}
-          </ul>
+          <h2 class="title is-3">GM Notes</h2>
+          {gmNotesHtml ? (
+            <div class="gm-notes" set:html={gmNotesHtml} />
+          ) : (
+            <ul>
+              {renderedNotes.map((noteHtml) => (
+                <li set:html={noteHtml} />
+              ))}
+            </ul>
+          )}
         </section>
       )}
     </SecretContent>
