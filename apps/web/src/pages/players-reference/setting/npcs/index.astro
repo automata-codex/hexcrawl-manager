@@ -1,4 +1,5 @@
 ---
+import { sortIgnoringArticles } from '@achm/core';
 import { getNpcSortKey, isPlayerVisible } from '@achm/schemas';
 import { getCollection } from 'astro:content';
 
@@ -53,9 +54,7 @@ const filterOptions = {
     }),
   ),
   plotlines: [...new Set(npcs.flatMap((n) => n.plotlines))].sort((a, b) =>
-    (plotlineNames[a] ?? a).localeCompare(plotlineNames[b] ?? b, undefined, {
-      sensitivity: 'base',
-    }),
+    sortIgnoringArticles(plotlineNames[a] ?? a, plotlineNames[b] ?? b),
   ),
 };
 ---

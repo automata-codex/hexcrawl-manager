@@ -147,9 +147,9 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
     }
   </div>
 
-  <p class="clue-summary">
-    {clue.summary}
-  </p>
+  <div class="clue-summary">
+    <Fragment set:html={renderMarkdown(clue.summary)} />
+  </div>
 
   <div class="meta-section">
     {
