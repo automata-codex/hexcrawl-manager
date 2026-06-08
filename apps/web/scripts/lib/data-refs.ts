@@ -15,7 +15,7 @@
  */
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { extname, join } from 'node:path';
+import { basename, extname, join } from 'node:path';
 
 import yaml from 'yaml';
 
@@ -343,7 +343,10 @@ const COLLECTIONS: readonly CollectionConfig[] = [
     dir: 'roleplay-books',
     recursive: false,
     extensions: ['.yml', '.yaml'],
-    buildKey: (d) => asString(d.id),
+    // Roleplay books have no `id` field; their canonical slug is the filename
+    // (matching Astro's glob loader, which keys entries by filename, and the
+    // `/session-toolkit/roleplay-books/[id]` route).
+    buildKey: (_d, filePath) => basename(filePath, extname(filePath)),
     buildDisplayName: (d) => asString(d.name) ?? asString(d.title),
     buildUrl: (e) => `/session-toolkit/roleplay-books/${e.key}`,
     urlPrefix: '/session-toolkit/roleplay-books/',
