@@ -35,6 +35,14 @@ export const BeatSchema = z
     clues: ClueReferencesSchema.describe('Clues associated with this beat'),
     campaignStatus: CampaignStatusEnum.default('active'),
   })
-  .describe('BeatSchema');
+  .describe(
+    "A beat is a structural inflection point in a single plotline's arc — one " +
+    "node in that plotline's ordered `beats` sequence, used for pacing and for " +
+    'tracking where the story stands. A beat may be realized through one or more ' +
+    'encounters and may surface clues, but it is the narrative node, not the ' +
+    'runnable scene (encounter) or the fact learned (clue). Rule of thumb: a ' +
+    "one-time position in a single plotline's progression is a beat; a reusable " +
+    'scene that could appear in more than one plotline is an encounter.',
+  );
 
 export type BeatData = z.infer<typeof BeatSchema>;
