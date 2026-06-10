@@ -66,6 +66,10 @@ const clueRefs = npc.clues?.map((ref) => {
   };
 }) ?? [];
 
+// When any clue carries discovery context, render the clues as a list so each
+// context reads clearly; otherwise keep the compact inline format.
+const hasClueContext = clueRefs.some((clue) => clue.context);
+
 // GM notes: prefer the markdown `gmNotes` field; fall back to the deprecated
 // `notes` array for NPCs not yet migrated. gmNotes carries its own section
 // headings (## Truth, ## Voice, ...), so behead them one level to sit beneath
@@ -250,20 +254,34 @@ const factionLinks = isGm
           </>
         )}
 
-        {clueRefs.length > 0 && (
-          <p class="npc-clues">
-            <strong>Clues</strong> this NPC knows:{' '}
-            {clueRefs.map((clue, index) => (
-              <>
-                <a href={getCluePath(clue.id)}>{clue.name}</a>
-                {clue.context && (
-                  <span class="clue-context"> ({clue.context})</span>
-                )}
-                {index < clueRefs.length - 1 && ', '}
-              </>
-            ))}
-          </p>
-        )}
+        {clueRefs.length > 0 &&
+          (hasClueContext ? (
+            <div class="npc-clues">
+              <p>
+                <strong>Clues</strong> this NPC knows:
+              </p>
+              <ul>
+                {clueRefs.map((clue) => (
+                  <li>
+                    <a href={getCluePath(clue.id)}>{clue.name}</a>
+                    {clue.context && (
+                      <div class="clue-context">{clue.context}</div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p class="npc-clues">
+              <strong>Clues</strong> this NPC knows:{' '}
+              {clueRefs.map((clue, index) => (
+                <>
+                  <a href={getCluePath(clue.id)}>{clue.name}</a>
+                  {index < clueRefs.length - 1 && ', '}
+                </>
+              ))}
+            </p>
+          ))}
       </dl>
     </SecretContent>
     <div style="margin-bottom: 1rem"></div>
