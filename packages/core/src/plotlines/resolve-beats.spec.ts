@@ -82,6 +82,10 @@ describe('resolveBeat', () => {
     );
     expect(beat.clues.map((c) => c.id)).toEqual(['cipher-fragment', 'sealed-letter']);
     expect(beat.clues.map((c) => c.found)).toEqual([true, true]);
+    expect(beat.clues.map((c) => c.context)).toEqual([
+      undefined,
+      'Found in the safehouse',
+    ]);
   });
 
   it('passes through trigger verbatim', () => {

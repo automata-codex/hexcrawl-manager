@@ -130,6 +130,7 @@ const statusBadgeColor: Record<typeof resolved.status, 'gray' | 'green'> = {
                   <span class="not-found">(not found)</span>
                 </>
               )}
+              {clue.context && <div class="clue-context">{clue.context}</div>}
             </li>
           ))}
         </ul>
@@ -173,6 +174,11 @@ const statusBadgeColor: Record<typeof resolved.status, 'gray' | 'green'> = {
   .linked-clues {
     margin-top: 0.5rem;
     margin-bottom: 1rem;
+  }
+
+  .clue-context {
+    font-style: italic;
+    color: var(--bulma-text-weak);
   }
 
   .checkmark {
