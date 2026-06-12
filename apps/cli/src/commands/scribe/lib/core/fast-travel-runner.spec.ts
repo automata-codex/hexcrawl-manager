@@ -15,77 +15,44 @@ import * as hexData from '../hex-data';
 import { runFastTravel } from './fast-travel-runner';
 
 import type { FastTravelState } from './fast-travel-runner';
-import type { EncounterTableData } from '@achm/schemas';
+
+function makeState(overrides: Partial<FastTravelState> = {}): FastTravelState {
+  return {
+    currentHex: 'P12',
+    route: ['P13', 'P14'],
+    currentLegIndex: 0,
+    pace: 'normal',
+    activeSegmentsToday: 0,
+    daylightSegmentsToday: 0,
+    nightSegmentsToday: 0,
+    daylightSegmentsLeft: 24,
+    daylightCapSegments: 24,
+    weather: null,
+    currentDate: { year: 1, month: 'Hibernis', day: 15 },
+    currentSeason: 'spring',
+    // Threshold 0 = encounters never occur unless a test sets a hex's chance.
+    encounterChances: {},
+    ...overrides,
+  };
+}
 
 describe('runFastTravel', () => {
-  let makeEncounterNoteSpy: MockInstance<
-    (
-      // eslint-disable-next-line no-unused-vars
-      hexId: string,
-      // eslint-disable-next-line no-unused-vars
-      table: {
-        mainTable: {
-          weight: number;
-          category: string;
-          label: string;
-        }[];
-        categoryTables: Record<
-          string,
-          Record<
-            string,
-            {
-              weight: number;
-              encounterId: string;
-            }[]
-          >
-        >;
-      },
-    ) => string | null
-  >;
   // eslint-disable-next-line no-unused-vars
   let isDifficultHexSpy: MockInstance<(hexId: string) => boolean>;
 
-  const mockEncounterTable: EncounterTableData = {
-    mainTable: [{ category: 'wildlife', label: 'Wildlife', weight: 20 }],
-    categoryTables: {
-      wildlife: {
-        '1': [{ encounterId: 'bear', weight: 20 }],
-      },
-    },
-  };
-
   beforeEach(() => {
-    makeEncounterNoteSpy = vi.spyOn(encounters, 'makeEncounterNote');
     isDifficultHexSpy = vi.spyOn(hexData, 'isDifficultHex');
 
-    // Default: no encounters, no difficult terrain
-    makeEncounterNoteSpy.mockReturnValue(null);
+    // Default: no difficult terrain
     isDifficultHexSpy.mockReturnValue(false);
   });
 
   afterEach(() => {
-    makeEncounterNoteSpy.mockRestore();
     isDifficultHexSpy.mockRestore();
   });
 
   it('completes a simple 2-leg journey', () => {
-    const state: FastTravelState = {
-      currentHex: 'P12',
-      route: ['P13', 'P14'],
-      currentLegIndex: 0,
-      pace: 'normal',
-      activeSegmentsToday: 0,
-      daylightSegmentsToday: 0,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
-      weather: null,
-      currentDate: { year: 1, month: 'Hibernis', day: 15 },
-      currentSeason: 'spring',
-      encounterTable: mockEncounterTable,
-    };
-
-    const result = runFastTravel(state);
+    const result = runFastTravel(makeState());
 
     expect(result.status).toBe('completed');
     expect(result.currentLegIndex).toBe(2);
@@ -137,76 +104,31 @@ describe('runFastTravel', () => {
     });
   });
 
-  it('pauses when encounter occurs on first leg', () => {
-    makeEncounterNoteSpy.mockReturnValue(
-      'Encounter entering P13: Wildlife - bear',
-    );
-
-    const state: FastTravelState = {
-      currentHex: 'P12',
-      route: ['P13', 'P14'],
-      currentLegIndex: 0,
-      pace: 'normal',
-      activeSegmentsToday: 0,
-      daylightSegmentsToday: 0,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
-      weather: null,
-      currentDate: { year: 1, month: 'Hibernis', day: 15 },
-      currentSeason: 'spring',
-      encounterTable: mockEncounterTable,
-    };
-
-    const result = runFastTravel(state);
+  it('pauses IN the encounter hex when an encounter occurs on the first leg', () => {
+    // Threshold 20 = always occurs entering P13.
+    const result = runFastTravel(makeState({ encounterChances: { P13: 20 } }));
 
     expect(result.status).toBe('paused_encounter');
-    expect(result.currentLegIndex).toBe(0); // Still on first leg
-    expect(result.events).toHaveLength(1); // Only the encounter note
+    expect(result.currentLegIndex).toBe(1); // P13 entered; next leg is P14
+    expect(result.events).toHaveLength(3); // move + time_log into P13, then the note
 
+    // The party travels INTO the hex before pausing.
     expect(result.events[0]).toEqual({
+      type: 'move',
+      payload: { from: 'P12', to: 'P13', pace: 'normal' },
+    });
+
+    // The note prompts the GM to roll the encounter manually — fast travel
+    // does not auto-pick one.
+    expect(result.events[2]).toEqual({
       type: 'note',
       payload: {
-        text: 'Encounter entering P13: Wildlife - bear',
+        text: 'Encounter check triggered entering P13 (rolled ≤ 20). Roll on the region table, resolve it, then `fast resume`.',
         scope: 'session',
       },
     });
 
-    // No segments used yet
-    expect(result.finalSegments).toEqual({
-      active: 0,
-      daylight: 0,
-      night: 0,
-    });
-  });
-
-  it('pauses when encounter occurs on second leg', () => {
-    makeEncounterNoteSpy
-      .mockReturnValueOnce(null) // No encounter on P13
-      .mockReturnValueOnce('Encounter entering P14: Wildlife - bear'); // Encounter on P14
-
-    const state: FastTravelState = {
-      currentHex: 'P12',
-      route: ['P13', 'P14'],
-      currentLegIndex: 0,
-      pace: 'normal',
-      activeSegmentsToday: 0,
-      daylightSegmentsToday: 0,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
-      weather: null,
-      currentDate: { year: 1, month: 'Hibernis', day: 15 },
-      currentSeason: 'spring',
-      encounterTable: mockEncounterTable,
-    };
-
-    const result = runFastTravel(state);
-
-    expect(result.status).toBe('paused_encounter');
-    expect(result.currentLegIndex).toBe(1); // On second leg
-    expect(result.events).toHaveLength(3); // move + time_log for first leg, note for second
-
+    // The leg's travel time was spent
     expect(result.finalSegments).toEqual({
       active: 4,
       daylight: 4,
@@ -214,24 +136,42 @@ describe('runFastTravel', () => {
     });
   });
 
-  it('pauses when activity cap would be exceeded', () => {
-    const state: FastTravelState = {
-      currentHex: 'P12',
-      route: ['P13', 'P14'],
-      currentLegIndex: 0,
-      pace: 'normal',
-      activeSegmentsToday: 21, // Already used 10.5h
-      daylightSegmentsToday: 21,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: 3,
-      daylightCapSegments: 24,
-      weather: null,
-      currentDate: { year: 1, month: 'Hibernis', day: 15 },
-      currentSeason: 'spring',
-      encounterTable: mockEncounterTable,
-    };
+  it('pauses when encounter occurs on second leg', () => {
+    // No chance on P13, always on P14.
+    const result = runFastTravel(makeState({ encounterChances: { P14: 20 } }));
 
-    const result = runFastTravel(state);
+    expect(result.status).toBe('paused_encounter');
+    expect(result.currentLegIndex).toBe(2); // P14 entered; route exhausted on resume
+    expect(result.events).toHaveLength(5); // both legs' move + time_log, note for P14
+
+    expect(result.finalSegments).toEqual({
+      active: 8,
+      daylight: 8,
+      night: 0,
+    });
+  });
+
+  it('does not roll an encounter for a hex the party could not enter', () => {
+    // P13 would always trigger, but the leg doesn't fit today's daylight.
+    const result = runFastTravel(
+      makeState({
+        encounterChances: { P13: 20 },
+        daylightSegmentsLeft: 2,
+      }),
+    );
+
+    expect(result.status).toBe('paused_no_capacity');
+    expect(result.events).toHaveLength(0); // no move, and no encounter note
+  });
+
+  it('pauses when activity cap would be exceeded', () => {
+    const result = runFastTravel(
+      makeState({
+        activeSegmentsToday: 21, // Already used 10.5h
+        daylightSegmentsToday: 21,
+        daylightSegmentsLeft: 3,
+      }),
+    );
 
     expect(result.status).toBe('paused_no_capacity');
     expect(result.currentLegIndex).toBe(0); // Can't execute first leg
@@ -245,23 +185,11 @@ describe('runFastTravel', () => {
   });
 
   it('pauses when daylight cap would be exceeded', () => {
-    const state: FastTravelState = {
-      currentHex: 'P12',
-      route: ['P13', 'P14'],
-      currentLegIndex: 0,
-      pace: 'normal',
-      activeSegmentsToday: 0,
-      daylightSegmentsToday: 0,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: 2, // Only 1h daylight left
-      daylightCapSegments: 24,
-      weather: null,
-      currentDate: { year: 1, month: 'Hibernis', day: 15 },
-      currentSeason: 'spring',
-      encounterTable: mockEncounterTable,
-    };
-
-    const result = runFastTravel(state);
+    const result = runFastTravel(
+      makeState({
+        daylightSegmentsLeft: 2, // Only 1h daylight left
+      }),
+    );
 
     expect(result.status).toBe('paused_no_capacity');
     expect(result.currentLegIndex).toBe(0);
@@ -269,23 +197,12 @@ describe('runFastTravel', () => {
   });
 
   it('completes multi-leg journey', () => {
-    const state: FastTravelState = {
-      currentHex: 'P12',
-      route: ['P13', 'P14', 'P15', 'P16'],
-      currentLegIndex: 0,
-      pace: 'fast',
-      activeSegmentsToday: 0,
-      daylightSegmentsToday: 0,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
-      weather: null,
-      currentDate: { year: 1, month: 'Hibernis', day: 15 },
-      currentSeason: 'spring',
-      encounterTable: mockEncounterTable,
-    };
-
-    const result = runFastTravel(state);
+    const result = runFastTravel(
+      makeState({
+        route: ['P13', 'P14', 'P15', 'P16'],
+        pace: 'fast',
+      }),
+    );
 
     expect(result.status).toBe('completed');
     expect(result.currentLegIndex).toBe(4);
@@ -302,23 +219,12 @@ describe('runFastTravel', () => {
   it('handles difficult terrain doubling time', () => {
     isDifficultHexSpy.mockReturnValue(true); // All hexes are difficult
 
-    const state: FastTravelState = {
-      currentHex: 'W22',
-      route: ['W23', 'W24'],
-      currentLegIndex: 0,
-      pace: 'normal',
-      activeSegmentsToday: 0,
-      daylightSegmentsToday: 0,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
-      weather: null,
-      currentDate: { year: 1, month: 'Hibernis', day: 15 },
-      currentSeason: 'spring',
-      encounterTable: mockEncounterTable,
-    };
-
-    const result = runFastTravel(state);
+    const result = runFastTravel(
+      makeState({
+        currentHex: 'W22',
+        route: ['W23', 'W24'],
+      }),
+    );
 
     expect(result.status).toBe('completed');
     expect(result.currentLegIndex).toBe(2);
@@ -332,23 +238,11 @@ describe('runFastTravel', () => {
   });
 
   it('handles inclement weather doubling time', () => {
-    const state: FastTravelState = {
-      currentHex: 'P12',
-      route: ['P13', 'P14'],
-      currentLegIndex: 0,
-      pace: 'normal',
-      activeSegmentsToday: 0,
-      daylightSegmentsToday: 0,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
-      weather: createWeather('inclement'),
-      currentDate: { year: 1, month: 'Hibernis', day: 15 },
-      currentSeason: 'spring',
-      encounterTable: mockEncounterTable,
-    };
-
-    const result = runFastTravel(state);
+    const result = runFastTravel(
+      makeState({
+        weather: createWeather('inclement'),
+      }),
+    );
 
     expect(result.status).toBe('completed');
 
@@ -361,23 +255,16 @@ describe('runFastTravel', () => {
   });
 
   it('resumes from partway through route', () => {
-    const state: FastTravelState = {
-      currentHex: 'P13',
-      route: ['P13', 'P14', 'P15'],
-      currentLegIndex: 1, // Resume from P14
-      pace: 'normal',
-      activeSegmentsToday: 4, // Already used 2h
-      daylightSegmentsToday: 4,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: 20,
-      daylightCapSegments: 24,
-      weather: null,
-      currentDate: { year: 1, month: 'Hibernis', day: 15 },
-      currentSeason: 'spring',
-      encounterTable: mockEncounterTable,
-    };
-
-    const result = runFastTravel(state);
+    const result = runFastTravel(
+      makeState({
+        currentHex: 'P13',
+        route: ['P13', 'P14', 'P15'],
+        currentLegIndex: 1, // Resume from P14
+        activeSegmentsToday: 4, // Already used 2h
+        daylightSegmentsToday: 4,
+        daylightSegmentsLeft: 20,
+      }),
+    );
 
     expect(result.status).toBe('completed');
     expect(result.currentLegIndex).toBe(3);
@@ -392,23 +279,12 @@ describe('runFastTravel', () => {
   });
 
   it('handles slow pace', () => {
-    const state: FastTravelState = {
-      currentHex: 'P12',
-      route: ['P13'],
-      currentLegIndex: 0,
-      pace: 'slow',
-      activeSegmentsToday: 0,
-      daylightSegmentsToday: 0,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
-      weather: null,
-      currentDate: { year: 1, month: 'Hibernis', day: 15 },
-      currentSeason: 'spring',
-      encounterTable: mockEncounterTable,
-    };
-
-    const result = runFastTravel(state);
+    const result = runFastTravel(
+      makeState({
+        route: ['P13'],
+        pace: 'slow',
+      }),
+    );
 
     expect(result.status).toBe('completed');
 
@@ -423,23 +299,15 @@ describe('runFastTravel', () => {
   it('applies only one doubler for terrain and weather combined', () => {
     isDifficultHexSpy.mockReturnValue(true);
 
-    const state: FastTravelState = {
-      currentHex: 'W22',
-      route: ['W23'],
-      currentLegIndex: 0,
-      pace: 'normal',
-      activeSegmentsToday: 0,
-      daylightSegmentsToday: 0,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
-      weather: createWeather('extreme'),
-      currentDate: { year: 1, month: 'Aridus', day: 15 },
-      currentSeason: 'winter',
-      encounterTable: mockEncounterTable,
-    };
-
-    const result = runFastTravel(state);
+    const result = runFastTravel(
+      makeState({
+        currentHex: 'W22',
+        route: ['W23'],
+        weather: createWeather('extreme'),
+        currentDate: { year: 1, month: 'Aridus', day: 15 },
+        currentSeason: 'winter',
+      }),
+    );
 
     expect(result.status).toBe('completed');
 
@@ -449,5 +317,15 @@ describe('runFastTravel', () => {
       daylight: 8,
       night: 0,
     });
+  });
+
+  it('does not roll an encounter for hexes with no chance entry', () => {
+    const makeEncounterNoteSpy = vi.spyOn(encounters, 'makeEncounterNote');
+
+    const result = runFastTravel(makeState());
+
+    expect(result.status).toBe('completed');
+    expect(makeEncounterNoteSpy).not.toHaveBeenCalled();
+    makeEncounterNoteSpy.mockRestore();
   });
 });

@@ -1,5 +1,4 @@
 export { activeSegmentsSinceStart } from './active-segments-since-start';
-export { computeSessionHash } from './compute-session-hash';
 export { daylightSegmentsSinceStart } from './daylight-segments-since-start';
 export { findOpenDay } from './find-open-day';
 export { firstCalendarDate } from './first-calendar-date';

@@ -14,8 +14,4 @@ export interface FastTravelPlan {
   legIndex: number; // Next leg to execute: route[legIndex] -> route[legIndex+1]
   activeSegmentsToday: number; // Segments of activity used today
   daylightSegmentsLeft: number; // Remaining daylight segments
-  hasWeatherForToday: boolean; // Whether weather has been committed for today
-  lastSeq: number; // Last event seq written (for integrity check)
-  lastHash: string; // Hash of recent log tail (for integrity check)
-  currentHash: string; // Current log hash at last execution
 }

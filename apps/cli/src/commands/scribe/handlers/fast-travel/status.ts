@@ -1,6 +1,9 @@
 import { info } from '@achm/cli-kit';
-import { segmentsToHours } from '@achm/core';
+import { getDaylightCapSegments, segmentsToHours } from '@achm/core';
 
+import { readEvents } from '../../../../services/event-log.service';
+import { lastCalendarDate } from '../../../../services/projectors.service';
+import { ACTIVITY_CAP_SEGMENTS } from '../../lib/core/execute-leg';
 import { loadPlan } from '../../lib/core/fast-travel-plan';
 import { requireSession } from '../../services/general';
 
@@ -31,11 +34,22 @@ export default function fastTravelStatus(ctx: Context) {
 
   info(`\nToday's Activity:`);
   info(
-    `  Active segments: ${plan.activeSegmentsToday} / 16 (${segmentsToHours(plan.activeSegmentsToday)}h / 8h)`,
+    `  Active segments: ${plan.activeSegmentsToday} / ${ACTIVITY_CAP_SEGMENTS} (${segmentsToHours(plan.activeSegmentsToday)}h / ${segmentsToHours(ACTIVITY_CAP_SEGMENTS)}h)`,
   );
   info(
     `  Daylight left: ${plan.daylightSegmentsLeft} segments (${segmentsToHours(plan.daylightSegmentsLeft)}h)`,
   );
+
+  // Show the day's daylight envelope (season-derived from the current date)
+  if (ctx.file) {
+    const currentDate = lastCalendarDate(readEvents(ctx.file));
+    if (currentDate) {
+      const daylightCapSegments = getDaylightCapSegments(currentDate);
+      info(
+        `  Daylight envelope: ${daylightCapSegments} segments (${segmentsToHours(daylightCapSegments)}h)`,
+      );
+    }
+  }
 
   info(`\nPlan ID: ${plan.groupId}`);
 }

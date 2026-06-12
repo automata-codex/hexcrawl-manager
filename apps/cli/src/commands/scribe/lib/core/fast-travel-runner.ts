@@ -1,4 +1,4 @@
-import { makeEncounterNote } from '../encounters';
+import { makeEncounterNote, rollEncounterOccurs } from '../encounters';
 
 import { executeLeg } from './execute-leg';
 
@@ -7,7 +7,6 @@ import type {
   CampaignDate,
   DayEndEventPayload,
   DayStartEventPayload,
-  EncounterTableData,
   MoveEventPayload,
   NoteEventPayload,
   Pace,
@@ -37,7 +36,9 @@ export interface FastTravelResult {
     | 'completed'
     | 'paused_encounter'
     | 'paused_no_capacity'
-    | 'paused_stale';
+    // Set by the journey orchestrator (not the per-day runner): a single leg
+    // can't fit even a fresh full day's daylight, so we stop rather than loop.
+    | 'error_no_progress';
   /** Current leg index in the route */
   currentLegIndex: number;
   /** Events to emit */
@@ -78,8 +79,8 @@ export interface FastTravelState {
   currentDate: CampaignDate;
   /** Current season */
   currentSeason: Season;
-  /** Encounter table to use */
-  encounterTable: EncounterTableData;
+  /** d20 encounter-chance threshold per route hex (key = route entry) */
+  encounterChances: Record<string, number>;
 }
 
 /**
@@ -107,37 +108,12 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     const destHex = state.route[currentLegIndex];
     const fromHex = currentHex;
 
-    // Check for encounter entering this hex
-    const encounterNote = makeEncounterNote(destHex, state.encounterTable);
-    if (encounterNote) {
-      // Encounter occurred - emit note and pause
-      events.push({
-        type: 'note',
-        payload: {
-          text: encounterNote,
-          scope: 'session',
-        },
-      });
-
-      return {
-        status: 'paused_encounter',
-        currentLegIndex,
-        events,
-        finalSegments: {
-          active: activeSegmentsToday,
-          daylight: daylightSegmentsToday,
-          night: nightSegmentsToday,
-        },
-      };
-    }
-
     // Try to execute the leg
     const legResult = executeLeg({
       destHex,
       pace: state.pace,
       activeSegmentsToday,
       daylightSegmentsLeft,
-      daylightCapSegments: state.daylightCapSegments,
       weather: state.weather,
     });
 
@@ -198,6 +174,32 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     daylightSegmentsLeft -= legResult.daylightSegmentsUsed;
     currentHex = destHex;
     currentLegIndex++;
+
+    // Check for encounter in the hex just entered (per-hex d20 threshold).
+    // Rolled AFTER the move so the party pauses IN the encounter hex, and a
+    // later resume picks up at the next leg without re-rolling this hex.
+    const threshold = state.encounterChances[destHex] ?? 0;
+    if (rollEncounterOccurs(threshold)) {
+      // Encounter occurred - log a prompt for the GM to roll it, and pause
+      events.push({
+        type: 'note',
+        payload: {
+          text: makeEncounterNote(destHex, threshold),
+          scope: 'session',
+        },
+      });
+
+      return {
+        status: 'paused_encounter',
+        currentLegIndex,
+        events,
+        finalSegments: {
+          active: activeSegmentsToday,
+          daylight: daylightSegmentsToday,
+          night: nightSegmentsToday,
+        },
+      };
+    }
   }
 
   // Completed all legs
