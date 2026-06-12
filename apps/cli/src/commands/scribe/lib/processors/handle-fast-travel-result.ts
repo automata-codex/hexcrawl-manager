@@ -45,9 +45,9 @@ export function handleFastTravelResult(
       daylightCapSegments - result.finalSegments.daylight;
 
     savePlan(plan);
-    // The party halts before entering the encounter hex.
+    // The party pauses IN the hex it just entered — the encounter hex.
     info(
-      `Encounter entering ${plan.route[plan.legIndex]}! Fast travel paused at ${expectedResumeHex(plan)}. Use \`fast resume\` to continue after resolving the encounter.`,
+      `Encounter at ${expectedResumeHex(plan)}! Fast travel paused. Use \`fast resume\` to continue after resolving the encounter.`,
     );
   } else if (result.status === 'paused_no_capacity') {
     // Update plan with current progress

@@ -104,17 +104,23 @@ describe('runFastTravel', () => {
     });
   });
 
-  it('pauses when encounter occurs on first leg', () => {
+  it('pauses IN the encounter hex when an encounter occurs on the first leg', () => {
     // Threshold 20 = always occurs entering P13.
     const result = runFastTravel(makeState({ encounterChances: { P13: 20 } }));
 
     expect(result.status).toBe('paused_encounter');
-    expect(result.currentLegIndex).toBe(0); // Still on first leg
-    expect(result.events).toHaveLength(1); // Only the encounter note
+    expect(result.currentLegIndex).toBe(1); // P13 entered; next leg is P14
+    expect(result.events).toHaveLength(3); // move + time_log into P13, then the note
+
+    // The party travels INTO the hex before pausing.
+    expect(result.events[0]).toEqual({
+      type: 'move',
+      payload: { from: 'P12', to: 'P13', pace: 'normal' },
+    });
 
     // The note prompts the GM to roll the encounter manually — fast travel
     // does not auto-pick one.
-    expect(result.events[0]).toEqual({
+    expect(result.events[2]).toEqual({
       type: 'note',
       payload: {
         text: 'Encounter check triggered entering P13 (rolled ≤ 20). Roll on the region table, resolve it, then `fast resume`.',
@@ -122,10 +128,10 @@ describe('runFastTravel', () => {
       },
     });
 
-    // No segments used yet
+    // The leg's travel time was spent
     expect(result.finalSegments).toEqual({
-      active: 0,
-      daylight: 0,
+      active: 4,
+      daylight: 4,
       night: 0,
     });
   });
@@ -135,14 +141,27 @@ describe('runFastTravel', () => {
     const result = runFastTravel(makeState({ encounterChances: { P14: 20 } }));
 
     expect(result.status).toBe('paused_encounter');
-    expect(result.currentLegIndex).toBe(1); // On second leg
-    expect(result.events).toHaveLength(3); // move + time_log for first leg, note for second
+    expect(result.currentLegIndex).toBe(2); // P14 entered; route exhausted on resume
+    expect(result.events).toHaveLength(5); // both legs' move + time_log, note for P14
 
     expect(result.finalSegments).toEqual({
-      active: 4,
-      daylight: 4,
+      active: 8,
+      daylight: 8,
       night: 0,
     });
+  });
+
+  it('does not roll an encounter for a hex the party could not enter', () => {
+    // P13 would always trigger, but the leg doesn't fit today's daylight.
+    const result = runFastTravel(
+      makeState({
+        encounterChances: { P13: 20 },
+        daylightSegmentsLeft: 2,
+      }),
+    );
+
+    expect(result.status).toBe('paused_no_capacity');
+    expect(result.events).toHaveLength(0); // no move, and no encounter note
   });
 
   it('pauses when activity cap would be exceeded', () => {

@@ -248,9 +248,11 @@ events), `fast resume` continues without rejecting the plan.
 
 ### Tolerant resume (replaces the hash gate)
 
-The party pauses **before** entering `route[legIndex]`, so at resume it should still be at
-the previous hex (`route[legIndex - 1]`, or `startHex` when `legIndex === 0`). Resume
-already recomputes segments/date/envelope from current events — only the gate changes.
+The party travels **into** the encounter hex before pausing (the move + time_log are
+emitted, then the prompt note), so at resume it should be at the last hex it entered
+(`route[legIndex - 1]`, or `startHex` when no leg has run). This also means resume picks up
+at the *next* leg and never re-rolls the resolved hex's encounter check. Resume already
+recomputes segments/date/envelope from current events — only the gate changes.
 
 | File | Change |
 |------|--------|
@@ -293,7 +295,9 @@ continues from the right hex across the manual edits.
 
 - **Single leg longer than a full day's daylight** → `error_no_progress`, clear message, no
   infinite loop (Phase 1 zero-progress guard).
-- **Encounter on the first leg** (`legIndex === 0`) → expected resume hex is `startHex`.
+- **Encounter on the first leg** → the party enters `route[0]` and pauses there
+  (`legIndex` becomes 1); `startHex` is only the expected resume hex for a plan where no
+  leg has run (a no-capacity stall before the first move).
 - **Empty route / already at destination** → existing "no route" / immediate-complete paths.
 - **No open day / no current date** → keep the existing `day start` / `date set` errors.
 - **Weather across the trip** → auto-rolled and committed per day, day 1 included when the

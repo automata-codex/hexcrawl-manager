@@ -91,9 +91,10 @@ export function deletePlan(sessionId: string): void {
 }
 
 /**
- * The hex the party should be parked at when resuming a paused plan: travel
- * pauses *before* entering `route[legIndex]`, so the party is at the previous
- * route hex, or the journey's start hex when no leg has run yet.
+ * The hex the party should be parked at when resuming a paused plan: the last
+ * route hex it entered (`legIndex` is the next leg to execute, so an encounter
+ * pause parks the party IN the encounter hex, `route[legIndex - 1]`), or the
+ * journey's start hex when no leg has run yet.
  */
 export function expectedResumeHex(plan: FastTravelPlan): string {
   return plan.legIndex === 0 ? plan.startHex : plan.route[plan.legIndex - 1];

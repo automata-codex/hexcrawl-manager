@@ -108,30 +108,6 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     const destHex = state.route[currentLegIndex];
     const fromHex = currentHex;
 
-    // Check for encounter entering this hex (per-hex d20 threshold)
-    const threshold = state.encounterChances[destHex] ?? 0;
-    if (rollEncounterOccurs(threshold)) {
-      // Encounter occurred - log a prompt for the GM to roll it, and pause
-      events.push({
-        type: 'note',
-        payload: {
-          text: makeEncounterNote(destHex, threshold),
-          scope: 'session',
-        },
-      });
-
-      return {
-        status: 'paused_encounter',
-        currentLegIndex,
-        events,
-        finalSegments: {
-          active: activeSegmentsToday,
-          daylight: daylightSegmentsToday,
-          night: nightSegmentsToday,
-        },
-      };
-    }
-
     // Try to execute the leg
     const legResult = executeLeg({
       destHex,
@@ -199,6 +175,32 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     daylightSegmentsLeft -= legResult.daylightSegmentsUsed;
     currentHex = destHex;
     currentLegIndex++;
+
+    // Check for encounter in the hex just entered (per-hex d20 threshold).
+    // Rolled AFTER the move so the party pauses IN the encounter hex, and a
+    // later resume picks up at the next leg without re-rolling this hex.
+    const threshold = state.encounterChances[destHex] ?? 0;
+    if (rollEncounterOccurs(threshold)) {
+      // Encounter occurred - log a prompt for the GM to roll it, and pause
+      events.push({
+        type: 'note',
+        payload: {
+          text: makeEncounterNote(destHex, threshold),
+          scope: 'session',
+        },
+      });
+
+      return {
+        status: 'paused_encounter',
+        currentLegIndex,
+        events,
+        finalSegments: {
+          active: activeSegmentsToday,
+          daylight: daylightSegmentsToday,
+          night: nightSegmentsToday,
+        },
+      };
+    }
   }
 
   // Completed all legs
