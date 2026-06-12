@@ -12,14 +12,8 @@ import * as runner from './fast-travel-runner';
 
 import type { FastTravelResult, FastTravelState } from './fast-travel-runner';
 import type { Context } from '../../types';
-import type { EncounterTableData } from '@achm/schemas';
 
 const FILE = 'session.jsonl';
-
-const mockEncounterTable: EncounterTableData = {
-  mainTable: [{ category: 'wildlife', label: 'Wildlife', weight: 20 }],
-  categoryTables: { wildlife: { '1': [{ encounterId: 'bear', weight: 20 }] } },
-};
 
 // A winter day's daylight cap is 9h = 18 segments (see CALENDAR_CONFIG).
 const WINTER_CAP = 18;
@@ -39,7 +33,6 @@ function baseState(overrides: Partial<FastTravelState> = {}): FastTravelState {
     weather: null,
     currentDate: { year: 1, month: 'Hibernis', day: 15 }, // winter
     currentSeason: 'winter',
-    encounterTable: mockEncounterTable,
     encounterChances: {},
     ...overrides,
   };

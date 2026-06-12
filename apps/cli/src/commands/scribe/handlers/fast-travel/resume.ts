@@ -1,20 +1,21 @@
 import { error, info } from '@achm/cli-kit';
 import { getDaylightCapSegments, getSeasonForDate } from '@achm/core';
+import { loadMapConfig } from '@achm/data';
 
 import { readEvents } from '../../../../services/event-log.service';
 import {
-  computeSessionHash,
   lastCalendarDate,
   selectCurrentHex,
   selectCurrentWeather,
   selectSegmentsUsedToday,
 } from '../../../../services/projectors.service';
 import { driveJourney } from '../../lib/core/drive-journey';
-import { loadPlan } from '../../lib/core/fast-travel-plan';
 import {
-  loadEncounterTable,
-  resolveEncounterChance,
-} from '../../lib/encounters';
+  expectedResumeHex,
+  loadPlan,
+  verifyPlanPosition,
+} from '../../lib/core/fast-travel-plan';
+import { resolveEncounterChance } from '../../lib/encounters';
 import { handleFastTravelResult } from '../../lib/processors';
 import { requireSession } from '../../services/general';
 
@@ -33,18 +34,19 @@ export default function fastTravelResume(ctx: Context) {
     return;
   }
 
-  // Check integrity
+  // Check the party is where the plan expects. Tolerant of other log changes
+  // (encounter resolution, notes, day boundaries) — only position must match.
   const events = readEvents(ctx.file!);
-  const currentHash = computeSessionHash(events);
-  if (currentHash !== plan.currentHash) {
+  const currentHex = selectCurrentHex(events);
+  const notation = loadMapConfig().grid.notation;
+  if (!verifyPlanPosition(plan, currentHex, notation)) {
     error(
-      'Fast travel plan is stale (session has changed since pause). Use `fast abort` to clear the plan.',
+      `Party has moved since the pause (at ${currentHex ?? 'unknown'}, expected ${expectedResumeHex(plan)}); the plan no longer lines up. Use \`fast abort\` to clear it.`,
     );
     return;
   }
 
   // Load session state
-  const currentHex = selectCurrentHex(events);
   const segmentsUsedToday = selectSegmentsUsedToday(events);
   if (!segmentsUsedToday) {
     error(
@@ -66,8 +68,7 @@ export default function fastTravelResume(ctx: Context) {
   const daylightCapSegments = getDaylightCapSegments(currentDate);
   const daylightSegmentsLeft = daylightCapSegments - daylightUsed;
 
-  // Load encounter table and per-hex encounter chances for the route
-  const encounterTable = loadEncounterTable();
+  // Resolve per-hex encounter chances for the route
   const encounterChances = Object.fromEntries(
     plan.route.map((hex) => [hex, resolveEncounterChance(hex)]),
   );
@@ -86,7 +87,6 @@ export default function fastTravelResume(ctx: Context) {
     weather,
     currentDate,
     currentSeason,
-    encounterTable,
     encounterChances,
   };
 

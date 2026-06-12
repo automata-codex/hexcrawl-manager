@@ -2,17 +2,15 @@ import { error, info } from '@achm/cli-kit';
 import { getDaylightCapSegments, segmentsToHours } from '@achm/core';
 
 import { readEvents } from '../../../../services/event-log.service';
+import { lastCalendarDate } from '../../../../services/projectors.service';
 import {
-  computeSessionHash,
-  lastCalendarDate,
-} from '../../../../services/projectors.service';
-import { deletePlan, savePlan } from '../core/fast-travel-plan';
-import { loadEncounterTable } from '../encounters';
+  deletePlan,
+  expectedResumeHex,
+  savePlan,
+} from '../core/fast-travel-plan';
 
 import type { FastTravelResult } from '../core/fast-travel-runner';
 import type { FastTravelPlan } from '../types/fast-travel';
-
-export { loadEncounterTable };
 
 /**
  * Handle the result of fast travel execution, updating the plan and displaying messages.
@@ -46,12 +44,10 @@ export function handleFastTravelResult(
     plan.daylightSegmentsLeft =
       daylightCapSegments - result.finalSegments.daylight;
 
-    // Update hash
-    plan.currentHash = computeSessionHash(events);
-
     savePlan(plan);
+    // The party halts before entering the encounter hex.
     info(
-      `Encounter! Fast travel paused. Use \`fast resume\` to continue after resolving the encounter.`,
+      `Encounter entering ${plan.route[plan.legIndex]}! Fast travel paused at ${expectedResumeHex(plan)}. Use \`fast resume\` to continue after resolving the encounter.`,
     );
   } else if (result.status === 'paused_no_capacity') {
     // Update plan with current progress
@@ -69,9 +65,6 @@ export function handleFastTravelResult(
     const daylightCapSegments = getDaylightCapSegments(currentDate);
     plan.daylightSegmentsLeft =
       daylightCapSegments - result.finalSegments.daylight;
-
-    // Update hash
-    plan.currentHash = computeSessionHash(events);
 
     savePlan(plan);
     info(

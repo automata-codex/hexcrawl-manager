@@ -1,49 +1,13 @@
-import * as core from '@achm/core';
-import {
-  MockInstance,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { makeEncounterNote } from './make-encounter-note';
 
-import type { EncounterTableData } from '@achm/schemas';
-
 describe('makeEncounterNote', () => {
-  // eslint-disable-next-line no-unused-vars
-  let rollDiceSpy: MockInstance<(notation: string) => number>;
-
-  beforeEach(() => {
-    rollDiceSpy = vi.spyOn(core, 'rollDice');
-  });
-
-  afterEach(() => {
-    rollDiceSpy.mockRestore();
-  });
-
-  const mockTable: EncounterTableData = {
-    mainTable: [{ category: 'wildlife', label: 'Wildlife', weight: 20 }],
-    categoryTables: {
-      wildlife: {
-        '1': [{ encounterId: 'bear', weight: 20 }],
-      },
-    },
-  };
-
-  it('returns formatted encounter note', () => {
-    // Occurrence is the caller's decision (rollEncounterOccurs); this only
-    // rolls the category and the specific entry.
-    rollDiceSpy
-      .mockReturnValueOnce(1) // First category
-      .mockReturnValueOnce(1); // First entry
-
-    const note = makeEncounterNote('P12', mockTable);
-    expect(note).toContain('Encounter entering P12');
-    expect(note).toContain('Wildlife');
-    expect(note).toContain('bear');
+  it('prompts the GM to roll and resume, naming the hex and threshold', () => {
+    const note = makeEncounterNote('P12', 8);
+    expect(note).toContain('Encounter check triggered entering P12');
+    expect(note).toContain('rolled ≤ 8');
+    expect(note).toContain('Roll on the region table');
+    expect(note).toContain('`fast resume`');
   });
 });

@@ -15,16 +15,6 @@ import * as hexData from '../hex-data';
 import { runFastTravel } from './fast-travel-runner';
 
 import type { FastTravelState } from './fast-travel-runner';
-import type { EncounterTableData } from '@achm/schemas';
-
-const mockEncounterTable: EncounterTableData = {
-  mainTable: [{ category: 'wildlife', label: 'Wildlife', weight: 20 }],
-  categoryTables: {
-    wildlife: {
-      '1': [{ encounterId: 'bear', weight: 20 }],
-    },
-  },
-};
 
 function makeState(overrides: Partial<FastTravelState> = {}): FastTravelState {
   return {
@@ -40,7 +30,6 @@ function makeState(overrides: Partial<FastTravelState> = {}): FastTravelState {
     weather: null,
     currentDate: { year: 1, month: 'Hibernis', day: 15 },
     currentSeason: 'spring',
-    encounterTable: mockEncounterTable,
     // Threshold 0 = encounters never occur unless a test sets a hex's chance.
     encounterChances: {},
     ...overrides,
@@ -48,26 +37,17 @@ function makeState(overrides: Partial<FastTravelState> = {}): FastTravelState {
 }
 
 describe('runFastTravel', () => {
-  let makeEncounterNoteSpy: MockInstance<
-    // eslint-disable-next-line no-unused-vars
-    (hexId: string, table: EncounterTableData) => string
-  >;
   // eslint-disable-next-line no-unused-vars
   let isDifficultHexSpy: MockInstance<(hexId: string) => boolean>;
 
   beforeEach(() => {
-    makeEncounterNoteSpy = vi.spyOn(encounters, 'makeEncounterNote');
     isDifficultHexSpy = vi.spyOn(hexData, 'isDifficultHex');
 
-    // Default: deterministic note text, no difficult terrain
-    makeEncounterNoteSpy.mockImplementation(
-      (hexId) => `Encounter entering ${hexId}: Wildlife - bear`,
-    );
+    // Default: no difficult terrain
     isDifficultHexSpy.mockReturnValue(false);
   });
 
   afterEach(() => {
-    makeEncounterNoteSpy.mockRestore();
     isDifficultHexSpy.mockRestore();
   });
 
@@ -132,10 +112,12 @@ describe('runFastTravel', () => {
     expect(result.currentLegIndex).toBe(0); // Still on first leg
     expect(result.events).toHaveLength(1); // Only the encounter note
 
+    // The note prompts the GM to roll the encounter manually — fast travel
+    // does not auto-pick one.
     expect(result.events[0]).toEqual({
       type: 'note',
       payload: {
-        text: 'Encounter entering P13: Wildlife - bear',
+        text: 'Encounter check triggered entering P13 (rolled ≤ 20). Roll on the region table, resolve it, then `fast resume`.',
         scope: 'session',
       },
     });
@@ -319,9 +301,12 @@ describe('runFastTravel', () => {
   });
 
   it('does not roll an encounter for hexes with no chance entry', () => {
+    const makeEncounterNoteSpy = vi.spyOn(encounters, 'makeEncounterNote');
+
     const result = runFastTravel(makeState());
 
     expect(result.status).toBe('completed');
     expect(makeEncounterNoteSpy).not.toHaveBeenCalled();
+    makeEncounterNoteSpy.mockRestore();
   });
 });

@@ -5,7 +5,6 @@ import { TrailMapSchema, type Pace } from '@achm/schemas';
 
 import { readEvents } from '../../../../services/event-log.service';
 import {
-  computeSessionHash,
   lastCalendarDate,
   selectCurrentHex,
   selectCurrentWeather,
@@ -17,10 +16,7 @@ import {
   loadPlan,
   savePlan,
 } from '../../lib/core/fast-travel-plan';
-import {
-  loadEncounterTable,
-  resolveEncounterChance,
-} from '../../lib/encounters';
+import { resolveEncounterChance } from '../../lib/encounters';
 import { handleFastTravelResult } from '../../lib/processors';
 import { buildTrailGraph, bfsTrailPath } from '../../lib/trails';
 import { requireSession } from '../../services/general';
@@ -91,11 +87,6 @@ export default function fastTravelPlanAndExecute(
   const currentSeason = getSeasonForDate(currentDate);
   const daylightCapSegments = getDaylightCapSegments(currentDate);
   const daylightSegmentsLeft = daylightCapSegments - daylightUsed;
-  const currentHash = computeSessionHash(events);
-  const currentSeq = events.length;
-
-  // Check if weather is committed for today
-  const hasWeatherForToday = weather !== null;
 
   // Create plan
   const plan = createPlan({
@@ -106,16 +97,12 @@ export default function fastTravelPlanAndExecute(
     route,
     activeSegmentsToday: totalUsed,
     daylightSegmentsLeft,
-    hasWeatherForToday,
-    currentSeq,
-    currentHash,
   });
 
   savePlan(plan);
   info(`Fast travel plan created. Starting journey...`);
 
-  // Load encounter table and per-hex encounter chances for the route
-  const encounterTable = loadEncounterTable();
+  // Resolve per-hex encounter chances for the route
   const encounterChances = Object.fromEntries(
     route.map((hex) => [hex, resolveEncounterChance(hex)]),
   );
@@ -134,7 +121,6 @@ export default function fastTravelPlanAndExecute(
     weather,
     currentDate,
     currentSeason,
-    encounterTable,
     encounterChances,
   };
 

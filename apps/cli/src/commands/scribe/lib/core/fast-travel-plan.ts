@@ -1,14 +1,12 @@
-import {
-  REPO_PATHS,
-  readAndValidateYaml,
-  writeYamlAtomic,
-} from '@achm/data';
+import { normalizeHexId } from '@achm/core';
+import { REPO_PATHS, readAndValidateYaml, writeYamlAtomic } from '@achm/data';
 import { randomUUID } from 'node:crypto';
 import { existsSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
 
 import type { FastTravelPlan } from '../types/fast-travel';
+import type { CoordinateNotation } from '@achm/core';
 import type { Pace } from '@achm/schemas';
 
 // Zod schema for validating loaded plans
@@ -22,9 +20,6 @@ const FastTravelPlanSchema = z.object({
   legIndex: z.number().int().min(0),
   activeSegmentsToday: z.number().int().min(0),
   daylightSegmentsLeft: z.number().int().min(0),
-  hasWeatherForToday: z.boolean(),
-  lastSeq: z.number().int(),
-  lastHash: z.string(),
 });
 
 export interface CreatePlanArgs {
@@ -35,9 +30,6 @@ export interface CreatePlanArgs {
   route: string[];
   activeSegmentsToday: number; // Segments already used today before fast travel starts
   daylightSegmentsLeft: number; // Remaining daylight segments available
-  hasWeatherForToday: boolean; // Whether weather has been committed for today
-  currentSeq: number;
-  currentHash: string;
 }
 
 /**
@@ -54,10 +46,6 @@ export function createPlan(args: CreatePlanArgs): FastTravelPlan {
     legIndex: 0, // Start at the beginning
     activeSegmentsToday: args.activeSegmentsToday,
     daylightSegmentsLeft: args.daylightSegmentsLeft,
-    hasWeatherForToday: args.hasWeatherForToday,
-    lastSeq: args.currentSeq,
-    lastHash: args.currentHash,
-    currentHash: args.currentHash,
   };
 }
 
@@ -103,13 +91,34 @@ export function deletePlan(sessionId: string): void {
 }
 
 /**
- * Verify that the plan's integrity markers match the current log state.
- * This prevents resuming a stale plan after manual log edits.
+ * The hex the party should be parked at when resuming a paused plan: travel
+ * pauses *before* entering `route[legIndex]`, so the party is at the previous
+ * route hex, or the journey's start hex when no leg has run yet.
  */
-export function verifyPlanIntegrity(
+export function expectedResumeHex(plan: FastTravelPlan): string {
+  return plan.legIndex === 0 ? plan.startHex : plan.route[plan.legIndex - 1];
+}
+
+/**
+ * Verify the party is where the plan expects before resuming. Tolerant of
+ * other log changes (resolving an encounter, notes, day boundaries) — only the
+ * party's position has to line up.
+ */
+export function verifyPlanPosition(
   plan: FastTravelPlan,
-  currentLogSeq: number,
-  currentLogHash: string,
+  currentHex: string | null,
+  notation: CoordinateNotation,
 ): boolean {
-  return plan.lastSeq === currentLogSeq && plan.lastHash === currentLogHash;
+  if (!currentHex) {
+    return false;
+  }
+  try {
+    return (
+      normalizeHexId(currentHex, notation) ===
+      normalizeHexId(expectedResumeHex(plan), notation)
+    );
+  } catch {
+    // Unparseable hex ID (e.g. a malformed manual `move`) — fail closed.
+    return false;
+  }
 }

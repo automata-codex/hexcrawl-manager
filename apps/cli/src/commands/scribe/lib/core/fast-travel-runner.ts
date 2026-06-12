@@ -7,7 +7,6 @@ import type {
   CampaignDate,
   DayEndEventPayload,
   DayStartEventPayload,
-  EncounterTableData,
   MoveEventPayload,
   NoteEventPayload,
   Pace,
@@ -37,7 +36,6 @@ export interface FastTravelResult {
     | 'completed'
     | 'paused_encounter'
     | 'paused_no_capacity'
-    | 'paused_stale'
     // Set by the journey orchestrator (not the per-day runner): a single leg
     // can't fit even a fresh full day's daylight, so we stop rather than loop.
     | 'error_no_progress';
@@ -81,8 +79,6 @@ export interface FastTravelState {
   currentDate: CampaignDate;
   /** Current season */
   currentSeason: Season;
-  /** Encounter table to use */
-  encounterTable: EncounterTableData;
   /** d20 encounter-chance threshold per route hex (key = route entry) */
   encounterChances: Record<string, number>;
 }
@@ -115,11 +111,11 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     // Check for encounter entering this hex (per-hex d20 threshold)
     const threshold = state.encounterChances[destHex] ?? 0;
     if (rollEncounterOccurs(threshold)) {
-      // Encounter occurred - emit note and pause
+      // Encounter occurred - log a prompt for the GM to roll it, and pause
       events.push({
         type: 'note',
         payload: {
-          text: makeEncounterNote(destHex, state.encounterTable),
+          text: makeEncounterNote(destHex, threshold),
           scope: 'session',
         },
       });
