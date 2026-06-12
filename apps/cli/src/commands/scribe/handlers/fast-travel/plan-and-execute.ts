@@ -17,6 +17,7 @@ import {
   savePlan,
 } from '../../lib/core/fast-travel-plan';
 import { resolveEncounterChance } from '../../lib/encounters';
+import { getHexAlerts } from '../../lib/hex-alerts';
 import { handleFastTravelResult } from '../../lib/processors';
 import { buildTrailGraph, bfsTrailPath } from '../../lib/trails';
 import { requireSession } from '../../services/general';
@@ -102,9 +103,12 @@ export default function fastTravelPlanAndExecute(
   savePlan(plan);
   info(`Fast travel plan created. Starting journey...`);
 
-  // Resolve per-hex encounter chances for the route
+  // Resolve per-hex encounter chances and arrival alerts for the route
   const encounterChances = Object.fromEntries(
     route.map((hex) => [hex, resolveEncounterChance(hex)]),
+  );
+  const hexAlerts = Object.fromEntries(
+    route.map((hex) => [hex, getHexAlerts(hex)]),
   );
 
   // Build state for runner
@@ -122,6 +126,7 @@ export default function fastTravelPlanAndExecute(
     currentDate,
     currentSeason,
     encounterChances,
+    hexAlerts,
   };
 
   // Drive the journey to completion, auto-advancing days as needed.

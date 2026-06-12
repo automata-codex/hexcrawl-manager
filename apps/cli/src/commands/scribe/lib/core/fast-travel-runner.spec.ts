@@ -32,6 +32,8 @@ function makeState(overrides: Partial<FastTravelState> = {}): FastTravelState {
     currentSeason: 'spring',
     // Threshold 0 = encounters never occur unless a test sets a hex's chance.
     encounterChances: {},
+    // No arrival alerts unless a test sets a hex's counts.
+    hexAlerts: {},
     ...overrides,
   };
 }
@@ -327,5 +329,78 @@ describe('runFastTravel', () => {
     expect(result.status).toBe('completed');
     expect(makeEncounterNoteSpy).not.toHaveBeenCalled();
     makeEncounterNoteSpy.mockRestore();
+  });
+
+  it('pauses IN a mid-route hex with arrival alerts and logs a note', () => {
+    const result = runFastTravel(
+      makeState({ hexAlerts: { P13: { unknownClues: 2, updates: 1 } } }),
+    );
+
+    expect(result.status).toBe('paused_hex_alert');
+    expect(result.currentLegIndex).toBe(1); // P13 entered; next leg is P14
+
+    // The party travels INTO the hex before pausing, and the alert is
+    // recorded in the session log.
+    expect(result.events).toHaveLength(3); // move + time_log into P13, then the note
+    expect(result.events[2]).toEqual({
+      type: 'note',
+      payload: {
+        text: 'Hex alert at P13: 2 unknown clue(s), 1 GM update(s) — see hex P13.',
+        scope: 'session',
+      },
+    });
+  });
+
+  it('completes (does not pause) when only the destination has alerts, still logging the note', () => {
+    const result = runFastTravel(
+      makeState({ hexAlerts: { P14: { unknownClues: 1, updates: 0 } } }),
+    );
+
+    expect(result.status).toBe('completed');
+    expect(result.currentLegIndex).toBe(2);
+    expect(result.events).toHaveLength(5); // both legs' move + time_log, alert note for P14
+    expect(result.events[4]).toEqual({
+      type: 'note',
+      payload: {
+        text: 'Hex alert at P14: 1 unknown clue(s) — see hex P14.',
+        scope: 'session',
+      },
+    });
+  });
+
+  it('pauses once with encounter status when a hex triggers both, logging both notes', () => {
+    const result = runFastTravel(
+      makeState({
+        encounterChances: { P13: 20 },
+        hexAlerts: { P13: { unknownClues: 1, updates: 0 } },
+      }),
+    );
+
+    expect(result.status).toBe('paused_encounter');
+    expect(result.currentLegIndex).toBe(1);
+    expect(result.events).toHaveLength(4); // move + time_log, alert note, encounter note
+    expect(result.events[2].type).toBe('note');
+    expect(result.events[3].type).toBe('note');
+  });
+
+  it('ignores zero-count alert entries', () => {
+    const result = runFastTravel(
+      makeState({ hexAlerts: { P13: { unknownClues: 0, updates: 0 } } }),
+    );
+
+    expect(result.status).toBe('completed');
+    expect(result.events).toHaveLength(4); // no notes
+  });
+
+  it('does not check alerts for a hex the party could not enter', () => {
+    const result = runFastTravel(
+      makeState({
+        hexAlerts: { P13: { unknownClues: 1, updates: 0 } },
+        daylightSegmentsLeft: 2,
+      }),
+    );
+
+    expect(result.status).toBe('paused_no_capacity');
+    expect(result.events).toHaveLength(0); // no move, and no alert note
   });
 });

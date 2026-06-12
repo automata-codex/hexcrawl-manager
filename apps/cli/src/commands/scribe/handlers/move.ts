@@ -8,6 +8,7 @@ import {
   selectCurrentHex,
   isPartyLost,
 } from '../../../services/projectors.service';
+import { formatHexAlertLines, getHexAlerts } from '../lib/hex-alerts';
 import { requireSession } from '../services/general';
 
 import type { Context } from '../types';
@@ -66,7 +67,7 @@ export default function move(ctx: Context) {
         if (trail?.permanent) {
           isPermanentTrail = true;
         }
-      } catch (err) {
+      } catch {
         // Silently ignore trail loading errors
       }
     }
@@ -91,5 +92,10 @@ export default function move(ctx: Context) {
 
     // Emit move event
     appendEvent(ctx.file!, 'move', { from, to, pace });
+
+    // Surface unknown clues / pending GM updates at the arrival hex
+    for (const line of formatHexAlertLines(to, getHexAlerts(to))) {
+      info(line);
+    }
   };
 }

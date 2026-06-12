@@ -1,0 +1,38 @@
+import { hasAlerts, type HexAlerts } from './count-hex-alerts';
+
+/**
+ * Interface lines announcing a hex's alerts on arrival. Count-only by
+ * design — details stay GM-side on the hex page, not in the REPL.
+ */
+export function formatHexAlertLines(
+  hexId: string,
+  alerts: HexAlerts,
+): string[] {
+  const lines: string[] = [];
+  if (alerts.unknownClues > 0) {
+    lines.push(
+      `🔍 ${alerts.unknownClues} unknown clue(s) here — see hex ${hexId}.`,
+    );
+  }
+  if (alerts.updates > 0) {
+    lines.push(`📝 This hex has ${alerts.updates} GM update(s).`);
+  }
+  return lines;
+}
+
+/**
+ * Session-log note recording why fast travel paused at a hex. One line so
+ * it reads cleanly in the log alongside encounter notes.
+ */
+export function makeHexAlertNote(hexId: string, alerts: HexAlerts): string {
+  const parts: string[] = [];
+  if (alerts.unknownClues > 0) {
+    parts.push(`${alerts.unknownClues} unknown clue(s)`);
+  }
+  if (alerts.updates > 0) {
+    parts.push(`${alerts.updates} GM update(s)`);
+  }
+  return `Hex alert at ${hexId}: ${parts.join(', ')} — see hex ${hexId}.`;
+}
+
+export { hasAlerts };

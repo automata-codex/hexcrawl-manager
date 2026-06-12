@@ -6,6 +6,7 @@ import {
   isPartyLost,
   selectCurrentHex,
 } from '../../../services/projectors.service';
+import { formatHexAlertLines, getHexAlerts } from '../lib/hex-alerts';
 import { requireFile, requireSession } from '../services/general';
 
 import type { Context } from '../types';
@@ -89,5 +90,10 @@ export default function backtrack(ctx: Context) {
     }
 
     appendEvent(ctx.file!, 'move', { from: prev.from, to: prev.to, pace }); // Checked by `requireFile`
+
+    // Surface unknown clues / pending GM updates at the arrival hex
+    for (const line of formatHexAlertLines(prev.to, getHexAlerts(prev.to))) {
+      info(line);
+    }
   };
 }
