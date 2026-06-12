@@ -53,7 +53,7 @@ tsx scripts/validate-content-status.ts
 
 echo ""
 echo "=== Prebuild: Validating plotline back-references ==="
-tsx scripts/validate-plotline-refs.ts
+ACHM_STRICT_PLOTLINE_REFS="${ACHM_STRICT_PLOTLINE_REFS:-1}" tsx scripts/validate-plotline-refs.ts
 
 echo ""
 echo "=== Prebuild: Validating data references (backticks + links) ==="
