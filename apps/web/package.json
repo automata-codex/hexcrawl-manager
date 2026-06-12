@@ -13,6 +13,7 @@
     "preview": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} astro preview",
     "test": "vitest run || true",
     "tidings:aid": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/faction-tidings-aid.ts",
+    "tidings:coverage": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/beat-tiding-coverage.ts",
     "validate:articles": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-articles.ts",
     "validate:config": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-yaml-config.ts",
     "validate:dungeons": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-dungeon-encounters.ts",

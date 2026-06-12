@@ -86,9 +86,11 @@ export interface FactionThreads {
 // --- Live filters -----------------------------------------------------------
 
 // Surfacing is read-only: these predicates only select, never write status.
+// `isLiveBeat` is shared with the beat-tiding coverage tool so both tools
+// agree on what "live" means.
 const LIVE_BEAT_STATUSES = new Set(['pending', 'active']);
 
-function isLiveBeat(beat: TidingsBeatFile): boolean {
+export function isLiveBeat(beat: TidingsBeatFile): boolean {
   return (
     LIVE_BEAT_STATUSES.has(beat.status ?? 'pending') &&
     (beat.campaignStatus ?? 'active') === 'active'
