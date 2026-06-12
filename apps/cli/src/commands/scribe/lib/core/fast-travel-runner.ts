@@ -37,7 +37,10 @@ export interface FastTravelResult {
     | 'completed'
     | 'paused_encounter'
     | 'paused_no_capacity'
-    | 'paused_stale';
+    | 'paused_stale'
+    // Set by the journey orchestrator (not the per-day runner): a single leg
+    // can't fit even a fresh full day's daylight, so we stop rather than loop.
+    | 'error_no_progress';
   /** Current leg index in the route */
   currentLegIndex: number;
   /** Events to emit */

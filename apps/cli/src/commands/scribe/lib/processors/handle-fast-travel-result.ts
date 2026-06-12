@@ -1,4 +1,4 @@
-import { info } from '@achm/cli-kit';
+import { error, info } from '@achm/cli-kit';
 import { getDaylightCapSegments, segmentsToHours } from '@achm/core';
 
 import { readEvents } from '../../../../services/event-log.service';
@@ -76,6 +76,27 @@ export function handleFastTravelResult(
     savePlan(plan);
     info(
       `Out of capacity for today. Fast travel paused. Continue tomorrow with \`fast resume\`.`,
+    );
+  } else if (result.status === 'error_no_progress') {
+    // A single leg can't fit even a fresh full day's daylight. The plan is kept
+    // (with progress recorded) so `fast status` shows where it stalled; the GM
+    // resolves it manually and clears the plan with `fast abort`.
+    plan.legIndex = result.currentLegIndex;
+    savePlan(plan);
+
+    const fromHex =
+      result.currentLegIndex === 0
+        ? plan.startHex
+        : plan.route[result.currentLegIndex - 1];
+    const destHex = plan.route[result.currentLegIndex];
+    const events = readEvents(file);
+    const currentDate = lastCalendarDate(events);
+    const capHours = currentDate
+      ? segmentsToHours(getDaylightCapSegments(currentDate))
+      : null;
+    const capText = capHours !== null ? ` (${capHours}h daylight)` : '';
+    error(
+      `Fast travel stalled: the leg ${fromHex} → ${destHex} can't fit in a single day${capText}. Use \`fast abort\` to clear the plan.`,
     );
   }
 }

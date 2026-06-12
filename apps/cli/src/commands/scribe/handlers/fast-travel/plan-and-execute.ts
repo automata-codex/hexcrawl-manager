@@ -11,13 +11,12 @@ import {
   selectCurrentWeather,
   selectSegmentsUsedToday,
 } from '../../../../services/projectors.service';
+import { driveJourney } from '../../lib/core/drive-journey';
 import {
   createPlan,
   loadPlan,
   savePlan,
 } from '../../lib/core/fast-travel-plan';
-import { runFastTravel } from '../../lib/core/fast-travel-runner';
-import { emitFastTravelEvents } from '../../lib/emitters';
 import { loadEncounterTable } from '../../lib/encounters';
 import { handleFastTravelResult } from '../../lib/processors';
 import { buildTrailGraph, bfsTrailPath } from '../../lib/trails';
@@ -132,10 +131,7 @@ export default function fastTravelPlanAndExecute(
     encounterTable,
   };
 
-  // Run fast travel
-  const result = runFastTravel(state);
-
-  // Emit events and handle result
-  emitFastTravelEvents(ctx.file!, result.events);
+  // Drive the journey to completion, auto-advancing days as needed.
+  const result = driveJourney(ctx, ctx.file!, state);
   handleFastTravelResult(ctx.file!, ctx.sessionId!, plan, result);
 }

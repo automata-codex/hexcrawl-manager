@@ -1,15 +1,15 @@
 import { appendEvent } from '../../../../services/event-log.service';
 
+import type { WeatherCommittedEventPayload } from '@achm/schemas';
+
 /**
  * Emit a weather_committed event.
- * Note: The actual weather payload would need to be generated
- * by rolling weather. For now, this is a placeholder.
- * @returns An object with the sequence number and payload
+ * @returns The sequence number of the emitted event
  */
 export function emitWeatherCommitted(
   file: string,
-  payload: any,
-): { seq: number; payload: any } {
+  payload: WeatherCommittedEventPayload,
+): number {
   const event = appendEvent(file, 'weather_committed', payload);
-  return { seq: event.seq, payload };
+  return event.seq;
 }
