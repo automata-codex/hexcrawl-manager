@@ -19,6 +19,7 @@ import { z } from 'zod';
  * Maps to route helper functions in apps/web/src/config/routes.ts
  */
 export const LinkTypeEnum = z.enum([
+  'beat',
   'clue',
   'dungeon',
   'encounter',
