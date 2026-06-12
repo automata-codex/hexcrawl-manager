@@ -1,4 +1,5 @@
 import { makeEncounterNote, rollEncounterOccurs } from '../encounters';
+import { hasAlerts, makeHexAlertNote, type HexAlerts } from '../hex-alerts';
 
 import { executeLeg } from './execute-leg';
 
@@ -35,6 +36,8 @@ export interface FastTravelResult {
   status:
     | 'completed'
     | 'paused_encounter'
+    // Entered a hex with unknown clues or pending GM updates.
+    | 'paused_hex_alert'
     | 'paused_no_capacity'
     // Set by the journey orchestrator (not the per-day runner): a single leg
     // can't fit even a fresh full day's daylight, so we stop rather than loop.
@@ -81,6 +84,8 @@ export interface FastTravelState {
   currentSeason: Season;
   /** d20 encounter-chance threshold per route hex (key = route entry) */
   encounterChances: Record<string, number>;
+  /** Arrival alerts (unknown clues / GM updates) per route hex */
+  hexAlerts: Record<string, HexAlerts>;
 }
 
 /**
@@ -175,9 +180,24 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     currentHex = destHex;
     currentLegIndex++;
 
-    // Check for encounter in the hex just entered (per-hex d20 threshold).
-    // Rolled AFTER the move so the party pauses IN the encounter hex, and a
-    // later resume picks up at the next leg without re-rolling this hex.
+    // Check the hex just entered for arrival alerts (unknown clues / GM
+    // updates) and encounters. Both are checked AFTER the move so the party
+    // pauses IN the flagged hex, and a later resume picks up at the next leg
+    // without re-checking this hex. When both fire at once we pause once,
+    // with the encounter status (the more actionable of the two) — both
+    // notes still land in the log.
+    const alerts = state.hexAlerts[destHex];
+    const alerted = alerts !== undefined && hasAlerts(alerts);
+    if (alerted) {
+      events.push({
+        type: 'note',
+        payload: {
+          text: makeHexAlertNote(destHex, alerts),
+          scope: 'session',
+        },
+      });
+    }
+
     const threshold = state.encounterChances[destHex] ?? 0;
     if (rollEncounterOccurs(threshold)) {
       // Encounter occurred - log a prompt for the GM to roll it, and pause
@@ -191,6 +211,22 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
 
       return {
         status: 'paused_encounter',
+        currentLegIndex,
+        events,
+        finalSegments: {
+          active: activeSegmentsToday,
+          daylight: daylightSegmentsToday,
+          night: nightSegmentsToday,
+        },
+      };
+    }
+
+    // Alerts pause the journey only mid-route: at the destination the
+    // journey is over anyway, so we complete instead (the alert note above
+    // is still logged, and the completion handler displays the alerts).
+    if (alerted && currentLegIndex < state.route.length) {
+      return {
+        status: 'paused_hex_alert',
         currentLegIndex,
         events,
         finalSegments: {

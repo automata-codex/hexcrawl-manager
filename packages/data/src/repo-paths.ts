@@ -6,6 +6,7 @@ import { resolveDataPath } from './paths.js';
 export const REPO_PATHS = {
   AP_LEDGER: () => resolveDataPath('ap-ledger.jsonl'),
   CHARACTERS: () => resolveDataPath('characters'),
+  CLUES: () => resolveDataPath('clues'),
   DEV: () => resolveDataPath('session-logs/_dev'), // Dev-mode root
   DEV_IN_PROGRESS: () => resolveDataPath('session-logs/_dev/in-progress'), // Dev-mode in-progress logs
   DEV_ROLLOVERS: () => resolveDataPath('session-logs/_dev/rollovers'), // Dev-mode rollover logs

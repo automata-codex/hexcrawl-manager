@@ -1,10 +1,25 @@
 import { z } from 'zod';
 
 /**
+ * NAMING MAP — display labels have drifted from schema identifiers; the schema
+ * names are kept stable on purpose (renaming ripples through every import, type,
+ * and data file for zero table-facing gain). Translate when reading code:
+ *
+ *   schema identifier                   display label          notes
+ *   -------------------------------------------------------------------------------------
+ *   intelligenceReports                 "Faction Tidings"      the whole table
+ *   rows / IntelligenceReportRow        "Random Tidings"       the d12 rolled entries
+ *   situational / SituationalReportRow  "Selectable Tidings"   GM-selected, unrolled
+ *
+ * If these drift again, update this map rather than the identifiers.
+ */
+
+/**
  * Enum for link types used in intelligence reports and hidden sites.
  * Maps to route helper functions in apps/web/src/config/routes.ts
  */
 export const LinkTypeEnum = z.enum([
+  'beat',
   'clue',
   'dungeon',
   'encounter',

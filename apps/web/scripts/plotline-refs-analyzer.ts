@@ -243,7 +243,7 @@ export function parseBodyMentions(body: string): BodyMentions {
 
 // --- Analysis -------------------------------------------------------------
 
-function normalizeName(name: string): string {
+export function normalizeName(name: string): string {
   return name.toLowerCase().trim();
 }
 

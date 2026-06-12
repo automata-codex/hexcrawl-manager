@@ -16,6 +16,7 @@ import {
   verifyPlanPosition,
 } from '../../lib/core/fast-travel-plan';
 import { resolveEncounterChance } from '../../lib/encounters';
+import { getHexAlerts } from '../../lib/hex-alerts';
 import { handleFastTravelResult } from '../../lib/processors';
 import { requireSession } from '../../services/general';
 
@@ -68,9 +69,12 @@ export default function fastTravelResume(ctx: Context) {
   const daylightCapSegments = getDaylightCapSegments(currentDate);
   const daylightSegmentsLeft = daylightCapSegments - daylightUsed;
 
-  // Resolve per-hex encounter chances for the route
+  // Resolve per-hex encounter chances and arrival alerts for the route
   const encounterChances = Object.fromEntries(
     plan.route.map((hex) => [hex, resolveEncounterChance(hex)]),
+  );
+  const hexAlerts = Object.fromEntries(
+    plan.route.map((hex) => [hex, getHexAlerts(hex)]),
   );
 
   // Build state for runner
@@ -88,6 +92,7 @@ export default function fastTravelResume(ctx: Context) {
     currentDate,
     currentSeason,
     encounterChances,
+    hexAlerts,
   };
 
   info(`Resuming fast travel to ${plan.destHex}...`);
