@@ -11,10 +11,10 @@ Commands:
   dead-rec <success|fail>        record a dead reckoning attempt (clears lost state on success)
   exit                           leave the shell
   explore                        record exploration of the current hex
-  fast <dest> <pace>             plan and execute fast travel along trails (pace: fast|normal|slow)
+  fast <dest> <pace>             travel trails to <dest>, auto-advancing days + weather; pauses on encounters (pace: fast|normal|slow)
   fast abort                     cancel active fast travel plan
-  fast resume                    resume paused fast travel
-  fast status                    show active fast travel plan
+  fast resume                    continue fast travel after resolving an encounter (party must be at the pause hex)
+  fast status                    show active fast travel plan and today's activity budget
   finalize                       freeze session → logs/sessions/<id>.jsonl
   help                           show this help
   move <to> [lost] [pace]        record a move (pace: fast|normal|slow)

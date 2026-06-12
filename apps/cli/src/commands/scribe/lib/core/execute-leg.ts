@@ -33,8 +33,10 @@ const PACE_BASE_SEGMENTS: Record<Pace, number> = {
 
 /**
  * Activity cap in segments (12 hours = 24 segments).
+ * Exceeding this in a day is the exhaustion threshold; it does not vary by
+ * date or season (only the daylight cap does).
  */
-const ACTIVITY_CAP_SEGMENTS = 24;
+export const ACTIVITY_CAP_SEGMENTS = 24;
 
 /**
  * Calculate the total segments required for a leg, including terrain and weather doublers.
@@ -76,8 +78,6 @@ export interface ExecuteLegArgs {
   activeSegmentsToday: number;
   /** Remaining daylight segments available */
   daylightSegmentsLeft: number;
-  /** Total daylight cap for the day */
-  daylightCapSegments: number;
   /** Current weather (null if none) */
   weather: WeatherCommitted | null;
 }
@@ -92,14 +92,8 @@ export interface ExecuteLegArgs {
  * @returns Result indicating if leg can execute and segment breakdown
  */
 export function executeLeg(args: ExecuteLegArgs): LegExecutionResult {
-  const {
-    destHex,
-    pace,
-    activeSegmentsToday,
-    daylightSegmentsLeft,
-    daylightCapSegments,
-    weather,
-  } = args;
+  const { destHex, pace, activeSegmentsToday, daylightSegmentsLeft, weather } =
+    args;
   const totalSegments = calculateLegSegments(destHex, pace, weather);
 
   // Check activity cap (12 hours = 24 segments)

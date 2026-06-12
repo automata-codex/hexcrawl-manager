@@ -114,7 +114,6 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
       pace: state.pace,
       activeSegmentsToday,
       daylightSegmentsLeft,
-      daylightCapSegments: state.daylightCapSegments,
       weather: state.weather,
     });
 
