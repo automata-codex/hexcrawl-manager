@@ -37,9 +37,8 @@
         <a href={getCluePath(clue.id)}>{clue.name}</a>
       {:else}
         <span class="has-text-danger">{clue.name} (not found)</span>
-      {/if}
-      {#if clue.context}<em class="clue-context">({clue.context})</em>{/if}
-      {#if i < resolved.length - 1},{' '}{/if}
+      {/if}{#if clue.context}<em class="clue-context">({clue.context})</em>
+      {/if}{#if i < resolved.length - 1},{' '}{/if}
     {/each}
   </p>
 {/if}

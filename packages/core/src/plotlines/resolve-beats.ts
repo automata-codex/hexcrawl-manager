@@ -9,6 +9,7 @@ export interface ResolvedRef {
 
 export interface ResolvedClueRef extends ResolvedRef {
   clueStatus?: string;
+  context?: string;
 }
 
 export interface ResolvedBeatEntity {
@@ -47,13 +48,14 @@ export function resolveBeat(
       return { id, name: data?.displayName ?? id, found: data !== undefined };
     }),
     clues: (beat.clues ?? []).map((ref) => {
-      const { id } = normalizeClueRef(ref);
+      const { id, context } = normalizeClueRef(ref);
       const data = lookups.cluesById.get(id);
       return {
         id,
         name: data?.name ?? id,
         found: data !== undefined,
         clueStatus: data?.status,
+        context,
       };
     }),
   };
