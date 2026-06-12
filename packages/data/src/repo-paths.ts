@@ -22,6 +22,7 @@ export const REPO_PATHS = {
   LOGS_ROOT: () => resolveDataPath('session-logs'), // Root for all session logs
   MAP_CONFIG: () => resolveDataPath('map.yaml'), // Map configuration
   META: () => resolveDataPath('meta.yaml'), // Meta file for session state
+  REGIONS: () => resolveDataPath('regions'), // Region definitions
   REPORTS: () => resolveDataPath('session-reports'), // Generated reports
   ROLLOVERS: () => resolveDataPath('session-logs/rollovers'), // Root for all session logs
   SESSIONS: () => resolveDataPath('session-logs/sessions'), // Finalized session files

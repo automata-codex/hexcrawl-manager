@@ -17,7 +17,10 @@ import {
   loadPlan,
   savePlan,
 } from '../../lib/core/fast-travel-plan';
-import { loadEncounterTable } from '../../lib/encounters';
+import {
+  loadEncounterTable,
+  resolveEncounterChance,
+} from '../../lib/encounters';
 import { handleFastTravelResult } from '../../lib/processors';
 import { buildTrailGraph, bfsTrailPath } from '../../lib/trails';
 import { requireSession } from '../../services/general';
@@ -111,8 +114,11 @@ export default function fastTravelPlanAndExecute(
   savePlan(plan);
   info(`Fast travel plan created. Starting journey...`);
 
-  // Load encounter table
+  // Load encounter table and per-hex encounter chances for the route
   const encounterTable = loadEncounterTable();
+  const encounterChances = Object.fromEntries(
+    route.map((hex) => [hex, resolveEncounterChance(hex)]),
+  );
 
   // Build state for runner
   const state: FastTravelState = {
@@ -129,6 +135,7 @@ export default function fastTravelPlanAndExecute(
     currentDate,
     currentSeason,
     encounterTable,
+    encounterChances,
   };
 
   // Drive the journey to completion, auto-advancing days as needed.

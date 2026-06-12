@@ -1,13 +1,12 @@
 import { rollEncounterEntry } from './roll-encounter-entry';
-import { rollEncounterOccurs } from './roll-encounter-occurs';
 import { rollEncounterType } from './roll-encounter-type';
 
 import type { EncounterTableData } from '@achm/schemas';
 
 /**
- * Roll for an encounter entering a hex.
- * Returns null if no encounter occurs.
- * Returns a formatted note string if an encounter occurs.
+ * Build a note for an encounter entering a hex, rolling the category and
+ * specific entry from the table. Occurrence is decided by the caller (see
+ * `rollEncounterOccurs`); this is only called once an encounter has occurred.
  *
  * @param hexId The hex being entered
  * @param table The encounter table to use
@@ -15,11 +14,7 @@ import type { EncounterTableData } from '@achm/schemas';
 export function makeEncounterNote(
   hexId: string,
   table: EncounterTableData,
-): string | null {
-  if (!rollEncounterOccurs()) {
-    return null;
-  }
-
+): string {
   // Roll for category
   const categoryLabel = rollEncounterType(table);
   const categoryEntry = table.mainTable.find((e) => e.label === categoryLabel);

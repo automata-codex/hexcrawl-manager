@@ -1,4 +1,4 @@
-import { makeEncounterNote } from '../encounters';
+import { makeEncounterNote, rollEncounterOccurs } from '../encounters';
 
 import { executeLeg } from './execute-leg';
 
@@ -83,6 +83,8 @@ export interface FastTravelState {
   currentSeason: Season;
   /** Encounter table to use */
   encounterTable: EncounterTableData;
+  /** d20 encounter-chance threshold per route hex (key = route entry) */
+  encounterChances: Record<string, number>;
 }
 
 /**
@@ -110,14 +112,14 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     const destHex = state.route[currentLegIndex];
     const fromHex = currentHex;
 
-    // Check for encounter entering this hex
-    const encounterNote = makeEncounterNote(destHex, state.encounterTable);
-    if (encounterNote) {
+    // Check for encounter entering this hex (per-hex d20 threshold)
+    const threshold = state.encounterChances[destHex] ?? 0;
+    if (rollEncounterOccurs(threshold)) {
       // Encounter occurred - emit note and pause
       events.push({
         type: 'note',
         payload: {
-          text: encounterNote,
+          text: makeEncounterNote(destHex, state.encounterTable),
           scope: 'session',
         },
       });

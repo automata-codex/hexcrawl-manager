@@ -34,17 +34,10 @@ describe('makeEncounterNote', () => {
     },
   };
 
-  it('returns null when no encounter occurs', () => {
-    rollDiceSpy.mockReturnValue(11); // Roll 11 on d20
-    expect(makeEncounterNote('P12', mockTable)).toBe(null);
-  });
-
-  it('returns formatted encounter note when encounter occurs', () => {
-    // First call: rollEncounterOccurs (roll 1)
-    // Second call: rollEncounterType (roll within Wildlife weight)
-    // Third call: rollEncounterEntry (roll within bear weight)
+  it('returns formatted encounter note', () => {
+    // Occurrence is the caller's decision (rollEncounterOccurs); this only
+    // rolls the category and the specific entry.
     rollDiceSpy
-      .mockReturnValueOnce(1) // Encounter occurs
       .mockReturnValueOnce(1) // First category
       .mockReturnValueOnce(1); // First entry
 

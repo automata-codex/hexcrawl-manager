@@ -11,7 +11,10 @@ import {
 } from '../../../../services/projectors.service';
 import { driveJourney } from '../../lib/core/drive-journey';
 import { loadPlan } from '../../lib/core/fast-travel-plan';
-import { loadEncounterTable } from '../../lib/encounters';
+import {
+  loadEncounterTable,
+  resolveEncounterChance,
+} from '../../lib/encounters';
 import { handleFastTravelResult } from '../../lib/processors';
 import { requireSession } from '../../services/general';
 
@@ -63,8 +66,11 @@ export default function fastTravelResume(ctx: Context) {
   const daylightCapSegments = getDaylightCapSegments(currentDate);
   const daylightSegmentsLeft = daylightCapSegments - daylightUsed;
 
-  // Load encounter table
+  // Load encounter table and per-hex encounter chances for the route
   const encounterTable = loadEncounterTable();
+  const encounterChances = Object.fromEntries(
+    plan.route.map((hex) => [hex, resolveEncounterChance(hex)]),
+  );
 
   // Build state for runner
   const state: FastTravelState = {
@@ -81,6 +87,7 @@ export default function fastTravelResume(ctx: Context) {
     currentDate,
     currentSeason,
     encounterTable,
+    encounterChances,
   };
 
   info(`Resuming fast travel to ${plan.destHex}...`);

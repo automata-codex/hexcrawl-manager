@@ -23,16 +23,31 @@ describe('rollEncounterOccurs', () => {
     rollDiceSpy.mockRestore();
   });
 
-  it('returns true when rolling a 1', () => {
-    rollDiceSpy.mockReturnValue(1);
-    expect(rollEncounterOccurs()).toBe(true);
+  it('returns true when the roll is below the threshold', () => {
+    rollDiceSpy.mockReturnValue(3);
+    expect(rollEncounterOccurs(8)).toBe(true);
   });
 
-  it('returns false when rolling a 2-20', () => {
-    rollDiceSpy.mockReturnValue(2);
-    expect(rollEncounterOccurs()).toBe(false);
+  it('returns true when the roll equals the threshold', () => {
+    rollDiceSpy.mockReturnValue(8);
+    expect(rollEncounterOccurs(8)).toBe(true);
+  });
 
+  it('returns false when the roll is above the threshold', () => {
+    rollDiceSpy.mockReturnValue(9);
+    expect(rollEncounterOccurs(8)).toBe(false);
+  });
+
+  it('never occurs at threshold 0 (and skips the roll)', () => {
+    expect(rollEncounterOccurs(0)).toBe(false);
+    expect(rollDiceSpy).not.toHaveBeenCalled();
+  });
+
+  it('always occurs at threshold 20', () => {
     rollDiceSpy.mockReturnValue(20);
-    expect(rollEncounterOccurs()).toBe(false);
+    expect(rollEncounterOccurs(20)).toBe(true);
+
+    rollDiceSpy.mockReturnValue(1);
+    expect(rollEncounterOccurs(20)).toBe(true);
   });
 });

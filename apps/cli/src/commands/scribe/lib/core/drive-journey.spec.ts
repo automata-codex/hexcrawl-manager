@@ -40,6 +40,7 @@ function baseState(overrides: Partial<FastTravelState> = {}): FastTravelState {
     currentDate: { year: 1, month: 'Hibernis', day: 15 }, // winter
     currentSeason: 'winter',
     encounterTable: mockEncounterTable,
+    encounterChances: {},
     ...overrides,
   };
 }
