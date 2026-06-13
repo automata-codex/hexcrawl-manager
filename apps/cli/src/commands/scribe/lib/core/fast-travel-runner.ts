@@ -1,5 +1,6 @@
 import { makeEncounterNote, rollEncounterOccurs } from '../encounters';
 import { hasAlerts, makeHexAlertNote, type HexAlerts } from '../hex-alerts';
+import { makeKeyedEncounterNote } from '../keyed-encounters';
 
 import { executeLeg } from './execute-leg';
 
@@ -8,6 +9,7 @@ import type {
   CampaignDate,
   DayEndEventPayload,
   DayStartEventPayload,
+  KeyedEncounter,
   MoveEventPayload,
   NoteEventPayload,
   Pace,
@@ -36,6 +38,8 @@ export interface FastTravelResult {
   status:
     | 'completed'
     | 'paused_encounter'
+    // Entered a hex with a scripted (keyed) encounter that triggers on entry.
+    | 'paused_keyed_encounter'
     // Entered a hex with unknown clues or pending GM updates.
     | 'paused_hex_alert'
     | 'paused_no_capacity'
@@ -84,6 +88,8 @@ export interface FastTravelState {
   currentSeason: Season;
   /** d20 encounter-chance threshold per route hex (key = route entry) */
   encounterChances: Record<string, number>;
+  /** Entry-triggered keyed (scripted) encounters per route hex */
+  keyedEncounters: Record<string, KeyedEncounter[]>;
   /** Arrival alerts (unknown clues / GM updates) per route hex */
   hexAlerts: Record<string, HexAlerts>;
 }
@@ -180,12 +186,20 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     currentHex = destHex;
     currentLegIndex++;
 
-    // Check the hex just entered for arrival alerts (unknown clues / GM
-    // updates) and encounters. Both are checked AFTER the move so the party
-    // pauses IN the flagged hex, and a later resume picks up at the next leg
-    // without re-checking this hex. When both fire at once we pause once,
-    // with the encounter status (the more actionable of the two) — both
-    // notes still land in the log.
+    // Check the hex just entered for keyed (scripted) encounters, arrival
+    // alerts (unknown clues / GM updates), and a random encounter roll. All are
+    // checked AFTER the move so the party pauses IN the flagged hex, and a
+    // later resume picks up at the next leg without re-checking this hex. When
+    // several fire at once every note still lands in the log; we pause once,
+    // preferring the most actionable status (keyed encounter > random
+    // encounter > alert).
+    const finalSegments = {
+      active: activeSegmentsToday,
+      daylight: daylightSegmentsToday,
+      night: nightSegmentsToday,
+    };
+    const atDestination = currentLegIndex >= state.route.length;
+
     const alerts = state.hexAlerts[destHex];
     const alerted = alerts !== undefined && hasAlerts(alerts);
     if (alerted) {
@@ -198,9 +212,24 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
       });
     }
 
+    // Keyed encounters are scripted — they always trigger on entry, no roll.
+    const keyed = state.keyedEncounters[destHex] ?? [];
+    if (keyed.length > 0) {
+      events.push({
+        type: 'note',
+        payload: {
+          text: makeKeyedEncounterNote(destHex, keyed),
+          scope: 'session',
+        },
+      });
+    }
+
+    // Random encounter check. Independent of any keyed encounter — a scripted
+    // event and a wandering one can both happen in the same hex.
     const threshold = state.encounterChances[destHex] ?? 0;
-    if (rollEncounterOccurs(threshold)) {
-      // Encounter occurred - log a prompt for the GM to roll it, and pause
+    const rolledEncounter = rollEncounterOccurs(threshold);
+    if (rolledEncounter) {
+      // Log a prompt for the GM to roll the encounter manually.
       events.push({
         type: 'note',
         payload: {
@@ -208,32 +237,36 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
           scope: 'session',
         },
       });
+    }
 
+    // Decide whether to pause. A keyed encounter or a random encounter is
+    // actionable enough to pause for; an arrival alert pauses only mid-route
+    // (at the destination the journey is over anyway, so we complete — the
+    // alert note is still logged and the completion handler displays it). A
+    // keyed encounter likewise pauses only mid-route: at the destination the
+    // completion handler surfaces it.
+    if (keyed.length > 0 && !atDestination) {
+      return {
+        status: 'paused_keyed_encounter',
+        currentLegIndex,
+        events,
+        finalSegments,
+      };
+    }
+    if (rolledEncounter) {
       return {
         status: 'paused_encounter',
         currentLegIndex,
         events,
-        finalSegments: {
-          active: activeSegmentsToday,
-          daylight: daylightSegmentsToday,
-          night: nightSegmentsToday,
-        },
+        finalSegments,
       };
     }
-
-    // Alerts pause the journey only mid-route: at the destination the
-    // journey is over anyway, so we complete instead (the alert note above
-    // is still logged, and the completion handler displays the alerts).
-    if (alerted && currentLegIndex < state.route.length) {
+    if (alerted && !atDestination) {
       return {
         status: 'paused_hex_alert',
         currentLegIndex,
         events,
-        finalSegments: {
-          active: activeSegmentsToday,
-          daylight: daylightSegmentsToday,
-          night: nightSegmentsToday,
-        },
+        finalSegments,
       };
     }
   }

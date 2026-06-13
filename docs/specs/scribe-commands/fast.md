@@ -123,6 +123,15 @@ If a leg ends **exactly** on a cap, allow it (no exhaustion risk until you excee
   * Emit `note { text: "Encounter entering <B>: <one-liner>", scope: 'day' }`
   * **Pause** the plan (persist progress). GM resolves it manually; then `fast resume`.
 
+### Keyed encounters (on trails)
+
+* A hex's `keyedEncounters` are **scripted** — they always trigger on entry, no roll. Only entries with `trigger: entry` apply during fast travel; `trigger: exploration` ones are found by searching the hex, which fast travel doesn't do, so they're ignored.
+* On entering a hex with an entry-triggered keyed encounter:
+
+  * Emit `note { text: "Keyed encounter at <B>: <encounterIds>. Resolve it, then `fast resume`.", scope: 'session' }`
+  * **Pause** the plan (persist progress) when mid-route. At the **destination** the journey completes instead (no more legs to run); the keyed encounter is surfaced in the completion summary.
+* **Precedence** when a hex fires several signals at once: every note is still logged, but the journey pauses once, preferring the most actionable status — **keyed encounter > random encounter > hex alert**.
+
 ---
 
 ## Sidecar (Pause/Resume Persistence)

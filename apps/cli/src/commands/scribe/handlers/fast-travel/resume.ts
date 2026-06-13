@@ -17,6 +17,7 @@ import {
 } from '../../lib/core/fast-travel-plan';
 import { resolveEncounterChance } from '../../lib/encounters';
 import { getHexAlerts } from '../../lib/hex-alerts';
+import { getEntryKeyedEncounters } from '../../lib/keyed-encounters';
 import { handleFastTravelResult } from '../../lib/processors';
 import { requireSession } from '../../services/general';
 
@@ -69,9 +70,13 @@ export default function fastTravelResume(ctx: Context) {
   const daylightCapSegments = getDaylightCapSegments(currentDate);
   const daylightSegmentsLeft = daylightCapSegments - daylightUsed;
 
-  // Resolve per-hex encounter chances and arrival alerts for the route
+  // Resolve per-hex encounter chances, keyed encounters, and arrival alerts
+  // for the route
   const encounterChances = Object.fromEntries(
     plan.route.map((hex) => [hex, resolveEncounterChance(hex)]),
+  );
+  const keyedEncounters = Object.fromEntries(
+    plan.route.map((hex) => [hex, getEntryKeyedEncounters(hex)]),
   );
   const hexAlerts = Object.fromEntries(
     plan.route.map((hex) => [hex, getHexAlerts(hex)]),
@@ -92,6 +97,7 @@ export default function fastTravelResume(ctx: Context) {
     currentDate,
     currentSeason,
     encounterChances,
+    keyedEncounters,
     hexAlerts,
   };
 
