@@ -9,6 +9,10 @@ import {
   savePlan,
 } from '../core/fast-travel-plan';
 import { formatHexAlertLines, getHexAlerts } from '../hex-alerts';
+import {
+  formatKeyedEncounterLines,
+  getEntryKeyedEncounters,
+} from '../keyed-encounters';
 
 import type { FastTravelResult } from '../core/fast-travel-runner';
 import type { FastTravelPlan } from '../types/fast-travel';
@@ -54,7 +58,15 @@ export function handleFastTravelResult(
     info(
       `Total time today: ${segmentsToHours(result.finalSegments.active)}h active, ${segmentsToHours(result.finalSegments.daylight)}h daylight`,
     );
-    // Surface unknown clues / pending GM updates at the destination
+    // Surface keyed encounters, then unknown clues / pending GM updates, at
+    // the destination (a keyed encounter or alert on the final hex completes
+    // the journey rather than pausing, so the GM needs to see it here).
+    for (const line of formatKeyedEncounterLines(
+      plan.destHex,
+      getEntryKeyedEncounters(plan.destHex),
+    )) {
+      info(line);
+    }
     for (const line of formatHexAlertLines(
       plan.destHex,
       getHexAlerts(plan.destHex),
@@ -66,6 +78,19 @@ export function handleFastTravelResult(
     // The party pauses IN the hex it just entered — the encounter hex.
     info(
       `Encounter at ${expectedResumeHex(plan)}! Fast travel paused. Use \`fast resume\` to continue after resolving the encounter.`,
+    );
+  } else if (result.status === 'paused_keyed_encounter') {
+    persistPausedProgress(file, plan, result);
+    // The party pauses IN the hex it just entered — the keyed-encounter hex.
+    const pausedHex = expectedResumeHex(plan);
+    for (const line of formatKeyedEncounterLines(
+      pausedHex,
+      getEntryKeyedEncounters(pausedHex),
+    )) {
+      info(line);
+    }
+    info(
+      `Fast travel paused at ${pausedHex}. Use \`fast resume\` to continue after resolving the keyed encounter.`,
     );
   } else if (result.status === 'paused_hex_alert') {
     persistPausedProgress(file, plan, result);

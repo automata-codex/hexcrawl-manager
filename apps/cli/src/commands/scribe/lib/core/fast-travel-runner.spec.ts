@@ -32,6 +32,8 @@ function makeState(overrides: Partial<FastTravelState> = {}): FastTravelState {
     currentSeason: 'spring',
     // Threshold 0 = encounters never occur unless a test sets a hex's chance.
     encounterChances: {},
+    // No keyed encounters unless a test sets a hex's list.
+    keyedEncounters: {},
     // No arrival alerts unless a test sets a hex's counts.
     hexAlerts: {},
     ...overrides,
@@ -381,6 +383,94 @@ describe('runFastTravel', () => {
     expect(result.events).toHaveLength(4); // move + time_log, alert note, encounter note
     expect(result.events[2].type).toBe('note');
     expect(result.events[3].type).toBe('note');
+  });
+
+  it('pauses IN a mid-route hex with a keyed encounter and logs a note', () => {
+    const result = runFastTravel(
+      makeState({
+        keyedEncounters: {
+          P13: [{ encounterId: 'enc-ambush', trigger: 'entry' }],
+        },
+      }),
+    );
+
+    expect(result.status).toBe('paused_keyed_encounter');
+    expect(result.currentLegIndex).toBe(1); // P13 entered; next leg is P14
+
+    // The party travels INTO the hex before pausing, and the keyed encounter
+    // is recorded in the session log.
+    expect(result.events).toHaveLength(3); // move + time_log into P13, then the note
+    expect(result.events[2]).toEqual({
+      type: 'note',
+      payload: {
+        text: 'Keyed encounter at P13: enc-ambush. Resolve it, then `fast resume`.',
+        scope: 'session',
+      },
+    });
+  });
+
+  it('completes (does not pause) when only the destination has a keyed encounter, still logging the note', () => {
+    const result = runFastTravel(
+      makeState({
+        keyedEncounters: {
+          P14: [{ encounterId: 'enc-boss', trigger: 'entry' }],
+        },
+      }),
+    );
+
+    expect(result.status).toBe('completed');
+    expect(result.currentLegIndex).toBe(2);
+    expect(result.events).toHaveLength(5); // both legs' move + time_log, keyed note for P14
+    expect(result.events[4]).toEqual({
+      type: 'note',
+      payload: {
+        text: 'Keyed encounter at P14: enc-boss. Resolve it, then `fast resume`.',
+        scope: 'session',
+      },
+    });
+  });
+
+  it('does not trigger on exploration-only keyed encounters (state filters them out)', () => {
+    // The state map only ever holds entry-triggered encounters (the handler
+    // filters on build), so an empty list means no pause.
+    const result = runFastTravel(makeState({ keyedEncounters: { P13: [] } }));
+
+    expect(result.status).toBe('completed');
+    expect(result.events).toHaveLength(4); // no notes
+  });
+
+  it('prefers the keyed-encounter status when a hex triggers keyed, random, and alert, logging all notes', () => {
+    const result = runFastTravel(
+      makeState({
+        keyedEncounters: {
+          P13: [{ encounterId: 'enc-ambush', trigger: 'entry' }],
+        },
+        encounterChances: { P13: 20 },
+        hexAlerts: { P13: { unknownClues: 1, updates: 0 } },
+      }),
+    );
+
+    expect(result.status).toBe('paused_keyed_encounter');
+    expect(result.currentLegIndex).toBe(1);
+    // move + time_log, then alert note, keyed note, encounter note.
+    expect(result.events).toHaveLength(5);
+    expect(result.events[2].type).toBe('note'); // alert
+    expect(result.events[3].type).toBe('note'); // keyed
+    expect(result.events[4].type).toBe('note'); // random encounter
+  });
+
+  it('does not check keyed encounters for a hex the party could not enter', () => {
+    const result = runFastTravel(
+      makeState({
+        keyedEncounters: {
+          P13: [{ encounterId: 'enc-ambush', trigger: 'entry' }],
+        },
+        daylightSegmentsLeft: 2,
+      }),
+    );
+
+    expect(result.status).toBe('paused_no_capacity');
+    expect(result.events).toHaveLength(0); // no move, and no keyed note
   });
 
   it('ignores zero-count alert entries', () => {
