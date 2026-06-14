@@ -15,6 +15,10 @@ echo "=== Prebuild: Validating map configuration ==="
 tsx scripts/validate-map.ts
 
 echo ""
+echo "=== Prebuild: Validating faction territory hexes ==="
+tsx scripts/validate-faction-hexes.ts
+
+echo ""
 echo "=== Prebuild: Validating YAML config ==="
 tsx scripts/validate-yaml-config.ts
 
