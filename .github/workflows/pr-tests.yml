@@ -52,6 +52,8 @@ jobs:
       fail-fast: false
       matrix:
         cmd:
+          - "npm run -w @achm/core test"
+          - "npm run -w @achm/web test"
           - "npm run -w @achm/cli test"
           - "npm run -w @achm/cli test:int"
 
