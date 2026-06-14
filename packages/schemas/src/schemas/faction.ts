@@ -44,9 +44,27 @@ export const FactionSchema = z.object({
   ifIgnored: z.string().optional(), // What happens if the PCs don't engage with this faction
   pcIntersections: z.string().optional(), // How faction goals intersect with PC goals (markdown)
   activeAgents: z.array(FactionAgentSchema).optional(), // Named NPCs who embody the faction at the table
-  plotlines: z.array(z.string()).optional().describe(
-    'Plotline slugs this faction appears in (reverse direction of plotline body references)',
-  ),
+  plotlines: z
+    .array(z.string())
+    .optional()
+    .describe(
+      'Plotline slugs this faction appears in (reverse direction of plotline body references)',
+    ),
+  hexes: z
+    .array(z.string())
+    .optional()
+    .describe(
+      "Hex IDs claimed as this faction's territory. Unlike region.hexes, this is " +
+        'an overlay CLAIM, not a partition: overlaps across factions are allowed ' +
+        '(contested hexes), coverage is not exhaustive, and it drives no terrain/biome ' +
+        'defaults. Do NOT apply region-style uniqueness/coverage validation to this field.',
+    ),
+  mapColor: z
+    .string()
+    .optional()
+    .describe(
+      "Outline color for this faction's territory on the interactive map (CSS color).",
+    ),
   campaignStatus: CampaignStatusEnum.default('active'),
 });
 

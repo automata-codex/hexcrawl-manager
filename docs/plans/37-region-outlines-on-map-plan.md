@@ -88,8 +88,11 @@ existing `plotlines` field's `.optional().describe(...)` style in this same file
 Do **not** touch `areaOfOperation` (stays the coarse "where they operate" concept).
 
 **Then:**
-- `npm run build:json-schemas` (regenerates `packages/schemas/dist/faction.schema.json`
-  + manifest) and commit the regenerated artifacts.
+- `npm run build` (runs `tsc -b` then `build:json-schemas`; a plain
+  `build:json-schemas` reads the *stale* compiled `dist/index.js`, so do a full build).
+  This regenerates `packages/schemas/dist/faction.schema.json` + manifest, but
+  `dist/` is **gitignored** — the schemas are build output, nothing to commit there.
+  Only the `faction.ts` source change ships.
 - Add the combined changeset (see cross-cutting note).
 
 **Review checklist:** describe text present and contract-correct; JSON schema regen
