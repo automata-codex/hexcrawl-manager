@@ -7,3 +7,14 @@ outOfBounds:
   - "0104"
   - "0401"
   - "0402"
+layers:
+  - key: regionBorders
+    label: Region Borders
+    defaultVisible: false
+    scopes:
+      - gm:view
+  - key: factionTerritory
+    label: Faction Territory
+    defaultVisible: false
+    scopes:
+      - gm:view
