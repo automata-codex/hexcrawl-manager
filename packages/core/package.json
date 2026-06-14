@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -b",
     "check": "tsc --noEmit",
-    "test": "vitest run || true",
+    "test": "vitest run",
     "lint": "eslint . || true"
   },
   "type": "module",

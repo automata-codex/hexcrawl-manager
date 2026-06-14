@@ -17,7 +17,12 @@ export {
 } from './parse.js';
 
 // Parsing
-export { displayHexId, formatHexId, normalizeHexId, parseHexId } from './parse.js';
+export {
+  displayHexId,
+  formatHexId,
+  normalizeHexId,
+  parseHexId,
+} from './parse.js';
 
 // Validation
 export {
@@ -34,6 +39,10 @@ export {
   hexDistance,
   hexToCube,
 } from './geometry.js';
+
+// Perimeter
+export type { PerimeterEdge } from './perimeter.js';
+export { getPerimeterEdges } from './perimeter.js';
 
 // Sorting
 export { compareHexCoords, compareHexIds, sortHexIds } from './sort.js';
