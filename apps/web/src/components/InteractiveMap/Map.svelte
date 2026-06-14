@@ -469,20 +469,6 @@
             {/if}
           {/each}
         {/if}
-        <MapOutline
-          groups={regionGroups}
-          layerKey="regionBorders"
-          {notation}
-          strokeWidth={REGION_BORDER_WIDTH}
-          {labelFont}
-        />
-        <MapOutline
-          groups={factionGroups}
-          layerKey="factionTerritory"
-          {notation}
-          strokeWidth={REGION_BORDER_WIDTH}
-          {labelFont}
-        />
         {#if !canAccess(role, [SCOPES.GM])}
           <g id="layer-player-mask" style:display="true">
             {#each hexes as hex (hex.id)}
@@ -515,6 +501,21 @@
             {/if}
           {/each}
         </g>
+        <!-- Region/faction outlines render after hex labels so region names sit on top of hex IDs -->
+        <MapOutline
+          groups={regionGroups}
+          layerKey="regionBorders"
+          {notation}
+          strokeWidth={REGION_BORDER_WIDTH}
+          {labelFont}
+        />
+        <MapOutline
+          groups={factionGroups}
+          layerKey="factionTerritory"
+          {notation}
+          strokeWidth={REGION_BORDER_WIDTH}
+          {labelFont}
+        />
         <g id="layer-hit-target">
           {#each hexes as hex (hex.id)}
             {#if isValidHexId(hex.id, notation)}
