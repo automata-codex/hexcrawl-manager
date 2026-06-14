@@ -199,6 +199,12 @@ export function centroidOf(
 ): { x: number; y: number };
 ```
 
+**Reuse, don't duplicate.** `MapPath.svelte` already defines the six hex-corner
+offsets (its `ANCHOR_OFFSETS.{west,northwest,northeast,east,southeast,southwest}`).
+Lift `ANCHOR_OFFSETS` into `interactive-map.ts` (it's pure geometry; `MapPath` then
+imports it) and define `HEX_VERTICES` as that corner subset **reordered** to core's
+edge sequence — single source of truth. The only new thing is the ordering.
+
 **Vertex ordering (derived from current `NEIGHBOR_OFFSETS` + `axialToPixel`; verify
 visually).** `getNeighborCoords` index → geometric direction is:
 
