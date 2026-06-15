@@ -122,6 +122,7 @@ This is an npm workspaces monorepo with strict architectural boundaries enforced
 - AP Ledger: `data/ap-ledger.jsonl` (canonical source of all advancement points)
 - Trails: `data/trails.yml` (trail network between hexes)
 - Encounters: `data/encounters/` (encounter YAML + optional markdown content)
+- Tag vocabularies: `data/tags.yaml` (blessed `beat` and `hex` tag lists; the source of truth for those tags — see "Tag vocabularies" below)
 - Campaign data: `data/` (YAML files for characters, hexes, regions, etc.)
 
 **File naming conventions:**
@@ -214,6 +215,17 @@ Hexcrawl Manager uses a "version-on-develop" workflow:
 - Update Zod schema in `packages/schemas/src/schemas/`
 - Run `npm run build:json-schemas` to regenerate JSON schemas
 - Update related types if needed
+
+**Tag vocabularies (`beat` and `hex` tags):**
+- The blessed vocabularies live in the data repo's `data/tags.yaml`, keyed by
+  domain (`beat`, `hex`) — **not** in the schema. The schema's `tags` fields are
+  free-form `string[]`; `tags.yaml` is the source of truth.
+- To bless a new tag, add it to the relevant list in `tags.yaml` (a data-repo
+  edit). Do not reintroduce a `KnownTagEnum` in the schema.
+- `apps/web/scripts/validate-tags.ts` checks beat + hex tags against the
+  vocabulary (warnings-only; `ACHM_STRICT_TAGS=1` fails the build). It runs in
+  `prebuild.sh`. Pure analysis logic is in `tags-analyzer.ts` (unit-tested).
+- Off-vocabulary tags are reported grouped by tag: bless, collapse, or drop.
 
 **When working with session data:**
 - Sessions use sequential IDs from `meta.nextSessionSeq`

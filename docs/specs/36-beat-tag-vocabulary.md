@@ -23,6 +23,10 @@ A beat tag is the **cross-cutting situational axis** — what plotline, faction,
 - Not converting beat `tags` to a TS enum — YAML chosen for mid-prep edit-without-codegen.
 - Not filtering the dropdown in the UI while leaving sprawl on beats — that hides offenders and makes off-vocab-only beats unfilterable (component line 84 confirms membership-match). Data is the fix.
 - Not migrating clue/hex `KnownTagEnum`s into `tags.yaml` yet — logged as additive follow-up.
+  - **Update:** the **hex** `KnownTagEnum` was migrated to `tags.yaml` (with a generalized
+    warnings-only validator) in spec 38 — see `docs/specs/38-lost-valley-barrier.md` and
+    `docs/plans/38-lost-valley-barrier-plan.md`. The **clue** `KnownTagEnum` remains a
+    follow-up.
 
 ## Verification
 Run `validate-tags.ts` → triage to zero warnings → flip `ACHM_STRICT_TAGS=1` → confirm dropdown shows only blessed tags and every beat is still reachable by at least one.

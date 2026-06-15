@@ -114,6 +114,12 @@ export function analyzeBeatTags(
 
 // --- Reporting ------------------------------------------------------------
 
+/** Pluralize a count noun ("beat" → "beats", "hex" → "hexes"). */
+function pluralize(noun: string, count: number): string {
+  if (count === 1) return noun;
+  return /[sxz]$|[cs]h$/.test(noun) ? `${noun}es` : `${noun}s`;
+}
+
 /**
  * Render a grouped off-vocabulary report for `domain` (e.g. `beat`, `hex`).
  * `itemNoun` is the per-tag count noun (defaults to `domain`).
@@ -132,7 +138,7 @@ export function formatVocabularyReport(
   ];
   for (const w of warnings) {
     const count = w.ids.length;
-    lines.push(`  ${w.tag}  (${count} ${itemNoun}${count === 1 ? '' : 's'})`);
+    lines.push(`  ${w.tag}  (${count} ${pluralize(itemNoun, count)})`);
     for (const id of w.ids) {
       lines.push(`    - ${id}`);
     }
