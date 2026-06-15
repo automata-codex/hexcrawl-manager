@@ -45,6 +45,7 @@
   }
 
   interface LocalTrailData {
+    id: string;
     to: string;
     permanent: boolean;
     lastSeasonTouched: string;
@@ -70,9 +71,9 @@
         return false;
       }
       const { from, to } = hexIds;
+      const selected = $selectedHex?.toLowerCase();
       return (
-        from.toLowerCase().includes($selectedHex?.toLowerCase() ?? '') ||
-        to.toLowerCase().includes($selectedHex?.toLowerCase() ?? '')
+        from.toLowerCase() === selected || to.toLowerCase() === selected
       );
     }),
   );
@@ -99,6 +100,7 @@
     }
     const { from, to } = hexIds;
     return {
+      id: trail.id,
       to: to === $selectedHex ? from : to,
       permanent: trail.permanent,
       lastSeasonTouched: trail.lastSeasonTouched,
@@ -206,7 +208,7 @@
       {#if trailsInHex.length > 0}
         <h3 class="title is-5">Trails</h3>
         <ul>
-          {#each trailsInHex.map(formatTrailData) as trail (trail.to)}
+          {#each trailsInHex.map(formatTrailData) as trail (trail.id)}
             <li>
               <div>
                 <span>
