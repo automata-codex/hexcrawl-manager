@@ -150,6 +150,7 @@ export const KnownTagEnum = z.enum([
   'haven', // An established haven that is available to the party
   'landmark-known',
   'scar-site',
+  'lost-valley-barrier',
 ]);
 
 export const LandmarkSchema = z.object({
