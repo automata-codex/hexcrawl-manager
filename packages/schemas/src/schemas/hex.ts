@@ -139,20 +139,6 @@ export const HiddenSitesSchema = z.union([
   z.array(HiddenSiteSchema), // New format: full site objects
 ]);
 
-export const KnownTagEnum = z.enum([
-  'crystal-bounty',
-  'dungeon',
-  'settlement', // A settlement with the infrastructure to potentially become a haven
-  'dragon-ruins',
-  'fc-city',
-  'fc-ruins',
-  'goblin-ruins',
-  'haven', // An established haven that is available to the party
-  'landmark-known',
-  'scar-site',
-  'lost-valley-barrier',
-]);
-
 export const LandmarkSchema = z.object({
   description: z.string(),
   treasure: z.array(TreasureSchema).optional(),
@@ -162,8 +148,6 @@ export const LandmarkSchema = z.object({
     .describe('IDs of knowledge nodes that are unlocked by this site'),
   clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this landmark'),
 });
-
-export const TagSchema = z.union([KnownTagEnum, z.string()]);
 
 export const KeyedEncounterTriggerEnum = z.enum(['entry', 'exploration']);
 
@@ -237,7 +221,7 @@ export const HexSchema = z
       .optional()
       .describe('Private GM-only changes to the hex since the last visit'),
     tags: z
-      .array(TagSchema)
+      .array(z.string())
       .optional()
       .describe('Tags for filtering hexes, matching clues, etc.'),
     terrain: TerrainEnum.optional().describe(
@@ -258,4 +242,3 @@ export const HexSchema = z
 
 export type HexData = z.infer<typeof HexSchema>;
 export type HiddenSitesData = z.infer<typeof HiddenSitesSchema>;
-export type KnownTag = keyof z.infer<typeof KnownTagEnum>;
