@@ -1,5 +1,9 @@
 <script lang="ts">
   import { getCluePath, getHexPath, getRegionPath } from '../../config/routes.ts';
+  import {
+    LOST_VALLEY_BARRIER_MESSAGE,
+    LOST_VALLEY_BARRIER_TAG,
+  } from '../../utils/constants.ts';
   import { getRegionShortTitle } from '../../utils/regions.ts';
 
   import Dungeon from './Dungeon.svelte';
@@ -41,6 +45,9 @@
   }: Props = $props();
 </script>
 
+{#if hex.tags?.includes(LOST_VALLEY_BARRIER_TAG)}
+  <p class="warning">{LOST_VALLEY_BARRIER_MESSAGE}</p>
+{/if}
 {#if hex.updates}
   <div class="box updates">
     <p class="warning">⚠️ Updates ⚠️</p>

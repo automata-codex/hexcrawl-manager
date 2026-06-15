@@ -16,7 +16,11 @@
   } from '../../config/routes.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import { canAccess } from '../../utils/auth.ts';
-  import { SCOPES } from '../../utils/constants.ts';
+  import {
+    LOST_VALLEY_BARRIER_MESSAGE,
+    LOST_VALLEY_BARRIER_TAG,
+    SCOPES,
+  } from '../../utils/constants.ts';
   import {
     getFavoredTerrain,
     getTravelDifficulty,
@@ -133,6 +137,9 @@
     <h2 class="title is-5" style="text-align: center">
       {$selectedHex?.toUpperCase()}: {currentHex?.name}
     </h2>
+    {#if canAccess(role, [SCOPES.GM]) && currentHex?.tags?.includes(LOST_VALLEY_BARRIER_TAG)}
+      <p class="warning">{LOST_VALLEY_BARRIER_MESSAGE}</p>
+    {/if}
     <div>
       {#if canAccess(role, [SCOPES.GM])}
         <div class="hex-data-bar">
@@ -227,6 +234,15 @@
 </aside>
 
 <style>
+  .warning {
+    background-color: var(--bulma-danger);
+    color: var(--bulma-white);
+    font-weight: bold;
+    padding: 1rem;
+    text-align: center;
+    margin: 0 0 1rem;
+  }
+
   .hex-data-bar {
     display: flex;
     font-weight: bold;

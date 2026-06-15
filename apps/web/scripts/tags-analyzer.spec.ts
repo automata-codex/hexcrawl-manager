@@ -2,9 +2,13 @@ import { describe, it, expect } from 'vitest';
 
 import {
   analyzeBeatTags,
+  analyzeTags,
   formatTagReport,
+  formatVocabularyReport,
   parseBeatVocabulary,
+  parseVocabulary,
   type BeatTagsFile,
+  type TaggedItem,
 } from './tags-analyzer.js';
 
 const beat = (
@@ -12,6 +16,8 @@ const beat = (
   slug: string,
   tags?: string[],
 ): BeatTagsFile => ({ slug, parentPlotlineSlug, tags });
+
+const hex = (id: string, tags?: string[]): TaggedItem => ({ id, tags });
 
 describe('parseBeatVocabulary', () => {
   it('extracts the beat list from a keyed-by-domain document', () => {
@@ -112,5 +118,118 @@ describe('formatTagReport', () => {
     expect(formatTagReport([])).toBe(
       'All beat tags are in the blessed vocabulary.\n',
     );
+  });
+});
+
+// --- Generic core (exercised here with the hex domain) --------------------
+
+describe('parseVocabulary', () => {
+  it('extracts the list for the given domain key', () => {
+    expect(parseVocabulary({ hex: ['haven', 'dungeon'] }, 'hex')).toEqual([
+      'haven',
+      'dungeon',
+    ]);
+  });
+
+  it('reads the requested key, not a sibling', () => {
+    expect(
+      parseVocabulary({ beat: ['wilderness'], hex: ['haven'] }, 'hex'),
+    ).toEqual(['haven']);
+  });
+
+  it('returns null when the key is missing', () => {
+    expect(parseVocabulary({ beat: ['x'] }, 'hex')).toBeNull();
+  });
+
+  it('returns null for a non-object document', () => {
+    expect(parseVocabulary(null, 'hex')).toBeNull();
+    expect(parseVocabulary('hex', 'hex')).toBeNull();
+  });
+
+  it('returns null when the value is not a list', () => {
+    expect(parseVocabulary({ hex: 'haven' }, 'hex')).toBeNull();
+  });
+
+  it('drops non-string entries', () => {
+    expect(parseVocabulary({ hex: ['haven', 7, null] }, 'hex')).toEqual([
+      'haven',
+    ]);
+  });
+});
+
+describe('analyzeTags', () => {
+  const vocabulary = new Set(['haven', 'dungeon']);
+
+  it('flags off-vocabulary tags grouped by tag, keyed by item id', () => {
+    const hexes = [
+      hex('m3', ['dungeon', 'lost-valley-barrier']),
+      hex('n3', ['lost-valley-barrier']),
+    ];
+    expect(analyzeTags(hexes, vocabulary)).toEqual([
+      { tag: 'lost-valley-barrier', ids: ['m3', 'n3'] },
+    ]);
+  });
+
+  it('passes items whose tags are all blessed', () => {
+    expect(analyzeTags([hex('a', ['haven', 'dungeon'])], vocabulary)).toEqual(
+      [],
+    );
+  });
+
+  it('ignores untagged items', () => {
+    expect(analyzeTags([hex('a')], vocabulary)).toEqual([]);
+  });
+
+  it('flags every tag when the vocabulary is empty', () => {
+    expect(analyzeTags([hex('a', ['haven'])], new Set())).toEqual([
+      { tag: 'haven', ids: ['a'] },
+    ]);
+  });
+
+  it('orders warnings by use count, then alphabetically', () => {
+    const hexes = [hex('a', ['zz-rare', 'aa-rare', 'common']), hex('b', ['common'])];
+    expect(analyzeTags(hexes, vocabulary).map((w) => w.tag)).toEqual([
+      'common',
+      'aa-rare',
+      'zz-rare',
+    ]);
+  });
+
+  it('sorts and dedupes ids within a warning', () => {
+    const hexes = [hex('zeta', ['stray']), hex('alpha', ['stray', 'stray'])];
+    expect(analyzeTags(hexes, vocabulary)).toEqual([
+      { tag: 'stray', ids: ['alpha', 'zeta'] },
+    ]);
+  });
+});
+
+describe('formatVocabularyReport', () => {
+  it('lists each off-vocabulary tag with its item ids and a pluralized noun', () => {
+    const report = formatVocabularyReport(
+      [
+        { tag: 'lost-valley-barrier', ids: ['m3', 'n3'] },
+        { tag: 'stray', ids: ['o3'] },
+      ],
+      'hex',
+    );
+    expect(report).toContain(
+      'Off-vocabulary hex tags (bless in tags.yaml, collapse to a blessed tag, or drop):',
+    );
+    expect(report).toContain('  lost-valley-barrier  (2 hexes)');
+    expect(report).toContain('    - m3');
+    expect(report).toContain('    - n3');
+    expect(report).toContain('  stray  (1 hex)');
+  });
+
+  it('reports all-clear when there are no warnings', () => {
+    expect(formatVocabularyReport([], 'hex')).toBe(
+      'All hex tags are in the blessed vocabulary.\n',
+    );
+  });
+
+  it('uses a distinct item noun when provided', () => {
+    expect(
+      formatVocabularyReport([{ tag: 'x', ids: ['a', 'b'] }], 'beat', 'beat'),
+    ).toContain('  x  (2 beats)');
   });
 });

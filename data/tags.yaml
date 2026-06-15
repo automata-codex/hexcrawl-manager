@@ -1,0 +1,26 @@
+# Blessed tag vocabularies, keyed by domain. Off-vocabulary tags on beats/hexes
+# are flagged (warnings-only) by scripts/validate-tags.ts; set ACHM_STRICT_TAGS=1
+# to fail the build on them. See docs/specs/36-beat-tag-vocabulary.md.
+#
+# This is the sample/dev dataset's vocabulary; the live campaign keeps its own
+# tags.yaml in the data repo.
+beat:
+  - wilderness
+  - dungeon
+  - travel
+  - social
+  - investigation
+  - set-piece
+
+hex:
+  - crystal-bounty
+  - dungeon
+  - settlement
+  - dragon-ruins
+  - fc-city
+  - fc-ruins
+  - goblin-ruins
+  - haven
+  - landmark-known
+  - scar-site
+  - lost-valley-barrier
