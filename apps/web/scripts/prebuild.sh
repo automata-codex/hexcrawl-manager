@@ -68,6 +68,10 @@ echo "=== Prebuild: Checking clue placement counts (advisory, non-blocking) ==="
 tsx scripts/validate-clue-placements.ts || true
 
 echo ""
+echo "=== Prebuild: Validating tags (beat + hex) ==="
+tsx scripts/validate-tags.ts
+
+echo ""
 echo "=== Prebuild: Caching AP totals ==="
 tsx scripts/cache-ap-totals.ts
 
