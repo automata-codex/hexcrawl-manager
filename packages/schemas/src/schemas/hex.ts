@@ -58,7 +58,9 @@ const BaseHiddenSiteSchema = z.object({
   unlocks: z
     .array(z.string())
     .optional()
-    .describe('IDs of knowledge nodes that are unlocked by this site'),
+    .describe(
+      'DEPRECATED: IDs of knowledge nodes that are unlocked by this site. Still supported for backward compatibility.',
+    ),
   clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this site'),
 });
 
@@ -145,7 +147,9 @@ export const LandmarkSchema = z.object({
   unlocks: z
     .array(z.string())
     .optional()
-    .describe('IDs of knowledge nodes that are unlocked by this site'),
+    .describe(
+      'DEPRECATED: IDs of knowledge nodes that are unlocked by this site. Still supported for backward compatibility.',
+    ),
   clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this landmark'),
 });
 

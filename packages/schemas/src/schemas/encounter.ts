@@ -48,7 +48,9 @@ export const EncounterSchema = z
     unlocks: z
       .array(z.string())
       .optional()
-      .describe('IDs of knowledge nodes that are unlocked by this encounter'),
+      .describe(
+        'DEPRECATED: IDs of knowledge nodes that are unlocked by this encounter. Still supported for backward compatibility.',
+      ),
 
     clues: ClueReferencesSchema.describe(
       'IDs of clues that this encounter can reveal',
