@@ -24,6 +24,16 @@ const notation = mapConfig.grid.notation;
 const dungeons = await getCollection('dungeons');
 const hexEntries = await getCollection('hexes');
 const regions = await getCollection('regions');
+const clues = await getCollection('clues');
+const encounterCollection = await getCollection('encounters');
+
+// Build clue + encounter lookup maps for display (clue/keyed-encounter names)
+const clueMap = Object.fromEntries(
+  clues.map((c) => [c.id, { id: c.id, name: c.data.name }]),
+);
+const encounterMap = Object.fromEntries(
+  encounterCollection.map((e) => [e.id, { id: e.id, name: e.data.name }]),
+);
 
 // Find the region
 const region = regions.find((r) => r.id === regionId);
@@ -66,7 +76,9 @@ const hexes: ExtendedHexData[] = await Promise.all(
         </h2>
         <GmHexDetails
           client:load
+          clueMap={clueMap}
           dungeons={dungeons}
+          encounterMap={encounterMap}
           hex={hex}
           mapConfig={mapConfig}
         />
