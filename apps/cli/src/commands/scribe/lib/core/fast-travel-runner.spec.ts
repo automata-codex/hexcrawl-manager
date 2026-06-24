@@ -335,7 +335,9 @@ describe('runFastTravel', () => {
 
   it('pauses IN a mid-route hex with arrival alerts and logs a note', () => {
     const result = runFastTravel(
-      makeState({ hexAlerts: { P13: { unknownClues: 2, updates: 1 } } }),
+      makeState({
+        hexAlerts: { P13: { unknownClues: 2, liveBeats: 0, updates: 1 } },
+      }),
     );
 
     expect(result.status).toBe('paused_hex_alert');
@@ -355,7 +357,9 @@ describe('runFastTravel', () => {
 
   it('completes (does not pause) when only the destination has alerts, still logging the note', () => {
     const result = runFastTravel(
-      makeState({ hexAlerts: { P14: { unknownClues: 1, updates: 0 } } }),
+      makeState({
+        hexAlerts: { P14: { unknownClues: 1, liveBeats: 0, updates: 0 } },
+      }),
     );
 
     expect(result.status).toBe('completed');
@@ -374,7 +378,7 @@ describe('runFastTravel', () => {
     const result = runFastTravel(
       makeState({
         encounterChances: { P13: 20 },
-        hexAlerts: { P13: { unknownClues: 1, updates: 0 } },
+        hexAlerts: { P13: { unknownClues: 1, liveBeats: 0, updates: 0 } },
       }),
     );
 
@@ -446,7 +450,7 @@ describe('runFastTravel', () => {
           P13: [{ encounterId: 'enc-ambush', trigger: 'entry' }],
         },
         encounterChances: { P13: 20 },
-        hexAlerts: { P13: { unknownClues: 1, updates: 0 } },
+        hexAlerts: { P13: { unknownClues: 1, liveBeats: 0, updates: 0 } },
       }),
     );
 
@@ -475,7 +479,9 @@ describe('runFastTravel', () => {
 
   it('ignores zero-count alert entries', () => {
     const result = runFastTravel(
-      makeState({ hexAlerts: { P13: { unknownClues: 0, updates: 0 } } }),
+      makeState({
+        hexAlerts: { P13: { unknownClues: 0, liveBeats: 0, updates: 0 } },
+      }),
     );
 
     expect(result.status).toBe('completed');
@@ -485,7 +491,7 @@ describe('runFastTravel', () => {
   it('does not check alerts for a hex the party could not enter', () => {
     const result = runFastTravel(
       makeState({
-        hexAlerts: { P13: { unknownClues: 1, updates: 0 } },
+        hexAlerts: { P13: { unknownClues: 1, liveBeats: 0, updates: 0 } },
         daylightSegmentsLeft: 2,
       }),
     );

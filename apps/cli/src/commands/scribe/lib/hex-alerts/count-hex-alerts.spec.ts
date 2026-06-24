@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  collectHexBeatIds,
   collectHexClueIds,
   countHexAlerts,
   hasAlerts,
@@ -45,6 +46,29 @@ describe('collectHexClueIds', () => {
   });
 });
 
+describe('collectHexBeatIds', () => {
+  it('collects beats from the landmark and hidden sites, deduped', () => {
+    const hex = baseHex({
+      landmark: {
+        description: 'ruin',
+        beats: ['plot/from-landmark', 'plot/shared'],
+      },
+      hiddenSites: [
+        { description: 'scar', beats: ['plot/from-site', 'plot/shared'] },
+      ],
+    });
+    expect(collectHexBeatIds(hex).sort()).toEqual([
+      'plot/from-landmark',
+      'plot/from-site',
+      'plot/shared',
+    ]);
+  });
+
+  it('returns empty for a bare hex with a string landmark', () => {
+    expect(collectHexBeatIds(baseHex())).toEqual([]);
+  });
+});
+
 describe('countHexAlerts', () => {
   it('counts only clues the resolver reports as unknown', () => {
     const hex = baseHex({
@@ -52,49 +76,92 @@ describe('countHexAlerts', () => {
         { description: 's', clues: ['known-clue', 'unknown-clue'] },
       ],
     });
-    const alerts = countHexAlerts(hex, (id) => id === 'unknown-clue');
-    expect(alerts).toEqual({ unknownClues: 1, updates: 0 });
+    const alerts = countHexAlerts(
+      hex,
+      (id) => id === 'unknown-clue',
+      () => false,
+    );
+    expect(alerts).toEqual({ unknownClues: 1, liveBeats: 0, updates: 0 });
+  });
+
+  it('counts only beats the resolver reports as live', () => {
+    const hex = baseHex({
+      landmark: { description: 'ruin', beats: ['plot/live', 'plot/done'] },
+    });
+    const alerts = countHexAlerts(
+      hex,
+      () => false,
+      (id) => id === 'plot/live',
+    );
+    expect(alerts).toEqual({ unknownClues: 0, liveBeats: 1, updates: 0 });
   });
 
   it('counts non-blank updates entries', () => {
     const hex = baseHex({ updates: ['Scar activity doubled', '  ', ''] });
-    expect(countHexAlerts(hex, () => false)).toEqual({
+    expect(
+      countHexAlerts(
+        hex,
+        () => false,
+        () => false,
+      ),
+    ).toEqual({
       unknownClues: 0,
+      liveBeats: 0,
       updates: 1,
     });
   });
 });
 
 describe('hasAlerts', () => {
-  it('is true when either count is positive', () => {
-    expect(hasAlerts({ unknownClues: 1, updates: 0 })).toBe(true);
-    expect(hasAlerts({ unknownClues: 0, updates: 2 })).toBe(true);
-    expect(hasAlerts({ unknownClues: 0, updates: 0 })).toBe(false);
+  it('is true when any count is positive', () => {
+    expect(hasAlerts({ unknownClues: 1, liveBeats: 0, updates: 0 })).toBe(true);
+    expect(hasAlerts({ unknownClues: 0, liveBeats: 1, updates: 0 })).toBe(true);
+    expect(hasAlerts({ unknownClues: 0, liveBeats: 0, updates: 2 })).toBe(true);
+    expect(hasAlerts({ unknownClues: 0, liveBeats: 0, updates: 0 })).toBe(
+      false,
+    );
   });
 });
 
 describe('formatHexAlertLines', () => {
-  it('emits one line per alert kind, count-only', () => {
-    expect(formatHexAlertLines('E7', { unknownClues: 2, updates: 1 })).toEqual([
+  it('emits one line per alert kind, count-only, with beats labeled separately', () => {
+    expect(
+      formatHexAlertLines('E7', { unknownClues: 2, liveBeats: 3, updates: 1 }),
+    ).toEqual([
       '🔍 2 unknown clue(s) here — see hex E7.',
+      '🎭 3 live beat(s) anchored here — see hex E7.',
       '📝 This hex has 1 GM update(s).',
     ]);
   });
 
+  it('emits only the beat line when a hex has live beats but no clues', () => {
+    expect(
+      formatHexAlertLines('J7', { unknownClues: 0, liveBeats: 1, updates: 0 }),
+    ).toEqual(['🎭 1 live beat(s) anchored here — see hex J7.']);
+  });
+
   it('emits nothing when there are no alerts', () => {
-    expect(formatHexAlertLines('E7', { unknownClues: 0, updates: 0 })).toEqual(
-      [],
-    );
+    expect(
+      formatHexAlertLines('E7', { unknownClues: 0, liveBeats: 0, updates: 0 }),
+    ).toEqual([]);
   });
 });
 
 describe('makeHexAlertNote', () => {
   it('mentions only the alert kinds that are present', () => {
-    expect(makeHexAlertNote('E7', { unknownClues: 2, updates: 0 })).toBe(
-      'Hex alert at E7: 2 unknown clue(s) — see hex E7.',
+    expect(
+      makeHexAlertNote('E7', { unknownClues: 2, liveBeats: 0, updates: 0 }),
+    ).toBe('Hex alert at E7: 2 unknown clue(s) — see hex E7.');
+    expect(
+      makeHexAlertNote('E7', { unknownClues: 2, liveBeats: 1, updates: 1 }),
+    ).toBe(
+      'Hex alert at E7: 2 unknown clue(s), 1 live beat(s), 1 GM update(s) — see hex E7.',
     );
-    expect(makeHexAlertNote('E7', { unknownClues: 2, updates: 1 })).toBe(
-      'Hex alert at E7: 2 unknown clue(s), 1 GM update(s) — see hex E7.',
-    );
+  });
+
+  it('reads cleanly when a live beat is the only alert', () => {
+    expect(
+      makeHexAlertNote('J7', { unknownClues: 0, liveBeats: 1, updates: 0 }),
+    ).toBe('Hex alert at J7: 1 live beat(s) — see hex J7.');
   });
 });

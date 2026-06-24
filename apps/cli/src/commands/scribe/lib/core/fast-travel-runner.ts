@@ -187,7 +187,7 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     currentLegIndex++;
 
     // Check the hex just entered for keyed (scripted) encounters, arrival
-    // alerts (unknown clues / GM updates), and a random encounter roll. All are
+    // alerts (unknown clues / live anchored beats / GM updates), and a random encounter roll. All are
     // checked AFTER the move so the party pauses IN the flagged hex, and a
     // later resume picks up at the next leg without re-checking this hex. When
     // several fire at once every note still lands in the log; we pause once,

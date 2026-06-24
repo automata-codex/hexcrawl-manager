@@ -1,4 +1,5 @@
 export {
+  collectHexBeatIds,
   collectHexClueIds,
   countHexAlerts,
   hasAlerts,

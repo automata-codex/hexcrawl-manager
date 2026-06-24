@@ -14,6 +14,11 @@ export function formatHexAlertLines(
       `🔍 ${alerts.unknownClues} unknown clue(s) here — see hex ${hexId}.`,
     );
   }
+  if (alerts.liveBeats > 0) {
+    lines.push(
+      `🎭 ${alerts.liveBeats} live beat(s) anchored here — see hex ${hexId}.`,
+    );
+  }
   if (alerts.updates > 0) {
     lines.push(`📝 This hex has ${alerts.updates} GM update(s).`);
   }
@@ -28,6 +33,9 @@ export function makeHexAlertNote(hexId: string, alerts: HexAlerts): string {
   const parts: string[] = [];
   if (alerts.unknownClues > 0) {
     parts.push(`${alerts.unknownClues} unknown clue(s)`);
+  }
+  if (alerts.liveBeats > 0) {
+    parts.push(`${alerts.liveBeats} live beat(s)`);
   }
   if (alerts.updates > 0) {
     parts.push(`${alerts.updates} GM update(s)`);

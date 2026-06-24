@@ -4,15 +4,17 @@ import type { HexData } from '@achm/schemas';
 
 /**
  * What a hex holds that the GM should be told about on arrival: clues the
- * party has not learned yet, and pending GM `updates` text.
+ * party has not learned yet, live beats anchored here that have not resolved,
+ * and pending GM `updates` text.
  */
 export interface HexAlerts {
   unknownClues: number;
+  liveBeats: number;
   updates: number;
 }
 
 export function hasAlerts(alerts: HexAlerts): boolean {
-  return alerts.unknownClues > 0 || alerts.updates > 0;
+  return alerts.unknownClues > 0 || alerts.liveBeats > 0 || alerts.updates > 0;
 }
 
 /**
@@ -42,16 +44,41 @@ export function collectHexClueIds(hex: HexData): string[] {
 }
 
 /**
- * Count a hex's arrival alerts. Pure: clue status resolution is injected so
- * the counting logic is testable without file I/O.
+ * Collect every beat id anchored on a hex: landmark beats and hidden-site
+ * beats. Beat ids are already canonical `plotlineSlug/beatSlug` references, so
+ * (unlike clues) they need no normalization. Deduped.
+ */
+export function collectHexBeatIds(hex: HexData): string[] {
+  const ids = new Set<string>();
+  if (typeof hex.landmark === 'object') {
+    for (const id of hex.landmark.beats ?? []) {
+      ids.add(id);
+    }
+  }
+  for (const site of hex.hiddenSites ?? []) {
+    // Legacy hidden-site format is a bare description string — no beats.
+    if (typeof site !== 'object') continue;
+    for (const id of site.beats ?? []) {
+      ids.add(id);
+    }
+  }
+  return [...ids];
+}
+
+/**
+ * Count a hex's arrival alerts. Pure: clue and beat status resolution are
+ * injected so the counting logic is testable without file I/O.
  */
 export function countHexAlerts(
   hex: HexData,
   // eslint-disable-next-line no-unused-vars
   isClueUnknown: (clueId: string) => boolean,
+  // eslint-disable-next-line no-unused-vars
+  isBeatLive: (beatId: string) => boolean,
 ): HexAlerts {
   return {
     unknownClues: collectHexClueIds(hex).filter(isClueUnknown).length,
+    liveBeats: collectHexBeatIds(hex).filter(isBeatLive).length,
     updates: (hex.updates ?? []).filter((u) => u.trim().length > 0).length,
   };
 }
