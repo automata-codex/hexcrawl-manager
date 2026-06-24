@@ -26,6 +26,7 @@ export const REPO_PATHS = {
   PLOTLINES: () => resolveDataPath('plotlines'), // Plotlines and their nested beats
   REGIONS: () => resolveDataPath('regions'), // Region definitions
   REPORTS: () => resolveDataPath('session-reports'), // Generated reports
+  ROLEPLAY_BOOKS: () => resolveDataPath('roleplay-books'), // Roleplay book YAML files
   ROLLOVERS: () => resolveDataPath('session-logs/rollovers'), // Root for all session logs
   SESSIONS: () => resolveDataPath('session-logs/sessions'), // Finalized session files
   TEMPLATES: () => resolveDataPath('templates'), // Template files (e.g., post-session checklist)

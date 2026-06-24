@@ -66,6 +66,23 @@ export const HexId = z
 export const BeatReferencesSchema = z.array(z.string()).optional();
 export type BeatReferences = z.infer<typeof BeatReferencesSchema>;
 
+/**
+ * Roleplay books reminded at a place-feature (landmark or hidden site),
+ * mirroring the `beats` field's array style. Elements are bare book slugs —
+ * the `data/roleplay-books/<slug>.yml` filename, e.g. "fort-dagaric".
+ *
+ * This is the *place-arrival* trigger for a book: arriving at the feature
+ * surfaces the book as a reminder. Unlike beats, the link carries no per-anchor
+ * trigger and no status — books are always-relevant reference material, surfaced
+ * whole as a pointer (the GM opens the book and chooses what to deliver). The
+ * link is one-directional — there is deliberately no reverse `hexes` field on
+ * books; "which hexes remind this book" is derived by querying hexes.
+ */
+export const RoleplayBookReferencesSchema = z.array(z.string()).optional();
+export type RoleplayBookReferences = z.infer<
+  typeof RoleplayBookReferencesSchema
+>;
+
 // Base schema for all hidden sites (common fields)
 const BaseHiddenSiteSchema = z.object({
   description: z.string(),
@@ -76,8 +93,15 @@ const BaseHiddenSiteSchema = z.object({
     .describe(
       'DEPRECATED: IDs of knowledge nodes that are unlocked by this site. Still supported for backward compatibility.',
     ),
-  clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this site'),
-  beats: BeatReferencesSchema.describe('Canonical IDs of beats anchored at this site'),
+  clues: ClueReferencesSchema.describe(
+    'IDs of clues that can be discovered at this site',
+  ),
+  beats: BeatReferencesSchema.describe(
+    'Canonical IDs of beats anchored at this site',
+  ),
+  roleplayBooks: RoleplayBookReferencesSchema.describe(
+    'Slugs of roleplay books reminded at this site',
+  ),
 });
 
 /**
@@ -89,15 +113,21 @@ export const FactionLeadHiddenSiteSchema = BaseHiddenSiteSchema.extend({
   sessionAdded: z
     .string()
     .describe('Session identifier when this site was added, e.g. "session-20"'),
-  faction: z.string().describe('Which faction provided the intelligence report'),
+  faction: z
+    .string()
+    .describe('Which faction provided the intelligence report'),
   leadName: z
     .string()
     .describe('Name/title of the intelligence report that created this site'),
   linkType: LinkTypeEnum.optional().describe('Type of the linked content'),
-  linkId: z.string().optional().describe('ID of the linked content (encounter, dungeon, etc.)'),
+  linkId: z
+    .string()
+    .optional()
+    .describe('ID of the linked content (encounter, dungeon, etc.)'),
 })
   .refine(
-    (data) => (data.linkType && data.linkId) || (!data.linkType && !data.linkId),
+    (data) =>
+      (data.linkType && data.linkId) || (!data.linkType && !data.linkId),
     { message: 'linkType and linkId must both be present or both be absent' },
   )
   .describe('FactionLeadHiddenSiteSchema');
@@ -109,14 +139,22 @@ export type FactionLeadHiddenSite = z.infer<typeof FactionLeadHiddenSiteSchema>;
  */
 export const ClueHiddenSiteSchema = BaseHiddenSiteSchema.extend({
   source: z.literal('clue'),
-  sessionAdded: z.string().describe('Session identifier when this site was added'),
-  clueId: z.string().describe('ID of the floating or fixed clue that revealed this site'),
-  discoveredBy: z.string().optional().describe('Which character(s) discovered the clue'),
+  sessionAdded: z
+    .string()
+    .describe('Session identifier when this site was added'),
+  clueId: z
+    .string()
+    .describe('ID of the floating or fixed clue that revealed this site'),
+  discoveredBy: z
+    .string()
+    .optional()
+    .describe('Which character(s) discovered the clue'),
   linkType: LinkTypeEnum.optional().describe('Type of the linked content'),
   linkId: z.string().optional().describe('ID of the linked content'),
 })
   .refine(
-    (data) => (data.linkType && data.linkId) || (!data.linkType && !data.linkId),
+    (data) =>
+      (data.linkType && data.linkId) || (!data.linkType && !data.linkId),
     { message: 'linkType and linkId must both be present or both be absent' },
   )
   .describe('ClueHiddenSiteSchema');
@@ -128,10 +166,14 @@ export type ClueHiddenSite = z.infer<typeof ClueHiddenSiteSchema>;
  */
 export const PreplacedHiddenSiteSchema = BaseHiddenSiteSchema.extend({
   linkType: LinkTypeEnum.optional().describe('Type of the linked content'),
-  linkId: z.string().optional().describe('ID of the linked content (encounter, dungeon, etc.)'),
+  linkId: z
+    .string()
+    .optional()
+    .describe('ID of the linked content (encounter, dungeon, etc.)'),
 })
   .refine(
-    (data) => (data.linkType && data.linkId) || (!data.linkType && !data.linkId),
+    (data) =>
+      (data.linkType && data.linkId) || (!data.linkType && !data.linkId),
     { message: 'linkType and linkId must both be present or both be absent' },
   )
   .describe('PreplacedHiddenSiteSchema');
@@ -166,8 +208,15 @@ export const LandmarkSchema = z.object({
     .describe(
       'DEPRECATED: IDs of knowledge nodes that are unlocked by this site. Still supported for backward compatibility.',
     ),
-  clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this landmark'),
-  beats: BeatReferencesSchema.describe('Canonical IDs of beats anchored at this landmark'),
+  clues: ClueReferencesSchema.describe(
+    'IDs of clues that can be discovered at this landmark',
+  ),
+  beats: BeatReferencesSchema.describe(
+    'Canonical IDs of beats anchored at this landmark',
+  ),
+  roleplayBooks: RoleplayBookReferencesSchema.describe(
+    'Slugs of roleplay books reminded at this landmark',
+  ),
 });
 
 export const KeyedEncounterTriggerEnum = z.enum(['entry', 'exploration']);
@@ -175,7 +224,10 @@ export const KeyedEncounterTriggerEnum = z.enum(['entry', 'exploration']);
 export const KeyedEncounterSchema = z.object({
   encounterId: z.string(),
   trigger: KeyedEncounterTriggerEnum,
-  notes: z.string().optional().describe('GM notes about when/how this triggers'),
+  notes: z
+    .string()
+    .optional()
+    .describe('GM notes about when/how this triggers'),
 });
 
 export type KeyedEncounter = z.infer<typeof KeyedEncounterSchema>;
@@ -185,7 +237,10 @@ export const GmNoteSchema = z.union([
   z.string(),
   z.object({
     description: z.string(),
-    clueId: z.string().optional().describe('If this note reveals a clue (e.g., a dream)'),
+    clueId: z
+      .string()
+      .optional()
+      .describe('If this note reveals a clue (e.g., a dream)'),
   }),
 ]);
 
@@ -202,7 +257,10 @@ export const HexMapIconSchema = z.object({
   stroke: z.string().optional().describe('SVG stroke color'),
   strokeWidth: z.number().positive().optional(),
   fill: z.string().optional().describe('SVG fill color'),
-  layer: z.string().default('customIcons').describe('Layer key for visibility toggle'),
+  layer: z
+    .string()
+    .default('customIcons')
+    .describe('Layer key for visibility toggle'),
 });
 
 export type HexMapIcon = z.output<typeof HexMapIconSchema>;
@@ -228,15 +286,21 @@ export const HexSchema = z
     hideRandomEncounters: z
       .boolean()
       .optional()
-      .describe('When true, hides the random encounter table in the hex detail display'),
+      .describe(
+        'When true, hides the random encounter table in the hex detail display',
+      ),
     keyedEncounters: z
       .array(KeyedEncounterSchema)
       .optional()
-      .describe('Encounters that trigger under specific conditions in this hex'),
+      .describe(
+        'Encounters that trigger under specific conditions in this hex',
+      ),
     notes: z
       .array(GmNoteSchema)
       .optional()
-      .describe('Private GM eyes-only notes; can include dream-clues with linked clue IDs'),
+      .describe(
+        'Private GM eyes-only notes; can include dream-clues with linked clue IDs',
+      ),
     updates: z
       .array(z.string())
       .optional()

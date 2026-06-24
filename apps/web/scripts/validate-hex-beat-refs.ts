@@ -1,14 +1,18 @@
 #!/usr/bin/env tsx
 /**
- * Validate Hex → Beat Anchors
+ * Validate Hex → Beat / Roleplay-Book Anchors
  *
- * Every beat ID listed in a hex feature's `beats` array (`landmark.beats` or
- * `hiddenSites[].beats`) must resolve to an existing beat. Beat IDs are
- * canonical `plotlineSlug/beatSlug` references (the `'beat'` LinkType format),
- * e.g. "istavan-and-the-mask/the-refugees-lament".
+ * Every reference listed in a hex feature's anchor arrays must resolve to an
+ * existing entity:
+ *   - `landmark.beats` / `hiddenSites[].beats` → a beat, identified by its
+ *     canonical `plotlineSlug/beatSlug` reference (the `'beat'` LinkType
+ *     format), e.g. "istavan-and-the-mask/the-refugees-lament".
+ *   - `landmark.roleplayBooks` / `hiddenSites[].roleplayBooks` → a roleplay
+ *     book, identified by its `data/roleplay-books/<slug>.yml` file slug, e.g.
+ *     "fort-dagaric".
  *
- * The hex→beat link is one-directional and derived in reverse (there is no
- * `hexes` field on beats). This is the integrity check that keeps those anchors
+ * Both links are one-directional and derived in reverse (there is no `hexes`
+ * field on beats or books). This is the integrity check that keeps those anchors
  * from dangling — the structural counterpart to the clue-reference checks.
  *
  * Strict by default: exits non-zero on any unresolved anchor.
@@ -17,7 +21,7 @@
  *   tsx scripts/validate-hex-beat-refs.ts
  *   npm run validate:hex-beats
  */
-import { loadBeats, resolveDataPath } from '@achm/data';
+import { loadBeats, loadRoleplayBooks, resolveDataPath } from '@achm/data';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import yaml from 'yaml';
@@ -40,82 +44,111 @@ function parseYaml(file: string): Record<string, unknown> {
   }
 }
 
-/**
- * Set of canonical beat IDs (`plotlineSlug/beatSlug`) across every plotline,
- * via the shared `@achm/data` loader so the resolver and the in-CLI beat
- * surfacing stay on one source of truth.
- *
- * The shared loader validates each beat against `BeatSchema` and skips files
- * that fail, so a hex anchoring a schema-broken beat is reported here as
- * unresolved — which is the correct, stricter behavior for an integrity check.
- */
-function loadBeatIds(): Set<string> {
-  return new Set(loadBeats().keys());
-}
-
 interface AnchorRef {
   feature: string;
-  beatId: string;
+  ref: string;
 }
 
-/** Pulls every beat anchor off a hex's landmark and object-form hidden sites. */
-function beatAnchorsInHex(data: Record<string, unknown>): AnchorRef[] {
+/**
+ * Pulls every string entry of a named anchor array (e.g. `beats`,
+ * `roleplayBooks`) off a hex's landmark and object-form hidden sites.
+ */
+function anchorsInHex(
+  data: Record<string, unknown>,
+  field: string,
+): AnchorRef[] {
   const out: AnchorRef[] = [];
 
-  const pushBeats = (value: unknown, feature: string): void => {
+  const push = (value: unknown, feature: string): void => {
     if (!value || typeof value !== 'object') return;
-    const beats = (value as { beats?: unknown }).beats;
-    if (!Array.isArray(beats)) return;
-    for (const beat of beats) {
-      if (typeof beat === 'string') out.push({ feature, beatId: beat });
+    const arr = (value as Record<string, unknown>)[field];
+    if (!Array.isArray(arr)) return;
+    for (const item of arr) {
+      if (typeof item === 'string') out.push({ feature, ref: item });
     }
   };
 
-  pushBeats(data.landmark, 'landmark');
+  push(data.landmark, 'landmark');
 
   const sites = data.hiddenSites;
   if (Array.isArray(sites)) {
-    sites.forEach((site, i) => pushBeats(site, `hiddenSites[${i}]`));
+    sites.forEach((site, i) => push(site, `hiddenSites[${i}]`));
   }
 
   return out;
 }
 
+/**
+ * One reference kind to check. `ids` is the set of resolvable references; each
+ * shared `@achm/data` loader validates entities against their schema and skips
+ * failures, so a hex anchoring a schema-broken entity is reported here as
+ * unresolved — the correct, stricter behavior for an integrity check.
+ */
+interface AnchorKind {
+  field: string;
+  ids: Set<string>;
+  expected: string;
+}
+
 function main(): void {
-  const beatIds = loadBeatIds();
+  const kinds: AnchorKind[] = [
+    {
+      field: 'beats',
+      ids: new Set(loadBeats().keys()),
+      expected: 'canonical plotlineSlug/beatSlug',
+    },
+    {
+      field: 'roleplayBooks',
+      ids: new Set(loadRoleplayBooks().keys()),
+      expected: 'a data/roleplay-books/<slug>.yml file slug',
+    },
+  ];
+
   const dataRoot = resolveDataPath('');
   const hexFiles = listFiles(resolveDataPath('hexes'), ['.yml', '.yaml']);
 
-  const findings: Array<{ file: string; feature: string; beatId: string }> = [];
+  const findings: Array<{
+    file: string;
+    feature: string;
+    field: string;
+    ref: string;
+    expected: string;
+  }> = [];
   let checked = 0;
 
   for (const file of hexFiles) {
-    for (const anchor of beatAnchorsInHex(parseYaml(file))) {
-      checked += 1;
-      if (!beatIds.has(anchor.beatId)) {
-        findings.push({
-          file: path.relative(dataRoot, file),
-          feature: anchor.feature,
-          beatId: anchor.beatId,
-        });
+    const data = parseYaml(file);
+    for (const kind of kinds) {
+      for (const anchor of anchorsInHex(data, kind.field)) {
+        checked += 1;
+        if (!kind.ids.has(anchor.ref)) {
+          findings.push({
+            file: path.relative(dataRoot, file),
+            feature: anchor.feature,
+            field: kind.field,
+            ref: anchor.ref,
+            expected: kind.expected,
+          });
+        }
       }
     }
   }
 
   console.log(
-    `Checked ${checked} hex→beat anchor(s) across ${hexFiles.length} hex file(s).`,
+    `Checked ${checked} hex → beat / roleplay-book anchor(s) across ` +
+      `${hexFiles.length} hex file(s).`,
   );
 
   if (findings.length === 0) {
-    console.log('All hex→beat anchors resolve.\n');
+    console.log('All hex → beat / roleplay-book anchors resolve.\n');
     process.exit(0);
   }
 
-  console.error(`\n✖ ${findings.length} unresolved hex→beat anchor(s):`);
+  console.error(`\n✖ ${findings.length} unresolved hex anchor(s):`);
   for (const f of findings) {
     console.error(
-      `  ${f.file}  ${f.feature}.beats → "${f.beatId}" matches no beat ` +
-        `(expected canonical plotlineSlug/beatSlug).`,
+      `  ${f.file}  ${f.feature}.${f.field} → "${f.ref}" matches no entity ` +
+        `(expected ${f.expected}).`,
     );
   }
   console.error('');
