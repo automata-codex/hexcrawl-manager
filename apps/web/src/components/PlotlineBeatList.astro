@@ -1,8 +1,10 @@
 ---
-import type { PlotlineBeatStatus } from '@achm/schemas';
+import { renderBulletMarkdown } from '../utils/markdown';
 
 import Badge from './Badge.astro';
+
 import type { BeatListItem } from './PlotlineBeatList.types';
+import type { PlotlineBeatStatus } from '@achm/schemas';
 
 interface Props {
   plotlineSlug: string;
@@ -10,6 +12,14 @@ interface Props {
 }
 
 const { plotlineSlug, items } = Astro.props;
+
+const triggerHtml = await Promise.all(
+  items.map((item) =>
+    item.found && item.trigger
+      ? renderBulletMarkdown(item.trigger)
+      : Promise.resolve(''),
+  ),
+);
 
 const statusBadgeColor: Record<PlotlineBeatStatus, 'gray' | 'green'> = {
   pending: 'gray',
@@ -26,7 +36,7 @@ const beatHref = (slug: string): string =>
   <section class="beats">
     <h2 class="title is-3">Beats</h2>
     <ul class="beat-list">
-      {items.map((item) => (
+      {items.map((item, idx) => (
         <li class:list={[
           'beat-row',
           item.found && item.status === 'resolved' && 'is-resolved',
@@ -42,7 +52,7 @@ const beatHref = (slug: string): string =>
                 </Badge>
               </div>
               {item.trigger && (
-                <p class="beat-trigger">{item.trigger}</p>
+                <p class="beat-trigger" set:html={triggerHtml[idx]} />
               )}
             </>
           ) : (
