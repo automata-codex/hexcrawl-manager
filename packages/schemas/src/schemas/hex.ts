@@ -51,6 +51,21 @@ export const HexId = z
       "Hex id must be like 'q12' (letters+digits) or '0203' (4-digit CCRR format)",
   });
 
+/**
+ * Beats anchored to a place-feature (landmark or hidden site), mirroring the
+ * `clues` field's array style. Elements are bare canonical beat IDs in the
+ * `'beat'` LinkType format — `plotlineSlug/beatSlug`, e.g.
+ * "istavan-and-the-mask/the-refugees-lament".
+ *
+ * The hex owns *where* a beat happens; the beat owns *what* it contains. The
+ * per-anchor orientation (when/how the beat fires) already lives in the beat's
+ * own `trigger`, so it is not restated here. The link is one-directional — there
+ * is deliberately no reverse `hexes` field on beats; "which hexes anchor this
+ * beat" is derived by querying hexes, exactly as clue placements are.
+ */
+export const BeatReferencesSchema = z.array(z.string()).optional();
+export type BeatReferences = z.infer<typeof BeatReferencesSchema>;
+
 // Base schema for all hidden sites (common fields)
 const BaseHiddenSiteSchema = z.object({
   description: z.string(),
@@ -62,6 +77,7 @@ const BaseHiddenSiteSchema = z.object({
       'DEPRECATED: IDs of knowledge nodes that are unlocked by this site. Still supported for backward compatibility.',
     ),
   clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this site'),
+  beats: BeatReferencesSchema.describe('Canonical IDs of beats anchored at this site'),
 });
 
 /**
@@ -151,6 +167,7 @@ export const LandmarkSchema = z.object({
       'DEPRECATED: IDs of knowledge nodes that are unlocked by this site. Still supported for backward compatibility.',
     ),
   clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this landmark'),
+  beats: BeatReferencesSchema.describe('Canonical IDs of beats anchored at this landmark'),
 });
 
 export const KeyedEncounterTriggerEnum = z.enum(['entry', 'exploration']);

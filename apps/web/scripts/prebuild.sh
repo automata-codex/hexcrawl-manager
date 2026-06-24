@@ -60,6 +60,10 @@ echo "=== Prebuild: Validating plotline back-references ==="
 ACHM_STRICT_PLOTLINE_REFS="${ACHM_STRICT_PLOTLINE_REFS:-1}" tsx scripts/validate-plotline-refs.ts
 
 echo ""
+echo "=== Prebuild: Validating hex → beat anchors ==="
+tsx scripts/validate-hex-beat-refs.ts
+
+echo ""
 echo "=== Prebuild: Validating data references (backticks + links) ==="
 tsx scripts/validate-data-refs.ts
 
