@@ -15,6 +15,11 @@ Schema brief "Structured beat anchoring on hexes" must land first — this consu
 `beats` field it adds. Do not start until `landmark.beats` / `hiddenSites[].beats` exist
 and validate.
 
+> **Satisfied (2026-06):** the schema landed in commits `89ac04bb` ("Add beat references
+> to hex schema") and `6a12ac4f` ("Display beats referenced by hexes"). `landmark.beats` /
+> `hiddenSites[].beats` exist and validate. See `docs/plans/39-cli-beat-surfacing-plan.md`
+> for the implementation breakdown.
+
 ## Read first (do not infer)
 
 - The existing clue-surfacing logic in the `move` and fast-travel commands
@@ -51,9 +56,11 @@ adding new entry points.
   already resolved/done must not surface. This is a different field and a different
   predicate — do not reuse the clue `status` check.
 
-Resolve each beat ID in a `beats` array to its beat (plotline + slug) to read its status;
-reuse the same beat-ID resolution the schema validation uses (canonical `'beat'` LinkType
-format).
+Resolve each beat ID in a `beats` array to its beat (plotline + slug) to read its status.
+The reusable resolver is `apps/web/scripts/validate-hex-beat-refs.ts` (its `loadBeatIds` /
+frontmatter-parsing helpers), now lifted into `@achm/data` as `loadBeats()` and shared by
+both the validator and this CLI path. Beat IDs are canonical `'beat'` LinkType references
+(`plotlineSlug/beatSlug`).
 
 ## Out of scope / known blind spots (intended, document them)
 
@@ -66,10 +73,12 @@ format).
   anchored in any hex `beats` field, so they correctly will not surface here. They belong
   to the faction-tidings channel.
 
-## Confirm back to Alex
+## Confirmed with Alex
 
-- Output treatment: should anchored beats render in the same block as surfaced clues, or a
-  separate "Beats here" section in the movement output? (Recommend separate, labeled.)
-- Whether fast-travel should de-duplicate a beat anchored on multiple intervening hexes
-  (unlikely given placement, but confirm the desired behavior).
-- Exact `PlotlineBeatStatusEnum` values that count as "surface" vs. "suppress."
+- **Output treatment:** a separate, labeled line — `🎭 N live beat(s) anchored here — see
+  hex <id>.` — distinct from the clue line, not merged into the clue count.
+- **Fast-travel de-duplication:** none. A beat anchored on multiple intervening hexes
+  surfaces on each, and fast travel pauses on each (it rides the existing
+  `paused_hex_alert` path, exactly as clue alerts do).
+- **`PlotlineBeatStatusEnum` gating:** `pending` and `active` surface; `resolved` and
+  `skipped` are terminal and suppressed (`campaignStatus` must also be `active`).
