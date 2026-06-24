@@ -1,5 +1,6 @@
 export * from './ap-ledger/index.js';
 export * from './atomic-write.js';
+export * from './beats.js';
 export * from './errors.js';
 export * from './filenames.js';
 export * from './finalized-session-logs.js';
