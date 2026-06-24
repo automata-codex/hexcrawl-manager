@@ -17,10 +17,9 @@
  *   tsx scripts/validate-hex-beat-refs.ts
  *   npm run validate:hex-beats
  */
+import { loadBeats, resolveDataPath } from '@achm/data';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
-
-import { resolveDataPath } from '@achm/data';
 import yaml from 'yaml';
 
 function listFiles(dir: string, exts: string[]): string[] {
@@ -33,43 +32,25 @@ function listFiles(dir: string, exts: string[]): string[] {
 
 function parseYaml(file: string): Record<string, unknown> {
   try {
-    return (yaml.parse(readFileSync(file, 'utf-8')) as Record<string, unknown>) ?? {};
-  } catch {
-    return {};
-  }
-}
-
-function parseFrontmatter(file: string): Record<string, unknown> {
-  try {
-    const raw = readFileSync(file, 'utf-8');
-    if (!raw.startsWith('---')) return {};
-    const end = raw.indexOf('\n---', 3);
-    if (end === -1) return {};
-    const fm = raw.slice(raw.indexOf('\n') + 1, end);
-    return (yaml.parse(fm) as Record<string, unknown>) ?? {};
+    return (
+      (yaml.parse(readFileSync(file, 'utf-8')) as Record<string, unknown>) ?? {}
+    );
   } catch {
     return {};
   }
 }
 
 /**
- * Set of canonical beat IDs (`plotlineSlug/beatSlug`) across every plotline.
- * Beats live at `data/plotlines/<plotline>/beats/<slug>.{md,mdx}`; the canonical
- * ID prefers the beat's own `plotline` + `slug` frontmatter and falls back to
- * the directory/filename so a beat missing frontmatter still resolves.
+ * Set of canonical beat IDs (`plotlineSlug/beatSlug`) across every plotline,
+ * via the shared `@achm/data` loader so the resolver and the in-CLI beat
+ * surfacing stay on one source of truth.
+ *
+ * The shared loader validates each beat against `BeatSchema` and skips files
+ * that fail, so a hex anchoring a schema-broken beat is reported here as
+ * unresolved — which is the correct, stricter behavior for an integrity check.
  */
 function loadBeatIds(): Set<string> {
-  const ids = new Set<string>();
-  const beatSeg = `${path.sep}beats${path.sep}`;
-  for (const file of listFiles(resolveDataPath('plotlines'), ['.md', '.mdx'])) {
-    if (!file.includes(beatSeg)) continue;
-    const fm = parseFrontmatter(file) as { slug?: string; plotline?: string };
-    const slug = fm.slug ?? path.basename(file).replace(/\.(md|mdx)$/, '');
-    // Parent plotline dir: data/plotlines/<plotline>/beats/<file>
-    const parentPlotline = fm.plotline ?? path.basename(path.dirname(path.dirname(file)));
-    ids.add(`${parentPlotline}/${slug}`);
-  }
-  return ids;
+  return new Set(loadBeats().keys());
 }
 
 interface AnchorRef {
