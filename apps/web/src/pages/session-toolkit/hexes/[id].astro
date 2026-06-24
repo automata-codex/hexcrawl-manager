@@ -12,8 +12,10 @@ import RandomEncounterTable from '../../../components/RandomEncounterTable/Rando
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { mergeEncounterOverrides } from '../../../utils/encounters';
 import { createSyntheticHex, processHex } from '../../../utils/hexes';
+import { renderBulletMarkdown } from '../../../utils/markdown';
 import { buildHexToRegionLookup } from '../../../utils/regions';
 
+import type { BeatMapEntry } from '../../../types';
 import type { EncounterTableData, HexData } from '@achm/schemas';
 
 // Get the ID from the incoming server request
@@ -69,6 +71,41 @@ const clueMap = Object.fromEntries(
 const encounterMap = Object.fromEntries(
   encounterCollection.map((e) => [e.id, { id: e.id, name: e.data.name }])
 );
+
+// Build a beat lookup for the beats anchored on this hex's features (landmark /
+// hidden sites). Only anchored beats are resolved: a beat's `trigger` is rendered
+// markdown, so resolving just the anchored ones avoids rendering every beat in the
+// campaign on each hex page. Beat IDs are canonical `plotlineSlug/beatSlug`.
+const beatsCollection = await getCollection('beats');
+const beatById = new Map(
+  beatsCollection.map((b) => [`${b.data.plotline}/${b.data.slug}`, b.data])
+);
+
+const anchoredBeatIds = new Set<string>();
+const collectAnchoredBeats = (feature: unknown): void => {
+  if (!feature || typeof feature !== 'object') return;
+  const beats = (feature as { beats?: unknown }).beats;
+  if (!Array.isArray(beats)) return;
+  for (const beat of beats) {
+    if (typeof beat === 'string') anchoredBeatIds.add(beat);
+  }
+};
+collectAnchoredBeats(hexData.landmark);
+if (Array.isArray(hexData.hiddenSites)) {
+  hexData.hiddenSites.forEach(collectAnchoredBeats);
+}
+
+const beatMap: Record<string, BeatMapEntry> = {};
+for (const beatId of anchoredBeatIds) {
+  const beatData = beatById.get(beatId);
+  if (!beatData) continue; // dangling anchor — HexBeatList renders "(not found)"
+  beatMap[beatId] = {
+    id: beatId,
+    title: beatData.title,
+    triggerHtml: beatData.trigger ? await renderBulletMarkdown(beatData.trigger) : '',
+  };
+}
+
 const title = `Hex ${hexData.id.toUpperCase()}: ${hexData.name}`;
 
 // Find pointcrawls accessible from this hex
@@ -122,6 +159,7 @@ const extendedHexData = await processHex(hex);
   <SecretContent>
     <GmHexDetails
       client:load
+      beatMap={beatMap}
       clueMap={clueMap}
       dungeons={dungeons}
       encounterMap={encounterMap}

@@ -2,17 +2,19 @@
   import { type LinkType } from '@achm/schemas';
 
   import { getLinkPath, getLinkText } from '../../utils/link-generator';
+  import HexBeatList from './HexBeatList.svelte';
   import HexClueList from './HexClueList.svelte';
   import TreasureTable from '../TreasureTable/TreasureTable.svelte';
 
-  import type { ClueMapEntry, ExtendedHexData, ExtendedHiddenSites } from '../../types.ts';
+  import type { BeatMapEntry, ClueMapEntry, ExtendedHexData, ExtendedHiddenSites } from '../../types.ts';
 
   interface Props {
+    beatMap?: Record<string, BeatMapEntry>;
     clueMap?: Record<string, ClueMapEntry>;
     hex: ExtendedHexData;
   }
 
-  const { clueMap = {}, hex }: Props = $props();
+  const { beatMap = {}, clueMap = {}, hex }: Props = $props();
 
   /**
    * Type guard to check if a hidden site has link fields.
@@ -35,6 +37,7 @@
       </div>
       <div style="margin-left: 1rem">
         <HexClueList clues={site.clues} {clueMap} />
+        <HexBeatList beats={site.beats} {beatMap} />
       </div>
       {#if site.treasure}
         <TreasureTable treasure={site.treasure} />
@@ -53,6 +56,7 @@
           {/if}
           <div>
             <HexClueList clues={site.clues} {clueMap} />
+            <HexBeatList beats={site.beats} {beatMap} />
           </div>
           {#if site.treasure}
             <TreasureTable treasure={site.treasure} />

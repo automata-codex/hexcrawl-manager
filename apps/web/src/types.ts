@@ -38,6 +38,14 @@ export type ClueMapEntry = {
   name: string;
 };
 
+export type BeatMapEntry = {
+  /** Canonical beat ID: "plotlineSlug/beatSlug". */
+  id: string;
+  title: string;
+  /** Pre-rendered, paragraph-stripped HTML of the beat's `trigger` (may be empty). */
+  triggerHtml: string;
+};
+
 export type EncounterMapEntry = {
   id: string;
   name: string;

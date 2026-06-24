@@ -16,6 +16,7 @@
   import Visited from './Visited.svelte';
 
   import type {
+    BeatMapEntry,
     ClueMapEntry,
     DungeonEntry,
     EncounterMapEntry,
@@ -25,6 +26,7 @@
   import type { MapConfig } from '@achm/schemas';
 
   interface Props {
+    beatMap?: Record<string, BeatMapEntry>;
     clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
     encounterMap?: Record<string, EncounterMapEntry>;
@@ -35,6 +37,7 @@
   }
 
   const {
+    beatMap = {},
     clueMap = {},
     dungeons,
     encounterMap = {},
@@ -84,8 +87,8 @@
     {hex.topography}
   </p>
 {/if}
-<Landmark {hex} {clueMap} />
-<HiddenSites {hex} {clueMap} />
+<Landmark {hex} {clueMap} {beatMap} />
+<HiddenSites {hex} {clueMap} {beatMap} />
 <KeyedEncounters {hex} {encounterMap} />
 {#if hex.secretSite}
   <div class="hanging-indent">
