@@ -1,4 +1,9 @@
-import { REPO_PATHS, loadBeats, readAndValidateYaml } from '@achm/data';
+import {
+  REPO_PATHS,
+  loadBeats,
+  loadRoleplayBooks,
+  readAndValidateYaml,
+} from '@achm/data';
 import { ClueSchema } from '@achm/schemas';
 import fs from 'fs';
 import path from 'path';
@@ -19,6 +24,11 @@ let unknownClueIds: Set<string> | null = null;
 // Lazy-initialized live-beat cache (canonical beat id → is the beat live).
 // Like clue status, beat status only changes via data-repo edits, so load once.
 let liveBeatIds: Set<string> | null = null;
+
+// Lazy-initialized roleplay-book title cache (book slug → display title).
+// Books carry no status gate — every linked book is always relevant — so this
+// is a flat slug→title lookup, no filtering. Loaded once per process.
+let roleplayBookTitles: Map<string, string> | null = null;
 
 function getUnknownClueIds(): Set<string> {
   if (unknownClueIds) {
@@ -62,11 +72,23 @@ function getLiveBeatIds(): Set<string> {
   return liveBeatIds;
 }
 
+function getRoleplayBookTitles(): Map<string, string> {
+  if (roleplayBookTitles) {
+    return roleplayBookTitles;
+  }
+  roleplayBookTitles = new Map();
+  for (const [slug, book] of loadRoleplayBooks()) {
+    roleplayBookTitles.set(slug, book.name);
+  }
+  return roleplayBookTitles;
+}
+
 /**
  * A hex's arrival alerts: clues the party hasn't learned yet (referenced by
  * the hex's landmark, hidden sites, or GM dream-notes), live beats anchored to
- * the hex's landmark or hidden sites, and pending GM `updates` entries. Returns
- * zero alerts for unknown/unloadable hexes.
+ * the hex's landmark or hidden sites, roleplay books reminded at those features,
+ * and pending GM `updates` entries. Returns zero alerts for unknown/unloadable
+ * hexes.
  *
  * Read-only: displaying an alert never changes clue or beat status nor clears
  * `updates` — the GM does that in the data repo once the content lands.
@@ -74,13 +96,15 @@ function getLiveBeatIds(): Set<string> {
 export function getHexAlerts(hexId: string): HexAlerts {
   const hex = loadHexData(hexId);
   if (!hex) {
-    return { unknownClues: 0, liveBeats: 0, updates: 0 };
+    return { unknownClues: 0, liveBeats: 0, roleplayBooks: [], updates: 0 };
   }
   const unknown = getUnknownClueIds();
   const live = getLiveBeatIds();
+  const bookTitles = getRoleplayBookTitles();
   return countHexAlerts(
     hex,
     (clueId) => unknown.has(clueId),
     (beatId) => live.has(beatId),
+    (bookId) => bookTitles.get(bookId),
   );
 }
