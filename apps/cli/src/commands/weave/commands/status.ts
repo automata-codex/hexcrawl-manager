@@ -48,8 +48,8 @@ export async function status(opts: StatusArgs = {}): Promise<void> {
       }
       console.log('-------------------------------------------------');
 
-      // Milestone awards table
-      console.log('\nMilestone Awards:');
+      // Milestone AP table
+      console.log('\nMilestone AP:');
       console.log('-------------------------------------------------');
       console.log('Character         Eligible  Claimed  Unclaimed');
       console.log('-------------------------------------------------');
@@ -57,10 +57,10 @@ export async function status(opts: StatusArgs = {}): Promise<void> {
       for (const row of milestoneAwards) {
         console.log(
           `${pad(row.displayName, 17)}${pad(
-            row.eligible.toString(),
+            row.eligibleAp.toString(),
             9,
-          )}${pad(row.claimed.toString(), 8)}${pad(
-            row.unclaimed.toString(),
+          )}${pad(row.claimedAp.toString(), 8)}${pad(
+            row.unclaimedAp.toString(),
             10,
           )}`,
         );
