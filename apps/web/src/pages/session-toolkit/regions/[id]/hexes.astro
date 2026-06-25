@@ -5,7 +5,7 @@ import { getCollection } from 'astro:content';
 
 import GmHexDetails from '../../../../components/GmHexDetails/GmHexDetails.svelte';
 import SecretLayout from '../../../../layouts/SecretLayout.astro';
-import { createSyntheticHex, hexSort, processHex, resolveHexWithRegion } from '../../../../utils/hexes';
+import { buildHexBeatMap, buildHexRoleplayBookMap, createSyntheticHex, hexSort, processHex, resolveHexWithRegion } from '../../../../utils/hexes';
 import { getRegionShortTitle } from '../../../../utils/regions';
 
 import type { ExtendedHexData } from '../../../../types';
@@ -26,6 +26,8 @@ const hexEntries = await getCollection('hexes');
 const regions = await getCollection('regions');
 const clues = await getCollection('clues');
 const encounterCollection = await getCollection('encounters');
+const beats = await getCollection('beats');
+const roleplayBooks = await getCollection('roleplay-books');
 
 // Build clue + encounter lookup maps for display (clue/keyed-encounter names)
 const clueMap = Object.fromEntries(
@@ -65,6 +67,12 @@ const resolvedHexes = allHexData
 const hexes: ExtendedHexData[] = await Promise.all(
   resolvedHexes.map(processHex),
 );
+
+// Build beat + roleplay-book lookup maps for the refs anchored across the
+// region's hexes, so HexBeatList / HexRoleplayBookList resolve names and links
+// instead of rendering "(not found)".
+const beatMap = await buildHexBeatMap(hexes, beats);
+const roleplayBookMap = buildHexRoleplayBookMap(hexes, roleplayBooks);
 ---
 
 <SecretLayout title={`${getRegionShortTitle(regionId, region.data.name)} Hexes`}>
@@ -76,11 +84,13 @@ const hexes: ExtendedHexData[] = await Promise.all(
         </h2>
         <GmHexDetails
           client:load
+          beatMap={beatMap}
           clueMap={clueMap}
           dungeons={dungeons}
           encounterMap={encounterMap}
           hex={hex}
           mapConfig={mapConfig}
+          roleplayBookMap={roleplayBookMap}
         />
       </>
     ))

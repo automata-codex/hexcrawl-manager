@@ -11,11 +11,9 @@ import RandomEncountersSection from '../../../components/RandomEncountersSection
 import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { mergeEncounterOverrides } from '../../../utils/encounters';
-import { createSyntheticHex, processHex } from '../../../utils/hexes';
-import { renderBulletMarkdown } from '../../../utils/markdown';
+import { buildHexBeatMap, buildHexRoleplayBookMap, createSyntheticHex, processHex } from '../../../utils/hexes';
 import { buildHexToRegionLookup } from '../../../utils/regions';
 
-import type { BeatMapEntry, RoleplayBookMapEntry } from '../../../types';
 import type { EncounterTableData, HexData } from '@achm/schemas';
 
 // Get the ID from the incoming server request
@@ -72,62 +70,16 @@ const encounterMap = Object.fromEntries(
   encounterCollection.map((e) => [e.id, { id: e.id, name: e.data.name }]),
 );
 
-// Collect the string references in a named anchor array (`beats` /
-// `roleplayBooks`) off this hex's features (landmark + hidden sites). Only
-// anchored refs are resolved below, so a hex page never has to load every beat
-// or book in the campaign.
-const collectAnchoredRefs = (field: 'beats' | 'roleplayBooks'): Set<string> => {
-  const refs = new Set<string>();
-  const pull = (feature: unknown): void => {
-    if (!feature || typeof feature !== 'object') return;
-    const arr = (feature as Record<string, unknown>)[field];
-    if (!Array.isArray(arr)) return;
-    for (const ref of arr) {
-      if (typeof ref === 'string') refs.add(ref);
-    }
-  };
-  pull(hexData.landmark);
-  if (Array.isArray(hexData.hiddenSites)) {
-    hexData.hiddenSites.forEach(pull);
-  }
-  return refs;
-};
-
-// Build a beat lookup for the anchored beats. A beat's `trigger` is rendered
-// markdown, so resolving just the anchored ones (not the whole collection) keeps
-// the page cheap. Beat IDs are canonical `plotlineSlug/beatSlug`.
-const beatsCollection = await getCollection('beats');
-const beatById = new Map(
-  beatsCollection.map((b) => [`${b.data.plotline}/${b.data.slug}`, b.data]),
+// Resolve the beats + roleplay books anchored on this hex's features (landmark +
+// hidden sites) into display lookups: names, links, and rendered beat triggers.
+// The helpers load only anchored refs, so a hex page never has to pull every
+// beat or book in the campaign. Dangling anchors are omitted, so the list
+// components render "(not found)".
+const beatMap = await buildHexBeatMap([hexData], await getCollection('beats'));
+const roleplayBookMap = buildHexRoleplayBookMap(
+  [hexData],
+  await getCollection('roleplay-books'),
 );
-
-const beatMap: Record<string, BeatMapEntry> = {};
-for (const beatId of collectAnchoredRefs('beats')) {
-  const beatData = beatById.get(beatId);
-  if (!beatData) continue; // dangling anchor — HexBeatList renders "(not found)"
-  beatMap[beatId] = {
-    id: beatId,
-    title: beatData.title,
-    triggerHtml: beatData.trigger
-      ? await renderBulletMarkdown(beatData.trigger)
-      : '',
-  };
-}
-
-// Build a roleplay-book lookup for the books reminded at this hex's features.
-// Books are keyed by their collection id (the file slug, e.g. "fort-dagaric").
-// Surface-as-reminder: only the title + link is shown, never the book's contents.
-const roleplayBooksCollection = await getCollection('roleplay-books');
-const roleplayBookById = new Map(
-  roleplayBooksCollection.map((b) => [b.id, b.data]),
-);
-
-const roleplayBookMap: Record<string, RoleplayBookMapEntry> = {};
-for (const bookId of collectAnchoredRefs('roleplayBooks')) {
-  const bookData = roleplayBookById.get(bookId);
-  if (!bookData) continue; // dangling anchor — HexRoleplayBookList renders "(not found)"
-  roleplayBookMap[bookId] = { id: bookId, name: bookData.name };
-}
 
 const title = `Hex ${hexData.id.toUpperCase()}: ${hexData.name}`;
 
