@@ -30,7 +30,7 @@
   <div class="keyed-encounters">
     <span class="inline-heading keep-with-next">Keyed Encounters:</span>
     <ul>
-      {#each hex.keyedEncounters as encounter (encounter.encounterId)}
+      {#each hex.keyedEncounters as encounter, i (i)}
         <li>
           <a href={getEncounterPath(encounter.encounterId)}>{getEncounterName(encounter.encounterId)}</a>
           <span class="trigger">({formatTrigger(encounter.trigger)})</span>

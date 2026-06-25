@@ -12,7 +12,10 @@ export type ExtendedGmNote = {
 };
 
 /** HexData with region info added from region lookup */
-export type ResolvedHexData = HexData & { regionId: string; regionName: string };
+export type ResolvedHexData = HexData & {
+  regionId: string;
+  regionName: string;
+};
 
 export type ExtendedHexData = HexData & {
   /** Region ID derived from region hex membership */
@@ -35,6 +38,21 @@ export type ExtendedTreasureData = TreasureData & {
 
 export type ClueMapEntry = {
   id: string;
+  name: string;
+};
+
+export type BeatMapEntry = {
+  /** Canonical beat ID: "plotlineSlug/beatSlug". */
+  id: string;
+  title: string;
+  /** Pre-rendered, paragraph-stripped HTML of the beat's `trigger` (may be empty). */
+  triggerHtml: string;
+};
+
+export type RoleplayBookMapEntry = {
+  /** Book slug: the `data/roleplay-books/<slug>.yml` filename. */
+  id: string;
+  /** Display title (the book's `name`). */
   name: string;
 };
 

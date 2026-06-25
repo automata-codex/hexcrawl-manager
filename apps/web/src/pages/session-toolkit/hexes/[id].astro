@@ -11,7 +11,7 @@ import RandomEncountersSection from '../../../components/RandomEncountersSection
 import RandomEncounterTable from '../../../components/RandomEncounterTable/RandomEncounterTable.astro';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { mergeEncounterOverrides } from '../../../utils/encounters';
-import { createSyntheticHex, processHex } from '../../../utils/hexes';
+import { buildHexBeatMap, buildHexRoleplayBookMap, createSyntheticHex, processHex } from '../../../utils/hexes';
 import { buildHexToRegionLookup } from '../../../utils/regions';
 
 import type { EncounterTableData, HexData } from '@achm/schemas';
@@ -62,13 +62,25 @@ const encounterCollection = await getCollection('encounters');
 
 // Build clue lookup map for display
 const clueMap = Object.fromEntries(
-  clues.map((c) => [c.id, { id: c.id, name: c.data.name }])
+  clues.map((c) => [c.id, { id: c.id, name: c.data.name }]),
 );
 
 // Build encounter lookup map for display
 const encounterMap = Object.fromEntries(
-  encounterCollection.map((e) => [e.id, { id: e.id, name: e.data.name }])
+  encounterCollection.map((e) => [e.id, { id: e.id, name: e.data.name }]),
 );
+
+// Resolve the beats + roleplay books anchored on this hex's features (landmark +
+// hidden sites) into display lookups: names, links, and rendered beat triggers.
+// The helpers load only anchored refs, so a hex page never has to pull every
+// beat or book in the campaign. Dangling anchors are omitted, so the list
+// components render "(not found)".
+const beatMap = await buildHexBeatMap([hexData], await getCollection('beats'));
+const roleplayBookMap = buildHexRoleplayBookMap(
+  [hexData],
+  await getCollection('roleplay-books'),
+);
+
 const title = `Hex ${hexData.id.toUpperCase()}: ${hexData.name}`;
 
 // Find pointcrawls accessible from this hex
@@ -107,7 +119,8 @@ if (hex.encounterOverrides) {
     // categoryTables may be empty if all categories use external tableId references
     encounters = {
       mainTable: hex.encounterOverrides.mainTable,
-      categoryTables: (hex.encounterOverrides.categoryTables ?? {}) as EncounterTableData['categoryTables'],
+      categoryTables: (hex.encounterOverrides.categoryTables ??
+        {}) as EncounterTableData['categoryTables'],
     };
   }
 }
@@ -122,31 +135,38 @@ const extendedHexData = await processHex(hex);
   <SecretContent>
     <GmHexDetails
       client:load
+      beatMap={beatMap}
       clueMap={clueMap}
       dungeons={dungeons}
       encounterMap={encounterMap}
       hex={extendedHexData}
       mapConfig={mapConfig}
       pointcrawls={pointcrawls}
+      roleplayBookMap={roleplayBookMap}
       showSelfLink={false}
     />
-    {!hex.hideRandomEncounters && regionEntry && (
-      <RandomEncountersSection
-        region={regionEntry.data}
-        encounters={encounters}
-        encounterChance={encounterChance}
-      />
-    )}
-    {!hex.hideRandomEncounters && !regionEntry && encounters && (
-      <>
-        <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
-        <p>
-          <span class="inline-heading">Chance of encounter:</span>
-          {' '}
-          {encounterChance * 5}% (&le;{encounterChance})
-        </p>
-        <RandomEncounterTable data={encounters} />
-      </>
-    )}
+    {
+      !hex.hideRandomEncounters && regionEntry && (
+        <RandomEncountersSection
+          region={regionEntry.data}
+          encounters={encounters}
+          encounterChance={encounterChance}
+        />
+      )
+    }
+    {
+      !hex.hideRandomEncounters && !regionEntry && encounters && (
+        <>
+          <h2 class="title is-3" style="margin-bottom: 0.25rem">
+            Random Encounters
+          </h2>
+          <p>
+            <span class="inline-heading">Chance of encounter:</span>{' '}
+            {encounterChance * 5}% (&le;{encounterChance})
+          </p>
+          <RandomEncounterTable data={encounters} />
+        </>
+      )
+    }
   </SecretContent>
 </ComponentLayout>

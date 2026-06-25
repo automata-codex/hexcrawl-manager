@@ -13,6 +13,7 @@
     getDungeonPath,
     getHexPath,
     getRegionPath,
+    getRoleplayBookPath,
   } from '../../config/routes.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import { canAccess } from '../../utils/auth.ts';
@@ -72,9 +73,7 @@
       }
       const { from, to } = hexIds;
       const selected = $selectedHex?.toLowerCase();
-      return (
-        from.toLowerCase() === selected || to.toLowerCase() === selected
-      );
+      return from.toLowerCase() === selected || to.toLowerCase() === selected;
     }),
   );
 
@@ -118,7 +117,11 @@
   <div class="button theme-toggle-wrapper">
     <ThemeToggle />
   </div>
-  <button class="button control-button" onclick={() => (isOpen = !isOpen)} aria-label="Toggle detail panel">
+  <button
+    class="button control-button"
+    onclick={() => (isOpen = !isOpen)}
+    aria-label="Toggle detail panel"
+  >
     <FontAwesomeIcon icon={faSidebar} />
   </button>
 </div>
@@ -139,7 +142,7 @@
     <h2 class="title is-5" style="text-align: center">
       {$selectedHex?.toUpperCase()}: {currentHex?.name}
     </h2>
-    {#if canAccess(role, [SCOPES.GM]) && currentHex?.tags?.includes(LOST_VALLEY_BARRIER_TAG)}
+    {#if canAccess( role, [SCOPES.GM], ) && currentHex?.tags?.includes(LOST_VALLEY_BARRIER_TAG)}
       <p class="warning">{LOST_VALLEY_BARRIER_MESSAGE}</p>
     {/if}
     <div>
@@ -150,7 +153,10 @@
           </div>
           <div>
             <a href={getRegionPath(currentHex?.regionId ?? '')}
-              >{getRegionShortTitle(currentHex?.regionId ?? '', currentHex?.regionName)}</a
+              >{getRegionShortTitle(
+                currentHex?.regionId ?? '',
+                currentHex?.regionName,
+              )}</a
             >
           </div>
           <div>
@@ -187,6 +193,15 @@
           <span class="inline-heading">Landmark:</span
           >{' '}{@html currentHex?.renderedLandmark}
         </p>
+        {#if canAccess( role, [SCOPES.GM], ) && currentHex?.roleplayBooks && currentHex.roleplayBooks.length > 0}
+          <p class="hanging-indent">
+            <span class="inline-heading">Roleplay books:</span>{' '}
+            {#each currentHex.roleplayBooks as book, i (book.id)}
+              <a href={getRoleplayBookPath(book.id)}>{book.name}</a
+              >{#if i < currentHex.roleplayBooks.length - 1},{' '}{/if}
+            {/each}
+          </p>
+        {/if}
         <p class="hanging-indent">
           <span class="inline-heading">Travel Difficulty:</span>
           {' '}

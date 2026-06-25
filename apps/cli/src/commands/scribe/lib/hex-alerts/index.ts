@@ -1,5 +1,7 @@
 export {
+  collectHexBeatIds,
   collectHexClueIds,
+  collectHexRoleplayBookIds,
   countHexAlerts,
   hasAlerts,
   type HexAlerts,

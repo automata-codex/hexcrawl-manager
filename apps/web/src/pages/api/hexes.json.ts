@@ -1,13 +1,24 @@
-import { isOutOfBounds, normalizeHexId } from '@achm/core';
+import {
+  isOutOfBounds,
+  normalizeHexId,
+  sortIgnoringArticles,
+} from '@achm/core';
 import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import { getCurrentUserRole } from '../../utils/auth.ts';
 import { SECURITY_ROLE, UNKNOWN_CONTENT } from '../../utils/constants.ts';
-import { createSyntheticHex, processHex, resolveHexWithRegion } from '../../utils/hexes.ts';
-import { buildHexToRegionLookup, getAllRegionHexIds } from '../../utils/regions.ts';
+import {
+  createSyntheticHex,
+  processHex,
+  resolveHexWithRegion,
+} from '../../utils/hexes.ts';
+import {
+  buildHexToRegionLookup,
+  getAllRegionHexIds,
+} from '../../utils/regions.ts';
 
-import type { ExtendedHexData } from '../../types.ts';
+import type { ExtendedHexData, RoleplayBookMapEntry } from '../../types.ts';
 import type { APIRoute } from 'astro';
 
 export type HexPlayerData = Pick<
@@ -27,13 +38,54 @@ export type HexPlayerData = Pick<
   hasHiddenSites: boolean;
   terrain: ExtendedHexData['terrain'] | 'Unknown';
   biome: ExtendedHexData['biome'] | 'Unknown';
+  /**
+   * Roleplay books reminded at this hex's features, resolved to title + slug.
+   * GM-only: attached solely in the GM branch below, so player payloads never
+   * carry it. The detail panel renders it behind its own GM gate as well.
+   */
+  roleplayBooks?: RoleplayBookMapEntry[];
 };
 
+/**
+ * Collect the roleplay books anchored on a hex's landmark + hidden sites and
+ * resolve each slug to its display title, sorted for stable rendering. Slugs
+ * with no matching book are dropped (the build-time reference check guarantees
+ * none dangle in committed data).
+ */
+function collectHexRoleplayBooks(
+  hex: ExtendedHexData,
+  bookNameBySlug: Map<string, string>,
+): RoleplayBookMapEntry[] {
+  const slugs = new Set<string>();
+  const pull = (feature: unknown): void => {
+    if (!feature || typeof feature !== 'object') return;
+    const books = (feature as { roleplayBooks?: unknown }).roleplayBooks;
+    if (!Array.isArray(books)) return;
+    for (const slug of books) {
+      if (typeof slug === 'string') slugs.add(slug);
+    }
+  };
+  pull(hex.landmark);
+  if (Array.isArray(hex.hiddenSites)) {
+    hex.hiddenSites.forEach(pull);
+  }
+  return [...slugs]
+    .map((id) => ({ id, name: bookNameBySlug.get(id) }))
+    .filter((b): b is RoleplayBookMapEntry => b.name !== undefined)
+    .sort((a, b) => sortIgnoringArticles(a.name, b.name));
+}
+
 export const GET: APIRoute = async ({ locals }) => {
-  const [hexEntries, regionEntries] = await Promise.all([
+  const [hexEntries, regionEntries, roleplayBookEntries] = await Promise.all([
     getCollection('hexes'),
     getCollection('regions'),
+    getCollection('roleplay-books'),
   ]);
+
+  // Slug → display title, for resolving a hex's anchored roleplay books (GM only).
+  const bookNameBySlug = new Map(
+    roleplayBookEntries.map((b) => [b.id, b.data.name]),
+  );
 
   // Load map config for out-of-bounds filtering and notation
   const mapConfig = loadMapConfig();
@@ -58,10 +110,7 @@ export const GET: APIRoute = async ({ locals }) => {
     });
 
   // Combine file-based and synthetic hexes, filter out-of-bounds, resolve with region data
-  const allHexData = [
-    ...hexEntries.map((e) => e.data),
-    ...syntheticHexes,
-  ];
+  const allHexData = [...hexEntries.map((e) => e.data), ...syntheticHexes];
 
   const fullHexes = allHexData
     .filter((hex) => !isOutOfBounds(hex.id, outOfBoundsList, notation))
@@ -79,7 +128,11 @@ export const GET: APIRoute = async ({ locals }) => {
 
       if (role === SECURITY_ROLE.GM) {
         // GM gets full data - type assertion needed as we return superset of HexPlayerData
-        return { ...data, hasHiddenSites } as HexPlayerData;
+        return {
+          ...data,
+          hasHiddenSites,
+          roleplayBooks: collectHexRoleplayBooks(data, bookNameBySlug),
+        } as HexPlayerData;
       }
 
       // Redact fields for players

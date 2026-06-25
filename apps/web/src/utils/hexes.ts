@@ -7,9 +7,18 @@ import {
 import { renderBulletMarkdown } from './markdown.ts';
 import { processTreasure } from './treasure.ts';
 
-import type { ExtendedGmNote, ExtendedHexData, ExtendedHiddenSites, RegionEntry, ResolvedHexData } from '../types.ts';
+import type {
+  BeatMapEntry,
+  ExtendedGmNote,
+  ExtendedHexData,
+  ExtendedHiddenSites,
+  RegionEntry,
+  ResolvedHexData,
+  RoleplayBookMapEntry,
+} from '../types.ts';
 import type { CoordinateNotation } from '@achm/core';
 import type { GmNote, HexData, HiddenSite, RegionData } from '@achm/schemas';
+import type { CollectionEntry } from 'astro:content';
 
 /**
  * Process a GM note into extended format with rendered markdown and optional clueId.
@@ -114,6 +123,84 @@ export function isValidHexId(
   notation: CoordinateNotation,
 ): boolean {
   return isValidHexFormat(hexId, notation);
+}
+
+/**
+ * Collect the string refs stored in a named anchor array (`beats` /
+ * `roleplayBooks`) across the landmark + hidden sites of the given hexes.
+ * Resolving only anchored refs means a page never has to load every beat or book
+ * in the campaign.
+ */
+export function collectAnchoredRefs(
+  hexes: HexData[],
+  field: 'beats' | 'roleplayBooks',
+): Set<string> {
+  const refs = new Set<string>();
+  const pull = (feature: unknown): void => {
+    if (!feature || typeof feature !== 'object') return;
+    const arr = (feature as Record<string, unknown>)[field];
+    if (!Array.isArray(arr)) return;
+    for (const ref of arr) {
+      if (typeof ref === 'string') refs.add(ref);
+    }
+  };
+  for (const hex of hexes) {
+    pull(hex.landmark);
+    if (Array.isArray(hex.hiddenSites)) {
+      hex.hiddenSites.forEach(pull);
+    }
+  }
+  return refs;
+}
+
+/**
+ * Build a beat lookup for the beats anchored on the given hexes. A beat's
+ * `trigger` is rendered markdown, so resolving only the anchored beats (not the
+ * whole collection) keeps the page cheap. Beat IDs are canonical
+ * `plotlineSlug/beatSlug`; a dangling anchor is omitted, so the list components
+ * render "(not found)".
+ */
+export async function buildHexBeatMap(
+  hexes: HexData[],
+  beats: CollectionEntry<'beats'>[],
+): Promise<Record<string, BeatMapEntry>> {
+  const beatById = new Map(
+    beats.map((b) => [`${b.data.plotline}/${b.data.slug}`, b.data]),
+  );
+  const beatMap: Record<string, BeatMapEntry> = {};
+  for (const beatId of collectAnchoredRefs(hexes, 'beats')) {
+    const beatData = beatById.get(beatId);
+    if (!beatData) continue;
+    beatMap[beatId] = {
+      id: beatId,
+      title: beatData.title,
+      triggerHtml: beatData.trigger
+        ? await renderBulletMarkdown(beatData.trigger)
+        : '',
+    };
+  }
+  return beatMap;
+}
+
+/**
+ * Build a roleplay-book lookup for the books reminded at the given hexes'
+ * features. Books are keyed by their collection id (the file slug, e.g.
+ * "fort-dagaric"). Surface-as-reminder: only the title + link is exposed, never
+ * the book's contents. A dangling anchor is omitted, so the list component
+ * renders "(not found)".
+ */
+export function buildHexRoleplayBookMap(
+  hexes: HexData[],
+  books: CollectionEntry<'roleplay-books'>[],
+): Record<string, RoleplayBookMapEntry> {
+  const bookById = new Map(books.map((b) => [b.id, b.data]));
+  const bookMap: Record<string, RoleplayBookMapEntry> = {};
+  for (const bookId of collectAnchoredRefs(hexes, 'roleplayBooks')) {
+    const bookData = bookById.get(bookId);
+    if (!bookData) continue;
+    bookMap[bookId] = { id: bookId, name: bookData.name };
+  }
+  return bookMap;
 }
 
 function isStringArray(arr: any[]): arr is string[] {

@@ -11,6 +11,7 @@ import {
   getPlotlinePath,
 } from '../../../../../config/routes';
 import SecretLayout from '../../../../../layouts/SecretLayout.astro';
+import { renderBulletMarkdown } from '../../../../../utils/markdown';
 
 const { plotline: plotlineParam, beat: beatParam } = Astro.params;
 if (!plotlineParam || !beatParam) {
@@ -44,6 +45,10 @@ const factionsById = new Map(
 
 const resolved = resolveBeat(beat.data, { npcsById, factionsById, cluesById });
 
+const triggerHtml = resolved.trigger
+  ? await renderBulletMarkdown(resolved.trigger)
+  : '';
+
 const { Content } = await render(beat);
 
 const statusBadgeColor: Record<typeof resolved.status, 'gray' | 'green'> = {
@@ -75,7 +80,7 @@ const statusBadgeColor: Record<typeof resolved.status, 'gray' | 'green'> = {
       </Badge>
     </div>
     {resolved.trigger && (
-      <p><strong>Trigger:</strong>{' '}{resolved.trigger}</p>
+      <p><strong>Trigger:</strong>{' '}<span set:html={triggerHtml} /></p>
     )}
     {resolved.factions.length > 0 && (
       <p>

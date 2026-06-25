@@ -14,6 +14,17 @@ export function formatHexAlertLines(
       `🔍 ${alerts.unknownClues} unknown clue(s) here — see hex ${hexId}.`,
     );
   }
+  if (alerts.liveBeats > 0) {
+    lines.push(
+      `🎭 ${alerts.liveBeats} live beat(s) anchored here — see hex ${hexId}.`,
+    );
+  }
+  // Books name the title (not a count): the title is the pointer the GM opens.
+  if (alerts.roleplayBooks.length > 0) {
+    lines.push(
+      `📖 Roleplay book(s) relevant here: ${alerts.roleplayBooks.join(', ')} — see hex ${hexId}.`,
+    );
+  }
   if (alerts.updates > 0) {
     lines.push(`📝 This hex has ${alerts.updates} GM update(s).`);
   }
@@ -28,6 +39,14 @@ export function makeHexAlertNote(hexId: string, alerts: HexAlerts): string {
   const parts: string[] = [];
   if (alerts.unknownClues > 0) {
     parts.push(`${alerts.unknownClues} unknown clue(s)`);
+  }
+  if (alerts.liveBeats > 0) {
+    parts.push(`${alerts.liveBeats} live beat(s)`);
+  }
+  // Count-only in the log note, to stay uniform with the other parts; the
+  // interactive line names the book titles.
+  if (alerts.roleplayBooks.length > 0) {
+    parts.push(`${alerts.roleplayBooks.length} roleplay book(s)`);
   }
   if (alerts.updates > 0) {
     parts.push(`${alerts.updates} GM update(s)`);

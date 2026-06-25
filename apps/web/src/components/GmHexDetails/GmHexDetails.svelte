@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { getCluePath, getHexPath, getRegionPath } from '../../config/routes.ts';
+  import {
+    getCluePath,
+    getHexPath,
+    getRegionPath,
+  } from '../../config/routes.ts';
   import {
     LOST_VALLEY_BARRIER_MESSAGE,
     LOST_VALLEY_BARRIER_TAG,
@@ -16,31 +20,37 @@
   import Visited from './Visited.svelte';
 
   import type {
+    BeatMapEntry,
     ClueMapEntry,
     DungeonEntry,
     EncounterMapEntry,
     ExtendedHexData,
     PointcrawlLink,
+    RoleplayBookMapEntry,
   } from '../../types.ts';
   import type { MapConfig } from '@achm/schemas';
 
   interface Props {
+    beatMap?: Record<string, BeatMapEntry>;
     clueMap?: Record<string, ClueMapEntry>;
     dungeons: DungeonEntry[];
     encounterMap?: Record<string, EncounterMapEntry>;
     hex: ExtendedHexData;
     mapConfig: MapConfig;
     pointcrawls?: PointcrawlLink[];
+    roleplayBookMap?: Record<string, RoleplayBookMapEntry>;
     showSelfLink?: boolean;
   }
 
   const {
+    beatMap = {},
     clueMap = {},
     dungeons,
     encounterMap = {},
     hex,
     mapConfig,
     pointcrawls,
+    roleplayBookMap = {},
     showSelfLink = true,
   }: Props = $props();
 </script>
@@ -69,7 +79,9 @@
     </div>
   {/if}
   <div class="data-bar-cell">
-    <a href={getRegionPath(hex.regionId)}>{getRegionShortTitle(hex.regionId, hex.regionName)}</a>
+    <a href={getRegionPath(hex.regionId)}
+      >{getRegionShortTitle(hex.regionId, hex.regionName)}</a
+    >
   </div>
   <Dungeon {dungeons} {hex} />
   <Pointcrawls {pointcrawls} />
@@ -84,8 +96,8 @@
     {hex.topography}
   </p>
 {/if}
-<Landmark {hex} {clueMap} />
-<HiddenSites {hex} {clueMap} />
+<Landmark {hex} {clueMap} {beatMap} {roleplayBookMap} />
+<HiddenSites {hex} {clueMap} {beatMap} {roleplayBookMap} />
 <KeyedEncounters {hex} {encounterMap} />
 {#if hex.secretSite}
   <div class="hanging-indent">
@@ -102,7 +114,9 @@
       <li>
         {@html note.content}
         {#if note.clueId}
-          &rarr; <a href={getCluePath(note.clueId)}>{clueMap[note.clueId]?.name ?? note.clueId}</a>
+          &rarr; <a href={getCluePath(note.clueId)}
+            >{clueMap[note.clueId]?.name ?? note.clueId}</a
+          >
         {/if}
       </li>
     {/each}
