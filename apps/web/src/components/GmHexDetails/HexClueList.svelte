@@ -44,6 +44,10 @@
 {/if}
 
 <style>
+  p {
+    margin-bottom: 0;
+  }
+
   .clue-context {
     font-style: italic;
     color: var(--bulma-text-weak);

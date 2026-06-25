@@ -42,7 +42,6 @@
 <style>
   .beats-heading {
     margin-bottom: 0;
-    text-indent: 0;
   }
 
   /* The global `ul` rule already supplies the disc marker and gutter (same as
@@ -53,6 +52,7 @@
     margin-top: 0;
     margin-bottom: 0;
     text-indent: 0;
+    padding-inline-start: 1rem;
   }
 
   .beat-trigger {
