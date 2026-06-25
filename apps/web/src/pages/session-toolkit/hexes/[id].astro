@@ -15,7 +15,7 @@ import { createSyntheticHex, processHex } from '../../../utils/hexes';
 import { renderBulletMarkdown } from '../../../utils/markdown';
 import { buildHexToRegionLookup } from '../../../utils/regions';
 
-import type { BeatMapEntry } from '../../../types';
+import type { BeatMapEntry, RoleplayBookMapEntry } from '../../../types';
 import type { EncounterTableData, HexData } from '@achm/schemas';
 
 // Get the ID from the incoming server request
@@ -64,46 +64,69 @@ const encounterCollection = await getCollection('encounters');
 
 // Build clue lookup map for display
 const clueMap = Object.fromEntries(
-  clues.map((c) => [c.id, { id: c.id, name: c.data.name }])
+  clues.map((c) => [c.id, { id: c.id, name: c.data.name }]),
 );
 
 // Build encounter lookup map for display
 const encounterMap = Object.fromEntries(
-  encounterCollection.map((e) => [e.id, { id: e.id, name: e.data.name }])
+  encounterCollection.map((e) => [e.id, { id: e.id, name: e.data.name }]),
 );
 
-// Build a beat lookup for the beats anchored on this hex's features (landmark /
-// hidden sites). Only anchored beats are resolved: a beat's `trigger` is rendered
-// markdown, so resolving just the anchored ones avoids rendering every beat in the
-// campaign on each hex page. Beat IDs are canonical `plotlineSlug/beatSlug`.
+// Collect the string references in a named anchor array (`beats` /
+// `roleplayBooks`) off this hex's features (landmark + hidden sites). Only
+// anchored refs are resolved below, so a hex page never has to load every beat
+// or book in the campaign.
+const collectAnchoredRefs = (field: 'beats' | 'roleplayBooks'): Set<string> => {
+  const refs = new Set<string>();
+  const pull = (feature: unknown): void => {
+    if (!feature || typeof feature !== 'object') return;
+    const arr = (feature as Record<string, unknown>)[field];
+    if (!Array.isArray(arr)) return;
+    for (const ref of arr) {
+      if (typeof ref === 'string') refs.add(ref);
+    }
+  };
+  pull(hexData.landmark);
+  if (Array.isArray(hexData.hiddenSites)) {
+    hexData.hiddenSites.forEach(pull);
+  }
+  return refs;
+};
+
+// Build a beat lookup for the anchored beats. A beat's `trigger` is rendered
+// markdown, so resolving just the anchored ones (not the whole collection) keeps
+// the page cheap. Beat IDs are canonical `plotlineSlug/beatSlug`.
 const beatsCollection = await getCollection('beats');
 const beatById = new Map(
-  beatsCollection.map((b) => [`${b.data.plotline}/${b.data.slug}`, b.data])
+  beatsCollection.map((b) => [`${b.data.plotline}/${b.data.slug}`, b.data]),
 );
 
-const anchoredBeatIds = new Set<string>();
-const collectAnchoredBeats = (feature: unknown): void => {
-  if (!feature || typeof feature !== 'object') return;
-  const beats = (feature as { beats?: unknown }).beats;
-  if (!Array.isArray(beats)) return;
-  for (const beat of beats) {
-    if (typeof beat === 'string') anchoredBeatIds.add(beat);
-  }
-};
-collectAnchoredBeats(hexData.landmark);
-if (Array.isArray(hexData.hiddenSites)) {
-  hexData.hiddenSites.forEach(collectAnchoredBeats);
-}
-
 const beatMap: Record<string, BeatMapEntry> = {};
-for (const beatId of anchoredBeatIds) {
+for (const beatId of collectAnchoredRefs('beats')) {
   const beatData = beatById.get(beatId);
   if (!beatData) continue; // dangling anchor — HexBeatList renders "(not found)"
   beatMap[beatId] = {
     id: beatId,
     title: beatData.title,
-    triggerHtml: beatData.trigger ? await renderBulletMarkdown(beatData.trigger) : '',
+    triggerHtml: beatData.trigger
+      ? await renderBulletMarkdown(beatData.trigger)
+      : '',
   };
+}
+
+// Build a roleplay-book lookup for the books reminded at this hex's features.
+// Books are keyed by their collection id (the file slug, e.g. "fort-dagaric").
+// Surface-as-reminder: only the title + link is shown, never the book's contents.
+const roleplayBooksCollection = await getCollection('roleplay-books');
+const roleplayBookById = new Map(
+  roleplayBooksCollection.map((b) => [b.id, b.data]),
+);
+
+const roleplayBookMap: Record<string, RoleplayBookMapEntry> = {};
+for (const bookId of collectAnchoredRefs('roleplayBooks')) {
+  const bookData = roleplayBookById.get(bookId);
+  if (!bookData) continue; // dangling anchor — HexRoleplayBookList renders "(not found)"
+  roleplayBookMap[bookId] = { id: bookId, name: bookData.name };
 }
 
 const title = `Hex ${hexData.id.toUpperCase()}: ${hexData.name}`;
@@ -144,7 +167,8 @@ if (hex.encounterOverrides) {
     // categoryTables may be empty if all categories use external tableId references
     encounters = {
       mainTable: hex.encounterOverrides.mainTable,
-      categoryTables: (hex.encounterOverrides.categoryTables ?? {}) as EncounterTableData['categoryTables'],
+      categoryTables: (hex.encounterOverrides.categoryTables ??
+        {}) as EncounterTableData['categoryTables'],
     };
   }
 }
@@ -166,25 +190,31 @@ const extendedHexData = await processHex(hex);
       hex={extendedHexData}
       mapConfig={mapConfig}
       pointcrawls={pointcrawls}
+      roleplayBookMap={roleplayBookMap}
       showSelfLink={false}
     />
-    {!hex.hideRandomEncounters && regionEntry && (
-      <RandomEncountersSection
-        region={regionEntry.data}
-        encounters={encounters}
-        encounterChance={encounterChance}
-      />
-    )}
-    {!hex.hideRandomEncounters && !regionEntry && encounters && (
-      <>
-        <h2 class="title is-3" style="margin-bottom: 0.25rem">Random Encounters</h2>
-        <p>
-          <span class="inline-heading">Chance of encounter:</span>
-          {' '}
-          {encounterChance * 5}% (&le;{encounterChance})
-        </p>
-        <RandomEncounterTable data={encounters} />
-      </>
-    )}
+    {
+      !hex.hideRandomEncounters && regionEntry && (
+        <RandomEncountersSection
+          region={regionEntry.data}
+          encounters={encounters}
+          encounterChance={encounterChance}
+        />
+      )
+    }
+    {
+      !hex.hideRandomEncounters && !regionEntry && encounters && (
+        <>
+          <h2 class="title is-3" style="margin-bottom: 0.25rem">
+            Random Encounters
+          </h2>
+          <p>
+            <span class="inline-heading">Chance of encounter:</span>{' '}
+            {encounterChance * 5}% (&le;{encounterChance})
+          </p>
+          <RandomEncounterTable data={encounters} />
+        </>
+      )
+    }
   </SecretContent>
 </ComponentLayout>
