@@ -13,6 +13,8 @@
     slug: string;
     title: string;
     trigger: string;
+    /** Pre-rendered markdown of `trigger` (may be empty). */
+    triggerHtml: string;
     status: BeatStatus;
     factions: string[];
     npcs: string[];
@@ -244,9 +246,10 @@
     <li class="beat-item">
       <a
         href={`/gm-reference/plotlines/${beat.plotlineSlug}/beats/${beat.slug}`}
-      >
-        {beat.title}
-      </a>
+        >{beat.title}</a
+      >{#if beat.triggerHtml}&nbsp;&mdash; <span class="beat-trigger"
+          >{@html beat.triggerHtml}</span
+        >{/if}
     </li>
   {/each}
 </ul>
@@ -293,27 +296,20 @@
     color: var(--bulma-text-weak);
   }
 
+  /* Single column. The global `ul` rule supplies the disc marker; the
+     padding-inline-start provides the gutter (same approach as the GM hex
+     details beat list). */
   .beat-list {
-    columns: 3;
-    column-gap: 2rem;
     margin-top: 0;
+    padding-inline-start: 1rem;
   }
 
-  .beat-item {
-    break-inside: avoid;
-  }
-
-  @media (max-width: 1024px) {
-    .beat-list {
-      columns: 2;
-    }
+  .beat-trigger {
+    font-style: italic;
+    color: var(--bulma-text-weak);
   }
 
   @media (max-width: 768px) {
-    .beat-list {
-      columns: 1;
-    }
-
     .filter-row {
       flex-direction: column;
       align-items: stretch;

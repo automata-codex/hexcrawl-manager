@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 
 import BeatList from '../../../components/BeatList.svelte';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { renderBulletMarkdown } from '../../../utils/markdown';
 
 const [beatsData, plotlines, npcsCollection] = await Promise.all([
   getCollection('beats'),
@@ -11,20 +12,28 @@ const [beatsData, plotlines, npcsCollection] = await Promise.all([
   getCollection('npcs'),
 ]);
 
-const beats = beatsData
-  .map((b) => ({
-    plotlineSlug: b.data.plotline,
-    slug: b.data.slug,
-    title: b.data.title,
-    trigger: b.data.trigger ?? '',
-    status: b.data.status,
-    factions: b.data.factions ?? [],
-    npcs: b.data.npcs ?? [],
-    plotline: b.data.plotline,
-    tags: b.data.tags ?? [],
-    campaignStatus: b.data.campaignStatus,
-  }))
-  .sort((a, b) => sortIgnoringArticles(a.title, b.title));
+const beats = (
+  await Promise.all(
+    beatsData.map(async (b) => {
+      const trigger = b.data.trigger ?? '';
+      return {
+        plotlineSlug: b.data.plotline,
+        slug: b.data.slug,
+        title: b.data.title,
+        // Raw trigger drives search; triggerHtml is the rendered markdown shown
+        // in the list (matching the GM hex details beat formatting).
+        trigger,
+        triggerHtml: trigger ? await renderBulletMarkdown(trigger) : '',
+        status: b.data.status,
+        factions: b.data.factions ?? [],
+        npcs: b.data.npcs ?? [],
+        plotline: b.data.plotline,
+        tags: b.data.tags ?? [],
+        campaignStatus: b.data.campaignStatus,
+      };
+    }),
+  )
+).sort((a, b) => sortIgnoringArticles(a.title, b.title));
 
 const npcNames = Object.fromEntries(
   npcsCollection.map((n) => [n.id, n.data.displayName]),
