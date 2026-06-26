@@ -4,7 +4,9 @@ import { ApLedgerEntry, makeSessionId, padSessionNum } from '@achm/schemas';
 import {
   makeCompletedSessionReport,
   makePlannedSessionReport,
+  makeSessionAp,
   makeSessionApGrid,
+  normalAp,
   runWeave,
   saveCharacter,
   withTempRepo,
@@ -226,14 +228,17 @@ describe('Command `weave ap status`', () => {
   it.todo('handles windowing that excludes all sessions');
 
   // Milestone awards table (Phase 5)
-  it('renders a milestone awards table from structured milestone events and milestone_spend ledger entries', async () => {
+  it('renders a milestone AP table from session_ap top-ups and milestone_spend ledger deltas', async () => {
     await withTempRepo(
       'ap-status-milestone-table',
       { initGit: false },
       async (repo) => {
         // Two characters, both present at session-0001 which has one
-        // structured milestone event in its JSONL log. Alistar already
-        // claimed it (1 milestone_spend entry); Daemaris has not.
+        // structured milestone event in its JSONL log. Pillar AP is already
+        // applied for the session, so each character's eligible milestone AP is
+        // the top-up max(0, 3 - sessionTotal): Alistar earned 1 pillar AP (top-up
+        // 2), Daemaris earned 2 (top-up 1). Alistar has claimed his milestone
+        // (one milestone_spend entry whose deltas sum to 2 AP); Daemaris has not.
         saveCharacter('alistar', { level: 1 });
         saveCharacter('daemaris', { level: 1 });
 
@@ -260,16 +265,34 @@ describe('Command `weave ap status`', () => {
           }) + '\n',
         );
 
-        // Ledger: alistar has a milestone_spend entry; daemaris does not.
+        // Ledger:
+        //  - session_ap for both characters (so the milestone top-up is computed
+        //    from real pillar AP instead of defaulting to the cap): Alistar 1 AP
+        //    -> top-up 2, Daemaris 2 AP -> top-up 1.
+        //  - one milestone_spend for Alistar whose deltas sum to 2 AP (his
+        //    top-up); Daemaris has none. This exercises that "claimed" is the sum
+        //    of deltas, not a count of entries.
         const ledger: ApLedgerEntry[] = [
+          makeSessionAp({
+            characterId: 'alistar',
+            session: 1,
+            appliedAt: '2025-09-01T12:00:00.000Z',
+            deltas: normalAp({ combat: 1 }),
+          }),
+          makeSessionAp({
+            characterId: 'daemaris',
+            session: 1,
+            appliedAt: '2025-09-01T12:00:00.000Z',
+            deltas: normalAp({ combat: 1, exploration: 1 }),
+          }),
           {
             kind: 'milestone_spend',
             advancementPoints: {
-              combat: { delta: 0, reason: 'normal' },
-              exploration: { delta: 0, reason: 'normal' },
+              combat: { delta: 1, reason: 'normal' },
+              exploration: { delta: 1, reason: 'normal' },
               social: { delta: 0, reason: 'normal' },
             },
-            appliedAt: '2025-09-01T12:00:00.000Z',
+            appliedAt: '2025-09-01T12:30:00.000Z',
             characterId: 'alistar',
             sessionId: makeSessionId(1),
           },
@@ -283,15 +306,16 @@ describe('Command `weave ap status`', () => {
         expect(exitCode).toBe(0);
         expect(stderr).toBeFalsy();
 
-        // Find the Milestone Awards block in the output
+        // Find the Milestone AP block in the output
         const lines = stdout.split(/\r?\n/);
-        const start = lines.findIndex((l) => /Milestone Awards/i.test(l));
+        const start = lines.findIndex((l) => /Milestone AP/i.test(l));
         expect(start).toBeGreaterThan(-1);
         const milestoneBlock = lines.slice(start, start + 8).join('\n');
 
-        // Alistar: eligible 1, claimed 1, unclaimed 0
-        expect(milestoneBlock).toMatch(/Alistar\s+1\s+1\s+0/);
-        // Daemaris: eligible 1, claimed 0, unclaimed 1
+        // Alistar: eligible 2 (top-up), claimed 2 (delta sum from one entry),
+        // unclaimed 0
+        expect(milestoneBlock).toMatch(/Alistar\s+2\s+2\s+0/);
+        // Daemaris: eligible 1 (top-up), claimed 0, unclaimed 1
         expect(milestoneBlock).toMatch(/Daemaris\s+1\s+0\s+1/);
       },
     );
