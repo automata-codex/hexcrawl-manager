@@ -17,12 +17,15 @@ import {
 } from '@achm/schemas';
 import yaml from 'yaml';
 
+import { MILESTONE_AP_CAP } from '../lib/core/milestone-ap';
 import { CliValidationError, IoApplyError } from '../lib/errors';
 import { ensureCharacterExists } from '../lib/validate';
 
 import type { AllocateMilestoneArgs } from './allocate';
 
-export const MILESTONE_AP_CAP = 3;
+// Re-exported from its canonical `lib/core` home so existing importers
+// (e.g. `allocate.ts`) keep their import path.
+export { MILESTONE_AP_CAP };
 
 export type AllocateMilestoneResult = {
   characterId: string;
