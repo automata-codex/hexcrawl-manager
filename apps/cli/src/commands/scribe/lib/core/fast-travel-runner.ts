@@ -101,6 +101,12 @@ export interface FastTravelState {
   keyedEncounters: Record<string, KeyedEncounter[]>;
   /** Arrival alerts (unknown clues / GM updates) per route hex */
   hexAlerts: Record<string, HexAlerts>;
+  /**
+   * Skip the random encounter check (the per-hex d20 roll) on every hex — the
+   * `--no-rec` flag. Keyed (scripted) encounters and arrival alerts still fire;
+   * only the random roll is suppressed. Preserved across day rollovers.
+   */
+  skipRandomEncounters?: boolean;
 }
 
 /**
@@ -236,9 +242,13 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     }
 
     // Random encounter check. Independent of any keyed encounter — a scripted
-    // event and a wandering one can both happen in the same hex.
+    // event and a wandering one can both happen in the same hex. Suppressed
+    // entirely when the journey runs with random encounter checks off
+    // (`--no-rec`); keyed encounters and alerts above are unaffected.
     const threshold = state.encounterChances[destHex] ?? 0;
-    const rolledEncounter = rollEncounterOccurs(threshold);
+    const rolledEncounter = state.skipRandomEncounters
+      ? false
+      : rollEncounterOccurs(threshold);
     if (rolledEncounter) {
       // Log a prompt for the GM to roll the encounter manually.
       events.push({

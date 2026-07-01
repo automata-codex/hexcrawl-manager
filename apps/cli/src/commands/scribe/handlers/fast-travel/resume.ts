@@ -24,7 +24,7 @@ import { requireSession } from '../../services/general';
 import type { FastTravelState } from '../../lib/core/fast-travel-runner';
 import type { Context } from '../../types';
 
-export default function fastTravelResume(ctx: Context) {
+export default function fastTravelResume(ctx: Context, skipRec = false) {
   if (!requireSession(ctx)) {
     return;
   }
@@ -99,9 +99,13 @@ export default function fastTravelResume(ctx: Context) {
     encounterChances,
     keyedEncounters,
     hexAlerts,
+    skipRandomEncounters: skipRec,
   };
 
   info(`Resuming fast travel to ${plan.destHex}...`);
+  if (skipRec) {
+    info('Skipping random encounter checks (REC) for this journey.');
+  }
 
   // Drive the journey to completion, auto-advancing days as needed.
   const result = driveJourney(ctx, ctx.file!, state);

@@ -30,6 +30,7 @@ export default function fastTravelPlanAndExecute(
   ctx: Context,
   dest: string,
   pace: Pace,
+  skipRec = false,
 ) {
   if (!requireSession(ctx)) {
     return;
@@ -103,6 +104,9 @@ export default function fastTravelPlanAndExecute(
 
   savePlan(plan);
   info(`Fast travel plan created. Starting journey...`);
+  if (skipRec) {
+    info('Skipping random encounter checks (REC) for this journey.');
+  }
 
   // Resolve per-hex encounter chances, keyed encounters, and arrival alerts
   // for the route
@@ -133,6 +137,7 @@ export default function fastTravelPlanAndExecute(
     encounterChances,
     keyedEncounters,
     hexAlerts,
+    skipRandomEncounters: skipRec,
   };
 
   // Drive the journey to completion, auto-advancing days as needed.

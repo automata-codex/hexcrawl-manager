@@ -417,6 +417,39 @@ describe('runFastTravel', () => {
     expect(result.events).toHaveLength(4); // move + time_log, keyed note, encounter note
   });
 
+  it('skips the random encounter check on every hex when skipRandomEncounters is set (--no-rec)', () => {
+    // P13 would otherwise always trigger (threshold 20), but REC is off.
+    const result = runFastTravel(
+      makeState({
+        encounterChances: { P13: 20, P14: 20 },
+        skipRandomEncounters: true,
+      }),
+    );
+
+    expect(result.status).toBe('completed');
+    expect(result.currentLegIndex).toBe(2);
+    expect(result.events).toHaveLength(4); // 2 moves + 2 time_logs, no encounter note
+    expect(result.randomEncounterTriggered).toBeUndefined();
+  });
+
+  it('still fires keyed encounters and alerts when random encounter checks are off', () => {
+    // --no-rec suppresses only the random roll; scripted and alert triggers stay.
+    const result = runFastTravel(
+      makeState({
+        encounterChances: { P13: 20 },
+        keyedEncounters: {
+          P13: [{ encounterId: 'enc-ambush', trigger: 'entry' }],
+        },
+        skipRandomEncounters: true,
+      }),
+    );
+
+    expect(result.status).toBe('paused_keyed_encounter');
+    expect(result.randomEncounterTriggered).toBe(false);
+    // Keyed note logged; no random encounter note.
+    expect(result.events).toHaveLength(3); // move + time_log, keyed note
+  });
+
   it('pauses IN a mid-route hex with a keyed encounter and logs a note', () => {
     const result = runFastTravel(
       makeState({
