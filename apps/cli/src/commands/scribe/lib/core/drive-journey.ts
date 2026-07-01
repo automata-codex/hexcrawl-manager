@@ -88,9 +88,6 @@ export function driveJourney(
 
     // Auto-roll + commit weather for the new day (take the roll as-is).
     const nextWeather = autoCommitWeather(file, nextDate);
-    info(
-      `Day rolled over → ${ctx.calendar.formatDate(nextDate)} (${nextSeason}), weather: ${nextWeather.category}`,
-    );
 
     // The party is parked at the last hex it actually entered: the leg before
     // the one that didn't fit, or the journey's start hex if no leg has run yet
@@ -99,6 +96,11 @@ export function driveJourney(
       result.currentLegIndex === 0
         ? state.currentHex
         : state.route[result.currentLegIndex - 1];
+
+    info(
+      `Day rolled over → ${ctx.calendar.formatDate(nextDate)} (${nextSeason}), weather: ${nextWeather.category} ⛺ Camp: ${parkedHex}`,
+    );
+
     state = {
       ...state,
       currentHex: parkedHex,
