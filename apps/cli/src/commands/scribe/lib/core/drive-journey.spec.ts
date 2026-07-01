@@ -1,3 +1,4 @@
+import * as cliKit from '@achm/cli-kit';
 import { CALENDAR_CONFIG } from '@achm/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -60,6 +61,7 @@ describe('driveJourney', () => {
 
   beforeEach(() => {
     // Stub the I/O boundary so the orchestration logic runs without touching disk.
+    vi.spyOn(cliKit, 'info').mockImplementation(() => {});
     vi.spyOn(eventLog, 'readEvents').mockReturnValue([]);
     vi.spyOn(projectors, 'selectCurrentForecast').mockReturnValue(0);
     vi.spyOn(emitters, 'emitFastTravelEvents').mockImplementation(() => {});
@@ -111,6 +113,11 @@ describe('driveJourney', () => {
     expect(emitters.emitDayEnd).toHaveBeenCalledTimes(1);
     expect(emitters.emitDayEnd).toHaveBeenCalledWith(FILE, 16, 16, 0);
     expect(emitters.emitDayStart).toHaveBeenCalledTimes(1);
+
+    // Each day boundary announces where the party camps (route[legIndex - 1]).
+    expect(cliKit.info).toHaveBeenCalledWith(
+      expect.stringContaining('⛺ Camp: P14'),
+    );
 
     // Day-1 weather fill + one advanced day = two commits.
     expect(emitters.emitWeatherCommitted).toHaveBeenCalledTimes(2);

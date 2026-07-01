@@ -44,6 +44,33 @@ function persistPausedProgress(
 }
 
 /**
+ * Every interface line for the triggers that fired on a single hex: keyed
+ * encounters, then a random encounter check, then arrival alerts (unknown clues
+ * / live beats / roleplay books / GM updates). Several can fire on one hex — the
+ * runner pauses once under a single status and logs a note for each — so the
+ * display gathers them all here and shows every one, and the GM never misses a
+ * trigger hidden behind another.
+ *
+ * Keyed encounters and alerts are re-derived from hex data; whether the random
+ * encounter check fired is a die roll, so it is passed in from the run result.
+ */
+function formatHexTriggerLines(
+  hexId: string,
+  randomEncounterTriggered: boolean,
+): string[] {
+  const lines = [
+    ...formatKeyedEncounterLines(hexId, getEntryKeyedEncounters(hexId)),
+  ];
+  if (randomEncounterTriggered) {
+    lines.push(
+      `🎲 Encounter check triggered at ${hexId} — roll on the region table.`,
+    );
+  }
+  lines.push(...formatHexAlertLines(hexId, getHexAlerts(hexId)));
+  return lines;
+}
+
+/**
  * Handle the result of fast travel execution, updating the plan and displaying messages.
  */
 export function handleFastTravelResult(
@@ -58,53 +85,34 @@ export function handleFastTravelResult(
     info(
       `Total time today: ${segmentsToHours(result.finalSegments.active)}h active, ${segmentsToHours(result.finalSegments.daylight)}h daylight`,
     );
-    // Surface keyed encounters, then unknown clues / pending GM updates, at
-    // the destination (a keyed encounter or alert on the final hex completes
-    // the journey rather than pausing, so the GM needs to see it here).
-    for (const line of formatKeyedEncounterLines(
+    // Surface every trigger on the destination hex (a keyed encounter or alert
+    // on the final hex completes the journey rather than pausing, so the GM
+    // needs to see it here). A random encounter would have paused instead of
+    // completing, so it never fires on this path.
+    for (const line of formatHexTriggerLines(
       plan.destHex,
-      getEntryKeyedEncounters(plan.destHex),
+      result.randomEncounterTriggered ?? false,
     )) {
       info(line);
     }
-    for (const line of formatHexAlertLines(
-      plan.destHex,
-      getHexAlerts(plan.destHex),
-    )) {
-      info(line);
-    }
-  } else if (result.status === 'paused_encounter') {
+  } else if (
+    result.status === 'paused_encounter' ||
+    result.status === 'paused_keyed_encounter' ||
+    result.status === 'paused_hex_alert'
+  ) {
     persistPausedProgress(file, plan, result);
-    // The party pauses IN the hex it just entered — the encounter hex.
-    info(
-      `Encounter at ${expectedResumeHex(plan)}! Fast travel paused. Use \`fast resume\` to continue after resolving the encounter.`,
-    );
-  } else if (result.status === 'paused_keyed_encounter') {
-    persistPausedProgress(file, plan, result);
-    // The party pauses IN the hex it just entered — the keyed-encounter hex.
+    // The party pauses IN the hex it just entered. Surface every trigger that
+    // fired there — keyed encounter, random encounter, and arrival alerts — not
+    // just the one the runner chose for the pause status.
     const pausedHex = expectedResumeHex(plan);
-    for (const line of formatKeyedEncounterLines(
+    info(`Fast travel paused at ${pausedHex}.`);
+    for (const line of formatHexTriggerLines(
       pausedHex,
-      getEntryKeyedEncounters(pausedHex),
+      result.randomEncounterTriggered ?? false,
     )) {
       info(line);
     }
-    info(
-      `Fast travel paused at ${pausedHex}. Use \`fast resume\` to continue after resolving the keyed encounter.`,
-    );
-  } else if (result.status === 'paused_hex_alert') {
-    persistPausedProgress(file, plan, result);
-    // The party pauses IN the hex it just entered — the flagged hex.
-    const pausedHex = expectedResumeHex(plan);
-    for (const line of formatHexAlertLines(
-      pausedHex,
-      getHexAlerts(pausedHex),
-    )) {
-      info(line);
-    }
-    info(
-      `Fast travel paused at ${pausedHex}. Use \`fast resume\` to continue.`,
-    );
+    info('Resolve the above, then continue with `fast resume`.');
   } else if (result.status === 'paused_no_capacity') {
     persistPausedProgress(file, plan, result);
     info(

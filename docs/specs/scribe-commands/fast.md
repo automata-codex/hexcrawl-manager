@@ -8,14 +8,16 @@ Automate overland travel **along marked trails only**, emitting the same events 
 
 ## Commands (REPL)
 
-* `fast <DEST_HEX> <PACE>`
+* `fast <DEST_HEX> <PACE> [--no-rec]`
 
   * Plan a **trails-only** route from the current hex to `DEST_HEX` and execute it leg by leg.
   * `PACE ∈ { slow | normal | fast }` (this is travel pace, not “fast travel” speed).
+  * `--no-rec` skips **random encounter checks (REC)** for the whole journey (see [Encounters](#encounters-on-trails)). Keyed encounters and hex alerts still fire. The flag may appear in any position on the line.
 
-* `fast resume`
+* `fast resume [--no-rec]`
 
   * Continue a paused plan from its last saved point.
+  * `--no-rec` is **per-invocation**: it is not stored on the plan, so pass it again on resume to keep skipping REC (and omit it to re-enable checks).
 
 * `fast status`
 
@@ -122,6 +124,7 @@ If a leg ends **exactly** on a cap, allow it (no exhaustion risk until you excee
 
   * Emit `note { text: "Encounter entering <B>: <one-liner>", scope: 'day' }`
   * **Pause** the plan (persist progress). GM resolves it manually; then `fast resume`.
+* **Skipping REC (`--no-rec`):** when the journey is run with `--no-rec`, the per-hex random encounter roll is suppressed entirely — no roll, no note, no pause from a wandering encounter. Only the random check is skipped; keyed encounters and hex alerts are unaffected.
 
 ### Keyed encounters (on trails)
 

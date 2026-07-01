@@ -56,6 +56,15 @@ export interface FastTravelResult {
     daylight: number;
     night: number;
   };
+  /**
+   * Whether a random encounter check fired at the hex where the run paused.
+   * Multiple triggers can fire on one hex, but the runner reports a single
+   * `status`; a random encounter can therefore be masked by a keyed one. The
+   * random roll is the one trigger the display can't re-derive from hex data
+   * (keyed encounters and alerts it looks up itself), so it is carried here so
+   * every trigger can still be surfaced. Absent when nothing paused.
+   */
+  randomEncounterTriggered?: boolean;
 }
 
 /**
@@ -92,6 +101,12 @@ export interface FastTravelState {
   keyedEncounters: Record<string, KeyedEncounter[]>;
   /** Arrival alerts (unknown clues / GM updates) per route hex */
   hexAlerts: Record<string, HexAlerts>;
+  /**
+   * Skip the random encounter check (the per-hex d20 roll) on every hex — the
+   * `--no-rec` flag. Keyed (scripted) encounters and arrival alerts still fire;
+   * only the random roll is suppressed. Preserved across day rollovers.
+   */
+  skipRandomEncounters?: boolean;
 }
 
 /**
@@ -192,7 +207,9 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     // later resume picks up at the next leg without re-checking this hex. When
     // several fire at once every note still lands in the log; we pause once,
     // preferring the most actionable status (keyed encounter > random
-    // encounter > alert).
+    // encounter > alert), but carry `randomEncounterTriggered` on the result so
+    // the display can surface a random encounter even when a keyed one won the
+    // status. The display re-derives keyed encounters and alerts from hex data.
     const finalSegments = {
       active: activeSegmentsToday,
       daylight: daylightSegmentsToday,
@@ -225,9 +242,13 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     }
 
     // Random encounter check. Independent of any keyed encounter — a scripted
-    // event and a wandering one can both happen in the same hex.
+    // event and a wandering one can both happen in the same hex. Suppressed
+    // entirely when the journey runs with random encounter checks off
+    // (`--no-rec`); keyed encounters and alerts above are unaffected.
     const threshold = state.encounterChances[destHex] ?? 0;
-    const rolledEncounter = rollEncounterOccurs(threshold);
+    const rolledEncounter = state.skipRandomEncounters
+      ? false
+      : rollEncounterOccurs(threshold);
     if (rolledEncounter) {
       // Log a prompt for the GM to roll the encounter manually.
       events.push({
@@ -251,6 +272,7 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
         currentLegIndex,
         events,
         finalSegments,
+        randomEncounterTriggered: rolledEncounter,
       };
     }
     if (rolledEncounter) {
@@ -259,6 +281,7 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
         currentLegIndex,
         events,
         finalSegments,
+        randomEncounterTriggered: true,
       };
     }
     if (alerted && !atDestination) {
@@ -267,6 +290,7 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
         currentLegIndex,
         events,
         finalSegments,
+        randomEncounterTriggered: rolledEncounter,
       };
     }
   }
