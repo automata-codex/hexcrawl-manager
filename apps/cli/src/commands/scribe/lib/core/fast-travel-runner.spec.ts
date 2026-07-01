@@ -393,6 +393,28 @@ describe('runFastTravel', () => {
     expect(result.events).toHaveLength(4); // move + time_log, alert note, encounter note
     expect(result.events[2].type).toBe('note');
     expect(result.events[3].type).toBe('note');
+    // The random roll is reported so the display can surface it alongside the
+    // alert, which it re-derives from hex data.
+    expect(result.randomEncounterTriggered).toBe(true);
+  });
+
+  it('reports the masked random encounter when a keyed encounter wins the pause status', () => {
+    // Keyed encounters take precedence for the pause status, but a random
+    // encounter can fire on the same hex. The flag preserves it so the display
+    // shows both.
+    const result = runFastTravel(
+      makeState({
+        keyedEncounters: {
+          P13: [{ encounterId: 'enc-ambush', trigger: 'entry' }],
+        },
+        encounterChances: { P13: 20 },
+      }),
+    );
+
+    expect(result.status).toBe('paused_keyed_encounter');
+    expect(result.randomEncounterTriggered).toBe(true);
+    // Both notes land in the log even though a single status is reported.
+    expect(result.events).toHaveLength(4); // move + time_log, keyed note, encounter note
   });
 
   it('pauses IN a mid-route hex with a keyed encounter and logs a note', () => {
