@@ -18,10 +18,9 @@
  *   tsx scripts/validate-clue-placements.ts
  *   npm run validate:placements
  */
+import { resolveDataPath } from '@achm/data';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
-
-import { resolveDataPath } from '@achm/data';
 import yaml from 'yaml';
 
 import { buildClueUsageMap } from '../src/utils/clue-usage-tracker';
@@ -65,6 +64,28 @@ function yamlCollection(sub: string) {
   });
 }
 
+/**
+ * Loads a collection whose entities may be authored as either YAML
+ * (`.yml`/`.yaml`) or frontmatter (`.mdx`/`.md`). Pointcrawl nodes are always
+ * `.mdx`, and some NPCs/characters are `.mdx`; a YAML-only loader silently drops
+ * those files, so the clues they carry vanish from the placement count and the
+ * clue reads as under-placed here even though the web app (which loads via Astro
+ * content collections) counts them. Parsing both keeps this script in agreement
+ * with the UI it mirrors.
+ */
+function mixedCollection(sub: string) {
+  const dir = resolveDataPath(sub);
+  const yamlEntries = listFiles(dir, ['.yml', '.yaml']).map((file) => {
+    const data = parseYaml(file) as { id?: string };
+    return { id: data.id ?? idOf(file), data };
+  });
+  const frontmatterEntries = listFiles(dir, ['.md', '.mdx']).map((file) => {
+    const data = parseFrontmatter(file) as { id?: string };
+    return { id: data.id ?? idOf(file), data };
+  });
+  return [...yamlEntries, ...frontmatterEntries];
+}
+
 function frontmatterFiles(sub: string, keepBeats: boolean) {
   const beatSeg = `${path.sep}beats${path.sep}`;
   return listFiles(resolveDataPath(sub), ['.md', '.mdx']).filter((file) =>
@@ -76,9 +97,9 @@ function main(): void {
   const clues = yamlCollection('clues');
   const encounters = yamlCollection('encounters');
   const hexes = yamlCollection('hexes');
-  const pointcrawlNodes = yamlCollection('pointcrawl-nodes');
-  const characters = yamlCollection('characters');
-  const npcs = yamlCollection('npcs');
+  const pointcrawlNodes = mixedCollection('pointcrawl-nodes');
+  const characters = mixedCollection('characters');
+  const npcs = mixedCollection('npcs');
   const roleplayBooks = yamlCollection('roleplay-books');
 
   const dungeons = listFiles(resolveDataPath('dungeons'), ['.md', '.mdx']).map(
@@ -105,7 +126,6 @@ function main(): void {
     if (did) encounterMap.set(did, e.data);
   }
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   const usageMap = buildClueUsageMap(
     encounters as any,
     hexes as any,
@@ -119,7 +139,6 @@ function main(): void {
     clues as any,
     beats as any,
   );
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   const underPlaced = clues
     .map((c) => {
