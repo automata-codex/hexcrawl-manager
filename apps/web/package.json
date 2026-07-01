@@ -24,6 +24,7 @@
     "validate:hex-beats": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-hex-beat-refs.ts",
     "validate:map": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-map.ts",
     "validate:nobles": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-nobles.ts",
+    "validate:placement-integrity": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-placement-integrity.ts",
     "validate:placements": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-clue-placements.ts",
     "validate:plotlines": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} ACHM_STRICT_PLOTLINE_REFS=${ACHM_STRICT_PLOTLINE_REFS:-1} tsx scripts/validate-plotline-refs.ts",
     "validate:pointcrawls": "ACHM_DATA_PATH=${ACHM_DATA_PATH:-../../data} tsx scripts/validate-pointcrawl-ids.ts",
