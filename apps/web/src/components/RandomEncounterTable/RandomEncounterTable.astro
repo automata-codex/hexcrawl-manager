@@ -5,7 +5,7 @@ import {
   EncounterTableSchema,
 } from '@achm/schemas';
 
-import { buildWeightedRanges } from '../../utils/encounters';
+import { buildWeightedRanges, isCategoryTableReference } from '../../utils/encounters';
 
 import CategoryContainer from './CategoryContainer.astro';
 import ExternalTableContainer from './ExternalTableContainer.astro';
@@ -95,6 +95,15 @@ const mainRolls = buildWeightedRanges(data.mainTable, (e) => e.weight ?? 1);
       }
       const table = data.categoryTables[categoryData.category];
       if (!table) return null;
+      if (isCategoryTableReference(table)) {
+        return (
+          <ExternalTableContainer
+            label={categoryData.label}
+            tableId={table.tableId}
+            weight={categoryData.weight ?? 1}
+          />
+        );
+      }
       return (
         <CategoryContainer
           label={categoryData.label}

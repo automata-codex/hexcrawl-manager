@@ -52,14 +52,32 @@ function buildExternalTableMap(
 }
 
 /**
- * Extracts encounter IDs from category tables (used by both regions and hex overrides).
+ * Extracts encounter IDs from category tables (used by regions, pointcrawls, and
+ * hex/node/edge overrides). A category value may be inline tiers, or a {tableId}
+ * reference to a shared encounter-category-table—resolved via externalTableMap.
  */
 function extractEncounterIdsFromCategoryTables(
-  categoryTables: Record<string, Record<string, Array<{ encounterId: string }>>>,
+  categoryTables: Record<
+    string,
+    Record<string, Array<{ encounterId: string }>> | { tableId: string } | undefined
+  >,
+  externalTableMap: ExternalTableMap = new Map(),
 ): string[] {
   const encounterIds = new Set<string>();
 
   for (const categoryTable of Object.values(categoryTables)) {
+    if (!categoryTable) continue;
+
+    // A plain 'tableId' in categoryTable check doesn't narrow cleanly here since
+    // the tiered-record branch has a string index signature TS can't rule out.
+    const tableId = (categoryTable as { tableId?: unknown }).tableId;
+    if (typeof tableId === 'string') {
+      for (const id of externalTableMap.get(tableId) ?? []) {
+        encounterIds.add(id);
+      }
+      continue;
+    }
+
     for (const tierEntries of Object.values(categoryTable)) {
       for (const entry of tierEntries) {
         if (entry.encounterId) {
@@ -75,13 +93,19 @@ function extractEncounterIdsFromCategoryTables(
 /**
  * Extracts encounter IDs from a region's encounter tables.
  */
-function extractEncounterIdsFromRegion(regionData: RegionData): string[] {
+function extractEncounterIdsFromRegion(
+  regionData: RegionData,
+  externalTableMap: ExternalTableMap,
+): string[] {
   const encounterIds = new Set<string>();
 
   // Extract from encounter tables
   const encounters = regionData.encounters as EncounterTableData | undefined;
   if (encounters?.categoryTables) {
-    for (const id of extractEncounterIdsFromCategoryTables(encounters.categoryTables)) {
+    for (const id of extractEncounterIdsFromCategoryTables(
+      encounters.categoryTables,
+      externalTableMap,
+    )) {
       encounterIds.add(id);
     }
   }
@@ -126,10 +150,8 @@ function extractEncounterIdsFromHex(
     // Extract from inline categoryTables
     if ('categoryTables' in overrides && overrides.categoryTables) {
       for (const id of extractEncounterIdsFromCategoryTables(
-        overrides.categoryTables as Record<
-          string,
-          Record<string, Array<{ encounterId: string }>>
-        >,
+        overrides.categoryTables,
+        externalTableMap,
       )) {
         encounterIds.add(id);
       }
@@ -176,12 +198,18 @@ function extractEncounterIdsFromHex(
 /**
  * Extracts encounter IDs from a pointcrawl's encounter tables.
  */
-function extractEncounterIdsFromPointcrawl(pointcrawlData: PointcrawlData): string[] {
+function extractEncounterIdsFromPointcrawl(
+  pointcrawlData: PointcrawlData,
+  externalTableMap: ExternalTableMap,
+): string[] {
   const encounterIds = new Set<string>();
 
   const encounters = pointcrawlData.encounters as EncounterTableData | undefined;
   if (encounters?.categoryTables) {
-    for (const id of extractEncounterIdsFromCategoryTables(encounters.categoryTables)) {
+    for (const id of extractEncounterIdsFromCategoryTables(
+      encounters.categoryTables,
+      externalTableMap,
+    )) {
       encounterIds.add(id);
     }
   }
@@ -192,7 +220,10 @@ function extractEncounterIdsFromPointcrawl(pointcrawlData: PointcrawlData): stri
 /**
  * Extracts encounter IDs from a pointcrawl node's set encounters and encounter overrides.
  */
-function extractEncounterIdsFromPointcrawlNode(nodeData: PointcrawlNodeData): string[] {
+function extractEncounterIdsFromPointcrawlNode(
+  nodeData: PointcrawlNodeData,
+  externalTableMap: ExternalTableMap,
+): string[] {
   const encounterIds = new Set<string>();
 
   // Extract from set encounters
@@ -206,7 +237,8 @@ function extractEncounterIdsFromPointcrawlNode(nodeData: PointcrawlNodeData): st
   const overrides = nodeData.encounterOverrides;
   if (overrides && 'categoryTables' in overrides && overrides.categoryTables) {
     for (const id of extractEncounterIdsFromCategoryTables(
-      overrides.categoryTables as Record<string, Record<string, Array<{ encounterId: string }>>>,
+      overrides.categoryTables,
+      externalTableMap,
     )) {
       encounterIds.add(id);
     }
@@ -218,7 +250,10 @@ function extractEncounterIdsFromPointcrawlNode(nodeData: PointcrawlNodeData): st
 /**
  * Extracts encounter IDs from a pointcrawl edge's set encounters and encounter overrides.
  */
-function extractEncounterIdsFromPointcrawlEdge(edgeData: PointcrawlEdgeData): string[] {
+function extractEncounterIdsFromPointcrawlEdge(
+  edgeData: PointcrawlEdgeData,
+  externalTableMap: ExternalTableMap,
+): string[] {
   const encounterIds = new Set<string>();
 
   // Extract from set encounters
@@ -232,7 +267,8 @@ function extractEncounterIdsFromPointcrawlEdge(edgeData: PointcrawlEdgeData): st
   const overrides = edgeData.encounterOverrides;
   if (overrides && 'categoryTables' in overrides && overrides.categoryTables) {
     for (const id of extractEncounterIdsFromCategoryTables(
-      overrides.categoryTables as Record<string, Record<string, Array<{ encounterId: string }>>>,
+      overrides.categoryTables,
+      externalTableMap,
     )) {
       encounterIds.add(id);
     }
@@ -304,7 +340,7 @@ export function buildEncounterUsageMap(
 
   // Scan regions
   for (const region of regions) {
-    const encounterIds = extractEncounterIdsFromRegion(region.data);
+    const encounterIds = extractEncounterIdsFromRegion(region.data, externalTableMap);
     for (const encounterId of encounterIds) {
       addUsage(encounterId, {
         type: 'region',
@@ -325,7 +361,7 @@ export function buildEncounterUsageMap(
   // Scan pointcrawls (encounter tables)
   // Store slug for routing (getPointcrawlPath expects slug, not id)
   for (const pointcrawl of pointcrawls) {
-    const encounterIds = extractEncounterIdsFromPointcrawl(pointcrawl.data);
+    const encounterIds = extractEncounterIdsFromPointcrawl(pointcrawl.data, externalTableMap);
     for (const encounterId of encounterIds) {
       addUsage(encounterId, {
         type: 'pointcrawl',
@@ -338,7 +374,7 @@ export function buildEncounterUsageMap(
   // Scan pointcrawl nodes
   // Store compound id as "pointcrawlSlug/nodeId" for routing to node detail page
   for (const node of pointcrawlNodes) {
-    const encounterIds = extractEncounterIdsFromPointcrawlNode(node.data);
+    const encounterIds = extractEncounterIdsFromPointcrawlNode(node.data, externalTableMap);
     const pointcrawlSlug = pointcrawlSlugMap.get(node.data.pointcrawlId) || node.data.pointcrawlId;
     for (const encounterId of encounterIds) {
       addUsage(encounterId, {
@@ -352,7 +388,7 @@ export function buildEncounterUsageMap(
   // Scan pointcrawl edges
   // Store compound id as "pointcrawlSlug/edgeId" for routing to edge detail page
   for (const edge of pointcrawlEdges) {
-    const encounterIds = extractEncounterIdsFromPointcrawlEdge(edge.data);
+    const encounterIds = extractEncounterIdsFromPointcrawlEdge(edge.data, externalTableMap);
     const pointcrawlName = pointcrawlNameMap.get(edge.data.pointcrawlId) || edge.data.pointcrawlId;
     const pointcrawlSlug = pointcrawlSlugMap.get(edge.data.pointcrawlId) || edge.data.pointcrawlId;
     for (const encounterId of encounterIds) {

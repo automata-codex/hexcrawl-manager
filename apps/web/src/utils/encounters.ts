@@ -1,8 +1,21 @@
 import type {
   CategoryTableData,
+  CategoryTableReferenceData,
   EncounterOverrideData,
   EncounterTableData,
+  TieredSubtableData,
 } from '@achm/schemas';
+
+/**
+ * Type guard for a category's tableId reference vs. its inline tiers. A plain
+ * 'tableId' in value check doesn't narrow cleanly here because TieredSubtableData
+ * is a string index signature, so TS can't rule out a "tableId" tier key on it.
+ */
+export function isCategoryTableReference(
+  value: TieredSubtableData | CategoryTableReferenceData,
+): value is CategoryTableReferenceData {
+  return typeof (value as CategoryTableReferenceData).tableId === 'string';
+}
 
 /**
  * Merges encounter table overrides with a base table.
@@ -20,15 +33,21 @@ export function mergeEncounterOverrides(
   const categoryTables: CategoryTableData = structuredClone(base.categoryTables);
 
   if (overrides.categoryTables) {
-    for (const [category, tierOverrides] of Object.entries(
-      overrides.categoryTables,
-    )) {
-      categoryTables[category] = categoryTables[category] || {};
+    for (const [category, override] of Object.entries(overrides.categoryTables)) {
+      if (!override) continue;
 
-      for (const [tier, overrideEntries] of Object.entries(
-        tierOverrides ?? {},
-      )) {
-        categoryTables[category][tier] = overrideEntries;
+      if ('tableId' in override) {
+        // A tableId reference replaces the whole category, not individual tiers
+        categoryTables[category] = override;
+        continue;
+      }
+
+      const existing = categoryTables[category];
+      const tiers = existing && !('tableId' in existing) ? existing : {};
+      categoryTables[category] = tiers;
+
+      for (const [tier, overrideEntries] of Object.entries(override)) {
+        tiers[tier] = overrideEntries;
       }
     }
   }

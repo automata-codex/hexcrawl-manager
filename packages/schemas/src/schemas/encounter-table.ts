@@ -54,9 +54,17 @@ export const WeightedCategoryTable = z.array(CategoryWeight).superRefine((entrie
   }
 });
 
+export const CategoryTableReference = z.object({
+  tableId: z
+    .string()
+    .describe(
+      'Reference to an external encounter-category-table. If set, uses that table instead of inline tiers for this category.',
+    ),
+});
+
 export const CategoryTable = z.record(
   z.string(), // keys: category names
-  TieredSubtableSchema.describe('Category name'),
+  z.union([TieredSubtableSchema, CategoryTableReference]).describe('Category name'),
 );
 
 export const EncounterTableSchema = z
@@ -67,6 +75,7 @@ export const EncounterTableSchema = z
   .describe('EncounterTableSchema');
 
 export type CategoryTableData = z.infer<typeof CategoryTable>;
+export type CategoryTableReferenceData = z.infer<typeof CategoryTableReference>;
 export type CategoryWeightData = z.infer<typeof CategoryWeight>;
 export type EncounterEntryData = z.infer<typeof EncounterEntrySchema>;
 export type EncounterTableData = z.infer<typeof EncounterTableSchema>;
