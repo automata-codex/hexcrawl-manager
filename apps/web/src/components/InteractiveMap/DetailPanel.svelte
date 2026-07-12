@@ -19,7 +19,7 @@
   import { canAccess } from '../../utils/auth.ts';
   import {
     LOST_VALLEY_BARRIER_MESSAGE,
-    LOST_VALLEY_BARRIER_TAG,
+    LOST_VALLEY_BARRIER_PLAYER_MESSAGE,
     SCOPES,
   } from '../../utils/constants.ts';
   import {
@@ -142,8 +142,12 @@
     <h2 class="title is-5" style="text-align: center">
       {$selectedHex?.toUpperCase()}: {currentHex?.name}
     </h2>
-    {#if canAccess( role, [SCOPES.GM], ) && currentHex?.tags?.includes(LOST_VALLEY_BARRIER_TAG)}
-      <p class="warning">{LOST_VALLEY_BARRIER_MESSAGE}</p>
+    {#if currentHex?.isImpassable}
+      {#if canAccess(role, [SCOPES.GM])}
+        <p class="warning">{LOST_VALLEY_BARRIER_MESSAGE}</p>
+      {:else}
+        <p class="warning">{LOST_VALLEY_BARRIER_PLAYER_MESSAGE}</p>
+      {/if}
     {/if}
     <div>
       {#if canAccess(role, [SCOPES.GM])}
