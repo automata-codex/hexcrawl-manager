@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { CampaignStatusEnum } from './campaign-status.js';
 import { ClueReferencesSchema } from './clue-reference.js';
 import { CreatureTypeEnum } from './stat-block.js';
 
@@ -47,9 +48,13 @@ export const EncounterSchema = z
     unlocks: z
       .array(z.string())
       .optional()
-      .describe('IDs of knowledge nodes that are unlocked by this encounter'),
+      .describe(
+        'DEPRECATED: IDs of knowledge nodes that are unlocked by this encounter. Still supported for backward compatibility.',
+      ),
 
-    clues: ClueReferencesSchema.describe('IDs of clues that this encounter can reveal'),
+    clues: ClueReferencesSchema.describe(
+      'IDs of clues that this encounter can reveal',
+    ),
 
     // Derived fields (populated at build time)
     isLead: z
@@ -68,6 +73,8 @@ export const EncounterSchema = z
       .array(UsageReferenceSchema)
       .optional()
       .describe('Automatically populated by analyzing references'),
+
+    campaignStatus: CampaignStatusEnum.default('active'),
   })
   .refine((data) => data.description || data.contentPath, {
     message: "Either 'description' or 'contentPath' must be provided",
@@ -88,7 +95,16 @@ export const EncounterSchema = z
       path: ['locationTypes'],
     },
   )
-  .describe('EncounterSchema');
+  .describe(
+    'An encounter is a runnable scene — combat or interaction — that the GM ' +
+    'deploys at the table. It is reusable, may carry variants, may serve more ' +
+    'than one plotline, has mechanical outcomes, and may deliver clues. ' +
+    "Distinguish from a beat (a one-time node in a single plotline's arc) and a " +
+    'clue (a fact the party learns): if a scene could be dropped into multiple ' +
+    'plotlines, it is an encounter, not a beat. Example: the Revenant Courier ' +
+    'encounter serves both Milly and Baz and the Reconstitution of Ixathis ' +
+    '(Track B timing) through its Loveda variant.',
+  );
 
 export type EncounterData = z.infer<typeof EncounterSchema>;
 export type EncounterScope = z.infer<typeof EncounterScopeEnum>;

@@ -1,5 +1,6 @@
 export * from './ap-ledger/index.js';
 export * from './atomic-write.js';
+export * from './beats.js';
 export * from './errors.js';
 export * from './filenames.js';
 export * from './finalized-session-logs.js';
@@ -12,6 +13,7 @@ export * from './meta.js';
 export * from './paths.js';
 export * from './regex.js';
 export { REPO_PATHS, ensureRepoDirs } from './repo-paths.js';
+export * from './roleplay-books.js';
 export * from './rollover-files.js';
 export * from './routes-config.js';
 export * from './seasons/index.js';

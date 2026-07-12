@@ -44,12 +44,13 @@ const statBlocks = dungeon.data.statBlocks
 // Build clue list
 const dungeonClueRefs = dungeon.data.clues ?? [];
 const clueList = dungeonClueRefs.map((ref) => {
-  const { id: clueId } = normalizeClueRef(ref);
+  const { id: clueId, context } = normalizeClueRef(ref);
   const clue = allClues.find((c) => c.id === clueId);
   return {
     id: clueId,
     name: clue?.data.name ?? clueId,
     found: !!clue,
+    context,
   };
 });
 ---
@@ -78,6 +79,15 @@ const clueList = dungeonClueRefs.map((ref) => {
 
   .spacer {
     margin-bottom: 1rem;
+  }
+
+  .maps-list {
+    margin-bottom: 0;
+  }
+
+  .clue-context {
+    font-style: italic;
+    color: var(--bulma-text-weak);
   }
 </style>
 <div class="dungeon-data-bar">
@@ -110,7 +120,7 @@ const clueList = dungeonClueRefs.map((ref) => {
   dungeon.data.images && (
     <div>
       <p class="maps">Maps:</p>
-      <ul>
+      <ul class="maps-list">
         {dungeon.data.images.map((image) => (
           <li>
             <a
@@ -128,19 +138,23 @@ const clueList = dungeonClueRefs.map((ref) => {
 }
 {
   clueList.length > 0 && (
-    <p>
-      <strong>Clues</strong> in this dungeon:{' '}
-      {clueList.map((clue, i) => (
-        <>
-          {clue.found ? (
-            <a href={getCluePath(clue.id)}>{clue.name}</a>
-          ) : (
-            <span class="has-text-danger">{clue.name} (not found)</span>
-          )}
-          {i < clueList.length - 1 && ', '}
-        </>
-      ))}
-    </p>
+    <div class="clue-list">
+      <p>
+        <strong>Clues</strong> in this dungeon:
+      </p>
+      <ul>
+        {clueList.map((clue) => (
+          <li>
+            {clue.found ? (
+              <a href={getCluePath(clue.id)}>{clue.name}</a>
+            ) : (
+              <span class="has-text-danger">{clue.name} (not found)</span>
+            )}
+            {clue.context && <div class="clue-context">{clue.context}</div>}
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 <div class="spacer"></div>

@@ -1,6 +1,6 @@
 {
   "name": "@achm/core",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "exports": {
     ".": "./dist/index.js"
   },
@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -b",
     "check": "tsc --noEmit",
-    "test": "vitest run || true",
+    "test": "vitest run",
     "lint": "eslint . || true"
   },
   "type": "module",

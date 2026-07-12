@@ -1,0 +1,128 @@
+---
+import { renderBulletMarkdown } from '../utils/markdown';
+
+import Badge from './Badge.astro';
+
+import type { BeatListItem } from './PlotlineBeatList.types';
+import type { PlotlineBeatStatus } from '@achm/schemas';
+
+interface Props {
+  plotlineSlug: string;
+  items: BeatListItem[];
+}
+
+const { plotlineSlug, items } = Astro.props;
+
+const triggerHtml = await Promise.all(
+  items.map((item) =>
+    item.found && item.trigger
+      ? renderBulletMarkdown(item.trigger)
+      : Promise.resolve(''),
+  ),
+);
+
+const statusBadgeColor: Record<PlotlineBeatStatus, 'gray' | 'green'> = {
+  pending: 'gray',
+  active: 'green',
+  resolved: 'gray',
+  skipped: 'gray',
+};
+
+const beatHref = (slug: string): string =>
+  `/gm-reference/plotlines/${plotlineSlug}/beats/${slug}`;
+---
+
+{items.length > 0 && (
+  <section class="beats">
+    <h2 class="title is-3">Beats</h2>
+    <ul class="beat-list">
+      {items.map((item, idx) => (
+        <li class:list={[
+          'beat-row',
+          item.found && item.status === 'resolved' && 'is-resolved',
+          item.found && item.status === 'skipped' && 'is-skipped',
+        ]}>
+          {item.found ? (
+            <>
+              <div class="beat-row-header">
+                <a class="beat-title" href={beatHref(item.slug)}>{item.title}</a>
+                <Badge color={statusBadgeColor[item.status]}>
+                  {item.status}
+                  {item.status === 'resolved' && <span class="checkmark">✓</span>}
+                </Badge>
+              </div>
+              {item.trigger && (
+                <p class="beat-trigger" set:html={triggerHtml[idx]} />
+              )}
+            </>
+          ) : (
+            <div class="beat-row-header">
+              <span class="beat-title beat-missing">{item.slug}</span>
+              <span class="not-found">(missing)</span>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .beats {
+    margin: 1.5rem 0;
+  }
+
+  .beat-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .beat-row {
+    padding: 0.25rem 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .beat-row-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .beat-row.is-resolved,
+  .beat-row.is-skipped {
+    opacity: 0.55;
+    filter: saturate(0.7);
+  }
+
+  .beat-row.is-skipped .beat-title {
+    text-decoration: line-through;
+  }
+
+  .beat-title {
+    font-weight: 600;
+  }
+
+  .beat-trigger {
+    color: var(--bulma-text-weak, var(--bulma-text));
+    font-size: 0.9rem;
+    font-style: italic;
+    margin: 0.1rem 0 0 0;
+  }
+
+  .beat-missing {
+    color: var(--bulma-danger);
+  }
+
+  .checkmark {
+    color: var(--bulma-success);
+    margin-left: 0.25rem;
+    font-weight: bold;
+  }
+
+  .not-found {
+    color: var(--bulma-danger);
+    font-size: 0.875rem;
+    font-style: italic;
+  }
+</style>

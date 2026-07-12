@@ -9,8 +9,11 @@
 //   node dist/scripts/build-json-schemas.mjs
 //
 // Behavior:
-// - Tries to import from ../dist/index.js first (CI/normal build).
-// - Falls back to ../src/index.ts (dev with tsx).
+// - Loads schemas from whichever tree this script is itself running from:
+//   run from src/ (tsx, e.g. `npm run build:json-schemas`) -> live ../src/index.ts;
+//   run from dist/ (compiled, CI) -> ../dist/index.js. Reading the live source in
+//   dev avoids regenerating from a stale compiled dist when source changed but
+//   `tsc` hasn't re-run. The other tree is a fallback if the preferred import fails.
 // - Finds all exports whose names end with "Schema" and look like Zod schemas.
 // - Emits kebab-case filenames like `article.schema.json` into ./dist.
 // - Also writes a small manifest file: ./dist/schemas.manifest.json
@@ -112,11 +115,17 @@ function enumerateSchemaEntries(
 }
 
 async function loadSchemas(): Promise<AnyRecord> {
-  // Prefer compiled output (CI/normal build), fall back to TS source (dev with tsx)
+  // Prefer the tree this script is running from so the source of truth matches the
+  // run mode: tsx-from-src reads live source (never stale), compiled-from-dist reads
+  // dist. The other tree is only a fallback if the preferred import throws.
+  const runningFromSrc = /[\\/]src[\\/]/.test(fileURLToPath(import.meta.url));
+  const [primary, fallback] = runningFromSrc
+    ? [SRC_INDEX, DIST_INDEX]
+    : [DIST_INDEX, SRC_INDEX];
   try {
-    return await dynamicImport(DIST_INDEX);
+    return await dynamicImport(primary);
   } catch {
-    return await dynamicImport(SRC_INDEX);
+    return await dynamicImport(fallback);
   }
 }
 

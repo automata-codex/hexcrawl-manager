@@ -92,7 +92,6 @@ describe('executeLeg', () => {
       pace: 'normal',
       activeSegmentsToday: 0, // no prior activity
       daylightSegmentsLeft: 24, // 12h daylight available
-      daylightCapSegments: 24, // 12h daylight cap
       weather: null,
     });
 
@@ -111,7 +110,6 @@ describe('executeLeg', () => {
       pace: 'normal',
       activeSegmentsToday: 21, // 10.5h already used
       daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
       weather: null,
     });
 
@@ -129,7 +127,6 @@ describe('executeLeg', () => {
       pace: 'normal',
       activeSegmentsToday: 0,
       daylightSegmentsLeft: 2, // only 1h daylight left
-      daylightCapSegments: 24,
       weather: null,
     });
 
@@ -147,7 +144,6 @@ describe('executeLeg', () => {
       pace: 'normal',
       activeSegmentsToday: 20, // 10h already used
       daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
       weather: null,
     });
 
@@ -165,7 +161,6 @@ describe('executeLeg', () => {
       pace: 'normal',
       activeSegmentsToday: 0,
       daylightSegmentsLeft: 4, // exactly 2h daylight left
-      daylightCapSegments: 24,
       weather: null,
     });
 
@@ -183,7 +178,6 @@ describe('executeLeg', () => {
       pace: 'normal',
       activeSegmentsToday: 0,
       daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
       weather: null,
     });
 
@@ -203,7 +197,6 @@ describe('executeLeg', () => {
       pace: 'normal',
       activeSegmentsToday: 0,
       daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
       weather,
     });
 
@@ -223,7 +216,6 @@ describe('executeLeg', () => {
       pace: 'normal',
       activeSegmentsToday: 0,
       daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
       weather,
     });
 
@@ -243,7 +235,6 @@ describe('executeLeg', () => {
       pace: 'normal',
       activeSegmentsToday: 17, // 8.5h already used
       daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
       weather,
     });
 
@@ -263,7 +254,6 @@ describe('executeLeg', () => {
       pace: 'normal',
       activeSegmentsToday: 0,
       daylightSegmentsLeft: 7, // only 3.5h daylight left
-      daylightCapSegments: 24,
       weather,
     });
 
@@ -280,7 +270,6 @@ describe('executeLeg', () => {
       pace: 'fast',
       activeSegmentsToday: 21, // 10.5h used
       daylightSegmentsLeft: 3, // 1.5h daylight
-      daylightCapSegments: 24,
       weather: null,
     });
 
@@ -298,7 +287,6 @@ describe('executeLeg', () => {
       pace: 'slow',
       activeSegmentsToday: 0,
       daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
       weather: null,
     });
 
@@ -316,7 +304,6 @@ describe('executeLeg', () => {
       pace: 'slow',
       activeSegmentsToday: 0,
       daylightSegmentsLeft: 24,
-      daylightCapSegments: 24,
       weather: null,
     });
 

@@ -32,9 +32,9 @@ export interface StatusApResult {
   milestoneAwards: Array<{
     characterId: string;
     displayName: string;
-    eligible: number;
-    claimed: number;
-    unclaimed: number;
+    eligibleAp: number;
+    claimedAp: number;
+    unclaimedAp: number;
   }>;
 }
 

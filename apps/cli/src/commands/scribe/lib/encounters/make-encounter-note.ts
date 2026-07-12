@@ -1,35 +1,13 @@
-import { rollEncounterEntry } from './roll-encounter-entry';
-import { rollEncounterOccurs } from './roll-encounter-occurs';
-import { rollEncounterType } from './roll-encounter-type';
-
-import type { EncounterTableData } from '@achm/schemas';
-
 /**
- * Roll for an encounter entering a hex.
- * Returns null if no encounter occurs.
- * Returns a formatted note string if an encounter occurs.
+ * Build the note logged when an encounter check triggers entering a hex.
+ * Fast travel does not auto-pick the encounter: it pauses at the hex and
+ * prompts the GM to roll on the region table manually, then continue with
+ * `fast resume`. Occurrence is decided by the caller (see
+ * `rollEncounterOccurs`); this is only called once an encounter has occurred.
  *
  * @param hexId The hex being entered
- * @param table The encounter table to use
+ * @param threshold The d20 threshold that triggered (for the log record)
  */
-export function makeEncounterNote(
-  hexId: string,
-  table: EncounterTableData,
-): string | null {
-  if (!rollEncounterOccurs()) {
-    return null;
-  }
-
-  // Roll for category
-  const categoryLabel = rollEncounterType(table);
-  const categoryEntry = table.mainTable.find((e) => e.label === categoryLabel);
-
-  if (!categoryEntry) {
-    return `Encounter entering ${hexId}: Unknown category`;
-  }
-
-  // Roll for specific encounter
-  const encounterId = rollEncounterEntry(categoryEntry.category, table);
-
-  return `Encounter entering ${hexId}: ${categoryLabel} - ${encounterId}`;
+export function makeEncounterNote(hexId: string, threshold: number): string {
+  return `Encounter check triggered entering ${hexId} (rolled ≤ ${threshold}). Roll on the region table, resolve it, then \`fast resume\`.`;
 }

@@ -1,6 +1,7 @@
 import { info, error as printError, warn } from '@achm/cli-kit';
 import fs from 'node:fs';
 
+import { deletePlan } from '../lib/core/fast-travel-plan';
 import {
   detectDevMode,
   requireFile,
@@ -44,6 +45,16 @@ export default function abort(ctx: Context) {
       fs.unlinkSync(ctx.file!); // Checked by `requireFile`
     } catch (e) {
       warn(`Failed to delete in-progress file: ${ctx.file!} (${e})`); // Checked by `requireFile`
+      abortOk = false;
+    }
+
+    // Discard any fast-travel plan tied to this session (no-op if none)
+    try {
+      deletePlan(ctx.sessionId!); // Checked by `requireSession`
+    } catch (e) {
+      warn(
+        `Failed to delete fast-travel plan for session ${ctx.sessionId!}: (${e})`,
+      );
       abortOk = false;
     }
 

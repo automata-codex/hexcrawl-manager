@@ -15,6 +15,10 @@ echo "=== Prebuild: Validating map configuration ==="
 tsx scripts/validate-map.ts
 
 echo ""
+echo "=== Prebuild: Validating faction territory hexes ==="
+tsx scripts/validate-faction-hexes.ts
+
+echo ""
 echo "=== Prebuild: Validating YAML config ==="
 tsx scripts/validate-yaml-config.ts
 
@@ -46,6 +50,34 @@ tsx scripts/validate-pointcrawl-ids.ts
 echo ""
 echo "=== Prebuild: Validating ToC config ==="
 tsx scripts/validate-toc-config.ts
+
+echo ""
+echo "=== Prebuild: Validating content-status cross-references ==="
+tsx scripts/validate-content-status.ts
+
+echo ""
+echo "=== Prebuild: Validating plotline back-references ==="
+ACHM_STRICT_PLOTLINE_REFS="${ACHM_STRICT_PLOTLINE_REFS:-1}" tsx scripts/validate-plotline-refs.ts
+
+echo ""
+echo "=== Prebuild: Validating hex → beat anchors ==="
+tsx scripts/validate-hex-beat-refs.ts
+
+echo ""
+echo "=== Prebuild: Validating clue/beat placement integrity ==="
+tsx scripts/validate-placement-integrity.ts
+
+echo ""
+echo "=== Prebuild: Validating data references (backticks + links) ==="
+tsx scripts/validate-data-refs.ts
+
+echo ""
+echo "=== Prebuild: Checking clue placement counts (advisory, non-blocking) ==="
+tsx scripts/validate-clue-placements.ts || true
+
+echo ""
+echo "=== Prebuild: Validating tags (beat + hex) ==="
+tsx scripts/validate-tags.ts
 
 echo ""
 echo "=== Prebuild: Caching AP totals ==="

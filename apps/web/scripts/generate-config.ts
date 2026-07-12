@@ -179,6 +179,15 @@ export function getPlotlinePath(plotlineId: string): string {
   return getCollectionItemPath(ROUTES.gmReference.plotlines as CollectionRoute, plotlineId);
 }
 
+/**
+ * Get path for a beat detail page.
+ * @param compoundId - Format: "plotlineSlug/beatSlug"
+ */
+export function getBeatPath(compoundId: string): string {
+  const [plotlineSlug, beatSlug] = compoundId.split('/');
+  return \`\${getPlotlinePath(plotlineSlug)}/beats/\${beatSlug}\`;
+}
+
 // Note: Server-side path resolution helpers (getArticlePath, getCompositePath, resolvePath)
 // are in src/utils/article-paths.ts since they require astro:content which is server-only.
 `;

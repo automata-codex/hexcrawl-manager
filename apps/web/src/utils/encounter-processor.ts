@@ -58,9 +58,11 @@ export function detectLeadEncounters(
   const leadEncounterIds = new Set<string>();
 
   for (const book of roleplayBooks) {
-    const reports = book.data.intelligenceReports?.rows || [];
+    const reports = book.data.intelligenceReports;
+    if (!reports) continue;
+    const allRows = [...(reports.rows ?? []), ...(reports.situational ?? [])];
 
-    for (const report of reports) {
+    for (const report of allRows) {
       // Check if this report links to an encounter
       if (report.linkType === 'encounter' && report.linkId) {
         leadEncounterIds.add(report.linkId);

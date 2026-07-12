@@ -29,7 +29,9 @@ export const DungeonDataSchema = z
     unlocks: z
       .array(z.string())
       .optional()
-      .describe('IDs of knowledge nodes that are unlocked by this site'),
+      .describe(
+        'DEPRECATED: IDs of knowledge nodes that are unlocked by this site. Still supported for backward compatibility.',
+      ),
     clues: ClueReferencesSchema.describe('IDs of clues that can be discovered in this dungeon'),
   })
   .refine(

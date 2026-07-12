@@ -13,10 +13,15 @@
     getDungeonPath,
     getHexPath,
     getRegionPath,
+    getRoleplayBookPath,
   } from '../../config/routes.ts';
   import { selectedHex } from '../../stores/interactive-map/selected-hex.ts';
   import { canAccess } from '../../utils/auth.ts';
-  import { SCOPES } from '../../utils/constants.ts';
+  import {
+    LOST_VALLEY_BARRIER_MESSAGE,
+    LOST_VALLEY_BARRIER_PLAYER_MESSAGE,
+    SCOPES,
+  } from '../../utils/constants.ts';
   import {
     getFavoredTerrain,
     getTravelDifficulty,
@@ -41,6 +46,7 @@
   }
 
   interface LocalTrailData {
+    id: string;
     to: string;
     permanent: boolean;
     lastSeasonTouched: string;
@@ -66,10 +72,8 @@
         return false;
       }
       const { from, to } = hexIds;
-      return (
-        from.toLowerCase().includes($selectedHex?.toLowerCase() ?? '') ||
-        to.toLowerCase().includes($selectedHex?.toLowerCase() ?? '')
-      );
+      const selected = $selectedHex?.toLowerCase();
+      return from.toLowerCase() === selected || to.toLowerCase() === selected;
     }),
   );
 
@@ -95,6 +99,7 @@
     }
     const { from, to } = hexIds;
     return {
+      id: trail.id,
       to: to === $selectedHex ? from : to,
       permanent: trail.permanent,
       lastSeasonTouched: trail.lastSeasonTouched,
@@ -112,7 +117,11 @@
   <div class="button theme-toggle-wrapper">
     <ThemeToggle />
   </div>
-  <button class="button control-button" onclick={() => (isOpen = !isOpen)} aria-label="Toggle detail panel">
+  <button
+    class="button control-button"
+    onclick={() => (isOpen = !isOpen)}
+    aria-label="Toggle detail panel"
+  >
     <FontAwesomeIcon icon={faSidebar} />
   </button>
 </div>
@@ -133,6 +142,13 @@
     <h2 class="title is-5" style="text-align: center">
       {$selectedHex?.toUpperCase()}: {currentHex?.name}
     </h2>
+    {#if currentHex?.isImpassable}
+      {#if canAccess(role, [SCOPES.GM])}
+        <p class="warning">{LOST_VALLEY_BARRIER_MESSAGE}</p>
+      {:else}
+        <p class="warning">{LOST_VALLEY_BARRIER_PLAYER_MESSAGE}</p>
+      {/if}
+    {/if}
     <div>
       {#if canAccess(role, [SCOPES.GM])}
         <div class="hex-data-bar">
@@ -141,7 +157,10 @@
           </div>
           <div>
             <a href={getRegionPath(currentHex?.regionId ?? '')}
-              >{getRegionShortTitle(currentHex?.regionId ?? '', currentHex?.regionName)}</a
+              >{getRegionShortTitle(
+                currentHex?.regionId ?? '',
+                currentHex?.regionName,
+              )}</a
             >
           </div>
           <div>
@@ -178,6 +197,15 @@
           <span class="inline-heading">Landmark:</span
           >{' '}{@html currentHex?.renderedLandmark}
         </p>
+        {#if canAccess( role, [SCOPES.GM], ) && currentHex?.roleplayBooks && currentHex.roleplayBooks.length > 0}
+          <p class="hanging-indent">
+            <span class="inline-heading">Roleplay books:</span>{' '}
+            {#each currentHex.roleplayBooks as book, i (book.id)}
+              <a href={getRoleplayBookPath(book.id)}>{book.name}</a
+              >{#if i < currentHex.roleplayBooks.length - 1},{' '}{/if}
+            {/each}
+          </p>
+        {/if}
         <p class="hanging-indent">
           <span class="inline-heading">Travel Difficulty:</span>
           {' '}
@@ -199,7 +227,7 @@
       {#if trailsInHex.length > 0}
         <h3 class="title is-5">Trails</h3>
         <ul>
-          {#each trailsInHex.map(formatTrailData) as trail (trail.to)}
+          {#each trailsInHex.map(formatTrailData) as trail (trail.id)}
             <li>
               <div>
                 <span>
@@ -227,6 +255,15 @@
 </aside>
 
 <style>
+  .warning {
+    background-color: var(--bulma-danger);
+    color: var(--bulma-white);
+    font-weight: bold;
+    padding: 1rem;
+    text-align: center;
+    margin: 0 0 1rem;
+  }
+
   .hex-data-bar {
     display: flex;
     font-weight: bold;

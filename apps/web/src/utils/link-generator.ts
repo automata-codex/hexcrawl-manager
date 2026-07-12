@@ -5,6 +5,7 @@
  */
 
 import {
+  getBeatPath,
   getCluePath,
   getDungeonPath,
   getEncounterPath,
@@ -32,6 +33,8 @@ export function getLinkPath(linkType: LinkType, linkId: string): string {
       return getRegionPath(linkId);
     case 'faction':
       return getFactionPath(linkId);
+    case 'beat':
+      return getBeatPath(linkId);
     default:
       return '#';
   }
@@ -43,6 +46,7 @@ export function getLinkPath(linkType: LinkType, linkId: string): string {
  */
 export function getLinkText(linkType: LinkType, linkId: string): string {
   const typeLabels: Record<LinkType, string> = {
+    beat: 'Beat',
     clue: 'Clue',
     dungeon: 'Dungeon',
     encounter: 'Encounter',
@@ -51,8 +55,12 @@ export function getLinkText(linkType: LinkType, linkId: string): string {
     region: 'Region',
   };
 
+  // Beat IDs are compound ("plotlineSlug/beatSlug"); label with the beat slug only
+  const idForLabel =
+    linkType === 'beat' ? (linkId.split('/')[1] ?? linkId) : linkId;
+
   // Format the ID nicely (convert kebab-case to Title Case)
-  const formattedId = linkId
+  const formattedId = idForLabel
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');

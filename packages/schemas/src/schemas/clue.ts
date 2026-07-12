@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { CampaignStatusEnum } from './campaign-status.js';
 import { FactionId } from './encounter.js';
 
 // Re-export clue reference types from the separate module (avoids circular deps)
@@ -66,8 +67,16 @@ export const ClueSchema = z
       .describe('Clue IDs that are revealed when this clue is learned'),
 
     status: ClueStatusEnum.default('unknown'),
+    campaignStatus: CampaignStatusEnum.default('active'),
   })
-  .describe('ClueSchema');
+  .describe(
+    'A clue is a discrete fact the party can learn, tracked by whether the GM has ' +
+    'presented it (not whether the players retained it). Clues are delivered by ' +
+    'encounters, beats, and NPCs and referenced from them; the clue record itself ' +
+    'owns the fact and its delivery targets. A clue is neither a runnable scene ' +
+    '(encounter) nor a position in a plotline\'s arc (beat) — it is the ' +
+    'information either of those might hand over.',
+  );
 
 export type ClueData = z.infer<typeof ClueSchema>;
 export type ClueKnownTag = z.infer<typeof ClueKnownTagEnum>;

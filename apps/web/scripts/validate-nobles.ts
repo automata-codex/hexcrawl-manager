@@ -6,6 +6,7 @@
  * political factions are valid:
  * - Noble `liege` references point to valid noble IDs
  * - Noble `factions` references point to valid faction IDs
+ * - Noble `npcId` references point to valid NPC IDs (optional field)
  * - Faction `leadership` references point to valid noble IDs
  * - Faction `allies` references point to valid faction IDs
  *
@@ -21,12 +22,14 @@ import yaml from 'yaml';
 
 const NOBLES_DIR = resolveDataPath('nobles');
 const FACTIONS_DIR = resolveDataPath('political-factions');
+const NPCS_DIR = resolveDataPath('npcs');
 
 interface NobleData {
   id: string;
   name: string;
   liege: string | null;
   factions?: string[];
+  npcId?: string;
 }
 
 interface FactionData {
@@ -57,9 +60,42 @@ function loadYamlFiles<T>(dir: string): { filename: string; data: T }[] {
   }
 }
 
+/**
+ * Load the set of NPC IDs from disk. NPC files come in YAML and MDX
+ * flavors; the YAML form has `id:` at the top level, the MDX form has
+ * it inside the `---` frontmatter block. We only need the id, so a
+ * minimal parser is enough.
+ */
+function loadNpcIds(dir: string): Set<string> {
+  const ids = new Set<string>();
+  let files: string[];
+  try {
+    files = readdirSync(dir);
+  } catch {
+    return ids;
+  }
+  for (const file of files) {
+    const path = join(dir, file);
+    if (file.endsWith('.yml') || file.endsWith('.yaml')) {
+      const parsed = yaml.parse(readFileSync(path, 'utf-8')) as
+        | { id?: string }
+        | null;
+      if (parsed?.id) ids.add(parsed.id);
+    } else if (file.endsWith('.md') || file.endsWith('.mdx')) {
+      const raw = readFileSync(path, 'utf-8');
+      const match = raw.match(/^---\n([\s\S]*?)\n---/);
+      if (!match) continue;
+      const parsed = yaml.parse(match[1]) as { id?: string } | null;
+      if (parsed?.id) ids.add(parsed.id);
+    }
+  }
+  return ids;
+}
+
 function validate(): ValidationError[] {
   const nobles = loadYamlFiles<NobleData>(NOBLES_DIR);
   const factions = loadYamlFiles<FactionData>(FACTIONS_DIR);
+  const npcIds = loadNpcIds(NPCS_DIR);
 
   const nobleIds = new Set(nobles.map((n) => n.data.id));
   const factionIds = new Set(factions.map((f) => f.data.id));
@@ -90,6 +126,16 @@ function validate(): ValidationError[] {
           });
         }
       }
+    }
+
+    // Check optional npcId reference
+    if (noble.npcId && !npcIds.has(noble.npcId)) {
+      errors.push({
+        file: `nobles/${filename}`,
+        field: 'npcId',
+        invalidRef: noble.npcId,
+        message: `Noble "${noble.id}" references unknown NPC "${noble.npcId}"`,
+      });
     }
   }
 

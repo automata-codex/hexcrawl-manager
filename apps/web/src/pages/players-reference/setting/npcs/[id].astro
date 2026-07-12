@@ -1,28 +1,19 @@
 ---
-import { normalizeClueRef } from '@achm/schemas';
+import { isActive, isPlayerVisible, normalizeClueRef } from '@achm/schemas';
 import { getCollection, getEntry, render } from 'astro:content';
 
+import Badge from '../../../../components/Badge.astro';
 import SecretContent from '../../../../components/Content/SecretContent.astro';
-import { getCluePath } from '../../../../config/routes';
+import { getCluePath, getFactionPath } from '../../../../config/routes';
 import ComponentLayout from '../../../../layouts/ComponentLayout.astro';
-import { renderMarkdown } from '../../../../utils/markdown';
-import { formatText } from '../../../../utils/text';
-
-function formatOccupation(
-  occupation: string,
-  charClass?: string,
-  adventuringCompany?: string,
-) {
-  if (occupation === 'Adventurer') {
-    if (adventuringCompany) {
-      return `Adventurer (${charClass}), ${adventuringCompany}`;
-    } else {
-      return `Adventurer (${charClass})`;
-    }
-  } else {
-    return occupation;
-  }
-}
+import { canAccess, getCurrentUserRole } from '../../../../utils/auth';
+import { SCOPES } from '../../../../utils/constants';
+import {
+  renderBulletMarkdown,
+  renderMarkdown,
+  renderSubArticleMarkdown,
+} from '../../../../utils/markdown';
+import { formatOccupation } from '../../../../utils/npc-display';
 
 // Get the ID from the incoming server request
 const { id } = Astro.params;
@@ -45,7 +36,18 @@ if (npcData === undefined) {
 }
 
 const npc = npcData.data;
-const title = npc.name;
+const isGm = canAccess(getCurrentUserRole(Astro.locals), [SCOPES.GM]);
+
+// Non-GM viewers can't see GM-only NPCs — return 404 rather than reveal existence.
+if (!isGm && !isPlayerVisible(npc)) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found',
+  });
+}
+
+const title = npc.displayName;
+const showGmOnlyIndicator = isGm && !isPlayerVisible(npc);
 
 // Check if this is an MD/MDX file with body content
 const isMdx = npcData.filePath?.endsWith('.mdx') || npcData.filePath?.endsWith('.md');
@@ -63,6 +65,43 @@ const clueRefs = npc.clues?.map((ref) => {
     name: clueNameMap.get(normalized.id) ?? normalized.id,
   };
 }) ?? [];
+
+// When any clue carries discovery context, render the clues as a list so each
+// context reads clearly; otherwise keep the compact inline format.
+const hasClueContext = clueRefs.some((clue) => clue.context);
+
+// GM notes: prefer the markdown `gmNotes` field; fall back to the deprecated
+// `notes` array for NPCs not yet migrated. gmNotes carries its own section
+// headings (## Truth, ## Voice, ...), so behead them one level to sit beneath
+// the "GM Notes" section heading rendered below.
+const gmNotesHtml = npc.gmNotes
+  ? await renderSubArticleMarkdown(npc.gmNotes)
+  : null;
+const renderedNotes = gmNotesHtml
+  ? []
+  : await Promise.all(
+      (npc.notes ?? []).map((note) => renderBulletMarkdown(note)),
+    );
+
+// GM-only: resolve faction ids to names so we can link to the GM faction
+// pages. Skip ids that don't resolve so the meta line doesn't render dead
+// links if data drifts.
+const factionLinks = isGm
+  ? await (async () => {
+      const ids = npc.factions ?? [];
+      if (ids.length === 0) return [];
+      const factionsCollection = await getCollection('factions');
+      const factionsById = new Map(
+        factionsCollection.map((f) => [f.id, f.data]),
+      );
+      return ids
+        .map((id) => {
+          const data = factionsById.get(id);
+          return data ? { id, name: data.name } : null;
+        })
+        .filter((entry): entry is { id: string; name: string } => entry !== null);
+    })()
+  : [];
 ---
 
 <style>
@@ -74,8 +113,6 @@ const clueRefs = npc.clues?.map((ref) => {
   }
 
   .npc-meta {
-    margin-bottom: 1rem;
-
     dt {
       font-weight: bold;
       display: inline;
@@ -123,25 +160,69 @@ const clueRefs = npc.clues?.map((ref) => {
     margin-top: 1.5rem;
   }
 
-  .clues-section {
-    margin-top: 1.5rem;
-
-    ul {
-      margin-top: 0.5rem;
+  .gm-notes {
+    p {
+      margin-bottom: 1rem;
     }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    p + ul,
+    p + ol {
+      margin-top: -1rem;
+    }
+  }
+
+  .npc-clues {
+    margin-bottom: 1rem;
   }
 
   .clue-context {
     color: var(--bulma-text-weak);
     font-style: italic;
   }
+
+  .status-indicator {
+    margin-bottom: 1rem;
+    clear: both;
+  }
+
+  .gm-only-indicator {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 3px;
+    font-size: 0.875rem;
+    background: #f3e8ff;
+    color: #7e22ce;
+  }
+
+  :global(html[data-theme='dark']) .gm-only-indicator {
+    background: #581c87;
+    color: #d8b4fe;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .gm-only-indicator {
+      background: #581c87;
+      color: #d8b4fe;
+    }
+  }
 </style>
 
 <ComponentLayout title={title}>
   <main>
-    {npc.image && <img class="npc-image" src={npc.image} alt={npc.name} />}
+    {npc.image && <img class="npc-image" src={npc.image} alt={npc.displayName} />}
 
-    {npc.title && <p class="subtitle is-4">{npc.title}</p>}
+    {showGmOnlyIndicator && <p class="gm-only-indicator">GM-only NPC</p>}
+
+    {!isActive(npc) && (
+      <p class="status-indicator">
+        <Badge color="gray">Inactive</Badge>
+      </p>
+    )}
 
     <dl class="npc-meta">
       <dt>Occupation</dt>
@@ -157,6 +238,54 @@ const clueRefs = npc.clues?.map((ref) => {
       <dd>{npc.pronouns}</dd>
     </dl>
 
+    <SecretContent>
+      <dl class="npc-meta">
+        {factionLinks.length > 0 && (
+          <>
+            <dt>Factions</dt>
+            <dd>
+              {factionLinks.map((faction, index) => (
+                <>
+                  <a href={getFactionPath(faction.id)}>{faction.name}</a>
+                  {index < factionLinks.length - 1 && ', '}
+                </>
+              ))}
+            </dd>
+          </>
+        )}
+
+        {clueRefs.length > 0 &&
+          (hasClueContext ? (
+            <div class="npc-clues">
+              <p>
+                <strong>Clues</strong> this NPC knows:
+              </p>
+              <ul>
+                {clueRefs.map((clue) => (
+                  <li>
+                    <a href={getCluePath(clue.id)}>{clue.name}</a>
+                    {clue.context && (
+                      <div class="clue-context">{clue.context}</div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p class="npc-clues">
+              <strong>Clues</strong> this NPC knows:{' '}
+              {clueRefs.map((clue, index) => (
+                <>
+                  <a href={getCluePath(clue.id)}>{clue.name}</a>
+                  {index < clueRefs.length - 1 && ', '}
+                </>
+              ))}
+            </p>
+          ))}
+      </dl>
+    </SecretContent>
+    <div style="margin-bottom: 1rem"></div>
+
     <div class="description">
       <Fragment set:html={renderMarkdown(npc.description)} />
     </div>
@@ -168,30 +297,18 @@ const clueRefs = npc.clues?.map((ref) => {
         </div>
       )}
 
-      {npc.notes && npc.notes.length > 0 && (
+      {(gmNotesHtml || renderedNotes.length > 0) && (
         <section class="notes">
-          <h2 class="title is-4">GM Notes</h2>
-          <ul>
-            {npc.notes.map((note) => (
-              <li>{formatText(note)}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {clueRefs.length > 0 && (
-        <section class="clues-section">
-          <h2 class="title is-4">Clues This NPC Knows</h2>
-          <ul>
-            {clueRefs.map((clue) => (
-              <li>
-                <a href={getCluePath(clue.id)}>{clue.name}</a>
-                {clue.context && (
-                  <span class="clue-context"> — {clue.context}</span>
-                )}
-              </li>
-            ))}
-          </ul>
+          <h2 class="title is-3">GM Notes</h2>
+          {gmNotesHtml ? (
+            <div class="gm-notes" set:html={gmNotesHtml} />
+          ) : (
+            <ul>
+              {renderedNotes.map((noteHtml) => (
+                <li set:html={noteHtml} />
+              ))}
+            </ul>
+          )}
         </section>
       )}
     </SecretContent>

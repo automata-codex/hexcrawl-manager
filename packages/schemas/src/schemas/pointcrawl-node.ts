@@ -49,7 +49,9 @@ export const PointcrawlNodeSchema = z
     unlocks: z
       .array(z.string())
       .optional()
-      .describe('IDs of knowledge nodes that are unlocked at this location'),
+      .describe(
+        'DEPRECATED: IDs of knowledge nodes that are unlocked at this location. Still supported for backward compatibility.',
+      ),
     clues: ClueReferencesSchema.describe('IDs of clues that can be discovered at this node'),
     naturalLight: z
       .enum(['bright', 'dim', 'none'])

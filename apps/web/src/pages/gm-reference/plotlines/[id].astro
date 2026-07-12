@@ -1,7 +1,11 @@
 ---
 import { sortIgnoringArticles } from '@achm/core';
+import { isActive } from '@achm/schemas';
 import { getCollection, render } from 'astro:content';
 
+import Badge from '../../../components/Badge.astro';
+import PlotlineBeatList from '../../../components/PlotlineBeatList.astro';
+import type { BeatListItem } from '../../../components/PlotlineBeatList.types';
 import { getCluePath } from '../../../config/routes';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
 
@@ -26,21 +30,58 @@ if (plotline === undefined) {
   });
 }
 
-// Get clues linked to this plotline
+// Get clues linked to this plotline (back-reference list)
 const allClues = await getCollection('clues');
 const linkedClues = allClues
   .filter((c) => c.data.plotlines?.includes(plotline.data.slug))
   .map((c) => ({ id: c.id, name: c.data.name, status: c.data.status }))
   .sort((a, b) => sortIgnoringArticles(a.name, b.name));
 
+// Resolve beat references in declared order. The ordered `beats` array
+// on the plotline is the canonical sequence; the beats collection carries
+// the per-beat content.
+const allBeats = await getCollection('beats');
+const beatsBySlug = new Map(
+  allBeats
+    .filter((b) => b.data.plotline === plotline.data.slug)
+    .map((b) => [b.data.slug, b.data]),
+);
+const beatItems: BeatListItem[] = (plotline.data.beats ?? []).map((slug) => {
+  const beat = beatsBySlug.get(slug);
+  if (!beat) return { found: false, slug };
+  return {
+    found: true,
+    slug,
+    title: beat.title,
+    status: beat.status,
+    trigger: beat.trigger,
+  };
+});
+
 const { Content } = await render(plotline);
 const title = plotline.data.title;
 ---
+<style is:global>
+  h3 > a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  h3 > a:hover {
+    text-decoration: underline;
+  }
+
+</style>
 
 <SecretLayout title={title}>
+  {!isActive(plotline.data) && (
+    <p class="status-indicator">
+      <Badge color="gray">Inactive</Badge>
+    </p>
+  )}
   <div class="clue-header">
-    <p><strong>Status:</strong> {plotline.data.status}</p>
-    {plotline.data.summary && <p class="hanging-indent"><strong>Summary:</strong> {plotline.data.summary}</p>}
+    <p><strong>Status:</strong>{' '}{plotline.data.status}</p>
+    {plotline.data.summary && <p class="hanging-indent"><strong>Summary:</strong>{' '}{plotline.data.summary}</p>}
     {linkedClues.length > 0 && (
       <>
         <p><strong>Clues:</strong></p>
@@ -55,10 +96,15 @@ const title = plotline.data.title;
       </>
     )}
   </div>
+  <PlotlineBeatList plotlineSlug={plotline.data.slug} items={beatItems} />
   <Content />
 </SecretLayout>
 
 <style>
+  .status-indicator {
+    margin-bottom: 1rem;
+  }
+
   .clue-header {
     margin-bottom: 1rem;
 

@@ -4,6 +4,7 @@ export const BuilderEnum = z.enum([
   'alseid',
   'bearfolk',
   'cultists',
+  'dragonborn',
   'dragons',
   'dwarves',
   'first-civilization',

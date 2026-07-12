@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 
-import { IntelligenceReportRowSchema, LinkTypeEnum } from './roleplay-book.js';
+import {
+  IntelligenceReportRowSchema,
+  IntelligenceReportsSchema,
+  LinkTypeEnum,
+  SituationalReportRowSchema,
+} from './roleplay-book.js';
 
 describe('LinkTypeEnum', () => {
   it('accepts valid link types', () => {
@@ -10,7 +15,6 @@ describe('LinkTypeEnum', () => {
       'encounter',
       'faction',
       'hex',
-      'knowledge-node',
       'region',
     ];
 
@@ -120,4 +124,126 @@ describe('IntelligenceReportRowSchema', () => {
     });
   });
 
+});
+
+describe('SituationalReportRowSchema', () => {
+  describe('basic validation', () => {
+    it('validates a situational report with all fields populated', () => {
+      const report = {
+        report: 'The Ghostfoot Question',
+        linkType: 'region',
+        linkId: 'r41',
+        sampleDialogue: 'Tell me — have you seen any of the Ghostfoot?',
+        relevantConditions: 'Regions 41 and 43, when party encounters elders',
+      };
+      expect(SituationalReportRowSchema.safeParse(report).success).toBe(true);
+    });
+
+    it('validates a situational report without link fields', () => {
+      const report = {
+        report: 'Heirloom of the Vanishing',
+        sampleDialogue: 'My grandmother carried this for fifty years.',
+        relevantConditions: 'Region 18, when elder trust earned',
+      };
+      expect(SituationalReportRowSchema.safeParse(report).success).toBe(true);
+    });
+  });
+
+  describe('validation constraints', () => {
+    it('rejects when linkType present but linkId absent', () => {
+      const report = {
+        report: 'Test Report',
+        linkType: 'encounter',
+        sampleDialogue: 'Test dialogue',
+        relevantConditions: 'Test conditions',
+      };
+      expect(SituationalReportRowSchema.safeParse(report).success).toBe(false);
+    });
+
+    it('rejects when linkId present but linkType absent', () => {
+      const report = {
+        report: 'Test Report',
+        linkId: 'some-encounter',
+        sampleDialogue: 'Test dialogue',
+        relevantConditions: 'Test conditions',
+      };
+      expect(SituationalReportRowSchema.safeParse(report).success).toBe(false);
+    });
+
+    it('rejects missing required fields', () => {
+      const report = {
+        report: 'Test Report',
+        // missing sampleDialogue and relevantConditions
+      };
+      expect(SituationalReportRowSchema.safeParse(report).success).toBe(false);
+    });
+
+    it('strips unknown keys (e.g. roll) per Zod default', () => {
+      const report = {
+        roll: 5,
+        report: 'Test Report',
+        sampleDialogue: 'Test dialogue',
+        relevantConditions: 'Test conditions',
+      };
+      const result = SituationalReportRowSchema.safeParse(report);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data).not.toHaveProperty('roll');
+      }
+    });
+  });
+});
+
+describe('IntelligenceReportsSchema', () => {
+  const validRow = {
+    roll: 1,
+    report: 'Patrol Three Days Overdue',
+    sampleDialogue: "Patrol Seven hasn't reported back.",
+    relevantConditions: 'Fort Dagaric patrol missing',
+  };
+  const validSituational = {
+    report: 'The Ghostfoot Question',
+    sampleDialogue: 'Tell me — have you seen any of the Ghostfoot?',
+    relevantConditions: 'Regions 41 and 43',
+  };
+
+  it('validates with rows only (situational omitted)', () => {
+    const reports = { rows: [validRow] };
+    expect(IntelligenceReportsSchema.safeParse(reports).success).toBe(true);
+  });
+
+  it('validates with both rows and situational', () => {
+    const reports = {
+      rows: [validRow],
+      situational: [validSituational],
+    };
+    expect(IntelligenceReportsSchema.safeParse(reports).success).toBe(true);
+  });
+
+  it('validates with an empty situational array', () => {
+    const reports = { rows: [validRow], situational: [] };
+    expect(IntelligenceReportsSchema.safeParse(reports).success).toBe(true);
+  });
+
+  it('validates with instructions, rows, and situational', () => {
+    const reports = {
+      instructions: 'Roll d12 or pick by condition',
+      rows: [validRow],
+      situational: [validSituational],
+    };
+    expect(IntelligenceReportsSchema.safeParse(reports).success).toBe(true);
+  });
+
+  it('rejects when rows is missing', () => {
+    const reports = { situational: [validSituational] };
+    expect(IntelligenceReportsSchema.safeParse(reports).success).toBe(false);
+  });
+
+  it('rejects a situational row that violates the link refinement', () => {
+    const reports = {
+      rows: [validRow],
+      situational: [{ ...validSituational, linkType: 'region' }],
+    };
+    expect(IntelligenceReportsSchema.safeParse(reports).success).toBe(false);
+  });
 });

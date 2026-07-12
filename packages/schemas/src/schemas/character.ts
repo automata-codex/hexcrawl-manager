@@ -40,6 +40,9 @@ export const CharacterSchema = z.object({
   notes: z.string().optional(), // GM-only notes in Markdown
   lifecycle: CharacterLifecycle.optional(),
   clues: ClueReferencesSchema.describe('IDs of clues placed in this character (backstory, knowledge, etc.)'),
+  plotlines: z.array(z.string()).optional().describe(
+    'Plotline slugs this character appears in (reverse direction of plotline body references)',
+  ),
 });
 
 export type CharacterData = z.infer<typeof CharacterSchema>;

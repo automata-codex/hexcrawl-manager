@@ -79,6 +79,10 @@ function getUsageUrl(ref: ClueUsageReference): string {
       return getRoleplayBookPath(ref.id);
     case 'linked-clue':
       return getCluePath(ref.id);
+    case 'beat':
+      return ref.plotlineSlug
+        ? `/gm-reference/plotlines/${ref.plotlineSlug}/beats/${ref.id}`
+        : '#';
     default:
       return '#';
   }
@@ -143,9 +147,9 @@ const sortedUsedIn = [...usedIn].sort((a, b) => sortIgnoringArticles(a.name, b.n
     }
   </div>
 
-  <p class="clue-summary">
-    {clue.summary}
-  </p>
+  <div class="clue-summary">
+    <Fragment set:html={renderMarkdown(clue.summary)} />
+  </div>
 
   <div class="meta-section">
     {

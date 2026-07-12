@@ -5,20 +5,20 @@ import { TrailMapSchema, type Pace } from '@achm/schemas';
 
 import { readEvents } from '../../../../services/event-log.service';
 import {
-  computeSessionHash,
   lastCalendarDate,
   selectCurrentHex,
   selectCurrentWeather,
   selectSegmentsUsedToday,
 } from '../../../../services/projectors.service';
+import { driveJourney } from '../../lib/core/drive-journey';
 import {
   createPlan,
   loadPlan,
   savePlan,
 } from '../../lib/core/fast-travel-plan';
-import { runFastTravel } from '../../lib/core/fast-travel-runner';
-import { emitFastTravelEvents } from '../../lib/emitters';
-import { loadEncounterTable } from '../../lib/encounters';
+import { resolveEncounterChance } from '../../lib/encounters';
+import { getHexAlerts } from '../../lib/hex-alerts';
+import { getEntryKeyedEncounters } from '../../lib/keyed-encounters';
 import { handleFastTravelResult } from '../../lib/processors';
 import { buildTrailGraph, bfsTrailPath } from '../../lib/trails';
 import { requireSession } from '../../services/general';
@@ -30,6 +30,7 @@ export default function fastTravelPlanAndExecute(
   ctx: Context,
   dest: string,
   pace: Pace,
+  skipRec = false,
 ) {
   if (!requireSession(ctx)) {
     return;
@@ -89,11 +90,6 @@ export default function fastTravelPlanAndExecute(
   const currentSeason = getSeasonForDate(currentDate);
   const daylightCapSegments = getDaylightCapSegments(currentDate);
   const daylightSegmentsLeft = daylightCapSegments - daylightUsed;
-  const currentHash = computeSessionHash(events);
-  const currentSeq = events.length;
-
-  // Check if weather is committed for today
-  const hasWeatherForToday = weather !== null;
 
   // Create plan
   const plan = createPlan({
@@ -104,16 +100,25 @@ export default function fastTravelPlanAndExecute(
     route,
     activeSegmentsToday: totalUsed,
     daylightSegmentsLeft,
-    hasWeatherForToday,
-    currentSeq,
-    currentHash,
   });
 
   savePlan(plan);
   info(`Fast travel plan created. Starting journey...`);
+  if (skipRec) {
+    info('Skipping random encounter checks (REC) for this journey.');
+  }
 
-  // Load encounter table
-  const encounterTable = loadEncounterTable();
+  // Resolve per-hex encounter chances, keyed encounters, and arrival alerts
+  // for the route
+  const encounterChances = Object.fromEntries(
+    route.map((hex) => [hex, resolveEncounterChance(hex)]),
+  );
+  const keyedEncounters = Object.fromEntries(
+    route.map((hex) => [hex, getEntryKeyedEncounters(hex)]),
+  );
+  const hexAlerts = Object.fromEntries(
+    route.map((hex) => [hex, getHexAlerts(hex)]),
+  );
 
   // Build state for runner
   const state: FastTravelState = {
@@ -129,13 +134,13 @@ export default function fastTravelPlanAndExecute(
     weather,
     currentDate,
     currentSeason,
-    encounterTable,
+    encounterChances,
+    keyedEncounters,
+    hexAlerts,
+    skipRandomEncounters: skipRec,
   };
 
-  // Run fast travel
-  const result = runFastTravel(state);
-
-  // Emit events and handle result
-  emitFastTravelEvents(ctx.file!, result.events);
+  // Drive the journey to completion, auto-advancing days as needed.
+  const result = driveJourney(ctx, ctx.file!, state);
   handleFastTravelResult(ctx.file!, ctx.sessionId!, plan, result);
 }

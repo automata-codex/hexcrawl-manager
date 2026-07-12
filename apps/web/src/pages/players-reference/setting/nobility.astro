@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 import OpenContent from '../../../components/Content/OpenContent.astro';
 import SecretContent from '../../../components/Content/SecretContent.astro';
 import NobleHierarchy from '../../../components/NobleHierarchy.astro';
+import { getNpcPath } from '../../../config/routes';
 import ComponentLayout from '../../../layouts/ComponentLayout.astro';
 import { renderMarkdown } from '../../../utils/markdown.ts';
 
@@ -82,7 +83,11 @@ function getFactionNames(factionIds: string[] | undefined) {
         {publicAlphabetical.map((noble) => (
           <div class="profile-entry">
             <dt>
-              <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>
+              {noble.npcId ? (
+                <a class="inline-heading" href={getNpcPath(noble.npcId)}>{noble.displayTitle ?? noble.name}</a>
+              ) : (
+                <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>
+              )}
               <span class="pronouns">({noble.pronouns})</span>
             </dt>
             <dd>
@@ -102,7 +107,11 @@ function getFactionNames(factionIds: string[] | undefined) {
         {alphabeticalNobles.map((noble) => (
           <div class="profile-entry">
             <dt>
-              <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>
+              {noble.npcId ? (
+                <a class="inline-heading" href={getNpcPath(noble.npcId)}>{noble.displayTitle ?? noble.name}</a>
+              ) : (
+                <span class="inline-heading">{noble.displayTitle ?? noble.name}</span>
+              )}
               <span class="pronouns">({noble.pronouns})</span>
               {noble.secret && <span class="tag is-danger is-light ml-2">Secret</span>}
             </dt>
@@ -264,5 +273,13 @@ function getFactionNames(factionIds: string[] | undefined) {
 
   .noble-profiles .gm-notes {
     font-style: italic;
+  }
+
+  a.inline-heading {
+    text-decoration: none;
+  }
+
+  a.inline-heading:hover {
+    text-decoration: underline;
   }
 </style>

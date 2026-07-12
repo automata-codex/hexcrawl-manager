@@ -1,8 +1,12 @@
 ---
-import { getEntry } from 'astro:content';
+import { getNpcSortKey } from '@achm/schemas';
+import { getCollection, getEntry } from 'astro:content';
 
 import Faction from '../../../components/Faction.astro';
+import type { NpcListItem } from '../../../components/npc-list-types';
+import { getNpcPath } from '../../../config/routes';
 import SecretLayout from '../../../layouts/SecretLayout.astro';
+import { formatOccupation } from '../../../utils/npc-display';
 
 const { id } = Astro.params;
 if (!id) {
@@ -22,8 +26,82 @@ if (factionData === undefined) {
 }
 
 const faction = factionData.data;
+
+// Build lookup of all NPCs by id for active-agent resolution.
+// No isPlayerVisible filter — this route is GM-only via SecretLayout. Add the
+// filter if a player-facing faction route is ever introduced.
+const npcEntries = await getCollection('npcs');
+const npcEntriesById = new Map(npcEntries.map((entry) => [entry.id, entry]));
+
+function projectNpc(entry: (typeof npcEntries)[number]): NpcListItem {
+  return {
+    id: entry.id,
+    href: getNpcPath(entry.id),
+    displayName: entry.data.displayName,
+    sortKey: getNpcSortKey(entry.data),
+    occupation: formatOccupation(
+      entry.data.occupation,
+      entry.data.class,
+      entry.data.adventuringCompany,
+    ),
+    image: entry.data.image,
+    factions: entry.data.factions ?? [],
+    plotlines: entry.data.plotlines ?? [],
+    visibility: entry.data.visibility,
+    campaignStatus: entry.data.campaignStatus,
+  };
+}
+
+const sortBySortKey = (a: NpcListItem, b: NpcListItem) =>
+  a.sortKey.localeCompare(b.sortKey, undefined, { sensitivity: 'base' });
+
+// Active Agents: curated featured list. Resolve each agent to an NPC by
+// `npcId`; fall back to a stub row (no link, no thumbnail) when the agent
+// has no `npcId` or it doesn't resolve. When `npcId` resolves, omitted
+// `name` / `role` fall back to the NPC's displayName / formatted occupation.
+const activeAgentItems: NpcListItem[] = (faction.activeAgents ?? []).map(
+  (agent, index) => {
+    const resolved = agent.npcId
+      ? npcEntriesById.get(agent.npcId)
+      : undefined;
+    if (resolved) {
+      const projected = projectNpc(resolved);
+      return {
+        ...projected,
+        displayName: agent.name ?? projected.displayName,
+        role: agent.role ?? projected.occupation,
+      };
+    }
+    const fallbackName = agent.name ?? `Unknown (${agent.npcId})`;
+    return {
+      id: `stub-${agent.npcId ?? `unlinked-${index}`}`,
+      displayName: fallbackName,
+      sortKey: fallbackName,
+      occupation: '',
+      role: agent.role ?? '',
+      factions: [],
+      plotlines: [],
+      visibility: 'player',
+      campaignStatus: 'active',
+    };
+  },
+);
+activeAgentItems.sort(sortBySortKey);
+
+// Associated NPCs: NPCs whose `factions` array references this faction,
+// minus anyone already shown above under Active Agents (deduplicate by id).
+const activeAgentIds = new Set(activeAgentItems.map((item) => item.id));
+const associatedNpcs: NpcListItem[] = npcEntries
+  .filter((entry) => entry.data.factions?.includes(faction.id))
+  .filter((entry) => !activeAgentIds.has(entry.id))
+  .map(projectNpc)
+  .sort(sortBySortKey);
 ---
 
 <SecretLayout title={faction.name}>
-  <Faction faction={faction} />
+  <Faction
+    faction={faction}
+    activeAgents={activeAgentItems}
+    associatedNpcs={associatedNpcs}
+  />
 </SecretLayout>

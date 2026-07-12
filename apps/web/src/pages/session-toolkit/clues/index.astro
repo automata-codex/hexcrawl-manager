@@ -9,7 +9,7 @@ import { buildClueUsageMap } from '../../../utils/clue-usage-tracker';
 import type { EncounterData } from '@achm/schemas';
 
 // Fetch clues and collections needed for usage tracking
-const [cluesData, encounters, hexes, dungeons, pointcrawlNodes, characters, npcs, plotlines, roleplayBooks] = await Promise.all([
+const [cluesData, encounters, hexes, dungeons, pointcrawlNodes, characters, npcs, plotlines, roleplayBooks, beats] = await Promise.all([
   getCollection('clues'),
   getCollection('encounters'),
   getCollection('hexes'),
@@ -19,6 +19,7 @@ const [cluesData, encounters, hexes, dungeons, pointcrawlNodes, characters, npcs
   getCollection('npcs'),
   getCollection('plotlines'),
   getCollection('roleplay-books'),
+  getCollection('beats'),
 ]);
 
 // Build encounter map for resolving keyed encounter references
@@ -39,6 +40,7 @@ const usageMap = buildClueUsageMap(
   plotlines,
   roleplayBooks,
   cluesData,
+  beats,
 );
 
 // Transform to list items
@@ -55,7 +57,11 @@ const clues = cluesData
       plotlines: c.data.plotlines ?? [],
       tags: c.data.tags ?? [],
       isUsed: placementCount > 0,
-      needsReview: minPlacements !== undefined && placementCount < minPlacements,
+      needsReview:
+        c.data.status !== 'known' &&
+        minPlacements !== undefined &&
+        placementCount < minPlacements,
+      campaignStatus: c.data.campaignStatus,
     };
   })
   .sort((a, b) => sortIgnoringArticles(a.name, b.name));

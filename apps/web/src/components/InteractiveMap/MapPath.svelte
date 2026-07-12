@@ -1,13 +1,7 @@
 <script lang="ts">
   import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
   import { parseHexId } from '../../utils/hexes.ts';
-  import {
-    axialToPixel,
-    DEG_TO_RAD,
-    EDGE_OFFSET,
-    HEX_HEIGHT,
-    HEX_RADIUS,
-  } from '../../utils/interactive-map.ts';
+  import { ANCHOR_OFFSETS, axialToPixel } from '../../utils/interactive-map.ts';
 
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
   import type { CoordinateNotation, SegmentMetadataData } from '@achm/schemas';
@@ -27,58 +21,6 @@
   }
 
   let { notation, paths, type }: Props = $props();
-
-  const ANCHOR_OFFSETS = {
-    center: { dx: 0, dy: 0 },
-    northeast: {
-      dx: HEX_RADIUS * Math.sin(30 * DEG_TO_RAD),
-      dy: -HEX_RADIUS * Math.cos(30 * DEG_TO_RAD),
-    },
-    east: {
-      dx: HEX_RADIUS * Math.sin(90 * DEG_TO_RAD),
-      dy: -HEX_RADIUS * Math.cos(90 * DEG_TO_RAD),
-    },
-    southeast: {
-      dx: HEX_RADIUS * Math.sin(150 * DEG_TO_RAD),
-      dy: -HEX_RADIUS * Math.cos(150 * DEG_TO_RAD),
-    },
-    southwest: {
-      dx: HEX_RADIUS * Math.sin(210 * DEG_TO_RAD),
-      dy: -HEX_RADIUS * Math.cos(210 * DEG_TO_RAD),
-    },
-    west: {
-      dx: HEX_RADIUS * Math.sin(270 * DEG_TO_RAD),
-      dy: -HEX_RADIUS * Math.cos(270 * DEG_TO_RAD),
-    },
-    northwest: {
-      dx: HEX_RADIUS * Math.sin(330 * DEG_TO_RAD),
-      dy: -HEX_RADIUS * Math.cos(330 * DEG_TO_RAD),
-    },
-    side1: {
-      dx: 0,
-      dy: -EDGE_OFFSET,
-    },
-    side2: {
-      dx: EDGE_OFFSET * Math.sin(60 * DEG_TO_RAD),
-      dy: -EDGE_OFFSET * Math.cos(60 * DEG_TO_RAD),
-    },
-    side3: {
-      dx: EDGE_OFFSET * Math.sin(120 * DEG_TO_RAD),
-      dy: -EDGE_OFFSET * Math.cos(120 * DEG_TO_RAD),
-    },
-    side4: {
-      dx: 0,
-      dy: EDGE_OFFSET,
-    },
-    side5: {
-      dx: EDGE_OFFSET * Math.sin(240 * DEG_TO_RAD),
-      dy: -EDGE_OFFSET * Math.cos(240 * DEG_TO_RAD),
-    },
-    side6: {
-      dx: EDGE_OFFSET * Math.sin(300 * DEG_TO_RAD),
-      dy: -EDGE_OFFSET * Math.cos(300 * DEG_TO_RAD),
-    },
-  };
 
   export function pointsToSegments(
     points: { x: number; y: number }[],

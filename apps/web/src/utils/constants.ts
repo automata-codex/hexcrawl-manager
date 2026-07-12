@@ -24,3 +24,13 @@ export const STORAGE_KEYS = {
 } as const;
 
 export const UNKNOWN_CONTENT = 'Unknown';
+
+/**
+ * Hex tag marking a hex as an impassable barrier to the Lost Valley. Drives a
+ * warning banner in the map detail pane and the hex detail page: GMs see the
+ * full routing hint, non-GM viewers see a spoiler-free version.
+ */
+export const LOST_VALLEY_BARRIER_TAG = 'lost-valley-barrier';
+export const LOST_VALLEY_BARRIER_MESSAGE =
+  '⚠️ Hex is impassable. Access to the Lost Valley is only through L3 or P3. ⚠️';
+export const LOST_VALLEY_BARRIER_PLAYER_MESSAGE = '⚠️ Hex is impassable. ⚠️';

@@ -1,6 +1,7 @@
 import { normalizeClueRef } from '@achm/schemas';
 
 import type {
+  BeatData,
   CharacterData,
   ClueData,
   ClueReference,
@@ -31,10 +32,12 @@ export interface ClueUsageReference {
     | 'npc'
     | 'plotline'
     | 'roleplay-book'
-    | 'linked-clue';
+    | 'linked-clue'
+    | 'beat';
   id: string;
   name: string;
   hexId?: string; // For landmark/hidden-site/dream, which hex contains it
+  plotlineSlug?: string; // For type === 'beat', needed to construct the URL
 }
 
 /**
@@ -134,8 +137,12 @@ function extractClueIdsFromNotes(
 /**
  * Builds a map of clue IDs to their usage locations by scanning
  * encounters, hexes (landmarks, hidden sites, notes, keyed encounters),
- * dungeons, pointcrawl nodes, characters, NPCs, plotlines, roleplay books,
- * and linked clues.
+ * dungeons, pointcrawl nodes, characters, NPCs, roleplay books, linked
+ * clues, and beats. The `plotlines` parameter is accepted for call-site
+ * compatibility (and to resolve beat→plotline display names) but plotlines
+ * themselves are no longer scanned — plotline ↔ clue links are
+ * authoritative on the clue side (`clue.plotlines`). Beats, however, are
+ * concrete scheduled discovery moments and *do* count as placements.
  */
 export function buildClueUsageMap(
   encounters: Array<{ id: string; data: EncounterData }>,
@@ -150,6 +157,7 @@ export function buildClueUsageMap(
   plotlines: Array<{ id: string; data: PlotlineData }> = [],
   roleplayBooks: Array<{ id: string; data: RoleplayBookData }> = [],
   clues: Array<{ id: string; data: ClueData }> = [],
+  beats: Array<{ id: string; data: BeatData }> = [],
 ): ClueUsageMap {
   const usageMap: ClueUsageMap = new Map();
 
@@ -272,36 +280,29 @@ export function buildClueUsageMap(
         addUsage(clueId, {
           type: 'npc',
           id: npc.data.id,
-          name: `${npc.data.name} (NPC)`,
+          name: `${npc.data.displayName} (NPC)`,
         });
       }
     }
   }
 
-  // Scan plotlines
-  for (const plotline of plotlines) {
-    if (plotline.data.clues) {
-      for (const clueId of extractClueIds(plotline.data.clues)) {
-        addUsage(clueId, {
-          type: 'plotline',
-          id: plotline.data.slug,
-          name: `${plotline.data.title} (Plotline)`,
-        });
-      }
-    }
-  }
+  // Plotlines: the inverse relationship is authoritative on the clue side
+  // (`clue.plotlines`), so no scan is needed here. The `plotlines` parameter
+  // is retained for call-site compatibility.
+  void plotlines;
 
   // Scan roleplay books for intelligence report clue links
   for (const book of roleplayBooks) {
-    if (book.data.intelligenceReports?.rows) {
-      for (const row of book.data.intelligenceReports.rows) {
-        if (row.linkType === 'clue' && row.linkId) {
-          addUsage(row.linkId, {
-            type: 'roleplay-book',
-            id: book.id,
-            name: `${book.data.name} (Roleplay Book)`,
-          });
-        }
+    const reports = book.data.intelligenceReports;
+    if (!reports) continue;
+    const allRows = [...(reports.rows ?? []), ...(reports.situational ?? [])];
+    for (const row of allRows) {
+      if (row.linkType === 'clue' && row.linkId) {
+        addUsage(row.linkId, {
+          type: 'roleplay-book',
+          id: book.id,
+          name: `${book.data.name} (Roleplay Book)`,
+        });
       }
     }
   }
@@ -316,6 +317,27 @@ export function buildClueUsageMap(
           name: `${clue.data.name} (Clue)`,
         });
       }
+    }
+  }
+
+  // Scan beats for direct clue references. A beat is a scheduled GM
+  // moment, so a clue referenced by a beat counts as a placement —
+  // there's a specific scene where the GM plans to surface that fact.
+  const plotlineTitleBySlug = new Map<string, string>();
+  for (const plotline of plotlines) {
+    plotlineTitleBySlug.set(plotline.data.slug, plotline.data.title);
+  }
+  for (const beat of beats) {
+    if (!beat.data.clues) continue;
+    const plotlineLabel =
+      plotlineTitleBySlug.get(beat.data.plotline) ?? beat.data.plotline;
+    for (const clueId of extractClueIds(beat.data.clues)) {
+      addUsage(clueId, {
+        type: 'beat',
+        id: beat.data.slug,
+        name: `${beat.data.title} (Beat in ${plotlineLabel})`,
+        plotlineSlug: beat.data.plotline,
+      });
     }
   }
 

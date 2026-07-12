@@ -1,5 +1,5 @@
 ---
-import { type EncounterData, normalizeClueRef } from '@achm/schemas';
+import { type EncounterData, isActive, normalizeClueRef } from '@achm/schemas';
 import { getCollection, getEntry } from 'astro:content';
 
 import Badge from '../../../components/Badge.astro';
@@ -82,14 +82,20 @@ const pointcrawlEdgeList = pointcrawlEdgesUsing
 
 // Build list of clues that can be revealed by this encounter
 const encounterClueRefs = encounter.clues ?? [];
-const clueList = encounterClueRefs
-  .map((ref) => {
-    const { id: clueId } = normalizeClueRef(ref);
-    const clue = clues.find((c) => c.id === clueId);
-    if (!clue) return `<span class="has-text-danger">${clueId} (not found)</span>`;
-    return `<a href="${getCluePath(clueId)}">${clue.data.name}</a>`;
-  })
-  .join(', ');
+const clueList = encounterClueRefs.map((ref) => {
+  const { id: clueId, context } = normalizeClueRef(ref);
+  const clue = clues.find((c) => c.id === clueId);
+  return {
+    id: clueId,
+    name: clue?.data.name ?? clueId,
+    found: !!clue,
+    context,
+  };
+});
+
+// When any clue carries discovery context, render the clues as a list so each
+// context reads clearly; otherwise keep the compact inline format.
+const hasClueContext = clueList.some((clue) => clue.context);
 
 // Get all roleplay books
 const allRoleplayBooks = await getCollection('roleplay-books');
@@ -172,13 +178,27 @@ const resolvedStatBlocks = statBlockIds
     margin-bottom: 1rem;
   }
 
+  .clue-context {
+    font-style: italic;
+    color: var(--bulma-text-weak);
+  }
+
   .stat-block-container section:not(:last-child) {
     border-bottom: 1px solid var(--bulma-body-color);
     margin-bottom: 1rem;
     padding-bottom: 1rem;
   }
+
+  .status-indicator {
+    margin-bottom: 1rem;
+  }
 </style>
 <SecretLayout title={title}>
+  {!isActive(encounter) && (
+    <p class="status-indicator">
+      <Badge color="gray">Inactive</Badge>
+    </p>
+  )}
   {(encounter.scope || encounter.isLead || encounter.locationTypes || encounter.factions || creatureTypes.length > 0) && (
     <div class="taxonomy-section">
       <div class="taxonomy-row">
@@ -235,8 +255,37 @@ const resolvedStatBlocks = statBlockIds
   {
     clueList.length > 0 && (
       <li>
-        <strong>Clues</strong> in this encounter:{' '}
-        <Fragment set:html={clueList} />
+        <strong>Clues</strong> in this encounter:
+        {hasClueContext ? (
+          <ul>
+            {clueList.map((clue) => (
+              <li>
+                {clue.found ? (
+                  <a href={getCluePath(clue.id)}>{clue.name}</a>
+                ) : (
+                  <span class="has-text-danger">{clue.name} (not found)</span>
+                )}
+                {clue.context && (
+                  <div class="clue-context">{clue.context}</div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <>
+            {' '}
+            {clueList.map((clue, index) => (
+              <>
+                {clue.found ? (
+                  <a href={getCluePath(clue.id)}>{clue.name}</a>
+                ) : (
+                  <span class="has-text-danger">{clue.name} (not found)</span>
+                )}
+                {index < clueList.length - 1 && ', '}
+              </>
+            ))}
+          </>
+        )}
       </li>
     )
   }

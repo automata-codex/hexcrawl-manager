@@ -1,0 +1,201 @@
+---
+import { resolveBeat } from '@achm/core';
+import { isActive } from '@achm/schemas';
+import { getCollection, render } from 'astro:content';
+
+import Badge from '../../../../../components/Badge.astro';
+import {
+  getCluePath,
+  getFactionPath,
+  getNpcPath,
+  getPlotlinePath,
+} from '../../../../../config/routes';
+import SecretLayout from '../../../../../layouts/SecretLayout.astro';
+import { renderBulletMarkdown } from '../../../../../utils/markdown';
+
+const { plotline: plotlineParam, beat: beatParam } = Astro.params;
+if (!plotlineParam || !beatParam) {
+  return new Response(null, { status: 404, statusText: 'Not found' });
+}
+
+const beats = await getCollection('beats');
+const beat = beats.find(
+  (b) => b.data.plotline === plotlineParam && b.data.slug === beatParam,
+);
+
+if (beat === undefined) {
+  return new Response(null, { status: 404, statusText: 'Not found' });
+}
+
+const plotlines = await getCollection('plotlines');
+const parentPlotline = plotlines.find((p) => p.data.slug === plotlineParam);
+
+const allClues = await getCollection('clues');
+const cluesById = new Map(
+  allClues.map((c) => [c.id, { name: c.data.name, status: c.data.status }]),
+);
+const npcsCollection = await getCollection('npcs');
+const npcsById = new Map(
+  npcsCollection.map((n) => [n.id, { displayName: n.data.displayName }]),
+);
+const factionsCollection = await getCollection('factions');
+const factionsById = new Map(
+  factionsCollection.map((f) => [f.id, { name: f.data.name }]),
+);
+
+const resolved = resolveBeat(beat.data, { npcsById, factionsById, cluesById });
+
+const triggerHtml = resolved.trigger
+  ? await renderBulletMarkdown(resolved.trigger)
+  : '';
+
+const { Content } = await render(beat);
+
+const statusBadgeColor: Record<typeof resolved.status, 'gray' | 'green'> = {
+  pending: 'gray',
+  active: 'green',
+  resolved: 'gray',
+  skipped: 'gray',
+};
+---
+
+<SecretLayout title={resolved.title}>
+  {!isActive(beat.data) && (
+    <p class="status-indicator">
+      <Badge color="gray">Inactive</Badge>
+    </p>
+  )}
+
+  <p class="parent-plotline">
+    <a href={getPlotlinePath(resolved.plotline)}>
+      ← {parentPlotline?.data.title ?? resolved.plotline}
+    </a>
+  </p>
+
+  <div class="beat-header">
+    <div class="beat-title-container">
+      <Badge color={statusBadgeColor[resolved.status]}>
+        {resolved.status}
+        {resolved.status === 'resolved' && <span class="checkmark">✓</span>}
+      </Badge>
+    </div>
+    {resolved.trigger && (
+      <p><strong>Trigger:</strong>{' '}<span set:html={triggerHtml} /></p>
+    )}
+    {resolved.factions.length > 0 && (
+      <p>
+        <strong>Factions:</strong>{' '}
+        {resolved.factions.map((f, idx) => (
+          <>
+            {f.found ? (
+              <a href={getFactionPath(f.id)}>{f.name}</a>
+            ) : (
+              <>
+                <span>{f.id}</span>
+                <span class="not-found">(not found)</span>
+              </>
+            )}
+            {idx < resolved.factions.length - 1 && ', '}
+          </>
+        ))}
+      </p>
+    )}
+    {resolved.npcs.length > 0 && (
+      <p>
+        <strong>NPCs:</strong>{' '}
+        {resolved.npcs.map((n, idx) => (
+          <>
+            {n.found ? (
+              <a href={getNpcPath(n.id)}>{n.name}</a>
+            ) : (
+              <>
+                <span>{n.id}</span>
+                <span class="not-found">(not found)</span>
+              </>
+            )}
+            {idx < resolved.npcs.length - 1 && ', '}
+          </>
+        ))}
+      </p>
+    )}
+    {resolved.clues.length > 0 && (
+      <>
+        <p><strong>Clues:</strong></p>
+        <ul class="linked-clues">
+          {resolved.clues.map((clue) => (
+            <li>
+              {clue.found ? (
+                <>
+                  <a href={getCluePath(clue.id)}>{clue.name}</a>
+                  {clue.clueStatus === 'known' && <span class="checkmark">✓</span>}
+                </>
+              ) : (
+                <>
+                  <span>{clue.id}</span>
+                  <span class="not-found">(not found)</span>
+                </>
+              )}
+              {clue.context && <div class="clue-context">{clue.context}</div>}
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+  </div>
+
+  <Content />
+</SecretLayout>
+
+<style>
+  .status-indicator {
+    margin-bottom: 1rem;
+  }
+
+  .parent-plotline {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .beat-header {
+    margin-bottom: 1.5rem;
+
+    p {
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+
+    ul {
+      margin: 0;
+    }
+  }
+
+  .beat-title-container {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .linked-clues {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .clue-context {
+    font-style: italic;
+    color: var(--bulma-text-weak);
+  }
+
+  .checkmark {
+    color: var(--bulma-success);
+    margin-left: 0.25rem;
+    font-weight: bold;
+  }
+
+  .not-found {
+    color: var(--bulma-danger);
+    margin-left: 0.25rem;
+    font-size: 0.875rem;
+    font-style: italic;
+  }
+</style>

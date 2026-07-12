@@ -34,20 +34,25 @@
     calculateMapBounds,
     HEX_HEIGHT,
     HEX_WIDTH,
+    REGION_BORDER_COLOR,
+    REGION_BORDER_WIDTH,
     TERRAIN_ICON_SIZE,
   } from '../../utils/interactive-map.ts';
+  import { getRegionShortTitle } from '../../utils/regions.ts';
 
   import DetailPanel from './DetailPanel.svelte';
   import DownloadButton from './DownloadButton.svelte';
   import HexHitTarget from './HexHitTarget.svelte';
   import HexTile from './HexTile.svelte';
   import LayersPanel from './LayersPanel.svelte';
+  import MapOutline from './MapOutline.svelte';
   import MapPath from './MapPath.svelte';
 
   import type { DungeonEssentialData } from '../../pages/api/dungeons.json.ts';
   import type { HexPlayerData } from '../../pages/api/hexes.json.ts';
   import type { MapConfigResponse } from '../../pages/api/map-config.json.ts';
   import type { MapPathPlayerData } from '../../pages/api/map-paths.json.ts';
+  import type { MapTerritory } from '../../pages/api/map-territories.json.ts';
   import type { CoordinateNotation, MapConfig } from '@achm/schemas';
 
   interface Props {
@@ -65,12 +70,50 @@
   let mapBounds: ReturnType<typeof calculateMapBounds> | null = $state(null);
   let mapConfig: MapConfig | null = $state(null);
   let mapPaths: MapPathPlayerData[] = $state([]);
+  let territories: MapTerritory[] = $state([]);
   let labelFont: string | null = $state(null);
   let notation: CoordinateNotation | null = $state(null);
   let svgEl: SVGElement | undefined = $state();
   let wasPanning = $state(false);
 
   let viewBox = $derived(computeViewBox($mapView));
+
+  // Region outlines: group hexes by region (skip the catch-all "unknown" region).
+  let regionGroups = $derived.by(() => {
+    if (!notation) return [];
+    const byRegion: Record<string, { name: string; hexes: string[] }> = {};
+    for (const hex of hexes) {
+      if (!hex.regionId || hex.regionId === 'unknown') continue;
+      if (!isValidHexId(hex.id, notation)) continue;
+      const existing = byRegion[hex.regionId];
+      if (existing) {
+        existing.hexes.push(hex.id);
+      } else {
+        byRegion[hex.regionId] = {
+          name: hex.regionName ?? hex.regionId,
+          hexes: [hex.id],
+        };
+      }
+    }
+    return Object.entries(byRegion).map(([id, group]) => ({
+      id,
+      hexes: group.hexes,
+      color: REGION_BORDER_COLOR,
+      label: getRegionShortTitle(id, group.name),
+    }));
+  });
+
+  // Faction territory: comes straight from the gm-scoped endpoint (empty for players).
+  let factionGroups = $derived(
+    territories.map((territory) => ({
+      id: territory.id,
+      hexes: notation
+        ? territory.hexes.filter((hexId) => isValidHexId(hexId, notation))
+        : [],
+      color: territory.color,
+      label: territory.name,
+    })),
+  );
 
   onMount(() => {
     (async () => {
@@ -92,9 +135,14 @@
       hexes = await hexResponse.json();
       const mapPathResponse = await fetch('/api/map-paths.json');
       mapPaths = await mapPathResponse.json();
+      const territoriesResponse = await fetch('/api/map-territories.json');
+      territories = await territoriesResponse.json();
 
       // Calculate bounds from hex data and initialize center if no saved state
-      mapBounds = calculateMapBounds(hexes.map((h) => h.id), notation);
+      mapBounds = calculateMapBounds(
+        hexes.map((h) => h.id),
+        notation,
+      );
       initializeCenterFromBounds(mapBounds);
     })();
 
@@ -295,181 +343,198 @@
     <p>Loading map configuration...</p>
   </div>
 {:else}
-<div class="zoom-controls">
-  <button class="button" onclick={() => applyZoomDelta(1)}>+</button>
-  <button class="button" onclick={() => applyZoomDelta(-1)}>−</button>
-  <button class="button" onclick={handleCenterSelectedHexClick}>
-    <FontAwesomeIcon icon={faLocationCrosshairs} />
-  </button>
-  <button class="button" onclick={handleFitToBounds} title="Fit map to view">
-    <FontAwesomeIcon icon={faExpand} />
-  </button>
-  <button class="button" onclick={handleZoomReset}>
-    <FontAwesomeIcon icon={faMagnifyingGlassArrowsRotate} />
-  </button>
-  <div class="button zoom-display" style:font-family={labelFont}>
-    Zoom: {Math.round($mapView.zoom * 100)}%
+  <div class="zoom-controls">
+    <button class="button" onclick={() => applyZoomDelta(1)}>+</button>
+    <button class="button" onclick={() => applyZoomDelta(-1)}>−</button>
+    <button class="button" onclick={handleCenterSelectedHexClick}>
+      <FontAwesomeIcon icon={faLocationCrosshairs} />
+    </button>
+    <button class="button" onclick={handleFitToBounds} title="Fit map to view">
+      <FontAwesomeIcon icon={faExpand} />
+    </button>
+    <button class="button" onclick={handleZoomReset}>
+      <FontAwesomeIcon icon={faMagnifyingGlassArrowsRotate} />
+    </button>
+    <div class="button zoom-display" style:font-family={labelFont}>
+      Zoom: {Math.round($mapView.zoom * 100)}%
+    </div>
   </div>
-</div>
 
-{#if hexes}
-  <DetailPanel {dungeons} {hexes} {mapPaths} {notation} {role} />
-{/if}
+  {#if hexes}
+    <DetailPanel {dungeons} {hexes} {mapPaths} {notation} {role} />
+  {/if}
 
-<div class="main-controls">
-  <LayersPanel {role} />
-  <DownloadButton {role} />
-</div>
+  <div class="main-controls">
+    <LayersPanel {role} />
+    <DownloadButton {role} />
+  </div>
 
-<div class="map-container">
-  <svg
-    class="map map-background"
-    id="map"
-    role="presentation"
-    bind:this={svgEl}
-    onmousedown={handleMouseDown}
-    onmousemove={handleMouseMove}
-    onmouseup={handleMouseUp}
-    onmouseleave={handleMouseLeave}
-    onwheel={handleWheel}
-    {viewBox}
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    {@html svgDefs}
+  <div class="map-container">
+    <svg
+      class="map map-background"
+      id="map"
+      role="presentation"
+      bind:this={svgEl}
+      onmousedown={handleMouseDown}
+      onmousemove={handleMouseMove}
+      onmouseup={handleMouseUp}
+      onmouseleave={handleMouseLeave}
+      onwheel={handleWheel}
+      {viewBox}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {@html svgDefs}
 
-    <g id="map-content">
-      <g
-        id="layer-biomes"
-        style:display={!$layerVisibility['biomes'] ? 'none' : undefined}
-      >
-        {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id, notation)}
-            {@const { q, r } = parseHexId(hex.id, notation)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <HexTile
-              fill={getBiomeColor(hex.biome)}
-              hexWidth={HEX_WIDTH}
-              stroke="none"
-              {x}
-              {y}
-            />
-          {/if}
-        {/each}
-      </g>
-      <g
-        id="layer-terrain"
-        style:display={!$layerVisibility['terrain'] ? 'none' : undefined}
-      >
-        {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id, notation)}
-            {@const { q, r } = parseHexId(hex.id, notation)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <use
-              href={getTerrainIcon(hex.terrain)}
-              x={x - TERRAIN_ICON_SIZE / 2}
-              y={y - TERRAIN_ICON_SIZE / 2}
-              width={TERRAIN_ICON_SIZE}
-              height={TERRAIN_ICON_SIZE}
-            />
-          {/if}
-        {/each}
-      </g>
-      <g
-        id="layer-hex-borders"
-        style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
-      >
-        {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id, notation)}
-            {@const { q, r } = parseHexId(hex.id, notation)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <HexTile fill="none" hexWidth={HEX_WIDTH} {x} {y} />
-          {/if}
-        {/each}
-      </g>
-      <MapPath {notation} paths={mapPaths} type="river" />
-      <MapPath {notation} paths={mapPaths} type="conduit" />
-      <MapPath {notation} paths={mapPaths} type="trail" />
-      <!-- Data-driven tag icons -->
-      {#if mapConfig}
-        {#each mapConfig.tagIcons as tagIcon (tagIcon.tag)}
-          {@const iconDef = mapConfig.icons[tagIcon.icon]}
-          {#if iconDef}
-            <g
-              id={`layer-${tagIcon.layer}-${tagIcon.tag}`}
-              style:display={!$layerVisibility[tagIcon.layer] ? 'none' : undefined}
-            >
-              {#each getHexesForTagIcon(tagIcon.tag) as hex (hex.id)}
-                {#if isValidHexId(hex.id, notation)}
-                  {@const { q, r } = parseHexId(hex.id, notation)}
-                  {@const { x, y } = axialToPixel(q, r)}
-                  {@const size = tagIcon.size ?? iconDef.size}
-                  <use
-                    href={`#${iconDef.file.replace('.svg', '')}`}
-                    x={x - size / 2}
-                    y={y - size / 2}
-                    width={size}
-                    height={size}
-                    stroke={tagIcon.stroke}
-                    stroke-width={tagIcon.strokeWidth}
-                    fill={tagIcon.fill}
-                  />
-                {/if}
-              {/each}
-            </g>
-          {/if}
-        {/each}
-      {/if}
-      {#if !canAccess(role, [SCOPES.GM])}
-        <g id="layer-player-mask" style:display="true">
+      <g id="map-content">
+        <g
+          id="layer-biomes"
+          style:display={!$layerVisibility['biomes'] ? 'none' : undefined}
+        >
           {#each hexes as hex (hex.id)}
-            {#if isValidHexId(hex.id, notation) && !hex.isVisited && !hex.isScouted}
+            {#if isValidHexId(hex.id, notation)}
               {@const { q, r } = parseHexId(hex.id, notation)}
               {@const { x, y } = axialToPixel(q, r)}
-              <HexTile fill="white" hexWidth={HEX_WIDTH} {x} {y} />
+              <HexTile
+                fill={getBiomeColor(hex.biome)}
+                hexWidth={HEX_WIDTH}
+                stroke="none"
+                {x}
+                {y}
+              />
             {/if}
           {/each}
         </g>
-      {/if}
-      <g
-        id="layer-hex-labels"
-        style:display={!$layerVisibility['labels'] ? 'none' : undefined}
-      >
-        {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id, notation)}
-            {@const { q, r } = parseHexId(hex.id, notation)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <text
-              {x}
-              y={y + HEX_HEIGHT / 2 - 4}
-              font-family={labelFont}
-              font-size="12"
-              text-anchor="middle"
-              fill="black"
-            >
-              {displayHexId(hex.id, notation)}
-            </text>
-          {/if}
-        {/each}
+        <g
+          id="layer-terrain"
+          style:display={!$layerVisibility['terrain'] ? 'none' : undefined}
+        >
+          {#each hexes as hex (hex.id)}
+            {#if isValidHexId(hex.id, notation)}
+              {@const { q, r } = parseHexId(hex.id, notation)}
+              {@const { x, y } = axialToPixel(q, r)}
+              <use
+                href={getTerrainIcon(hex.terrain)}
+                x={x - TERRAIN_ICON_SIZE / 2}
+                y={y - TERRAIN_ICON_SIZE / 2}
+                width={TERRAIN_ICON_SIZE}
+                height={TERRAIN_ICON_SIZE}
+              />
+            {/if}
+          {/each}
+        </g>
+        <g
+          id="layer-hex-borders"
+          style:display={!$layerVisibility['hexBorders'] ? 'none' : undefined}
+        >
+          {#each hexes as hex (hex.id)}
+            {#if isValidHexId(hex.id, notation)}
+              {@const { q, r } = parseHexId(hex.id, notation)}
+              {@const { x, y } = axialToPixel(q, r)}
+              <HexTile fill="none" hexWidth={HEX_WIDTH} {x} {y} />
+            {/if}
+          {/each}
+        </g>
+        <MapPath {notation} paths={mapPaths} type="river" />
+        <MapPath {notation} paths={mapPaths} type="conduit" />
+        <MapPath {notation} paths={mapPaths} type="trail" />
+        <!-- Data-driven tag icons -->
+        {#if mapConfig}
+          {#each mapConfig.tagIcons as tagIcon (tagIcon.tag)}
+            {@const iconDef = mapConfig.icons[tagIcon.icon]}
+            {#if iconDef}
+              <g
+                id={`layer-${tagIcon.layer}-${tagIcon.tag}`}
+                style:display={!$layerVisibility[tagIcon.layer]
+                  ? 'none'
+                  : undefined}
+              >
+                {#each getHexesForTagIcon(tagIcon.tag) as hex (hex.id)}
+                  {#if isValidHexId(hex.id, notation)}
+                    {@const { q, r } = parseHexId(hex.id, notation)}
+                    {@const { x, y } = axialToPixel(q, r)}
+                    {@const size = tagIcon.size ?? iconDef.size}
+                    <use
+                      href={`#${iconDef.file.replace('.svg', '')}`}
+                      x={x - size / 2}
+                      y={y - size / 2}
+                      width={size}
+                      height={size}
+                      stroke={tagIcon.stroke}
+                      stroke-width={tagIcon.strokeWidth}
+                      fill={tagIcon.fill}
+                    />
+                  {/if}
+                {/each}
+              </g>
+            {/if}
+          {/each}
+        {/if}
+        {#if !canAccess(role, [SCOPES.GM])}
+          <g id="layer-player-mask" style:display="true">
+            {#each hexes as hex (hex.id)}
+              {#if isValidHexId(hex.id, notation) && !hex.isVisited && !hex.isScouted}
+                {@const { q, r } = parseHexId(hex.id, notation)}
+                {@const { x, y } = axialToPixel(q, r)}
+                <HexTile fill="white" hexWidth={HEX_WIDTH} {x} {y} />
+              {/if}
+            {/each}
+          </g>
+        {/if}
+        <g
+          id="layer-hex-labels"
+          style:display={!$layerVisibility['labels'] ? 'none' : undefined}
+        >
+          {#each hexes as hex (hex.id)}
+            {#if isValidHexId(hex.id, notation)}
+              {@const { q, r } = parseHexId(hex.id, notation)}
+              {@const { x, y } = axialToPixel(q, r)}
+              <text
+                {x}
+                y={y + HEX_HEIGHT / 2 - 4}
+                font-family={labelFont}
+                font-size="12"
+                text-anchor="middle"
+                fill="black"
+              >
+                {displayHexId(hex.id, notation)}
+              </text>
+            {/if}
+          {/each}
+        </g>
+        <!-- Region/faction outlines render after hex labels so region names sit on top of hex IDs -->
+        <MapOutline
+          groups={regionGroups}
+          layerKey="regionBorders"
+          {notation}
+          strokeWidth={REGION_BORDER_WIDTH}
+          {labelFont}
+        />
+        <MapOutline
+          groups={factionGroups}
+          layerKey="factionTerritory"
+          {notation}
+          strokeWidth={REGION_BORDER_WIDTH}
+          {labelFont}
+        />
+        <g id="layer-hit-target">
+          {#each hexes as hex (hex.id)}
+            {#if isValidHexId(hex.id, notation)}
+              {@const { q, r } = parseHexId(hex.id, notation)}
+              {@const { x, y } = axialToPixel(q, r)}
+              <HexHitTarget
+                active={$selectedHex === hex.id}
+                hexId={hex.id}
+                hexWidth={HEX_WIDTH}
+                {x}
+                {y}
+                onClick={handleHexClick}
+              />
+            {/if}
+          {/each}
+        </g>
       </g>
-      <g id="layer-hit-target">
-        {#each hexes as hex (hex.id)}
-          {#if isValidHexId(hex.id, notation)}
-            {@const { q, r } = parseHexId(hex.id, notation)}
-            {@const { x, y } = axialToPixel(q, r)}
-            <HexHitTarget
-              active={$selectedHex === hex.id}
-              hexId={hex.id}
-              hexWidth={HEX_WIDTH}
-              {x}
-              {y}
-              onClick={handleHexClick}
-            />
-          {/if}
-        {/each}
-      </g>
-    </g>
-  </svg>
-</div>
+    </svg>
+  </div>
 {/if}
 
 <style>

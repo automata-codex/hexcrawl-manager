@@ -2,14 +2,19 @@
 import { getLinkPath, getLinkText } from '../../utils/link-generator';
 import { renderMarkdown } from '../../utils/markdown';
 
-import type { IntelligenceReportRow } from '@achm/schemas';
+import type {
+  IntelligenceReportRow,
+  SituationalReportRow,
+} from '@achm/schemas';
 
 interface Props {
   instructions?: string;
   rows: IntelligenceReportRow[];
+  situational?: SituationalReportRow[];
 }
 
-const { instructions, rows } = Astro.props;
+const { instructions, rows, situational } = Astro.props;
+const hasSituational = !!situational && situational.length > 0;
 ---
 
 <style>
@@ -23,6 +28,10 @@ const { instructions, rows } = Astro.props;
     padding: 0.75rem;
     background-color: var(--bulma-scheme-main-bis);
     border-left: 3px solid var(--bulma-link-text);
+  }
+
+  .section-subhead {
+    margin-top: 1.5rem;
   }
 
   .reports-table {
@@ -74,12 +83,48 @@ const { instructions, rows } = Astro.props;
 </style>
 
 <div class="intelligence-reports">
-  <h2 class="title is-4">Intelligence Reports</h2>
+  <h2 class="title is-4">Faction Tidings</h2>
 
   {instructions && (
     <div class="instructions">
       {instructions}
     </div>
+  )}
+
+  {hasSituational && (
+    <>
+      <h3 class="title is-5 section-subhead">Selectable Tidings</h3>
+      <table class="reports-table">
+        <thead>
+          <tr>
+            <th class="report-column">Report</th>
+            <th class="dialogue-column">Sample Dialogue</th>
+            <th class="conditions-column">Relevant Conditions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {situational!.map((row) => (
+            <tr>
+              <td class="report-column">
+                {row.linkType && row.linkId ? (
+                  <>{row.report} → <a href={getLinkPath(row.linkType, row.linkId)}>{getLinkText(row.linkType, row.linkId)}</a></>
+                ) : (
+                  row.report
+                )}
+              </td>
+              <td class="dialogue-column">
+                <Fragment set:html={renderMarkdown(row.sampleDialogue)} />
+              </td>
+              <td class="conditions-column">
+                <Fragment set:html={renderMarkdown(row.relevantConditions)} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h3 class="title is-5 section-subhead">Random Tidings (d12)</h3>
+    </>
   )}
 
   <table class="reports-table">
