@@ -118,6 +118,9 @@ export function handleFastTravelResult(
     info(
       `Out of capacity for today. Fast travel paused. Continue tomorrow with \`fast resume\`.`,
     );
+  } else if (result.status === 'paused_day_rollover') {
+    persistPausedProgress(file, plan, result);
+    info('Fast travel paused for the night. Continue with `fast resume`.');
   } else if (result.status === 'error_no_progress') {
     // A single leg can't fit even a fresh full day's daylight. The plan is kept
     // (with progress recorded) so `fast status` shows where it stalled; the GM

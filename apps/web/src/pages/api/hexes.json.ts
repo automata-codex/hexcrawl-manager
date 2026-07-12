@@ -7,7 +7,11 @@ import { loadMapConfig } from '@achm/data';
 import { getCollection } from 'astro:content';
 
 import { getCurrentUserRole } from '../../utils/auth.ts';
-import { SECURITY_ROLE, UNKNOWN_CONTENT } from '../../utils/constants.ts';
+import {
+  LOST_VALLEY_BARRIER_TAG,
+  SECURITY_ROLE,
+  UNKNOWN_CONTENT,
+} from '../../utils/constants.ts';
 import {
   createSyntheticHex,
   processHex,
@@ -33,7 +37,6 @@ export type HexPlayerData = Pick<
   | 'isExplored'
   | 'isScouted'
   | 'renderedLandmark'
-  | 'tags'
 > & {
   hasHiddenSites: boolean;
   terrain: ExtendedHexData['terrain'] | 'Unknown';
@@ -44,6 +47,14 @@ export type HexPlayerData = Pick<
    * carry it. The detail panel renders it behind its own GM gate as well.
    */
   roleplayBooks?: RoleplayBookMapEntry[];
+  /**
+   * Whether the hex is tagged as an impassable Lost Valley barrier. A derived
+   * boolean rather than the raw `tags` array — other hex tags (e.g.
+   * `scar-site`, `fc-ruins`) are spoilers, so player payloads never carry
+   * `tags` itself. Only set once the hex is visited or scouted; undiscovered
+   * hexes stay fully redacted.
+   */
+  isImpassable?: boolean;
 };
 
 /**
@@ -126,12 +137,16 @@ export const GET: APIRoute = async ({ locals }) => {
       const data = await processHex(hex);
       const hasHiddenSites = data.renderedHiddenSites.length > 0;
 
+      const isImpassable =
+        data.tags?.includes(LOST_VALLEY_BARRIER_TAG) ?? false;
+
       if (role === SECURITY_ROLE.GM) {
         // GM gets full data - type assertion needed as we return superset of HexPlayerData
         return {
           ...data,
           hasHiddenSites,
           roleplayBooks: collectHexRoleplayBooks(data, bookNameBySlug),
+          isImpassable,
         } as HexPlayerData;
       }
 
@@ -150,6 +165,7 @@ export const GET: APIRoute = async ({ locals }) => {
           isExplored: data.isExplored,
           renderedLandmark: data.renderedLandmark,
           hasHiddenSites,
+          isImpassable,
         };
       }
 
@@ -174,6 +190,7 @@ export const GET: APIRoute = async ({ locals }) => {
             ? data.renderedLandmark
             : UNKNOWN_CONTENT,
           hasHiddenSites,
+          isImpassable,
         };
       }
 

@@ -9,6 +9,7 @@ import type {
   CampaignDate,
   DayEndEventPayload,
   DayStartEventPayload,
+  EncounterCheckEventPayload,
   KeyedEncounter,
   MoveEventPayload,
   NoteEventPayload,
@@ -26,6 +27,7 @@ export type FastTravelEvent =
   | { type: 'move'; payload: MoveEventPayload }
   | { type: 'time_log'; payload: TimeLogEventPayload }
   | { type: 'note'; payload: NoteEventPayload }
+  | { type: 'encounter_check'; payload: EncounterCheckEventPayload }
   | { type: 'day_end'; payload: DayEndEventPayload }
   | { type: 'day_start'; payload: DayStartEventPayload }
   | { type: 'weather_committed'; payload: WeatherCommittedEventPayload };
@@ -43,6 +45,11 @@ export interface FastTravelResult {
     // Entered a hex with unknown clues or pending GM updates.
     | 'paused_hex_alert'
     | 'paused_no_capacity'
+    // Set by the journey orchestrator (not the per-day runner): a day rolled
+    // over mid-journey (camp made, day ended/started, weather rolled), and
+    // the journey pauses there for the GM to draw a campfire card before
+    // `fast resume` continues into the new day.
+    | 'paused_day_rollover'
     // Set by the journey orchestrator (not the per-day runner): a single leg
     // can't fit even a fresh full day's daylight, so we stop rather than loop.
     | 'error_no_progress';
@@ -246,9 +253,25 @@ export function runFastTravel(state: FastTravelState): FastTravelResult {
     // entirely when the journey runs with random encounter checks off
     // (`--no-rec`); keyed encounters and alerts above are unaffected.
     const threshold = state.encounterChances[destHex] ?? 0;
-    const rolledEncounter = state.skipRandomEncounters
-      ? false
-      : rollEncounterOccurs(threshold);
+    let rolledEncounter = false;
+    if (!state.skipRandomEncounters) {
+      const check = rollEncounterOccurs(threshold);
+      rolledEncounter = check.triggered;
+      // Log the raw roll whenever a die was actually rolled (threshold > 0),
+      // so the actual d20 result is available for diagnostics even when the
+      // check doesn't trigger an encounter.
+      if (check.roll !== null) {
+        events.push({
+          type: 'encounter_check',
+          payload: {
+            hexId: destHex,
+            threshold,
+            roll: check.roll,
+            triggered: rolledEncounter,
+          },
+        });
+      }
+    }
     if (rolledEncounter) {
       // Log a prompt for the GM to roll the encounter manually.
       events.push({

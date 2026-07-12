@@ -88,74 +88,64 @@ describe('driveJourney', () => {
     vi.restoreAllMocks();
   });
 
-  it('walks a multi-day journey to completion, ending and starting each day', () => {
-    const runSpy = vi
-      .spyOn(runner, 'runFastTravel')
-      .mockReturnValueOnce(
-        result({
-          status: 'paused_no_capacity',
-          currentLegIndex: 2,
-          events: SOME_EVENTS,
-          finalSegments: { active: 16, daylight: 16, night: 0 },
-        }),
-      )
-      .mockReturnValueOnce(
-        result({
-          status: 'completed',
-          currentLegIndex: 4,
-          finalSegments: { active: 8, daylight: 8, night: 0 },
-        }),
-      );
+  it('rolls the day over once and pauses for a campfire card, without auto-advancing', () => {
+    const runSpy = vi.spyOn(runner, 'runFastTravel').mockReturnValueOnce(
+      result({
+        status: 'paused_no_capacity',
+        currentLegIndex: 2,
+        events: SOME_EVENTS,
+        finalSegments: { active: 16, daylight: 16, night: 0 },
+      }),
+    );
 
     const res = driveJourney(ctx, FILE, baseState());
 
-    expect(res.status).toBe('completed');
+    expect(res.status).toBe('paused_day_rollover');
+    expect(res.currentLegIndex).toBe(2);
+    expect(res.finalSegments).toEqual({ active: 0, daylight: 0, night: 0 });
     expect(emitters.emitDayEnd).toHaveBeenCalledTimes(1);
     expect(emitters.emitDayEnd).toHaveBeenCalledWith(FILE, 16, 16, 0);
     expect(emitters.emitDayStart).toHaveBeenCalledTimes(1);
+    expect(emitters.emitDayStart).toHaveBeenCalledWith(
+      FILE,
+      { year: 1, month: 'Hibernis', day: 16 },
+      'winter',
+      WINTER_CAP,
+    );
+
+    // Only the first day's leg ran — the journey stops at the rollover
+    // instead of looping straight into the new day.
+    expect(runSpy).toHaveBeenCalledTimes(1);
 
     // Each day boundary announces where the party camps (route[legIndex - 1]).
     expect(cliKit.info).toHaveBeenCalledWith(
       expect.stringContaining('⛺ Camp: P14'),
     );
+    // ...and prompts the GM to draw a campfire card before resuming.
+    expect(cliKit.info).toHaveBeenCalledWith('🔥 Time for a campfire card!');
 
     // Day-1 weather fill + one advanced day = two commits.
     expect(emitters.emitWeatherCommitted).toHaveBeenCalledTimes(2);
-
-    // The second day resumes from where the first left off, with a fresh envelope.
-    const day2 = runSpy.mock.calls[1][0];
-    expect(day2.currentLegIndex).toBe(2);
-    expect(day2.currentHex).toBe('P14'); // route[currentLegIndex - 1]
-    expect(day2.activeSegmentsToday).toBe(0);
-    expect(day2.daylightSegmentsLeft).toBe(WINTER_CAP);
-    expect(day2.currentDate).toEqual({ year: 1, month: 'Hibernis', day: 16 });
   });
 
   it('recomputes the daylight envelope from the new date across a season boundary', () => {
-    const runSpy = vi
-      .spyOn(runner, 'runFastTravel')
-      .mockReturnValueOnce(
-        result({
-          status: 'paused_no_capacity',
-          currentLegIndex: 2,
-          events: SOME_EVENTS,
-          finalSegments: { active: 16, daylight: 16, night: 0 },
-        }),
-      )
-      .mockReturnValueOnce(result({ status: 'completed', currentLegIndex: 4 }));
+    vi.spyOn(runner, 'runFastTravel').mockReturnValueOnce(
+      result({
+        status: 'paused_no_capacity',
+        currentLegIndex: 2,
+        events: SOME_EVENTS,
+        finalSegments: { active: 16, daylight: 16, night: 0 },
+      }),
+    );
 
     // Hibernis 31 (winter) -> Vernalis 1 (spring): 9h -> 12h.
-    driveJourney(
+    const res = driveJourney(
       ctx,
       FILE,
       baseState({ currentDate: { year: 1, month: 'Hibernis', day: 31 } }),
     );
 
-    const day2 = runSpy.mock.calls[1][0];
-    expect(day2.currentDate).toEqual({ year: 1, month: 'Vernalis', day: 1 });
-    expect(day2.currentSeason).toBe('spring');
-    expect(day2.daylightSegmentsLeft).toBe(SPRING_CAP);
-    expect(day2.daylightCapSegments).toBe(SPRING_CAP);
+    expect(res.status).toBe('paused_day_rollover');
     expect(emitters.emitDayStart).toHaveBeenCalledWith(
       FILE,
       { year: 1, month: 'Vernalis', day: 1 },
@@ -181,18 +171,15 @@ describe('driveJourney', () => {
     expect(emitters.emitDayStart).not.toHaveBeenCalled();
   });
 
-  it('advances (does not error) when a leg cannot fit a partially-used opening day', () => {
-    const runSpy = vi
-      .spyOn(runner, 'runFastTravel')
-      .mockReturnValueOnce(
-        result({
-          status: 'paused_no_capacity',
-          currentLegIndex: 0,
-          events: [], // no progress, but the day was already partly used
-          finalSegments: { active: 16, daylight: 16, night: 0 },
-        }),
-      )
-      .mockReturnValueOnce(result({ status: 'completed', currentLegIndex: 4 }));
+  it('rolls the day over (does not error) when a leg cannot fit a partially-used opening day', () => {
+    vi.spyOn(runner, 'runFastTravel').mockReturnValueOnce(
+      result({
+        status: 'paused_no_capacity',
+        currentLegIndex: 0,
+        events: [], // no progress, but the day was already partly used
+        finalSegments: { active: 16, daylight: 16, night: 0 },
+      }),
+    );
 
     const res = driveJourney(
       ctx,
@@ -204,12 +191,14 @@ describe('driveJourney', () => {
       }),
     );
 
-    expect(res.status).toBe('completed');
+    expect(res.status).toBe('paused_day_rollover');
+    expect(res.currentLegIndex).toBe(0);
     expect(emitters.emitDayEnd).toHaveBeenCalledWith(FILE, 16, 16, 0);
     expect(emitters.emitDayStart).toHaveBeenCalledTimes(1);
     // Still parked at the start hex (no leg has run yet).
-    expect(runSpy.mock.calls[1][0].currentHex).toBe('P12');
-    expect(runSpy.mock.calls[1][0].currentLegIndex).toBe(0);
+    expect(cliKit.info).toHaveBeenCalledWith(
+      expect.stringContaining('⛺ Camp: P12'),
+    );
   });
 
   it('auto-rolls weather for day 1 when none is committed, threading it into the run', () => {

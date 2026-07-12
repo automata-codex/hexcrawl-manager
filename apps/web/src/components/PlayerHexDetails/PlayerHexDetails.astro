@@ -1,4 +1,9 @@
 ---
+import {
+  LOST_VALLEY_BARRIER_PLAYER_MESSAGE,
+  LOST_VALLEY_BARRIER_TAG,
+} from '../../utils/constants.ts';
+
 import Explored from './Explored.astro';
 import HiddenSites from './HiddenSites.astro';
 import Landmark from './Landmark.astro';
@@ -15,6 +20,15 @@ const { hex } = Astro.props;
 ---
 
 <style>
+  .warning {
+    background-color: var(--bulma-danger);
+    color: var(--bulma-white);
+    font-weight: bold;
+    padding: 1rem;
+    text-align: center;
+    margin: 0 0 1rem;
+  }
+
   .data-bar {
     display: flex;
     font-weight: bold;
@@ -26,6 +40,12 @@ const { hex } = Astro.props;
 </style>
 
 <section>
+  {
+    (hex.isVisited || hex.isScouted) &&
+      hex.tags?.includes(LOST_VALLEY_BARRIER_TAG) && (
+        <p class="warning">{LOST_VALLEY_BARRIER_PLAYER_MESSAGE}</p>
+      )
+  }
   <div class="data-bar">
     <Visited hex={hex} />
     <Explored hex={hex} />

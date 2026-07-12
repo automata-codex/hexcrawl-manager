@@ -33,10 +33,12 @@ import type { CampaignDate, ScribeEvent } from '@achm/schemas';
  * resumes the route from where it left off.
  *
  * Terminal results returned to the caller:
- *  - `completed`          — reached the destination.
- *  - `paused_encounter`   — stopped at a hex for the GM to resolve an encounter.
- *  - `error_no_progress`  — a single leg can't fit even a fresh full day's
- *                           daylight (guards against an infinite advance loop).
+ *  - `completed`           — reached the destination.
+ *  - `paused_encounter`    — stopped at a hex for the GM to resolve an encounter.
+ *  - `paused_day_rollover` — a day rolled over mid-journey; stopped to draw a
+ *                            campfire card before continuing into the new day.
+ *  - `error_no_progress`   — a single leg can't fit even a fresh full day's
+ *                            daylight (guards against an infinite advance loop).
  */
 export function driveJourney(
   ctx: Context,
@@ -52,69 +54,66 @@ export function driveJourney(
   }
   state = { ...state, weather };
 
-  while (true) {
-    const result = runFastTravel(state);
-    emitFastTravelEvents(file, result.events);
+  const result = runFastTravel(state);
+  emitFastTravelEvents(file, result.events);
 
-    // Anything other than a daily capacity pause is terminal for the journey.
-    if (result.status !== 'paused_no_capacity') {
-      return result;
-    }
-
-    // Zero progress means the next leg won't fit the day's remaining daylight.
-    // If the day was already fresh (nothing used yet), advancing to another day
-    // can't help — stop instead of looping forever. If the day was only
-    // partially used, fall through and advance so the leg gets a fresh day.
-    const dayWasFresh =
-      state.daylightSegmentsLeft === state.daylightCapSegments &&
-      state.activeSegmentsToday === 0;
-    if (result.events.length === 0 && dayWasFresh) {
-      return { ...result, status: 'error_no_progress' };
-    }
-
-    // End the current day with its real totals.
-    emitDayEnd(
-      file,
-      result.finalSegments.active,
-      result.finalSegments.daylight,
-      result.finalSegments.night,
-    );
-
-    // Start the next day and recompute the daylight envelope FROM THE NEW DATE.
-    const nextDate = ctx.calendar.incrementDate(state.currentDate, 1);
-    const nextSeason = getSeasonForDate(nextDate);
-    const nextDaylightCap = getDaylightCapSegments(nextDate);
-    emitDayStart(file, nextDate, nextSeason, nextDaylightCap);
-
-    // Auto-roll + commit weather for the new day (take the roll as-is).
-    const nextWeather = autoCommitWeather(file, nextDate);
-
-    // The party is parked at the last hex it actually entered: the leg before
-    // the one that didn't fit, or the journey's start hex if no leg has run yet
-    // (a first leg that won't fit a partially-used opening day).
-    const parkedHex =
-      result.currentLegIndex === 0
-        ? state.currentHex
-        : state.route[result.currentLegIndex - 1];
-
-    info(
-      `Day rolled over → ${ctx.calendar.formatDate(nextDate)} (${nextSeason}), weather: ${nextWeather.category} ⛺ Camp: ${parkedHex}`,
-    );
-
-    state = {
-      ...state,
-      currentHex: parkedHex,
-      currentLegIndex: result.currentLegIndex,
-      activeSegmentsToday: 0,
-      daylightSegmentsToday: 0,
-      nightSegmentsToday: 0,
-      daylightSegmentsLeft: nextDaylightCap,
-      daylightCapSegments: nextDaylightCap,
-      weather: nextWeather,
-      currentDate: nextDate,
-      currentSeason: nextSeason,
-    };
+  // Anything other than a daily capacity pause is terminal for the journey.
+  if (result.status !== 'paused_no_capacity') {
+    return result;
   }
+
+  // Zero progress means the next leg won't fit the day's remaining daylight.
+  // If the day was already fresh (nothing used yet), advancing to another day
+  // can't help — stop instead of pretending a rollover would fix it. If the
+  // day was only partially used, fall through and roll the day over so the
+  // leg gets a fresh day (the GM resumes into it explicitly).
+  const dayWasFresh =
+    state.daylightSegmentsLeft === state.daylightCapSegments &&
+    state.activeSegmentsToday === 0;
+  if (result.events.length === 0 && dayWasFresh) {
+    return { ...result, status: 'error_no_progress' };
+  }
+
+  // End the current day with its real totals.
+  emitDayEnd(
+    file,
+    result.finalSegments.active,
+    result.finalSegments.daylight,
+    result.finalSegments.night,
+  );
+
+  // Start the next day and recompute the daylight envelope FROM THE NEW DATE.
+  const nextDate = ctx.calendar.incrementDate(state.currentDate, 1);
+  const nextSeason = getSeasonForDate(nextDate);
+  const nextDaylightCap = getDaylightCapSegments(nextDate);
+  emitDayStart(file, nextDate, nextSeason, nextDaylightCap);
+
+  // Auto-roll + commit weather for the new day (take the roll as-is).
+  const nextWeather = autoCommitWeather(file, nextDate);
+
+  // The party is parked at the last hex it actually entered: the leg before
+  // the one that didn't fit, or the journey's start hex if no leg has run yet
+  // (a first leg that won't fit a partially-used opening day).
+  const parkedHex =
+    result.currentLegIndex === 0
+      ? state.currentHex
+      : state.route[result.currentLegIndex - 1];
+
+  info(
+    `Day rolled over → ${ctx.calendar.formatDate(nextDate)} (${nextSeason}), weather: ${nextWeather.category} ⛺ Camp: ${parkedHex}`,
+  );
+  info('🔥 Time for a campfire card!');
+
+  // Pause the journey here rather than auto-advancing into the new day — the
+  // GM draws a campfire card before travel continues. `fast resume` rebuilds
+  // state from the event log (which already has the new day_start and
+  // weather_committed) and picks the route back up from this leg.
+  return {
+    status: 'paused_day_rollover',
+    currentLegIndex: result.currentLegIndex,
+    events: [],
+    finalSegments: { active: 0, daylight: 0, night: 0 },
+  };
 }
 
 /**

@@ -89,6 +89,16 @@ export type DeadReckoningEventPayload = z.infer<
   typeof DeadReckoningEventPayloadSchema
 >;
 
+export const EncounterCheckEventPayloadSchema = z.object({
+  hexId: z.string(),
+  threshold: z.number().int(),
+  roll: z.number().int().min(1).max(20),
+  triggered: z.boolean(),
+});
+export type EncounterCheckEventPayload = z.infer<
+  typeof EncounterCheckEventPayloadSchema
+>;
+
 export const ExploreEventPayloadSchema = z.object({
   target: z.string(), // The party's current hex
 });
@@ -267,6 +277,12 @@ export const DeadReckoningEventSchema = makeEventSchema(
 );
 export type DeadReckoningEvent = z.infer<typeof DeadReckoningEventSchema>;
 
+export const EncounterCheckEventSchema = makeEventSchema(
+  'encounter_check',
+  EncounterCheckEventPayloadSchema,
+);
+export type EncounterCheckEvent = z.infer<typeof EncounterCheckEventSchema>;
+
 export const ExploreEventSchema = makeEventSchema(
   'explore',
   ExploreEventPayloadSchema,
@@ -362,6 +378,7 @@ export const ScribeEventSchema = z.discriminatedUnion('kind', [
   DayEndEventSchema,
   DayStartEventSchema,
   DeadReckoningEventSchema,
+  EncounterCheckEventSchema,
   ExploreEventSchema,
   LostEventSchema,
   MilestoneEventSchema,
