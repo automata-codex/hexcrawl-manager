@@ -1,5 +1,6 @@
 import { FastTravelEvent } from '../core/fast-travel-runner';
 
+import { emitEncounterCheck } from './emit-encounter-check';
 import { emitMove } from './emit-move';
 import { emitNote } from './emit-note';
 import { emitTimeLog } from './emit-time-log';
@@ -29,6 +30,15 @@ export function emitFastTravelEvents(file: string, events: FastTravelEvent[]) {
         break;
       case 'note':
         emitNote(file, event.payload.text, event.payload.scope);
+        break;
+      case 'encounter_check':
+        emitEncounterCheck(
+          file,
+          event.payload.hexId,
+          event.payload.threshold,
+          event.payload.roll,
+          event.payload.triggered,
+        );
         break;
     }
   }

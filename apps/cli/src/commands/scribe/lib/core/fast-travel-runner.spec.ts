@@ -1,3 +1,4 @@
+import * as core from '@achm/core';
 import { createWeather } from '@achm/test-helpers';
 import {
   MockInstance,
@@ -43,16 +44,23 @@ function makeState(overrides: Partial<FastTravelState> = {}): FastTravelState {
 describe('runFastTravel', () => {
   // eslint-disable-next-line no-unused-vars
   let isDifficultHexSpy: MockInstance<(hexId: string) => boolean>;
+  // eslint-disable-next-line no-unused-vars
+  let rollDiceSpy: MockInstance<(notation: string) => number>;
 
   beforeEach(() => {
     isDifficultHexSpy = vi.spyOn(hexData, 'isDifficultHex');
 
     // Default: no difficult terrain
     isDifficultHexSpy.mockReturnValue(false);
+
+    // Default: encounter rolls come up 1 (lowest possible), so any threshold
+    // > 0 in these tests triggers deterministically.
+    rollDiceSpy = vi.spyOn(core, 'rollDice').mockReturnValue(1);
   });
 
   afterEach(() => {
     isDifficultHexSpy.mockRestore();
+    rollDiceSpy.mockRestore();
   });
 
   it('completes a simple 2-leg journey', () => {
@@ -114,7 +122,7 @@ describe('runFastTravel', () => {
 
     expect(result.status).toBe('paused_encounter');
     expect(result.currentLegIndex).toBe(1); // P13 entered; next leg is P14
-    expect(result.events).toHaveLength(3); // move + time_log into P13, then the note
+    expect(result.events).toHaveLength(4); // move + time_log into P13, then the check and the note
 
     // The party travels INTO the hex before pausing.
     expect(result.events[0]).toEqual({
@@ -122,9 +130,15 @@ describe('runFastTravel', () => {
       payload: { from: 'P12', to: 'P13', pace: 'normal' },
     });
 
+    // The raw roll is logged for diagnostics, ahead of the note.
+    expect(result.events[2]).toEqual({
+      type: 'encounter_check',
+      payload: { hexId: 'P13', threshold: 20, roll: 1, triggered: true },
+    });
+
     // The note prompts the GM to roll the encounter manually — fast travel
     // does not auto-pick one.
-    expect(result.events[2]).toEqual({
+    expect(result.events[3]).toEqual({
       type: 'note',
       payload: {
         text: 'Encounter check triggered entering P13 (rolled ≤ 20). Roll on the region table, resolve it, then `fast resume`.',
@@ -146,7 +160,7 @@ describe('runFastTravel', () => {
 
     expect(result.status).toBe('paused_encounter');
     expect(result.currentLegIndex).toBe(2); // P14 entered; route exhausted on resume
-    expect(result.events).toHaveLength(5); // both legs' move + time_log, note for P14
+    expect(result.events).toHaveLength(6); // both legs' move + time_log, check + note for P14
 
     expect(result.finalSegments).toEqual({
       active: 8,
@@ -390,9 +404,10 @@ describe('runFastTravel', () => {
 
     expect(result.status).toBe('paused_encounter');
     expect(result.currentLegIndex).toBe(1);
-    expect(result.events).toHaveLength(4); // move + time_log, alert note, encounter note
+    expect(result.events).toHaveLength(5); // move + time_log, alert note, encounter check, encounter note
     expect(result.events[2].type).toBe('note');
-    expect(result.events[3].type).toBe('note');
+    expect(result.events[3].type).toBe('encounter_check');
+    expect(result.events[4].type).toBe('note');
     // The random roll is reported so the display can surface it alongside the
     // alert, which it re-derives from hex data.
     expect(result.randomEncounterTriggered).toBe(true);
@@ -414,7 +429,7 @@ describe('runFastTravel', () => {
     expect(result.status).toBe('paused_keyed_encounter');
     expect(result.randomEncounterTriggered).toBe(true);
     // Both notes land in the log even though a single status is reported.
-    expect(result.events).toHaveLength(4); // move + time_log, keyed note, encounter note
+    expect(result.events).toHaveLength(5); // move + time_log, keyed note, encounter check, encounter note
   });
 
   it('skips the random encounter check on every hex when skipRandomEncounters is set (--no-rec)', () => {
@@ -519,11 +534,12 @@ describe('runFastTravel', () => {
 
     expect(result.status).toBe('paused_keyed_encounter');
     expect(result.currentLegIndex).toBe(1);
-    // move + time_log, then alert note, keyed note, encounter note.
-    expect(result.events).toHaveLength(5);
+    // move + time_log, then alert note, keyed note, encounter check, encounter note.
+    expect(result.events).toHaveLength(6);
     expect(result.events[2].type).toBe('note'); // alert
     expect(result.events[3].type).toBe('note'); // keyed
-    expect(result.events[4].type).toBe('note'); // random encounter
+    expect(result.events[4].type).toBe('encounter_check'); // random roll
+    expect(result.events[5].type).toBe('note'); // random encounter
   });
 
   it('does not check keyed encounters for a hex the party could not enter', () => {
