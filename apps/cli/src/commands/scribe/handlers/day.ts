@@ -144,7 +144,8 @@ export default function day(ctx: Context) {
       if (activeH > 12) {
         msg += ` ⚠️ Exceeded 12h exhaustion threshold`;
       }
-      return info(msg);
+      info(msg);
+      return info('🔥 Time for a campfire card!');
     }
   };
 }

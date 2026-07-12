@@ -139,4 +139,26 @@ describe('handleFastTravelResult — surfacing every trigger on a hex', () => {
     expect(lines).toContain('⚔️ Keyed encounter(s) at P16: enc-boss.');
     expect(lines).toContain('📝 This hex has 1 GM update(s).');
   });
+
+  it('persists progress and prompts `fast resume` on a day-rollover pause', () => {
+    const savePlanSpy = vi.spyOn(planIO, 'savePlan');
+
+    handleFastTravelResult(
+      FILE,
+      's1',
+      makePlan(),
+      makeResult({
+        status: 'paused_day_rollover',
+        currentLegIndex: 2,
+        finalSegments: { active: 0, daylight: 0, night: 0 },
+      }),
+    );
+
+    expect(savePlanSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ legIndex: 2, activeSegmentsToday: 0 }),
+    );
+    expect(infoLines()).toContain(
+      'Fast travel paused for the night. Continue with `fast resume`.',
+    );
+  });
 });

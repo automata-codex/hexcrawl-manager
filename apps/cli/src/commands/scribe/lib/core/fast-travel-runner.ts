@@ -45,6 +45,11 @@ export interface FastTravelResult {
     // Entered a hex with unknown clues or pending GM updates.
     | 'paused_hex_alert'
     | 'paused_no_capacity'
+    // Set by the journey orchestrator (not the per-day runner): a day rolled
+    // over mid-journey (camp made, day ended/started, weather rolled), and
+    // the journey pauses there for the GM to draw a campfire card before
+    // `fast resume` continues into the new day.
+    | 'paused_day_rollover'
     // Set by the journey orchestrator (not the per-day runner): a single leg
     // can't fit even a fresh full day's daylight, so we stop rather than loop.
     | 'error_no_progress';
