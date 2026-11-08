@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getPerimeterEdges } from '@achm/core';
 
-  import { layerVisibility } from '../../stores/interactive-map/layer-visibility';
+  import { effectiveLayerVisibility } from '../../stores/interactive-map/layer-visibility';
   import {
     centroidOf,
     perimeterEdgesToSegments,
@@ -50,7 +50,7 @@
 
 <g
   id={`layer-${layerKey}`}
-  style:display={!$layerVisibility[layerKey] ? 'none' : undefined}
+  style:display={!$effectiveLayerVisibility[layerKey] ? 'none' : undefined}
 >
   {#each renderedGroups as group (group.id)}
     {#each group.segments as segment, index (index)}

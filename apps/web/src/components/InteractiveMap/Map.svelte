@@ -38,6 +38,10 @@
     REGION_BORDER_WIDTH,
     TERRAIN_ICON_SIZE,
   } from '../../utils/interactive-map.ts';
+  import {
+    FACTION_TERRITORY_LAYER,
+    factionTerritoryLayerKey,
+  } from '../../utils/map-layers.ts';
   import { getRegionShortTitle } from '../../utils/regions.ts';
 
   import DetailPanel from './DetailPanel.svelte';
@@ -127,7 +131,21 @@
       mapConfig = config;
       labelFont = config.grid.labelFont;
       notation = config.grid.notation;
-      initializeLayerVisibility(config.layers);
+
+      // Territory defines one child layer per faction, so it loads before layer
+      // visibility is initialized (otherwise saved per-faction toggles would be
+      // dropped as unknown keys). A failed fetch just means no territory layers.
+      const territoriesResponse = await fetch('/api/map-territories.json');
+      territories = territoriesResponse.ok ? await territoriesResponse.json() : [];
+      initializeLayerVisibility(
+        config.layers,
+        territories.map((territory) => ({
+          key: factionTerritoryLayerKey(territory.id),
+          label: territory.name,
+          defaultVisible: true,
+          parent: FACTION_TERRITORY_LAYER,
+        })),
+      );
 
       const dungeonResponse = await fetch('/api/dungeons.json');
       dungeons = await dungeonResponse.json();
@@ -135,8 +153,6 @@
       hexes = await hexResponse.json();
       const mapPathResponse = await fetch('/api/map-paths.json');
       mapPaths = await mapPathResponse.json();
-      const territoriesResponse = await fetch('/api/map-territories.json');
-      territories = await territoriesResponse.json();
 
       // Calculate bounds from hex data and initialize center if no saved state
       mapBounds = calculateMapBounds(
@@ -509,13 +525,16 @@
           strokeWidth={REGION_BORDER_WIDTH}
           {labelFont}
         />
-        <MapOutline
-          groups={factionGroups}
-          layerKey="factionTerritory"
-          {notation}
-          strokeWidth={REGION_BORDER_WIDTH}
-          {labelFont}
-        />
+        <!-- One outline per faction so each can be toggled under the Faction Territory master switch -->
+        {#each factionGroups as group (group.id)}
+          <MapOutline
+            groups={[group]}
+            layerKey={factionTerritoryLayerKey(group.id)}
+            {notation}
+            strokeWidth={REGION_BORDER_WIDTH}
+            {labelFont}
+          />
+        {/each}
         <g id="layer-hit-target">
           {#each hexes as hex (hex.id)}
             {#if isValidHexId(hex.id, notation)}
