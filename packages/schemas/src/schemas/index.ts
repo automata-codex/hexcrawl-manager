@@ -19,6 +19,7 @@ export * from './encounter-table.js';
 export * from './encounter-category-table.js';
 export * from './faction.js';
 export * from './hex.js';
+export * from './hex-spec.js';
 export * from './loot-pack.js';
 export * from './map-config.js';
 export * from './map-path.js';

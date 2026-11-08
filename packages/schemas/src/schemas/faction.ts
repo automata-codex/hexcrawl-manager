@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { CampaignStatusEnum } from './campaign-status.js';
+import { HexSpecSchema } from './hex-spec.js';
 
 const FactionClockSchema = z.object({
   title: z.string(),
@@ -51,11 +52,13 @@ export const FactionSchema = z.object({
       'Plotline slugs this faction appears in (reverse direction of plotline body references)',
     ),
   hexes: z
-    .array(z.string())
+    .array(HexSpecSchema)
     .optional()
     .describe(
-      "Hex IDs claimed as this faction's territory. Unlike region.hexes, this is " +
-        'an overlay CLAIM, not a partition: overlaps across factions are allowed ' +
+      "Hex specs claimed as this faction's territory: single IDs (K7), rectangles " +
+        '(F10:J14), radii (M25+2) and exclusions (-G12), expanded against the map ' +
+        'config by expandHexSpecs() in @achm/core. Unlike region.hexes, this is an ' +
+        'overlay CLAIM, not a partition: overlaps across factions are allowed ' +
         '(contested hexes), coverage is not exhaustive, and it drives no terrain/biome ' +
         'defaults. Do NOT apply region-style uniqueness/coverage validation to this field.',
     ),
