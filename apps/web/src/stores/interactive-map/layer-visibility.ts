@@ -1,7 +1,9 @@
-import { writable } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 
 import { STORAGE_KEYS } from '../../utils/constants.ts';
+import { effectiveVisibility, withChildLayers } from '../../utils/map-layers.ts';
 
+import type { MapLayer } from '../../utils/map-layers.ts';
 import type { LayerConfig } from '@achm/schemas';
 
 /**
@@ -28,26 +30,45 @@ const customIconsLayer: LayerConfig = {
 };
 
 /**
- * Store for the full layer configuration (framework + campaign + customIcons).
- * This is set when map config is fetched.
+ * Store for the full layer configuration (framework + campaign + customIcons,
+ * plus any child layers). This is set when map config is fetched.
  */
-export const layerConfigStore = writable<LayerConfig[]>([]);
+export const layerConfigStore = writable<MapLayer[]>([]);
 
 /**
- * Store for layer visibility state.
+ * Store for layer visibility state: each layer's own toggle.
  * Merges config defaults with localStorage overrides.
  */
 export const layerVisibility = writable<Record<string, boolean>>({});
 
 /**
- * Initialize layer visibility from campaign config.
- * Merges framework layers, campaign layers, and customIcons layer.
- * Should be called after fetching map config.
+ * Whether each layer should actually draw: like `layerVisibility`, except a
+ * child layer is hidden whenever its parent is off. Renderers read this;
+ * toggles read and write `layerVisibility`.
  */
-export function initializeLayerVisibility(campaignLayers: LayerConfig[]): void {
+export const effectiveLayerVisibility = derived(
+  [layerConfigStore, layerVisibility],
+  ([$layers, $visibility]) => effectiveVisibility($layers, $visibility),
+);
+
+/**
+ * Initialize layer visibility from campaign config.
+ * Merges framework layers, campaign layers, and customIcons layer, then
+ * places each child layer directly after its parent.
+ * Should be called after fetching map config and any data that defines child
+ * layers (e.g. faction territory), so saved toggle states for child layers are
+ * restored instead of being dropped as unknown keys.
+ */
+export function initializeLayerVisibility(
+  campaignLayers: LayerConfig[],
+  childLayers: MapLayer[] = [],
+): void {
   // Merge: framework layers + campaign layers (reversed to match visual stacking) + customIcons
   // Config files list top-most layer first, so we reverse to get bottom-first for rendering
-  const allLayers = [...frameworkLayers, ...[...campaignLayers].reverse(), customIconsLayer];
+  const allLayers = withChildLayers(
+    [...frameworkLayers, ...[...campaignLayers].reverse(), customIconsLayer],
+    childLayers,
+  );
 
   // Update the config store
   layerConfigStore.set(allLayers);
