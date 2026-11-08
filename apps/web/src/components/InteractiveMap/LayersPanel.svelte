@@ -7,6 +7,7 @@
     layerVisibility,
   } from '../../stores/interactive-map/layer-visibility';
   import { canAccess } from '../../utils/auth.ts';
+  import { panelOrder } from '../../utils/map-layers.ts';
 
   interface Props {
     role: string | null;
@@ -40,9 +41,14 @@
   >
     <FontAwesomeIcon icon={faXmark} />
   </button>
-  {#each [...$layerConfigStore].reverse() as layer (layer.key)}
+  {#each panelOrder($layerConfigStore) as layer (layer.key)}
     {#if !layer.scopes || canAccess(role, layer.scopes)}
-      <div>
+      <!-- Child layers sit indented under their parent and dim while it is off;
+           they stay clickable so a selection can be set up before turning the parent on. -->
+      <div
+        class:child-layer={layer.parent}
+        class:parent-off={layer.parent && !$layerVisibility[layer.parent]}
+      >
         <label>
           <input
             type="checkbox"
@@ -75,6 +81,14 @@
 
   .layers-panel.open {
     transform: translateX(0%);
+  }
+
+  .child-layer {
+    padding-left: 1.25rem;
+  }
+
+  .child-layer.parent-off {
+    opacity: 0.5;
   }
 
   .layers-panel-close {
