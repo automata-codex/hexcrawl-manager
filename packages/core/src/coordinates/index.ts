@@ -46,3 +46,7 @@ export { getPerimeterEdges } from './perimeter.js';
 
 // Sorting
 export { compareHexCoords, compareHexIds, sortHexIds } from './sort.js';
+
+// Hex specs (ranges)
+export type { HexSpecResult } from './hex-spec.js';
+export { expandHexSpecs } from './hex-spec.js';
